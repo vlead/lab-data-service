@@ -1,0 +1,176 @@
+#+TITLE: The Flask Web Server
+#+AUTHOR: VLEAD
+#+DATE: [2016-06-07 Tue]
+#+SETUPFILE: ../../org-templates/level-2.org
+#+TAGS: boilerplate(b)
+#+EXCLUDE_TAGS: boilerplate
+#+OPTIONS: ^:nil
+
+* Introduction
+  The application that runs the FLASK web server
+
+  
+* Flask Server
+#+NAME: application
+#+BEGIN_SRC python
+def create_app(config):
+    # init our app
+    app = Flask(__name__)
+    app.secret_key = 'djfjsdkjXXS7979dfdfd'
+    # load config values from the config file
+    app.config.from_object(config)
+    cors = CORS(app, resources={r"/*": {"origins": "*"}})
+    # init sqlalchemy db instance
+    db.init_app(app)
+    db.app = app
+    # register blueprints
+    app.register_blueprint(api)
+    configure_logging(app)
+    configure_errorhandlers(app)
+    #  configure_cors(app)
+    # all set; return app object
+    configure_system()
+    return app
+
+#+END_SRC
+
+
+* Configure System
+#+NAME: configure_system
+#+BEGIN_SRC python
+def configure_system():
+    SystemInterface.initialize(PersistenceDelegate)
+
+#+END_SRC
+
+
+* Configure Error Handlers
+#+NAME: configure_error_handlers
+#+BEGIN_SRC python
+# custom error handlers to return JSON errors with appropiate status codes
+def configure_errorhandlers(app):
+
+    @app.errorhandler(500)
+    def server_error(err):
+        app.logger.error("error code = %s" % "500")
+        resp = None
+        try:
+            app.logger.error("error desc = %s" % err.description)
+            resp = make_response(jsonify(error=err.description), 500)
+        except Exception:
+            try:
+                app.logger.error("error mesg = %s" % err.message)
+                resp = make_response(jsonify(error=err.message), 500)
+            except Exception:
+                resp = make_response(jsonify(error=str(err)), 500)
+                app.logger.error("error = %s" % str(err))
+        return resp
+
+    @app.errorhandler(401)
+    def not_authorized(err):
+        app.logger.error("error code = %s" % "401")
+        resp = None
+        try:
+            app.logger.error("error desc = %s" % err.description)
+            resp = make_response(jsonify(error=err.description), 401)
+        except Exception:
+            try:
+                app.logger.error("error mesg = %s" % err.message)
+                resp = make_response(jsonify(error=err.message), 401)
+            except Exception:
+                resp = make_response(jsonify(error=str(err)), 401)
+                app.logger.error("error = %s" % str(err))
+        return resp
+
+    @app.errorhandler(400)
+    def bad_request(err):
+        app.logger.error("error code = %s" % "400")
+        resp = None
+        try:
+            app.logger.error("error desc = %s" % err.description)
+            resp = make_response(jsonify(error=err.description), 400)
+        except Exception:
+            try:
+                app.logger.error("error mesg = %s" % err.message)
+                resp = make_response(jsonify(error=err.message), 400)
+            except Exception:
+                resp = make_response(jsonify(error=str(err)), 400)
+                app.logger.error("error = %s" % str(err))
+        return resp
+
+#+END_SRC
+
+
+* Configre Logging
+#+NAME: configure_logging
+#+BEGIN_SRC python
+def configure_logging(app):
+    import logging
+    import logging.handlers
+    formatter = logging.Formatter('%(asctime)s: %(levelname)s: %(filename)s:'
+                                  ' %(funcName)s():%(lineno)d: %(message)s')
+
+    # Also error can be sent out via email. So we can also have a SMTPHandler?
+    log_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                           '../..',
+                           LOG_FILE_DIRECTORY)
+
+    if not os.path.exists(log_dir):
+        os.makedirs(log_dir)
+    log_file = "%s/%s" % (log_dir, LOG_FILE)
+    os.system("sudo touch %s" % log_file)
+    os.system("sudo chmod 777 %s" % log_file)
+    max_size = 1024 * 1024 * 20  # Max Size for a log file: 20MB
+    log_handler = logging.handlers.RotatingFileHandler(log_file,
+                                                       maxBytes=max_size,
+                                                       backupCount=10)
+    log_level = LOG_LEVEL
+    log_handler.setFormatter(formatter)
+    app.logger.addHandler(log_handler)
+    app.logger.setLevel(log_level)
+
+#+END_SRC
+
+
+* Run Server
+#+BEGIN_SRC python
+#+NAME: run_server
+if __name__ == "__main__":
+    app = create_app(config)
+    app.run(debug=True, host='0.0.0.0', threaded=True)
+
+#+END_SRC
+
+
+* Imports                                                       :boilerplate:
+#+NAME: imports
+#+BEGIN_SRC python
+# -*- coding: utf-8 -*-
+import os
+
+from flask import Flask, jsonify, make_response
+from flask.ext.cors import CORS
+
+from runtime.utils.class_persistence_template import db
+from runtime.rest.api import api
+from runtime.system.system_interface import SystemInterface
+from runtime.system.persistence_delegate import PersistenceDelegate
+
+# import config file
+from runtime.config import flask_app_config as config
+from runtime.config.flask_app_config import LOG_FILE_DIRECTORY
+from runtime.config.flask_app_config import LOG_FILE
+from runtime.config.flask_app_config import LOG_LEVEL
+
+#+END_SRC
+
+
+* Tangle                                                        :boilerplate:
+#+BEGIN_SRC python :tangle app.py :eval no :noweb yes
+<<imports>>
+<<configure_logging>>
+<<configure_error_handlers>>
+<<configure_system>>
+<<application>>
+<<run_server>>
+#+END_SRC

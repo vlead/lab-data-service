@@ -1,0 +1,374 @@
+#+TITLE: Class Persistence
+#+AUTHOR: VLEAD
+#+DATE: [2016-06-09 Thu]
+#+SETUPFILE: ../../org-templates/level-2.org
+#+TAGS: boilerplate(b)
+#+EXCLUDE_TAGS: boilerplate
+#+OPTIONS: ^:nil
+
+* Introduction
+  This document builds on the [[./class-templates.org][=class_templates=]] meta programming techniques to
+  make objects persistent.
+
+
+* Persistence
+  The entities of the system defined in the [[../../data-model/index.org][data model]] are implemented as
+  [[../objects/entities.org][objects]].  Any practical system entails persistence of these entities
+  implemented as objects so that the information is not lost when the system is
+  shut down.
+
+  This document captures a way that takes [[../objects/entities.org][objects]] of which cannot persist and
+  provides an API for persisting them.  The technology used for persistence is
+  [[https://www.mysql.com/][mysql]] and since this application is built using [[https://www.python.org/download/releases/2.7/][python]], [[http://www.sqlalchemy.org/][sqlalchemy]] - a python
+  based [[https://en.wikipedia.org/wiki/Object-relational_mapping][ORM]] is used for database access.
+
+  A entity with no persistence is provided persistence the following way.
+  #+BEGIN_EXAMPLE
+  table_args = {"__tablename__": "names",
+  "id": db.Column(db.Integer, primary_key=True),
+  "name": db.Column(db.String(128), nullable=False)
+  }
+  Name = ClassPersistenceTemplate.mk_persistent(Name, **table_args)
+  #+END_EXAMPLE
+
+  Now, an API to perform CRUD (create, read, update and delete) operations is
+  available for an object of type Name.
+  
+** Implementation
+
+*** mk_persistent
+    ClassPersistentTemplate provides a method =mk_persistent= that takes a
+    class created by =ClassTemplates= and provides persistence to it.
+
+    The non persistent class is made persistent by copying all its properties
+    to the new class while inheriting from =db.Model=.
+
+    =db.Model= provided by =sqlalchemy= is the glue that provides methods
+    (save, delete) to persistent an object. 
+
+    =mk_persistent= takes:
+    - a class and 
+    - a dictionary that contains name-value pairs defining a table in mysql as
+      arguments and returns a class.
+
+    #+NAME: mk_persistent
+    #+BEGIN_SRC python
+    @staticmethod
+    def mk_persistent(cls, uk_list, **table_args):
+        check_list(uk_list)
+        setattr(cls, 'unique_key_list', uk_list)
+
+        check_dict(table_args)
+        for key, value in table_args.iteritems():
+            setattr(cls, key, value)
+        '''http://stackoverflow.com/questions/9539052/how-to-dynamically-change-base-class-of-instances-at-runtime
+'''
+        cls = type(cls.__name__, (db.Model,), dict(cls.__dict__))
+
+        cls.save = ClassPersistenceTemplate.mk_save(cls)
+        cls.delete = ClassPersistenceTemplate.mk_delete(cls)
+        cls.set_state = ClassPersistenceTemplate.mk_set_state(cls)
+        cls.get_by_id = ClassPersistenceTemplate.mk_get_by_id(cls)
+        cls.get_all = ClassPersistenceTemplate.mk_get_all(cls)
+        cls.apply_filters = ClassPersistenceTemplate.mk_apply_filters(cls)
+        ClassPersistenceTemplate.mk_save_handler(cls)
+        cls.custom_handlers['persistence'] = True
+        return cls
+
+    #+END_SRC
+
+
+*** Operations supporting persistence
+    Saving an object to a persistent store and retreiving object(s) from
+    persistent store are provided to the new persistent class by using the
+    functions provided by =db.Model=
+
+**** Save Object
+     This function provides the class with the functionality to save the object
+     to the database.
+#+NAME: save_method
+#+BEGIN_SRC python
+    @staticmethod
+    def mk_save(cls) :
+        def fn(obj):
+            for key, value in obj.state.iteritems():
+                setattr(obj, key, value)
+
+            db.session.autoflush = False
+            db.session.add(obj)
+            db.session.commit()
+
+        return fn
+
+#+END_SRC
+
+**** Save Handler
+     An object with the ability to persist behaves differently than an object
+     without persistence when any of the attributes of the object are modified.
+     To achieve this, on any modification of an attribute of a persistence
+     object, save_handler is invoked, which writes to the database.
+#+NAME: save_handler
+#+BEGIN_SRC python
+    @staticmethod
+    def mk_save_handler(cls):
+        def fn(obj):
+            obj.save()
+
+        cls.custom_handlers['save_handler'] = fn
+#+END_SRC
+
+**** Delete Object
+     The function provides the class with the functionality to delete an object
+     from the database.
+#+NAME: delete_method
+#+BEGIN_SRC python
+    @staticmethod
+    def mk_delete(cls):
+        def fn(obj):
+            db.session.autoflush = False
+            db.session.delete(obj)
+            db.session.commit()
+
+        return fn
+
+#+END_SRC
+
+**** Set State
+     When an object is retrieved from the database, sqlalchemy constructs the
+     object in a different way which does not allow the use of the retrieved
+     object in a consistent way - using the same API exposed by the object
+     without persistence.  All the attributes of an object are part of a
+     =state= variable.  This function =set_state= populates the =state=
+     variable.  This method is invoked after every retrieval from the database.
+
+#+NAME: set_state_method
+#+BEGIN_SRC python
+    @staticmethod
+    def mk_set_state(cls):
+        def fn(obj, level):
+            obj.state = {}
+            for key in cls.sorted_state_vars:
+                value = getattr(obj, key)
+                
+                if value.__class__.__name__ is 'InstrumentedList' or \
+                  value.__class__.__name__ is'list':
+                    val_list = []
+                    for val in value:
+                        if hasattr(val.__class__, 'set_state') and \
+                          level <= 3:
+                            val.__class__.set_state(val, level+1)
+                            
+                        val_list.append(val)
+
+                    obj.state[key] = val_list
+               
+                else:
+                    if hasattr(value.__class__, 'set_state') and \
+                      level <= 3:
+                        value.__class__.set_state(value, level+1)
+                       
+                    obj.state[key] = value
+
+        return staticmethod(fn)
+
+#+END_SRC
+
+**** Get By ID
+     The function provides the class with the functionality to retrieve an
+     object from the database based on the primary key.
+#+NAME: get_by_id_method
+#+BEGIN_SRC python
+    @staticmethod
+    def mk_get_by_id(cls):
+        def fn(id):
+            db.session.autoflush = False
+            obj = cls.query.get(id)
+            if obj is not None:
+                cls.set_state(obj, 1)
+            return obj
+
+        return staticmethod(fn)
+
+#+END_SRC
+
+**** Get All
+     The function provides the class with the functionality to retrieve all the
+     objects of a particular type from the database.
+#+NAME: get_all_method
+#+BEGIN_SRC python
+    @staticmethod
+    def mk_get_all(cls):
+        def fn():
+            db.session.autoflush = False
+            lst = cls.query.all()
+            for obj in lst:
+                cls.set_state(obj, 1)
+            return lst
+
+        return staticmethod(fn)
+
+#+END_SRC
+
+**** Apply Filters
+     The function provides the class with an ability to fetch an object from
+     the database with a selection criteria.  In sqlalchmey, when an object of
+     type one is part of the search criteria to search an object of type two,
+     it is necessary that object of type one has id which is not null. This
+     means the object of type one has to be retrieved from the database before
+     it can be passed as a parameter to the search criteria.
+
+     Every object has a unique key which is either an object type or a
+     primitive type.  This function recursively retrieves the objects from
+     persistence store to build the arguments before finally applying the
+     filters. 
+
+#+NAME: apply_filters
+#+BEGIN_SRC python
+    @staticmethod
+    def mk_apply_filters(cls):
+        def fn(**kwargs):
+            db.session.autoflush = False
+            for key, value in kwargs.iteritems():
+                if not (is_str(value) or is_unicode(value) or
+                            is_none(value) or is_int(value) or
+                            is_date(value)):
+                   for unique_key in value.__class__.unique_key_list:
+                       args_dict = {}
+                       args_dict[unique_key] = value.get(unique_key)
+
+                   kwargs[key] = value.__class__.apply_filters(**args_dict)[0]
+
+            lst = cls.query.filter_by(**kwargs).all()
+
+            if not lst:
+                raise NotFoundError("The object is not found")
+            else:
+                for obj in lst:
+                    cls.set_state(obj, 1)
+                return lst
+
+        return staticmethod(fn)
+
+#+END_SRC
+
+
+** Tests
+   #+NAME: persistence_tests
+   #+BEGIN_SRC python
+class TestPersistence(TestCase):
+    TESTING = True
+
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def testCreationOfAPersistentClass(self):
+        print "testCreationOfAPersistentClass"
+        args = {"__tablename__": "names",
+                "id": db.Column(db.Integer, primary_key=True),
+                "name": db.Column(db.String(128), nullable=False)
+                }
+        PName = ClassPersistenceTemplate.mk_persistent(Name, ['name'], **args)
+        self.setUp()
+        p_name = PName(name="Jimi Hendrix")
+        p_name.save()
+        name = PName.get_by_id(1)
+        self.assertEqual(name.get("name"), "Jimi Hendrix")
+        p_name.set(name="Bo Didley")
+        names = PName.get_all()
+        self.assertEqual(names[0].get("name"), "Bo Didley")
+        self.assertEqual(PName.apply_filters(name="Bo Didley")[0].get("name"),
+                             "Bo Didley")
+        names[0].delete()
+        names = PName.get_all()
+        self.assertEqual(names, [])
+
+   #+END_SRC
+
+
+* Infra                                                    :boilerplate:
+
+** Source Infra
+*** Imports for sources
+    #+NAME: imports_for_sources
+    #+BEGIN_SRC python
+# -*- coding: utf-8 -*-
+from runtime.utils.type_utils import *
+from runtime.exceptions.custom_exceptions import *
+from flask_sqlalchemy import SQLAlchemy
+db = SQLAlchemy()
+
+    #+END_SRC
+
+*** Persistence Class
+#+NAME: class_ClassPersistentTemplate
+#+BEGIN_SRC python
+
+class ClassPersistenceTemplate():
+#+END_SRC
+
+
+
+* Test Infra
+*** Imports for tests 
+    #+name: imports_for_tests
+    #+BEGIN_SRC python
+# -*- coding: utf-8 -*-
+import unittest
+from flask_testing import TestCase
+from datetime import datetime
+from type_utils import *
+from class_templates import *
+from class_persistence_template import *
+from runtime.rest.app import create_app
+from runtime.objects.entities import Answer as Name
+
+config = {
+    'SQLALCHEMY_DATABASE_URI': ''
+}
+
+    #+end_src
+
+
+*** Running tests
+    #+NAME: run_test_cases
+    #+BEGIN_SRC python
+if __name__ == '__main__':
+    unittest.main()
+    #+END_SRC
+
+
+* Tangling                                                 :boilerplate:
+
+*** sources
+    #+BEGIN_SRC python :tangle class_persistence_template.py :eval no :noweb yes
+<<imports_for_sources>>
+<<class_ClassPersistentTemplate>>
+<<mk_persistent>>
+<<save_method>>
+<<save_handler>>
+<<delete_method>>
+<<set_state_method>>
+<<get_by_id_method>>
+<<get_all_method>>
+<<apply_filters>>
+    #+end_src
+
+*** tests
+    #+BEGIN_SRC python :tangle test_class_persistence_template.py :eval no :noweb yes
+<<imports_for_tests>>
+<<persistence_tests>>
+<<run_test_cases>>
+    #+end_src
+
+
+
+
+

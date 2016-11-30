@@ -1,0 +1,1359 @@
+#+TITLE: System Interface implementation for Feedback Portal
+#+AUTHOR: VLEAD
+#+DATE: [2016-07-22 Tue]
+#+SETUPFILE: ../../org-templates/level-2.org
+#+TAGS: boilerplate(b)
+#+EXCLUDE_TAGS: boilerplate
+#+OPTIONS: ^:nil
+
+* Introduction
+  System Interface is the glue that between the =rest= and =system=.  The world
+  of =rest= uses =json= and the world of =system= uses objects.  System
+  Interface is allows these two worlds to talk to each other. 
+
+
+* The =SystemInterface= class
+
+** Constructor
+
+#+NAME: class_system_interface
+#+begin_src python
+class SystemInterface ():
+
+    def __init__(self):
+        raise Error('Can not instantiate')
+
+    @staticmethod
+    def initialize(cls):
+        System.initialize_system(cls)
+
+#+end_src
+
+
+** GetFeedbackForm
+#+NAME: get_feedback_form
+#+BEGIN_SRC python
+    @staticmethod
+    def get_feedback_form(key, lab_name, exp_name, version, user_id):
+        try:
+            session_cls = System.delegate.entities['session']
+            if len(lab_name) == 0:
+                lab_name = None
+
+            questions_dict = System.do("get_feedback_form",
+                                           session=session_cls(key=key),
+                                           lab_name=lab_name, 
+                                           exp_name=exp_name,
+                                           version=version,
+                                           user_id=user_id)
+            return questions_dict
+
+        except (ArityError, TypeError, NotAuthorizedError, StateError) as err:
+            raise err
+
+        except Exception as err:
+            raise err
+
+#+END_SRC
+
+*** Test GetFeedBackForm
+ #+NAME: test_class_get_feedback_form
+ #+BEGIN_SRC python
+class TestGetFeedbackForm(TestCase):
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_get_feedback_form_in_system_interface(self):
+        print "test_get_feedback_form_in_system_interface"
+
+        lab_name = "data structures"
+        exp_name = "binary search"
+        user_id = "123user"
+        version = None
+        key = KEY
+
+        questions_dict = SystemInterface.get_feedback_form(key, lab_name, 
+                                                               exp_name,
+                                                               version,
+                                                               user_id)
+                                                               
+        self.assertEqual(questions_dict['lab_name'], lab_name)
+
+    def test_get_feedback_form_with_type_error(self):
+        print "test_get_feedback_form_with_type_error"
+
+        lab_name = None
+        exp_name = "binary search"
+        user_id = "123user"
+        key = KEY
+
+        with self.assertRaises(TypeError):
+            SystemInterface.get_feedback_form(key, 
+                                              lab_name, 
+                                              exp_name,
+                                              user_id)
+
+    def test_get_feedback_form_with_auth_error(self):
+        print "test_get_feedback_form_with_auth_error"
+
+        lab_name = "Data Structures"
+        exp_name = "binary search"
+        user_id = "123user"
+        version = None
+        key = "temp"
+
+        with self.assertRaises(NotAuthorizedError):
+            SystemInterface.get_feedback_form(key, 
+                                              lab_name, 
+                                              exp_name,
+                                              version,
+                                              user_id)
+
+ #+END_SRC
+
+
+** GetGenericFeedbackForm
+#+NAME: get_generic_feedback_form
+#+BEGIN_SRC python
+    @staticmethod
+    def get_generic_feedback_form(version):
+        for feedback_form in feedback_forms:
+            if feedback_form['version'] == version:
+                return feedback_form
+
+#+END_SRC
+
+*** Test GetFeedBackForm
+ #+NAME: test_class_get_feedback_form
+ #+BEGIN_SRC python
+class TestGetFeedbackForm(TestCase):
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_get_feedback_form_in_system_interface(self):
+        print "test_get_feedback_form_in_system_interface"
+
+        lab_name = "data structures"
+        exp_name = "binary search"
+        user_id = "123user"
+        version = None
+        key = KEY
+
+        questions_dict = SystemInterface.get_feedback_form(key, lab_name, 
+                                                               exp_name,
+                                                               version,
+                                                               user_id)
+                                                               
+        self.assertEqual(questions_dict['lab_name'], lab_name)
+
+    def test_get_feedback_form_with_type_error(self):
+        print "test_get_feedback_form_with_type_error"
+
+        lab_name = None
+        exp_name = "binary search"
+        user_id = "123user"
+        key = KEY
+
+        with self.assertRaises(TypeError):
+            SystemInterface.get_feedback_form(key, 
+                                              lab_name, 
+                                              exp_name,
+                                              user_id)
+
+    def test_get_feedback_form_with_auth_error(self):
+        print "test_get_feedback_form_with_auth_error"
+
+        lab_name = "Data Structures"
+        exp_name = "binary search"
+        user_id = "123user"
+        version = None
+        key = "temp"
+
+        with self.assertRaises(NotAuthorizedError):
+            SystemInterface.get_feedback_form(key, 
+                                              lab_name, 
+                                              exp_name,
+                                              version,
+                                              user_id)
+
+ #+END_SRC
+
+
+** AddFeedback
+
+#+NAME: class_add_feedback
+#+begin_src python
+    @staticmethod
+    def add_feedback(data_dict):
+        session_cls = System.delegate.entities['session']
+        response_cls = System.delegate.entities['response']
+        question_cls = System.delegate.entities['question']
+        answer_cls = System.delegate.entities['answer']
+
+        if 'exp_name' not in data_dict:
+            data_dict['exp_name'] = "Null"
+
+        if 'user_id' not in data_dict:
+            data_dict['user_id'] = "Null"
+
+        if 'date' not in data_dict:
+            data_dict['date'] = datetime.datetime.now().date()
+            
+        responses = data_dict['responses']
+        data_dict['responses'] = []
+        data_dict['session'] = session_cls(key=data_dict['key'])
+        del(data_dict['key'])
+
+        fb = None
+        try:
+            fb = System.do("add_feedback", **data_dict)
+
+        except (ArityError, TypeError, NotAuthorizedError, StateError) as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+
+        except Exception as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+
+        response_list = []
+        try:
+            for response in responses:
+                question = question_cls(name=str(response['name']),
+                                        question_type="")
+                answers = response['answers']
+                answer_list = []
+                for answer in answers:
+                    answer = answer_cls(name=str(answer))
+                    answer_list.append(answer)
+ 
+                res = response_cls(question=question, answers=answer_list,
+                                    feedbacks=[fb])
+                response_list.append(res)
+
+            feedback = System.do("add_responses_to_feedback",
+                                    responses=response_list,
+                                    fb_id=int(fb.id),
+                                    session=data_dict['session'])
+            return feedback
+        except Exception as e:
+            fb.delete()
+            current_app.logger.error("Exception = %s" % str(e))
+            raise e
+
+#+end_src
+
+*** TestAddFeedback
+ #+NAME: test_class_add_feedback
+ #+BEGIN_SRC python
+class TestAddFeedback(TestCase):
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+        q_type = "radio"
+        question_cls = System.delegate.entities['question']
+        question1 = question_cls(name="How is your breakfast?", 
+                                  question_type=q_type)
+        question2 = question_cls(name="How is your lunch?", 
+                                 question_type=q_type)
+        question3 = question_cls(name="How is your dinner?", 
+                                 question_type=q_type)
+
+        question1.save()
+        question2.save()
+        question3.save()
+
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_add_feedback_in_system_interface(self):
+        print "test_add_feedback_in_system_interface"
+
+        version = "open-edx-virtual-labs-v2.0"
+        user_id = "John123"
+        data_dict = {'lab_name': 'data structure',
+                    'exp_name': 'tuples',
+                    'key' : KEY,
+                    'gateway_ip': '10.4.12.24',
+                    'version': version,
+                    'user_id': user_id,
+                    'responses': [{'name': 'How is your breakfast?',
+                                    'answers':['yes', 'no'] }]
+                   }
+
+        fb = SystemInterface.add_feedback(data_dict)
+        feedback_cls = System.delegate.entities['feedback']
+        fb = feedback_cls.get_all()[0]
+        
+#        self.assertEqual(fb.get("lab_name"), data_dict['lab_name'])
+        self.assertEqual(fb.get("exp_name"), data_dict['exp_name'])
+        self.assertEqual(fb.get("gateway_ip"), data_dict['gateway_ip'])
+        self.assertEqual(fb.get("responses")[0].get("question").get("name"),
+                             'How is your breakfast?')
+
+
+    def test_add_feedback_with_saved_answers_in_system_interface(self):
+        print "test_add_feedback_with_saved_answers_in_system_interface"
+
+        answer_cls = System.delegate.entities['answer']
+        answer = answer_cls(name='yes')
+        answer.save()
+        version = "open-edx-virtual-labs-v2.0"
+        user_id = "John123"
+        data_dict = {'lab_name': 'data structure',
+                    'exp_name': 'tuples',
+                    'key' : KEY,
+                    'gateway_ip': '10.4.12.24',
+                    'version': version,
+                    'user_id': user_id,
+                    'responses': [{'name': 'How is your breakfast?',
+                                    'answers':['yes', 'no'] }]
+                   }
+
+        fb = SystemInterface.add_feedback(data_dict)
+
+        data_dict1 = {'lab_name': "Automata",
+            'exp_name': "DFA",
+            'key' : KEY,
+            'gateway_ip': 'X.X.X.X',
+            'version': version,
+            'user_id': user_id,
+            'responses': [{'name': 'How is your breakfast?',
+                            'answers':['yes', 'no'] }]
+           }
+
+        fb = SystemInterface.add_feedback(data_dict1)
+        
+        feedback_cls = System.delegate.entities['feedback']
+        response_cls = System.delegate.entities['response']
+        fb = feedback_cls.get_by_id(2)
+        
+        
+        self.assertEqual(2, len(feedback_cls.get_all()))
+        self.assertEqual(1, len(response_cls.get_all()))
+        self.assertEqual(fb.get("lab_name"), data_dict1['lab_name'])
+        self.assertEqual(fb.get("exp_name"), data_dict1['exp_name'])
+        self.assertEqual(fb.get("gateway_ip"), data_dict1['gateway_ip'])
+        self.assertEqual(fb.get("version"), data_dict1['version'])
+        self.assertEqual(fb.get("user_id"), data_dict1['user_id'])
+        self.assertEqual(fb.get("responses")[0].get("question").get("name"),
+                             'How is your breakfast?')
+
+
+    def test_add_feedback_raises_type_error_in_system_interface(self):
+        print "test_add_feedback_raises_type_error_in_system_interface"
+        version = "open-edx-virtual-labs-v2.0"
+        user_id = "John123"
+        data_dict = {'lab_name': 'data structure',
+                    'exp_name': 'tuples',
+                    'key' : KEY,
+                    'gateway_ip': '10.4.12.24',
+                    'version': version,
+                    'user_id': user_id,
+                    'responses': "hello"
+                   }
+
+        with self.assertRaises(TypeError):
+            SystemInterface.add_feedback(data_dict)
+
+ #+END_SRC
+
+
+** AddGenericFeedback
+
+#+NAME: class_add_generic_feedback
+#+begin_src python
+    @staticmethod
+    def add_generic_feedback(data_dict):
+        session_cls = System.delegate.entities['session']
+        response_cls = System.delegate.entities['response']
+        question_cls = System.delegate.entities['question']
+        answer_cls = System.delegate.entities['answer']
+
+        data_dict['session'] = session_cls(key=KEY)
+        data_dict['date'] = datetime.datetime.now().date()
+        data_dict['user_id'] = "Null"
+
+        if 'lab_name' not in data_dict:
+            data_dict['lab_name'] = "generic feedback"
+
+        if 'exp_name' not in data_dict:
+            data_dict['exp_name'] = "Null"
+
+            
+        responses = data_dict['responses']
+        data_dict['responses'] = []
+
+        fb = None
+        try:
+            fb = System.do("add_feedback", **data_dict)
+
+        except Exception as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+
+        response_list = []
+        try:
+            for response in responses:
+                question = question_cls(name=str(response['name']),
+                                        question_type="")
+                answers = response['answers']
+                answer_list = []
+                for answer in answers:
+                    answer = answer_cls(name=str(answer))
+                    answer_list.append(answer)
+ 
+                res = response_cls(question=question, answers=answer_list,
+                                    feedbacks=[fb])
+                response_list.append(res)
+
+            feedback = System.do("add_responses_to_feedback",
+                                    responses=response_list,
+                                    fb_id=int(fb.id),
+                                    session=data_dict['session'])
+            return feedback
+        except Exception as e:
+            fb.delete()
+            current_app.logger.error("Exception = %s" % str(e))
+            raise e
+
+#+end_src
+
+*** TestAddFeedback
+ #+NAME: test_class_add_feedback
+ #+BEGIN_SRC python
+class TestAddFeedback(TestCase):
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+        q_type = "radio"
+        question_cls = System.delegate.entities['question']
+        question1 = question_cls(name="How is your breakfast?", 
+                                  question_type=q_type)
+        question2 = question_cls(name="How is your lunch?", 
+                                 question_type=q_type)
+        question3 = question_cls(name="How is your dinner?", 
+                                 question_type=q_type)
+
+        question1.save()
+        question2.save()
+        question3.save()
+
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_add_feedback_in_system_interface(self):
+        print "test_add_feedback_in_system_interface"
+
+        version = "open-edx-virtual-labs-v2.0"
+        user_id = "John123"
+        data_dict = {'lab_name': 'data structure',
+                    'exp_name': 'tuples',
+                    'key' : KEY,
+                    'gateway_ip': '10.4.12.24',
+                    'version': version,
+                    'user_id': user_id,
+                    'responses': [{'name': 'How is your breakfast?',
+                                    'answers':['yes', 'no'] }]
+                   }
+
+        fb = SystemInterface.add_feedback(data_dict)
+        feedback_cls = System.delegate.entities['feedback']
+        fb = feedback_cls.get_all()[0]
+        
+#        self.assertEqual(fb.get("lab_name"), data_dict['lab_name'])
+        self.assertEqual(fb.get("exp_name"), data_dict['exp_name'])
+        self.assertEqual(fb.get("gateway_ip"), data_dict['gateway_ip'])
+        self.assertEqual(fb.get("responses")[0].get("question").get("name"),
+                             'How is your breakfast?')
+
+
+    def test_add_feedback_with_saved_answers_in_system_interface(self):
+        print "test_add_feedback_with_saved_answers_in_system_interface"
+
+        answer_cls = System.delegate.entities['answer']
+        answer = answer_cls(name='yes')
+        answer.save()
+        version = "open-edx-virtual-labs-v2.0"
+        user_id = "John123"
+        data_dict = {'lab_name': 'data structure',
+                    'exp_name': 'tuples',
+                    'key' : KEY,
+                    'gateway_ip': '10.4.12.24',
+                    'version': version,
+                    'user_id': user_id,
+                    'responses': [{'name': 'How is your breakfast?',
+                                    'answers':['yes', 'no'] }]
+                   }
+
+        fb = SystemInterface.add_feedback(data_dict)
+
+        data_dict1 = {'lab_name': "Automata",
+            'exp_name': "DFA",
+            'key' : KEY,
+            'gateway_ip': 'X.X.X.X',
+            'version': version,
+            'user_id': user_id,
+            'responses': [{'name': 'How is your breakfast?',
+                            'answers':['yes', 'no'] }]
+           }
+
+        fb = SystemInterface.add_feedback(data_dict1)
+        
+        feedback_cls = System.delegate.entities['feedback']
+        response_cls = System.delegate.entities['response']
+        fb = feedback_cls.get_by_id(2)
+        
+        
+        self.assertEqual(2, len(feedback_cls.get_all()))
+        self.assertEqual(1, len(response_cls.get_all()))
+        self.assertEqual(fb.get("lab_name"), data_dict1['lab_name'])
+        self.assertEqual(fb.get("exp_name"), data_dict1['exp_name'])
+        self.assertEqual(fb.get("gateway_ip"), data_dict1['gateway_ip'])
+        self.assertEqual(fb.get("version"), data_dict1['version'])
+        self.assertEqual(fb.get("user_id"), data_dict1['user_id'])
+        self.assertEqual(fb.get("responses")[0].get("question").get("name"),
+                             'How is your breakfast?')
+
+
+    def test_add_feedback_raises_type_error_in_system_interface(self):
+        print "test_add_feedback_raises_type_error_in_system_interface"
+        version = "open-edx-virtual-labs-v2.0"
+        user_id = "John123"
+        data_dict = {'lab_name': 'data structure',
+                    'exp_name': 'tuples',
+                    'key' : KEY,
+                    'gateway_ip': '10.4.12.24',
+                    'version': version,
+                    'user_id': user_id,
+                    'responses': "hello"
+                   }
+
+        with self.assertRaises(TypeError):
+            SystemInterface.add_feedback(data_dict)
+
+ #+END_SRC
+
+
+** AddGenericLabAndExpFeedback
+
+#+NAME: class_add_generic_lab_and_exp_feedback
+#+begin_src python
+    @staticmethod
+    def add_generic_lab_and_exp_feedback(data_dict):
+        session_cls = System.delegate.entities['session']
+        response_cls = System.delegate.entities['response']
+        question_cls = System.delegate.entities['question']
+        answer_cls = System.delegate.entities['answer']
+
+        data_dict['session'] = session_cls(key=KEY)
+        data_dict['date'] = datetime.datetime.now().date()
+
+        data_dict['user_id'] = "Null"
+
+        if 'exp_name' not in data_dict:
+            data_dict['exp_name'] = "Null"
+
+        responses = data_dict['responses']
+        data_dict['responses'] = []
+
+        fb = None
+        try:
+            fb = System.do("add_feedback", **data_dict)
+
+        except Exception as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+
+        response_list = []
+        try:
+            for response in responses:
+                question = question_cls(name=str(response['name']),
+                                        question_type="")
+                answers = response['answers']
+                answer_list = []
+                for answer in answers:
+                    answer = answer_cls(name=str(answer))
+                    answer_list.append(answer)
+ 
+                res = response_cls(question=question, answers=answer_list,
+                                    feedbacks=[fb])
+                response_list.append(res)
+
+            feedback = System.do("add_responses_to_feedback",
+                                    responses=response_list,
+                                    fb_id=int(fb.id),
+                                    session=data_dict['session'])
+            return feedback
+        except Exception as e:
+            fb.delete()
+            current_app.logger.error("Exception = %s" % str(e))
+            raise e
+
+#+end_src
+
+*** TestAddGenericLabAndExpFeedback
+ #+NAME: test_class_add_generic_lab_and_exp_feedback
+ #+BEGIN_SRC python
+class TestAddGenericLabAndExpFeedback(TestCase):
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+        q_type = "radio"
+        question_cls = System.delegate.entities['question']
+        question1 = question_cls(name="How is your breakfast?", 
+                                  question_type=q_type)
+        question2 = question_cls(name="How is your lunch?", 
+                                 question_type=q_type)
+        question3 = question_cls(name="How is your dinner?", 
+                                 question_type=q_type)
+
+        question1.save()
+        question2.save()
+        question3.save()
+
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_add_generic_lab_feedback_in_system_interface(self):
+        print "test_add_generic_lab_feedback_in_system_interface"
+
+        version = "generic-lab-feedback-v2.0"
+
+        data_dict = {'lab_name': 'data structure',
+                    'gateway_ip': '10.4.12.24',
+                    'key' : KEY,
+                    'version': version,
+                    'responses': [{'name': 'How is your breakfast?',
+                                    'answers':['yes', 'no'] }]
+                   }
+
+        fb = SystemInterface.add_feedback(data_dict)
+        feedback_cls = System.delegate.entities['feedback']
+        fb = feedback_cls.get_all()[0]
+        
+        self.assertEqual(fb.get("lab_name"), data_dict['lab_name'])
+        self.assertEqual(fb.get("gateway_ip"), data_dict['gateway_ip'])
+        self.assertEqual(fb.get("responses")[0].get("question").get("name"),
+                             'How is your breakfast?')
+
+    def test_add_generic_exp_feedback_in_system_interface(self):
+        print "test_add_generic_exp_feedback_in_system_interface"
+
+        version = "generic-exp-feedback-v2.0"
+
+        data_dict = {'lab_name': 'Problem Solving',
+                     'exp_name': 'Number Systems',
+                    'gateway_ip': '10.4.12.24',
+                    'version': version,
+                    'key' : KEY,
+                    'responses': [{'name': 'How is your breakfast?',
+                                    'answers':['yes', 'no'] }]
+                   }
+
+        fb = SystemInterface.add_feedback(data_dict)
+        feedback_cls = System.delegate.entities['feedback']
+        fb = feedback_cls.get_all()[0]
+        
+        self.assertEqual(fb.get("lab_name"), data_dict['lab_name'])
+        self.assertEqual(fb.get("exp_name"), data_dict['exp_name'])
+        self.assertEqual(fb.get("gateway_ip"), data_dict['gateway_ip'])
+        self.assertEqual(fb.get("responses")[0].get("question").get("name"),
+                             'How is your breakfast?')
+
+ #+END_SRC
+
+
+** GetFeedbackUsage
+
+#+NAME: class_si_get_feedback_usage
+#+begin_src python
+    @staticmethod
+    def get_feedback_usage(gateway_ip, new_date, key):
+        try:
+            session_cls = System.delegate.entities['session']
+            session = session_cls(key=str(key))
+        except Exception as e:
+            print str(e)
+        date = datetime.datetime.strptime(new_date, "%d-%m-%Y").date()
+        gateway_ip = str(gateway_ip)
+        try:
+            usage = System.do("get_feedback_usage",
+                                     gateway_ip=gateway_ip,
+                                     date=date,
+                                     session=session)
+            return usage
+        except Exception as e:
+            print str(e)
+
+#+end_src
+
+
+*** TestGetFeedbackUsage
+ #+NAME: test_class_si_get_feedback_usage
+ #+BEGIN_SRC python
+class TestGetFeedbackUsage(TestCase):
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+        q_type = "radio"
+        question_cls = System.delegate.entities['question']
+        question1 = question_cls(name="How is your breakfast?", 
+                                  question_type=q_type)
+        question2 = question_cls(name="How is your lunch?", 
+                                 question_type=q_type)
+        question3 = question_cls(name="How is your dinner?", 
+                                 question_type=q_type)
+
+        question1.save()
+        question2.save()
+        question3.save()
+
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_get_feedback_usage_in_system_interface(self):
+        print "test_get_feedback_usage_in_system_interface"
+
+        version = "open-edx-virtual-labs-v2.0"
+        user_id = "John123"
+        data_dict = {'lab_name': 'data structure',
+                    'exp_name': 'tuples',
+                    'key' : KEY,
+                    'gateway_ip': '10.4.12.24',
+                    'version': version,
+                    'user_id': user_id,
+                    'responses': [{'name': 'How is your breakfast?',
+                                    'answers':['yes', 'no'] }]
+                   }
+
+        feedback = SystemInterface.add_feedback(data_dict)
+
+        date_obj = datetime.datetime.now().date()
+        date = date_obj.strftime('%d-%m-%Y')
+
+        gateway_ip = "10.4.12.24"
+        key = KEY
+        usage = SystemInterface.get_feedback_usage(gateway_ip, date, key)
+        self.assertEqual(usage, 1)
+
+ #+END_SRC
+
+
+** GetFeedbackDump
+
+#+NAME: class_si_get_feedback_dump
+#+begin_src python
+    @staticmethod
+    def get_feedback_dump(new_date, key):
+        try:
+            session_cls = System.delegate.entities['session']
+            session = session_cls(key=str(key))
+        except Exception as e:
+            print str(e)
+        date = datetime.datetime.strptime(new_date, "%d-%m-%Y").date()
+        try:
+            feedbacks = System.do("get_feedback_dump",
+                                     date=date,
+                                     session=session)
+            feedback_dict_list = []
+            for feedback in feedbacks:
+                fb_c = feedback.to_client()
+                for response in fb_c['responses']:
+                    del(response['feedbacks'])
+
+                date_obj = fb_c['date'] 
+                date_str = date_obj.strftime('%d-%m-%Y')
+                fb_c['date'] = date_str
+                feedback_dict_list.append(fb_c)
+
+            return  feedback_dict_list
+            
+        except Exception as e:
+            print str(e)
+
+#+end_src
+
+
+*** TestGetFeedbackDump
+ #+NAME: test_class_si_get_feedback_dump
+ #+BEGIN_SRC python
+class TestGetFeedbackDump(TestCase):
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+        q_type = "radio"
+        question_cls = System.delegate.entities['question']
+        question1 = question_cls(name="How is your breakfast?", 
+                                  question_type=q_type)
+        question2 = question_cls(name="How is your lunch?", 
+                                 question_type=q_type)
+        question3 = question_cls(name="How is your dinner?", 
+                                 question_type=q_type)
+
+        question1.save()
+        question2.save()
+        question3.save()
+
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_add_feedback_dump_in_system_interface(self):
+        print "test_get_feedback_dump_in_system_interface"
+        user_id = "John123"
+        version = "open-edx-virtual-labs-v2.0"
+        data_dict = {'lab_name': 'data structure',
+                    'exp_name': 'tuples',
+                    'key' : KEY,
+                    'gateway_ip': '10.4.12.24',
+                    'version': version,
+                    'user_id': user_id,
+                    'responses': [{'name': 'How is your breakfast?',
+                                    'answers':['yes', 'no'] }]
+                   }
+
+        feedback = SystemInterface.add_feedback(data_dict)
+
+        date_obj = datetime.datetime.now().date()
+        date = date_obj.strftime('%d-%m-%Y')
+
+        key = KEY
+
+        feedbacks = SystemInterface.get_feedback_dump(date, key)
+        date_1 = datetime.datetime.strptime(date, "%d-%m-%Y").date()
+
+        self.assertEqual(feedbacks[0]['date'], date_1.strftime('%d-%m-%Y'))
+
+ #+END_SRC
+
+
+** AddQuestion
+
+#+NAME: class_add_question
+#+begin_src python
+    @staticmethod
+    def add_question(data_dict):
+        session_cls = System.delegate.entities['session']
+        question_cls = System.delegate.entities['question']
+
+        session = session_cls(key=data_dict['key'])
+        question = question_cls(name=data_dict['name'],
+                                question_type=data_dict['question_type'])
+        try:
+            question = System.do("add_question", question=question, 
+                                    session=session)
+            return question
+        except (ArityError, TypeError, NotAuthorizedError, StateError) as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+
+        except Exception as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+#+end_src
+
+*** TestAddQuestion
+ #+NAME: test_class_add_question
+ #+BEGIN_SRC python
+class TestAddQuestion(TestCase):
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_add_question_in_system_interface(self):
+        print "test_add_question_in_system_interface"
+
+        data_dict = {
+                    'key' : KEY,
+                    'name': 'how are you?',
+                    'question_type': 'radio'
+                   }
+
+        data_dict1 = {
+                    'key' : KEY,
+                    'name': 'how are labs?',
+                    'question_type': 'radio'
+                   }
+
+        question = SystemInterface.add_question(data_dict)
+        question1 = SystemInterface.add_question(data_dict1)
+        
+        self.assertEqual(question.get("question_type"), 
+                             data_dict['question_type'])
+        self.assertEqual(question.get("name"), data_dict['name'])
+        self.assertEqual(question1.get("question_type"), 
+                             data_dict1['question_type'])
+        self.assertEqual(question1.get("name"), data_dict1['name'])
+
+
+    def test_add_question_raises_type_error_in_system_interface(self):
+        print "test_add_question_raises_type_error_in_system_interface"
+
+        data_dict = {
+                    'key' : KEY,
+                    'name': 'how are you?',
+                    'question_type': 123
+                   }
+
+        with self.assertRaises(TypeError):
+            SystemInterface.add_question(data_dict)
+
+ #+END_SRC
+
+
+** DeleteQuestion
+
+#+NAME: class_delete_question
+#+begin_src python
+    @staticmethod
+    def delete_question(q_id):
+        session_cls = System.delegate.entities['session']
+
+        session = session_cls(key=KEY)
+        try:
+            question = System.do("delete_question", q_id=int(q_id),
+                                    session=session)
+            return question
+        except (ArityError, TypeError, NotAuthorizedError, StateError) as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+
+        except Exception as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+#+end_src
+
+*** TestDeleteQuestion
+ #+NAME: test_class_delete_question
+ #+BEGIN_SRC python
+class TestDeleteQuestion(TestCase):
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_delete_question_in_system_interface(self):
+        print "test_delete_question_in_system_interface"
+
+        data_dict = {
+                    'key' : KEY,
+                    'name': 'how are labs?',
+                    'question_type': 'radio'
+                   }
+
+        data_dict1 = {
+                    'key' : KEY,
+                    'name': 'how are experiments?',
+                    'question_type': 'text'
+                   }
+
+        question = SystemInterface.add_question(data_dict)
+        question1 = SystemInterface.add_question(data_dict1)
+        q_id = SystemInterface.delete_question(1)
+        
+        self.assertEqual(q_id, 1)
+
+ #+END_SRC
+
+
+** UpdateQuestion
+   
+#+NAME: class_update_question
+#+begin_src python
+    @staticmethod
+    def update_question(data_dict):
+        session_cls = System.delegate.entities['session']
+        question_cls = System.delegate.entities['question']
+
+        session = session_cls(key=data_dict['key'])
+        question = question_cls.get_by_id(data_dict['q_id'])
+
+        if 'name' not in data_dict:
+            name='Null'
+        else:
+            name=data_dict['name']
+
+        if 'question_type' not in data_dict:
+            question_type='Null'
+        else:
+            question_type=data_dict['question_type']
+        try:
+            question = System.do("update_question", question=question,
+                                    name=name, question_type=question_type,
+                                    session=session)
+            return question
+        except (ArityError, TypeError, NotAuthorizedError, StateError) as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+
+        except Exception as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+#+end_src
+
+*** TestUpateQuestion
+ #+NAME: test_class_update_question
+ #+BEGIN_SRC python
+class TestUpdateQuestion(TestCase):
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_update_question_name_in_system_interface(self):
+        print "test_update_question_name_in_system_interface"
+
+        data_dict = {
+                    'key' : KEY,
+                    'name': 'how are you?',
+                    'question_type': 'radio'
+                   }
+
+        data_dict1 = {
+                    'key' : KEY,
+                    'q_id': 1,
+                    'name': 'how are labs?'
+                   }
+
+        question = SystemInterface.add_question(data_dict)
+        question1 = SystemInterface.update_question(data_dict1)
+        
+        self.assertEqual(question1.get("name"), data_dict1['name'])
+
+    def test_update_question_type_in_system_interface(self):
+        print "test_update_question_type_in_system_interface"
+
+        data_dict = {
+                    'key' : KEY,
+                    'name': 'how are you?',
+                    'question_type': 'radio'
+                   }
+
+        data_dict1 = {
+                    'key' : KEY,
+                    'q_id': 1,
+                    'question_type': 'text'
+                   }
+
+        question = SystemInterface.add_question(data_dict)
+        question1 = SystemInterface.update_question(data_dict1)
+        
+
+        self.assertEqual(question1.get("question_type"), 
+                             data_dict1['question_type'])
+
+    def test_update_question_name_and_type_in_system_interface(self):
+        print "test_update_question_name_and_type_in_system_interface"
+
+        data_dict = {
+                    'key' : KEY,
+                    'name': 'how are you?',
+                    'question_type': 'radio'
+                   }
+
+        data_dict1 = {
+                    'key' : KEY,
+                    'q_id': 1,
+                    'name': 'how are labs?',
+                    'question_type': 'text'
+                   }
+
+        question = SystemInterface.add_question(data_dict)
+        question1 = SystemInterface.update_question(data_dict1)
+        
+        self.assertEqual(question1.get("name"), data_dict1['name'])
+        self.assertEqual(question1.get("question_type"), 
+                                        data_dict1['question_type'])
+
+ #+END_SRC
+
+
+** GetQuestions
+
+#+NAME: class_get_questions
+#+begin_src python
+    @staticmethod
+    def get_questions():
+        question_cls = System.delegate.entities['question']
+        try:
+            questions = question_cls.get_all()
+            question_dict_list = []
+            for question in questions:
+                question_x = question.to_client()
+                question_dict_list.append(question_x)
+
+            return  question_dict_list
+        except (ArityError, TypeError, NotAuthorizedError, StateError) as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+
+        except Exception as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+#+end_src
+
+*** TestGetQuestions
+ #+NAME: test_class_get_questions
+ #+BEGIN_SRC python
+class TestGetQuestions(TestCase):
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_get_questions_in_system_interface(self):
+        print "test_get_questions_in_system_interface"
+
+        data_dict = {
+                    'key' : KEY,
+                    'name': 'how are you?',
+                    'question_type': 'radio'
+                   }
+
+        data_dict1 = {
+                    'key' : KEY,
+                    'name': 'how are labs?',
+                    'question_type': 'text'
+                   }
+
+        question1 = SystemInterface.add_question(data_dict)
+        question2 = SystemInterface.add_question(data_dict1)
+
+        questions_list = SystemInterface.get_questions()
+        
+        self.assertEqual(questions_list[0].get("name"), data_dict['name'])
+        self.assertEqual(questions_list[1].get("name"), data_dict1['name'])
+        self.assertEqual(questions_list[0].get("question_type"), 
+                             data_dict['question_type'])
+        self.assertEqual(questions_list[1].get("question_type"), 
+                             data_dict1['question_type'])
+
+ #+END_SRC
+
+
+** GetQuestionById
+
+#+NAME: class_get_question_by_id
+#+begin_src python
+    @staticmethod
+    def get_question_by_id(id):
+        question_cls = System.delegate.entities['question']
+        try:
+            question = question_cls.get_by_id(id)
+            if not question:
+                abort(404, "No question found with id: %s found." % (id))
+
+            return question.to_client()
+
+        except (ArityError, TypeError, NotAuthorizedError, StateError) as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+
+        except Exception as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+#+end_src
+
+*** TestGetQuestionById
+ #+NAME: test_class_get_question_by_id
+ #+BEGIN_SRC python
+class TestGetQuestionById(TestCase):
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_get_question_by_id_in_system_interface(self):
+        print "test_get_question_by_id_in_system_interface"
+
+        data_dict = {
+                    'key' : KEY,
+                    'name': 'how are you?',
+                    'question_type': 'radio'
+                   }
+
+        data_dict1 = {
+                    'key' : KEY,
+                    'name': 'how are labs?',
+                    'question_type': 'text'
+                   }
+
+        question1 = SystemInterface.add_question(data_dict)
+        question2 = SystemInterface.add_question(data_dict1)
+
+        question_data_one = SystemInterface.get_question_by_id(1)
+        question_data_two = SystemInterface.get_question_by_id(2)
+        
+        self.assertEqual(question_data_one.get("name"), data_dict['name'])
+        self.assertEqual(question_data_two.get("name"), data_dict1['name'])
+        self.assertEqual(question_data_one.get("question_type"), 
+                             data_dict['question_type'])
+        self.assertEqual(question_data_two.get("question_type"), 
+                             data_dict1['question_type'])
+
+ #+END_SRC
+
+
+* Infra                                                         :boilerplate:
+  
+** sources
+*** Imports 
+#+name: imports_for_sources
+#+BEGIN_SRC python
+# -*- coding: utf-8 -*-
+from runtime.system.system import *
+import datetime
+from flask import current_app
+from runtime.config.feedback_forms import feedback_forms
+from runtime.config.system_config import KEY
+
+#+end_src
+
+
+** Tests
+*** Imports 
+#+name: imports_for_tests
+#+BEGIN_SRC python
+# -*- coding: utf-8 -*-
+import unittest
+from flask_testing import TestCase
+from runtime.rest.app import create_app
+from sqlalchemy.exc import IntegrityError
+from runtime.utils.class_persistence_template import db
+from runtime.system.system_interface import *
+from runtime.config.system_config import KEY
+from flask import current_app
+config = {
+         'SQLALCHEMY_DATABASE_URI': ''
+         }
+
+#+end_src
+
+*** Running tests
+#+NAME: run_test_cases
+#+BEGIN_SRC python
+if __name__ == '__main__':
+    unittest.main()
+
+#+END_SRC
+
+
+* Tangling                                                      :boilerplate:
+
+** sources
+#+BEGIN_SRC python :tangle system_interface.py :eval no :noweb yes
+<<imports_for_sources>>
+<<class_system_interface>>
+<<get_generic_feedback_form>>
+<<get_feedback_form>>
+<<class_add_feedback>>
+<<class_update_question>>
+<<class_delete_question>>
+<<class_add_generic_feedback>>
+<<class_si_get_feedback_usage>>
+<<class_si_get_feedback_dump>>
+<<class_add_question>>
+<<class_get_questions>>
+<<class_get_question_by_id>>
+#+end_src
+
+
+** tests
+#+BEGIN_SRC python :tangle test_system_interface.py :eval no :noweb yes
+<<imports_for_tests>>
+<<test_class_get_feedback_form>>
+<<test_class_add_feedback>>
+<<test_class_add_generic_lab_and_exp_feedback>>
+<<test_class_si_get_feedback_usage>>
+<<test_class_si_get_feedback_dump>>
+<<test_class_add_question>>
+<<test_class_update_question>>
+<<test_class_delete_question>>
+<<test_class_get_questions>>
+<<test_class_get_question_by_id>>
+<<run_test_cases>>
+#+end_src

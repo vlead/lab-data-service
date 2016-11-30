@@ -1,0 +1,334 @@
+#+TITLE: Persistent Entities
+#+AUTHOR: VLEAD
+#+DATE: [2016-08-31 Wed]
+#+SETUPFILE: ../../org-templates/level-2.org
+#+TAGS: boilerplate(b)
+#+EXCLUDE_TAGS: boilerplate
+#+OPTIONS: ^:nil
+
+* Introduction
+
+  Persistence is added to all the entities defined in [[../objects/entities.org][=objects=]].
+
+
+* Question
+
+=Question= is a class with an attribute name of type =is_alphabetic_str=.
+
+#+NAME: class_Question
+#+begin_src python
+args = {"__tablename__": "question",
+        "id": db.Column(db.Integer, primary_key=True),
+        "name": db.Column(db.String(255), unique=True, nullable=False),
+        "question_type": db.Column(db.String(255), unique=False, 
+                                       nullable=True),
+        "responses": db.relationship('Response', 
+                                        backref=db.backref('question'))
+        }
+
+Question = ClassPersistenceTemplate.mk_persistent(Question, ['name'], **args)
+
+#+end_src
+
+*** Test Question
+#+NAME: class_TestQuestion
+#+BEGIN_SRC python
+class TestPersistentQuestion(TestCase):
+    TESTING = True
+
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_create_question(self):
+        print "test_create_question"
+        name="how are labs?"
+        radio="radio"
+        question1 = Question(name=name, question_type=radio)
+        question1.save()
+
+        new_question = Question.get_by_id(1)
+        self.assertEqual(new_question.get("name"), name)
+        self.assertEqual(new_question.get("question_type"), radio)
+
+#+END_SRC
+
+
+* Answer
+  =Answer= is a class an attribute email of type =is_email_str=.
+#+NAME: class_Answer
+#+begin_src python
+args = {"__tablename__": "answer",
+        "id": db.Column(db.Integer, primary_key=True),
+        "name": db.Column(db.String(255), unique=True, nullable=False)
+        }
+
+Answer = ClassPersistenceTemplate.mk_persistent(Answer, ['name'], **args)
+
+#+end_src
+
+** Test Answer
+#+NAME: class_TestAnswer
+#+BEGIN_SRC python
+class TestPersistenceAnswer(TestCase):
+    TESTING = True
+
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_create_answer(self):
+        print "test_create_answer"
+        ans = "excellent labs"
+        answer = Answer(name=ans)
+        answer.save()
+        answer = Answer.get_by_id(1)
+        self.assertEqual(answer.get("name"), ans)
+
+#+END_SRC
+
+
+* Feedback
+  A =Feedback= entity has fields =response= of type =Response=.
+
+#+NAME: class_Feedback
+#+BEGIN_SRC python
+args = {"__tablename__": "feedback",
+        "id": db.Column(db.Integer, primary_key=True),
+        "gateway_ip" : db.Column(db.String(255), nullable=False),
+        "lab_name" : db.Column(db.String(255), nullable=False),
+        "exp_name" : db.Column(db.String(255), nullable=True),
+        "user_id" : db.Column(db.String(255), nullable=True),
+        "version" : db.Column(db.String(255), nullable=False),
+        "date": db.Column(db.Date, nullable=False)
+        }
+
+Feedback = ClassPersistenceTemplate.mk_persistent(Feedback, [], **args)
+
+#+END_SRC
+
+** Test Feedback
+#+NAME: class_TestFeedback
+#+BEGIN_SRC python
+class TestPersistenceFeedback(TestCase):
+    TESTING = True
+
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_create_feedback(self):
+        print "test_create_feedback"
+
+        gateway_ip = "10.100.40.2"
+        lab_name = "cse01"
+        exp_name = "data01"
+        date = datetime.datetime.strptime("30-06-2016", "%d-%m-%Y").date()
+        version = "open-edx-virtual-labs-v2.0"
+        user_id = "John123"
+        fb = Feedback(gateway_ip=gateway_ip,
+                      lab_name=lab_name,
+                      exp_name=exp_name,
+                      date=date,
+                      version=version,
+                      user_id=user_id,
+                      responses=[])
+        fb.save()
+
+        self.assertEqual(fb.get("gateway_ip"), gateway_ip)
+        self.assertEqual(fb.get("lab_name"), lab_name)
+        self.assertEqual(fb.get("exp_name"), exp_name)
+        self.assertEqual(fb.get("version"), version)
+        self.assertEqual(fb.get("user_id"), user_id)
+        self.assertEqual(fb.get("responses"), [])
+
+ #+END_SRC
+
+
+* Response
+  =Response= is an entity that has fields =question= of type =Question=,
+  =answers= of type =Answer=, and =feedbacks= of type =Feedback=
+
+#+NAME: class_association_Table
+#+BEGIN_SRC python
+responses_answers = db.Table('responses_answers',
+		      db.Column('response_id', db.Integer, 
+                            db.ForeignKey('response.id')),
+		      db.Column('answer_id', db.Integer,
+                            db.ForeignKey('answer.id')))
+
+responses_feedbacks = db.Table('responses_feedbacks',
+		      db.Column('response_id', db.Integer, 
+                            db.ForeignKey('response.id')),
+		      db.Column('feedback_id', db.Integer,
+                            db.ForeignKey('feedback.id')))
+
+#+END_SRC
+
+
+#+NAME: class_Response
+#+BEGIN_SRC python
+args = {"__tablename__": "response",
+        "id": db.Column(db.Integer, primary_key=True),
+        "question_id": db.Column(db.Integer, 
+                                      db.ForeignKey('question.id'), 
+                                      unique=False, nullable=False),
+
+        "feedbacks": db.relationship('Feedback',
+                                       secondary=responses_feedbacks, 
+                                       backref='responses'),
+
+        "answers": db.relationship('Answer',
+                                       secondary=responses_answers, 
+                                       backref='responses')
+      }
+
+Response = ClassPersistenceTemplate.mk_persistent(Response, 
+                                   ['question', 'answers'], **args)
+
+#+END_SRC
+
+** Test Response
+#+NAME: class_TestResponse
+#+BEGIN_SRC python
+class TestPersistenceResponse(TestCase):
+    TESTING = True
+
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_create_response(self):
+        print "test_create_response"
+
+        name = "how are labs?"
+        q_type = "radio"
+        question1 = Question(name=name, question_type=q_type)
+        question1.save()
+
+        ans = "excellent labs"
+        answer1 = Answer(name=ans)
+        answer1.save()
+
+        gateway_ip = "10.100.40.2"
+        lab_name = "cse01"
+        exp_name = "data01"
+        version = "open-edx-virtual-labs-v2.0"
+        user_id = "John123"
+        date = datetime.datetime.strptime("30-06-2016", "%d-%m-%Y").date()
+
+        fb = Feedback(gateway_ip=gateway_ip,
+                      lab_name=lab_name,
+                      exp_name=exp_name,
+                      date=date,
+                      version=version,
+                      user_id=user_id,
+                      responses=[])
+        fb.save()
+
+        res = Response(question=question1, answers=[answer1], feedbacks=[fb])
+        res.save()
+
+        response = Response.get_by_id(1)
+
+        self.assertEqual(response.get("question").get("name"), 
+                             question1.get("name"))
+
+        self.assertEqual(response.get("answers")[0].get("name"), 
+                             answer1.get("name"))
+
+        self.assertEqual(response.get("feedbacks")[0].get("lab_name"), 
+                             fb.get("lab_name"))
+
+#+END_SRC
+
+
+
+* Infra                                                         :boilerplate:
+** sources
+*** Imports 
+#+name: imports_for_sources
+#+BEGIN_SRC python
+# -*- coding: utf-8 -*-
+from runtime.objects.entities import *
+from runtime.utils.class_persistence_template import *
+import datetime
+
+#+end_src
+
+
+** Tests
+*** Imports for tests 
+#+name: imports_for_tests
+#+BEGIN_SRC python
+# -*- coding: utf-8 -*-
+import unittest
+from flask_testing import TestCase
+from sqlalchemy.exc import IntegrityError
+from runtime.persistence.entities import *
+from runtime.rest.app import create_app
+
+config = {
+    'SQLALCHEMY_DATABASE_URI': ''
+}
+
+#+end_src
+
+*** Running tests
+#+NAME: run_test_cases
+#+BEGIN_SRC python
+if __name__ == '__main__':
+    unittest.main()
+#+END_SRC
+
+
+* Tangling                                                      :boilerplate:
+** sources
+#+BEGIN_SRC python :tangle entities.py :eval no :noweb yes
+<<imports_for_sources>>
+<<class_Question>>
+<<class_Answer>>
+<<class_Feedback>>
+<<class_association_Table>>
+<<class_Response>>
+
+#+end_src
+
+
+** tests
+#+BEGIN_SRC python :tangle test_entities.py :eval no :noweb yes
+<<imports_for_tests>>
+<<class_TestQuestion>>
+<<class_TestAnswer>>
+<<class_TestFeedback>>
+<<class_TestResponse>>
+<<run_test_cases>>
+#+end_src

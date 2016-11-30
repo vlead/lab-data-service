@@ -1,0 +1,1100 @@
+#+TITLE: Object Delegate for the System
+#+AUTHOR: VLEAD
+#+DATE: [2016-07-07 Thu]
+#+SETUPFILE: ../../org-templates/level-2.org
+#+TAGS: boilerplate(b)
+#+EXCLUDE_TAGS: boilerplate
+#+OPTIONS: ^:nil
+
+* Object Delegate
+  Object Delegate encapsulates a set of functions where each function performs a
+  specific task.  With the use of these delegates, the core implementation of
+  the =system= will not alter but by plugging delegates that are specific to
+  each environment, for example, be it either objects or persistence, the
+  =system= for that particular environment is derived while not modifying the
+  =system= class.
+
+** Initialize Object Delegate
+   Provides all the delegates that operate on objects.
+
+*** class_object_delegate 
+#+NAME: class_object_delegate
+#+BEGIN_SRC python
+class ObjectDelegate():
+    def __init__(self):
+        self.role_set = []
+        self.user_set = []
+        self.active_user_set = []
+        self.institute_set = []
+        self.oc_set = []
+        self.nc_set = []
+        self.workshop_set = []
+        self.artefact_set = []
+        self.role_set = self.initialize_role_set()
+        self.user_set = self.initialize_user_set()
+
+#+END_SRC
+
+*** initialize_role_set
+#+NAME: initialize_object_role_set
+#+begin_src python
+    def initialize_role_set(self):
+        Role_admin = Role(name="admin", centre_oc=None, centre_nc=None)
+        Role_guest = Role(name="guest", centre_oc=None, centre_nc=None)
+        Role_noc = Role(name="noc", centre_oc=None, centre_nc=None)
+        Role_reviewer = Role(name="reviewer", centre_oc=None, centre_nc=None)                
+        self.role_set = [Role.admin, Role.guest, Role.noc, Role.reviewer]
+        return self.role_set
+
+#+end_src
+
+*** initialize_user_set
+#+NAME: initialize_object_user_set
+#+begin_src python
+
+    def initialize_user_set(self):
+
+        admin_user = User(name=Name(name=Config.admin_name),
+                          email=Email(email=Config.admin_email),
+                          roles=[Role.admin, Role.guest], user_status="active")
+        self.user_set = [admin_user]
+        return self.user_set
+
+#+end_src
+
+*** Tests
+#+NAME: test_initialize_object_delegate
+#+BEGIN_SRC python
+class TestObjectDelegate(TestCase):
+    TESTING = True
+    object_delegate = None
+    
+    def setUp(self):
+        self.obj_delegate = ObjectDelegate()
+    
+    def tearDown(self):
+        self.obj_delegate = None
+   
+    def test_initialize_object_delegate(self):
+         print "test_initialize_object_delegate"
+         self.assertEqual(len(self.obj_delegate.role_set), 4)
+         self.assertEqual(self.obj_delegate.role_set[0].get("name"), "admin")
+         self.assertEqual(len(self.obj_delegate.user_set), 1)
+         self.assertEqual(self.obj_delegate.user_set[0].get("roles")[0].get("name"),
+                          "admin")
+         self.assertEqual(self.obj_delegate.user_set[0].get("roles")[1].get("name"),
+                          "guest")
+
+#+END_SRC
+
+    
+** Other functions
+   Other functions that help =System= perform the operations. 
+
+*** user_exists
+    Check if =user= already exists
+    This function checks if a user is already in the user-set of the =System=.
+#+NAME: user_exists
+#+BEGIN_SRC python
+    def user_exists(self, user):
+        active_users = self.get_active_users()
+        if user in active_users:
+            return True
+        else:
+            return False
+
+#+END_SRC
+
+**** Tests
+#+NAME: test_user_exists
+#+BEGIN_SRC python
+    def test_user_exists(self):
+         print "test_user_exists"
+         user = self.obj_delegate.user_set[0]
+         self.assertEqual(self.obj_delegate.user_exists(user), True)
+
+#+END_SRC
+
+*** add_user
+    Add a user to the system
+    This function adds a user to the user-set maintained by the system.
+#+NAME: add_user
+#+BEGIN_SRC python
+    def add_user(self, user):
+        self.user_set.append(user)
+        return user
+
+#+END_SRC
+
+**** Tests
+#+NAME: test_add_user
+#+BEGIN_SRC python
+    def test_add_user(self):
+        print "test_add_user"
+        user = User(name=Name(name="some user"),
+                        email=Email(email="tt@kk.com"),
+                        roles=[Role.admin], user_status="active")
+        user = self.obj_delegate.add_user(user)
+        self.assertEqual(self.obj_delegate.user_exists(user), True)
+
+#+END_SRC
+
+*** update_user
+#+NAME: update_user
+#+BEGIN_SRC python 
+    def update_user(self, name, email, user):
+        user.set(name=name)
+        user.set(email=email)
+        return user
+
+#+END_SRC
+**** Tests
+#+NAME: test_update_user
+#+BEGIN_SRC python
+
+    def test_update_user(self):
+        print "test_update_user"
+        name=Name(name="test")
+        email=Email(email="test@gmail.com")
+        user = User(name=name, email=email, roles= [Role.guest],
+                user_status="active")
+        user = self.obj_delegate.add_user(user)
+        user_name1=Name(name="alaska")
+        user_email1=Email(email="alaska@gmail.com")
+        user = self.obj_delegate.update_user(user_name1, user_email1, user)
+        self.assertEqual(user.get("name").get("name"), "alaska")
+        
+#+END_SRC
+
+*** delete_user
+#+NAME: delete_user
+#+BEGIN_SRC python 
+    def delete_user(self, user):
+        user.set(user_status="inactive")
+        return user
+#+END_SRC
+**** Tests
+#+NAME: test_delete_user
+#+BEGIN_SRC python
+    def test_delete_user(self):
+        print "test_delete_user"
+        name = Name(name="test")
+        email = Email(email="test@gmail.com")
+        user = User(name=name, email=email, roles= [Role.guest],
+                user_status="active")
+        new_user = self.obj_delegate.add_user(user)
+        del_user = self.obj_delegate.delete_user(new_user)
+        self.assertEqual(del_user.get("user_status") , "inactive")
+#+END_SRC
+
+*** add_role_to_user
+#+NAME: add_role_to_user
+#+BEGIN_SRC python 
+    def add_role_to_user(self, user, role):
+        user.append_role(role)
+        return user
+#+END_SRC
+**** Tests
+#+NAME: test_add_role_to_user
+#+BEGIN_SRC python
+    def test_add_role_to_user(self):
+        print "test_add_role_to_user"
+        name = Name(name="test")
+        email = Email(email="test@gmail.com")
+        user = User(name=name, email=email, roles= [Role.guest],
+                user_status="active")
+        new_user = self.obj_delegate.add_user(user)
+        user_with_new_role = self.obj_delegate.add_role_to_user(new_user, Role.noc)
+        self.assertTrue(len(user_with_new_role.get('roles'))==2)
+#+END_SRC
+
+*** get_users
+
+    This return the user_set maintained by the system.
+#+NAME: get_users
+#+BEGIN_SRC python
+    def get_users(self):
+        return self.get_active_users()
+
+#+END_SRC
+**** Tests
+#+NAME: test_get_users
+#+BEGIN_SRC python
+    def test_get_users(self):
+         print "test_get_users"
+         self.assertEqual(len(self.obj_delegate.get_users()), 1)
+
+#+END_SRC
+
+*** role_exists
+    Check if =role= already exists
+    This function checks if a user is already in the role-set of the =System=.
+#+NAME: role_exists
+#+BEGIN_SRC python
+    def role_exists(self, role):
+        if role in self.role_set:
+            return True
+        else:
+            return False
+
+#+END_SRC
+
+**** Tests
+#+NAME: test_role_exists
+#+BEGIN_SRC python
+    def test_role_exists(self):
+         print "test_role_exists"
+         role = self.obj_delegate.role_set[0]
+         self.assertEqual(self.obj_delegate.role_exists(role), True)
+
+#+END_SRC
+
+*** add_role
+    Add a role to the system
+    This function adds a user to the role-set maintained by the system.
+#+NAME: add_role
+#+BEGIN_SRC python
+    def add_role(self, role):
+        self.role_set.append(role)
+        return role
+
+#+END_SRC
+
+**** Tests
+#+NAME: test_add_role
+#+BEGIN_SRC python
+    def test_add_role(self):
+         print "test_add_role"
+         role = Role(name='user',centre_oc=None,centre_nc=None)
+         role = self.obj_delegate.add_role(role)
+         self.assertEqual(self.obj_delegate.role_exists(role), True)
+
+#+END_SRC
+
+*** get_roles
+
+    This return the role_set maintained by the system.
+#+NAME: get_roles
+#+BEGIN_SRC python
+    def get_roles(self):
+        return self.role_set
+
+#+END_SRC
+**** Tests
+#+NAME: test_get_roles
+#+BEGIN_SRC python
+    def test_get_roles(self):
+         print "test_get_roles"
+         self.assertEqual(len(self.obj_delegate.get_roles()), 4)
+
+#+END_SRC
+
+*** institute_exists
+    Check if =institute= already exists
+    This function checks if a user is already in the institute-set of the =System=.
+#+NAME: institute_exists
+#+BEGIN_SRC python
+    def institute_exists(self, institute):
+        if institute in self.institute_set:
+            return True
+        else:
+            return False
+
+#+END_SRC
+
+**** Tests
+#+NAME: test_institute_exists
+#+BEGIN_SRC python
+    def test_institute_exists(self):
+         print "test_institute_exists"
+         ins = Institute(name='IIIT',address='Hyderabad')
+         inst = self.obj_delegate.add_institute(ins)
+         self.assertEqual(self.obj_delegate.institute_exists(inst), True)
+
+#+END_SRC
+
+*** add_institute
+    Add an institute to the system
+    This function adds an institute to the institute-set maintained by the system.
+#+NAME: add_institute
+#+BEGIN_SRC python
+    def add_institute(self, institute):
+        self.institute_set.append(institute)
+        return institute
+
+#+END_SRC
+
+**** Tests
+#+NAME: test_add_institute
+#+BEGIN_SRC python
+    def test_add_institute(self):
+         print "test_add_institute"
+         ins = Institute(name='IIIT',address='Hyderabad')
+         inst = self.obj_delegate.add_institute(ins)
+         self.assertEqual(self.obj_delegate.institute_exists(inst), True)
+
+#+END_SRC
+
+*** update_institute
+#+NAME: update_institute
+#+BEGIN_SRC python
+    def update_institute(self, institute, name, address):
+        institute.set(name=name)
+        institute.set(address=address)
+        return institute
+#+END_SRC
+*** get_institutes
+    This return the institute_set maintained by the system.
+#+NAME: get_institutes
+#+BEGIN_SRC python
+    def get_institutes(self):
+        return self.institute_set
+
+#+END_SRC
+
+**** Tests
+#+NAME: test_get_institutes
+#+BEGIN_SRC python
+    def test_get_institutes(self):
+         print "test_get_institutes"
+         ins = Institute(name='IIIT',address='Hyderabad')
+         inst = self.obj_delegate.add_institute(ins)
+         self.assertEqual(len(self.obj_delegate.get_institutes()), 1)
+
+#+END_SRC
+
+*** oc_exists
+    Check if =oc= already exists
+    This function checks if an outreach-centre is already in the oc-set of the =System=.
+#+NAME: oc_exists
+#+BEGIN_SRC python
+    def oc_exists(self, oc):
+        if oc in self.oc_set:
+            return True
+        else:
+            return False
+
+#+END_SRC
+
+**** Tests
+#+NAME: test_oc_exists
+#+BEGIN_SRC python
+    def test_oc_exists(self):
+         print "test_oc_exists"
+         ins = Institute(name='IIIT',address='Hyderabad')
+         spokes=[]
+         oc_target = None
+         oc = self.obj_delegate.add_oc(ins, spokes, oc_target)
+         self.assertEqual(self.obj_delegate.oc_exists(oc), True)
+ #+END_SRC
+
+*** add_occ_role
+    Add occ role to the system
+    This function adds a user to the role-set maintained by the system.
+#+NAME: add_occ_role
+#+BEGIN_SRC python
+    def add_occ_role(self, name, new_oc, centre_nc):
+        self.role = Role(name=name,centre_oc=new_oc,centre_nc=centre_nc)
+        self.role_set.append(self.role)
+        return self.role
+#+END_SRC
+
+**** Tests
+#+NAME: test_add_occ_role
+#+BEGIN_SRC python
+    def test_add_occ_role(self):
+         print "test_add_occ_role"
+         role = self.obj_delegate.add_occ_role('OCC',None,None)
+         self.assertEqual(self.obj_delegate.role_exists(role), True)
+
+#+END_SRC
+
+*** add_ncc_role
+    Add ncc role to the system
+    This function adds a user to the role-set maintained by the system.
+#+NAME: add_ncc_role
+#+BEGIN_SRC python
+    def add_ncc_role(self, name, centre_oc, new_nc):
+        self.role = Role(name=name,centre_oc=centre_oc,centre_nc=new_nc)
+        self.role_set.append(self.role)
+        return self.role
+#+END_SRC
+
+**** Tests
+#+NAME: test_add_ncc_role
+#+BEGIN_SRC python
+    def test_add_ncc_role(self):
+         print "test_ncc_occ_role"
+         role = self.obj_delegate.add_occ_role('NCC',None,None)
+         self.assertEqual(self.obj_delegate.role_exists(role), True)
+
+#+END_SRC
+
+*** add_oc
+    Add a oc to the system
+    This function adds an outreach centre to the oc-set maintained by the system.
+#+NAME: add_oc
+#+BEGIN_SRC python
+    def add_oc(self, institute, spokes, oc_target):
+        self.new_oc = OC(institute=institute, spokes=spokes, oc_target = oc_target)
+        self.oc_set.append(self.new_oc)
+        return self.new_oc
+#+END_SRC
+
+**** Tests
+#+NAME: test_add_oc
+#+BEGIN_SRC python
+    def test_add_oc(self):
+         print "test_object_add_oc"
+         ins = Institute(name='IIIT',address='Hyderabad')
+         spokes=[]
+         oc_target = None
+         oc = self.obj_delegate.add_oc(ins, spokes, oc_target)
+         self.assertEqual(self.obj_delegate.oc_exists(oc), True)
+
+#+END_SRC
+
+*** get_ocs
+
+    This return the oc_set maintained by the system.
+#+NAME: get_ocs
+#+BEGIN_SRC python
+    def get_ocs(self):
+        return self.oc_set
+
+#+END_SRC
+
+#+NAME: test_get_ocs
+#+BEGIN_SRC python
+    def test_get_ocs(self):
+         print "test_get_ocs"
+         ins = Institute(name='IIIT',address='Hyderabad')
+         spokes=[]
+         oc_target = None
+         oc = self.obj_delegate.add_oc(ins, spokes, oc_target)
+
+         self.assertEqual(len(self.obj_delegate.get_ocs()), 1)
+
+#+END_SRC
+
+*** nc_exists
+    Check if =nc= already exists
+    This function checks if a nodal-centre is already in the nc-set of the =System=.
+#+NAME: nc_exists
+#+BEGIN_SRC python
+    def nc_exists(self, nc):
+        if nc in self.nc_set:
+            return True
+        else:
+            return False
+
+#+END_SRC
+
+**** Tests
+#+NAME: test_nc_exists
+#+BEGIN_SRC python
+    def test_nc_exists(self):
+         print "test_object_nc_exists"
+         ins = Institute(name='IIIT',address='Hyderabad')
+         spokes=[]
+         oc_target = None
+         oc = self.obj_delegate.add_oc(ins, spokes, oc_target)
+         nc_target=None
+         workshops=[]
+         nc = self.obj_delegate.add_nc(ins, oc, nc_target, workshops)
+         self.assertEqual(self.obj_delegate.nc_exists(nc), True)
+
+#+END_SRC
+
+*** add_nc
+    Add a nc to the system
+    This function adds a nodal centre to the nc-set maintained by the system.
+#+NAME: add_nc
+#+BEGIN_SRC python
+    def add_nc(self, institute, oc, nc_target, workshops):
+        self.new_nc = NC(institute=institute, hub=oc, nc_target=nc_target,
+                         workshops=workshops)
+        oc.append_spoke(self.new_nc)
+        self.nc_set.append(self.new_nc)
+        return self.new_nc
+#+END_SRC
+
+**** Tests
+#+NAME: test_add_nc
+#+BEGIN_SRC python
+    def test_add_nc(self):
+         print "test_object_add_nc"
+         ins = Institute(name='IIIT',address='Hyderabad')
+         spokes=[]
+         oc_target = None
+         oc = self.obj_delegate.add_oc(ins, spokes, oc_target)
+         nc_target=None
+         workshops=[]
+         nc = self.obj_delegate.add_nc(ins, oc, nc_target, workshops)
+         self.assertEqual(self.obj_delegate.nc_exists(nc), True)
+#+END_SRC
+
+*** get_ncs
+
+    This return the nc_set maintained by the system.
+#+NAME: get_ncs
+#+BEGIN_SRC python
+    def get_ncs(self):
+        return self.nc_set
+
+#+END_SRC
+
+#+NAME: test_get_ncs
+#+BEGIN_SRC python
+    def test_get_ncs(self):
+         print "test_get_ncs"
+         ins = Institute(name='IIIT',address='Hyderabad')
+         spokes=[]
+         oc_target = None
+         oc = self.obj_delegate.add_oc(ins, spokes, oc_target)
+         nc_target=None
+         workshops=[]
+         nc = self.obj_delegate.add_nc(ins, oc, nc_target, workshops)
+         self.assertEqual(len(self.obj_delegate.get_ncs()), 1)
+#+END_SRC
+
+*** get_active_users
+    This function returns All the active users from the user_set.
+#+NAME: get_active_users
+#+BEGIN_SRC python
+    def get_active_users(self): 
+        active_user_set = filter(lambda x: x.get("user_status")=="active",
+                                self.user_set)
+        return active_user_set
+#+END_SRC
+**** Tests
+#+NAME: test_get_active_users
+#+BEGIN_SRC python
+    def test_get_active_users(self):
+         print "test_get_active_users"
+         user = User(name=Name(name="some user"),
+                          email=Email(email="tt@kk.com"),
+                          roles=[Role.admin], user_status="active")
+
+         self.obj_delegate.add_user(user)
+         active_user_list = self.obj_delegate.get_active_users()
+         self.assertEqual(len(active_user_list), 2)
+
+#+END_SRC
+
+*** workshop_exists
+    Check if =workshop= already exists
+    This function checks if a workshop is already in the workshop-set of the =System=.
+#+NAME: workshop_exists
+#+BEGIN_SRC python
+    def workshop_exists(self, workshop):
+        if workshop in self.workshop_set:
+            return True
+        else:
+            return False
+
+#+END_SRC
+
+**** Tests
+#+NAME: test_workshop_exists
+#+BEGIN_SRC python
+    def test_workshop_exists(self):
+        print "test_workshop_exists"
+        ins = Institute(name='IIIT',address='Hyderabad')
+        oc = OC(institute=Institute(name="IIITH",address="Hyderabad"), spokes=[], oc_target = None)
+        nc = NC(institute=Institute(name="IIITH",address="Hyderabad"), hub=oc, nc_target = None, workshops=None)
+        target_date = datetime.datetime.strptime("30-06-2016", '%d-%m-%Y').date()
+        oc_target = OCTarget(usage = 400, date = target_date, nctargets = [])
+        nc_target = NCTarget(usage = 200, date = target_date, oc_target = oc_target, wstargets = [])
+        ws_target = WSTarget(usage = 4000, participants = 200, experiments = 20, date = target_date, nc_target = nc_target )
+        workshop_name = Name(name = "New Workshop")
+        ws_status = Status(name = "pending")
+        artefacts = []
+        workshop = self.obj_delegate.add_workshop(ins, workshop_name, ws_target, artefacts, ws_status, nc)
+        self.assertEqual(self.obj_delegate.workshop_exists(workshop), True)
+
+#+END_SRC
+
+*** add_workshop
+    Add a workshop to the system
+    This function adds a workshop to the workshop-set maintained by the system.
+#+NAME: add_workshop
+#+BEGIN_SRC python
+    def add_workshop(self, institute, name, ws_target, artefacts, status, nc):
+        new_workshop = Workshop(institute = institute,
+                                name = name,
+                                ws_target = ws_target,
+                                artefacts = artefacts,
+                                status = status,
+                                nc = nc,
+                                a_date = None,
+                                a_participants = 0,
+                                a_experiments = 0,
+                                a_usage = 0)
+        self.workshop_set.append(new_workshop)
+        return new_workshop
+
+#+END_SRC
+
+**** Tests
+#+NAME: test_add_workshop
+#+BEGIN_SRC python
+    def test_add_workshop(self):
+        print "test_add_workshop"
+        ins = Institute(name='IIIT',address='Hyderabad')
+        oc = OC(institute=Institute(name="IIITH",address="Hyderabad"), spokes=[], oc_target = None)
+        nc = NC(institute=Institute(name="IIITH",address="Hyderabad"), hub=oc, nc_target = None, workshops=None)
+        target_date = datetime.datetime.strptime("30-06-2016", '%d-%m-%Y').date()
+        oc_target = OCTarget(usage = 400, date = target_date, nctargets = [])
+        nc_target = NCTarget(usage = 200, date = target_date, oc_target = oc_target, wstargets = [])
+        ws_target = WSTarget(usage = 4000, participants = 200, experiments = 20, date = target_date, nc_target = nc_target )
+        workshop_name = Name(name = "New Workshop")
+        ws_status = Status(name = "pending")
+        artefacts = []
+        workshop = self.obj_delegate.add_workshop(ins, workshop_name, ws_target, artefacts, ws_status, nc)
+        self.assertEqual(self.obj_delegate.workshop_exists(workshop), True)
+
+#+END_SRC
+
+*** cancel_workshop
+#+NAME: cancel_workshop
+#+BEGIN_SRC python
+    def cancel_workshop(self, workshop):
+        workshop.set(status = Status.cancelled)
+        return workshop
+#+END_SRC
+**** Tests
+#+NAME: test_cancel_workshop
+#+BEGIN_SRC python
+    def test_cancel_workshop(self):
+        print "test_cancel_workshop"
+        institute = Institute(name='IIIT',address='Hyderabad')
+        oc = OC(institute=Institute(name="IIITH",address="Hyderabad"), spokes=[], oc_target = None)
+        nc = NC(institute=Institute(name="IIITH",address="Hyderabad"), hub=oc, nc_target = None, workshops=None)
+        target_date = datetime.datetime.strptime("30-06-2016", '%d-%m-%Y').date()
+        oc_target = OCTarget(usage = 400, date = target_date, nctargets = [])
+        nc_target = NCTarget(usage = 200, date = target_date, oc_target = oc_target, wstargets = [])
+        ws_target = WSTarget(usage = 4000, participants = 200, experiments = 20, date = target_date, nc_target = nc_target )
+        name = Name(name = "New Workshop")
+        status = Status(name = "pending")
+        artefacts = []
+
+        workshop = self.obj_delegate.add_workshop(institute, name, ws_target, artefacts, status, nc)
+
+        cancelled_workshop = self.obj_delegate.cancel_workshop(workshop)
+
+        self.assertEqual(cancelled_workshop.get("status"), Status.cancelled)
+#+END_SRC
+
+*** reschedule_workshop
+#+NAME: reschedule_workshop
+#+BEGIN_SRC python
+    def reschedule_workshop(self, workshop, wstarget):
+        workshop.set(status = Status.pending)
+        workshop.set(ws_target = wstarget)
+        return workshop
+
+#+END_SRC
+**** Tests
+#+NAME: test_reschedule_workshop
+#+BEGIN_SRC python
+    def test_reschedule_workshop(self):
+        print "test_reschedule_workshop"
+        institute = Institute(name='IIIT',address='Hyderabad')
+        oc = OC(institute=Institute(name="IIITH",address="Hyderabad"), spokes=[], oc_target = None)
+        nc = NC(institute=Institute(name="IIITH",address="Hyderabad"), hub=oc, nc_target = None, workshops=None)
+        target_date = datetime.datetime.strptime("30-06-2016", '%d-%m-%Y').date()
+        oc_target = OCTarget(usage = 400, date = target_date, nctargets = [])
+        nc_target = NCTarget(usage = 200, date = target_date, oc_target = oc_target, wstargets = [])
+        ws_target = WSTarget(usage = 4000, participants = 200, experiments = 20, date = target_date, nc_target = nc_target )
+        name = Name(name = "New Workshop")
+        status = Status(name = "pending")
+        artefacts = []
+
+        workshop = self.obj_delegate.add_workshop(institute, name, ws_target, artefacts, status, nc)
+        ws_new_target = WSTarget(usage = 5000, participants = 200, experiments = 20, date = target_date, nc_target = nc_target )
+        rescheduled_workshop = self.obj_delegate.reschedule_workshop(workshop, ws_new_target)
+
+        self.assertEqual(rescheduled_workshop.get("status"), Status.pending)
+        self.assertEqual(rescheduled_workshop.get("ws_target").get("usage"), 5000)
+#+END_SRC
+
+*** conduct_workshop
+#+NAME: conduct_workshop
+#+BEGIN_SRC python
+    def conduct_workshop(self, workshop):
+        workshop.set(status = Status.completed)
+        return workshop
+#+END_SRC
+**** Tests
+#+NAME: test_conduct_workshop
+#+BEGIN_SRC python
+    def test_conduct_workshop(self):
+        print "test_conduct_workshop"
+        institute = Institute(name='IIIT',address='Hyderabad')
+        oc = OC(institute=Institute(name="IIITH",address="Hyderabad"), spokes=[], oc_target = None)
+        nc = NC(institute=Institute(name="IIITH",address="Hyderabad"), hub=oc, nc_target = None, workshops=None)
+        target_date = datetime.datetime.strptime("30-06-2016", '%d-%m-%Y').date()
+        oc_target = OCTarget(usage = 400, date = target_date, nctargets = [])
+        nc_target = NCTarget(usage = 200, date = target_date, oc_target = oc_target, wstargets = [])
+        ws_target = WSTarget(usage = 4000, participants = 200, experiments = 20, date = target_date, nc_target = nc_target )
+        name = Name(name = "New Workshop")
+        status = Status(name = "pending")
+        artefacts = []
+
+        workshop = self.obj_delegate.add_workshop(institute, name, ws_target, artefacts, status, nc)
+
+        conducted_workshop = self.obj_delegate.conduct_workshop(workshop)
+
+        self.assertEqual(conducted_workshop.get("status"), Status.completed)
+#+END_SRC
+
+*** upload_artefact
+#+NAME: upload_artefact
+#+BEGIN_SRC python
+    def upload_artefact(self, workshop, new_artefact):
+        artefacts = workshop.get("artefacts")
+        artefacts.append(new_artefact)
+        workshop.set(artefacts = artefacts)
+        workshop.set(status = Status.pending_approval)
+        return workshop
+#+END_SRC
+**** Tests
+#+NAME: test_upload_artefact
+#+BEGIN_SRC python
+    def test_upload_artefact(self):
+        print "test_upload_artefact"
+        institute = Institute(name='IIIT',address='Hyderabad')
+        oc = OC(institute=Institute(name="IIITH",address="Hyderabad"), spokes=[], oc_target = None)
+        nc = NC(institute=Institute(name="IIITH",address="Hyderabad"), hub=oc, nc_target = None, workshops=None)
+        target_date = datetime.datetime.strptime("30-06-2016", '%d-%m-%Y').date()
+        oc_target = OCTarget(usage = 400, date = target_date, nctargets = [])
+        nc_target = NCTarget(usage = 200, date = target_date, oc_target = oc_target, wstargets = [])
+        ws_target = WSTarget(usage = 4000, participants = 200, experiments = 20, date = target_date, nc_target = nc_target )
+        name = Name(name = "New Workshop")
+        status = Status(name = "pending")
+        artefacts = []
+
+        workshop = self.obj_delegate.add_workshop(institute, name, ws_target, artefacts, status, nc)
+        new_artefact = Artefact(name = "Photo", path = "/main/photos",
+                                a_type = Type.photo)
+
+        workshop = self.obj_delegate.upload_artefact(workshop, new_artefact)
+
+        self.assertEqual(workshop.get("status"), Status.pending_approval)
+        self.assertEqual(len(self.obj_delegate.get_artefacts_of_a_workshop(workshop)), 1)
+        self.assertEqual(len(self.obj_delegate.get_artefacts()), 1)
+#+END_SRC
+
+*** approve_workshop
+#+NAME: approve_workshop
+#+BEGIN_SRC python
+    def approve_workshop(self, workshop):
+        workshop.set(status = Status.approved)
+        return workshop
+#+END_SRC
+**** Tests
+#+NAME: test_approve_workshop
+#+BEGIN_SRC python
+    def test_approve_workshop(self):
+        print "test_approve_workshop"
+        institute = Institute(name='IIIT',address='Hyderabad')
+        oc = OC(institute=Institute(name="IIITH",address="Hyderabad"), spokes=[], oc_target = None)
+        nc = NC(institute=Institute(name="IIITH",address="Hyderabad"), hub=oc, nc_target = None, workshops=None)
+        target_date = datetime.datetime.strptime("30-06-2016", '%d-%m-%Y').date()
+        oc_target = OCTarget(usage = 400, date = target_date, nctargets = [])
+        nc_target = NCTarget(usage = 200, date = target_date, oc_target = oc_target, wstargets = [])
+        ws_target = WSTarget(usage = 4000, participants = 200, experiments = 20, date = target_date, nc_target = nc_target )
+        name = Name(name = "New Workshop")
+        status = Status(name = "pending")
+        artefacts = []
+
+        workshop = self.obj_delegate.add_workshop(institute, name, ws_target, artefacts, status, nc)
+
+        approved_workshop = self.obj_delegate.approve_workshop(workshop)
+
+        self.assertEqual(approved_workshop.get("status"), Status.approved)
+#+END_SRC
+
+*** reject_workshop
+#+NAME: reject_workshop
+#+BEGIN_SRC python
+    def reject_workshop(self, workshop):
+        workshop.set(status = Status.rejected)
+        return workshop
+#+END_SRC
+**** Tests
+#+NAME: test_reject_workshop
+#+BEGIN_SRC python
+    def test_reject_workshop(self):
+        print "test_reject_workshop"
+        institute = Institute(name='IIIT',address='Hyderabad')
+        oc = OC(institute=Institute(name="IIITH",address="Hyderabad"), spokes=[], oc_target = None)
+        nc = NC(institute=Institute(name="IIITH",address="Hyderabad"), hub=oc, nc_target = None, workshops=None)
+        target_date = datetime.datetime.strptime("30-06-2016", '%d-%m-%Y').date()
+        oc_target = OCTarget(usage = 400, date = target_date, nctargets = [])
+        nc_target = NCTarget(usage = 200, date = target_date, oc_target = oc_target, wstargets = [])
+        ws_target = WSTarget(usage = 4000, participants = 200, experiments = 20, date = target_date, nc_target = nc_target )
+        name = Name(name = "New Workshop")
+        status = Status(name = "pending")
+        artefacts = []
+
+        workshop = self.obj_delegate.add_workshop(institute, name, ws_target, artefacts, status, nc)
+
+        rejected_workshop = self.obj_delegate.reject_workshop(workshop)
+
+        self.assertEqual(rejected_workshop.get("status"), Status.rejected)
+#+END_SRC
+
+*** delete_artefact
+#+NAME: delete_artefact
+#+BEGIN_SRC python
+    def delete_artefact(self, workshop, artefact):
+        artefact_set = workshop.get("artefacts")
+        new_set = filter(lambda art: not art.get("name") ==
+                         artefact.get("name"), artefact_set)
+
+        workshop.set(artefacts = new_set)
+        workshop.set(status = Status.pending_approval)
+        return workshop
+#+END_SRC
+**** Tests
+#+NAME: test_delete_artefact
+#+BEGIN_SRC python
+    def test_delete_artefact(self):
+        print "test_delete_artefact"
+        institute = Institute(name='IIIT',address='Hyderabad')
+        oc = OC(institute=Institute(name="IIITH",address="Hyderabad"), spokes=[], oc_target = None)
+        nc = NC(institute=Institute(name="IIITH",address="Hyderabad"), hub=oc, nc_target = None, workshops=None)
+        target_date = datetime.datetime.strptime("30-06-2016", '%d-%m-%Y').date()
+        oc_target = OCTarget(usage = 400, date = target_date, nctargets = [])
+        nc_target = NCTarget(usage = 200, date = target_date, oc_target = oc_target, wstargets = [])
+        ws_target = WSTarget(usage = 4000, participants = 200, experiments = 20, date = target_date, nc_target = nc_target )
+        name = Name(name = "New Workshop")
+        status = Status(name = "pending")
+        artefacts = []
+
+        workshop = self.obj_delegate.add_workshop(institute, name, ws_target, artefacts, status, nc)
+        new_artefact = Artefact(name = "Photo", path = "/main/photos",
+                                a_type = Type.photo)
+
+        artefact_upload_workshop = self.obj_delegate.upload_artefact(workshop, new_artefact)
+        artefact_delete_workshop = self.obj_delegate.delete_artefact(workshop, new_artefact)
+
+        self.assertEqual(artefact_delete_workshop.get("status"), Status.pending_approval)
+        self.assertEqual(len(self.obj_delegate.get_artefacts_of_a_workshop(artefact_delete_workshop)), 0)
+
+#+END_SRC
+
+*** get_workshops
+
+    This return the workshop_set maintained by the system.
+#+NAME: get_workshops
+#+BEGIN_SRC python
+    def get_workshops(self):
+        return self.workshop_set
+
+#+END_SRC
+**** Tests
+#+NAME: test_get_workshops
+#+BEGIN_SRC python
+    def test_get_all_workshops(self):
+        print "test_get_all_workshops"
+        institute = Institute(name='IIIT',address='Hyderabad')
+        oc = OC(institute=Institute(name="IIITH",address="Hyderabad"), spokes=[], oc_target = None)
+        nc = NC(institute=Institute(name="IIITH",address="Hyderabad"), hub=oc, nc_target = None, workshops=None)
+        target_date = datetime.datetime.strptime("30-06-2016", '%d-%m-%Y').date()
+        oc_target = OCTarget(usage = 400, date = target_date, nctargets = [])
+        nc_target = NCTarget(usage = 200, date = target_date, oc_target = oc_target, wstargets = [])
+        ws_target = WSTarget(usage = 4000, participants = 200, experiments = 20, date = target_date, nc_target = nc_target )
+        name = Name(name = "New Workshop")
+        status = Status(name = "pending")
+        artefacts = []
+
+        workshop = self.obj_delegate.add_workshop(institute, name, ws_target, artefacts, status, nc)
+        self.assertEqual(self.obj_delegate.workshop_exists(workshop), True)
+        self.assertEqual(len(self.obj_delegate.get_workshops()), 1)
+#+END_SRC
+     
+*** get_artefacts
+
+    This return the artefact_set maintained by the system.
+#+NAME: get_artefacts
+#+BEGIN_SRC python
+    def get_artefacts(self):
+        return self.artefact_set
+
+#+END_SRC
+**** Tests
+#+NAME: test_get_artefacts
+#+BEGIN_SRC python
+    def test_get_artefacts(self):
+        new_artefact = Artefact(name = "Photo", path = "/main/photos",
+                                a_type = Type.photo)
+        self.obj_delegate.artefact_set.append(new_artefact)
+        self.assertEqual(len(self.obj_delegate.get_artefacts()), 1)
+
+#+END_SRC
+*** get_artefacts_of_a_workshop
+#+NAME: get_artefacts_of_a_workshop
+#+BEGIN_SRC python
+    def get_artefacts_of_a_workshop(self, workshop):
+        self.artefact_set = workshop.get("artefacts")
+        return self.artefact_set     
+#+END_SRC
+**** Tests
+#+NAME: test_get_artifacts_artefacts_of_a_workshop
+#+BEGIN_SRC python
+
+    def test_get_artefacts_of_a_workshop(self):
+        print "test_get_artefacts_of_a_workshop"
+        institute = Institute(name='IIIT',address='Hyderabad')
+        oc = OC(institute=Institute(name="IIITH",address="Hyderabad"),
+                    spokes=[], oc_target = None)
+        nc = NC(institute=Institute(name="IIITH",address="Hyderabad"), hub=oc,
+                    nc_target = None, workshops=None)
+        target_date = datetime.datetime.strptime("30-06-2016",
+                                                     '%d-%m-%Y').date()
+        oc_target = OCTarget(usage = 400, date = target_date, nctargets = [])
+        nc_target = NCTarget(usage = 200, date = target_date,
+                                 oc_target = oc_target, wstargets = [])
+        ws_target = WSTarget(usage = 4000, participants = 200,
+                                 experiments = 20, date = target_date,
+                                 nc_target = nc_target )
+        name = Name(name = "New Workshop")
+        status = Status(name = "pending")
+        artefacts = []
+
+        workshop = self.obj_delegate.add_workshop(institute, name, ws_target,
+                                                      artefacts, status, nc)
+        new_artefact = Artefact(name = "Photo", path = "/main/photos",
+                                a_type = Type.photo)
+
+        workshop = self.obj_delegate.upload_artefact(workshop, new_artefact)
+
+        self.assertEqual(len(self.obj_delegate.get_artefacts_of_a_workshop(workshop)), 1)
+#+END_SRC
+
+
+* Infra                                                         :boilerplate:
+
+** sources
+*** Imports 
+#+name: imports_for_object_delegates
+#+BEGIN_SRC python
+# -*- coding: utf-8 -*-
+from runtime.objects.entities import *
+from runtime.config.config import Config
+from runtime.exceptions.custom_exceptions import *
+import datetime
+#+end_src
+
+
+** Tests
+*** Imports 
+
+#+name: imports_for_tests_object
+#+BEGIN_SRC python
+# -*- coding: utf-8 -*-
+import unittest
+from unittest import TestCase
+from object_delegates import *
+import datetime
+#+end_src
+
+
+*** Running tests
+#+NAME: run_test_cases
+#+BEGIN_SRC python
+if __name__ == '__main__':
+    unittest.main()
+
+#+END_SRC
+
+
+* Tangling                                                      :boilerplate:
+
+** sources
+
+#+BEGIN_SRC python :tangle object_delegates.py :eval no :noweb yes
+<<imports_for_object_delegates>>
+<<class_object_delegate>>
+<<initialize_object_role_set>>
+<<initialize_object_user_set>>
+<<user_exists>>
+<<add_user>>
+<<update_user>>
+<<delete_user>>
+<<add_role_to_user>>
+<<get_users>>
+<<role_exists>>
+<<add_role>>
+<<get_roles>>
+<<institute_exists>>
+<<add_institute>>
+<<update_institute>>
+<<get_institutes>>
+<<oc_exists>>
+<<add_occ_role>>
+<<add_ncc_role>>
+<<add_oc>>
+<<get_ocs>>
+<<nc_exists>>
+<<add_nc>>
+<<get_ncs>>
+<<workshop_exists>>
+<<add_workshop>>
+<<cancel_workshop>>
+<<reschedule_workshop>>
+<<conduct_workshop>>
+<<upload_artefact>>
+<<approve_workshop>>
+<<reject_workshop>>
+<<delete_artefact>>
+<<get_artefacts_of_a_workshop>>
+<<get_artefacts>>
+<<get_workshops>>
+<<get_active_users>>
+#+end_src
+
+** tests
+#+BEGIN_SRC python :tangle test_object_delegates.py :eval no :noweb yes
+#<<imports_for_tests_object>>
+#<<test_initialize_object_delegate>>
+#<<test_user_exists>>
+#<<test_add_user>>
+#<<test_update_user>>
+#<<test_delete_user>>
+#<<test_get_users>>
+#<<test_role_exists>>
+#<<test_add_role_to_user>>
+#<<test_add_role>>
+#<<test_get_roles>>
+#<<test_institute_exists>>
+#<<test_add_institute>>
+#<<test_get_institutes>>
+#<<test_oc_exists>>
+#<<test_add_occ_role>>
+#<<test_add_ncc_role>>
+#<<test_add_oc>>
+#<<test_get_ocs>>
+#<<test_nc_exists>>
+#<<test_add_nc>>
+#<<test_get_ncs>>
+#<<test_get_active_users>>
+#<<test_workshop_exists>>
+#<<test_add_workshop>>
+#<<test_get_workshops>>
+#<<test_cancel_workshop>>
+#<<test_get_workshops>>
+#<<test_reschedule_workshop>>
+#<<test_conduct_workshop>>
+#<<test_upload_artefact>>
+#<<test_get_artefacts_of_a_workshop>>
+#<<test_get_artefacts>>
+#<<test_approve_workshop>>
+#<<test_reject_workshop>>
+#<<test_delete_artefact>>
+#<<run_test_cases>>
+
+#+end_src

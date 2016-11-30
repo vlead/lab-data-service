@@ -1,0 +1,90 @@
+#+TITLE: Running Feedback Portal on Developement Environment
+#+Author: VLEAD
+#+Date: [2016-05-05 Thu]
+#+PROPERTY: results output
+#+PROPERTY: exports code
+#+SETUPFILE: ./org-templates/level-0.org
+#+options: ^:nil
+
+* Creation of database
+  - Login to mysql
+    #+BEGIN_EXAMPLE
+    mysql -u <username> -p<password>
+    #+END_EXAMPLE
+  - Show all databases
+    #+BEGIN_EXAMPLE
+    show databases;
+    #+END_EXAMPLE
+  - If <feedback> database is not present, create it
+    #+BEGIN_EXAMPLE
+    create database feedback
+    #+END_EXAMPLE
+  
+    Exit out of the mysql console
+
+
+* Creation of Virtual Environment
+
+  + Create Virtual Environemnt in the =feedback= directory
+  #+BEGIN_EXAMPLE
+  virtualenv venv
+  #+END_EXAMPLE
+  + Activate the Virtual Environment
+  #+BEGIN_EXAMPLE
+  source venv/bin/activate
+  #+END_EXAMPLE
+
+
+* Setting up dependencies
+
+  Install all the dependencies for running the =feedback= applciation.
+  The =setup.py= script is in the =build/code/deployment/= directory
+  #+BEGIN_EXAMPLE
+  cd build/code/deployment/
+  python setup.py install
+  #+END_EXAMPLE
+  Note :- If you found error something like =error: Couldn't find a setup script
+  in /tmp/easy_install-oTRjpD/oursql-0.9.3.2.linux-i686.tar.gz= please
+  execute below steps skip otherwise
+#+BEGIN_EXAMPLE
+
+mkdir oursql
+cd oursql
+wget https://pypi.python.org/packages/8c/88/9f53a314a2af6f56c0a1249c5673ee384b85dc791bac5c1228772ced3502/oursql-0.9.3.2.tar.gz#md5=ade5959a6571b1626966d47f3ab2d315
+tar xvf oursql-0.9.3.2.tar.gz
+cd oursql-0.9.3.2
+python setup.py install
+
+#+END_EXAMPLE
+
+
+* Set SQLALCHEMY_DATABASE_URI
+  The variable =SQLALCHEMY_DATABASE_URI= has to be set to proper value in
+  =build/code/runtime/config/flask_app_config.py= so that the application can use the database.
+  #+BEGIN_EXAMPLE
+  SQLALCHEMY_DATABASE_URI = 'mysql+oursql://root:pswd@localhost/feedback'
+  #+END_EXAMPLE
+
+
+* Insert Dafault data
+  Run db_setup.py to insert roles and an admin user. 
+  #+BEGIN_EXAMPLE
+  cd build/code/deployment
+  python db_setup.py
+  #+END_EXAMPLE
+
+
+* Run the application
+  
+  The application can now be run from the =build/code/runtime/rest/= directory
+  #+BEGIN_EXAMPLE
+  cd build/code/runtime/rest/
+  unset http_proxy
+  unset https_proxy
+  python app.py
+  #+END_EXAMPLE
+
+
+* Access the application
+  
+  The application is accessed at =http://localhost:5000=

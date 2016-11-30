@@ -1,0 +1,457 @@
+#+title:  Class Templates
+#+SETUPFILE: ../../org-templates/level-2.org
+#+TAGS: boilerplate(b)
+#+EXCLUDE_TAGS: boilerplate
+#+OPTIONS: ^:nil
+
+* Introduction
+
+This module introduces metaprogramming techniques for
+building  classes and populating them.
+
+
+* Creating classes on the fly
+
+See [[http://stackoverflow.com/questions/2461751/python-class-factory-using-user-input-as-class-names][this discussion]] on Stack Overflow about how to create
+classes on the fly:
+
+#+name: def_meta
+#+BEGIN_SRC python
+def meta(_name):
+    class cls():
+        @staticmethod
+        def inv(args):
+            pass
+
+    cls.__name__ = _name
+    return cls
+#+END_SRC
+
+** Test cases
+#+name: class_TestMeta
+#+BEGIN_SRC python
+class TestMeta(TestCase):
+    def test_meta(self):
+        Bar = meta("Bar")
+        bar = Bar()
+        self.assertTrue(isinstance(bar, Bar))
+#+END_SRC
+
+
+* Value Classes
+** Definition
+A /value/ class of type =p= is a class that holds one state
+variable, called =value= that is guaranteed to satisfy =p.
+
+A value class has the following methods: =__init__=,
+=__eq__=, =__str__=, =get_value= and =set_value=.  
+
+The class =ValueClassTemplate= defines static methods that
+populate a value class with the above standard methods.
+Note the type checks on the =__init__= and =set_value=
+methods. 
+
+#+name: class_ValueClassTemplate
+#+BEGIN_SRC python
+from type_utils import *
+class ValueClassTemplate():
+
+    @staticmethod
+    def mk_init(type_pred):
+        def fn(obj, val):
+            obj.value = check_pred(type_pred)(val)
+        return fn
+
+    @staticmethod
+    def mk_get():
+        def fn(obj):
+            return obj.value
+        return fn
+
+    @staticmethod
+    def mk_eq():
+        def fn(obj, other) :
+            if isinstance(other, obj.__class__):
+                return obj.value == other.value
+            else:
+                return False
+        return fn
+
+    @staticmethod
+    def mk_str():
+        def fn(obj):
+            return str(obj.value)
+        return fn
+
+    @staticmethod
+    def mk_class(_name, type_pred):
+        cls = meta(_name) 
+        cls.__init__ = ValueClassTemplate.mk_init(type_pred)
+        cls.get = ValueClassTemplate.mk_get()
+        cls.set = ValueClassTemplate.mk_init(type_pred)
+        cls.__eq__   = ValueClassTemplate.mk_eq()
+        cls.__str__  = ValueClassTemplate.mk_str()
+        return cls
+#+END_SRC
+** Test cases
+#+name: class_TestValueClassTemplate
+#+BEGIN_SRC python
+class TestValueClassTemplate(TestCase):
+
+    Name = ValueClassTemplate.mk_class("Name", is_alphabetic_str)
+    Name.n1 = Name("ravi")
+    Name.n2 = Name("Ravi")
+
+        
+    def test_value_class_template(self):
+        Name = TestValueClassTemplate.Name
+        print "test_value_class_template"
+        self.assertEqual(Name.n1.get(), "ravi", "n1.get()")
+        Name.n1.set("Ravi")
+        self.assertTrue(Name.n1.get()==Name.n2.get(), "n1.get()==n2.get()")
+#+END_SRC
+
+
+* Class template
+This is a template for making classes.  The class template
+is useful for creating data classes, i.e., classes whose
+objects have state variables that are typed and that have an
+invariant holding them together.  These data classes come
+with a standard set of setters and getters.  Equality
+predicate may be added later (see =Temp= example below)
+
+
+Class templates take a 
+ - the name of the class to be created (string)
+
+ - A specification of the names of the state variables and
+   their types (dictionary)
+
+ - An invariant which is a function of an instance of the
+   class and a dictionary of the state variables.  The
+   invariant is optional, but if present is part of the same
+   dictionary that specifies the state variables, against
+   the key =inv=. 
+
+#+BEGIN_EXAMPLE
+   Temp = ClassTemplate.mk_class("Temp", min=is_int, max=is_int, 
+                                 inv=lambda self, args: 
+								      args["min"] <= args["max"])
+
+   Temp = ClassTemplate.mk_class("Temp", min=is_int, max=is_int, 
+                                 inv=lambda self, args: 
+								      args["min"] <= args["max"])
+
+#+END_EXAMPLE
+
+=Temp= is now a class with two state variables =min= and
+=max=, both satisfying the type predicate =is_int= and
+together satisfying the invariant =min= is less than equal
+to =max=.  Since =inv= ends up being a method in =Temp=, its
+needs to carry as its first argument an object =self=, even
+though the invariant itself is defined on elements of the
+dictionary =args=.
+
+
+** Implementation
+
+A class is created with no fields.  It is then mk_classd
+with =ClassTemplate.mk_class=, which takes a class and a
+dictionary mapping state variable names to their type
+checks.  The keywords may contain a field called 'inv' which
+is mapped to an invariant predicate that returns true or false.
+
+#+name: class_ClassTemplate 
+#+BEGIN_SRC python
+class ClassTemplate():
+
+    @staticmethod
+    def inv_true(obj, args):
+        return True
+
+    @staticmethod
+    def mk_init(cls):
+        # obj is an instance of cls
+        # args is a dictionary
+        def fn(obj, **args): 
+            check_dict(args)
+            # match arg keys with state_vars list
+            check_pred(lambda a: sorted(a.keys()) == \
+                           sorted(cls.sorted_state_vars))(args)
+
+            obj.state = {}
+            
+            # each arg should satisfy its typecheck 
+            for key, value in args.iteritems():
+                cls.state_var_type_checks[key](value)
+
+            # invariant must be true on args
+#            check_inv(cls.inv,cls)args)
+            if not obj.inv(args):
+                raise TypeError("invariant for class %s violated for init args %s" %(cls.__name__, args))
+
+            # initialize the state
+            for key, value in args.iteritems():
+                    obj.state[key] = value
+
+        return fn
+
+    @staticmethod
+    def mk_getter(cls):
+        def fn(obj,k):
+            if str(k) and (k in cls.sorted_state_vars):
+                return obj.state[k]
+            else:
+                raise TypeError("get: Invalid key %s" % k)
+        return fn
+
+    @staticmethod
+    def mk_setter(cls):
+        def fn(obj, **args):
+            #obj is the object whose variables are being set
+            # args is a dictionary of new variable bindings
+
+            check_dict(args)
+            tmp = obj.state.copy()
+
+            for key, value in args.iteritems():
+                # arg variables should be a subset of those in the formal spec
+                if key in cls.sorted_state_vars:
+                    # and they should pass the type checking
+                    cls.state_var_type_checks[key](value)
+                    # if so update tmp with the new bindings in args
+                    tmp[key] = value
+                else:
+                    raise TypeError("set: Invalid field name %s" % key)
+
+            # now check the invariant on tmp
+            if not obj.inv(tmp):
+                raise TypeError("invariant for class %s violated for init args %s" % (cls.__name__, args))
+
+            # now save the state
+            obj.state = tmp
+
+            if 'save_handler' in (cls.custom_handlers):
+                cls.custom_handlers['save_handler'](obj)
+
+        return fn
+
+    @staticmethod
+    def mk_eq(cls, pred):
+        def fn(obj, other):
+            return isinstance(other, obj.__class__) and pred(obj, other)
+        return fn
+
+    @staticmethod
+    def mk_to_client(cls):
+        def fn(obj, level=1):
+            to_client_var = {}
+            for key, value in obj.state.iteritems():
+                if is_list(value):
+#                   value.__class__.__name__ is 'InstrumentedList'):
+                    to_client_var[key] = []
+                    for item in value:
+                        if level <= 2:
+                            if hasattr(item, 'to_client'):
+                                to_client_var[key].append(\
+                                    item.to_client(level=level+1))
+                            else:
+                                to_client_var[key].append(value)
+                        else:
+                            to_client_var[key].append("Not Printing")
+                        
+                elif hasattr(value, 'to_client'):
+                    to_client_var[key] = value.to_client()
+                else:
+                    to_client_var[key] = value
+
+            if cls.custom_handlers['persistence']:
+                to_client_var["id"] = obj.id
+
+            return to_client_var
+
+        return fn
+
+    @staticmethod
+    def mk_add_attributes(cls):
+        def fn(**formals):
+            
+            check_dict(formals)
+
+            # append the keys of the formals
+            cls.sorted_state_vars += formals.keys()
+
+            # create a dictionary of type preds  for the  state variables
+            # {'min': is_int, 'max': is_int}
+            cls.state_var_type_preds.update(formals.copy())
+
+            # {'min': check_int, 'max': check_int}
+            cls.state_var_type_checks = \
+            {k: check_pred(v) for k, v in cls.state_var_type_preds.items()}
+
+        return staticmethod(fn)
+
+    @staticmethod
+    def mk_class(_name, **formals):
+        # name is the name of the class to be created
+        # formals is a dictionary of name, type_pred pairs
+        # example of formals: 
+        # {'min': is_int, 
+        #  'max': is_int, 
+        #  'inv': lambda self, args: args['min'] <= args['max']}
+        
+        # check if formals is a dictionary
+        if formals:
+            check_dict(formals)
+
+        # create a class with name
+        cls = meta(_name)
+
+        # set the invariant
+        # if absent in formals, use default (inv_true)
+        if 'inv' in formals:
+            cls.inv = formals['inv']
+            del formals['inv']
+        else:
+            cls.inv = ClassTemplate.inv_true
+
+        # create sorted list of state variables
+        # ['max', 'min']
+        cls.sorted_state_vars = []
+        cls.sorted_state_vars = sorted(formals.keys())
+
+        # create a dictionary of type preds  for the  state variables
+        # {'min': is_int, 'max': is_int}
+        cls.state_var_type_preds = {}
+        cls.state_var_type_checks = {}
+        cls.state_var_type_preds=formals.copy()
+
+        # {'min': check_int, 'max': check_int}
+        cls.state_var_type_checks = \
+        {k: check_pred(v) for k, v in cls.state_var_type_preds.items()}
+
+        cls.add_attributes = ClassTemplate.mk_add_attributes(cls)
+        # __init__
+        cls.__init__ = ClassTemplate.mk_init(cls)
+
+        # get
+        cls.get = ClassTemplate.mk_getter(cls)
+
+        # eq
+        # to be done
+#       cls.__eq__ = ClassTemplate.mk_eq(cls)
+
+        # set
+        cls.set = ClassTemplate.mk_setter(cls)
+
+        # to_client
+        cls.to_client = ClassTemplate.mk_to_client(cls)
+
+        cls.custom_handlers = {}
+        cls.custom_handlers['persistence'] = False
+        return cls
+
+#+END_SRC
+
+
+* Tests
+#+name: class_TestClassTemplate
+#+BEGIN_SRC python
+class TestClassTemplate(TestCase):
+    Foo = ClassTemplate.mk_class("Foo",  x=is_int, y=is_str)
+    Foo.foo = Foo(x=4, y="hello")
+
+    def test_class_template_with_Foo(self):
+        print "test_class_template_with_Foo"
+        Foo = TestClassTemplate.Foo
+
+        self.assertEqual(Foo.foo.get("x"), 4, "foo.get(x)==4")
+        self.assertEqual(Foo.foo.get("y"), "hello", "foo.get(y)==hello")
+
+        Foo.foo.set(x=7)
+        self.assertEqual(Foo.foo.get("x"), 7, "foo.get(x)==7")
+        self.assertTrue(Foo.foo.inv({'x': Foo.foo.get("x")}), "Foo.foo.inv")
+
+    def temp_inv(obj, args):
+        return args["min"] <= args["max"]
+
+    Temp = ClassTemplate.mk_class("Temp", min=is_int, max=is_int, inv=temp_inv)
+
+    Temp.temp = Temp(min=4, max=5)
+
+    def eq_fn(self, other):
+        return \
+            isinstance(other, self.__class__) and \
+            self.get("min") == other.get("min") and \
+            self.get("max") == other.get("max")
+
+    Temp.__eq__ = eq_fn
+
+    def test_class_template_with_Temp(self):
+        print "test_class_template_with_Temp"
+        Temp = TestClassTemplate.Temp
+        self.assertEqual(Temp.temp.get("min"), 4, "temp.get(min)==4")
+        self.assertEqual(Temp.temp.get("max"), 5, "temp.get(max)==5")
+
+        Temp.temp.set(min=0)
+        self.assertEqual(Temp.temp.get("min"), 0, "temp.get(min)==0")
+        self.assertRaises(TypeError, lambda: Temp.temp.set(min=9),
+                          "temp.set(min=9) Error")
+
+        temp2 = Temp(min=0, max=5)
+
+        self.assertTrue(Temp.temp == temp2, "temp==temp2")
+
+    def test_class_template_with_many_objects(self):
+        print "test_class_template_with_many_objects"
+        Name = ClassTemplate.mk_class("Name", name=is_alphabetic_str)
+        name = Name(name="Jimi Hendrix")
+        Email = ClassTemplate.mk_class("Email", email=is_email_str)
+        email = Email(email="jimi@gnu.org")
+        User = ClassTemplate.mk_class("User",
+                                       name=is_inst(Name),
+                                       email=is_inst(Email))
+        usr = User(name=name, email=email)
+        self.assertEqual(usr.get('name').get('name'), 'Jimi Hendrix')
+        self.assertEqual(usr.get('email').get('email'), 'jimi@gnu.org')
+        self.assertEqual(usr.to_client()['email']['email'], 'jimi@gnu.org')
+
+#+END_SRC
+
+* Test Infra                                                    :boilerplate:
+** Imports for tests 
+#+name: imports_for_tests
+#+BEGIN_SRC python
+# -*- coding: utf-8 -*-
+import unittest
+from unittest import TestCase
+from datetime import datetime
+from type_utils import *
+from class_templates import *
+#+end_src
+
+** Running tests
+#+NAME: run_test_cases
+#+BEGIN_SRC python
+if __name__ == '__main__':
+    unittest.main()
+#+END_SRC
+
+* Tangling                                                      :boilerplate:
+*** sources
+**** =class_templates.py=
+#+BEGIN_SRC python :tangle class_templates.py :eval no :noweb yes
+<<def_meta>>
+<<class_ValueClassTemplate>>
+<<class_ClassTemplate>>
+#+end_src
+*** tests
+#+BEGIN_SRC python :tangle test_class_templates.py :eval no :noweb yes
+<<imports_for_tests>>
+<<class_TestMeta>>
+<<class_TestValueClassTemplate>>
+<<class_TestClassTemplate>>
+<<run_test_cases>>
+#+end_src
+
+

@@ -1,0 +1,661 @@
+#+TITLE: System implementation for Feedback Portal
+#+AUTHOR: VLEAD
+#+DATE: [2016-07-28 Thu]
+#+SETUPFILE: ../../org-templates/level-2.org
+#+TAGS: boilerplate(b)
+#+EXCLUDE_TAGS: boilerplate
+#+OPTIONS: ^:nil
+
+
+* Introduction
+
+A system has clear boundaries of input, output and state.
+In the context of our application, the system interacts with
+the external world (through command line function calls)
+and also manages the entity objects in such a way that the
+system invariants are maintained. 
+
+The system's inputs are in terms of /operations/.  Each
+operation consists of an operation name and a sequence of
+arguments.  
+
+In this implementation, an operation is identified by a
+class.  The dictionary =ops_table= maps operation names to
+their corresponding classes.
+
+Each operation is divided into four checks.  A /check/ is a
+predicate that either returns true or throws an exception.
+
+The following checks are performed:
+
+  - Arity check :: checks if the operation has the right
+       number  of arguments.
+
+  - Type check :: checks if the arguments have the correct
+       type. 
+
+  - Auth check :: checks if the session performing the
+       operation is authorized to do so.
+
+  - State check :: checks if the operation meets all the
+       constraints imposed by the state of the system
+       (referential integrity constraints, etc.)
+ 
+
+** Structure of each operation class
+
+The class corresponding to each operation has five fields:
+
+  - arg_types :: a list of type predicates.  The length of
+       this list is the arity of the operation.  The arity
+       check is simply a comparison of the length of this
+       list with the length of the list of arguments.  Each
+       predicate in the =arg_types= list is applied to the
+       corresponding argument to check the type of that
+       argument.
+
+  - auth_check :: a function that checks if the  =args= (which
+       may include a session) together satisfy the
+       authorization conditions imposed by the operation. 
+
+  - state_check :: a function that checks =args= and checks
+       if the particular state invariant holds.
+
+  - action :: a function on args that (presumably) changes
+       the state of the system and also returns an answer.
+       An exception thrown by this function indicates a
+       serious failure in the application (e.g., out of
+       memory error). 
+
+
+* The =System= class
+  There is only one =System= in the application.
+
+** Constructor
+
+   This is the generic =System= implementation.  The entities that make up the
+   sytem can be pure objects or objects that can be persisted.
+
+   The specific tasks on the composed objects is agnostic to the =system=.
+   This is achieved by defining an API that the system uses and is implemented
+   by composed entity set.
+
+   The system is initialized based on what the system should be composed of.
+
+#+NAME: class_system
+#+begin_src python
+class System ():
+
+    def __init__(self):
+        raise Error('Can not instantiate')
+
+    @staticmethod
+    def initialize_system(cls):
+        System.delegate = cls()
+
+    @staticmethod
+    def is_session_valid(session):
+        return session.get("key") == KEY
+ 
+#+end_src
+
+*** Test Constructor
+#+NAME: test_constructor
+#+BEGIN_SRC python
+class TestSystemConstructor(TestCase):
+    TESTING = True
+
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        System.initialize_system(PersistenceDelegate)
+
+    def tearDown(self):
+        System.delegate = None
+
+    def test_delegate(self):
+        print "test_delegate"
+        self.assertEqual(isinstance(System.delegate, PersistenceDelegate), 
+                             True)
+
+    def test_is_session_valid(self):
+        print "test_is_session_valid"
+        session = Session(key=KEY)
+        self.assertEqual(System.is_session_valid(session), True)
+
+    def test_is_session_not_valid(self):
+        print "test_is_session_not_valid"
+        session = Session(key="jdhfkjhdakjf")
+        self.assertEqual(System.is_session_valid(session), False)
+
+#+END_SRC
+
+
+** Arity and Type check methods 
+   Arity Check ensures that correct number of arguments are passed to a
+   functions.  Type Check ensures that the type of the arguments passed to a
+   function are same as expected.
+   
+   Any operation, before being executed is subjected to =Arity= and =Type=
+   checks.
+
+#+NAME: arity_type_checks
+#+BEGIN_SRC python
+   
+    @staticmethod
+    def arity_check(args, n):
+       if  (len(args) != n) :
+          raise ArityError("arity mismatch: size of args  does not " + 
+                           "match operation arity " )
+
+    @staticmethod
+    def type_check(args, arg_types):
+        for key, value in args.iteritems():
+            if not arg_types[key](value):
+                raise TypeError("type mismatch: argument %s is not of "
+                                "type %s" % (value, key))
+
+#+end_src
+
+*** Test Arity and Type Checks
+  #+NAME: test_arity_and_types
+  #+BEGIN_SRC python
+    def test_arity(self):
+        print "test_arity"
+        with self.assertRaises(ArityError):
+            System.arity_check([1,2], 3)
+
+    def test_type_checks(self):
+        print "test_type_checks"
+        args = {"question": Question(name="why", question_type="radio"),
+                "answer": Question(name="where", question_type="radio")
+                }
+
+        arg_types = {"question": is_question,
+                     "answer": is_answer
+                     }
+
+        with self.assertRaises(TypeError):
+            System.type_check(args, arg_types)
+
+  #+END_SRC
+
+
+* =do= method 
+   The =do= method is the main work-horse of =System= which is construed as the
+   =Controller=.  Every operation follows a template and realized as a class
+   that defines:
+   1. Number of Arguments
+   2. Type of Arguments
+   3. Who is allowed to perform the operation
+   4. Referential integrity checks and finally
+   5. the operation that changes state of the system. 
+
+
+#+NAME: do_function
+#+begin_src python
+    @staticmethod   
+    def do(op, **args):
+        cls = ops_table[op]
+        arg_types  = cls.arg_types
+        auth_check = cls.auth_check
+        state_check = cls.state_check
+        arity_and_type_checks_needed = cls.arity_and_type_checks_needed
+        try:
+            if arity_and_type_checks_needed:
+               System.arity_check(args.keys(), len(arg_types.keys()))
+               System.type_check(args, arg_types)
+            auth_check(args)
+            state_check(args)
+            return cls.action(args)
+        except (ArityError, TypeError, NotAuthorizedError, StateError) as err:
+            raise err
+
+#+end_src
+
+
+* Operations
+  Operations provide the mechanism to either change or retrieve the state of
+  the system.  While the system state is changed, it is imperative to maintain
+  the invariant of the system.  Before the actual change in system is made,
+  each operation goes through a series of checks:
+  1. Arity Check - ensures the right number of arguments are provided to
+     the operation.
+  2. Type Check - ensures the arguments are of right type
+  3. Auth Check - ensures only the authorized can perform the operation
+  4. State Check - ensures System invariant is maintained
+
+  Once these checks are satisfied, either the system state is modified or retrieved.
+
+** =AddQuestion=
+#+NAME: class_addquestion
+#+begin_src python
+class AddQuestion():
+    arg_types = {"question": is_question, "session": is_session}
+    arity_and_type_checks_needed = True
+
+    @staticmethod
+    def auth_check(args):
+        session = args['session']
+        if not System.is_session_valid(session):
+            raise NotAuthorizedError("Not Authorized to perform this action")
+
+    @staticmethod
+    def state_check(args):
+        question = args["question"]
+        if System.delegate.question_exists(question):
+            raise StateError("question %s already exists in System"
+                                 % question.to_client())
+
+    @staticmethod
+    def action(args):
+        question = args["question"]
+        question = System.delegate.add_question(question)
+        return question
+
+#+end_src
+
+
+
+** =UpdateQuestion=
+#+NAME: class_update_question
+#+begin_src python
+class UpdateQuestion():
+    arg_types = {"question": is_question, "name": is_str_or_none,
+                     "question_type": is_str_or_none,
+                     "session": is_session}
+    arity_and_type_checks_needed = True
+
+    @staticmethod
+    def auth_check(args):
+        session = args['session']
+        if not System.is_session_valid(session):
+            raise NotAuthorizedError("Not Authorized to perform this action")
+
+    @staticmethod
+    def state_check(args):
+        pass
+
+    @staticmethod
+    def action(args):
+        question = args["question"]
+        if not "name" in args:
+           name=question.get("name")
+        else:
+           name=args["name"]
+
+        if not "question_type" in args:
+           question_type = question.get("question_type")
+        else:
+           question_type = args["question_type"]
+
+        question = System.delegate.update_question(question, name,\
+            question_type)
+        return question
+
+#+end_src
+
+
+** =DeleteQuestion=
+#+NAME: class_delete_question
+#+begin_src python
+class DeleteQuestion():
+    arg_types = {"q_id": is_int, "session": is_session}
+    arity_and_type_checks_needed = True
+
+    @staticmethod
+    def auth_check(args):
+        session = args['session']
+        if not System.is_session_valid(session):
+            raise NotAuthorizedError("Not Authorized to perform this action")
+
+    @staticmethod
+    def state_check(args):
+        pass
+
+    @staticmethod
+    def action(args):
+        q_id = args["q_id"]
+        q_id = System.delegate.delete_question(q_id)
+        return q_id
+
+#+end_src
+
+
+** =AddAnswer=
+#+NAME: class_addanswer
+#+begin_src python
+class AddAnswer():
+    arg_types = {"answer": is_answer, "session": is_session}
+    arity_and_type_checks_needed = True
+
+    @staticmethod
+    def auth_check(args):
+        session = args['session']
+        if not System.is_session_valid(session):
+            raise NotAuthorizedError("Not Authorized to perform this action")
+
+    @staticmethod
+    def state_check(args):
+        answer = args["answer"]
+        if System.delegate.answer_exists(answer):
+            raise StateError("answer %s already exists in System"
+                                 % answer.to_client())
+
+    @staticmethod
+    def action(args):
+        answer = args["answer"]
+        answer = System.delegate.add_answer(answer)
+        return answer
+
+#+end_src
+
+
+
+** =AddFeedback=
+#+NAME: class_addfeedback
+#+begin_src python
+class AddFeedback():
+    arg_types = {"gateway_ip": is_str, "lab_name": is_str, "date": is_date,
+                  "exp_name": is_str, "responses": are_responses_or_empty_list,
+                  "version": is_str, "user_id": is_str, "session": is_session}
+    arity_and_type_checks_needed = True
+
+    @staticmethod
+    def auth_check(args):
+        session = args['session']
+        if not System.is_session_valid(session):
+            current_app.logger.error("auth error raised, session = %s" % 
+                                        session.to_client())
+            raise NotAuthorizedError("Not Authorized to perform this action")
+
+    @staticmethod
+    def state_check(args):
+        pass
+
+    @staticmethod
+    def action(args):
+        gateway_ip = args["gateway_ip"]
+        lab_name = args["lab_name"]
+        exp_name = args["exp_name"]
+        date = args["date"]
+        version = args["version"]
+        user_id = args["user_id"]
+        responses = args['responses']
+        try:
+            feedback = System.delegate.add_feedback(gateway_ip, 
+                                                        lab_name,
+                                                        exp_name,
+                                                        date,
+                                                        version,
+                                                        user_id,
+                                                        responses)
+            return feedback
+        except Exception as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+
+#+end_src
+
+
+** =AddResponsesToFeedBack=
+#+NAME: class_addresponses_to_feedback
+#+begin_src python
+class AddResponsesToFeedback():
+    arg_types = {"responses": are_responses, "fb_id": is_int, 
+                     "session": is_session}
+    arity_and_type_checks_needed = True
+
+    @staticmethod
+    def auth_check(args):
+        session = args['session']
+        if not System.is_session_valid(session):
+            current_app.logger.error("auth error raised, session = %s" % 
+                                        session.to_client())
+            raise NotAuthorizedError("Not Authorized to perform this action")
+
+    @staticmethod
+    def state_check(args):
+        fb_id = args["fb_id"]
+        if not System.delegate.feedback_exists(fb_id):
+            current_app.logger.error("feedback with id = %d does not exist"
+                                     " in System" % fb_id)
+            raise StateError("feedback with id = %d does not exist in System"
+                                 % fb_id)
+
+    @staticmethod
+    def action(args):
+        fb_id = args["fb_id"]
+        responses = args["responses"]
+        try:
+            feedback = System.delegate.add_responses_to_feedback(fb_id, 
+                                                                 responses)
+            return feedback
+        except Exception as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+
+#+end_src
+
+
+
+** =GetFeedbackUsage=
+#+NAME: class_get_feedback_usage
+#+begin_src python
+class GetFeedbackUsage():
+    arg_types = {"gateway_ip": is_str, "date": is_date,
+                  "session": is_session}
+    arity_and_type_checks_needed = True
+
+    @staticmethod
+    def auth_check(args):
+        session = args['session']
+        if not System.is_session_valid(session):
+            raise NotAuthorizedError("Not Authorized to perform this action")
+
+    @staticmethod
+    def state_check(args):
+        pass
+
+    @staticmethod
+    def action(args):
+        gateway_ip = args["gateway_ip"]
+        date = args["date"]
+        usage = System.delegate.get_feedback_usage(gateway_ip, date) 
+        return usage
+
+#+end_src
+
+
+
+** =GetFeedbackDump=
+#+NAME: class_get_feedback_dump
+#+begin_src python
+class GetFeedbackDump():
+    arg_types = {"date": is_date, "session": is_session}
+    arity_and_type_checks_needed = True
+
+    @staticmethod
+    def auth_check(args):
+        session = args['session']
+        if not System.is_session_valid(session):
+            raise NotAuthorizedError("Not Authorized to perform this action")
+
+    @staticmethod
+    def state_check(args):
+        pass
+
+    @staticmethod
+    def action(args):
+        date = args["date"]
+        feedbacks = System.delegate.get_feedback_dump(date) 
+        return feedbacks
+
+#+end_src
+
+
+
+** =GetFeedbackForm=
+#+NAME: class_get_feedback_form
+#+begin_src python
+class GetFeedbackForm():
+    arg_types = {"session": is_session,
+                 "lab_name": is_str,
+                 "exp_name": is_str_or_none,
+                 "version": is_str_or_none,
+                 "user_id": is_str_or_none}
+
+    arity_and_type_checks_needed = True
+
+    @staticmethod
+    def auth_check(args):
+        session = args['session']
+        if not System.is_session_valid(session):
+            raise NotAuthorizedError("Not Authorized to perform this action")
+
+    @staticmethod
+    def state_check(args):
+        pass
+
+    @staticmethod
+    def action(args):
+        return_val  = None
+        if args['version'] == None:
+            if args['exp_name'] == None:
+                return_val = feedback_forms[1]
+            else:
+                return_val = feedback_forms[0]
+                return_val['exp_name'] = args['exp_name']
+
+        return_val['lab_name'] = args['lab_name']
+        return_val['key'] = KEY
+        if args['user_id'] is not None:
+            return_val['user_id'] = args['user_id']
+
+        return return_val
+
+#+end_src
+
+*** TestGetFeedBackForm
+#+NAME: class_test_get_feedback_form
+#+BEGIN_SRC python
+    def test_get_feedback_form(self):
+        print "test_get_feedback_form"
+        session = Session(key=KEY)
+        lab_name = "Data Structures"
+        exp_name = "Binary Search"
+        user_id = "xyz123"
+        version = None
+        questions_dict = System.do("get_feedback_form", 
+                                      session=session,
+                                      lab_name=lab_name,
+                                      exp_name=exp_name,
+                                      version=None,
+                                      user_id=user_id)
+                                      
+        self.assertEqual(questions_dict['user_id'], user_id)  
+
+#+END_SRC
+    
+
+
+** Operations Table
+   Each operation has a corresponding implementation defined as a class.
+
+ #+NAME: ops_table
+ #+BEGIN_SRC python                                                                          
+ops_table = {'add_question' : AddQuestion,
+             'delete_question': DeleteQuestion,
+             'update_question': UpdateQuestion,
+             'add_answer' : AddAnswer,
+             'add_feedback': AddFeedback,
+             'get_feedback_usage': GetFeedbackUsage,
+             'get_feedback_dump': GetFeedbackDump,
+             'add_responses_to_feedback': AddResponsesToFeedback,
+             'get_feedback_form': GetFeedbackForm
+            }
+
+ #+END_SRC   
+
+    
+* Infra                                                         :boilerplate:
+
+** sources
+*** Imports 
+#+name: imports_for_sources
+#+BEGIN_SRC python
+# -*- coding: utf-8 -*-
+
+from runtime.exceptions.custom_exceptions import *
+from runtime.objects.entities import is_str, is_question, is_answer, \
+     is_feedback, is_date, is_response, is_session, are_responses, is_int,\
+     are_responses_or_empty_list
+from runtime.utils.type_utils import is_str_or_none
+from runtime.config.system_config import KEY
+from runtime.config.feedback_forms import feedback_forms
+import datetime
+from flask import current_app
+
+#+end_src
+
+
+** tests
+*** Imports 
+#+name: imports_for_tests
+#+BEGIN_SRC python
+# -*- coding: utf-8 -*-
+
+# -*- coding: utf-8 -*-
+import unittest
+from flask_testing import TestCase
+from runtime.rest.app import create_app
+from runtime.system.system import *
+from runtime.system.persistence_delegate import *
+
+config = {
+         'SQLALCHEMY_DATABASE_URI': ''
+         }
+
+#+end_src
+
+*** Running tests
+#+NAME: run_test_cases
+#+BEGIN_SRC python
+if __name__ == '__main__':
+    unittest.main()
+
+#+END_SRC
+
+
+* Tangling                                                      :boilerplate:
+
+** sources
+#+BEGIN_SRC python :tangle system.py :eval no :noweb yes
+<<imports_for_sources>>
+<<class_system>>
+<<arity_type_checks>>
+<<do_function>>
+<<class_addquestion>>
+<<class_update_question>>
+<<class_delete_question>>
+<<class_addanswer>>
+<<class_addfeedback>>
+<<class_get_feedback_usage>>
+<<class_get_feedback_dump>>
+<<class_addresponses_to_feedback>>
+<<class_get_feedback_form>>
+<<ops_table>>
+
+#+end_src
+
+
+** tests
+#+BEGIN_SRC python :tangle test_system.py :eval no :noweb yes
+<<imports_for_tests>>
+<<test_constructor>>
+<<test_arity_and_types>>
+<<class_test_get_feedback_form>>
+<<run_test_cases>>
+#+end_src

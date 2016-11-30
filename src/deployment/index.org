@@ -1,0 +1,419 @@
+#+TITLE: Deploying the application on a server
+#+AUTHOR: VLEAD
+#+DATE: [2016-06-07 Tue]
+#+SETUPFILE: ../org-templates/level-1.org
+#+TAGS: boilerplate(b)
+#+EXCLUDE_TAGS: boilerplate
+#+OPTIONS: ^:nil
+
+* Introduction
+  This document will illustrate installation of all the dependencies required
+  for setting up the application.
+
+* Install dependendent python packages
+  Here we use the =setuptools= module from the standard lib, to make a
+  =setup.py= file, which will install all the python library dependencies.
+
+#+BEGIN_SRC python :tangle setup.py :eval no
+from setuptools import setup
+
+requires = [
+    'flask',
+    'Flask-SQLAlchemy',
+    'oursql',
+    'flask-cors',
+    'flask-testing',
+    'requests',
+    'pyyaml'
+]
+
+setup(
+    name='feedback',
+    version='2.0',
+    install_requires=requires
+)
+
+#+END_SRC
+
+* Program to set up the database
+#+BEGIN_SRC python :tangle db_setup.py :eval no
+
+from runtime.rest.app import create_app
+from runtime.config import flask_app_config as config
+from runtime.utils.class_persistence_template import db
+from runtime.system.system import System
+
+def populate():
+    q_type = "radio"
+
+    question_cls = System.delegate.entities['question']
+
+    question1 = question_cls(name="Did you attempt the experiment?",
+			     question_type=q_type)
+
+    question2 = question_cls(name="Did the experiment work?",
+			     question_type=q_type)
+
+    question3 = question_cls(name="Did you find any bugs in the experiment?",
+			     question_type=q_type)
+
+    question4 = question_cls(name="How much did you know about the experiment before doing it in Virtual Labs?",
+			     question_type=q_type)
+
+    question5 = question_cls(name="Is this experiment part of your curriculum?",
+			     question_type=q_type)
+
+    question6 = question_cls(name="Did this experiment help you understand the concept better?",
+			     question_type=q_type)
+
+    question7 = question_cls(name="Will you recommend this experiment to others?",
+			     question_type=q_type)
+
+    
+    q_type = "textarea"
+    question8 = question_cls(name="Please provide any other feedback about this experiment",
+			     question_type=q_type)
+    
+    question9 = question_cls(name="feedback_about_experiment",
+			     question_type=q_type)
+    question10 = question_cls(name="feedback_about_lab",
+			      question_type=q_type)
+    question11 = question_cls(name="how_useful_are_labs",
+			      question_type=q_type)
+    question12 = question_cls(name="suggestions_about_experiment",
+			      question_type=q_type)
+    question13 = question_cls(name="suggestions_about_lab",
+			      question_type=q_type)
+    question14 = question_cls(name="suggestions_in_general",
+			      question_type=q_type)
+    q_type = "radio"
+    question15 = question_cls(name="How much did you know about the lab?",
+			      question_type=q_type)
+    question16 = question_cls(name="Is this lab part of your curriculum?",
+			      question_type=q_type)
+    question17 = question_cls(name="Did this lab help you understand the concept better?",
+			      question_type=q_type)
+    
+    question19 = question_cls(name="Will you recommend this lab to others?",
+			      question_type=q_type)
+    question20 = question_cls(name="Did you find any bugs in the lab?",
+			      question_type=q_type)
+    q_type = "textarea"
+
+    question21 = question_cls(name="Please provide any other feedback about this lab",
+			      question_type=q_type)
+    question22 = question_cls(name="Please provide any other feedback about Virtual Labs",
+			      question_type=q_type)
+    q_type = "radio"
+    question23 = question_cls(name="Designation",
+			      question_type=q_type)
+    question24 = question_cls(name="Did you attempt any experiments ?",
+			      question_type=q_type)
+    question25 = question_cls(name="Please rate your experience",
+			      question_type=q_type)
+    
+    
+    question1.save()
+    question2.save()
+    question3.save()
+    question4.save()
+    question5.save()
+    question6.save()
+    question7.save()
+    question8.save()
+    question9.save()
+    question10.save()
+    question11.save()
+    question12.save()
+    question13.save()
+    question14.save()
+    question15.save()
+    question16.save()
+    question17.save()
+    question19.save()
+    question20.save()
+    question21.save()
+    question22.save()
+    question23.save()
+    question24.save()
+    question25.save()
+
+if __name__ == "__main__":
+    db.create_all(app=create_app(config))
+    populate()
+
+#+END_SRC
+
+* Program to migrate the data 
+#+BEGIN_SRC python :tangle migrate.py :eval no
+import requests
+import json
+import yaml
+
+data_url = "http://data.vlabs.ac.in/feedback"
+data_by_id = data_url+"/"
+fb_url = "http://localhost:5000/feedback"
+
+fbs = requests.get(data_url).json()
+questions = ['feedback_about_experiment', 'feedback_about_lab',
+             'how_useful_are_labs', 'suggestions_about_experiment',
+             'suggestions_about_lab', 'suggestions_in_general']
+
+for index in range(1, len(fbs)):
+     a_url = data_by_id + str(index)
+     fb = requests.get(a_url).json()
+     fb_x = yaml.safe_load(json.dumps(fb))
+     gateway_ip = fb_x['ip']
+     user_id = fb_x['user_name']
+     print index
+     if fb_x['lab'] is None:
+        lab_name = "Null"
+     else:
+        lab_name = fb_x['lab']['name']
+
+     if fb_x['experiment'] is None:
+        exp_name = "Null"
+     else:
+        exp_name = fb_x['experiment']['name']
+        print exp_name
+
+     responses = []
+     for question in questions:
+         if fb_x[question] is None or\
+           fb_x[question] is '':
+             answer = "Null"
+             response = {'name': question,
+                           'answers':[answer] }
+             responses.append(response)
+         else:
+            answer = fb_x[question]
+            response = {'name': question,
+                        'answers':[answer] }
+            responses.append(response)
+
+     version = "virtual-labs-feedback-v1.0"
+     payload = {'lab_name': lab_name,
+                'exp_name': exp_name,
+                'key' : 'defaultkey',
+                'responses': responses,
+                'gateway_ip': gateway_ip,
+                'user_id': user_id,
+                'version': version
+               }
+
+     print payload
+
+     headers = {'Content-Type': 'application/json'}
+
+     response = requests.post(fb_url, data=json.dumps(payload),
+                                  headers=headers)
+     print response.status_code
+
+#+END_SRC
+* Install all dependencies and setup the software
+  Install all dependencies, including the OS related packages, Python packages,
+  setup the database, configure the webserver, and finally deploy the
+  application.
+
+#+BEGIN_SRC sh :tangle setup.sh :eval no
+#!/bin/bash
+# Shell script to install deb package dependencies as well as python package
+# dependencies for dataservice.
+
+# if any proxy server
+#PROXY=""
+# file to store the generated password
+DB_PASS_FILE="db_pass.txt"
+
+if [[ `id -u` -ne 0 ]]; then
+  echo "You have to execute this script as super user!"
+  exit 1;
+fi
+
+# Update the packages
+echo "Updating package cache.."
+apt-get -y update
+if [[ $? -ne 0 ]]; then
+  echo "Updating package cache failed!"
+  exit 1;
+fi
+
+echo "Installing MySQL database.."
+if [ ! -f $DB_PASS_FILE ]; then
+  # generate a random password for the database and store it in the $DB_PASS_FILE
+  # file
+#  DBPASS=$(date +%s | sha256sum | head -c 32)
+  DBPASS="root"
+  echo $DBPASS > $DB_PASS_FILE
+fi
+
+# Install MySQL Server in a Non-Interactive mode.
+echo "mysql-server mysql-server/root_password password $DBPASS" | sudo debconf-set-selections
+echo "mysql-server mysql-server/root_password_again password $DBPASS" | sudo debconf-set-selections
+apt-get install -y mysql-server
+if [[ $? -ne 0 ]]; then
+  echo "FATAL: MySQL installation failed!"
+  exit 1;
+fi
+
+# Install pre-requsite dependencies: python-dev, mysqld-dev, setuptools,
+# apache, mod_wsgi etc.
+echo "Installing pre-requisite dependencies.."
+apt-get install -y python-dev libmysqld-dev python-setuptools apache2 libapache2-mod-wsgi
+if [[ $? -ne 0 ]]; then
+  echo "FATAL: Installing pre-requisite dependencies failed!"
+  exit 1;
+fi
+
+echo "Enabling the mod WSGI on apache"
+a2enmod wsgi
+if [[ $? -ne 0 ]]; then
+  echo "FATAL: Unable to enable mod wsgi!"
+  exit 1;
+fi
+
+# Installing python dependencies
+echo "Installing dependencies.."
+#export http_proxy=$PROXY
+#export https_proxy=$PROXY
+#python setup.py install
+mkdir -p build/oursql
+cd build/oursql
+wget https://pypi.python.org/packages/8c/88/9f53a314a2af6f56c0a1249c5673ee384b85dc791bac5c1228772ced3502/oursql-0.9.3.2.tar.gz#md5=ade5959a6571b1626966d47f3ab2d315
+tar xvf oursql-0.9.3.2.tar.gz
+cd oursql-0.9.3.2
+python setup.py install
+
+pip install Flask Flask-SQLAlchemy oursql requests flask-cors flask-testing
+
+if [[ $? -ne 0 ]]; then
+  echo "FATAL: Installation failed!"
+  exit 1;
+fi
+
+exit 0
+
+#+END_SRC
+
+* Configuring the application and its deployment
+  The following program configures the application, configures the web server
+  to use WSGI and use the application scripts, and finally calls the database
+  setup scripts to actually setup the database with tables.
+
+#+BEGIN_SRC sh :tangle configure.sh :eval no
+#!/bin/bash
+# Configure the application in the deployment environment
+# 1. Update the config.py file with appropriate values
+# 2. Update the apache config to server via WSGI
+# 3. Run the database setup scripts to setup the database
+
+if [[ `id -u` -ne 0 ]]; then
+  echo "You have to execute this script as super user!"
+  exit 1;
+fi
+
+ABS_PATH_DS=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+
+update_app_config () {
+  CONFIG_FILE="../runtime/config/flask_app_config.py"
+  DB_USER="root"
+  DB_PASS=$(cat db_pass.txt)
+  DB_NAME="feedback"
+  DB_SERVER="localhost"
+
+  # the list of white-listed IPs for POST/PUT requests to data service
+  WHITELIST_IPS="['127.0.0.1']"
+
+  # the list of allowed domains for CORS
+  ALLOWED_ORIGINS="['*']"
+
+  echo "Updating config.py.."
+  # Update parts of the DB URI
+  sed -i "s/<userid>/$DB_USER/" $ABS_PATH_DS/$CONFIG_FILE
+  sed -i "s/<password>/$DB_PASS/" $ABS_PATH_DS/$CONFIG_FILE
+  sed -i "s/<servername>/$DB_SERVER/" $ABS_PATH_DS/$CONFIG_FILE
+  sed -i "s/<db_name>/$DB_NAME/" $ABS_PATH_DS/$CONFIG_FILE
+  # update SQLALCHEMY_ECHO
+  sed -i "s/^SQLALCHEMY_ECHO.*$/SQLALCHEMY_ECHO = False/" $ABS_PATH_DS/$CONFIG_FILE
+  # update WHITELIST_IPS
+  #sed -i "s/^WHITELIST_IPS.*$/WHITELIST_IPS = $WHITELIST_IPS/" $CONFIG_FILE
+  # update ALLOWED_ORIGINS
+  #sed -i "s/^ALLOWED_ORIGINS.*$/ALLOWED_ORIGINS = $ALLOWED_ORIGINS/" $CONFIG_FILE
+
+  # NOTE: this is hardcoded now..somehow the log file when dynamically created
+  # is owned by root. then the app fails to run.. hence the following is
+  # necessary
+}
+
+update_apache_config() {
+  PROC_NAME="feedback"
+  WSGI_SCRIPT="feedback.wsgi"
+  APACHE_VHOST_FILE="/etc/apache2/sites-available/default"
+
+  sed -i "/<\/VirtualHost>/i \
+    WSGIScriptAlias / $ABS_PATH_DS/$WSGI_SCRIPT
+  " $APACHE_VHOST_FILE
+
+  #sed -i '/<\/VirtualHost>/i \
+  #  WSGIDaemonProcess $PROC_NAME user=www-data group=www-data threads=5
+  #  WSGIScriptAlias / $ABS_PATH_DS/$WSGI_SCRIPT
+
+  #  <Directory $ABS_PATH_DS>
+  #    WSGIProcessGroup $PROC_NAME
+  #    WSGIApplicationGroup %{GLOBAL}
+  #    Order deny,allow
+  #    Allow from all
+  #  </Directory>
+  #' $APACHE_VHOST_FILE
+
+}
+
+setup_db() {
+  echo "Creating database: $DB_NAME"
+  mysql -u $DB_USER -p$DB_PASS -Bse "create database $DB_NAME;"
+  if [[ $? -ne 0 ]]; then
+    echo "Failed to create database $DB_NAME"
+    exit 1;
+  fi
+
+}
+
+update_app_config
+if [[ $? -ne 0 ]]; then
+  echo "FATAL: Failed to update application flask_app_config.py"
+  exit 1;
+fi
+update_apache_config
+if [[ $? -ne 0 ]]; then
+  echo "FATAL: Failed to update apache config"
+  exit 1;
+fi
+
+service apache2 restart
+export PYTHONPATH="/var/www"
+setup_db
+exit 0;
+#+END_SRC
+
+* Deploying the application
+
+#+BEGIN_SRC python :tangle feedback.wsgi :eval no
+
+import sys, os
+
+BASE_DIR = BASE_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)))
+
+#sys.path.insert(0, BASE_DIR)
+sys.path.insert(0, "/var/www")
+
+from runtime.rest.app import create_app
+from runtime.config import flask_app_config as config
+
+application = create_app(config)
+
+#+END_SRC
+
+* Tangle                                       :boilerplate:
+#+BEGIN_SRC python :eval no :tangle __init__.py
+print "deployment package"
+#+END_SRC

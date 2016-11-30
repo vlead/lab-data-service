@@ -1,0 +1,401 @@
+#+title:  Type Predicates and Checks
+#+SETUPFILE: ../../org-templates/level-2.org
+#+TAGS: boilerplate(b)
+#+EXCLUDE_TAGS: boilerplate
+#+OPTIONS: ^:nil
+
+* Introduction
+  This module defines basic type predicates and type checks. 
+
+
+* Type predicates
+  A type predicate is a function that takes one argument and
+  returns a boolean.
+
+** Instance predicate
+
+   An instance predicate checks if the argument is in an
+   instance of a class.
+
+#+NAME: def_is_inst
+#+BEGIN_SRC python
+def is_inst(cls):
+    def fn(a):
+        return a.__class__.__name__ == cls.__name__
+    return fn
+
+is_int = is_inst(int)
+is_bool = is_inst(bool)
+is_str = is_inst(str)
+is_dict = is_inst(dict)
+is_list = is_inst(list)
+is_string = is_inst(str)
+is_unicode = is_inst(unicode)
+is_str_or_none = lambda str: is_str(str) or str == None
+
+#+END_SRC
+
+*** Test Instance predicate
+
+#+NAME: class_TestIsInstance
+#+BEGIN_SRC python 
+
+class TestIsInstance(TestCase):
+    TESTING = True
+
+    def test_is_int(self):
+        print "test_instances"
+        self.assertEqual(is_int(10), True)
+        self.assertEqual(is_int(10.0), False)
+        self.assertEqual(is_bool(False), True)
+        self.assertEqual(is_bool(10), False)
+        self.assertEqual(is_str('hello world'), True)
+        self.assertEqual(is_str(False), False)
+        self.assertEqual(is_dict({'email': 'xyz@g.com'}), True)
+        self.assertEqual(is_dict("{'email': 'xyz@g.com'}"), False)
+
+#+END_SRC
+
+** Alphabetic string predicate
+
+    This function take an argument and checks whether the
+    argument is an alphabetic string.  An alphabetic string
+    consists of one or more alphabetic characters, period or
+    space.
+
+#+name: def_is_alphabetic_str
+#+BEGIN_SRC  python
+def is_alphabetic_str(value):
+    if (isinstance(value, str) and not re.search('[^a-zA-Z. ]+', value)):
+        return True
+    else:
+        return False
+
+#+END_SRC
+
+** Email string predicate
+    Email is a type as defined in RFC [[https://tools.ietf.org/html/rfc5321][5321]], [[https://tools.ietf.org/html/rfc5322][5322]] and [[https://tools.ietf.org/html/rfc6531][6531]].
+    Following is the constructor for this class.
+
+    (We may want to instead use the =validate_email= package of Python.  See
+    [[http://stackoverflow.com/questions/8022530/python-check-for-valid-email-address][this]] Stack Overflow discussion.)
+
+
+#+NAME: def_is_email_str
+#+BEGIN_SRC python
+def is_email_str(value):
+    if isinstance(value, str) and re.search('[^@]+@[^@]+\.[^@]+', value):
+        return True
+    else:
+        return False
+
+#+END_SRC
+
+** Date predicate
+
+#+name: def_is_date
+#+BEGIN_SRC  python
+def is_date(value):
+    return isinstance(value, datetime.date)
+
+#+END_SRC
+
+** None predicate
+
+#+name: def_is_none
+#+BEGIN_SRC  python
+def is_none(value):
+    return value == None
+
+#+END_SRC
+
+** Helper Function
+#+name: def_jsonify_list
+#+BEGIN_SRC  python
+# return a list of dicts as json with correct mime types
+# flask does not provide a jsonify for lists; hence this method
+def jsonify_list(data):
+    if type(data) is not list:
+        raise Exception('jsonify_list function accepts only a list')
+
+    return make_response(json.dumps(data), 200,
+                         {'content-type': 'application/json'})
+
+#+END_SRC
+
+
+* Checks
+  All checks check on a predicate for a type.  
+  
+** =check_pred=
+
+A /check/ is a partial function that takes an argument and
+acts as as filter.  If the check fails, the check function
+raises an exception.  If the check passes, then the function
+returns the argument.
+
+We start with implementing a generic function that checks
+predicates.  =check_pred= takes a predicate =p= and returns
+a function that takes an argument =a= and returns =a= if =a=
+satisfies =p=, and raises a =TypeError= otherwise.
+
+#+NAME: def_check_pred
+#+BEGIN_SRC python
+def check_pred(p):
+    def fn(a):
+        if p(a):
+            return a
+        else:
+            raise TypeError('arg %s does not satisfy type predicate %s' % (a, p))
+    return fn
+
+check_alphabetic_str = check_pred(is_alphabetic_str)
+check_email_str = check_pred(is_email_str)
+check_string = check_pred(is_string)
+check_date = check_pred(is_date)
+check_int = check_pred(is_int)
+
+#+END_SRC
+
+*** Tests for =check_pred=
+#+NAME: class_TestCheckPred
+#+BEGIN_SRC python
+def rem(a, b):
+    return a % b
+
+check_even = check_pred(lambda a: isinstance(a,int) & rem(a,2) == 0)
+
+class TestCheckPred(TestCase):
+    TESTING = True
+    '''test_check_pred'''
+
+    def test_check_even(self):
+        print "test_check_pred"
+        self.assertEqual(check_even(4), 4)
+        self.assertRaises(TypeError, check_even, 5)
+        self.assertEqual(check_even(False), False)  # False == 0 in Python
+#+end_src
+
+*** Tests for check_alphabetic_str
+#+Name: class_TestCheckAlphabeticStr
+#+BEGIN_SRC python
+
+class TestCheckAlphabeticStr(TestCase):
+    TESTING = True
+    """Tests for  alphabetic strings"""
+    def test_check_alphabetic_str(self):
+        print "test_check_alphabetic_str"
+        self.assertEqual(check_alphabetic_str("Hello"), "Hello")
+        self.assertEqual(check_alphabetic_str("M. N. Ray"), "M. N. Ray")
+        self.assertRaises(TypeError, check_alphabetic_str, "123hello")
+
+#+END_SRC
+
+*** Few more tests on check_alphabetic_str
+    There are some false positives that slip in with =alphabetic_str=.  A more
+    accurate definition of =is_alphabetic_str= should fix this.
+
+#+NAME: more-alphabetic_str-checks
+#+BEGIN_SRC python
+    def test_more_alphabetic_strings(self):
+        print "test_more_alphabetic_strings"
+        # this looks wierd!  Should it be a name?
+        self.assertEqual(check_alphabetic_str(".  ."), ".  .")
+
+#+END_SRC
+
+*** Tests for check_email_str
+#+NAME: class_TestCheckEmailStr
+#+BEGIN_SRC python
+
+class TestCheckEmailStr(TestCase):
+    TESTING = True
+    """Tests for Email strings"""
+    def test_check_email_str(self):
+        print "test_check_email_str"
+        self.assertEqual(check_email_str("web@gnu.org"), "web@gnu.org")
+        self.assertRaises(TypeError, check_email_str, "@gnu.org")
+
+#+END_SRC
+
+*** Tests for check_string
+#+Name: class_TestCheckString
+#+BEGIN_SRC python
+
+class TestCheckString(TestCase):
+    TESTING = True
+    """Tests for strings"""
+    def test_check_string(self):
+        print "test_check_string"
+        self.assertEqual(check_string("Hello"), "Hello")
+        self.assertEqual(check_string("M. N. Ray"), "M. N. Ray")
+        self.assertRaises(TypeError, check_alphabetic_str, 123)
+
+#+END_SRC
+
+*** Tests for check_date
+#+Name: class_TestCheckDate
+#+BEGIN_SRC python
+
+class TestCheckDate(TestCase):
+    TESTING = True
+    """Tests for date"""
+    def test_check_date(self):
+        print "test_check_date"
+        self.assertEqual(check_date(datetime.datetime.strptime("30-06-2016", "%d-%m-%Y").date()), datetime.datetime.strptime("30-06-2016", "%d-%m-%Y").date())
+        self.assertEqual(check_date(datetime.datetime.strptime("29-06-2016", "%d-%m-%Y").date()), datetime.datetime.strptime("29-06-2016", "%d-%m-%Y").date())
+        self.assertRaises(TypeError, check_date, 123)
+
+#+END_SRC
+
+*** Tests for check_int
+#+Name: class_TestCheckInt
+#+BEGIN_SRC python
+
+class TestCheckInt(TestCase):
+    TESTING = True
+    """Tests for integer"""
+    def test_check_integer(self):
+        print "test_check_integer"
+        self.assertEqual(check_int(123), 123)
+        self.assertRaises(TypeError, check_int, "abc")
+
+#+END_SRC
+
+** =check_inst= 
+
+   =check_inst= takes a class and returns a function that checks if its
+   argument is an instance that class.
+
+#+NAME: def_check_inst
+#+BEGIN_SRC python
+def check_inst(cls):
+    return check_pred(is_inst(cls))
+
+check_function =  check_inst(types.FunctionType)
+check_dict = check_inst(dict)
+check_list = check_inst(list)
+check_str = check_inst(str)
+check_int = check_inst(int)
+check_pos_int = check_pred(lambda arg: check_int(arg) and arg > 0)
+check_non_neg_int = check_pred(lambda arg: check_int(arg) and arg >= 0)
+
+#+END_SRC
+
+*** Tests
+#+NAME: class_TestCheckInstance
+#+BEGIN_SRC python
+class TestCheckInstance(TestCase):
+    TESTING = True
+    """Tests for Check instances"""
+
+    def test_check_inst(self):
+        print "test_check_instance"
+        self.assertEqual(check_int(3), 3)
+        self.assertEqual(check_str("abc"), "abc")
+
+        self.assertEqual(isinstance(
+                         check_dict({'x': 3, 'y': 5}),
+                         dict),
+                         True)
+        self.assertEqual(isinstance(
+                         check_function(check_function),
+                         types.FunctionType),
+                         True)
+
+        self.assertRaises(TypeError, check_pos_int, 0)
+        self.assertRaises(TypeError, check_non_neg_int, -1)
+#+end_src
+
+** =check_inv=
+   
+   An invariant is a predicate on a dictionary.  =check-inv= takes an invariant
+   and an optional class name and returns an invariant check.
+
+#+name: def_check_inv
+#+BEGIN_SRC python
+def check_inv(inv, *name):
+    # args is a dictionary
+    def fn(args):
+        if inv(args):
+            args
+        else:
+            if name == []:
+                raise TypeError("invariant fails on args %s" % args)
+            else:
+                raise TypeError("invariant for class %s fails on args %s" % (name[0], args))
+    return fn
+
+#+END_SRC
+
+
+* Sources Infra                                                 :boilerplate:
+** Imports
+#+NAME: imports_for_sources
+#+BEGIN_SRC python
+import re
+import types
+import datetime
+import json
+
+from flask import make_response
+
+#+END_SRC
+
+
+* Test Infra                                                    :boilerplate:
+** Imports for tests 
+   All the necessary imports for running test cases are grouped here
+#+name: imports_for_tests
+#+BEGIN_SRC python
+# -*- coding: utf-8 -*-
+import unittest
+from unittest import TestCase
+from type_utils import *
+import types
+
+#+end_src
+
+** Running tests
+#+NAME: run_test_cases
+#+BEGIN_SRC python
+if __name__ == '__main__':
+    unittest.main()
+#+END_SRC
+
+
+* Tangling                                                      :boilerplate:
+
+*** sources
+**** =type_utils.py=
+#+BEGIN_SRC python :tangle type_utils.py :eval no :noweb yes
+<<imports_for_sources>>
+<<def_is_inst>>
+<<def_is_alphabetic_str>>
+<<def_is_string>>
+<<def_is_email_str>>
+<<def_is_date>>
+<<def_is_none>>
+<<def_jsonify_list>>
+<<def_is_int>>
+<<def_check_pred>>
+<<def_check_inst>>
+<<def_check_inv>>
+#+END_SRC
+
+
+*** tests
+**** =test_type_utils.py=
+#+BEGIN_SRC python :tangle test_type_utils.py :eval no :noweb yes
+<<imports_for_tests>>
+<<class_TestIsInstance>>
+<<class_TestCheckPred>>
+<<class_TestCheckAlphabeticStr>>
+<<class_TestCheckString>>
+<<class_TestCheckDate>>
+<<class_TestCheckInt>>
+<<more-alphabetic_str-checks>>
+<<class_TestCheckEmailStr>>
+<<class_TestCheckInstance>>
+<<run_test_cases>>
+#+END_SRC
