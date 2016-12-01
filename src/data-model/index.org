@@ -13,8 +13,8 @@
   between these entities; and operations that entail a change in the state of
   the system.
 
-  The purpose of this document is to describe the expected behaviour of the new
-  outreach portal. It is a specification for the new requirements of this portal.
+  The purpose of this document is to describe the expected behaviour of the lab
+  data service. It is a specification for the new requirements of this service.
 
 
 * COMMENT LabId assigned for each lab
@@ -282,45 +282,55 @@ zero, one or more elements of =B=.
 
 * Abstract Entity Types
   The following are the abstract data types in our system. 
-** Feedback
+** Developer
 :PROPERTIES:
-:CUSTOM_ID: entity_feedback
+:CUSTOM_ID: entity_developer
 :END: 
-  Requirement satisfied: [[../requirements/index.org::#feedback_form][Feedback]]
+  Requirement satisfied: [[../requirements/index.org::#developer][Developer]]
 
 #+BEGIN_SRC spec :tangle spec.txt
 ;;; Entity Types
-TYPE Feedback
+TYPE Developer
 #+END_SRC
 
-** Question
+** Institute
 :PROPERTIES:
-:CUSTOM_ID: entity_question
+:CUSTOM_ID: entity_institute
 :END: 
-  Requirement satisfied: [[../requirements/index.org::#questions][Question]]
+  Requirement satisfied: [[../requirements/index.org::#institute][Institute]]
 #+BEGIN_SRC spec :tangle spec.txt
 ;;; Entity Types
-TYPE Question
+TYPE Institute
 #+END_SRC
 
-** Answer
+** Discipline
 :PROPERTIES:
-:CUSTOM_ID: entity_answer
+:CUSTOM_ID: entity_discipline
 :END: 
-  Requirement satisfied: [[../requirements/index.org::#answers][Answer]]
+  Requirement satisfied: [[../requirements/index.org::#discipline][Discipline]]
 #+BEGIN_SRC spec :tangle spec.txt
 ;;; Entity Types
-TYPE Answer
+TYPE Discipline
 #+END_SRC
 
-** Response
+** Lab
 :PROPERTIES:
-:CUSTOM_ID: entity_responses
+:CUSTOM_ID: entity_lab
 :END: 
-  Requirement satisfied: [[../requirements/index.org::#responses][Response]]
+  Requirement satisfied: [[../requirements/index.org::#lab][Lab]]
 #+BEGIN_SRC spec :tangle spec.txt
 ;;; Entity Types
-TYPE Response 
+TYPE Lab
+#+END_SRC
+
+** Experiment
+:PROPERTIES:
+:CUSTOM_ID: entity_experiment
+:END: 
+  Requirement satisfied: [[../requirements/index.org::#experiment][Experiment]]
+#+BEGIN_SRC spec :tangle spec.txt
+;;; Entity Types
+TYPE Experiment
 #+END_SRC
 
 
@@ -337,9 +347,10 @@ TYPE Response
 
 ;;; Relations with cardinality constraints
 
-[responses, feedbacks]   : Feedback +  >    Response +
-[question, responses]    : Response    >    Question !
-[answers, response]      : Response    >    Answer +
+[developer, lab]          : Developer +  >    Lab +
+[discipline, lab]         : Discipline !  >    Lab +
+[institute, lab]          : Institute +  >    Lab +
+[experiment, lab]         : Experiment +  >    Lab !
 
 #+END_SRC
 
@@ -349,7 +360,7 @@ TYPE Response
    entities.
 
 #+BEGIN_HTML
-<img src="https://docs.google.com/drawings/d/1k3AovJg7GJe65MI_LAJA_3RdMsmlP9eTC8wLBbmfwdY/pub?w=960&h=720">
+<img src="https://docs.google.com/drawings/d/1Pc5ywXvy3RC4lws4KwBiv_qpukm_Fz6JPH4wh_CYjMo/edit">
 <p align="center"> Feedback Relations </p>
 
 #+END_HTML
@@ -418,10 +429,14 @@ Sets
 :CUSTOM_ID: referential_integrity_relations
 :END: 
 #+BEGIN_SRC spec :tangle spec.txt
-  [responses, feedbacks]   : feedback-set +  >  response-set +
-  [question, responses]    : response-set    >  question-set !
-  [answers, response]      : response-set    >  answer-set + 
-  [workshop, feedbacks]    : feedback-set +  >  workshop-set ?
+
+ [discipline, institute]   : Discipline +  >    Institute +
+ [developer, discipline]   : Developer +  >    Discipline +
+ [developer, institute]    : Developer +  >    Institute +
+ [developer, experiment]   : Developer +  >    Experiment +
+ [experiment, institute]   : Experiment +  >    Institute !
+ [experiment, discipline]  : Experiment +  >    Discipline +
+
 
 #+END_SRC
   The relation =feedbacks : workshop-set > feedback-set += is ascertained by the
@@ -440,10 +455,10 @@ entity-set.   The operation may take additional parameters.
  - U  update a user      
  - D  delete a user      
 
-** Add Question
+** Add Lab
 *** Parameters
 #+BEGIN_SRC spec :tangle spec.txt
-    q: Question, s: Session
+    experiment: [Experiment], l: Lab, s: Session
 #+END_SRC   
 *** Actor credentials
 #+BEGIN_SRC spec :tangle spec.txt
@@ -451,20 +466,21 @@ entity-set.   The operation may take additional parameters.
 #+END_SRC   
 *** Referential Integrity
 #+BEGIN_SRC spec :tangle spec.txt
-    q: ~question-set
+    l: ~lab-set
+    experimentss: experiment-set
 #+END_SRC   
 *** Effect
 #+BEGIN_SRC spec :tangle spec.txt
-    q = new question
-    question-set = question-set U {q}
+    l = new lab
+    lab-set = lab-set U {}
 #+END_SRC   
 
 
 
-** Add Answer
+** Add Experiment
 *** Parameters
 #+BEGIN_SRC spec :tangle spec.txt
-    a: Answer, s: Session
+    e: Experimet, s: Session
 #+END_SRC   
 *** Actor credentials
 #+BEGIN_SRC spec :tangle spec.txt
@@ -472,19 +488,19 @@ entity-set.   The operation may take additional parameters.
 #+END_SRC   
 *** Referential Integrity
 #+BEGIN_SRC spec :tangle spec.txt
-    a: ~answer-set
+    e: ~experiment-set
 #+END_SRC   
 *** Effect
 #+BEGIN_SRC spec :tangle spec.txt
-    a = new answer
-    answer-set = answer-set U {a}
+    e = new experiment
+    experiment-set = experiment-set U {e}
 #+END_SRC   
 
 
-** Add Response
+** Add Institute
 *** Parameters
 #+BEGIN_SRC spec :tangle spec.txt
-    answers: [Answer], q: Question, f: Feedback, s: Session
+    lab: [Lab], experiment: [Experiment], d: Developer, s: Session
 #+END_SRC   
 *** Actor credentials
 #+BEGIN_SRC spec :tangle spec.txt
@@ -492,14 +508,14 @@ entity-set.   The operation may take additional parameters.
 #+END_SRC   
 *** Referential Integrity
 #+BEGIN_SRC spec :tangle spec.txt
-    answers: answer-set
-    q: question-set
-    f: feedback-set
+    labs: lab-set
+    experiments: experiment-set
+    d: developer-set
 #+END_SRC   
 *** Effect
 #+BEGIN_SRC spec :tangle spec.txt
-    r = new response
-    response-set = response-set U {r}
+    i = new institute
+    institute-set = institute-set U {i}
 #+END_SRC   
 
 
