@@ -14,7 +14,7 @@
   the system.
 
   The purpose of this document is to describe the expected behaviour of the lab
-  data service. It is a specification for the new requirements of this service.
+  data service. It is a specification for the requirements of this service.
 
 
 * COMMENT LabId assigned for each lab
@@ -278,22 +278,31 @@ zero, one or more elements of =B=.
    
 
 
-* Informal account of the data model
+* Informal abstraction of the data model
 
-* Abstract Entity Types
-  The following are the abstract data types in our system. 
-** Developer
+** Abstract Entity Types
+  The following are the abstract data types in our system.
+*** Lab
 :PROPERTIES:
-:CUSTOM_ID: entity_developer
+:CUSTOM_ID: entity_lab
 :END: 
-  Requirement satisfied: [[../requirements/index.org::#developer][Developer]]
-
+  Requirement satisfied: [[../requirements/index.org::#lab][Lab]]
 #+BEGIN_SRC spec :tangle spec.txt
 ;;; Entity Types
-TYPE Developer
+TYPE Lab
+#+END_SRC
+ 
+*** Experiment
+:PROPERTIES:
+:CUSTOM_ID: entity_experiment
+:END: 
+  Requirement satisfied: [[../requirements/index.org::#experiment][Experiment]]
+#+BEGIN_SRC spec :tangle spec.txt
+;;; Entity Types
+TYPE Experiment
 #+END_SRC
 
-** Institute
+*** Institute
 :PROPERTIES:
 :CUSTOM_ID: entity_institute
 :END: 
@@ -303,7 +312,7 @@ TYPE Developer
 TYPE Institute
 #+END_SRC
 
-** Discipline
+*** Discipline
 :PROPERTIES:
 :CUSTOM_ID: entity_discipline
 :END: 
@@ -313,24 +322,15 @@ TYPE Institute
 TYPE Discipline
 #+END_SRC
 
-** Lab
+*** Developer
 :PROPERTIES:
-:CUSTOM_ID: entity_lab
+:CUSTOM_ID: entity_developer
 :END: 
-  Requirement satisfied: [[../requirements/index.org::#lab][Lab]]
-#+BEGIN_SRC spec :tangle spec.txt
-;;; Entity Types
-TYPE Lab
-#+END_SRC
+  Requirement satisfied: [[../requirements/index.org::#developer][Developer]]
 
-** Experiment
-:PROPERTIES:
-:CUSTOM_ID: entity_experiment
-:END: 
-  Requirement satisfied: [[../requirements/index.org::#experiment][Experiment]]
 #+BEGIN_SRC spec :tangle spec.txt
 ;;; Entity Types
-TYPE Experiment
+TYPE Developer
 #+END_SRC
 
 
@@ -348,10 +348,15 @@ TYPE Experiment
 ;;; Relations with cardinality constraints
 
 [developer, lab]          : Developer +  >    Lab +
-[discipline, lab]         : Discipline !  >    Lab +
-[institute, lab]          : Institute +  >    Lab +
+[discipline, lab]         : Discipline +  >    Lab +
+[institute, lab]          : Institute !  >    Lab +
 [experiment, lab]         : Experiment +  >    Lab !
-
+[institute, experiment]   : Institute !  >    Experiment +
+[discipline, experiment]  : Discipline +  >    Experiment +
+[developer, experiment]   : Developer +  >    Experiment +
+[discipline, institute]   : Discipline +  >    Institute +
+[developer, institute]    : Developer +  >    Institute !
+[developer, discipline]   : Developer +  >    Discipline +
 #+END_SRC
 
 
@@ -360,11 +365,11 @@ TYPE Experiment
    entities.
 
 #+BEGIN_HTML
-<img src="https://docs.google.com/drawings/d/1Pc5ywXvy3RC4lws4KwBiv_qpukm_Fz6JPH4wh_CYjMo/edit">
-<p align="center"> Feedback Relations </p>
+<img src=" https://docs.google.com/drawings/d/e/2PACX-1vQX1QRUkVjjW4hjHaUowOevT6_boqdslQfR0_awXAZmLPSx_UL8Qh_P5fYDoiCCm-IXzPX8LHs2pvId/pub?w=960&h=720">
+<p align="center"> Data Service Model </p>
 
 #+END_HTML
-  To edit the feedback relations image click [[https://docs.google.com/drawings/d/1k3AovJg7GJe65MI_LAJA_3RdMsmlP9eTC8wLBbmfwdY/edit][here]]
+  To edit the Data Service Model image click [[ https://docs.google.com/a/vlabs.ac.in/drawings/d/1Pc5ywXvy3RC4lws4KwBiv_qpukm_Fz6JPH4wh_CYjMo/edit?usp=sharing][here]]
 
 
 * Keys
@@ -372,25 +377,21 @@ TYPE Experiment
 An entity =K= is called a /key for/ an entity =A= if there
 is a relation =r: A? > K!=.
 
-|-----+-----------+------------------------------|
-|     | Entity    | Key                          |
-|-----+-----------+------------------------------|
-|  1. | Feedback  | ip address, date             |
-|-----+-----------+------------------------------|
-|  2. | Response  | Feedback                     |
-|-----+-----------+------------------------------|
-|  3. | Question  | Response                     |
-|-----+-----------+------------------------------|
-|  4. | Answer    | Response                     |
-|-----+-----------+------------------------------|
-
+|----+------------+------------------|
+|    | Entity     | Key              |
+|----+------------+------------------|
+| 1. | Lab        | lab_id           |
+|----+------------+------------------|
+| 2. | Experiment | exp_id           |
+|----+------------+------------------|
+| 3. | Institute  | name             |
+|----+------------+------------------|
+| 4. | Discipline | name             |
+|----+------------+------------------|
+| 5. | Developer  | name, email_id   |
+|----+------------+------------------|
 
 * Assumptions
-
-  Lab name and experiment name are provided by the client asking to get the
-  feedback form. 
-
-
 * System state
   The system's state is captured by a set of /state variables/.
 
@@ -401,7 +402,7 @@ is a relation =r: A? > K!=.
 #+BEGIN_SRC spec :tangle spec.txt
 ;;; Primary state variables
 Sets
-  feedback-set  : set[Feedback]  ; set of all feedbacks in the system
+  lab-set  : set[Lab]  ; set of all labs in the system
 
  #+END_SRC
 
@@ -430,12 +431,7 @@ Sets
 :END: 
 #+BEGIN_SRC spec :tangle spec.txt
 
- [discipline, institute]   : Discipline +  >    Institute +
- [developer, discipline]   : Developer +  >    Discipline +
- [developer, institute]    : Developer +  >    Institute +
- [developer, experiment]   : Developer +  >    Experiment +
- [experiment, institute]   : Experiment +  >    Institute !
- [experiment, discipline]  : Experiment +  >    Discipline +
+ 
 
 
 #+END_SRC
