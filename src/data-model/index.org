@@ -197,16 +197,19 @@ Sets
 :CUSTOM_ID: derived_entity_sets
 :END: 
 #+BEGIN_SRC spec :tangle spec.txt
-  experiment-set  : lab-set.experiment  ; set of experiments in the system
-  institute-set   : lab-set.institute   ; set of institutes in the system
-  discipline-set  : lab-set.discipline  ; set of disciplines in the system
-  developer-set   : lab-set.developer   ; set of developers in the system
+  experiment-set  : lab-set.experiment         ; set of experiments in the system
+  institute-set   : lab-set.institute          ; set of institutes in the system
+  discipline-set  : lab-set.discipline         ; set of disciplines in the system
+  developer-set   : lab-set.developer          ; set of developers in the system
   institute-set   : discipline-set.institute   ; set of institutes in the system
   developer-set   : discipline-set.developer   ; set of developers in the system
-
-  discipline-set  : institute-set.discipline   ; set of discipline in the system
-
-  institute-set   : developer-set.institute   ; set of institutes in the system
+  lab-set         : discipline-set.lab         ; set of labs in the system
+  discipline-set  : institute-set.discipline   ; set of disciplines in the syste
+  developer-set   : institute-set.developer    ; set of developers in the system
+  lab-set         : institute-set.lab          ; set of labs in the system
+  institute-set   : developer-set.institute    ; set of institutes in the system
+  discpline-set   : developer-set.discipline   ; set of disciplines in the system
+  lab-set         : developer-set.lab          ; set of labs in the system
 
 #+END_SRC
 
@@ -240,7 +243,7 @@ entity-set.   The operation may take additional parameters.
 ** Add Lab
 *** Parameters
 #+BEGIN_SRC spec :tangle spec.txt
-    experiment: [Experiment], l: Lab, s: Session
+    l: Lab, s: Session
 #+END_SRC   
 *** Actor credentials
 #+BEGIN_SRC spec :tangle spec.txt
@@ -249,7 +252,6 @@ entity-set.   The operation may take additional parameters.
 *** Referential Integrity
 #+BEGIN_SRC spec :tangle spec.txt
     l: ~lab-set
-    experimentss: experiment-set
 #+END_SRC   
 *** Effect
 #+BEGIN_SRC spec :tangle spec.txt
@@ -282,7 +284,7 @@ entity-set.   The operation may take additional parameters.
 ** Add Institute
 *** Parameters
 #+BEGIN_SRC spec :tangle spec.txt
-    lab: [Lab], experiment: [Experiment], d: Developer, s: Session
+    i: institute, s: Session
 #+END_SRC   
 *** Actor credentials
 #+BEGIN_SRC spec :tangle spec.txt
@@ -290,9 +292,7 @@ entity-set.   The operation may take additional parameters.
 #+END_SRC   
 *** Referential Integrity
 #+BEGIN_SRC spec :tangle spec.txt
-    labs: lab-set
-    experiments: experiment-set
-    d: developer-set
+    i: ~institute-set
 #+END_SRC   
 *** Effect
 #+BEGIN_SRC spec :tangle spec.txt
@@ -301,3 +301,257 @@ entity-set.   The operation may take additional parameters.
 #+END_SRC   
 
 
+
+** Add Discipline
+*** Parameters
+#+BEGIN_SRC spec :tangle spec.txt
+    d: discipline, s: Session
+#+END_SRC   
+*** Actor credentials
+#+BEGIN_SRC spec :tangle spec.txt
+    s.key == system configured key
+#+END_SRC   
+*** Referential Integrity
+#+BEGIN_SRC spec :tangle spec.txt
+    d: ~discipline-set
+#+END_SRC   
+*** Effect
+#+BEGIN_SRC spec :tangle spec.txt
+    d = new discipline
+    discipline-set = discipline-set U {d}
+#+END_SRC
+
+
+** Add Developer
+*** Parameters
+#+BEGIN_SRC spec :tangle spec.txt
+    r: developer, s: Session
+#+END_SRC   
+*** Actor credentials
+#+BEGIN_SRC spec :tangle spec.txt
+    s.key == system configured key
+#+END_SRC   
+*** Referential Integrity
+#+BEGIN_SRC spec :tangle spec.txt
+    r: ~developer-set
+#+END_SRC   
+*** Effect
+#+BEGIN_SRC spec :tangle spec.txt
+    r = new developer
+    developer-set = developer-set U {r}
+#+END_SRC 
+
+
+** Update Lab
+*** Parameters
+#+BEGIN_SRC spec :tangle spec.txt
+    n: Name, li: Lab_id, l: Lab, s: Session
+#+END_SRC   
+*** Actor credentials
+#+BEGIN_SRC spec :tangle spec.txt
+    s.key == system configured key
+#+END_SRC   
+*** Referential Integrity
+#+BEGIN_SRC spec :tangle spec.txt
+    l : lab-set
+    s : session-set
+    n : name-set
+    li:~lab_id-set
+#+END_SRC   
+*** Effect
+#+BEGIN_SRC spec :tangle spec.txt
+    The lab details are updated.
+#+END_SRC
+
+
+** Update Experiment
+*** Parameters
+#+BEGIN_SRC spec :tangle spec.txt
+    n: Name, ei: Exp_id, e: Experiment, s: Session
+#+END_SRC   
+*** Actor credentials
+#+BEGIN_SRC spec :tangle spec.txt
+    s.key == system configured key
+#+END_SRC   
+*** Referential Integrity
+#+BEGIN_SRC spec :tangle spec.txt
+    e : experiment-set
+    s : session-set
+    n : name-set
+    ei:~exp_id-set
+#+END_SRC   
+*** Effect
+#+BEGIN_SRC spec :tangle spec.txt
+    The experiment details are updated.
+#+END_SRC
+
+
+** Update Institute
+*** Parameters
+#+BEGIN_SRC spec :tangle spec.txt
+    n: Name, ii: Inst_id, i: Institute, s: Session
+#+END_SRC   
+*** Actor credentials
+#+BEGIN_SRC spec :tangle spec.txt
+    s.key == system configured key
+#+END_SRC   
+*** Referential Integrity
+#+BEGIN_SRC spec :tangle spec.txt
+    i : institute-set
+    s : session-set
+    n : name-set
+    ii:~inst_id-set
+#+END_SRC   
+*** Effect
+#+BEGIN_SRC spec :tangle spec.txt
+    The institute details are updated.
+#+END_SRC
+
+
+** Update Discipline
+*** Parameters
+#+BEGIN_SRC spec :tangle spec.txt
+    n: Name, di: Disc_id, d: Discipline, s: Session
+#+END_SRC   
+*** Actor credentials
+#+BEGIN_SRC spec :tangle spec.txt
+    s.key == system configured key
+#+END_SRC   
+*** Referential Integrity
+#+BEGIN_SRC spec :tangle spec.txt
+    d : discipline-set
+    s : session-set
+    n : name-set
+    di:~disc_id-set
+#+END_SRC   
+*** Effect
+#+BEGIN_SRC spec :tangle spec.txt
+    The discipline details are updated.
+#+END_SRC
+
+
+** Update Developer
+*** Parameters
+#+BEGIN_SRC spec :tangle spec.txt
+    n: Name, e: Email_id, r: Developer, s: Session
+#+END_SRC   
+*** Actor credentials
+#+BEGIN_SRC spec :tangle spec.txt
+    s.key == system configured key
+#+END_SRC   
+*** Referential Integrity
+#+BEGIN_SRC spec :tangle spec.txt
+    r : developer-set
+    s : session-set
+    n : name-set
+    e :~email-set
+#+END_SRC   
+*** Effect
+#+BEGIN_SRC spec :tangle spec.txt
+    The developer details are updated.
+#+END_SRC
+
+
+** Delete Lab
+*** Parameters
+#+BEGIN_SRC spec :tangle spec.txt
+    l: Lab, s: Session
+#+END_SRC   
+*** Actor credentials
+#+BEGIN_SRC spec :tangle spec.txt
+    s.key == system configured key
+#+END_SRC   
+*** Referential Integrity
+#+BEGIN_SRC spec :tangle spec.txt
+    l : ~lab-set
+    s : session-set
+#+END_SRC   
+*** Effect
+#+BEGIN_SRC spec :tangle spec.txt
+    l.activeStatus=false
+    lab-set = lab-set - {l}
+#+END_SRC
+
+
+** Delete Experiment
+*** Parameters
+#+BEGIN_SRC spec :tangle spec.txt
+    e: Experiment, s: Session
+#+END_SRC   
+*** Actor credentials
+#+BEGIN_SRC spec :tangle spec.txt
+    s.key == system configured key
+#+END_SRC   
+*** Referential Integrity
+#+BEGIN_SRC spec :tangle spec.txt
+    e : ~experiment-set
+    s : session-set
+#+END_SRC   
+*** Effect
+#+BEGIN_SRC spec :tangle spec.txt
+    e.activeStatus=false
+    experiment-set = experiment-set - {e}
+#+END_SRC
+
+
+** Delete Institute
+*** Parameters
+#+BEGIN_SRC spec :tangle spec.txt
+    i: Institute, s: Session
+#+END_SRC   
+*** Actor credentials
+#+BEGIN_SRC spec :tangle spec.txt
+    s.key == system configured key
+#+END_SRC   
+*** Referential Integrity
+#+BEGIN_SRC spec :tangle spec.txt
+    i : ~institute-set
+    s : session-set
+#+END_SRC   
+*** Effect
+#+BEGIN_SRC spec :tangle spec.txt
+    i.activeStatus=false
+    institute-set = institute-set - {i}
+#+END_SRC
+
+
+** Discipline Lab
+*** Parameters
+#+BEGIN_SRC spec :tangle spec.txt
+    d: Discipline, s: Session
+#+END_SRC   
+*** Actor credentials
+#+BEGIN_SRC spec :tangle spec.txt
+    s.key == system configured key
+#+END_SRC   
+*** Referential Integrity
+#+BEGIN_SRC spec :tangle spec.txt
+    d : ~discipline-set
+    s : session-set
+#+END_SRC   
+*** Effect
+#+BEGIN_SRC spec :tangle spec.txt
+    d.activeStatus=false
+    discipline-set = discipline-set - {d}
+#+END_SRC
+
+
+** Delete Developer
+*** Parameters
+#+BEGIN_SRC spec :tangle spec.txt
+    r: Developer, s: Session
+#+END_SRC   
+*** Actor credentials
+#+BEGIN_SRC spec :tangle spec.txt
+    s.key == system configured key
+#+END_SRC   
+*** Referential Integrity
+#+BEGIN_SRC spec :tangle spec.txt
+    r : ~developer-set
+    s : session-set
+#+END_SRC   
+*** Effect
+#+BEGIN_SRC spec :tangle spec.txt
+    r.activeStatus=false
+    developer-set = developer-set - {r}
+#+END_SRC
