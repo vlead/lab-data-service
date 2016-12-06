@@ -145,6 +145,12 @@ TYPE Email
 [discipline, lab]         : Discipline +  >    Lab +
 [institute, lab]          : Institute !  >    Lab +
 [experiment, lab]         : Experiment +  >    Lab !
+[lab, name]               : Lab + > Name !
+[experiment name]         : Experiment + > Name !
+[institute, name]         : Institute ! > Name !
+[discipline, name]        : Discipline ! > Name !
+[developer, name]         : Developer + > Name !
+[developer, email]        : Developer ! > Email !
 
 #+END_SRC
 
@@ -188,6 +194,12 @@ is a relation =r: A? > K!=.
 ;;; Primary state variables
 Sets
   lab-set  : set[Lab]  ; set of all labs in the system
+  experiment-set  : set[Experiment]  ; set of all experiments in the system
+  institute-set  : set[Institute]  ; set of all institutes in the system
+  discipline-set  : set[Discipline]  ; set of all disciplines in the system
+  developer-set  : set[Developer]  ; set of all developers in the system
+  name-set  : set[Name]  ; set of all names in the system
+  email-set  : set[Email]  ; set of all emails in the system
 
  #+END_SRC
 
@@ -210,6 +222,10 @@ Sets
   institute-set   : developer-set.institute    ; set of institutes in the system
   discpline-set   : developer-set.discipline   ; set of disciplines in the system
   lab-set         : developer-set.lab          ; set of labs in the system
+  lab_id-set      : lab-set.lab_id             ; set of lab ids in the system
+  exp_id-set      : experiment-set.exp_id      ; set of exp ids in the system
+  inst_id-set     : institute-set.inst_id      ; set of inst ids in the system
+  disc_id-set     : discipline-set.disc_id     ; set of disc ids in the system
 
 #+END_SRC
 
@@ -224,9 +240,6 @@ Sets
 [developer, discipline]   : Developer +  >    Discipline +
 
 #+END_SRC
-  The relation =feedbacks : workshop-set > feedback-set += is ascertained by the
-  fact that workshop-set is [[./index.org::#derived_entity_sets][derived entity set]].
-
 
 * Operations 
 
@@ -284,7 +297,7 @@ entity-set.   The operation may take additional parameters.
 ** Add Institute
 *** Parameters
 #+BEGIN_SRC spec :tangle spec.txt
-    i: institute, s: Session
+    i: Institute, s: Session
 #+END_SRC   
 *** Actor credentials
 #+BEGIN_SRC spec :tangle spec.txt
@@ -305,7 +318,7 @@ entity-set.   The operation may take additional parameters.
 ** Add Discipline
 *** Parameters
 #+BEGIN_SRC spec :tangle spec.txt
-    d: discipline, s: Session
+    d: Discipline, s: Session
 #+END_SRC   
 *** Actor credentials
 #+BEGIN_SRC spec :tangle spec.txt
@@ -325,7 +338,7 @@ entity-set.   The operation may take additional parameters.
 ** Add Developer
 *** Parameters
 #+BEGIN_SRC spec :tangle spec.txt
-    r: developer, s: Session
+    r: Developer, s: Session
 #+END_SRC   
 *** Actor credentials
 #+BEGIN_SRC spec :tangle spec.txt
@@ -354,7 +367,6 @@ entity-set.   The operation may take additional parameters.
 *** Referential Integrity
 #+BEGIN_SRC spec :tangle spec.txt
     l : lab-set
-    s : session-set
     n : name-set
     li:~lab_id-set
 #+END_SRC   
@@ -376,7 +388,6 @@ entity-set.   The operation may take additional parameters.
 *** Referential Integrity
 #+BEGIN_SRC spec :tangle spec.txt
     e : experiment-set
-    s : session-set
     n : name-set
     ei:~exp_id-set
 #+END_SRC   
@@ -398,7 +409,6 @@ entity-set.   The operation may take additional parameters.
 *** Referential Integrity
 #+BEGIN_SRC spec :tangle spec.txt
     i : institute-set
-    s : session-set
     n : name-set
     ii:~inst_id-set
 #+END_SRC   
@@ -420,7 +430,6 @@ entity-set.   The operation may take additional parameters.
 *** Referential Integrity
 #+BEGIN_SRC spec :tangle spec.txt
     d : discipline-set
-    s : session-set
     n : name-set
     di:~disc_id-set
 #+END_SRC   
@@ -442,7 +451,6 @@ entity-set.   The operation may take additional parameters.
 *** Referential Integrity
 #+BEGIN_SRC spec :tangle spec.txt
     r : developer-set
-    s : session-set
     n : name-set
     e :~email-set
 #+END_SRC   
@@ -464,11 +472,9 @@ entity-set.   The operation may take additional parameters.
 *** Referential Integrity
 #+BEGIN_SRC spec :tangle spec.txt
     l : ~lab-set
-    s : session-set
 #+END_SRC   
 *** Effect
 #+BEGIN_SRC spec :tangle spec.txt
-    l.activeStatus=false
     lab-set = lab-set - {l}
 #+END_SRC
 
@@ -485,11 +491,9 @@ entity-set.   The operation may take additional parameters.
 *** Referential Integrity
 #+BEGIN_SRC spec :tangle spec.txt
     e : ~experiment-set
-    s : session-set
 #+END_SRC   
 *** Effect
 #+BEGIN_SRC spec :tangle spec.txt
-    e.activeStatus=false
     experiment-set = experiment-set - {e}
 #+END_SRC
 
@@ -506,16 +510,14 @@ entity-set.   The operation may take additional parameters.
 *** Referential Integrity
 #+BEGIN_SRC spec :tangle spec.txt
     i : ~institute-set
-    s : session-set
 #+END_SRC   
 *** Effect
 #+BEGIN_SRC spec :tangle spec.txt
-    i.activeStatus=false
     institute-set = institute-set - {i}
 #+END_SRC
 
 
-** Discipline Lab
+** Delete Lab
 *** Parameters
 #+BEGIN_SRC spec :tangle spec.txt
     d: Discipline, s: Session
@@ -527,11 +529,9 @@ entity-set.   The operation may take additional parameters.
 *** Referential Integrity
 #+BEGIN_SRC spec :tangle spec.txt
     d : ~discipline-set
-    s : session-set
 #+END_SRC   
 *** Effect
 #+BEGIN_SRC spec :tangle spec.txt
-    d.activeStatus=false
     discipline-set = discipline-set - {d}
 #+END_SRC
 
@@ -548,11 +548,8 @@ entity-set.   The operation may take additional parameters.
 *** Referential Integrity
 #+BEGIN_SRC spec :tangle spec.txt
     r : ~developer-set
-    s : session-set
 #+END_SRC   
 *** Effect
 #+BEGIN_SRC spec :tangle spec.txt
-    r.activeStatus=false
     developer-set = developer-set - {r}
 #+END_SRC
-
