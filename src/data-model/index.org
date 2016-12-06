@@ -106,6 +106,27 @@ TYPE Discipline
 TYPE Developer
 #+END_SRC
 
+*** Name
+:PROPERTIES:
+:CUSTOM_ID: entity_developer
+:END: 
+  Requirement satisfied: [[../requirements/index.org::#name][Name]]
+
+#+BEGIN_SRC spec :tangle spec.txt
+;;; Entity Types
+TYPE Name
+#+END_SRC
+
+*** Email
+:PROPERTIES:
+:CUSTOM_ID: entity_developer
+:END: 
+  Requirement satisfied: [[../requirements/index.org::#email][Email]]
+
+#+BEGIN_SRC spec :tangle spec.txt
+;;; Entity Types
+TYPE Email
+#+END_SRC
 
 * Relations and cardinality constraints over entity types 
   :PROPERTIES:
@@ -124,12 +145,7 @@ TYPE Developer
 [discipline, lab]         : Discipline +  >    Lab +
 [institute, lab]          : Institute !  >    Lab +
 [experiment, lab]         : Experiment +  >    Lab !
-[institute, experiment]   : Institute !  >    Experiment +
-[discipline, experiment]  : Discipline +  >    Experiment +
-[developer, experiment]   : Developer +  >    Experiment +
-[discipline, institute]   : Discipline +  >    Institute +
-[developer, institute]    : Developer +  >    Institute !
-[developer, discipline]   : Developer +  >    Discipline +
+
 #+END_SRC
 
 
@@ -138,11 +154,11 @@ TYPE Developer
    entities.
 
 #+BEGIN_HTML
-<img src=" https://docs.google.com/drawings/d/e/2PACX-1vQX1QRUkVjjW4hjHaUowOevT6_boqdslQfR0_awXAZmLPSx_UL8Qh_P5fYDoiCCm-IXzPX8LHs2pvId/pub?w=960&h=720">
+<img src="https://docs.google.com/drawings/d/e/2PACX-1vQX1QRUkVjjW4hjHaUowOevT6_boqdslQfR0_awXAZmLPSx_UL8Qh_P5fYDoiCCm-IXzPX8LHs2pvId/pub?w=960&h=720">
 <p align="center"> Data Service Model </p>
 
 #+END_HTML
-  To edit the Data Service Model image click [[ https://docs.google.com/a/vlabs.ac.in/drawings/d/1Pc5ywXvy3RC4lws4KwBiv_qpukm_Fz6JPH4wh_CYjMo/edit?usp=sharing][here]]
+  To edit the Data Service Model image click [[https://docs.google.com/a/vlabs.ac.in/drawings/d/1Pc5ywXvy3RC4lws4KwBiv_qpukm_Fz6JPH4wh_CYjMo/edit?usp=sharing][here]]
 
 
 * Keys
@@ -150,19 +166,15 @@ TYPE Developer
 An entity =K= is called a /key for/ an entity =A= if there
 is a relation =r: A? > K!=.
 
-|----+------------+------------------|
-|    | Entity     | Key              |
-|----+------------+------------------|
-| 1. | Lab        | lab_id           |
-|----+------------+------------------|
-| 2. | Experiment | exp_id           |
-|----+------------+------------------|
-| 3. | Institute  | name             |
-|----+------------+------------------|
-| 4. | Discipline | name             |
-|----+------------+------------------|
-| 5. | Developer  | name, email_id   |
-|----+------------+------------------|
+|----+------------+--------|
+|    | Entity     | Key    |
+|----+------------+--------|
+| 1. | Institute  | Name   |
+|----+------------+--------|
+| 2. | Discipline | Name   |
+|----+------------+--------|
+| 3. | Developer  | Email  |
+|----+------------+--------|
 
 * Assumptions
 * System state
@@ -185,15 +197,16 @@ Sets
 :CUSTOM_ID: derived_entity_sets
 :END: 
 #+BEGIN_SRC spec :tangle spec.txt
-  question-set  : response-set.question  ; set of questions in the system
-  answer-set    : response-set.answer    ; set of answers in the system
-  response-set  : feedback-set.responses  ; set of all responses in the system  
-  workshop-set : feedback-set.workshop  ; determine the workshop of each feedback identified 
-                                        ; by IP and date.  The number of feddback elements in 
-                                        ; the feedback-set that match a workshop determine the usage. 
+  experiment-set  : lab-set.experiment  ; set of experiments in the system
+  institute-set   : lab-set.institute   ; set of institutes in the system
+  discipline-set  : lab-set.discipline  ; set of disciplines in the system
+  developer-set   : lab-set.developer   ; set of developers in the system
+  institute-set   : discipline-set.institute   ; set of institutes in the system
+  developer-set   : discipline-set.developer   ; set of developers in the system
 
-  lab-usage-set      : feedback-set.exp_id ; set of all feedbacks of a lab
-  exp-usage-set      : feedback-set.exp_id ; set of all feedbacks of an experiment in a lab
+  discipline-set  : institute-set.discipline   ; set of discipline in the system
+
+  institute-set   : developer-set.institute   ; set of institutes in the system
 
 #+END_SRC
 
@@ -203,9 +216,9 @@ Sets
 :CUSTOM_ID: referential_integrity_relations
 :END: 
 #+BEGIN_SRC spec :tangle spec.txt
-
- 
-
+[discipline, institute]   : Discipline +  >    Institute +
+[developer, institute]    : Developer +  >    Institute !
+[developer, discipline]   : Developer +  >    Discipline +
 
 #+END_SRC
   The relation =feedbacks : workshop-set > feedback-set += is ascertained by the
