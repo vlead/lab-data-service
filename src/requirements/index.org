@@ -8,11 +8,55 @@
 #+LATEX: Literal LaTeX code for export
 
 * Introduction 
+  This document describes all the requirements for =lab-data-service=.
 
-- Lab spec has to be checked into the github repository with
-  developer, lab, exp, inst and discipline details in =json= file.
+* Requirements:
 
-- When user made changes to Github repository a =web-hook= will invoke =lab-data-service's= API which will then clone the repository
-  and read the changed lab specs and store them into database.
+** Get the lab's meta data:
+   - Get all the labs meta data which includes lab id, experiment id,
+     institutes, disciplines and developers details.
+   :PROPERTIES:
+   :CUSTOM_ID: lab_meta_data
+   :END: 
 
-- All lab specs in github repository all readonly
+** Construct lab spec with lab's meta data in json format :
+   - Lab spec should be filled up with consistant naming convention of
+     lab id, experiment id, institutes, disciplines and developers
+     details in =json= format
+:PROPERTIES:
+:CUSTOM_ID: construct_lab_spec
+:END: 
+
+** Version controll lab spec file :
+   - All the lab spec files has to be checked into the single git repository.
+:PROPERTIES:
+:CUSTOM_ID: version_lab_specs
+:END: 
+   
+** Parse lab spec files checked into git repo :
+   - A =web-hook= from Github repository will invoke the
+     =lab-data-service= when changes made to lab specs.
+   - =lab-data-service= has to parse the lab spec files and stored the
+     data into the database.
+:PROPERTIES:
+:CUSTOM_ID: parse_lab_specs
+:END: 
+   
+** All lab spec files in git repo are read only  :
+   - Only admin or group of authorized users of git repository has
+     access to modify the lab spec files.
+:PROPERTIES:
+:CUSTOM_ID: lab_spec_read_only
+:END: 
+
+
+  
+
+
+
+* Design diagram
+#+BEGIN_HTML
+<img src="https://docs.google.com/drawings/d/e/2PACX-1vQ-WiohgmhaseluocCU0TBOoIUSWctv6raQ03gPO_-jhRkgtQbxH2DX0924ux3O7Hfz3zwKGJnt7r1Z/pub?w=960&h=720">
+<p align="center"> lab-data-service </p>
+#+END_HTML
+  To edit the feedback relations image [[https://docs.google.com/drawings/d/1TAaHpf0UiCLvLRP_XfBBQki7pU624oWXRduxyz6e1NA/edit?ts=58415ec0][click here]]
