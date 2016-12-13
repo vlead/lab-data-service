@@ -43,256 +43,92 @@ Experiment = ClassTemplate.mk_class("Experiment")
 * Type Predicates
 #+NAME: type_predicates
 #+BEGIN_SRC python
-is_question = is_inst(Question)
-check_question = check_pred(is_question)
+is_lab = is_inst(Lab)
+check_lab = check_pred(is_lab)
 
-is_answer = is_inst(Answer)
-check_answer = check_pred(is_answer)
-
-def are_answers(answers):
+def are_labs(labs):
     ret_val = True
-    if is_list(answers):
-        for answer in answers:
-            if not is_answer(answer):
+    if is_list(labs):
+        for lab in labs:
+            if not is_lab(lab):
                 ret_val = False
     else:
         ret_val = False
 
     return ret_val
 
-is_feedback = is_inst(Feedback)
-check_feedback = check_pred(is_feedback)
+is_experiment = is_inst(Experiment)
+check_experiment = check_pred(is_experiment)
 
-def are_feedbacks(feedbacks):
+def are_experiments(experiments):
     ret_val = True
-    if is_list(feedbacks):
-        for feedback in feedbacks:
-            if not is_feedback(feedback):
+    if is_list(experiments):
+        for experiment in experiments:
+            if not is_experiment(experiment):
                 ret_val = False
     else:
         ret_val = False
 
     return ret_val
 
-is_response = is_inst(Response)
-check_response = check_pred(is_response)
-
-def are_responses_or_empty_list(responses):
-    ret_val = True
-    if is_list(responses): #or responses.__class__.__name__ == 'InstrumentedList':
-        for res in responses:
-            if not is_response(res):
-                ret_val = False
-    else:
-        ret_val = False
-
-    return ret_val
-
-def are_responses(responses):
-    if are_responses_or_empty_list(responses):
-        return not responses == []
-    else:
-        return False
-
-is_session = is_inst(Session)
-check_session = check_pred(is_session)
-
 #+END_SRC
 
 
-* Question
-   =Question= is an entity that has a field =name= which is a string
-#+NAME: class_Question
+* Lab
+   =Lab= is an entity that has a field =name= and =lab_id= which are string
+#+NAME: class_Lab
 #+begin_src python
-Question.add_attributes(name=is_str, question_type=is_str)
-Question.__eq__ = lambda self, other: \
+Lab.add_attributes(name=is_str, lab_id=is_str)
+Lab.__eq__ = lambda self, other: \
                   isinstance(other, self.__class__) and \
-                  self.get("name") == other.get("name")
+                  self.get("name") == other.get("name") and \
+                  self.get("lab_id") == other.get("lab_id")
 
 #+end_src
 
-*** Test Question
-#+NAME: class_TestQuestion
+*** Test Lab
+#+NAME: class_TestLab
 #+BEGIN_SRC python
-class TestQuestion(TestCase):
+class TestLab(TestCase):
     TESTING = True
-    def test_object_question(self):
-        print "test_object_question"
-        name="how are labs?"
-        q_type="radio"
-        question = Question(name=name, question_type=q_type)
-        self.assertEqual(question.get("name"), name)
-        self.assertEqual(question.get("question_type"), q_type)
+    def test_object_lab(self):
+        print "test_object_lab"
+        name="Computer Programming"
+        id_type="CSE01"
+        lab = Lab(name=name, lab_id=id_type)
+        self.assertEqual(lab.get("name"), name)
+        self.assertEqual(lab.get("lab_id"), id_type)
 
 #+END_SRC
 
 
-* Answer
-   =Answer= is an entity that has a field =name= which is a string
-#+NAME: class_Answer
+* Experiment
+   =Experiment= is an entity that has a field =name= and =exp_id= which are string
+#+NAME: class_Experiment
 #+begin_src python
-Answer.add_attributes(name=is_str)
-Answer.__eq__ = lambda self, other: \
+Experiment.add_attributes(name=is_str, exp_id=is_str)
+Experiment.__eq__ = lambda self, other: \
                   isinstance(other, self.__class__) and \
-                  self.get("name") == other.get("name")
+                  self.get("name") == other.get("name") and \
+                  self.get("exp_id") == other.get("exp_id")
 
 #+end_src
 
-*** Test Answer
-#+NAME: class_TestAnswer
+*** Test Experiment
+#+NAME: class_TestExperiment
 #+BEGIN_SRC python
-class TestAnswer(TestCase):
+class TestExperiment(TestCase):
     TESTING = True
 
-    def test_object_answer(self):
-        print "test_object_answer"
-        ans = "excellent labs"
-        answer = Answer(name=ans)
-        self.assertEqual(answer.get("name"), ans)
+    def test_object_experiment(self):
+        print "test_object_experiment"
+        name = "Number Systems"
+        id_type="EE99777"
+        experiment = Experiment(name=name, exp_id=id_type)
+        self.assertEqual(experiment.get("name"), name)
+        self.assertEqual(experiment.get("exp_id"), id_type)
 
 #+END_SRC
-
-
-* Feedback
-  A =Feedback= entity has fields =gateway= of type string, =lab_name= of type
-  string, =exp_name= of type sting and responses of type =Response=.
-
-#+NAME: class_Feedback
-#+BEGIN_SRC python
-Feedback.add_attributes(gateway_ip=is_str,
-                        lab_name=is_str,
-                        exp_name=is_str,
-                        date=is_date,
-                        version=is_str,
-                        user_id=is_str,
-                        responses=are_responses_or_empty_list)
-
-#Feedback.__eq__ = lambda self, other: \
-#                  isinstance(other, self.__class__) and \
-#                  self.get("response") == other.get("response")
-
-#+END_SRC
-
-** Test Feedback
-#+Name: class_TestFeedback
-#+BEGIN_SRC python
-class TestFeedback(TestCase):
-    TESTING = True
-
-    def test_object_feedback(self):
-        print "test_object_feedback"
-        gateway_ip = "10.100.40.2"
-        lab_name = "cse01"
-        exp_name = "data01"
-        version = "open-edx-virtual-labs-v2.0"
-        user_id = "John123"
-        date = datetime.datetime.strptime("30-06-2016", "%d-%m-%Y").date()
-        fb = Feedback(gateway_ip=gateway_ip,
-                      lab_name=lab_name,
-                      exp_name=exp_name,
-                      date=date,
-                      version=version,
-                      user_id=user_id,
-                      responses=[])
-
-        self.assertEqual(fb.get("gateway_ip"), gateway_ip)
-        self.assertEqual(fb.get("lab_name"), lab_name)
-        self.assertEqual(fb.get("exp_name"), exp_name)
-        self.assertEqual(fb.get("date"), date)
-        self.assertEqual(fb.get("version"), version)
-        self.assertEqual(fb.get("user_id"), user_id)
-        self.assertEqual(fb.get("responses"), [])
-
-#+END_SRC
-
-
-* Response
-  A =Response= entity has fields =question= of type =Question= and =answer= of type =Answer=. 
-
-#+NAME: class_Response
-#+BEGIN_SRC python
-Response.add_attributes(question=is_question, 
-                        answers=are_answers, 
-                        feedbacks=are_feedbacks)
-
-Response.__eq__ = lambda self, other: \
-                  isinstance(other, self.__class__) and \
-                  self.get("question") == other.get("question") and \
-                  self.get("answers") == other.get("answers")
-
-#+END_SRC
-
-** Test Response
-#+Name: class_TestResponse
-#+BEGIN_SRC python
-class TestResponse(TestCase):
-    TESTING = True
-
-    def test_object_response(self):
-        print "test_object_response"
-
-        name = "how are labs?"
-        q_type = "radio"
-        question1 = Question(name=name, question_type=q_type)
-
-        ans = "excellent labs"
-        answer1 = Answer(name=ans)
-
-        gateway_ip = "10.100.40.2"
-        lab_name = "cse01"
-        exp_name = "data01"
-        version = "open-edx-virtual-labs-v2.0"
-        user_id = "John123"
-        date = datetime.datetime.strptime("30-06-2016", "%d-%m-%Y").date()
-        fb = Feedback(gateway_ip=gateway_ip,
-                      lab_name=lab_name,
-                      exp_name=exp_name,
-                      date=date,
-                      version=version,
-                      user_id=user_id,
-                      responses=[])
-
-        res = Response(question=question1, answers=[answer1], feedbacks=[fb])
-        fb.set(responses=[res])
-
-        self.assertEqual(res.get("question").get("name"), 
-                             question1.get("name"))
-
-        self.assertEqual(res.get("answers")[0].get("name"), 
-                             answer1.get("name"))
-
-        self.assertEqual(res.get("feedbacks")[0].get("gateway_ip"), 
-                             gateway_ip)
-
-#+END_SRC
-
-
-
-* Session
-   =Session= is an entity that has a field =key= which is a string
-#+NAME: class_Session
-#+begin_src python
-Session.add_attributes(key=is_str)
-Session.__eq__ = lambda self, other: \
-                  isinstance(other, self.__class__) and \
-                  self.get("key") == other.get("key")
-
-#+end_src
-
-*** Test Session
-#+NAME: class_TesSession
-#+BEGIN_SRC python
-class TestSession(TestCase):
-    TESTING = True
-
-    def test_object_session(self):
-        print "test_object_session"
-        key = "dkjhfkjdhfkjadhfkjhdafkjh"
-        session = Session(key=key)
-        self.assertEqual(answer.get("key"), key)
-
-#+END_SRC
-
 
 * Infra                                                         :boilerplate:
   
@@ -335,21 +171,14 @@ if __name__ == '__main__':
 <<imports_for_sources>>
 <<base_classes>>
 <<type_predicates>>
-<<class_Question>>
-<<class_Answer>>
-<<class_Response>>
-<<class_Feedback>>
-<<class_Session>>
+<<class_Lab>>
+<<class_Experiment>>
 #+end_src
 
 
 ** tests
 #+BEGIN_SRC python :tangle test_entities.py :eval no :noweb yes
 <<imports_for_tests>>
-<<class_TestQuestion>>
-<<class_TestAnswer>>
-<<class_TestFeedback>>
-<<class_TestResponse>>
-<<class_TestSession>>
-<<run_test_cases>>
+<<class_TestLab>>
+<<class_TestExperiment>>
 #+end_src
