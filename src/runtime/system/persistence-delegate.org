@@ -24,7 +24,8 @@ class PersistenceDelegate():
    
     def __init__(self):
         self.entities = {#'session': Session,
-                         'lab': Lab
+                         'lab': Lab,
+                         'exp' : Experiment
 
                         }
 
@@ -90,13 +91,13 @@ class TestPersistenceDelegate(TestCase):
 #+END_SRC
 
 
-***  Check if =answer= already exists
+***  Check if =experiment= already exists
     This function checks if a user is already in the user-set of the =System=.
-#+NAME: persistence_answer_exists
+#+NAME: persistence_experiment_exists
 #+BEGIN_SRC python
-    def answer_exists(self, answer):
-        answer_name = answer.get("name")
-        return answer == self.get_answer(name=answer_name)
+    def experiment_exists(self, experiment):
+        exp_id = experiment.get("exp_id")
+        return answer == self.get_experiment(exp_id=exp_id)
         
 #+END_SRC
 
@@ -273,6 +274,30 @@ class TestPersistenceDelegate(TestCase):
 #+END_SRC
 
 
+***  Add experiment to the system
+    This function adds experiment to the system.
+#+NAME: persistence_add_experiment
+#+BEGIN_SRC python
+    def add_experiment(self, experiment):
+        experiment.save()
+        return experiment
+
+#+END_SRC
+
+**** Tests
+#+NAME: test_persistence_add_answer
+#+BEGIN_SRC python
+    def test_add_answer(self):
+         print "test_add_answer"
+         ans = "excellent labs"
+         answer = Answer(name=ans)
+         answer1 = self.persistence_delegate.add_answer(answer)
+         answer1 = Answer.get_by_id(1)
+         self.assertEqual(answer1.get("name"), ans)
+
+#+END_SRC
+
+
 ***  Update question 
     This function updates existing question.
 #+NAME: persistence_update_question
@@ -342,30 +367,6 @@ class TestPersistenceDelegate(TestCase):
          self.persistence_delegate.delete_question(1)
 
          self.assertEqual(len(Question.get_all()), 1)
-
-#+END_SRC
-
-
-***  Add answer to the system
-    This function adds question to the system.
-#+NAME: persistence_add_answer
-#+BEGIN_SRC python
-    def add_answer(self, answer):
-        answer.save()
-        return answer
-
-#+END_SRC
-
-**** Tests
-#+NAME: test_persistence_add_answer
-#+BEGIN_SRC python
-    def test_add_answer(self):
-         print "test_add_answer"
-         ans = "excellent labs"
-         answer = Answer(name=ans)
-         answer1 = self.persistence_delegate.add_answer(answer)
-         answer1 = Answer.get_by_id(1)
-         self.assertEqual(answer1.get("name"), ans)
 
 #+END_SRC
 
@@ -877,13 +878,13 @@ class TestPersistenceDelegate(TestCase):
 
 
 
-***  Get Answer
-    This function returns answer if present in the database.  If the answer is
+***  Get Experiment
+    This function returns experiment if present in the database.  If the experiment is
     not present, =None= type is returned.
-#+NAME: persistence_get_answer
+#+NAME: persistence_get_experiment
 #+BEGIN_SRC python
-    def get_answer(self, **kwargs):
-        return self.get_object(Answer, **kwargs)
+    def get_experiment(self, **kwargs):
+        return self.get_object(Experiment, **kwargs)
 
 #+END_SRC
 
@@ -1222,16 +1223,16 @@ if __name__ == '__main__':
 <<persistence_key_exists>>
 <<persistence_get_object>>
 <<persistence_get_lab>>
-<<persistence_get_answer>>
+<<persistence_get_experiment>>
 <<persistence_get_responses>>
 <<persistence_get_response>>
 <<persistence_lab_exists>>
-<<persistence_answer_exists>>
+<<persistence_experiment_exists>>
 <<persistence_feedback_exists>>
 <<persistence_response_exists>>
 <<persistence_add_lab>>
 <<persistence_delete_question>>
-<<persistence_add_answer>>
+<<persistence_add_experiment>>
 <<persistence_add_feedback>>
 <<persistence_update_question>>
 <<persistence_get_feedbacks>>
@@ -1249,16 +1250,16 @@ if __name__ == '__main__':
 <<test_class_persistence_delegate>>
 #<<test_persistence_key_exists>>
 <<tes_persistence_get_lab>>
-#<<test_persistence_get_answer>>
+<<test_persistence_get_experiment>>
 #<<test_persistence_get_responses>>
 #<<test_persistence_get_response>>
 <<test_persistence_lab_exists>>
-#<<test_persistence_answer_exists>>
+<<test_persistence_experiment_exists>>
 #<<test_persistence_feedback_exists>>
 #<<test_persistence_response_exists>>
 <<test_persistence_add_lab>>
 #<<test_persistence_delete_question>>
-#<<test_persistence_add_answer>>
+<<test_persistence_add_experiment>>
 #<<test_persistence_add_feedback>>
 #<<test_persistence_update_question>>
 #<<test_persistence_get_feedbacks>>
