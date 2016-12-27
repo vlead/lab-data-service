@@ -23,11 +23,9 @@
 class PersistenceDelegate():
    
     def __init__(self):
-        self.entities = {'session': Session,
-                         'question': Question,
-                         'answer': Answer,
-                         'response': Response,
-                         'feedback': Feedback
+        self.entities = {#'session': Session,
+                         'lab': Lab
+
                         }
 
 #+END_SRC
@@ -59,32 +57,34 @@ class TestPersistenceDelegate(TestCase):
 
    Other functions that help =System= perform the operations. 
    
-***  Check if =question= already exists
-    This function checks if a user is already in the user-set of the =System=.
-#+NAME: persistence_question_exists
+***  Check if =lab= already exists
+    This function checks if a lab is already in the lab-set of the =System=.
+#+NAME: persistence_lab_exists
 #+BEGIN_SRC python
-    def question_exists(self, question):
-        question_name = question.get("name")
-        return question == self.get_question(name=question_name)
+    def lab_exists(self, lab):
+        lab_id = lab.get("lab_id")
+        return lab == self.get_lab(lab_id=lab_id)
         
 #+END_SRC
 
 **** Tests
-#+NAME: test_persistence_question_exists
+#+NAME: test_persistence_lab_exists
 #+BEGIN_SRC python
-    def test_question_exists(self):
-        print "test_question_exists"
-        name1="how are labs?"
-        radio="radio"
-        question1 = Question(name=name1, question_type=radio)
-        question = self.persistence_delegate.add_question(question1)
+    def test_lab_exists(self):
+        print "test_lab_exists"
+        lab_name1="Computer Programming"
+        lab_id1="CSE01"
+        lab = Lab(lab_name=lab_name1, lab_id=lab_id1)
 
-        name2="how are experiments?"
-        question2 = Question(name=name2, question_type=radio)
-        
-        self.assertEqual(self.persistence_delegate.question_exists(question),
+        lab1 = self.persistence_delegate.add_lab(lab)
+
+        lab_name2="Data Structures"
+        lab_id2="CSE02"
+        lab2 = Lab(lab_name=lab_name2, lab_id=lab_id2)
+
+        self.assertEqual(self.persistence_delegate.lab_exists(lab1),
                             True)
-        self.assertEqual(self.persistence_delegate.question_exists(question2),
+        self.assertEqual(self.persistence_delegate.lab_exists(lab2),
                             False)
 
 #+END_SRC
@@ -247,26 +247,27 @@ class TestPersistenceDelegate(TestCase):
 #+END_SRC
 
 
-***  Add question to the system
-    This function adds question to the system.
-#+NAME: persistence_add_question
+***  Add lab to the system
+    This function adds lab to the system.
+#+NAME: persistence_add_lab
 #+BEGIN_SRC python
-    def add_question(self, question):
-        question.save()
-        return question
+    def add_lab(self, lab):
+        lab.save()
+        return lab
 
 #+END_SRC
 
 **** Tests
-#+NAME: test_persistence_add_question
+#+NAME: test_persistence_add_lab
 #+BEGIN_SRC python
-    def test_add_question(self):
-         print "test_add_question"
-         name = "how are labs?"
-         question_type = "radio"
-         question = Question(name=name, question_type=question_type)
-         question1 = self.persistence_delegate.add_question(question)
-         self.assertEqual(self.persistence_delegate.question_exists(question1),
+    def test_add_lab(self):
+         print "test_add_lab"
+         lab_name="Computer Programming"
+         lab_id="CSE01"
+         lab = Lab(lab_name=lab_name, lab_id=lab_id)
+
+         question1 = self.persistence_delegate.add_lab(lab)
+         self.assertEqual(self.persistence_delegate.lab_exists(lab),
                           True)
 
 #+END_SRC
@@ -847,30 +848,30 @@ class TestPersistenceDelegate(TestCase):
 #+END_SRC
 	
 
-***  Get Question
-    This function returns an question if present in the database.  If the question is
+***  Get Lab
+    This function returns a lab if present in the database.  If the lab is
     not present, =None= type is returned.
-#+NAME: persistence_get_question
+#+NAME: persistence_get_lab
 #+BEGIN_SRC python
-    def get_question(self, **kwargs):
-        return self.get_object(Question, **kwargs)
+    def get_lab(self, **kwargs):
+        return self.get_object(Lab, **kwargs)
 
 #+END_SRC
 
 **** Tests
-#+NAME: test_persistence_get_question
+#+NAME: test_persistence_get_lab
 #+BEGIN_SRC python
-    def test_get_question(self):
-         print "test_get_question"
+    def test_get_lab(self):
+         print "test_get_lab"
+         lab_name1="Computer Programming"
+         lab_id1="CSE01"
+         lab = Lab(lab_name=lab_name, lab_id=lab_id)
+         lab.save()
 
-         name="how are labs?"
-         question = Question(name=name)
-         question.save()
-
-         question_obj = self.persistence_delegate.get_question(name=
-                                                question.get("name"))
-         self.assertEqual(question_obj.get("name"),
-                              question.get("name"))
+         lab_obj = self.persistence_delegate.get_lab(name=
+                                                lab.get("lab_name"))
+         self.assertEqual(lab_obj.get("lab_name"),
+                              lab.get("lab_name"))
 
 #+END_SRC
 
@@ -1220,15 +1221,15 @@ if __name__ == '__main__':
 <<class_persistence_delegate>>
 <<persistence_key_exists>>
 <<persistence_get_object>>
-<<persistence_get_question>>
+<<persistence_get_lab>>
 <<persistence_get_answer>>
 <<persistence_get_responses>>
 <<persistence_get_response>>
-<<persistence_question_exists>>
+<<persistence_lab_exists>>
 <<persistence_answer_exists>>
 <<persistence_feedback_exists>>
 <<persistence_response_exists>>
-<<persistence_add_question>>
+<<persistence_add_lab>>
 <<persistence_delete_question>>
 <<persistence_add_answer>>
 <<persistence_add_feedback>>
@@ -1244,18 +1245,18 @@ if __name__ == '__main__':
 
 ** tests
 #+BEGIN_SRC python :tangle test_persistence_delegate.py :eval no :noweb yes
-#<<imports_for_tests_persistence>>
-#<<test_class_persistence_delegate>>
+<<imports_for_tests_persistence>>
+<<test_class_persistence_delegate>>
 #<<test_persistence_key_exists>>
-#<<tes_persistence_get_question>>
+<<tes_persistence_get_lab>>
 #<<test_persistence_get_answer>>
 #<<test_persistence_get_responses>>
 #<<test_persistence_get_response>>
-#<<test_persistence_question_exists>>
+<<test_persistence_lab_exists>>
 #<<test_persistence_answer_exists>>
 #<<test_persistence_feedback_exists>>
 #<<test_persistence_response_exists>>
-#<<test_persistence_add_question>>
+<<test_persistence_add_lab>>
 #<<test_persistence_delete_question>>
 #<<test_persistence_add_answer>>
 #<<test_persistence_add_feedback>>
@@ -1265,7 +1266,7 @@ if __name__ == '__main__':
 #<<test_persistence_get_feedback_usage>>
 #<<test_persistence_get_feedback_dump>>
 #<<test_persistence_add_responses_to_feedback>>
-#<<run_test_cases>>
+<<run_test_cases>>
 
 #+end_src
 
