@@ -10,7 +10,6 @@
 * Introduction 
   The =design= of the =lab-data-service= is captured here.
 
-
 * Application Programming Interface
   :PROPERTIES:
   :CUSTOM_ID: api
@@ -24,16 +23,149 @@
 
   - Method :: POST
 
-  - URL Params
-    None
+  - URL Params ::  None
+
+  - Payload :: 
+#+BEGIN_EXAMPLE
+{
+  "course": {
+    "org": "nitk",
+    "id": "CIVIL20",
+    "display_name": "Fluid Mechanics",
+    "discipline_name": "Civil Engineering",
+    "developer_name": "Mohit tahiliani"
+  },
+  "overview": "Fluid Mechanics",
+  "experiments": [
+    {
+      "id": "Intro",
+      "intro_name": "Introduction",
+      "subsections": [
+        {
+          "name": "Introduction"
+        }
+      ]
+    },
+    {
+      "id": "E99302",
+      "exp_name": "Calibration of V-Notch",
+      "subsections": [
+        {
+          "theo_name": "Theory"
+        },
+        {
+          "proc_name": "Procedure"
+        },
+        {
+          "eval_name": "Self Evaluation"
+        },
+        {
+          "simu_name": "Simulator"
+        },
+        {
+          "assi_name": "Assignment"
+        },
+        {
+          "quiz_name": "Quiz"
+        },
+        {
+          "vide_name": "Video"
+        },
+        {
+          "refe_name": "Reference"
+        },
+        {
+          "feed_name": "Feedback"
+        }
+      ]
+    },
+    {
+      "id": "E99301",
+      "exp_name": "Calibration of Rectangular Notch",
+      "subsections": [
+        {
+          "theo_name": "Theory"
+        },
+        {
+          "proc_name": "Procedure"
+        },
+        {
+          "eval_name": "Self Evaluation"
+        },
+        {
+          "simu_name": "Simulator"
+        },
+        {
+          "assi_name": "Assignment"
+        },
+        {
+          "quiz_name": "Quiz"
+        },
+        {
+          "vide_name": "Video"
+        },
+        {
+          "refe_name": "Reference"
+        },
+        {
+          "feed_name": "Feedback"
+        }
+      ]
+    },
+    {
+      "id": "E99397",
+      "exp_name": "Impact Of Jet",
+      "subsections": [
+        {
+          "theo_name": "Theory"
+        },
+        {
+          "proc_name": "Procedure"
+        },
+        {
+          "eval_name": "Self Evaluation"
+        },
+        {
+          "simu_name": "Simulator"
+        },
+        {
+          "assi_name": "Assignment"
+        },
+        {
+          "quiz_name": "Quiz"
+        },
+        {
+          "vide_name": "Video"
+        },
+        {
+          "refe_name": "Reference"
+        },
+        {
+          "feed_name": "Feedback"
+        }
+      ]
+    },
+    {
+      "id": "feedback",
+      "name": "Feedback",
+      "subsections": [
+        {
+          "feed_name": "Feedback"
+        }
+      ]
+    }
+  ]
+}
+#+END_EXAMPLE	       
 
   - Success Response
-    + Code: 200
-
-    + Content:
-
+    + Status_Code: 200
+    + Content: 
+              {"status" : "successfully updated records"}
 
   - Error Response:
+    + Contents :
+                {"status" : "error"}
     
   - Example:
     [[http://localhost:5000/save_lab_spec_data][example url]]
@@ -61,4 +193,59 @@
   - Example:
     [[http://localhost:5000/get_lab_specs][example url]]
 
+
+
+* Design diagram
+  :PROPERTIES:
+  :CUSTOM_ID: design_diagram
+  :END:    
+
+#+BEGIN_HTML
+<img src="https://docs.google.com/drawings/d/e/2PACX-1vQ-WiohgmhaseluocCU0TBOoIUSWctv6raQ03gPO_-jhRkgtQbxH2DX0924ux3O7Hfz3zwKGJnt7r1Z/pub?w=960&h=720">
+<p align="center"> lab data service design diagram </p>
+#+END_HTML
+
+  To edit the feedback relations image [[https://docs.google.com/drawings/d/1TAaHpf0UiCLvLRP_XfBBQki7pU624oWXRduxyz6e1NA/edit?ts=58415ec0][click here]]
+** Process
+*** Get the lab's meta data
+   :PROPERTIES:
+   :CUSTOM_ID: lab_meta_data
+   :END: 
+
+   - Get all the labs meta data which includes lab id, experiment id,
+     institutes, disciplines and developers details.
+
+*** Construct lab spec with lab's meta data in json format 
+   :PROPERTIES:
+   :CUSTOM_ID: construct_lab_spec
+   :END: 
+   
+   - Lab spec should be filled up with consistant naming convention of
+     lab id, experiment id, institutes, disciplines and developers
+     details in =json= format
+
+*** Version controll lab spec file 
+   :PROPERTIES:
+   :CUSTOM_ID: version_lab_specs
+   :END: 
+   
+   - All the lab spec files has to be checked into the single git repository.
+
+*** Parse lab spec files checked into git repo 
+   :PROPERTIES:
+   :CUSTOM_ID: parse_lab_specs
+   :END: 
+
+   - A =web-hook= from Github repository will invoke the
+     =lab-data-service= when changes made to lab specs.
+   - =lab-data-service= has to parse the lab spec files and stored the
+     data into the database.
+   
+*** All lab spec files in git repo are read only  
+   :PROPERTIES:
+   :CUSTOM_ID: lab_spec_read_only
+   :END: 
+
+   - Only admin or group of authorized users of git repository has
+     access to modify the lab spec files.
 
