@@ -52,7 +52,7 @@ zero, one or more elements of =B=.
 
 
 * Informal abstraction of the data model
-
+  
 ** Abstract Entity Types
   The following are the abstract data types in our system.
 *** Lab
@@ -108,7 +108,7 @@ TYPE Developer
 
 *** Name
 :PROPERTIES:
-:CUSTOM_ID: entity_developer
+:CUSTOM_ID: entity_name
 :END: 
   Requirement satisfied: [[../requirements/index.org::#name][Name]]
 
@@ -119,7 +119,7 @@ TYPE Name
 
 *** Email
 :PROPERTIES:
-:CUSTOM_ID: entity_developer
+:CUSTOM_ID: entity_email
 :END: 
   Requirement satisfied: [[../requirements/index.org::#email][Email]]
 
@@ -127,6 +127,7 @@ TYPE Name
 ;;; Entity Types
 TYPE Email
 #+END_SRC
+
 
 * Relations and cardinality constraints over entity types 
   :PROPERTIES:
@@ -182,7 +183,10 @@ is a relation =r: A? > K!=.
 | 3. | Developer  | Email  |
 |----+------------+--------|
 
+
 * Assumptions
+
+
 * System state
   The system's state is captured by a set of /state variables/.
 
@@ -194,12 +198,6 @@ is a relation =r: A? > K!=.
 ;;; Primary state variables
 Sets
   lab-set  : set[Lab]  ; set of all labs in the system
-  experiment-set  : set[Experiment]  ; set of all experiments in the system
-  institute-set  : set[Institute]  ; set of all institutes in the system
-  discipline-set  : set[Discipline]  ; set of all disciplines in the system
-  developer-set  : set[Developer]  ; set of all developers in the system
-  name-set  : set[Name]  ; set of all names in the system
-  email-set  : set[Email]  ; set of all emails in the system
 
  #+END_SRC
 
@@ -213,19 +211,17 @@ Sets
   institute-set   : lab-set.institute          ; set of institutes in the system
   discipline-set  : lab-set.discipline         ; set of disciplines in the system
   developer-set   : lab-set.developer          ; set of developers in the system
-  institute-set   : discipline-set.institute   ; set of institutes in the system
-  developer-set   : discipline-set.developer   ; set of developers in the system
-  lab-set         : discipline-set.lab         ; set of labs in the system
-  discipline-set  : institute-set.discipline   ; set of disciplines in the syste
-  developer-set   : institute-set.developer    ; set of developers in the system
-  lab-set         : institute-set.lab          ; set of labs in the system
-  institute-set   : developer-set.institute    ; set of institutes in the system
-  discpline-set   : developer-set.discipline   ; set of disciplines in the system
-  lab-set         : developer-set.lab          ; set of labs in the system
-  lab_id-set      : lab-set.lab_id             ; set of lab ids in the system
-  exp_id-set      : experiment-set.exp_id      ; set of exp ids in the system
-  inst_id-set     : institute-set.inst_id      ; set of inst ids in the system
-  disc_id-set     : discipline-set.disc_id     ; set of disc ids in the system
+
+  name-set        : developer-set.name         ; set of all names of developers in the system
+  email-set       : developer-set.email        ; set of all emails of developers in the system
+  lab-name-set    : lab-set.lab_name           ; set of all lab-names in the system
+  lab-id-set      : lab-set.lab_id             ; set of all lab_ids in the system
+  exp-name-set    : exp-set.exp_name           ; set of all exp-names in the system
+  exp-id-set      : exp-set.exp_id             ; set of all exp_ids in the system
+  inst-name-set   : inst-set.inst_name         ; set of all inst-names in the system
+  inst-id-set     : inst-set.inst_id           ; set of all inst_ids in the system
+  disc-name-set   : disc-set.disc_name         ; set of all disc-names in the system
+  disc-id-set     : disc-set.disc_id           ; set of all disc_ids in the system
 
 #+END_SRC
 
@@ -235,9 +231,10 @@ Sets
 :CUSTOM_ID: referential_integrity_relations
 :END: 
 #+BEGIN_SRC spec :tangle spec.txt
-[discipline, institute]   : Discipline +  >    Institute +
-[developer, institute]    : Developer +  >    Institute !
-[developer, discipline]   : Developer +  >    Discipline +
+[disciplines, institutes]   :  institute-set +  > discipline-set +  
+[developers, institutes]    :  institute-set ! > developer-set +      
+[developers, labs]          :  lab-set + > developer-set + 
+[experiments, labs]         :  lab-set ! > experiment-set +
 
 #+END_SRC
 
@@ -355,10 +352,11 @@ entity-set.   The operation may take additional parameters.
 #+END_SRC 
 
 
+
 ** Update Lab
 *** Parameters
 #+BEGIN_SRC spec :tangle spec.txt
-    n: Name, li: Lab_id, l: Lab, s: Session
+    n: lab_name, lid: lab_id, l: Lab, s: Session
 #+END_SRC   
 *** Actor credentials
 #+BEGIN_SRC spec :tangle spec.txt
@@ -367,19 +365,20 @@ entity-set.   The operation may take additional parameters.
 *** Referential Integrity
 #+BEGIN_SRC spec :tangle spec.txt
     l : lab-set
-    n : name-set
-    li:~lab_id-set
+    s : session-set
+    n : lab-name-set
+    lid: ~lab-id-set
+
 #+END_SRC   
 *** Effect
 #+BEGIN_SRC spec :tangle spec.txt
     The lab details are updated.
 #+END_SRC
 
-
 ** Update Experiment
 *** Parameters
 #+BEGIN_SRC spec :tangle spec.txt
-    n: Name, ei: Exp_id, e: Experiment, s: Session
+    n: exp_name, eid: exp_id, e: Experiment, s: Session
 #+END_SRC   
 *** Actor credentials
 #+BEGIN_SRC spec :tangle spec.txt
@@ -388,19 +387,20 @@ entity-set.   The operation may take additional parameters.
 *** Referential Integrity
 #+BEGIN_SRC spec :tangle spec.txt
     e : experiment-set
-    n : name-set
-    ei:~exp_id-set
+    s : session-set
+    n : ~exp-name-set
+   eid: ~exp-id-set
+
 #+END_SRC   
 *** Effect
 #+BEGIN_SRC spec :tangle spec.txt
     The experiment details are updated.
 #+END_SRC
 
-
 ** Update Institute
 *** Parameters
 #+BEGIN_SRC spec :tangle spec.txt
-    n: Name, ii: Inst_id, i: Institute, s: Session
+    n: inst_name, iid: inst_id, i: Institute, s: Session
 #+END_SRC   
 *** Actor credentials
 #+BEGIN_SRC spec :tangle spec.txt
@@ -409,19 +409,20 @@ entity-set.   The operation may take additional parameters.
 *** Referential Integrity
 #+BEGIN_SRC spec :tangle spec.txt
     i : institute-set
-    n : name-set
-    ii:~inst_id-set
+    s : session-set
+    n : inst-name-set
+   iid: ~inst-id-set
+
 #+END_SRC   
 *** Effect
 #+BEGIN_SRC spec :tangle spec.txt
     The institute details are updated.
 #+END_SRC
 
-
 ** Update Discipline
 *** Parameters
 #+BEGIN_SRC spec :tangle spec.txt
-    n: Name, di: Disc_id, d: Discipline, s: Session
+    n: disc_name, did: disc_id, d: Discipline, s: Session
 #+END_SRC   
 *** Actor credentials
 #+BEGIN_SRC spec :tangle spec.txt
@@ -430,19 +431,20 @@ entity-set.   The operation may take additional parameters.
 *** Referential Integrity
 #+BEGIN_SRC spec :tangle spec.txt
     d : discipline-set
-    n : name-set
-    di:~disc_id-set
+    s : session-set
+    n : disc-name-set
+   did: ~disc-id-set
+
 #+END_SRC   
 *** Effect
 #+BEGIN_SRC spec :tangle spec.txt
     The discipline details are updated.
 #+END_SRC
 
-
 ** Update Developer
 *** Parameters
 #+BEGIN_SRC spec :tangle spec.txt
-    n: Name, e: Email_id, r: Developer, s: Session
+    n: name, e: email_id, r: Developer, s: Session
 #+END_SRC   
 *** Actor credentials
 #+BEGIN_SRC spec :tangle spec.txt
@@ -453,10 +455,12 @@ entity-set.   The operation may take additional parameters.
     r : developer-set
     n : name-set
     e :~email-set
+
 #+END_SRC   
 *** Effect
 #+BEGIN_SRC spec :tangle spec.txt
     The developer details are updated.
+
 #+END_SRC
 
 
@@ -471,13 +475,15 @@ entity-set.   The operation may take additional parameters.
 #+END_SRC   
 *** Referential Integrity
 #+BEGIN_SRC spec :tangle spec.txt
-    l : ~lab-set
+    l : lab-set
+    s : session-set
+
 #+END_SRC   
 *** Effect
 #+BEGIN_SRC spec :tangle spec.txt
     lab-set = lab-set - {l}
-#+END_SRC
 
+#+END_SRC
 
 ** Delete Experiment
 *** Parameters
@@ -490,13 +496,15 @@ entity-set.   The operation may take additional parameters.
 #+END_SRC   
 *** Referential Integrity
 #+BEGIN_SRC spec :tangle spec.txt
-    e : ~experiment-set
+    e : experiment-set
+    s : session-set
+
 #+END_SRC   
 *** Effect
 #+BEGIN_SRC spec :tangle spec.txt
     experiment-set = experiment-set - {e}
-#+END_SRC
 
+#+END_SRC
 
 ** Delete Institute
 *** Parameters
@@ -509,15 +517,16 @@ entity-set.   The operation may take additional parameters.
 #+END_SRC   
 *** Referential Integrity
 #+BEGIN_SRC spec :tangle spec.txt
-    i : ~institute-set
+    i : institute-set
+    s : session-set
+
 #+END_SRC   
 *** Effect
 #+BEGIN_SRC spec :tangle spec.txt
     institute-set = institute-set - {i}
+
 #+END_SRC
-
-
-** Delete Lab
+** Delete Discipline 
 *** Parameters
 #+BEGIN_SRC spec :tangle spec.txt
     d: Discipline, s: Session
@@ -528,14 +537,15 @@ entity-set.   The operation may take additional parameters.
 #+END_SRC   
 *** Referential Integrity
 #+BEGIN_SRC spec :tangle spec.txt
-    d : ~discipline-set
+    d : discipline-set
+    s : session-set
 #+END_SRC   
+
 *** Effect
 #+BEGIN_SRC spec :tangle spec.txt
     discipline-set = discipline-set - {d}
+
 #+END_SRC
-
-
 ** Delete Developer
 *** Parameters
 #+BEGIN_SRC spec :tangle spec.txt
@@ -547,7 +557,9 @@ entity-set.   The operation may take additional parameters.
 #+END_SRC   
 *** Referential Integrity
 #+BEGIN_SRC spec :tangle spec.txt
-    r : ~developer-set
+    r : developer-set
+    s : session-set
+
 #+END_SRC   
 *** Effect
 #+BEGIN_SRC spec :tangle spec.txt
