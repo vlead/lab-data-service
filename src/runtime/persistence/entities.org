@@ -11,29 +11,30 @@
   Persistence is added to all the entities defined in [[../objects/entities.org][=objects=]].
 
 
-* Question
+* Lab
 
-=Question= is a class with an attribute name of type =is_alphabetic_str=.
+=Lab= is a class with an attribute =lab_name= of type alphabetic string and
+=lab_id= of alphabetic string.
 
-#+NAME: class_Question
+#+NAME: class_Lab
 #+begin_src python
-args = {"__tablename__": "question",
+args = {"__tablename__": "lab",
         "id": db.Column(db.Integer, primary_key=True),
-        "name": db.Column(db.String(255), unique=True, nullable=False),
-        "question_type": db.Column(db.String(255), unique=False, 
+        "lab_id": db.Column(db.String(255), unique=True, nullable=False),
+        "lab_name": db.Column(db.String(255), unique=False, 
                                        nullable=True),
-        "responses": db.relationship('Response', 
-                                        backref=db.backref('question'))
+        #"experiments": db.relationship('Experiment', 
+         #                               backref=db.backref('lab'))
         }
 
-Question = ClassPersistenceTemplate.mk_persistent(Question, ['name'], **args)
+Lab = ClassPersistenceTemplate.mk_persistent(Lab, ['lab_id'], **args)
 
 #+end_src
 
-*** Test Question
-#+NAME: class_TestQuestion
+*** Test Lab
+#+NAME: class_TestLab
 #+BEGIN_SRC python
-class TestPersistentQuestion(TestCase):
+class TestPersistentLab(TestCase):
     TESTING = True
 
     def create_app(self):
@@ -47,16 +48,15 @@ class TestPersistentQuestion(TestCase):
         db.session.remove()
         db.drop_all()
 
-    def test_create_question(self):
-        print "test_create_question"
-        name="how are labs?"
-        radio="radio"
-        question1 = Question(name=name, question_type=radio)
-        question1.save()
-
-        new_question = Question.get_by_id(1)
-        self.assertEqual(new_question.get("name"), name)
-        self.assertEqual(new_question.get("question_type"), radio)
+    def test_create_lab(self):
+        print "test_persistent_lab"
+        lab_name="Computer Programming"
+        lab_id="CSE01"
+        lab = Lab(lab_name=lab_name, lab_id=lab_id)
+        lab.save()
+        lab1 = Lab.get_by_id(1)
+        self.assertEqual(lab1.get("lab_name"), lab_name)
+        self.assertEqual(lab1.get("lab_id"), lab_id)
 
 #+END_SRC
 
@@ -294,6 +294,7 @@ import unittest
 from flask_testing import TestCase
 from sqlalchemy.exc import IntegrityError
 from runtime.persistence.entities import *
+#from flask import create_app
 from runtime.rest.app import create_app
 
 config = {
@@ -314,21 +315,17 @@ if __name__ == '__main__':
 ** sources
 #+BEGIN_SRC python :tangle entities.py :eval no :noweb yes
 <<imports_for_sources>>
-<<class_Question>>
-<<class_Answer>>
-<<class_Feedback>>
-<<class_association_Table>>
-<<class_Response>>
+<<class_Lab>>
 
 #+end_src
 
 
 ** tests
 #+BEGIN_SRC python :tangle test_entities.py :eval no :noweb yes
-#<<imports_for_tests>>
-#<<class_TestQuestion>>
+<<imports_for_tests>>
+<<class_TestLab>>
 #<<class_TestAnswer>>
 #<<class_TestFeedback>>
 #<<class_TestResponse>>
-#<<run_test_cases>>
+<<run_test_cases>>
 #+end_src
