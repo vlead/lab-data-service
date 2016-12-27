@@ -97,31 +97,25 @@ class TestPersistenceDelegate(TestCase):
 #+BEGIN_SRC python
     def experiment_exists(self, experiment):
         exp_id = experiment.get("exp_id")
-        return answer == self.get_experiment(exp_id=exp_id)
+        return experiment == self.get_experiment(exp_id=exp_id)
         
 #+END_SRC
 
 **** Tests
 #+NAME: test_persistence_experiment_exists
 #+BEGIN_SRC python
-    def test_answer_exists(self):
-        print "test_answer_exists"
-
-        ans1 = "excellent labs"
-        answer1 = Answer(name=ans1)
-        self.persistence_delegate.add_answer(answer1)
-
-        ans2 = "excellent"
-        answer2 = Answer(name=ans2)
-        
-        self.assertEqual(self.persistence_delegate.answer_exists(answer1),
+    def test_experiment_exists(self):
+        print "test_experiment_exists"
+        exp_name = "Number Systems"
+        exp_id = "EE99777"
+        experiment = Experiment(exp_name=exp_name, exp_id=exp_id)
+        self.persistence_delegate.add_experiment(experiment)
+        self.assertEqual(self.persistence_delegate.experiment_exists(experiment),
                             True)
-        self.assertEqual(self.persistence_delegate.answer_exists(answer2),
-                            False)
 
 #+END_SRC
 
-
+     
 ***  Check if =response= already exists
     This function checks if response is already in the System.
 #+NAME: persistence_response_exists
@@ -287,13 +281,14 @@ class TestPersistenceDelegate(TestCase):
 **** Tests
 #+NAME: test_persistence_add_experiment
 #+BEGIN_SRC python
-    def test_add_answer(self):
-         print "test_add_answer"
-         ans = "excellent labs"
-         answer = Answer(name=ans)
-         answer1 = self.persistence_delegate.add_answer(answer)
-         answer1 = Answer.get_by_id(1)
-         self.assertEqual(answer1.get("name"), ans)
+    def test_add_experiment(self):
+         print "test_add_experiment"
+         exp_name = "Number Systems"
+         exp_id = "EE99777"
+         experiment = Experiment(exp_name=exp_name, exp_id=exp_id)
+         experiment = self.persistence_delegate.add_experiment(experiment)
+         experiment = experiment.get_by_id(1)
+         self.assertEqual(experiment.get("exp_name"), exp_name)
 
 #+END_SRC
 
@@ -897,8 +892,8 @@ class TestPersistenceDelegate(TestCase):
          exp_name = "Number Systems"
          exp_id = "EE99777"
          exp = Experiment(exp_name=exp_name, exp_id=exp_id)
-
-         exp_obj = self.persistence_delegate.get_experiment(name=
+         exp.save()
+         exp_obj = self.persistence_delegate.get_experiment(exp_name=
                                                 exp.get("exp_name"))
          self.assertEqual(exp_obj.get("exp_name"),
                               exp.get("exp_name"))
