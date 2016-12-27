@@ -61,23 +61,24 @@ class TestPersistentLab(TestCase):
 #+END_SRC
 
 
-* Answer
-  =Answer= is a class an attribute email of type =is_email_str=.
-#+NAME: class_Answer
+* Experiment
+  =Experiment= is a class with attributes =exp_name= and =exp_id= of type =is_email_str=.
+#+NAME: class_Experiment
 #+begin_src python
 args = {"__tablename__": "answer",
         "id": db.Column(db.Integer, primary_key=True),
-        "name": db.Column(db.String(255), unique=True, nullable=False)
+        "exp_name": db.Column(db.String(255), unique=False, nullable=True),
+        "exp_id": db.Column(db.String(255), unique=True, nullable=False)
         }
 
-Answer = ClassPersistenceTemplate.mk_persistent(Answer, ['name'], **args)
+Experiment = ClassPersistenceTemplate.mk_persistent(Experiment, ['exp_id'], **args)
 
 #+end_src
 
-** Test Answer
-#+NAME: class_TestAnswer
+** Test Experiment
+#+NAME: class_TestExperiment
 #+BEGIN_SRC python
-class TestPersistenceAnswer(TestCase):
+class TestPersistenceExperiment(TestCase):
     TESTING = True
 
     def create_app(self):
@@ -91,17 +92,20 @@ class TestPersistenceAnswer(TestCase):
         db.session.remove()
         db.drop_all()
 
-    def test_create_answer(self):
-        print "test_create_answer"
-        ans = "excellent labs"
-        answer = Answer(name=ans)
-        answer.save()
-        answer = Answer.get_by_id(1)
-        self.assertEqual(answer.get("name"), ans)
+    def test_create_experiment(self):
+        print "test_persistance_experiment"
+        exp_name = "Number Systems"
+        exp_id = "EE99777"
+        exp = Experiment(exp_name=exp_name, exp_id=exp_id)
+        exp.save()
+        experiment = Experiment.get_by_id(1)
+        self.assertEqual(experiment.get("exp_name"), exp_name)
+        self.assertEqual(experiment.get("exp_id"), exp_id)
+
 
 #+END_SRC
 
-
+   
 * Feedback
   A =Feedback= entity has fields =response= of type =Response=.
 
@@ -316,7 +320,7 @@ if __name__ == '__main__':
 #+BEGIN_SRC python :tangle entities.py :eval no :noweb yes
 <<imports_for_sources>>
 <<class_Lab>>
-
+<<class_Experiment>>
 #+end_src
 
 
@@ -324,6 +328,7 @@ if __name__ == '__main__':
 #+BEGIN_SRC python :tangle test_entities.py :eval no :noweb yes
 <<imports_for_tests>>
 <<class_TestLab>>
+<<class_TestExperiment>>
 #<<class_TestAnswer>>
 #<<class_TestFeedback>>
 #<<class_TestResponse>>
