@@ -15,10 +15,10 @@ def populate_db():
 #+END_SRC
 
 
-* Test AddQuestion
-#+NAME: test_add_question
+* Test AddLab
+#+NAME: test_add_lab
 #+BEGIN_SRC python
-class TestAddQuestion(TestCase):
+class TestAddLab(TestCase):
     TESTING = True
 
     def create_app(self):
@@ -32,24 +32,21 @@ class TestAddQuestion(TestCase):
         db.session.remove()
         db.drop_all()
 
-    def test_add_question(self):
+    def test_add_lab(self):
         
-        print "test_add_question_in_system_persistence"
+        print "test_add_lab_in_system_persistence"
         session_cls = System.delegate.entities['session']
-        response_cls = System.delegate.entities['response']
-        question_cls = System.delegate.entities['question']
-        answer_cls = System.delegate.entities['answer']
-        feedback_cls = System.delegate.entities['feedback']
+        lab_cls = System.delegate.entities['lab']
 
-        name="how are labs?"
-        radio="radio"
+        lab_name1="Computer Programming"
+        lab_id1="CSE01"
         key = KEY
         session = session_cls(key=key)
-        question = question_cls(name=name, question_type=radio)
-        question1 = System.do("add_question", question=question,
+        lab = lab_cls(lab_id=lab_id1, lab_name=lab_name1)
+        lab1 = System.do("add_lab", lab = lab,
                                   session=session)
-        new_question = question_cls.get_by_id(1)
-        self.assertEqual(new_question.get("name"), name)
+        new_lab = lab_cls.get_by_id(1)
+        self.assertEqual(new_lab.get("lab_name"), lab_name)
             
 #+END_SRC
 

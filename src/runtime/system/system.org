@@ -229,11 +229,11 @@ class TestSystemConstructor(TestCase):
 
   Once these checks are satisfied, either the system state is modified or retrieved.
 
-** =AddQuestion=
-#+NAME: class_addquestion
+** =AddLab=
+#+NAME: class_add_lab
 #+begin_src python
-class AddQuestion():
-    arg_types = {"question": is_question, "session": is_session}
+class AddLab():
+    arg_types = {"lab": is_lab, "session": is_session}
     arity_and_type_checks_needed = True
 
     @staticmethod
@@ -244,16 +244,16 @@ class AddQuestion():
 
     @staticmethod
     def state_check(args):
-        question = args["question"]
-        if System.delegate.question_exists(question):
-            raise StateError("question %s already exists in System"
-                                 % question.to_client())
+        lab = args["lab"]
+        if System.delegate.lab_exists(lab):
+            raise StateError("lab %s already exists in System"
+                                 % lab.to_client())
 
     @staticmethod
     def action(args):
-        question = args["question"]
-        question = System.delegate.add_question(question)
-        return question
+        lab = args["lab"]
+        lab = System.delegate.add_lab(lab)
+        return lab
 
 #+end_src
 
@@ -566,15 +566,8 @@ class GetFeedbackForm():
 
  #+NAME: ops_table
  #+BEGIN_SRC python                                                                          
-ops_table = {'add_question' : AddQuestion,
-             'delete_question': DeleteQuestion,
-             'update_question': UpdateQuestion,
-             'add_answer' : AddAnswer,
-             'add_feedback': AddFeedback,
-             'get_feedback_usage': GetFeedbackUsage,
-             'get_feedback_dump': GetFeedbackDump,
-             'add_responses_to_feedback': AddResponsesToFeedback,
-             'get_feedback_form': GetFeedbackForm
+ops_table = {'add_lab' : AddLab
+
             }
 
  #+END_SRC   
@@ -589,9 +582,9 @@ ops_table = {'add_question' : AddQuestion,
 # -*- coding: utf-8 -*-
 
 from runtime.exceptions.custom_exceptions import *
-from runtime.objects.entities import is_str, is_question, is_answer, \
-     is_feedback, is_date, is_response, is_session, are_responses, is_int,\
-     are_responses_or_empty_list
+from runtime.objects.entities import is_str, is_lab,\
+     is_date, is_session, is_int\
+
 from runtime.utils.type_utils import is_str_or_none
 from runtime.config.system_config import KEY
 from runtime.config.feedback_forms import feedback_forms
@@ -653,9 +646,9 @@ if __name__ == '__main__':
 
 ** tests
 #+BEGIN_SRC python :tangle test_system.py :eval no :noweb yes
-#<<imports_for_tests>>
-#<<test_constructor>>
-#<<test_arity_and_types>>
+<<imports_for_tests>>
+<<test_constructor>>
+<<test_arity_and_types>>
 #<<class_test_get_feedback_form>>
-#<<run_test_cases>>
+<<run_test_cases>>
 #+end_src
