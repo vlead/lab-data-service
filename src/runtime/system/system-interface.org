@@ -11,7 +11,7 @@
   of =rest= uses =json= and the world of =system= uses objects.  System
   Interface is allows these two worlds to talk to each other. 
 
-
+  
 * The =SystemInterface= class
 
 ** Constructor
@@ -29,6 +29,88 @@ class SystemInterface ():
 
 #+end_src
 
+** AddQuestion
+
+#+NAME: class_add_question
+#+begin_src python
+    @staticmethod
+    def add_question(data_dict):
+        session_cls = System.delegate.entities['session']
+        question_cls = System.delegate.entities['question']
+
+        session = session_cls(key=data_dict['key'])
+        question = question_cls(name=data_dict['name'],
+                                question_type=data_dict['question_type'])
+        try:
+            current_app.logger.debug("running operation add_question")
+            question = System.do("add_question", question=question, 
+                                    session=session)
+            current_app.logger.debug("completed operation add_question")
+            return question.to_client()
+        except (ArityError, TypeError, NotAuthorizedError, StateError) as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+
+        except Exception as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+#+end_src
+
+*** TestAddQuestion
+ #+NAME: test_class_add_question
+ #+BEGIN_SRC python
+class TestAddQuestion(TestCase):
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_add_question_in_system_interface(self):
+        print "test_add_question_in_system_interface"
+
+        data_dict = {
+                    'key' : KEY,
+                    'name': 'how are you?',
+                    'question_type': 'radio'
+                   }
+
+        data_dict1 = {
+                    'key' : KEY,
+                    'name': 'how are labs?',
+                    'question_type': 'radio'
+                   }
+
+        question = SystemInterface.add_question(data_dict)
+        question1 = SystemInterface.add_question(data_dict1)
+        
+        self.assertEqual(question.get("question_type"), 
+                             data_dict['question_type'])
+        self.assertEqual(question.get("name"), data_dict['name'])
+        self.assertEqual(question1.get("question_type"), 
+                             data_dict1['question_type'])
+        self.assertEqual(question1.get("name"), data_dict1['name'])
+
+
+    def test_add_question_raises_type_error_in_system_interface(self):
+        print "test_add_question_raises_type_error_in_system_interface"
+
+        data_dict = {
+                    'key' : KEY,
+                    'name': 'how are you?',
+                    'question_type': 123
+                   }
+
+        with self.assertRaises(TypeError):
+            SystemInterface.add_question(data_dict)
+
+ #+END_SRC
 
 ** AddLab
 
@@ -39,13 +121,15 @@ class SystemInterface ():
         session_cls = System.delegate.entities['session']
         lab_cls = System.delegate.entities['lab']
 
-        lab = data_dict['lab']
-        data_dict['session'] = session_cls(key=data_dict['key'])
-        del(data_dict['key'])
-
+        session = session_cls(key=data_dict['key'])
+        lab = lab_cls(lab_name=data_dict['lab_name'],
+                                lab_id=data_dict['lab_id'])
         try:
-            fb = System.do("add_lab", **data_dict)
-
+            current_app.logger.debug("running operation add_lab")
+            question = System.do("add_lab", lab=lab, 
+                                    session=session)
+            current_app.logger.debug("completed operation add_lab")
+            return lab.to_client()
         except (ArityError, TypeError, NotAuthorizedError, StateError) as err:
             current_app.logger.error("Exception = %s" % str(err))
             raise err
@@ -53,6 +137,7 @@ class SystemInterface ():
         except Exception as err:
             current_app.logger.error("Exception = %s" % str(err))
             raise err
+
 
 #+end_src
 
@@ -80,27 +165,22 @@ class TestAddLab(TestCase):
                     'key' : KEY
                    }
 
-        lab = SystemInterface.add_lab(data_dict)
-        lab_cls = System.delegate.entities['lab']
-        lab = lab_cls.get_all()[0]
-        
-        self.assertEqual(lab.get("lab_name"), data_dict['lab_name'])
-        self.assertEqual(lab.get("lab_id"), data_dict['lab_id'])
-
         data_dict1 = {'lab_name': "Automata",
-            'lab_id': "DFA",
+            'lab_id': 'DFA',
             'key' : KEY
            }
 
-        lab = SystemInterface.add_lab(data_dict1)
-        
-        lab_cls = System.delegate.entities['lab']
 
-        lab = lab_cls.get_by_id(2)
+        lab = SystemInterface.add_lab(data_dict)
+        lab1 = SystemInterface.add_lab(data_dict1)
         
-        self.assertEqual(2, len(lab_cls.get_all()))
-        self.assertEqual(lab.get("lab_name"), data_dict1['lab_name'])
-        self.assertEqual(lab.get("lab_id"), data_dict1['lab_id'])
+        self.assertEqual(lab.get("lab_id"), 
+                             data_dict['lab_id'])
+        self.assertEqual(lab.get("lab_name"), data_dict['lab_name'])
+        self.assertEqual(lab1.get("lab_id"), 
+                             data_dict1['lab_id'])
+        self.assertEqual(lab1.get("lab_name"), data_dict1['lab_name'])
+
 
     def test_add_lab_raises_type_error_in_system_interface(self):
         print "test_add_lab_raises_type_error_in_system_interface"
@@ -109,6 +189,7 @@ class TestAddLab(TestCase):
                     'lab_id': 123,
                     'key' : KEY
                    }
+
 
         with self.assertRaises(TypeError):
             SystemInterface.add_lab(data_dict)
