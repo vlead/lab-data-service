@@ -319,11 +319,11 @@ class DeleteQuestion():
 #+end_src
 
 
-** =AddAnswer=
-#+NAME: class_addanswer
+** =AddExperiment=
+#+NAME: class_add_experiment
 #+begin_src python
-class AddAnswer():
-    arg_types = {"answer": is_answer, "session": is_session}
+class AddExperiment():
+    arg_types = {"experiment": is_experiment, "session": is_session}
     arity_and_type_checks_needed = True
 
     @staticmethod
@@ -334,16 +334,16 @@ class AddAnswer():
 
     @staticmethod
     def state_check(args):
-        answer = args["answer"]
-        if System.delegate.answer_exists(answer):
-            raise StateError("answer %s already exists in System"
-                                 % answer.to_client())
+        experiment = args["experiment"]
+        if System.delegate.experiment_exists(experiment):
+            raise StateError("experiment %s already exists in System"
+                                 % experiment.to_client())
 
     @staticmethod
     def action(args):
-        answer = args["answer"]
-        answer = System.delegate.add_answer(answer)
-        return answer
+        experiment = args["experiment"]
+        experiment = System.delegate.add_experiment(experiment)
+        return experiment
 
 #+end_src
 
@@ -561,7 +561,7 @@ class GetFeedbackForm():
 
  #+NAME: ops_table
  #+BEGIN_SRC python                                                                          
-ops_table = {'add_lab' : AddLab}
+ops_table = {'add_lab' : AddLab, 'add_experiment' : AddExperiment}
 
  #+END_SRC   
 
@@ -576,7 +576,7 @@ ops_table = {'add_lab' : AddLab}
 
 from runtime.exceptions.custom_exceptions import *
 from runtime.objects.entities import is_str, is_lab,\
-     is_date, is_session, is_int\
+     is_date, is_session, is_int, is_experiment\
 
 from runtime.utils.type_utils import is_str_or_none
 from runtime.config.system_config import KEY
@@ -624,6 +624,7 @@ if __name__ == '__main__':
 <<arity_type_checks>>
 <<do_function>>
 <<class_add_lab>>
+<<class_add_experiment>>
 <<ops_table>>
 
 #+end_src
