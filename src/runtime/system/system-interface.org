@@ -29,8 +29,102 @@ class SystemInterface ():
 
 #+end_src
 
-** AddQuestion
+** AddLab
+#+NAME: class_add_lab
+#+begin_src python
+    @staticmethod
+    def add_lab(data_dict):
+        session_cls = System.delegate.entities['session']
+        lab_cls = System.delegate.entities['lab']
 
+        session = session_cls(key=data_dict['key'])
+        lab = lab_cls(lab_name=data_dict['lab_name'],
+                                lab_id=data_dict['lab_id'])
+        try:
+            current_app.logger.debug("running operation add_lab")
+            question = System.do("add_lab", lab=lab, 
+                                    session=session)
+            current_app.logger.debug("completed operation add_lab")
+            return lab.to_client()
+
+        except (ArityError, TypeError, NotAuthorizedError, StateError) as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+
+        except Exception as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+#+end_src
+** GetLabs
+
+#+NAME: class_get_labs
+#+begin_src python
+    @staticmethod
+    def get_labs():
+        lab_cls = System.delegate.entities['lab']
+        try:
+            current_app.logger.debug("getting labs")
+            labs = lab_cls.get_all()
+            lab_dict_list = []
+            for lab in labs:
+                lab_x = lab.to_client()
+                lab_dict_list.append(lab_x)
+            current_app.logger.debug("got labs")
+            return  lab_dict_list
+
+        except (ArityError, TypeError, NotAuthorizedError, StateError) as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+
+        except Exception as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+#+end_src
+
+*** TestGetLabs
+ #+NAME: test_class_get_labs
+ #+BEGIN_SRC python
+class TestGetLabs(TestCase):
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_get_labs_in_system_interface(self):
+        print "test_get_labs_in_system_interface"
+
+        data_dict = {'lab_name': 'data structure',
+                    'lab_id': 'cse01',
+                    'key' : KEY
+                   }
+
+        data_dict1 = {'lab_name': "Automata",
+            'lab_id': 'DFA',
+            'key' : KEY
+           }
+
+        lab1 = SystemInterface.add_lab(data_dict)
+        lab2 = SystemInterface.add_lab(data_dict1)
+
+        labs_list = SystemInterface.get_labs()
+        
+        self.assertEqual(labs_list[0].get("lab_name"), data_dict['lab_name'])
+        self.assertEqual(labs_list[1].get("lab_name"), data_dict1['lab_name'])
+        self.assertEqual(labs_list[0].get("lab_id"), 
+                             data_dict['lab_id'])
+        self.assertEqual(labs_list[1].get("lab_id"), 
+                             data_dict1['lab_id'])
+
+ #+END_SRC
+
+** AddExperiment
 #+NAME: class_add_experiment
 #+begin_src python
     @staticmethod
@@ -54,13 +148,13 @@ class SystemInterface ():
         except Exception as err:
             current_app.logger.error("Exception = %s" % str(err))
             raise err
+
 #+end_src
 
 *** TestAddExperiment
  #+NAME: test_class_add_experiment
  #+BEGIN_SRC python
 class TestAddExperiment(TestCase):
-    TESTING = True
     def create_app(self):
         app = create_app(config)
         return app
@@ -94,46 +188,15 @@ class TestAddExperiment(TestCase):
                     'key' : KEY,
                     'exp_name': 'cse02',
                     'exp_id': 123
-                   }
-
+		    }
         with self.assertRaises(TypeError):
             SystemInterface.add_experiment(data_dict)
-
  #+END_SRC
-
-** AddLab
-
-#+NAME: class_add_lab
-#+begin_src python
-    @staticmethod
-    def add_lab(data_dict):
-        session_cls = System.delegate.entities['session']
-        lab_cls = System.delegate.entities['lab']
-
-        session = session_cls(key=data_dict['key'])
-        lab = lab_cls(lab_name=data_dict['lab_name'],
-                                lab_id=data_dict['lab_id'])
-        try:
-            current_app.logger.debug("running operation add_lab")
-            question = System.do("add_lab", lab=lab, 
-                                    session=session)
-            current_app.logger.debug("completed operation add_lab")
-            return lab.to_client()
-        except (ArityError, TypeError, NotAuthorizedError, StateError) as err:
-            current_app.logger.error("Exception = %s" % str(err))
-            raise err
-
-        except Exception as err:
-            current_app.logger.error("Exception = %s" % str(err))
-            raise err
-
-
-#+end_src
-
 *** TestAddLab
  #+NAME: test_class_add_lab
  #+BEGIN_SRC python
 class TestAddLab(TestCase):
+
     TESTING = True
     def create_app(self):
         app = create_app(config)
@@ -184,7 +247,6 @@ class TestAddLab(TestCase):
             SystemInterface.add_lab(data_dict)
 
  #+END_SRC
-
 
 * Infra                                                         :boilerplate:
   
@@ -237,6 +299,7 @@ if __name__ == '__main__':
 <<class_system_interface>>
 <<class_add_lab>>
 <<class_add_experiment>>
+<<class_get_labs>>
 #+end_src
 
 
@@ -245,6 +308,7 @@ if __name__ == '__main__':
 <<imports_for_tests>>
 <<test_class_add_lab>>
 <<test_class_add_experiment>>
+<<test_class_get_labs>>
 <<run_test_cases>>
 #+end_src
  
