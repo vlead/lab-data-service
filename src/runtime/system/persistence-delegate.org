@@ -323,6 +323,36 @@ class TestPersistenceDelegate(TestCase):
 #+END_SRC
 
 
+***  Update Experiment 
+    This function updates existing experiment.
+#+NAME: persistence_update_experiment
+#+BEGIN_SRC python
+    def update_experiment(self, experiment, exp_name, exp_id):
+        experiment.set(exp_name=exp_name, exp_id=exp_id)
+        experiment.save()
+        return experiment
+
+#+END_SRC
+
+**** Tests
+#+NAME: test_persistence_update_lab
+#+BEGIN_SRC python
+    def test_update_experiment(self):
+         print "test_update_experiment"
+         exp_name = "Data Structures"
+         exp_id = "cse01"
+         exp = Experiment(exp_name=exp_name, exp_id=exp_id)
+         exp1 = self.persistence_delegate.add_experiment(exp)
+         exp_name1 = "Computer Programming"
+         exp_id1 = "cse02"
+         exp2 = self.persistence_delegate.update_experiment\
+           (exp1, exp_name1, exp_id1),
+         exp2 = Experiment.get_by_id(1)
+         self.assertEqual(exp2.get("exp_name"), exp_name1)
+
+#+END_SRC
+
+
 ***  Delete lab 
     This function delete existing lab.
 #+NAME: persistence_delete_lab
@@ -362,6 +392,49 @@ class TestPersistenceDelegate(TestCase):
          self.persistence_delegate.delete_lab(1)
 
          self.assertEqual(len(Lab.get_all()), 1)
+
+#+END_SRC
+
+
+***  Delete Exeriment 
+    This function delete existing experiment.
+#+NAME: persistence_delete_experiment
+#+BEGIN_SRC python
+    def delete_experiment(self, e_id):
+        record = Experiment.get_by_id(e_id)
+        if not record:
+            abort(404, 'No Experiment with id %s' % (e_id))
+        else:
+            try:
+                record.delete()
+                #db.session.delete(record)
+                #db.session.commit()
+            except Exception, e:
+                print e
+                abort(500, str(e))
+
+        return e_id
+
+#+END_SRC
+
+**** Tests
+#+NAME: test_persistence_delete_experiment
+#+BEGIN_SRC python
+    def test_delete_experiment(self):
+         print "test_delete_experiment"
+         exp_name = "arrays"
+         exp_id = "cse01"
+         exp = Experiment(exp_name=exp_name, exp_id=exp_id)
+         exp1 = self.persistence_delegate.add_experiment(exp)
+
+         exp_name1 = "linked list"
+         exp_id1 = "cse02"
+         exp1 = Experiment(exp_name=exp_name1, exp_id=exp_id1)
+         exp2 = self.persistence_delegate.add_experiment(exp1)
+
+         self.persistence_delegate.delete_experiment(1)
+
+         self.assertEqual(len(Experiment.get_all()), 1)
 
 #+END_SRC
 
@@ -1227,9 +1300,11 @@ if __name__ == '__main__':
 <<persistence_response_exists>>
 <<persistence_add_lab>>
 <<persistence_delete_lab>>
+<<persistence_delete_experiment>>
 <<persistence_add_experiment>>
 <<persistence_add_feedback>>
 <<persistence_update_lab>>
+<<persistence_update_experiment>>
 <<persistence_get_feedbacks>>
 <<persistence_get_feedback_by_id>>
 <<persistence_get_feedback_usage>>
@@ -1254,8 +1329,10 @@ if __name__ == '__main__':
 #<<test_persistence_response_exists>>
 <<test_persistence_add_lab>>
 <<test_persistence_delete_lab>>
+<<test_persistence_delete_experiment>>
 <<test_persistence_add_experiment>>
 #<<test_persistence_add_feedback>>
+<<test_persistence_update_lab>>
 <<test_persistence_update_lab>>
 #<<test_persistence_get_feedbacks>>
 #<<test_persistence_get_feedback_by_id>>

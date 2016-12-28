@@ -395,12 +395,12 @@ def update_and_delete_experiment(id):
         if request.is_json:
             data_json = json.dumps(request.get_json())
             data_dict = yaml.safe_load(data_json)
-            data_dict['l_id']=id
+            data_dict['e_id']=id
         else:
             abort(500, "the request does not contain data in json")
 
         try:
-            l1 = SystemInterface.update_lab(data_dict)
+            l1 = SystemInterface.update_experiment(data_dict)
             return jsonify('{"status":"sucess"}')
 
         except TypeError as err:
@@ -415,7 +415,7 @@ def update_and_delete_experiment(id):
     if request.method == 'DELETE':
 
         try:
-            q1 = SystemInterface.delete_lab(id)
+            q1 = SystemInterface.delete_experiment(id)
             return jsonify('{"status":"sucess"}')
 
         except TypeError as err:
@@ -428,10 +428,10 @@ def update_and_delete_experiment(id):
             abort(500, 'error: %s' % str(err))
 
 #+END_SRC
-*** TestUpdateLab
- #+NAME: test_update_lab
+*** TestUpdateExperiment
+ #+NAME: test_update_experiment
  #+BEGIN_SRC python
-class TestUpdateLab(TestCase):
+class TestUpdateExperiment(TestCase):
     TESTING = True
     def create_app(self):
         app = create_app(config)
@@ -444,32 +444,32 @@ class TestUpdateLab(TestCase):
         db.session.remove()
         db.drop_all()
 
-    def test_update_lab(self):
-        print "test_update_lab"
-        payload = {'lab_name': 'Data Structures',
-                   'lab_id': 'cse01',
+    def test_update_experiment(self):
+        print "test_update_experiment"
+        payload = {'exp_name': 'arrays',
+                   'exp_id': 'cse01',
                    'key': KEY}
 
-        payload1 = {'lab_name': 'Computer Programming',
-                   'lab_id': 'cse02',
+        payload1 = {'exp_name': 'Computer Programming',
+                   'exp_id': 'cse02',
                    'key': KEY}
 
         headers = {'Content-Type': 'application/json'}
 
-        response = self.client.post("/labs", data=json.dumps(payload),
+        response = self.client.post("/experients", data=json.dumps(payload),
                                  headers=headers)
 
-        response = self.client.put("/labs/1", data=json.dumps(payload1),
+        response = self.client.put("/experiments/1", data=json.dumps(payload1),
                                  headers=headers)
 
         self.assertEqual(response.status_code, 200)
 
  #+END_SRC
    
-*** TestDeleteQuestion
- #+NAME: test_delete_lab
+*** TestDeleteExperiment
+ #+NAME: test_delete_experiment
  #+BEGIN_SRC python
-class TestDeleteQuestion(TestCase):
+class TestDeleteExperiment(TestCase):
     TESTING = True
     def create_app(self):
         app = create_app(config)
@@ -482,20 +482,20 @@ class TestDeleteQuestion(TestCase):
         db.session.remove()
         db.drop_all()
 
-    def test_delete_lab(self):
-        print "test_delete_lab"
+    def test_delete_experiment(self):
+        print "test_delete_experiment"
 
-        payload = {'lab_name': 'Data structures',
-                   'lab_id': 'cse02',
+        payload = {'exp_name': 'Data structures',
+                   'exp_id': 'cse02',
                    'key': KEY
                   }
 
         headers = {'Content-Type': 'application/json'}
 
-        response = self.client.post("/labs", data=json.dumps(payload),
+        response = self.client.post("/experiment", data=json.dumps(payload),
                                  headers=headers)
 
-        response = self.client.delete("/labs/1", headers=headers)
+        response = self.client.delete("/experiment/1", headers=headers)
 
         self.assertEqual(response.status_code, 200)
 
@@ -1371,6 +1371,8 @@ if __name__ == '__main__':
 <<test_get_lab>>
 <<test_add_experiment>>
 <<test_get_experiment>>
+<<test_update_experiment>>
+#<<test_delete_experiment>>
 <<run_test_cases>>
 #+end_src
 
