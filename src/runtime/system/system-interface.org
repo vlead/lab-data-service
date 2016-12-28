@@ -248,6 +248,75 @@ class TestAddLab(TestCase):
 
  #+END_SRC
 
+** GetExperiments
+
+#+NAME: class_get_experiments
+#+begin_src python
+    @staticmethod
+    def get_experiments():
+        experiment_cls = System.delegate.entities['experiment']
+        try:
+            current_app.logger.debug("getting experiments")
+            experiments = experiment_cls.get_all()
+            exp_dict_list = []
+            for exp in experiments:
+                exp_x = exp.to_client()
+                exp_dict_list.append(exp_x)
+            current_app.logger.debug("got experiments")
+            return  exp_dict_list
+
+        except (ArityError, TypeError, NotAuthorizedError, StateError) as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+
+        except Exception as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+#+end_src
+
+*** TestGetExperiments
+ #+NAME: test_class_get_experiments
+ #+BEGIN_SRC python
+class TestGetExperiments(TestCase):
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_get_experiments_in_system_interface(self):
+        print "test_get_experiments_in_system_interface"
+
+        data_dict = {'exp_name': 'stack',
+                    'exp_id': 'cse01',
+                    'key' : KEY
+                   }
+
+        data_dict1 = {'exp_name': "arrays",
+            'exp_id': 'cse02',
+            'key' : KEY
+           }
+
+        exp1 = SystemInterface.add_experiment(data_dict)
+        exp2 = SystemInterface.add_experiment(data_dict1)
+
+        exp_list = SystemInterface.get_experiments()
+        
+        self.assertEqual(exp_list[0].get("exp_name"), data_dict['exp_name'])
+        self.assertEqual(exp_list[1].get("exp_name"), data_dict1['exp_name'])
+        self.assertEqual(exp_list[0].get("exp_id"), 
+                             data_dict['exp_id'])
+        self.assertEqual(exp_list[1].get("exp_id"), 
+                             data_dict1['exp_id'])
+
+ #+END_SRC
+
 * Infra                                                         :boilerplate:
   
 ** sources
@@ -290,7 +359,7 @@ if __name__ == '__main__':
 
 #+END_SRC
 
-
+    
 * Tangling                                                      :boilerplate:
 
 ** sources
@@ -300,6 +369,7 @@ if __name__ == '__main__':
 <<class_add_lab>>
 <<class_add_experiment>>
 <<class_get_labs>>
+<<class_get_experiments>>
 #+end_src
 
 
@@ -309,6 +379,7 @@ if __name__ == '__main__':
 <<test_class_add_lab>>
 <<test_class_add_experiment>>
 <<test_class_get_labs>>
+<<test_class_get_experiments>>
 <<run_test_cases>>
 #+end_src
  
