@@ -123,15 +123,15 @@ class TestGetLab(TestCase):
  #+END_SRC
    
 
-** Update and Delete Question
-#+NAME: update_and_delete_question
+** Update and Delete Lab
+#+NAME: update_and_delete_lab
 #+BEGIN_SRC python
-@api.route('/questions/<id>', methods=['GET', 'PUT', 'DELETE'])
-def update_and_delete_question(id):
+@api.route('/labs/<id>', methods=['GET', 'PUT', 'DELETE'])
+def update_and_delete_lab(id):
     if request.method == 'GET':
         try:
-            question = SystemInterface.get_question_by_id(id)
-            return jsonify(question)
+            lab = SystemInterface.get_lab_by_id(id)
+            return jsonify(lab)
 
         except NotFoundError as err:
             error_message = "No question found with id: %s found." % id
@@ -152,12 +152,12 @@ def update_and_delete_question(id):
         if request.is_json:
             data_json = json.dumps(request.get_json())
             data_dict = yaml.safe_load(data_json)
-            data_dict['q_id']=id
+            data_dict['l_id']=id
         else:
             abort(500, "the request does not contain data in json")
 
         try:
-            q1 = SystemInterface.update_question(data_dict)
+            l1 = SystemInterface.update_lab(data_dict)
             return jsonify('{"status":"sucess"}')
 
         except TypeError as err:
@@ -185,10 +185,10 @@ def update_and_delete_question(id):
             abort(500, 'error: %s' % str(err))
 
 #+END_SRC
-*** TestUpdateQuestion
- #+NAME: test_update_question
+*** TestUpdateLab
+ #+NAME: test_update_lab
  #+BEGIN_SRC python
-class TestUpdateQuestion(TestCase):
+class TestUpdateLab(TestCase):
     TESTING = True
     def create_app(self):
         app = create_app(config)
@@ -196,40 +196,27 @@ class TestUpdateQuestion(TestCase):
 
     def setUp(self):
         db.create_all()
-        q_type = "radio"
-        question_cls = System.delegate.entities['question']
-        question1 = question_cls(name="How is your breakfast?", 
-                                  question_type=q_type)
-        question2 = question_cls(name="How is your lunch?", 
-                                 question_type=q_type)
-        question3 = question_cls(name="How is your dinner?", 
-                                 question_type=q_type)
-
-        question1.save()
-        question2.save()
-        question3.save()
-
 
     def tearDown(self):
         db.session.remove()
         db.drop_all()
 
-    def test_update_question(self):
-        print "test_update_question"
-        payload = {'name': 'How are you?',
-                   'question_type': 'radio',
+    def test_update_lab(self):
+        print "test_update_lab"
+        payload = {'lab_name': 'Data Structures',
+                   'lab_id': 'cse01',
                    'key': KEY}
 
-        payload1 = {'name': 'How are labs?',
-                   'question_type': 'text',
+        payload1 = {'lab_name': 'Computer Programming',
+                   'lab_id': 'cse02',
                    'key': KEY}
 
         headers = {'Content-Type': 'application/json'}
 
-        response = self.client.post("/questions", data=json.dumps(payload),
+        response = self.client.post("/labs", data=json.dumps(payload),
                                  headers=headers)
 
-        response = self.client.put("/questions/1", data=json.dumps(payload1),
+        response = self.client.put("/labs/1", data=json.dumps(payload1),
                                  headers=headers)
 
         self.assertEqual(response.status_code, 200)
@@ -237,7 +224,7 @@ class TestUpdateQuestion(TestCase):
  #+END_SRC
    
 *** TestDeleteQuestion
- #+NAME: test_delete_question
+ #+NAME: test_delete_lab
  #+BEGIN_SRC python
 class TestDeleteQuestion(TestCase):
     TESTING = True
@@ -247,38 +234,25 @@ class TestDeleteQuestion(TestCase):
 
     def setUp(self):
         db.create_all()
-        q_type = "radio"
-        question_cls = System.delegate.entities['question']
-        question1 = question_cls(name="How is your breakfast?", 
-                                  question_type=q_type)
-        question2 = question_cls(name="How is your lunch?", 
-                                 question_type=q_type)
-        question3 = question_cls(name="How is your dinner?", 
-                                 question_type=q_type)
-
-        question1.save()
-        question2.save()
-        question3.save()
-
 
     def tearDown(self):
         db.session.remove()
         db.drop_all()
 
-    def test_delete_question(self):
-        print "test_delete_question"
+    def test_delete_lab(self):
+        print "test_delete_lab"
 
-        payload = {'name': 'How are you?',
-                   'question_type': 'radio',
+        payload = {'lab_name': 'Data structures',
+                   'lab_id': 'cse02',
                    'key': KEY
                   }
 
         headers = {'Content-Type': 'application/json'}
 
-        response = self.client.post("/questions", data=json.dumps(payload),
+        response = self.client.post("/labs", data=json.dumps(payload),
                                  headers=headers)
 
-        response = self.client.delete("/questions/1", headers=headers)
+        response = self.client.delete("/labs/1", headers=headers)
 
         self.assertEqual(response.status_code, 200)
 
@@ -1147,8 +1121,8 @@ if __name__ == '__main__':
 #+BEGIN_SRC python :tangle test_api.py :eval no :noweb yes
 <<imports_for_tests>>
 <<test_add_lab>>
-#<<test_update_question>>
-#<<test_delete_question>>
+<<test_update_lab>>
+<<test_delete_lab>>
 <<test_get_lab>>
 <<run_test_cases>>
 #+end_src
