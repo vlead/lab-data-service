@@ -366,6 +366,141 @@ class TestGetExperiment(TestCase):
 
  #+END_SRC
    
+** Update and Delete Experiment
+#+NAME: update_and_delete_experiment
+#+BEGIN_SRC python
+@api.route('/experiments/<id>', methods=['GET', 'PUT', 'DELETE'])
+def update_and_delete_experiment(id):
+    if request.method == 'GET':
+        try:
+            experiment = SystemInterface.get_experiment_by_id(id)
+            return jsonify(experiment)
+
+        except NotFoundError as err:
+            error_message = "No experiment found with id: %s found." % id
+
+            return render_template('error.html',
+                    data=error_message)
+
+        except TypeError as err:
+            error_message = 'Malformed arguments, error: %s' % str(err)
+
+            return render_template('error.html', 
+                    data=error_message)
+
+        except Exception as err:
+            abort(500, 'error: %s' % str(err))
+    
+    if request.method == 'PUT':
+        if request.is_json:
+            data_json = json.dumps(request.get_json())
+            data_dict = yaml.safe_load(data_json)
+            data_dict['l_id']=id
+        else:
+            abort(500, "the request does not contain data in json")
+
+        try:
+            l1 = SystemInterface.update_lab(data_dict)
+            return jsonify('{"status":"sucess"}')
+
+        except TypeError as err:
+            error_message = 'Malformed arguments, error: %s' % str(err)
+
+            return render_template('error.html', 
+                    data=error_message)
+
+        except Exception as err:
+            abort(500, 'error: %s' % str(err))
+
+    if request.method == 'DELETE':
+
+        try:
+            q1 = SystemInterface.delete_lab(id)
+            return jsonify('{"status":"sucess"}')
+
+        except TypeError as err:
+            error_message = 'Malformed arguments, error: %s' % str(err)
+
+            return render_template('error.html', 
+                    data=error_message)
+
+        except Exception as err:
+            abort(500, 'error: %s' % str(err))
+
+#+END_SRC
+*** TestUpdateLab
+ #+NAME: test_update_lab
+ #+BEGIN_SRC python
+class TestUpdateLab(TestCase):
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_update_lab(self):
+        print "test_update_lab"
+        payload = {'lab_name': 'Data Structures',
+                   'lab_id': 'cse01',
+                   'key': KEY}
+
+        payload1 = {'lab_name': 'Computer Programming',
+                   'lab_id': 'cse02',
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/labs", data=json.dumps(payload),
+                                 headers=headers)
+
+        response = self.client.put("/labs/1", data=json.dumps(payload1),
+                                 headers=headers)
+
+        self.assertEqual(response.status_code, 200)
+
+ #+END_SRC
+   
+*** TestDeleteQuestion
+ #+NAME: test_delete_lab
+ #+BEGIN_SRC python
+class TestDeleteQuestion(TestCase):
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_delete_lab(self):
+        print "test_delete_lab"
+
+        payload = {'lab_name': 'Data structures',
+                   'lab_id': 'cse02',
+                   'key': KEY
+                  }
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/labs", data=json.dumps(payload),
+                                 headers=headers)
+
+        response = self.client.delete("/labs/1", headers=headers)
+
+        self.assertEqual(response.status_code, 200)
+
+ #+END_SRC
+   
  
 * WebApp
 
@@ -1223,6 +1358,7 @@ if __name__ == '__main__':
 <<get_and_add_lab>>
 <<update_and_delete_lab>>
 <<get_and_add_experiment>>
+<<update_and_delete_experiment>>
 #+END_SRC
 
 
