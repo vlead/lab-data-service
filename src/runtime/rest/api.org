@@ -88,7 +88,6 @@ class TestAddLab(TestCase):
 
  #+END_SRC
    
-
 *** TestGetLab
  #+NAME: test_get_lab
  #+BEGIN_SRC python
@@ -122,8 +121,7 @@ class TestGetLab(TestCase):
 
  #+END_SRC
    
-
-d** Update and Delete Lab
+** Update and Delete Lab
 #+NAME: update_and_delete_lab
 #+BEGIN_SRC python
 @api.route('/labs/<id>', methods=['GET', 'PUT', 'DELETE'])
@@ -254,6 +252,116 @@ class TestDeleteQuestion(TestCase):
 
         response = self.client.delete("/labs/1", headers=headers)
 
+        self.assertEqual(response.status_code, 200)
+
+ #+END_SRC
+   
+** Get and Add Experiment
+   REST API to get and add experiment.
+
+#+NAME: get_and_add_experiment
+#+BEGIN_SRC python
+@api.route('/experiments', methods=['GET', 'POST'])
+def add_experiment():
+    if request.method == 'GET':
+        try:
+            experiments = SystemInterface.get_experiments()
+
+            return jsonify_list(experiments)
+
+        except TypeError as err:
+            error_message = 'Malformed arguments, error: %s' % str(err)
+
+            return render_template('error.html', 
+                    data=error_message)
+
+        except Exception as err:
+            abort(500, 'error: %s' % str(err))
+       
+    if request.method == 'POST':
+        if request.is_json:
+            data_json = json.dumps(request.get_json())
+            data_dict = yaml.safe_load(data_json)
+        else:
+            abort(500, "the request does not contain data in json")
+
+        try:
+            exp = SystemInterface.add_experiment(data_dict)
+            return jsonify('{"status":"sucess"}')
+
+        except TypeError as err:
+            error_message = 'Malformed arguments, error: %s' % str(err)
+
+            return render_template('error.html', 
+                    data=error_message)
+
+        except Exception as err:
+            abort(500, 'error: %s' % str(err))
+            
+#+END_SRC
+
+
+*** TestAddExperiment
+ #+NAME: test_add_experiment
+ #+BEGIN_SRC python
+class TestAddExperiment(TestCase):
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_add_experiment(self):
+        print "test_add_experiment_in_rest"
+        payload = {'exp_name': 'arrays',
+                   'exp_id': 'cse01',
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/experiments", data=json.dumps(payload),
+                                 headers=headers)
+
+        self.assertEqual(response.status_code, 200)
+
+ #+END_SRC
+   
+
+*** TestGetExperiment
+ #+NAME: test_get_Experiment
+ #+BEGIN_SRC python
+class TestGetExperiment(TestCase):
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_get_experiments(self):
+        print "test_get_experiments_in_rest"
+
+        payload = {'exp_name': 'stack',
+                   'exp_id': 'cse01',
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/experiments", data=json.dumps(payload),
+                                 headers=headers)
+
+        response = self.client.get("/experiments", headers=headers)
         self.assertEqual(response.status_code, 200)
 
  #+END_SRC
@@ -1114,6 +1222,7 @@ if __name__ == '__main__':
 <<imports_for_sources>>
 <<get_and_add_lab>>
 <<update_and_delete_lab>>
+<<get_and_add_experiment>>
 #+END_SRC
 
 
@@ -1124,6 +1233,8 @@ if __name__ == '__main__':
 <<test_update_lab>>
 <<test_delete_lab>>
 <<test_get_lab>>
+<<test_add_experiment>>
+<<test_get_experiment>>
 <<run_test_cases>>
 #+end_src
 
