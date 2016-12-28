@@ -30,7 +30,6 @@ class SystemInterface ():
 #+end_src
 
 ** AddLab
-
 #+NAME: class_add_lab
 #+begin_src python
     @staticmethod
@@ -47,6 +46,7 @@ class SystemInterface ():
                                     session=session)
             current_app.logger.debug("completed operation add_lab")
             return lab.to_client()
+
         except (ArityError, TypeError, NotAuthorizedError, StateError) as err:
             current_app.logger.error("Exception = %s" % str(err))
             raise err
@@ -54,64 +54,7 @@ class SystemInterface ():
         except Exception as err:
             current_app.logger.error("Exception = %s" % str(err))
             raise err
-
-
 #+end_src
-
-*** TestAddLab
- #+NAME: test_class_add_lab
- #+BEGIN_SRC python
-class TestAddLab(TestCase):
-    TESTING = True
-    def create_app(self):
-        app = create_app(config)
-        return app
-
-    def setUp(self):
-        db.create_all()
-
-    def tearDown(self):
-        db.session.remove()
-        db.drop_all()
-
-    def test_add_lab_in_system_interface(self):
-        print "test_add_lab_in_system_interface"
-
-        data_dict = {'lab_name': 'data structure',
-                    'lab_id': 'cse01',
-                    'key' : KEY
-                   }
-
-        data_dict1 = {'lab_name': "Automata",
-            'lab_id': 'DFA',
-            'key' : KEY
-           }
-
-
-        lab = SystemInterface.add_lab(data_dict)
-        lab1 = SystemInterface.add_lab(data_dict1)
-        
-        self.assertEqual(lab.get("lab_id"), 
-                             data_dict['lab_id'])
-        self.assertEqual(lab.get("lab_name"), data_dict['lab_name'])
-        self.assertEqual(lab1.get("lab_id"), 
-                             data_dict1['lab_id'])
-        self.assertEqual(lab1.get("lab_name"), data_dict1['lab_name'])
-
-
-    def test_add_lab_raises_type_error_in_system_interface(self):
-        print "test_add_lab_raises_type_error_in_system_interface"
-
-        data_dict = {'lab_name': 'data structure',
-                    'lab_id': 123,
-                    'key' : KEY
-                   }
-
-        with self.assertRaises(TypeError):
-            SystemInterface.add_lab(data_dict)
-
- #+END_SRC
-
 ** GetLabs
 
 #+NAME: class_get_labs
@@ -178,6 +121,198 @@ class TestGetLabs(TestCase):
                              data_dict['lab_id'])
         self.assertEqual(labs_list[1].get("lab_id"), 
                              data_dict1['lab_id'])
+
+ #+END_SRC
+
+** AddExperiment
+#+NAME: class_add_experiment
+#+begin_src python
+    @staticmethod
+    def add_experiment(data_dict):
+        session_cls = System.delegate.entities['session']
+        experiment_cls = System.delegate.entities['experiment']
+
+        session = session_cls(key=data_dict['key'])
+        experiment = experiment_cls(exp_name=data_dict['exp_name'],
+                                exp_id=data_dict['exp_id'])
+        try:
+            current_app.logger.debug("running operation add_experiment")
+            question = System.do("add_experiment", experiment=experiment, 
+                                    session=session)
+            current_app.logger.debug("completed operation add_experiment")
+            return experiment.to_client()
+        except (ArityError, TypeError, NotAuthorizedError, StateError) as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+
+        except Exception as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+
+#+end_src
+
+*** TestAddExperiment
+ #+NAME: test_class_add_experiment
+ #+BEGIN_SRC python
+class TestAddExperiment(TestCase):
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_add_experiment_in_system_interface(self):
+        print "test_add_experiment_in_system_interface"
+
+        data_dict = {
+                    'key' : KEY,
+                    'exp_name': 'array',
+                    'exp_id': 'cse02'
+                   }
+
+        experiment = SystemInterface.add_experiment(data_dict)
+
+        self.assertEqual(experiment.get("exp_name"), 
+                             data_dict['exp_name'])
+        self.assertEqual(experiment.get("exp_id"), data_dict['exp_id'])
+        
+    def test_add_experiment_raises_type_error_in_system_interface(self):
+        print "test_add_experiment_raises_type_error_in_system_interface"
+
+        data_dict = {
+                    'key' : KEY,
+                    'exp_name': 'cse02',
+                    'exp_id': 123
+		    }
+        with self.assertRaises(TypeError):
+            SystemInterface.add_experiment(data_dict)
+ #+END_SRC
+*** TestAddLab
+ #+NAME: test_class_add_lab
+ #+BEGIN_SRC python
+class TestAddLab(TestCase):
+
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_add_lab_in_system_interface(self):
+        print "test_add_lab_in_system_interface"
+
+        data_dict = {'lab_name': 'data structure',
+                    'lab_id': 'cse01',
+                    'key' : KEY
+                   }
+
+        data_dict1 = {'lab_name': "Automata",
+            'lab_id': 'DFA',
+            'key' : KEY
+           }
+
+
+        lab = SystemInterface.add_lab(data_dict)
+        lab1 = SystemInterface.add_lab(data_dict1)
+        
+        self.assertEqual(lab.get("lab_id"), 
+                             data_dict['lab_id'])
+        self.assertEqual(lab.get("lab_name"), data_dict['lab_name'])
+        self.assertEqual(lab1.get("lab_id"), 
+                             data_dict1['lab_id'])
+        self.assertEqual(lab1.get("lab_name"), data_dict1['lab_name'])
+
+
+    def test_add_lab_raises_type_error_in_system_interface(self):
+        print "test_add_lab_raises_type_error_in_system_interface"
+
+        data_dict = {'lab_name': 'data structure',
+                    'lab_id': 123,
+                    'key' : KEY
+                   }
+
+        with self.assertRaises(TypeError):
+            SystemInterface.add_lab(data_dict)
+
+ #+END_SRC
+
+** GetExperiments
+
+#+NAME: class_get_experiments
+#+begin_src python
+    @staticmethod
+    def get_experiments():
+        experiment_cls = System.delegate.entities['experiment']
+        try:
+            current_app.logger.debug("getting experiments")
+            experiments = experiment_cls.get_all()
+            exp_dict_list = []
+            for exp in experiments:
+                exp_x = exp.to_client()
+                exp_dict_list.append(exp_x)
+            current_app.logger.debug("got experiments")
+            return  exp_dict_list
+
+        except (ArityError, TypeError, NotAuthorizedError, StateError) as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+
+        except Exception as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+#+end_src
+
+*** TestGetExperiments
+ #+NAME: test_class_get_experiments
+ #+BEGIN_SRC python
+class TestGetExperiments(TestCase):
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_get_experiments_in_system_interface(self):
+        print "test_get_experiments_in_system_interface"
+
+        data_dict = {'exp_name': 'stack',
+                    'exp_id': 'cse01',
+                    'key' : KEY
+                   }
+
+        data_dict1 = {'exp_name': "arrays",
+            'exp_id': 'cse02',
+            'key' : KEY
+           }
+
+        exp1 = SystemInterface.add_experiment(data_dict)
+        exp2 = SystemInterface.add_experiment(data_dict1)
+
+        exp_list = SystemInterface.get_experiments()
+        
+        self.assertEqual(exp_list[0].get("exp_name"), data_dict['exp_name'])
+        self.assertEqual(exp_list[1].get("exp_name"), data_dict1['exp_name'])
+        self.assertEqual(exp_list[0].get("exp_id"), 
+                             data_dict['exp_id'])
+        self.assertEqual(exp_list[1].get("exp_id"), 
+                             data_dict1['exp_id'])
 
  #+END_SRC
 
@@ -322,6 +457,8 @@ class TestUpdateLab(TestCase):
  #+END_SRC
 
 
+=======
+>>>>>>> 518a2a88a1a753f1e43334ef4563795c0ccb26d5
 * Infra                                                         :boilerplate:
   
 ** sources
@@ -364,7 +501,7 @@ if __name__ == '__main__':
 
 #+END_SRC
 
-
+    
 * Tangling                                                      :boilerplate:
 
 ** sources
@@ -372,9 +509,12 @@ if __name__ == '__main__':
 <<imports_for_sources>>
 <<class_system_interface>>
 <<class_add_lab>>
+<<class_add_experiment>>
 <<class_get_labs>>
 <<class_delete_lab>>
 <<class_update_lab>>
+<<class_get_experiments>>
+
 #+end_src
 
 
@@ -382,9 +522,11 @@ if __name__ == '__main__':
 #+BEGIN_SRC python :tangle test_system_interface.py :eval no :noweb yes
 <<imports_for_tests>>
 <<test_class_add_lab>>
+<<test_class_add_experiment>>
 <<test_class_get_labs>>
 <<test_class_delete_lab>>
 <<test_class_update_lab>>
+<<test_class_get_experiments>>
 <<run_test_cases>>
 #+end_src
  
