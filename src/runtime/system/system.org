@@ -254,12 +254,12 @@ class AddLab():
 #+end_src
 
 
-** =UpdateQuestion=
-#+NAME: class_update_question
+** =UpdateLab=
+#+NAME: class_update_lab
 #+begin_src python
-class UpdateQuestion():
-    arg_types = {"question": is_question, "name": is_str_or_none,
-                     "question_type": is_str_or_none,
+class UpdateLab():
+    arg_types = {"lab": is_lab, "lab_name": is_str_or_none,
+                     "lab_id": is_str_or_none,
                      "session": is_session}
     arity_and_type_checks_needed = True
 
@@ -275,29 +275,29 @@ class UpdateQuestion():
 
     @staticmethod
     def action(args):
-        question = args["question"]
-        if not "name" in args:
-           name=question.get("name")
+        lab = args["lab"]
+        if not "lab_name" in args:
+           lab_name=question.get("lab_name")
         else:
-           name=args["name"]
+           lab_name=args["lab_name"]
 
-        if not "question_type" in args:
-           question_type = question.get("question_type")
+        if not "lab_id" in args:
+           lab_id = lab.get("lab_id")
         else:
-           question_type = args["question_type"]
+           lab_id = args["lab_id"]
 
-        question = System.delegate.update_question(question, name,\
-            question_type)
-        return question
+        lab = System.delegate.update_lab(lab, lab_name,\
+            lab_id)
+        return lab
 
 #+end_src
 
 
-** =DeleteQuestion=
-#+NAME: class_delete_question
+** =DeleteLab=
+#+NAME: class_delete_lab
 #+begin_src python
-class DeleteQuestion():
-    arg_types = {"q_id": is_int, "session": is_session}
+class DeleteLab():
+    arg_types = {"l_id": is_int, "session": is_session}
     arity_and_type_checks_needed = True
 
     @staticmethod
@@ -312,9 +312,9 @@ class DeleteQuestion():
 
     @staticmethod
     def action(args):
-        q_id = args["q_id"]
-        q_id = System.delegate.delete_question(q_id)
-        return q_id
+        l_id = args["l_id"]
+        l_id = System.delegate.delete_lab(l_id)
+        return l_id
 
 #+end_src
 
@@ -561,7 +561,10 @@ class GetFeedbackForm():
 
  #+NAME: ops_table
  #+BEGIN_SRC python                                                                          
-ops_table = {'add_lab' : AddLab, 'add_experiment' : AddExperiment}
+ops_table = {'add_lab' : AddLab,
+             'update_lab': UpdateLab,
+             'delete_lab': DeleteLab,
+             'add_experiment' : AddExperiment}
 
  #+END_SRC   
 
@@ -624,6 +627,8 @@ if __name__ == '__main__':
 <<arity_type_checks>>
 <<do_function>>
 <<class_add_lab>>
+<<class_delete_lab>>
+<<class_update_lab>>
 <<class_add_experiment>>
 <<ops_table>>
 

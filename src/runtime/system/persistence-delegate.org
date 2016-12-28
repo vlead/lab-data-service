@@ -293,44 +293,44 @@ class TestPersistenceDelegate(TestCase):
 #+END_SRC
 
 
-***  Update question 
-    This function updates existing question.
-#+NAME: persistence_update_question
+***  Update lab 
+    This function updates existing lab.
+#+NAME: persistence_update_lab
 #+BEGIN_SRC python
-    def update_question(self, question, name, question_type):
-        question.set(name=name, question_type=question_type)
-        question.save()
-        return question
+    def update_lab(self, lab, lab_name, lab_id):
+        lab.set(lab_name=lab_name, lab_id=lab_id)
+        lab.save()
+        return lab
 
 #+END_SRC
 
 **** Tests
-#+NAME: test_persistence_update_question
+#+NAME: test_persistence_update_lab
 #+BEGIN_SRC python
-    def test_update_question(self):
-         print "test_update_question"
-         name = "how are labs?"
-         question_type = "radio"
-         question = Question(name=name, question_type=question_type)
-         question1 = self.persistence_delegate.add_question(question)
-         name1 = "how are experiments?"
-         question_type1 = "text"
-         question2 = self.persistence_delegate.update_question\
-           (question1, name1, question_type1),
-         question2 = Question.get_by_id(1)
-         self.assertEqual(question2.get("name"), name1)
+    def test_update_lab(self):
+         print "test_update_lab"
+         lab_name = "Data Structures"
+         lab_id = "cse01"
+         lab = Lab(lab_name=lab_name, lab_id=lab_id)
+         lab1 = self.persistence_delegate.add_lab(lab)
+         lab_name1 = "Computer Programming"
+         lab_id1 = "cse02"
+         lab2 = self.persistence_delegate.update_lab\
+           (lab1, lab_name1, lab_id1),
+         lab2 = Lab.get_by_id(1)
+         self.assertEqual(lab2.get("lab_name"), lab_name1)
 
 #+END_SRC
 
 
-***  Delete question 
-    This function updates existing question.
+***  Delete lab 
+    This function delete existing lab.
 #+NAME: persistence_delete_question
 #+BEGIN_SRC python
-    def delete_question(self, q_id):
-        record = Question.get_by_id(q_id)
+    def delete_lab(self, l_id):
+        record = Lab.get_by_id(l_id)
         if not record:
-            abort(404, 'No question with id %s' % (q_id))
+            abort(404, 'No Lab with id %s' % (l_id))
         else:
             try:
                 record.delete()
@@ -340,28 +340,28 @@ class TestPersistenceDelegate(TestCase):
                 print e
                 abort(500, str(e))
 
-        return q_id
+        return l_id
 
 #+END_SRC
 
 **** Tests
-#+NAME: test_persistence_delete_question
+#+NAME: test_persistence_delete_lab
 #+BEGIN_SRC python
-    def test_delete_question(self):
-         print "test_delete_question"
-         name = "how are labs?"
-         question_type = "radio"
-         question = Question(name=name, question_type=question_type)
-         question1 = self.persistence_delegate.add_question(question)
+    def test_delete_lab(self):
+         print "test_delete_lab"
+         lab_name = "Data Structures"
+         lab_id = "cse01"
+         lab = Lab(lab_name=lab_name, lab_id=lab_id)
+         lab1 = self.persistence_delegate.add_lab(lab)
 
-         name1 = "how are experiments?"
-         question_type1 = "radio"
-         question1 = Question(name=name1, question_type=question_type1)
-         question2 = self.persistence_delegate.add_question(question1)
+         lab_name1 = "Computer Programming"
+         lab_id1 = "cse02"
+         lab1 = Lab(lab_name=lab_name1, lab_id=lab_id1)
+         lab2 = self.persistence_delegate.add_lab(lab1)
 
-         self.persistence_delegate.delete_question(1)
+         self.persistence_delegate.delete_lab(1)
 
-         self.assertEqual(len(Question.get_all()), 1)
+         self.assertEqual(len(Lab.get_all()), 1)
 
 #+END_SRC
 
