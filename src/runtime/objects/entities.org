@@ -37,6 +37,8 @@ requirements of the application.
 #+BEGIN_SRC python
 Lab = ClassTemplate.mk_class("Lab")
 Experiment = ClassTemplate.mk_class("Experiment")
+Session = ClassTemplate.mk_class("Session")
+
 #+END_SRC
 
 
@@ -133,7 +135,33 @@ class TestExperiment(TestCase):
 
 #+END_SRC
 
+
+* Session
+   =Session= is an entity that has a field =key= which is a string
+#+NAME: class_Session
+#+begin_src python
+Session.add_attributes(key=is_str)
+Session.__eq__ = lambda self, other: \
+                  isinstance(other, self.__class__) and \
+                  self.get("key") == other.get("key")
+
+#+end_src
+
+*** Test Session
+#+NAME: class_TestSession
+#+BEGIN_SRC python
+class TestSession(TestCase):
+    TESTING = True
+
+    def test_object_session(self):
+        print "test_object_session"
+        key = "dkjhfkjdhfkjadhfkjhdafkjh"
+        session = Session(key=key)
+        self.assertEqual(answer.get("key"), key)
+
+#+END_SRC
     
+
 * Infra                                                         :boilerplate:
   
 ** sources
@@ -175,14 +203,17 @@ if __name__ == '__main__':
 <<imports_for_sources>>
 <<base_classes>>
 <<type_predicates>>
+<<class_Session>>
 <<class_Lab>>
 <<class_Experiment>>
+
 #+end_src
 
 
 ** tests
 #+BEGIN_SRC python :tangle test_entities.py :eval no :noweb yes
 <<imports_for_tests>>
+<<class_TestSession>>
 <<class_TestLab>>
 <<class_TestExperiment>>
 <<run_test_cases>>
