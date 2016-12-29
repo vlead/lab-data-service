@@ -37,16 +37,27 @@ class TestAddLab(TestCase):
         print "test_add_lab_in_system_persistence"
         session_cls = System.delegate.entities['session']
         lab_cls = System.delegate.entities['lab']
+        experiment_cls = System.delegate.entities['experiment']
+
+        exp_name = "arrays"
+        exp_id = "cse02"
+        experiment = experiment_cls(exp_name=exp_name, exp_id=exp_id)
 
         lab_name1="Computer Programming"
         lab_id1="CSE01"
         key = KEY
         session = session_cls(key=key)
-        lab = lab_cls(lab_id=lab_id1, lab_name=lab_name1)
+        lab = lab_cls(lab_id=lab_id1, lab_name=lab_name1, \
+                          experiments=[experiment])
         lab1 = System.do("add_lab", lab = lab,
                                   session=session)
         new_lab = lab_cls.get_by_id(1)
         self.assertEqual(new_lab.get("lab_name"), lab_name1)
+        self.assertEqual(new_lab.get("lab_id"), lab_id1)
+        self.assertEqual(new_lab.get("experiments")[0].get("exp_name"), 
+                             experiment.get("exp_name"))
+
+
             
 #+END_SRC
 
