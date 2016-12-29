@@ -257,13 +257,25 @@ class TestPersistenceDelegate(TestCase):
 #+BEGIN_SRC python
     def test_add_lab(self):
          print "test_add_lab"
-         lab_name="Computer Programming"
-         lab_id="CSE01"
-         lab = Lab(lab_name=lab_name, lab_id=lab_id)
+         exp_name = "Number Systems"
+         exp_id = "EE99777"
+         experiment = Experiment(exp_name=exp_name, exp_id=exp_id)
+         experiment.save()
 
-         question1 = self.persistence_delegate.add_lab(lab)
-         self.assertEqual(self.persistence_delegate.lab_exists(lab),
+         lab_name1="Computer Programming"
+         lab_id1="CSE01"
+         lab1 = Lab(lab_name=lab_name1, lab_id=lab_id1, \
+                        experiments=[experiment])
+         lab1 = self.persistence_delegate.add_lab(lab1)
+        
+         lab_name2="Data Structures"
+         lab_id2="CSE02"
+         lab2 = Lab(lab_name=lab_name2, lab_id=lab_id2, experiments=[])
+
+         self.assertEqual(self.persistence_delegate.lab_exists(lab1),
                           True)
+         self.assertEqual(self.persistence_delegate.lab_exists(lab2),
+                          False)
 
 #+END_SRC
 
