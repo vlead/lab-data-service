@@ -22,9 +22,9 @@ args = {"__tablename__": "lab",
         "id": db.Column(db.Integer, primary_key=True),
         "lab_id": db.Column(db.String(255), unique=True, nullable=False),
         "lab_name": db.Column(db.String(255), unique=False, 
-                                       nullable=True),
-        #"experiments": db.relationship('Experiment', 
-        #                               backref=db.backref('lab'))
+                                       nullable=True)
+    #    "experiments": db.relationship('Experiment', 
+     #                                  backref=db.backref('lab'))
         }
 
 Lab = ClassPersistenceTemplate.mk_persistent(Lab, ['lab_id'], **args)
@@ -69,6 +69,10 @@ args = {"__tablename__": "experiment",
         "id": db.Column(db.Integer, primary_key=True),
         "exp_name": db.Column(db.String(255), unique=False, nullable=True),
         "exp_id": db.Column(db.String(255), unique=True, nullable=False)
+        #"lab_id": db.Column(db.Integer, 
+         #                             db.ForeignKey('lab.id'), 
+          #                            unique=False, nullable=False),
+
         }
 
 Experiment = ClassPersistenceTemplate.mk_persistent(Experiment, ['exp_id'], **args)

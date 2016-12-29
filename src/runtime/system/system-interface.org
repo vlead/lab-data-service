@@ -29,6 +29,7 @@ class SystemInterface ():
 
 #+end_src
 
+
 ** AddLab
 #+NAME: class_add_lab
 #+begin_src python
@@ -55,6 +56,7 @@ class SystemInterface ():
             current_app.logger.error("Exception = %s" % str(err))
             raise err
 #+end_src
+
 ** GetLabs
 
 #+NAME: class_get_labs
@@ -193,6 +195,151 @@ class TestGetLabById(TestCase):
                              data_dict1['lab_id'])
 
  #+END_SRC
+
+** DeleteLab
+#+NAME: class_delete_lab
+#+begin_src python
+    @staticmethod
+    def delete_lab(l_id):
+        session_cls = System.delegate.entities['session']
+
+        session = session_cls(key=KEY)
+        try:
+            current_app.logger.debug("running operation delete_lab")
+            lab = System.do("delete_lab", l_id=int(l_id),
+                                    session=session)
+            current_app.logger.debug("completed operation delete_lab")
+            return lab
+        except (ArityError, TypeError, NotAuthorizedError, StateError) as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+
+        except Exception as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+#+end_src
+
+*** TestDeleteLab
+ #+NAME: test_class_delete_lab
+ #+BEGIN_SRC python
+class TestDeleteLab(TestCase):
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_delete_lab_in_system_interface(self):
+        print "test_delete_lab_in_system_interface"
+
+        data_dict = {
+                    'key' : KEY,
+                    'lab_name': 'Data Structures',
+                    'lab_id': 'cse01'
+                   }
+
+        data_dict1 = {
+                    'key' : KEY,
+                    'lab_name': 'Computer Programming',
+                    'lab_id': 'cse02'
+                   }
+
+        lab = SystemInterface.add_lab(data_dict)
+        lab1 = SystemInterface.add_lab(data_dict1)
+        l_id = SystemInterface.delete_lab(1)
+        
+        self.assertEqual(l_id, 1)
+
+ #+END_SRC
+
+** UpdateLab
+   
+#+NAME: class_update_lab
+#+begin_src python
+    @staticmethod
+    def update_lab(data_dict):
+        session_cls = System.delegate.entities['session']
+        lab_cls = System.delegate.entities['lab']
+
+        session = session_cls(key=data_dict['key'])
+        lab = lab_cls.get_by_id(data_dict['l_id'])
+
+        if 'lab_name' not in data_dict:
+            lab_name=str(lab.get("lab_name"))
+        else:
+            lab_name=data_dict['lab_name']
+
+        if 'lab_id' not in data_dict:
+            lab_id=str(lab.get("lab_id"))
+        else:
+            lab_id=data_dict['lab_id']
+
+        try:
+            current_app.logger.debug("running operation update_lab")
+            question = System.do("update_lab", lab=lab, lab_name=lab_name, 
+                                    lab_id=lab_id,
+                                    session=session)
+            current_app.logger.debug("completed operation update_lab")
+            return lab.to_client()
+        except (ArityError, TypeError, NotAuthorizedError, StateError) as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+
+        except Exception as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+#+end_src
+
+*** TestUpateLab
+ #+NAME: test_class_update_lab
+ #+BEGIN_SRC python
+class TestUpdateLab(TestCase):
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_update_lab_name_in_system_interface(self):
+        print "test_update_lab_name_in_system_interface"
+
+        data_dict = {
+                    'key' : KEY,
+                    'lab_name': 'Data Structures',
+                    'lab_id': 'cse02'
+                   }
+
+        data_dict1 = {
+                    'key' : KEY,
+                    'l_id': 1,
+                    'lab_name': 'Computer Programming'
+                   }
+
+        lab = SystemInterface.add_lab(data_dict)
+        lab1 = SystemInterface.update_lab(data_dict1)
+        
+        self.assertEqual(lab1.get("lab_name"), data_dict1['lab_name'])
+        self.assertEqual(lab1.get("lab_id"),
+                             data_dict['lab_id'])
+
+ #+END_SRC
+
+
+=======
+>>>>>>> 518a2a88a1a753f1e43334ef4563795c0ccb26d5
+
 
 ** AddExperiment
 #+NAME: class_add_experiment
@@ -456,68 +603,6 @@ class TestGetExperimentById(TestCase):
 
  #+END_SRC
 
-** DeleteExperiment
-#+NAME: class_delete_experiment
-#+begin_src python
-    @staticmethod
-    def delete_experiment(e_id):
-        session_cls = System.delegate.entities['session']
-
-        session = session_cls(key=KEY)
-        try:
-            current_app.logger.debug("running operation delete_experiment")
-            exp = System.do("delete_experiment", e_id=int(e_id),
-                                    session=session)
-            current_app.logger.debug("completed operation delete_experiment")
-            return exp
-        except (ArityError, TypeError, NotAuthorizedError, StateError) as err:
-            current_app.logger.error("Exception = %s" % str(err))
-            raise err
-
-        except Exception as err:
-            current_app.logger.error("Exception = %s" % str(err))
-            raise err
-#+end_src
-
-*** TestDeleteLab
- #+NAME: test_class_delete_experiment
- #+BEGIN_SRC python
-class TestDeleteExperiment(TestCase):
-    TESTING = True
-    def create_app(self):
-        app = create_app(config)
-        return app
-
-    def setUp(self):
-        db.create_all()
-
-    def tearDown(self):
-        db.session.remove()
-        db.drop_all()
-
-    def test_delete_experiment_in_system_interface(self):
-        print "test_delete_experiment_in_system_interface"
-
-        data_dict = {
-                    'key' : KEY,
-                    'exp_name': 'Data Structures',
-                    'exp_id': 'cse01'
-                   }
-
-        data_dict1 = {
-                    'key' : KEY,
-                    'exp_name': 'Computer Programming',
-                    'exp_id': 'cse02'
-                   }
-
-        exp = SystemInterface.add_experiment(data_dict)
-        exp1 = SystemInterface.add_experiment(data_dict1)
-        e_id = SystemInterface.delete_experiment(1)
-        
-        self.assertEqual(e_id, 1)
-
- #+END_SRC
-
 ** UpdateExperiment
    
 #+NAME: class_update_experiment
@@ -596,20 +681,20 @@ class TestUpdateExperiment(TestCase):
  #+END_SRC
 
 
-** DeleteLab
-#+NAME: class_delete_lab
+** DeleteExperiment
+#+NAME: class_delete_experiment
 #+begin_src python
     @staticmethod
-    def delete_lab(l_id):
+    def delete_experiment(e_id):
         session_cls = System.delegate.entities['session']
 
         session = session_cls(key=KEY)
         try:
-            current_app.logger.debug("running operation delete_lab")
-            lab = System.do("delete_lab", l_id=int(l_id),
+            current_app.logger.debug("running operation delete_experiment")
+            exp = System.do("delete_experiment", e_id=int(e_id),
                                     session=session)
-            current_app.logger.debug("completed operation delete_lab")
-            return lab
+            current_app.logger.debug("completed operation delete_experiment")
+            return exp
         except (ArityError, TypeError, NotAuthorizedError, StateError) as err:
             current_app.logger.error("Exception = %s" % str(err))
             raise err
@@ -620,9 +705,9 @@ class TestUpdateExperiment(TestCase):
 #+end_src
 
 *** TestDeleteLab
- #+NAME: test_class_delete_lab
+ #+NAME: test_class_delete_experiment
  #+BEGIN_SRC python
-class TestDeleteLab(TestCase):
+class TestDeleteExperiment(TestCase):
     TESTING = True
     def create_app(self):
         app = create_app(config)
@@ -635,110 +720,29 @@ class TestDeleteLab(TestCase):
         db.session.remove()
         db.drop_all()
 
-    def test_delete_lab_in_system_interface(self):
-        print "test_delete_lab_in_system_interface"
+    def test_delete_experiment_in_system_interface(self):
+        print "test_delete_experiment_in_system_interface"
 
         data_dict = {
                     'key' : KEY,
-                    'lab_name': 'Data Structures',
-                    'lab_id': 'cse01'
+                    'exp_name': 'Data Structures',
+                    'exp_id': 'cse01'
                    }
 
         data_dict1 = {
                     'key' : KEY,
-                    'lab_name': 'Computer Programming',
-                    'lab_id': 'cse02'
+                    'exp_name': 'Computer Programming',
+                    'exp_id': 'cse02'
                    }
 
-        lab = SystemInterface.add_lab(data_dict)
-        lab1 = SystemInterface.add_lab(data_dict1)
-        l_id = SystemInterface.delete_lab(1)
+        exp = SystemInterface.add_experiment(data_dict)
+        exp1 = SystemInterface.add_experiment(data_dict1)
+        e_id = SystemInterface.delete_experiment(1)
         
-        self.assertEqual(l_id, 1)
+        self.assertEqual(e_id, 1)
 
  #+END_SRC
 
-** UpdateLab
-   
-#+NAME: class_update_lab
-#+begin_src python
-    @staticmethod
-    def update_lab(data_dict):
-        session_cls = System.delegate.entities['session']
-        lab_cls = System.delegate.entities['lab']
-
-        session = session_cls(key=data_dict['key'])
-        lab = lab_cls.get_by_id(data_dict['l_id'])
-
-        if 'lab_name' not in data_dict:
-            lab_name=str(lab.get("lab_name"))
-        else:
-            lab_name=data_dict['lab_name']
-
-        if 'lab_id' not in data_dict:
-            lab_id=str(lab.get("lab_id"))
-        else:
-            lab_id=data_dict['lab_id']
-
-        try:
-            current_app.logger.debug("running operation update_lab")
-            question = System.do("update_lab", lab=lab, lab_name=lab_name, 
-                                    lab_id=lab_id,
-                                    session=session)
-            current_app.logger.debug("completed operation update_lab")
-            return lab.to_client()
-        except (ArityError, TypeError, NotAuthorizedError, StateError) as err:
-            current_app.logger.error("Exception = %s" % str(err))
-            raise err
-
-        except Exception as err:
-            current_app.logger.error("Exception = %s" % str(err))
-            raise err
-#+end_src
-
-*** TestUpateLab
- #+NAME: test_class_update_lab
- #+BEGIN_SRC python
-class TestUpdateLab(TestCase):
-    TESTING = True
-    def create_app(self):
-        app = create_app(config)
-        return app
-
-    def setUp(self):
-        db.create_all()
-
-    def tearDown(self):
-        db.session.remove()
-        db.drop_all()
-
-    def test_update_lab_name_in_system_interface(self):
-        print "test_update_lab_name_in_system_interface"
-
-        data_dict = {
-                    'key' : KEY,
-                    'lab_name': 'Data Structures',
-                    'lab_id': 'cse02'
-                   }
-
-        data_dict1 = {
-                    'key' : KEY,
-                    'l_id': 1,
-                    'lab_name': 'Computer Programming'
-                   }
-
-        lab = SystemInterface.add_lab(data_dict)
-        lab1 = SystemInterface.update_lab(data_dict1)
-        
-        self.assertEqual(lab1.get("lab_name"), data_dict1['lab_name'])
-        self.assertEqual(lab1.get("lab_id"),
-                             data_dict['lab_id'])
-
- #+END_SRC
-
-
-=======
->>>>>>> 518a2a88a1a753f1e43334ef4563795c0ccb26d5
 * Infra                                                         :boilerplate:
   
 ** sources
