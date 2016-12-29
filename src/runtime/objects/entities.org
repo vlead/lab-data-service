@@ -83,11 +83,15 @@ def are_experiments(experiments):
    =Lab= is an entity that has a field =name= and =lab_id= which are string
 #+NAME: class_Lab
 #+begin_src python
-Lab.add_attributes(lab_name=is_str, lab_id=is_str)
+Lab.add_attributes(lab_name=is_str,
+                    lab_id=is_str,
+                    experiments=are_experiments)
+
 Lab.__eq__ = lambda self, other: \
                   isinstance(other, self.__class__) and \
                   self.get("lab_name") == other.get("lab_name") and \
-                  self.get("lab_id") == other.get("lab_id")
+                  self.get("lab_id") == other.get("lab_id") and \
+                  self.get("experiments") == other.get("experiements")
 
 #+end_src
 
@@ -98,11 +102,18 @@ class TestLab(TestCase):
     TESTING = True
     def test_object_lab(self):
         print "test_object_lab"
+        exp_name = "Number Systems"
+        exp_id = "EE99777"
+        experiment = Experiment(exp_name=exp_name, exp_id=exp_id)
+
         lab_name = "Computer Programming"
         lab_id = "CSE01"
-        lab = Lab(lab_name=lab_name, lab_id=lab_id)
+        lab = Lab(lab_name=lab_name, lab_id=lab_id, experiments=[experiment])
+
         self.assertEqual(lab.get("lab_name"), lab_name)
         self.assertEqual(lab.get("lab_id"), lab_id)
+        self.assertEqual(lab.get("experiments")[0].get("exp_name"), 
+                             experiment.get("exp_name"))
 
 #+END_SRC
 
