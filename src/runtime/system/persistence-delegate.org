@@ -62,9 +62,16 @@ class TestPersistenceDelegate(TestCase):
     This function checks if a lab is already in the lab-set of the =System=.
 #+NAME: persistence_lab_exists
 #+BEGIN_SRC python
-    def lab_exists(self, lab):
-        lab_id = lab.get("lab_id")
-        return lab == self.get_lab(lab_id=lab_id)
+    def lab_exists(self, lb_id):
+        ret_val = False
+
+        try:
+            if Lab.get_by_id(lb_id) is not None:
+                ret_val = True
+        except Exception as e:
+            pass
+
+        return ret_val
         
 #+END_SRC
 
@@ -75,13 +82,13 @@ class TestPersistenceDelegate(TestCase):
         print "test_lab_exists"
         lab_name1="Computer Programming"
         lab_id1="CSE01"
-        lab = Lab(lab_name=lab_name1, lab_id=lab_id1)
+        lab = Lab(lab_name=lab_name1, lab_id=lab_id1, experiments=[])
 
         lab1 = self.persistence_delegate.add_lab(lab)
 
         lab_name2="Data Structures"
         lab_id2="CSE02"
-        lab2 = Lab(lab_name=lab_name2, lab_id=lab_id2)
+        lab2 = Lab(lab_name=lab_name2, lab_id=lab_id2, experiments=[])
 
         self.assertEqual(self.persistence_delegate.lab_exists(lab1),
                             True)
@@ -1037,7 +1044,6 @@ if __name__ == '__main__':
 <<persistence_get_response>>
 <<persistence_lab_exists>>
 <<persistence_experiment_exists>>
-<<persistence_feedback_exists>>
 <<persistence_response_exists>>
 <<persistence_add_lab>>
 <<persistence_delete_lab>>
@@ -1066,7 +1072,6 @@ if __name__ == '__main__':
 #<<test_persistence_get_response>>
 <<test_persistence_lab_exists>>
 <<test_persistence_experiment_exists>>
-#<<test_persistence_feedback_exists>>
 #<<test_persistence_response_exists>>
 <<test_persistence_add_lab>>
 <<test_persistence_delete_lab>>
