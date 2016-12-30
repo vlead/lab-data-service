@@ -232,13 +232,12 @@ class TestAddFeedback(TestCase):
 
         lab = lab_cls(lab_name=data_dict['lab_name'],
                                 lab_id=data_dict['lab_id'],
-                                experiments=[])
+                                experiments=data_dict['experiments'])
         try:
             current_app.logger.debug("running operation add_lab")
-            question = System.do("add_lab", lab=lab, 
-                                    session=session)
+            lab = System.do("add_lab", lab=lab, session=session)
+ 
             current_app.logger.debug("completed operation add_lab")
-            return lab.to_client()
 
         except (ArityError, TypeError, NotAuthorizedError, StateError) as err:
             current_app.logger.error("Exception = %s" % str(err))
@@ -251,26 +250,19 @@ class TestAddFeedback(TestCase):
         exp_list = []
         try:
             for exp in experiments:
-                que = question_cls(name=str(response['name']),
-                                        question_type="")
-                answers = response['answers']
-                answer_list = []
-                for answer in answers:
-                    answer = answer_cls(name=str(answer))
-                    answer_list.append(answer)
- 
-                res = response_cls(question=question, answers=answer_list,
-                                    feedbacks=[fb])
-                response_list.append(res)
-            current_app.logger.debug("running operation add_responses_to_feedback")
-            feedback = System.do("add_responses_to_feedback",
-                                    responses=response_list,
-                                    fb_id=int(fb.id),
-                                    session=data_dict['session'])
-            current_app.logger.debug("running operation add_responses_to_feedback")
-            return feedback
+                experiment = exp_cls(exp_name=str(exp['exp_name']),
+                                        exp_id=str(exp['exp_id']))
+                
+                exp_list.append(experiment)
+            current_app.logger.debug("running operation add_experiments_to_lab")
+            lab = System.do("add_experiments_to_lab",
+                                    experiments=exp_list,
+                                    labid=int(lab.id),
+                                    session=session)
+            current_app.logger.debug("running operation add_experiments_to_lab")
+            return lab
         except Exception as e:
-            fb.delete()
+            lab.delete()
             current_app.logger.error("Exception = %s" % str(e))
             raise e
 
@@ -280,7 +272,6 @@ class TestAddFeedback(TestCase):
  #+NAME: test_class_add_lab
  #+BEGIN_SRC python
 class TestAddLab(TestCase):
-
     TESTING = True
     def create_app(self):
         app = create_app(config)
@@ -295,27 +286,20 @@ class TestAddLab(TestCase):
 
     def test_add_lab_in_system_interface(self):
         print "test_add_lab_in_system_interface"
-
         data_dict = {'lab_name': 'data structure',
-                    'lab_id': 'cse01',
-                    'key' : KEY
+                    'lab_id': 'cse02',
+                    'key' : KEY,
+                    'experiments': [{'exp_name': 'arrays', 'exp_id': 'exp123' }]
                    }
 
-        data_dict1 = {'lab_name': "Automata",
-            'lab_id': 'DFA',
-            'key' : KEY
-           }
-
-
         lab = SystemInterface.add_lab(data_dict)
-        lab1 = SystemInterface.add_lab(data_dict1)
+        lab_cls = System.delegate.entities['lab']
+        lab = lab_cls.get_all()[0]
         
-        self.assertEqual(lab.get("lab_id"), 
-                             data_dict['lab_id'])
         self.assertEqual(lab.get("lab_name"), data_dict['lab_name'])
-        self.assertEqual(lab1.get("lab_id"), 
-                             data_dict1['lab_id'])
-        self.assertEqual(lab1.get("lab_name"), data_dict1['lab_name'])
+        self.assertEqual(lab.get("lab_id"), data_dict['lab_id'])
+        self.assertEqual(lab.get("experiments")[0].get("exp_name"), 'arrays')
+        self.assertEqual(lab.get("experiments")[0].get("exp_id"), 'exp123')
 
 
     def test_add_lab_raises_type_error_in_system_interface(self):
@@ -323,7 +307,8 @@ class TestAddLab(TestCase):
 
         data_dict = {'lab_name': 'data structure',
                     'lab_id': 123,
-                    'key' : KEY
+                    'key' : KEY,
+                    'experiments': [{'exp_name': 'arrays', 'exp_id': 'exp123' }]
                    }
 
         with self.assertRaises(TypeError):
