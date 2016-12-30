@@ -90,9 +90,9 @@ class TestPersistenceDelegate(TestCase):
         lab_id2="CSE02"
         lab2 = Lab(lab_name=lab_name2, lab_id=lab_id2, experiments=[])
 
-        self.assertEqual(self.persistence_delegate.lab_exists(lab1),
+        self.assertEqual(self.persistence_delegate.lab_exists(lab1.id),
                             True)
-        self.assertEqual(self.persistence_delegate.lab_exists(lab2),
+        self.assertEqual(self.persistence_delegate.lab_exists(lab2.id),
                             False)
 
 #+END_SRC
@@ -279,9 +279,9 @@ class TestPersistenceDelegate(TestCase):
          lab_id2="CSE02"
          lab2 = Lab(lab_name=lab_name2, lab_id=lab_id2, experiments=[])
 
-         self.assertEqual(self.persistence_delegate.lab_exists(lab1),
+         self.assertEqual(self.persistence_delegate.lab_exists(lab1.id),
                           True)
-         self.assertEqual(self.persistence_delegate.lab_exists(lab2),
+         self.assertEqual(self.persistence_delegate.lab_exists(lab2.id),
                           False)
 
 #+END_SRC
@@ -330,13 +330,17 @@ class TestPersistenceDelegate(TestCase):
          print "test_update_lab"
          lab_name = "Data Structures"
          lab_id = "cse01"
-         lab = Lab(lab_name=lab_name, lab_id=lab_id)
+         experiments = []
+         lab = Lab(lab_name=lab_name, lab_id=lab_id, experiments=experiments)
+         
          lab1 = self.persistence_delegate.add_lab(lab)
          lab_name1 = "Computer Programming"
          lab_id1 = "cse02"
          lab2 = self.persistence_delegate.update_lab\
            (lab1, lab_name1, lab_id1),
          lab2 = Lab.get_by_id(1)
+
+         self.assertEqual(lab2.get("lab_id"), lab_id1)
          self.assertEqual(lab2.get("lab_name"), lab_name1)
 
 #+END_SRC
@@ -400,12 +404,12 @@ class TestPersistenceDelegate(TestCase):
          print "test_delete_lab"
          lab_name = "Data Structures"
          lab_id = "cse01"
-         lab = Lab(lab_name=lab_name, lab_id=lab_id)
+         lab = Lab(lab_name=lab_name, lab_id=lab_id, experiments=[])
          lab1 = self.persistence_delegate.add_lab(lab)
 
          lab_name1 = "Computer Programming"
          lab_id1 = "cse02"
-         lab1 = Lab(lab_name=lab_name1, lab_id=lab_id1)
+         lab1 = Lab(lab_name=lab_name1, lab_id=lab_id1, experiments=[])
          lab2 = self.persistence_delegate.add_lab(lab1)
 
          self.persistence_delegate.delete_lab(1)
@@ -1078,7 +1082,6 @@ if __name__ == '__main__':
 <<test_persistence_delete_experiment>>
 <<test_persistence_add_experiment>>
 #<<test_persistence_add_feedback>>
-<<test_persistence_update_lab>>
 <<test_persistence_update_lab>>
 #<<test_persistence_get_feedbacks>>
 <<test_persistence_get_lab_by_id>>
