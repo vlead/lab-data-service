@@ -508,89 +508,47 @@ class TestPersistenceDelegate(TestCase):
 #+END_SRC
 
 
-***  Add responses to a Feedback
-    This function adds responses to a given feedback.
-#+NAME: persistence_add_responses_to_feedback
+***  Add experiments to a Lab
+    This function adds experiments to a given lab.
+#+NAME: persistence_add_experiments_to_lab
 #+BEGIN_SRC python
-    def add_responses_to_feedback(self, fb_id, responses):
-        feedback = self.get_feedback_by_id(fb_id)
-        response_list = []
-        for response in responses:
-            answers = response.get("answers")
-            if self.response_exists(response):
-                response = self.get_response(question=response.get('question'),
-                                             answers=response.get('answers'))
+    def add_experiments_to_lab(self, labid, experiments):
+        lab = self.get_lab_by_id(labid)
+        experiment_list = []
+        for experiment in experiments:
+            if self.experiment_exists(experiment):
+                experiment = self.get_experiment(exp_id=experiment.get('exp_id'),
+                                                 exp_name=experiment.get('exp_name'))
             else:
-                answer_list = []
-                for answer in answers:
-                    if self.answer_exists(answer):
-                        answer = self.get_answer(name=answer.get("name"))
-                    else:
-                        answer.save()
-                    answer_list.append(answer)
-                question = response.get("question")
-                question = self.get_question(name=question.get("name"))
-                response.set(question=question, answers=answer_list,
-                                 feedbacks=[feedback])
+                experiment.save()
 
-            response_list.append(response)
+            experiment_list.append(experiment)
 
-        feedback.set(responses=response_list)
-        return feedback
+        lab.set(experiments=experiment_list)
+        return lab
 
 #+END_SRC
 
 ****  Tests
-#+NAME: test_persistence_add_responses_to_feedback
+#+NAME: test_persistence_add_experiments_to_lab
 #+BEGIN_SRC python
-    def test_add_saved_responses_to_feedback(self):
-         print "test_add_saved_responses_to_feedback"
+    def test_add_saved_experiments_to_lab(self):
+         print "test_add_saved_experiments_to_lab"
 
-         q_type = "radio"
-         question1 = Question(name="How is your breakfast?", 
-                                  question_type=q_type)
-         question2 = Question(name="How is your lunch?", question_type=q_type)
-         question3 = Question(name="How is your dinner?", question_type=q_type)
+         exp_name = "Number Systems"
+         exp_id = "EE99777"
+         experiment = Experiment(exp_name=exp_name, exp_id=exp_id)
+         experiment.save()
 
-         q1 = Question(name="How is your breakfast?", 
-                                  question_type=q_type)
-         q2 = Question(name="How is your lunch?", question_type=q_type)
-         q3 = Question(name="How is your dinner?", question_type=q_type)
-
-
-         answer1 = Answer(name="Good")
-         answer2 = Answer(name="Bad")
-         answer3 = Answer(name="Excellent")
-         answer4 = Answer(name="Fair")
-
-         a1 = Answer(name="Good")
-         a2 = Answer(name="Bad")
-         a3 = Answer(name="Excellent")
-         a4 = Answer(name="Fair")
-
-         question1.save()
-         question2.save()
-         question3.save()
-
-         answer1.save()
-         answer2.save()
-         answer3.save()
-         answer4.save()
-
-         gateway_ip = "10.100.40.2"
-         lab_name = "cse01"
-         exp_name = "data01"
-         version = "open-edx-virtual-labs-v2.0"
-         date = datetime.datetime.strptime("30-06-2016", "%d-%m-%Y").date()
-         user_id = "John123"
-         fb = Feedback(gateway_ip=gateway_ip,
-                        lab_name=lab_name,
-                        exp_name=exp_name,
-                        date=date,
-                        version=version,
-                        user_id=user_id,
-                        responses=[])
-         fb.save()
+         lab_name1="Computer Programming"
+         lab_id1="CSE01"
+         lab1 = Lab(lab_name=lab_name1, lab_id=lab_id1, \
+                        experiments=[experiment])
+         lab1 = self.persistence_delegate.add_lab(lab1)
+        
+         lab_name2="Data Structures"
+         lab_id2="CSE02"
+         lab2 = Lab(lab_name=lab_name2, lab_id=lab_id2, experiments=[])
 
          res1 = Response(question=question1, answers=[answer1], feedbacks=[fb])
          res2 = Response(question=question2, answers=[answer2, answer3], 

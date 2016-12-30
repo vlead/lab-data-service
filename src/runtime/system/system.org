@@ -349,7 +349,7 @@ class AddExperiment():
 
 
 
-** =UpdateExperiment
+** =UpdateExperiment=
 #+NAME: class_update_experiment
 #+begin_src python
 class UpdateExperiment():
@@ -388,7 +388,7 @@ class UpdateExperiment():
 #+end_src
 
 
-** =DeleteExperiment
+** =DeleteExperiment=
 #+NAME: class_delete_experiment
 #+begin_src python
 class DeleteExperiment():
@@ -460,11 +460,11 @@ class AddFeedback():
 #+end_src
 
 
-** =AddResponsesToFeedBack=
-#+NAME: class_addresponses_to_feedback
+** =AddExperimentsToLab=
+#+NAME: class_add_experiments_to_lab
 #+begin_src python
-class AddResponsesToFeedback():
-    arg_types = {"responses": are_responses, "fb_id": is_int, 
+class AddExperimentsToLab():
+    arg_types = {"experiments": are_experiments, "labid": is_int, 
                      "session": is_session}
     arity_and_type_checks_needed = True
 
@@ -478,21 +478,20 @@ class AddResponsesToFeedback():
 
     @staticmethod
     def state_check(args):
-        fb_id = args["fb_id"]
-        if not System.delegate.feedback_exists(fb_id):
-            current_app.logger.error("feedback with id = %d does not exist"
-                                     " in System" % fb_id)
-            raise StateError("feedback with id = %d does not exist in System"
-                                 % fb_id)
+        labid = args["labid"]
+        if not System.delegate.lab_exists(labid):
+            current_app.logger.error("lab with id = %d does not exist"
+                                     " in System" % labid)
+            raise StateError("lab with id = %d does not exist in System"
+                                 % labid)
 
     @staticmethod
     def action(args):
-        fb_id = args["fb_id"]
-        responses = args["responses"]
+        labid = args["labid"]
+        experiments = args["experiments"]
         try:
-            feedback = System.delegate.add_responses_to_feedback(fb_id, 
-                                                                 responses)
-            return feedback
+            lab = System.delegate.add_experiments_to_lab(labid, experiments) 
+            return lab
         except Exception as err:
             current_app.logger.error("Exception = %s" % str(err))
             raise err
@@ -631,7 +630,8 @@ ops_table = {'add_lab' : AddLab,
              'delete_lab': DeleteLab,
              'add_experiment' : AddExperiment,
              'update_experiment' : UpdateExperiment,
-             'delete_experiment' : DeleteExperiment 
+             'delete_experiment' : DeleteExperiment,
+             'add_experiments_to_lab' : AddExperimentsToLab
              }
 
  #+END_SRC   
@@ -700,6 +700,7 @@ if __name__ == '__main__':
 <<class_update_lab>>
 <<class_add_experiment>>
 <<class_update_experiment>>
+<<class_add_experiments_to_lab>>
 <<ops_table>>
 
 #+end_src
