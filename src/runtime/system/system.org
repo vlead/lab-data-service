@@ -260,6 +260,7 @@ class AddLab():
 class UpdateLab():
     arg_types = {"lab": is_lab, "lab_name": is_str_or_none,
                      "lab_id": is_str_or_none, 
+                     "overview" : is_str,
                      "session": is_session}
     arity_and_type_checks_needed = True
 
@@ -287,8 +288,13 @@ class UpdateLab():
         else:
            lab_id = args["lab_id"]
 
+        if not "overview" in args:
+           overview = lab.get("overview")
+        else:
+           overview = args["overview"]
+
         lab = System.delegate.update_lab(lab, lab_name,\
-                                         lab_id)
+                                         lab_id, overview)
         return lab
 
 #+end_src
@@ -356,6 +362,7 @@ class AddExperiment():
 class UpdateExperiment():
     arg_types = {"exp": is_experiment, "exp_name": is_str_or_none,
                      "exp_id": is_str_or_none,
+                     "overview" : is_str,
                      "session": is_session}
     arity_and_type_checks_needed = True
 
@@ -381,9 +388,14 @@ class UpdateExperiment():
            exp_id = experiment.get("exp_id")
         else:
            exp_id = args["exp_id"]
+        
+        if not "overview" in args:
+           overview = experiment.get("overview")
+        else:
+           overview = args["overview"]
 
         exp = System.delegate.update_experiment(experiment, exp_name,\
-            exp_id)
+            exp_id, overview)
         return exp
 
 #+end_src

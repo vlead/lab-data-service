@@ -10,16 +10,17 @@
 * Introduction 
   The =design= of the =lab-data-service= is captured here.
 
+
 * Application Programming Interface
   :PROPERTIES:
   :CUSTOM_ID: api
   :END: 
 
-** Save lab spec data
+** Save exp spec data
   :PROPERTIES:
   :CUSTOM_ID: save_lab_specs
   :END:    
-  - URL :: /save_lab_spec_data
+  - URL :: /save_exp_spec_data
 
   - Method :: POST
 
@@ -27,135 +28,22 @@
 
   - Payload :: 
 #+BEGIN_EXAMPLE
-{
-  "course": {
-    "org": "nitk",
-    "id": "CIVIL20",
-    "display_name": "Fluid Mechanics",
-    "discipline_name": "Civil Engineering",
-    "developer_name": "Mohit tahiliani"
-  },
-  "overview": "Fluid Mechanics",
-  "experiments": [
-    {
-      "id": "Intro",
-      "intro_name": "Introduction",
-      "subsections": [
-        {
-          "name": "Introduction"
-        }
-      ]
-    },
-    {
-      "id": "E99302",
-      "exp_name": "Calibration of V-Notch",
-      "subsections": [
-        {
-          "theo_name": "Theory"
-        },
-        {
-          "proc_name": "Procedure"
-        },
-        {
-          "eval_name": "Self Evaluation"
-        },
-        {
-          "simu_name": "Simulator"
-        },
-        {
-          "assi_name": "Assignment"
-        },
-        {
-          "quiz_name": "Quiz"
-        },
-        {
-          "vide_name": "Video"
-        },
-        {
-          "refe_name": "Reference"
-        },
-        {
-          "feed_name": "Feedback"
-        }
-      ]
-    },
-    {
-      "id": "E99301",
-      "exp_name": "Calibration of Rectangular Notch",
-      "subsections": [
-        {
-          "theo_name": "Theory"
-        },
-        {
-          "proc_name": "Procedure"
-        },
-        {
-          "eval_name": "Self Evaluation"
-        },
-        {
-          "simu_name": "Simulator"
-        },
-        {
-          "assi_name": "Assignment"
-        },
-        {
-          "quiz_name": "Quiz"
-        },
-        {
-          "vide_name": "Video"
-        },
-        {
-          "refe_name": "Reference"
-        },
-        {
-          "feed_name": "Feedback"
-        }
-      ]
-    },
-    {
-      "id": "E99397",
-      "exp_name": "Impact Of Jet",
-      "subsections": [
-        {
-          "theo_name": "Theory"
-        },
-        {
-          "proc_name": "Procedure"
-        },
-        {
-          "eval_name": "Self Evaluation"
-        },
-        {
-          "simu_name": "Simulator"
-        },
-        {
-          "assi_name": "Assignment"
-        },
-        {
-          "quiz_name": "Quiz"
-        },
-        {
-          "vide_name": "Video"
-        },
-        {
-          "refe_name": "Reference"
-        },
-        {
-          "feed_name": "Feedback"
-        }
-      ]
-    },
-    {
-      "id": "feedback",
-      "name": "Feedback",
-      "subsections": [
-        {
-          "feed_name": "Feedback"
-        }
-      ]
-    }
-  ]
-}
+
+{"experiment": {"id": "e99847", 
+                  "name": "Parallel and distributed processing", 
+                  "overview": "This deals with eiciting how parallel and distributed processing is done", 
+                  "sections" : [{"name": "Introduction"},
+                                {"name": "Objective"},
+                                {"name": "Tutorial"},
+                                {"name": "Illustration"},
+                                {"name": "Procedure"},
+                                {"name": "Experiment"},        
+                                {"name": "Observations"},
+                                {"name": "Assignment"},  
+                                {"name": "References"}]
+                }
+  }
+
 #+END_EXAMPLE	       
 
   - Success Response
@@ -171,28 +59,325 @@
     [[http://localhost:5000/save_lab_spec_data][example url]]
 
 
-** Get the changed lab spec files
+** Save lab spec data
   :PROPERTIES:
-  :CUSTOM_ID: get_lab_specs
+  :CUSTOM_ID: save_lab_specs
   :END:    
-  - URL :: /get_lab_specs
+  - URL :: /save_lab_spec_data
+
+  - Method :: POST
+
+  - URL Params ::  None
+
+  - Payload :: 
+#+BEGIN_EXAMPLE
+
+{"lab": {"id": "cse02", 
+                  "name": "Computer Programming",
+                  "overview": "This lab deals with computer programming",
+                  "sections" : [{"name": "Introduction"},
+                                {"experiments": [e100, e200, ....]}]
+                }
+}
+
+#+END_EXAMPLE	       
+
+  - Success Response
+    + Status_Code: 200
+    + Content: 
+              {"status" : "successfully updated records"}
+
+  - Error Response:
+    + Contents :
+                {"status" : "error"}
+    
+  - Example:
+    [[http://localhost:5000/save_lab_spec_data][example url]]
+
+
+** Get all experiments
+  :PROPERTIES:
+  :CUSTOM_ID: save_lab_specs
+  :END:    
+  - URL :: /experiments
 
   - Method :: GET
 
-  - URL Params
-    None
+  - URL Params ::  None
+
+  - Payload :: 
 
   - Success Response
-    + Code: 200
+    + Status_Code: 200
+      + Contents :
 
-    + Content:
+        #+BEGIN_EXAMPLE
 
+[
+  {
+    "exp_name": "arrays",
+    "overview": "this is about arrays exp",
+    "id": 1,
+    "exp_id": "cse02"
+  },
+  {
+    "exp_name": "stack",
+    "overview": "this is about stacks",
+    "id": 2,
+    "exp_id": "cse022"
+  }
+]
 
+#+END_EXAMPLE	       
+
+    
   - Error Response:
+    + Contents :
+                {"status" : "error"}
     
   - Example:
-    [[http://localhost:5000/get_lab_specs][example url]]
+    [[http://localhost:5000/save_lab_spec_data][example url]]
 
+
+** Get experiment by exp-id
+  :PROPERTIES:
+  :CUSTOM_ID: save_lab_specs
+  :END:    
+  - URL :: /experiments/<exp-id>
+
+  - Method :: GET
+
+  - URL Params ::  None
+
+  - Payload :: 
+
+  - Success Response
+    + Status_Code: 200
+      + Contents :
+#+BEGIN_EXAMPLE
+{
+  "exp_id": "cse02", 
+  "exp_name": "computers", 
+  "id": 1, 
+  "overview": "dfdsdfs"
+}
+
+#+END_EXAMPLE	       
+
+    
+  - Error Response:
+    + Contents :
+                {"status" : "error"}
+    
+  - Example:
+    [[http://localhost:5000/save_lab_spec_data][example url]]
+
+
+** Update experiment by exp-id
+  :PROPERTIES:
+  :CUSTOM_ID: save_lab_specs
+  :END:    
+  - URL :: /experiments/<exp-id>
+
+  - Method :: PUT
+
+  - URL Params ::  None
+
+  - Payload :: 
+#+BEGIN_EXAMPLE
+  {
+    "exp_name": "arrays",
+    "overview": "this is about arrays exp",
+    "exp_id": "cse02",
+    "key" : "defaultkey"
+  }
+
+#+END_EXAMPLE	       
+
+  - Success Response
+    + Status_Code: 200
+      + Contents :
+                {"status" : "success"}
+    
+  - Error Response:
+    + Contents :
+                {"status" : "error"}
+    
+  - Example:
+    [[http://localhost:5000/save_lab_spec_data][example url]]
+
+
+** Get all labs
+  :PROPERTIES:
+  :CUSTOM_ID: save_lab_specs
+  :END:    
+  - URL :: /labs
+
+  - Method :: GET
+
+  - URL Params ::  None
+
+  - Payload :: 
+
+  - Success Response
+    + Status_Code: 200
+      + Contents :
+
+        #+BEGIN_EXAMPLE
+
+[
+  {
+    "exp_name": "arrays",
+    "overview": "this is about arrays exp",
+    "id": 1,
+    "exp_id": "cse02"
+  },
+  {
+    "exp_name": "stack",
+    "overview": "this is about stacks",
+    "id": 2,
+    "exp_id": "cse022"
+  }
+]
+
+#+END_EXAMPLE	       
+
+    
+  - Error Response:
+    + Contents :
+                {"status" : "error"}
+    
+  - Example:
+    [[http://localhost:5000/save_lab_spec_data][example url]]
+
+
+** Get lab by lb-id
+  :PROPERTIES:
+  :CUSTOM_ID: save_lab_specs
+  :END:    
+  - URL :: /labs/<lab-id>
+
+  - Method :: GET
+
+  - URL Params ::  None
+
+  - Payload :: 
+
+  - Success Response
+    + Status_Code: 200
+      + Contents :
+#+BEGIN_EXAMPLE
+{
+  "exp_id": "cse02", 
+  "exp_name": "computers", 
+  "id": 1, 
+  "overview": "dfdsdfs"
+}
+
+#+END_EXAMPLE	       
+
+    
+  - Error Response:
+    + Contents :
+                {"status" : "error"}
+    
+  - Example:
+    [[http://localhost:5000/save_lab_spec_data][example url]]
+
+
+** Update lab by lab-id
+  :PROPERTIES:
+  :CUSTOM_ID: save_lab_specs
+  :END:    
+  - URL :: /labs/<lab-id>
+
+  - Method :: PUT
+
+  - URL Params ::  None
+
+  - Payload :: 
+#+BEGIN_EXAMPLE
+  {
+    "exp_name": "arrays",
+    "overview": "this is about arrays exp",
+    "exp_id": "cse02",
+    "key" : "defaultkey"
+  }
+
+#+END_EXAMPLE	       
+
+  - Success Response
+    + Status_Code: 200
+      + Contents :
+                {"status" : "success"}
+    
+  - Error Response:
+    + Contents :
+                {"status" : "error"}
+    
+  - Example:
+    [[http://localhost:5000/save_lab_spec_data][example url]]
+
+
+
+** Get lab resource map
+  :PROPERTIES:
+  :CUSTOM_ID: save_lab_specs
+  :END:    
+  - URL :: /lab-resource-maps/<lab-id>
+
+  - Method :: GET
+
+  - URL Params ::  None
+
+  - Payload :: 
+
+  - Success Response
+    + Status_Code: 200
+      + Contents :
+
+        #+BEGIN_EXAMPLE
+
+
+#+END_EXAMPLE	       
+
+    
+  - Error Response:
+    + Contents :
+                {"status" : "error"}
+    
+  - Example:
+    [[http://localhost:5000/save_lab_spec_data][example url]]
+
+
+** Get exp resource map
+  :PROPERTIES:
+  :CUSTOM_ID: save_lab_specs
+  :END:    
+  - URL :: /exp-resource-maps/<exp-id>
+
+  - Method :: GET
+
+  - URL Params ::  None
+
+  - Payload :: 
+
+  - Success Response
+    + Status_Code: 200
+      + Contents :
+
+        #+BEGIN_EXAMPLE
+
+
+#+END_EXAMPLE	       
+
+    
+  - Error Response:
+    + Contents :
+                {"status" : "error"}
+    
+  - Example:
+    [[http://localhost:5000/save_lab_spec_data][example url]]
 
 
 * Design diagram

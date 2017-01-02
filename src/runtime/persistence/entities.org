@@ -19,6 +19,7 @@ args = {"__tablename__": "experiment",
         "id": db.Column(db.Integer, primary_key=True),
         "exp_name": db.Column(db.String(255), unique=False, nullable=True),
         "exp_id": db.Column(db.String(255), unique=True, nullable=False),
+        "overview": db.Column(db.String(1000), unique=False, nullable=True),
         "experiments": db.relationship('Lab', backref=db.backref('experiment'))
         }
 
@@ -47,11 +48,13 @@ class TestPersistenceExperiment(TestCase):
         print "test_persistance_experiment"
         exp_name = "Number Systems"
         exp_id = "EE99777"
-        exp = Experiment(exp_name=exp_name, exp_id=exp_id)
+        overview = "This is linked list experiment"
+        exp = Experiment(exp_name=exp_name, exp_id=exp_id, overview=overview)
         exp.save()
         experiment = Experiment.get_by_id(1)
         self.assertEqual(experiment.get("exp_name"), exp_name)
         self.assertEqual(experiment.get("exp_id"), exp_id)
+        self.assertEqual(experiment.get("overview"), overview)
 
 
 #+END_SRC
@@ -68,6 +71,8 @@ args = {"__tablename__": "lab",
         "id": db.Column(db.Integer, primary_key=True),
         "lab_id": db.Column(db.String(255), unique=True, nullable=False),
         "lab_name": db.Column(db.String(255), unique=False, 
+                                       nullable=True),
+        "overview": db.Column(db.String(1000), unique=False, 
                                        nullable=True),
         "experiment_id": db.Column(db.Integer, 
                                 db.ForeignKey('experiment.id'), 
@@ -102,17 +107,20 @@ class TestPersistentLab(TestCase):
 
         exp_name = "Number Systems"
         exp_id = "EE99777"
-        experiment = Experiment(exp_name=exp_name, exp_id=exp_id)
+        overview = "This is linked list experiment"
+        experiment = Experiment(exp_name=exp_name, exp_id=exp_id, overview=overview)
         experiment.save()
 
         lab_name1="Computer Programming"
         lab_id1="CSE01"
-        lab1 = Lab(lab_name=lab_name1, lab_id=lab_id1, experiments=[experiment])
+        overview1 = "This is data structures lab which deals about array,stack and ques..etc"
+        lab1 = Lab(lab_name=lab_name1, lab_id=lab_id1, overview=overview1, experiments=[experiment])
         lab1.save()
         
         lab_name2="Data Structures"
         lab_id2="CSE02"
-        lab2 = Lab(lab_name=lab_name2, lab_id=lab_id2, experiments=[])
+        overview2 = "This is data structures lab which deals about array,stack and ques..etc"
+        lab2 = Lab(lab_name=lab_name2, lab_id=lab_id2, overview=overview2, experiments=[])
         lab2.save()
 
         lab1 = Lab.get_by_id(1)
@@ -120,11 +128,13 @@ class TestPersistentLab(TestCase):
 
         self.assertEqual(lab1.get("lab_name"), lab_name1)
         self.assertEqual(lab1.get("lab_id"), lab_id1)
+        self.assertEqual(lab1.get("overview"), overview1)
         self.assertEqual(lab1.get("experiments")[0].get("exp_name"), 
                              experiment.get("exp_name"))
 
         self.assertEqual(lab2.get("lab_name"), lab_name2)
         self.assertEqual(lab2.get("lab_id"), lab_id2)
+        self.assertEqual(lab2.get("overview"), overview2)
         self.assertEqual(lab2.get("experiments"), [])
 
 #+END_SRC

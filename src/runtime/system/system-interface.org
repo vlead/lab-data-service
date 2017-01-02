@@ -29,193 +29,6 @@ class SystemInterface ():
 
 #+end_src
 
-** AddFeedback
-
-#+NAME: class_add_feedback
-#+begin_src python
-    @staticmethod
-    def add_feedback(data_dict):
-        session_cls = System.delegate.entities['session']
-        response_cls = System.delegate.entities['response']
-        question_cls = System.delegate.entities['question']
-        answer_cls = System.delegate.entities['answer']
-
-        if 'exp_name' not in data_dict:
-            data_dict['exp_name'] = "Null"
-
-        if 'user_id' not in data_dict:
-            data_dict['user_id'] = "Null"
-
-        if 'date' not in data_dict:
-            data_dict['date'] = datetime.datetime.now().date()
-            
-        responses = data_dict['responses']
-        data_dict['responses'] = []
-        data_dict['session'] = session_cls(key=data_dict['key'])
-        del(data_dict['key'])
-
-        fb = None
-        try:
-            current_app.logger.debug("running operation add_feedback")
-            fb = System.do("add_feedback", **data_dict)
-            current_app.logger.debug("completed operation add_feedback")
-
-        except (ArityError, TypeError, NotAuthorizedError, StateError) as err:
-            current_app.logger.error("Exception = %s" % str(err))
-            raise err
-
-        except Exception as err:
-            current_app.logger.error("Exception = %s" % str(err))
-            raise err
-
-        response_list = []
-        try:
-            for response in responses:
-                question = question_cls(name=str(response['name']),
-                                        question_type="")
-                answers = response['answers']
-                answer_list = []
-                for answer in answers:
-                    answer = answer_cls(name=str(answer))
-                    answer_list.append(answer)
- 
-                res = response_cls(question=question, answers=answer_list,
-                                    feedbacks=[fb])
-                response_list.append(res)
-            current_app.logger.debug("running operation add_responses_to_feedback")
-            feedback = System.do("add_responses_to_feedback",
-                                    responses=response_list,
-                                    fb_id=int(fb.id),
-                                    session=data_dict['session'])
-            current_app.logger.debug("running operation add_responses_to_feedback")
-            return feedback
-        except Exception as e:
-            fb.delete()
-            current_app.logger.error("Exception = %s" % str(e))
-            raise e
-
-#+end_src
-
-*** TestAddFeedback
- #+NAME: test_class_add_feedback
- #+BEGIN_SRC python
-class TestAddFeedback(TestCase):
-    TESTING = True
-    def create_app(self):
-        app = create_app(config)
-        return app
-
-    def setUp(self):
-        db.create_all()
-        q_type = "radio"
-        question_cls = System.delegate.entities['question']
-        question1 = question_cls(name="How is your breakfast?", 
-                                  question_type=q_type)
-        question2 = question_cls(name="How is your lunch?", 
-                                 question_type=q_type)
-        question3 = question_cls(name="How is your dinner?", 
-                                 question_type=q_type)
-
-        question1.save()
-        question2.save()
-        question3.save()
-
-
-    def tearDown(self):
-        db.session.remove()
-        db.drop_all()
-
-    def test_add_feedback_in_system_interface(self):
-        print "test_add_feedback_in_system_interface"
-
-        version = "open-edx-virtual-labs-v2.0"
-        user_id = "John123"
-        data_dict = {'lab_name': 'data structure',
-                    'exp_name': 'tuples',
-                    'key' : KEY,
-                    'gateway_ip': '10.4.12.24',
-                    'version': version,
-                    'user_id': user_id,
-                    'responses': [{'name': 'How is your breakfast?',
-                                    'answers':['yes', 'no'] }]
-                   }
-
-        fb = SystemInterface.add_feedback(data_dict)
-        feedback_cls = System.delegate.entities['feedback']
-        fb = feedback_cls.get_all()[0]
-        
-        self.assertEqual(fb.get("lab_name"), data_dict['lab_name'])
-        self.assertEqual(fb.get("exp_name"), data_dict['exp_name'])
-        self.assertEqual(fb.get("gateway_ip"), data_dict['gateway_ip'])
-        self.assertEqual(fb.get("responses")[0].get("question").get("name"),
-                             'How is your breakfast?')
-
-
-    def test_add_feedback_with_saved_answers_in_system_interface(self):
-        print "test_add_feedback_with_saved_answers_in_system_interface"
-
-        answer_cls = System.delegate.entities['answer']
-        answer = answer_cls(name='yes')
-        answer.save()
-        version = "open-edx-virtual-labs-v2.0"
-        user_id = "John123"
-        data_dict = {'lab_name': 'data structure',
-                    'exp_name': 'tuples',
-                    'key' : KEY,
-                    'gateway_ip': '10.4.12.24',
-                    'version': version,
-                    'user_id': user_id,
-                    'responses': [{'name': 'How is your breakfast?',
-                                    'answers':['yes', 'no'] }]
-                   }
-
-        fb = SystemInterface.add_feedback(data_dict)
-
-        data_dict1 = {'lab_name': "Automata",
-            'exp_name': "DFA",
-            'key' : KEY,
-            'gateway_ip': 'X.X.X.X',
-            'version': version,
-            'user_id': user_id,
-            'responses': [{'name': 'How is your breakfast?',
-                            'answers':['yes', 'no'] }]
-           }
-
-        fb = SystemInterface.add_feedback(data_dict1)
-        
-        feedback_cls = System.delegate.entities['feedback']
-        response_cls = System.delegate.entities['response']
-        fb = feedback_cls.get_by_id(2)
-        
-        self.assertEqual(2, len(feedback_cls.get_all()))
-        self.assertEqual(1, len(response_cls.get_all()))
-        self.assertEqual(fb.get("lab_name"), data_dict1['lab_name'])
-        self.assertEqual(fb.get("exp_name"), data_dict1['exp_name'])
-        self.assertEqual(fb.get("gateway_ip"), data_dict1['gateway_ip'])
-        self.assertEqual(fb.get("version"), data_dict1['version'])
-        self.assertEqual(fb.get("user_id"), data_dict1['user_id'])
-        self.assertEqual(fb.get("responses")[0].get("question").get("name"),
-                             'How is your breakfast?')
-
-
-    def test_add_feedback_raises_type_error_in_system_interface(self):
-        print "test_add_feedback_raises_type_error_in_system_interface"
-        version = "open-edx-virtual-labs-v2.0"
-        user_id = "John123"
-        data_dict = {'lab_name': 'data structure',
-                    'exp_name': 'tuples',
-                    'key' : KEY,
-                    'gateway_ip': '10.4.12.24',
-                    'version': version,
-                    'user_id': user_id,
-                    'responses': "hello"
-                   }
-
-        with self.assertRaises(TypeError):
-            SystemInterface.add_feedback(data_dict)
-
- #+END_SRC
-
 ** Add Lab
 #+NAME: class_add_lab
 #+begin_src python
@@ -232,6 +45,7 @@ class TestAddFeedback(TestCase):
 
         lab = lab_cls(lab_name=data_dict['lab_name'],
                                 lab_id=data_dict['lab_id'],
+                                overview=data_dict['overview'],
                                 experiments=data_dict['experiments'])
         try:
             current_app.logger.debug("running operation add_lab")
@@ -251,7 +65,7 @@ class TestAddFeedback(TestCase):
         try:
             for exp in experiments:
                 experiment = exp_cls(exp_name=str(exp['exp_name']),
-                                        exp_id=str(exp['exp_id']))
+                                        exp_id=str(exp['exp_id']), overview=str(exp['overview']))
                 
                 exp_list.append(experiment)
             current_app.logger.debug("running operation add_experiments_to_lab")
@@ -288,8 +102,9 @@ class TestAddLab(TestCase):
         print "test_add_lab_in_system_interface"
         data_dict = {'lab_name': 'data structure',
                     'lab_id': 'cse02',
+                    'overview' : 'overview',
                     'key' : KEY,
-                    'experiments': [{'exp_name': 'arrays', 'exp_id': 'exp123' }]
+                    'experiments': [{'exp_name': 'arrays', 'exp_id': 'exp123', 'overview' : 'overview' }]
                    }
 
         lab = SystemInterface.add_lab(data_dict)
@@ -307,8 +122,9 @@ class TestAddLab(TestCase):
 
         data_dict = {'lab_name': 'data structure',
                     'lab_id': 123,
+                    'overview' : 'overview',
                     'key' : KEY,
-                    'experiments': [{'exp_name': 'arrays', 'exp_id': 'exp123' }]
+                    'experiments': [{'exp_name': 'arrays', 'exp_id': 'exp123', 'overview' : 'overview' }]
                    }
 
         with self.assertRaises(TypeError):
@@ -364,13 +180,15 @@ class TestGetLabs(TestCase):
         data_dict = {'lab_name': 'data structure',
                     'lab_id': 'cse01',
                     'key' : KEY,
-                    'experiments': [{'exp_name': 'arrays', 'exp_id': 'exp123' }]
+                    'overview' : 'overview',
+                    'experiments': [{'exp_name': 'arrays', 'exp_id': 'exp123', 'overview' : 'overview' }]
                    }
 
         data_dict1 = {'lab_name': "Automata",
             'lab_id': 'DFA',
             'key' : KEY,
-            'experiments': [{'exp_name': 'arrays', 'exp_id': 'exp123' }]
+            'overview' : 'overview',
+            'experiments': [{'exp_name': 'arrays', 'exp_id': 'exp123', 'overview' : 'overview' }]
            }
 
         lab1 = SystemInterface.add_lab(data_dict)
@@ -434,14 +252,16 @@ class TestGetLabById(TestCase):
                     'key' : KEY,
                     'lab_name': 'array',
                     'lab_id': 'cse02',
-                    'experiments': [{'exp_name': 'arrays', 'exp_id': 'exp123' }]
+                    'overview' : 'overview',
+                    'experiments': [{'exp_name': 'arrays', 'exp_id': 'exp123', 'overview' : 'overview' }]
                    }
 
         data_dict1 = {
                     'key' : KEY,
                     'lab_name': 'stack',
                     'lab_id': 'cse03',
-                    'experiments': [{'exp_name': 'arrays', 'exp_id': 'exp123' }]
+                    'overview' : 'overview',
+                    'experiments': [{'exp_name': 'arrays', 'exp_id': 'exp123', 'overview' : 'overview' }]
                    }
 
         lab1 = SystemInterface.add_lab(data_dict)
@@ -505,14 +325,16 @@ class TestDeleteLab(TestCase):
                     'key' : KEY,
                     'lab_name': 'Data Structures',
                     'lab_id': 'cse01',
-                    'experiments': [{'exp_name': 'arrays', 'exp_id': 'exp123' }]
+                    'overview' : 'overview',
+                    'experiments': [{'exp_name': 'arrays', 'exp_id': 'exp123', 'overview' : 'overview' }]
                    }
 
         data_dict1 = {
                     'key' : KEY,
                     'lab_name': 'Computer Programming',
                     'lab_id': 'cse02',
-                    'experiments': [{'exp_name': 'arrays', 'exp_id': 'exp123' }]
+                    'overview' : 'overview',
+                    'experiments': [{'exp_name': 'arrays', 'exp_id': 'exp123', 'overview' : 'overview' }]
                    }
 
         lab = SystemInterface.add_lab(data_dict)
@@ -545,10 +367,16 @@ class TestDeleteLab(TestCase):
         else:
             lab_id=data_dict['lab_id']
 
+        if 'overview' not in data_dict:
+            overview=str(lab.get("overview"))
+        else:
+            overview=data_dict['overview']
+
         try:
             current_app.logger.debug("running operation update_lab")
             lab = System.do("update_lab", lab=lab, lab_name=lab_name, 
                                     lab_id=lab_id,
+                                    overview=overview,
                                     session=session)
             current_app.logger.debug("completed operation update_lab")
             return lab.to_client()
@@ -584,14 +412,16 @@ class TestUpdateLab(TestCase):
                     'key' : KEY,
                     'lab_name': 'Data Structures',
                     'lab_id': 'cse02',
-                    'experiments': [{'exp_name': 'arrays', 'exp_id': 'exp123' }]
+                    'overview' : 'overview',
+                    'experiments': [{'exp_name': 'arrays', 'exp_id': 'exp123', 'overview' : 'overview' }]
                    }
 
         data_dict1 = {
                     'key' : KEY,
                     'l_id': 1,
+                    'overview' : 'overview',
                     'lab_name': 'Computer Programming',
-                    'experiments': [{'exp_name': 'arrays', 'exp_id': 'exp123' }]
+                    'experiments': [{'exp_name': 'arrays', 'exp_id': 'exp123', 'overview' : 'overview' }]
                    }
 
         lab = SystemInterface.add_lab(data_dict)
@@ -613,7 +443,7 @@ class TestUpdateLab(TestCase):
 
         session = session_cls(key=data_dict['key'])
         experiment = experiment_cls(exp_name=data_dict['exp_name'],
-                                exp_id=data_dict['exp_id'])
+                                exp_id=data_dict['exp_id'], overview=data_dict['overview'])
         try:
             current_app.logger.debug("running operation add_experiment")
             question = System.do("add_experiment", experiment=experiment, 
@@ -651,7 +481,8 @@ class TestAddExperiment(TestCase):
         data_dict = {
                     'key' : KEY,
                     'exp_name': 'array',
-                    'exp_id': 'cse02'
+                    'exp_id': 'cse02',
+                    'overview' : 'overview'
                    }
 
         experiment = SystemInterface.add_experiment(data_dict)
@@ -666,6 +497,7 @@ class TestAddExperiment(TestCase):
         data_dict = {
                     'key' : KEY,
                     'exp_name': 'cse02',
+                    'overview' : 'overview',
                     'exp_id': 123
 		    }
         with self.assertRaises(TypeError):
@@ -719,11 +551,13 @@ class TestGetExperiments(TestCase):
 
         data_dict = {'exp_name': 'stack',
                     'exp_id': 'cse01',
+                    'overview' : 'overview',
                     'key' : KEY
                    }
 
         data_dict1 = {'exp_name': "arrays",
             'exp_id': 'cse02',
+            'overview' : 'overview',
             'key' : KEY
            }
 
@@ -787,12 +621,14 @@ class TestGetExperimentById(TestCase):
         data_dict = {
                     'key' : KEY,
                     'exp_name': 'array',
+                    'overview' : 'overview',
                     'exp_id': 'cse02'
                    }
 
         data_dict1 = {
                     'key' : KEY,
                     'exp_name': 'stack',
+                    'overview' : 'overview',
                     'exp_id': 'cse03'
                    }
 
@@ -833,10 +669,16 @@ class TestGetExperimentById(TestCase):
         else:
             exp_id=data_dict['exp_id']
 
+        if 'overview' not in data_dict:
+            overview=str(exp.get("overview"))
+        else:
+            overview=data_dict['overview']
+
         try:
             current_app.logger.debug("running operation update_experiment")
             question = System.do("update_experiment", exp=exp, exp_name=exp_name, 
                                     exp_id=exp_id,
+                                    overview=overview,
                                     session=session)
             current_app.logger.debug("completed operation update_experiment")
             return exp.to_client()
@@ -871,6 +713,7 @@ class TestUpdateExperiment(TestCase):
         data_dict = {
                     'key' : KEY,
                     'exp_name': 'Data Structures',
+                    'overview' : 'overview',
                     'exp_id': 'cse02'
                    }
 
@@ -932,12 +775,14 @@ class TestDeleteExperiment(TestCase):
         data_dict = {
                     'key' : KEY,
                     'exp_name': 'Data Structures',
+                    'overview' : 'overview',
                     'exp_id': 'cse01'
                    }
 
         data_dict1 = {
                     'key' : KEY,
                     'exp_name': 'Computer Programming',
+                    'overview' : 'overview',
                     'exp_id': 'cse02'
                    }
 

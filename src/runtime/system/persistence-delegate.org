@@ -82,13 +82,15 @@ class TestPersistenceDelegate(TestCase):
         print "test_lab_exists"
         lab_name1="Computer Programming"
         lab_id1="CSE01"
-        lab = Lab(lab_name=lab_name1, lab_id=lab_id1, experiments=[])
+        overview1 = "overview"
+        lab = Lab(lab_name=lab_name1, lab_id=lab_id1, overview=overview1, experiments=[])
 
         lab1 = self.persistence_delegate.add_lab(lab)
 
         lab_name2="Data Structures"
         lab_id2="CSE02"
-        lab2 = Lab(lab_name=lab_name2, lab_id=lab_id2, experiments=[])
+        overview2 = "overview"
+        lab2 = Lab(lab_name=lab_name2, lab_id=lab_id2, overview=overview2, experiments=[])
 
         self.assertEqual(self.persistence_delegate.lab_exists(lab1.id),
                             True)
@@ -115,7 +117,8 @@ class TestPersistenceDelegate(TestCase):
         print "test_experiment_exists"
         exp_name = "Number Systems"
         exp_id = "EE99777"
-        experiment = Experiment(exp_name=exp_name, exp_id=exp_id)
+        overview = "overview"
+        experiment = Experiment(exp_name=exp_name, exp_id=exp_id, overview=overview)
         self.persistence_delegate.add_experiment(experiment)
         self.assertEqual(self.persistence_delegate.experiment_exists(experiment),
                             True)
@@ -123,132 +126,6 @@ class TestPersistenceDelegate(TestCase):
 #+END_SRC
 
      
-***  Check if =response= already exists
-    This function checks if response is already in the System.
-#+NAME: persistence_response_exists
-#+BEGIN_SRC python
-    def response_exists(self, response):
-        ret_val = False
-        
-        question = response.get("question")
-        answers = response.get("answers")
-        if self.get_response(question=question, answers=answers) is not None:
-            ret_val = True
-
-        return ret_val
-
-
-#+END_SRC
-
-**** Tests
-#+NAME: test_persistence_response_exists
-#+BEGIN_SRC python
-    def test_response_exists(self):
-        print "test_response_exists"
-
-        name = "how are labs?"
-        q_type = "radio"
-        question1 = Question(name=name, question_type=q_type)
-        question1.save()
-
-        ans1 = Answer(name="excellent")
-        ans1.save()
-        ans2 = Answer(name="good")
-        ans2.save()
-        
-        gateway_ip = "10.100.40.2"
-        lab_name = "cse01"
-        exp_name = "data01"
-        date = datetime.datetime.strptime("30-06-2016", "%d-%m-%Y").date()
-        version = "open-edx-virtual-labs-v2.0"
-        user_id = "John123"
-        fb = Feedback(gateway_ip=gateway_ip,
-                       lab_name=lab_name,
-                       exp_name=exp_name,
-                       date=date,
-                       version=version,
-                       user_id=user_id,
-                       responses=[])
-        fb.save()
-
-        res1 = Response(question=question1, answers=[ans1], feedbacks=[fb])
-        res1.save()
-        res2 = Response(question=question1, answers=[ans1, ans2], 
-                            feedbacks=[fb])
-        res2.save()
-
-        res3 = Response(question=question1, answers=[ans2], feedbacks=[fb])
-
-        self.assertEqual(self.persistence_delegate.response_exists(res1),
-                             True)
-        self.assertEqual(self.persistence_delegate.response_exists(res2),
-                             True)
-        self.assertEqual(self.persistence_delegate.response_exists(res3),
-                             False)
-
-#+END_SRC
-
-
-***  Check if =feedback= already exists
-    This function checks if feedback is already in the system
-#+NAME: persistence_feedback_exists
-#+BEGIN_SRC python
-    def feedback_exists(self, fb_id):
-        ret_val = False
-
-        try:
-            if Feedback.get_by_id(fb_id) is not None:
-                ret_val = True
-        except Exception as e:
-            pass
-
-        return ret_val 
-        
-#+END_SRC
-
-**** Tests
-#+NAME: test_persistence_feedback_exists
-#+BEGIN_SRC python
-    def test_feedback_exists(self):
-        print "test_feedback_exists"
-        gateway_ip1 = "10.100.40.2"
-        lab_name1 = "cse01"
-        exp_name1 = "data01"
-        date1 = datetime.datetime.strptime("30-06-2016", "%d-%m-%Y").date()
-        version = "open-edx-virtual-labs-v2.0"
-        user_id = "John123"
-        fb1 = Feedback(gateway_ip=gateway_ip1,
-                        lab_name=lab_name1,
-                        exp_name=exp_name1,
-                        date=date1,
-                        version=version,
-                        user_id=user_id,
-                        responses=[])
-        fb1.save()
-
-        gateway_ip2 = "10.100.50.2"
-        lab_name2 = "cse02"
-        exp_name2 = "data02"
-        date2 = datetime.datetime.strptime("30-06-2017", "%d-%m-%Y").date()
-        version2 = "open-edx-virtual-labs-v1.0"
-        user_id = "John123"
-        fb2 = Feedback(gateway_ip=gateway_ip2,
-                                lab_name=lab_name2,
-                                exp_name=exp_name2,
-                                date=date2,
-                                version=version2,
-                                user_id=user_id,
-                                responses=[]
-                                )
-        
-        self.assertEqual(self.persistence_delegate.feedback_exists(1),
-                            True)
-        self.assertEqual(self.persistence_delegate.feedback_exists(2),
-                            False)
-
-#+END_SRC
-
-
 ***  Add lab to the system
     This function adds lab to the system.
 #+NAME: persistence_add_lab
@@ -266,18 +143,21 @@ class TestPersistenceDelegate(TestCase):
          print "test_add_lab"
          exp_name = "Number Systems"
          exp_id = "EE99777"
-         experiment = Experiment(exp_name=exp_name, exp_id=exp_id)
+         overview = "exp"
+         experiment = Experiment(exp_name=exp_name, exp_id=exp_id, overview=overview)
          experiment.save()
 
          lab_name1="Computer Programming"
          lab_id1="CSE01"
+         overview="lab"
          lab1 = Lab(lab_name=lab_name1, lab_id=lab_id1, \
-                        experiments=[experiment])
+                        overview=overview, experiments=[experiment])
          lab1 = self.persistence_delegate.add_lab(lab1)
         
          lab_name2="Data Structures"
          lab_id2="CSE02"
-         lab2 = Lab(lab_name=lab_name2, lab_id=lab_id2, experiments=[])
+         overview="lab overview"
+         lab2 = Lab(lab_name=lab_name2, lab_id=lab_id2, overview=overview, experiments=[])
 
          self.assertEqual(self.persistence_delegate.lab_exists(lab1.id),
                           True)
@@ -304,7 +184,8 @@ class TestPersistenceDelegate(TestCase):
          print "test_add_experiment"
          exp_name = "Number Systems"
          exp_id = "EE99777"
-         experiment = Experiment(exp_name=exp_name, exp_id=exp_id)
+         overview = "overview"
+         experiment = Experiment(exp_name=exp_name, exp_id=exp_id, overview=overview)
          experiment = self.persistence_delegate.add_experiment(experiment)
          experiment = experiment.get_by_id(1)
          self.assertEqual(experiment.get("exp_name"), exp_name)
@@ -316,8 +197,8 @@ class TestPersistenceDelegate(TestCase):
     This function updates existing lab.
 #+NAME: persistence_update_lab
 #+BEGIN_SRC python
-    def update_lab(self, lab, lab_name, lab_id):
-        lab.set(lab_name=lab_name, lab_id=lab_id)
+    def update_lab(self, lab, lab_name, lab_id, overview):
+        lab.set(lab_name=lab_name, lab_id=lab_id, overview=overview)
         lab.save()
         return lab
 
@@ -330,18 +211,21 @@ class TestPersistenceDelegate(TestCase):
          print "test_update_lab"
          lab_name = "Data Structures"
          lab_id = "cse01"
+         overview = "overview lab"
          experiments = []
-         lab = Lab(lab_name=lab_name, lab_id=lab_id, experiments=experiments)
+         lab = Lab(lab_name=lab_name, lab_id=lab_id, overview=overview, experiments=experiments)
          
          lab1 = self.persistence_delegate.add_lab(lab)
          lab_name1 = "Computer Programming"
          lab_id1 = "cse02"
+         overview1 = "overview"
          lab2 = self.persistence_delegate.update_lab\
-           (lab1, lab_name1, lab_id1),
+           (lab1, lab_name1, lab_id1, overview=overview1),
          lab2 = Lab.get_by_id(1)
 
          self.assertEqual(lab2.get("lab_id"), lab_id1)
          self.assertEqual(lab2.get("lab_name"), lab_name1)
+         self.assertEqual(lab2.get("overview"), overview1)
 
 #+END_SRC
 
@@ -350,8 +234,8 @@ class TestPersistenceDelegate(TestCase):
     This function updates existing experiment.
 #+NAME: persistence_update_experiment
 #+BEGIN_SRC python
-    def update_experiment(self, experiment, exp_name, exp_id):
-        experiment.set(exp_name=exp_name, exp_id=exp_id)
+    def update_experiment(self, experiment, exp_name, exp_id, overview):
+        experiment.set(exp_name=exp_name, exp_id=exp_id, overview=overview)
         experiment.save()
         return experiment
 
@@ -364,12 +248,14 @@ class TestPersistenceDelegate(TestCase):
          print "test_update_experiment"
          exp_name = "Data Structures"
          exp_id = "cse01"
-         exp = Experiment(exp_name=exp_name, exp_id=exp_id)
+         overview = "overview"
+         exp = Experiment(exp_name=exp_name, exp_id=exp_id, overview=overview)
          exp1 = self.persistence_delegate.add_experiment(exp)
          exp_name1 = "Computer Programming"
          exp_id1 = "cse02"
+         overview1 = "overvewi exp"
          exp2 = self.persistence_delegate.update_experiment\
-           (exp1, exp_name1, exp_id1),
+           (exp1, exp_name1, exp_id1, overview),
          exp2 = Experiment.get_by_id(1)
          self.assertEqual(exp2.get("exp_name"), exp_name1)
 
@@ -404,12 +290,14 @@ class TestPersistenceDelegate(TestCase):
          print "test_delete_lab"
          lab_name = "Data Structures"
          lab_id = "cse01"
-         lab = Lab(lab_name=lab_name, lab_id=lab_id, experiments=[])
+         overview = "overview"
+         lab = Lab(lab_name=lab_name, lab_id=lab_id, overview=overview, experiments=[])
          lab1 = self.persistence_delegate.add_lab(lab)
 
          lab_name1 = "Computer Programming"
          lab_id1 = "cse02"
-         lab1 = Lab(lab_name=lab_name1, lab_id=lab_id1, experiments=[])
+         overview = "overview"
+         lab1 = Lab(lab_name=lab_name1, lab_id=lab_id1, overview=overview, experiments=[])
          lab2 = self.persistence_delegate.add_lab(lab1)
 
          self.persistence_delegate.delete_lab(1)
@@ -447,74 +335,19 @@ class TestPersistenceDelegate(TestCase):
          print "test_delete_experiment"
          exp_name = "arrays"
          exp_id = "cse01"
-         exp = Experiment(exp_name=exp_name, exp_id=exp_id)
+         overview = "overview"
+         exp = Experiment(exp_name=exp_name, exp_id=exp_id, overview=overview)
          exp1 = self.persistence_delegate.add_experiment(exp)
 
          exp_name1 = "linked list"
          exp_id1 = "cse02"
-         exp1 = Experiment(exp_name=exp_name1, exp_id=exp_id1)
+         overview = "overview"
+         exp1 = Experiment(exp_name=exp_name1, exp_id=exp_id1, overview=overview)
          exp2 = self.persistence_delegate.add_experiment(exp1)
 
          self.persistence_delegate.delete_experiment(1)
 
          self.assertEqual(len(Experiment.get_all()), 1)
-
-#+END_SRC
-
-
-***  Add feedback to the system
-    This function adds a feedback to the system.
-#+NAME: persistence_add_feedback
-#+BEGIN_SRC python
-    def add_feedback(self, gateway_ip, lab_name, exp_name, date,
-                         version, user_id, responses):
-        try:
-            new_feedback = Feedback(gateway_ip=gateway_ip,
-                                    lab_name=lab_name,
-                                    exp_name=exp_name,
-                                    date=date,
-                                    version=version,
-                                    user_id=user_id,
-                                    responses=responses)
-            new_feedback.save()
-            return new_feedback
-        except Exception as err:
-            current_app.logger.error("Exception = %s" % str(err))
-            raise err
-
-#+END_SRC
-
-**** Tests
-#+NAME: test_persistence_add_feedback
-#+BEGIN_SRC python
-    def test_add_feedback(self):
-         print "test_add_feedback"
-         gateway_ip = "10.100.40.2"
-         lab_name = "cse01"
-         exp_name = "data01"
-         date = datetime.datetime.strptime("30-06-2016", "%d-%m-%Y").date()
-         version = "open-edx-virtual-labs-v2.0"
-         user_id = "John123"
-         responses = []
-
-         try:
-            fb1 = self.persistence_delegate.add_feedback(gateway_ip, lab_name,
-                                                         exp_name, date, 
-                                                         version,
-                                                         user_id,
-                                                         responses)
-         except Exception as err:
-             self.assertEqual(True, False)
-
-         feedback = Feedback.get_by_id(1)
-
-         self.assertEqual(feedback.get("gateway_ip"), gateway_ip)
-         self.assertEqual(feedback.get("lab_name"), lab_name)
-         self.assertEqual(feedback.get("exp_name"), exp_name)
-         self.assertEqual(feedback.get("responses"), [])
-         self.assertEqual(feedback.get("date"), date)
-         self.assertEqual(feedback.get("version"), version)
-         self.assertEqual(feedback.get("user_id"), user_id)
 
 #+END_SRC
 
@@ -548,12 +381,14 @@ class TestPersistenceDelegate(TestCase):
 
          lab_name="Data Structures"
          lab_id="CSE02"
-         lab = Lab(lab_name=lab_name, lab_id=lab_id, experiments=[])
+         overview = "overview"
+         lab = Lab(lab_name=lab_name, lab_id=lab_id, overview=overview, experiments=[])
          lab.save()
 
          exp_name = "Number Systems"
          exp_id = "EE99777"
-         experiment = Experiment(exp_name=exp_name, exp_id=exp_id)
+         overview = "overview"
+         experiment = Experiment(exp_name=exp_name, exp_id=exp_id, overview=overview)
          experiment.save()
         
          lab1 = Lab.get_by_id(1)
@@ -565,106 +400,6 @@ class TestPersistenceDelegate(TestCase):
          self.assertEqual(lab1.get("experiments")[0].get("exp_id"), exp_id)
          self.assertEqual(lab1.get("experiments")[0].get("exp_name"),\
                                                       exp_name)
-
-#+END_SRC
-
-
-***  Get feedback Usage from the system
-    This function gets the feedback usage from the system.
-#+NAME: persistence_get_feedback_usage
-#+BEGIN_SRC python
-    def get_feedback_usage(self, gateway_ip, date):
-        try:
-            feedbacks = self.get_feedbacks(gateway_ip=gateway_ip, date=date)
-            return len(feedbacks)
-        except Exception as e:
-            print "no feedback found with given ip %s and date %s" \
-              %(gateway_ip, date)
-
-#+END_SRC
-
-**** Tests
-#+NAME: test_persistence_get_feedback_usage
-#+BEGIN_SRC python
-    def test_get_feedback_usage(self):
-         print "test_get_feedback_usage"
-         gateway_ip1 = "10.100.40.2"
-         lab_name1 = "cse01"
-         exp_name1 = "data01"
-         version = "open-edx-virtual-labs-v2.0"
-         date1 = datetime.datetime.strptime("30-06-2016", "%d-%m-%Y").date()
-         responses1 = []
-         user_id = "John123"
-         fb1 = self.persistence_delegate.add_feedback(gateway_ip1, lab_name1,
-                                                        exp_name1, date1,
-                                                        version,
-                                                        user_id,
-                                                        responses1)
-         gateway_ip2 = "10.100.40.2"
-         lab_name2 = "cse02"
-         exp_name2 = "data02"
-         version2 = "open-edx-virtual-labs-v1.0"
-         date2 = datetime.datetime.strptime("30-06-2016", "%d-%m-%Y").date()
-         responses2 = []
-         fb2 = self.persistence_delegate.add_feedback(gateway_ip2, lab_name2,
-                                                        exp_name2, date2,
-                                                        version2,
-                                                        user_id,
-                                                        responses2)
-         usage = self.persistence_delegate.get_feedback_usage(gateway_ip2, 
-                                                                 date2)
-
-         self.assertEqual(usage, 2)
-
-#+END_SRC
-
-
-***  Get feedback Dump from the system
-    This function gets the feedback usage from the system.
-#+NAME: persistence_get_feedback_dump
-#+BEGIN_SRC python
-    def get_feedback_dump(self, date):
-        try:
-            feedbacks = self.get_feedbacks(date=date)
-            return feedbacks
-        except Exception as e:
-            print "no feedbacks were found on date %s" \
-              %(date)
-
-#+END_SRC
-
-**** Tests
-#+NAME: test_persistence_get_feedback_dump
-#+BEGIN_SRC python
-    def test_get_feedback_dump(self):
-         print "test_get_feedback_dump"
-         gateway_ip1 = "10.100.40.2"
-         lab_name1 = "cse01"
-         exp_name1 = "data01"
-         version1 = "open-edx-virtual-labs-v1.0"
-         date1 = datetime.datetime.strptime("30-06-2016", "%d-%m-%Y").date()
-         responses1 = []
-         user_id = "John123"
-         fb1 = self.persistence_delegate.add_feedback(gateway_ip1, lab_name1,
-                                                        exp_name1, date1,
-                                                        version1,
-                                                        user_id,
-                                                        responses1)
-         gateway_ip2 = "10.100.40.2"
-         lab_name2 = "cse02"
-         exp_name2 = "data02"
-         date2 = datetime.datetime.strptime("30-06-2016", "%d-%m-%Y").date()
-         responses2 = []
-         version2 = "open-edx-virtual-labs-v2.0"
-         fb2 = self.persistence_delegate.add_feedback(gateway_ip2, lab_name2,
-                                                        exp_name2, date2,
-                                                        version2,
-                                                        user_id,
-                                                        responses2)
-         feedbacks = self.persistence_delegate.get_feedback_dump(date2)
-
-         self.assertEqual(feedbacks[0].date, date1)
-         self.assertEqual(feedbacks[0].gateway_ip, gateway_ip1)
 
 #+END_SRC
 
@@ -703,7 +438,8 @@ class TestPersistenceDelegate(TestCase):
          print "test_get_lab"
          lab_name1="Computer Programming"
          lab_id1="CSE01"
-         lab = Lab(lab_name=lab_name1, lab_id=lab_id1)
+         overview="overview"
+         lab = Lab(lab_name=lab_name1, lab_id=lab_id1, overview=overview)
          lab.save()
 
          lab_obj = self.persistence_delegate.get_lab(lab_name=
@@ -733,222 +469,13 @@ class TestPersistenceDelegate(TestCase):
 
          exp_name = "Number Systems"
          exp_id = "EE99777"
-         exp = Experiment(exp_name=exp_name, exp_id=exp_id)
+         overview = "overview"
+         exp = Experiment(exp_name=exp_name, exp_id=exp_id, overview=overview)
          exp.save()
          exp_obj = self.persistence_delegate.get_experiment(exp_name=
                                                 exp.get("exp_name"))
          self.assertEqual(exp_obj.get("exp_name"),
                               exp.get("exp_name"))
-
-#+END_SRC
-
-
-
-***  Get Responses
-    This function returns responses if present in the database.  If a response
-    is not present, =None= type is returned.  The argument passed is only
-    question. 
-#+NAME: persistence_get_responses
-#+BEGIN_SRC python
-    def get_responses(self, **kwargs):
-        responses = []
-        if "question" in kwargs.keys() and len(kwargs.keys()) == 1:
-            try:
-                responses = Response.apply_filters(**kwargs)
-            except NotFoundError as e:
-                pass
-            except Exception as e:
-                pass
-        
-        return responses
-
-#+END_SRC
-
-****  Tests
-#+NAME: test_persistence_get_responses
-#+BEGIN_SRC python
-    def test_get_responses(self):
-         print "test_get_responses"
-
-         name = "how are labs?"
-         q_type = "radio"
-         question1 = Question(name=name, question_type=q_type)
-         question1.save()
-         ans = "excellent labs"
-         answer1 = Answer(name=ans)
-         answer1.save()
-         gateway_ip = "10.100.40.2"
-         lab_name = "cse01"
-         exp_name = "data01"
-         version = "open-edx-virtual-labs-v2.0"
-         date = datetime.datetime.strptime("30-06-2016", "%d-%m-%Y").date()
-         user_id = "John123"
-
-         fb = Feedback(gateway_ip=gateway_ip,
-                        lab_name=lab_name,
-                        exp_name=exp_name,
-                        date=date,
-                        version=version,
-                        user_id=user_id,
-                        responses=[])
-         fb.save()
-
-         res = Response(question=question1, answers=[answer1], feedbacks=[fb])
-         res.save()
-         
-         question = res.get("question")
-         answers = res.get("answers")
-
-         responses = self.persistence_delegate.get_responses(\
-                                                      question=question)
-         self.assertEqual(responses[0].get("question").get("name"),
-                              res.get("question").get("name"))
-         self.assertEqual(responses[0].get("answers")[0].get("name"),
-                              res.get("answers")[0].get("name"))
-
-         responses = self.persistence_delegate.get_responses(\
-                                                      question=question, 
-                                                      answers=['t', 'k'])
-         self.assertEqual(responses, [])
-
-#+END_SRC
-
-
-
-***  Get Response
-    This function returns response if present in the database.  If the response is
-    not present, =None= type is returned.  The arguments should contain both
-    question and answers. 
-#+NAME: persistence_get_response
-#+BEGIN_SRC python
-    def get_response(self, **args):
-        ret_val = None
-        if "question" in args.keys() and "answers" in args.keys():
-            question = args["question"]
-            answers = args["answers"]
-            responses = self.get_responses(question=question)
-            if responses:
-                filtered_responses = filter(lambda response: \
-                                            sorted(response.get("answers")) \
-                                            == sorted(answers), responses)
-
-                if filtered_responses:
-                    ret_val = filtered_responses[0]
-
-        return ret_val
-
-#+END_SRC
-
-****  Tests
-#+NAME: test_persistence_get_response
-#+BEGIN_SRC python
-    def test_get_response(self):
-         print "test_get_response"
-
-         name = "how are labs?"
-         q_type = "radio"
-         question1 = Question(name=name, question_type=q_type)
-         question1.save()
-
-         ans1 = Answer(name="excellent")
-         ans1.save()
-         ans2 = Answer(name="good")
-         ans2.save()
-
-         gateway_ip = "10.100.40.2"
-         lab_name = "cse01"
-         exp_name = "data01"
-         version = "open-edx-virtual-labs-v2.0"
-         date = datetime.datetime.strptime("30-06-2016", "%d-%m-%Y").date()
-         user_id = "John123"
-         fb = Feedback(gateway_ip=gateway_ip,
-                        lab_name=lab_name,
-                        exp_name=exp_name,
-                        date=date,
-                        version=version,
-                        user_id = user_id,
-                        responses=[])
-         fb.save()
-
-         res1 = Response(question=question1, answers=[ans1], feedbacks=[fb])
-         res1.save()
-         res2 = Response(question=question1, answers=[ans1, ans2], 
-                             feedbacks=[fb])
-         res2.save()
-     
-         res3 = Response(question=question1, answers=[ans2], feedbacks=[fb])
-         res3.save()
-         
-         response_obj = self.persistence_delegate.get_response(\
-                question=question1, answers=[ans1, ans2])
-         self.assertEqual(response_obj.get("question").get("name"),
-                              question1.get("name"))
-         self.assertEqual(response_obj.get("answers")[0].get("name"),
-                              ans1.get("name"))
-         self.assertEqual(response_obj.get("answers")[1].get("name"),
-                              ans2.get("name"))
-
-         response_obj = self.persistence_delegate.get_response(\
-                question=question1, answers=[ans1])
-         self.assertEqual(response_obj.get("question").get("name"),
-                              question1.get("name"))
-         self.assertEqual(response_obj.get("answers")[0].get("name"),
-                              ans1.get("name"))
-                              
-
-#+END_SRC
-
-
-***  Get Feedbacks
-    This function returns all feedbacks if present in the database.  If the feedbacks is
-    not present, =None= type is returned.
-#+NAME: persistence_get_feedbacks
-#+BEGIN_SRC python
-    def get_feedbacks(self, **kwargs):
-        ret_val = None
-        try:
-            ret_val = Feedback.apply_filters(**kwargs)
-        except NotFoundError as e:
-            ret_val = None
-        
-        return ret_val
-
-#+END_SRC
-
-****  Tests
-#+NAME: test_persistence_get_feedbacks
-#+BEGIN_SRC python
-    def test_get_feedbacks(self):
-         print "test_persistence_get_feedbacks"
-
-         name = "how are labs?"
-         q_type = "radio"
-         question1 = Question(name=name, question_type=q_type)
-         question1.save()
-         ans = "excellent labs"
-         answer1 = Answer(name=ans)
-         answer1.save()
-         gateway_ip = "10.100.40.2"
-         lab_name = "cse01"
-         exp_name = "data01"
-         version = "open-edx-virtual-labs-v2.0"
-         date = datetime.datetime.strptime("30-06-2016", "%d-%m-%Y").date()
-         user_id = "John123"
-
-         fb = Feedback(gateway_ip=gateway_ip,
-                        lab_name=lab_name,
-                        exp_name=exp_name,
-                        date=date,
-                        version=version,
-                        user_id=user_id,
-                        responses=[])
-         fb.save()
-
-         feedback_obj = self.persistence_delegate.get_feedbacks(gateway_ip=\
-                                                        gateway_ip, date=date)
-         self.assertEqual(feedback_obj[0].get("gateway_ip"),
-                              gateway_ip)
-         self.assertEqual(feedback_obj[0].get("date"), date)
 
 #+END_SRC
 
@@ -979,7 +506,8 @@ class TestPersistenceDelegate(TestCase):
 
          lab_name1="Computer Programming"
          lab_id1="CSE01"
-         lab = Lab(lab_name=lab_name1, lab_id=lab_id1, experiments=[])
+         overview="overview"
+         lab = Lab(lab_name=lab_name1, lab_id=lab_id1, overview=overview, experiments=[])
          lab.save()
 
          lab_obj = self.persistence_delegate.get_lab_by_id(1)

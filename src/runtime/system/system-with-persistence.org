@@ -41,14 +41,16 @@ class TestAddLab(TestCase):
 
         exp_name = "arrays"
         exp_id = "cse02"
-        experiment = experiment_cls(exp_name=exp_name, exp_id=exp_id)
+        overview = "overview"
+        experiment = experiment_cls(exp_name=exp_name, exp_id=exp_id, overview=overview)
 
         lab_name1="Computer Programming"
         lab_id1="CSE01"
         key = KEY
+        overview = "overview"
         session = session_cls(key=key)
         lab = lab_cls(lab_id=lab_id1, lab_name=lab_name1, \
-                          experiments=[experiment])
+                          overview=overview, experiments=[experiment])
         lab1 = System.do("add_lab", lab = lab,
                                   session=session)
         new_lab = lab_cls.get_by_id(1)
@@ -173,7 +175,8 @@ class TestAddExperiment(TestCase):
         experiment_cls = System.delegate.entities['experiment']
         exp_name = "arrays"
         exp_id = "cse02"
-        experiment = experiment_cls(exp_name=exp_name, exp_id=exp_id)
+        overview = "overview"
+        experiment = experiment_cls(exp_name=exp_name, exp_id=exp_id, overview=overview)
         key = KEY
         session = session_cls(key=key)
         experiment = System.do("add_experiment", experiment=experiment, session=session)
