@@ -178,7 +178,7 @@ class TestSystemConstructor(TestCase):
 
   #+END_SRC
 
-
+    
 * =do= method 
    The =do= method is the main work-horse of =System= which is construed as the
    =Controller=.  Every operation follows a template and realized as a class
@@ -427,52 +427,6 @@ class DeleteExperiment():
 #+end_src
 
 
-** =AddFeedback=
-#+NAME: class_addfeedback
-#+begin_src python
-class AddFeedback():
-    arg_types = {"gateway_ip": is_str, "lab_name": is_str, "date": is_date,
-                  "exp_name": is_str, "responses": are_responses_or_empty_list,
-                  "version": is_str, "user_id": is_str, "session": is_session}
-    arity_and_type_checks_needed = True
-
-    @staticmethod
-    def auth_check(args):
-        session = args['session']
-        if not System.is_session_valid(session):
-            current_app.logger.error("auth error raised, session = %s" % 
-                                        session.to_client())
-            raise NotAuthorizedError("Not Authorized to perform this action")
-
-    @staticmethod
-    def state_check(args):
-        pass
-
-    @staticmethod
-    def action(args):
-        gateway_ip = args["gateway_ip"]
-        lab_name = args["lab_name"]
-        exp_name = args["exp_name"]
-        date = args["date"]
-        version = args["version"]
-        user_id = args["user_id"]
-        responses = args['responses']
-        try:
-            feedback = System.delegate.add_feedback(gateway_ip, 
-                                                        lab_name,
-                                                        exp_name,
-                                                        date,
-                                                        version,
-                                                        user_id,
-                                                        responses)
-            return feedback
-        except Exception as err:
-            current_app.logger.error("Exception = %s" % str(err))
-            raise err
-
-#+end_src
-
-
 ** =AddExperimentsToLab=
 #+NAME: class_add_experiments_to_lab
 #+begin_src python
@@ -513,126 +467,6 @@ class AddExperimentsToLab():
 
 
 
-** =GetFeedbackUsage=
-#+NAME: class_get_feedback_usage
-#+begin_src python
-class GetFeedbackUsage():
-    arg_types = {"gateway_ip": is_str, "date": is_date,
-                  "session": is_session}
-    arity_and_type_checks_needed = True
-
-    @staticmethod
-    def auth_check(args):
-        session = args['session']
-        if not System.is_session_valid(session):
-            raise NotAuthorizedError("Not Authorized to perform this action")
-
-    @staticmethod
-    def state_check(args):
-        pass
-
-    @staticmethod
-    def action(args):
-        gateway_ip = args["gateway_ip"]
-        date = args["date"]
-        usage = System.delegate.get_feedback_usage(gateway_ip, date) 
-        return usage
-
-#+end_src
-
-
-
-** =GetFeedbackDump=
-#+NAME: class_get_feedback_dump
-#+begin_src python
-class GetFeedbackDump():
-    arg_types = {"date": is_date, "session": is_session}
-    arity_and_type_checks_needed = True
-
-    @staticmethod
-    def auth_check(args):
-        session = args['session']
-        if not System.is_session_valid(session):
-            raise NotAuthorizedError("Not Authorized to perform this action")
-
-    @staticmethod
-    def state_check(args):
-        pass
-
-    @staticmethod
-    def action(args):
-        date = args["date"]
-        feedbacks = System.delegate.get_feedback_dump(date) 
-        return feedbacks
-
-#+end_src
-
-
-
-** =GetFeedbackForm=
-#+NAME: class_get_feedback_form
-#+begin_src python
-class GetFeedbackForm():
-    arg_types = {"session": is_session,
-                 "lab_name": is_str,
-                 "exp_name": is_str_or_none,
-                 "version": is_str_or_none,
-                 "user_id": is_str_or_none}
-
-    arity_and_type_checks_needed = True
-
-    @staticmethod
-    def auth_check(args):
-        session = args['session']
-        if not System.is_session_valid(session):
-            raise NotAuthorizedError("Not Authorized to perform this action")
-
-    @staticmethod
-    def state_check(args):
-        pass
-
-    @staticmethod
-    def action(args):
-        return_val  = None
-        if args['version'] == None:
-            if args['exp_name'] == None:
-                return_val = feedback_forms[1]
-            else:
-                return_val = feedback_forms[0]
-                return_val['exp_name'] = args['exp_name']
-
-        return_val['lab_name'] = args['lab_name']
-        return_val['key'] = KEY
-        if args['user_id'] is not None:
-            return_val['user_id'] = args['user_id']
-
-        return return_val
-
-#+end_src
-
-*** TestGetFeedBackForm
-#+NAME: class_test_get_feedback_form
-#+BEGIN_SRC python
-    def test_get_feedback_form(self):
-        print "test_get_feedback_form"
-        session = Session(key=KEY)
-        lab_name = "Data Structures"
-        exp_name = "Binary Search"
-        user_id = "xyz123"
-        version = None
-        questions_dict = System.do("get_feedback_form", 
-                                      session=session,
-                                      lab_name=lab_name,
-                                      exp_name=exp_name,
-                                      version=None,
-                                      user_id=user_id)
-                                      
-        self.assertEqual(questions_dict['user_id'], user_id)  
-
-#+END_SRC
-    
-
-
 ** Operations Table
    Each operation has a corresponding implementation defined as a class.
 
@@ -644,7 +478,10 @@ ops_table = {'add_lab' : AddLab,
              'add_experiment' : AddExperiment,
              'update_experiment' : UpdateExperiment,
              'delete_experiment' : DeleteExperiment,
-             'add_experiments_to_lab' : AddExperimentsToLab
+             'add_experiments_to_lab' : AddExperimentsToLab,
+             'add_section' : AddSection,
+             'update_section' : UpdateSection,
+             'delete_section' : DeleteSection
              }
 
  #+END_SRC   
