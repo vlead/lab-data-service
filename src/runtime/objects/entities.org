@@ -38,7 +38,7 @@ requirements of the application.
 Lab = ClassTemplate.mk_class("Lab")
 Experiment = ClassTemplate.mk_class("Experiment")
 Session = ClassTemplate.mk_class("Session")
-
+Section = ClassTemplate.mk_class("Section")
 #+END_SRC
 
 
@@ -50,6 +50,9 @@ check_session = check_pred(is_session)
 
 is_lab = is_inst(Lab)
 check_lab = check_pred(is_lab)
+
+is_section = is_inst(Section)
+check_section = check_pred(is_section)
 
 def are_labs(labs):
     ret_val = True
@@ -70,6 +73,17 @@ def are_experiments(experiments):
     if is_list(experiments):
         for experiment in experiments:
             if not is_experiment(experiment):
+                ret_val = False
+    else:
+        ret_val = False
+
+    return ret_val
+
+def are_sections(sections):
+    ret_val = True
+    if is_list(sections):
+        for section in sections:
+            if not is_section(section):
                 ret_val = False
     else:
         ret_val = False
@@ -151,6 +165,44 @@ class TestExperiment(TestCase):
         self.assertEqual(experiment.get("exp_name"), exp_name)
         self.assertEqual(experiment.get("overview"), overview)
         self.assertEqual(experiment.get("exp_id"), exp_id)
+
+#+END_SRC
+
+
+* Section
+   =Section= is an entity that has a field =name= which are string
+#+NAME: class_Section
+#+begin_src python
+Section.add_attributes(name=is_str)
+
+Section.__eq__ = lambda self, other: \
+                  isinstance(other, self.__class__) and \
+                  self.get("name") == other.get("name"))
+
+#+end_src
+
+*** Test Lab
+#+NAME: class_TestLab
+#+BEGIN_SRC python
+class TestLab(TestCase):
+    TESTING = True
+    def test_object_lab(self):
+        print "test_object_lab"
+        exp_name = "Number Systems"
+        exp_id = "EE99777"
+        overview = "This is array exp"
+        experiment = Experiment(exp_name=exp_name, exp_id=exp_id, overview=overview)
+
+        lab_name = "Computer Programming"
+        lab_id = "CSE01"
+        overview = "This is data structures lab which deals about array,stack and ques..etc"
+        lab = Lab(lab_name=lab_name, lab_id=lab_id, overview=overview, experiments=[experiment])
+
+        self.assertEqual(lab.get("lab_name"), lab_name)
+        self.assertEqual(lab.get("lab_id"), lab_id)
+        self.assertEqual(lab.get("overview"), overview)
+        self.assertEqual(lab.get("experiments")[0].get("exp_name"), 
+                             experiment.get("exp_name"))
 
 #+END_SRC
 
