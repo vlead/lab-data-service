@@ -11,55 +11,6 @@
   Persistence is added to all the entities defined in [[../objects/entities.org][=objects=]].
 
 
-* Experiment
-  =Experiment= is a class with attributes =exp_name= and =exp_id= of type =is_email_str=.
-#+NAME: class_Experiment
-#+begin_src python
-args = {"__tablename__": "experiment",
-        "id": db.Column(db.Integer, primary_key=True),
-        "exp_name": db.Column(db.String(255), unique=False, nullable=True),
-        "exp_id": db.Column(db.String(255), unique=True, nullable=False),
-        "overview": db.Column(db.String(1000), unique=False, nullable=True),
-        "experiments": db.relationship('Lab', backref=db.backref('experiment'))
-        }
-
-Experiment = ClassPersistenceTemplate.mk_persistent(Experiment, ['exp_id'], **args)
-
-#+end_src
-
-** Test Experiment
-#+NAME: class_TestExperiment
-#+BEGIN_SRC python
-class TestPersistenceExperiment(TestCase):
-    TESTING = True
-
-    def create_app(self):
-        app = create_app(config)
-        return app
-
-    def setUp(self):
-        db.create_all()
-
-    def tearDown(self):
-        db.session.remove()
-        db.drop_all()
-
-    def test_create_experiment(self):
-        print "test_persistance_experiment"
-        exp_name = "Number Systems"
-        exp_id = "EE99777"
-        overview = "This is linked list experiment"
-        exp = Experiment(exp_name=exp_name, exp_id=exp_id, overview=overview)
-        exp.save()
-        experiment = Experiment.get_by_id(1)
-        self.assertEqual(experiment.get("exp_name"), exp_name)
-        self.assertEqual(experiment.get("exp_id"), exp_id)
-        self.assertEqual(experiment.get("overview"), overview)
-
-
-#+END_SRC
-
-
 * Lab
 
 =Lab= is a class with an attribute =lab_name= of type alphabetic string and
@@ -74,9 +25,7 @@ args = {"__tablename__": "lab",
                                        nullable=True),
         "overview": db.Column(db.String(1000), unique=False, 
                                        nullable=True),
-        "experiment_id": db.Column(db.Integer, 
-                                db.ForeignKey('experiment.id'), 
-                                unique=False)
+        "experiments": db.relationship('Experiment', backref=db.backref('lb'))
 
         }
 
@@ -139,30 +88,30 @@ class TestPersistentLab(TestCase):
 
 #+END_SRC
 
-   
-* Feedback
-  A =Feedback= entity has fields =response= of type =Response=.
 
-#+NAME: class_Feedback
-#+BEGIN_SRC python
-args = {"__tablename__": "feedback",
+* Experiment
+  =Experiment= is a class with attributes =exp_name= and =exp_id= of type =is_email_str=.
+#+NAME: class_Experiment
+#+begin_src python
+args = {"__tablename__": "experiment",
         "id": db.Column(db.Integer, primary_key=True),
-        "gateway_ip" : db.Column(db.String(255), nullable=False),
-        "lab_name" : db.Column(db.String(255), nullable=False),
-        "exp_name" : db.Column(db.String(255), nullable=True),
-        "user_id" : db.Column(db.String(255), nullable=True),
-        "version" : db.Column(db.String(255), nullable=False),
-        "date": db.Column(db.Date, nullable=False)
+        "exp_name": db.Column(db.String(255), unique=False, nullable=True),
+        "exp_id": db.Column(db.String(255), unique=True, nullable=False),
+        "overview": db.Column(db.String(1000), unique=False, nullable=True),
+        "lb_id": db.Column(db.Integer, 
+                                db.ForeignKey('lab.id'), 
+                                unique=False)
+
         }
 
-Feedback = ClassPersistenceTemplate.mk_persistent(Feedback, [], **args)
+Experiment = ClassPersistenceTemplate.mk_persistent(Experiment, ['exp_id'], **args)
 
-#+END_SRC
+#+end_src
 
-** Test Feedback
-#+NAME: class_TestFeedback
+** Test Experiment
+#+NAME: class_TestExperiment
 #+BEGIN_SRC python
-class TestPersistenceFeedback(TestCase):
+class TestPersistenceExperiment(TestCase):
     TESTING = True
 
     def create_app(self):
@@ -176,140 +125,24 @@ class TestPersistenceFeedback(TestCase):
         db.session.remove()
         db.drop_all()
 
-    def test_create_feedback(self):
-        print "test_create_feedback"
+    def test_create_experiment(self):
+        print "test_persistance_experiment"
+        exp_name = "Number Systems"
+        exp_id = "EE99777"
+        overview = "This is linked list experiment"
+        exp = Experiment(exp_name=exp_name, exp_id=exp_id, overview=overview)
+        exp.save()
+        experiment = Experiment.get_by_id(1)
+        self.assertEqual(experiment.get("exp_name"), exp_name)
+        self.assertEqual(experiment.get("exp_id"), exp_id)
+        self.assertEqual(experiment.get("overview"), overview)
 
-        gateway_ip = "10.100.40.2"
-        lab_name = "cse01"
-        exp_name = "data01"
-        date = datetime.datetime.strptime("30-06-2016", "%d-%m-%Y").date()
-        version = "open-edx-virtual-labs-v2.0"
-        user_id = "John123"
-        fb = Feedback(gateway_ip=gateway_ip,
-                      lab_name=lab_name,
-                      exp_name=exp_name,
-                      date=date,
-                      version=version,
-                      user_id=user_id,
-                      responses=[])
-        fb.save()
-
-        self.assertEqual(fb.get("gateway_ip"), gateway_ip)
-        self.assertEqual(fb.get("lab_name"), lab_name)
-        self.assertEqual(fb.get("exp_name"), exp_name)
-        self.assertEqual(fb.get("version"), version)
-        self.assertEqual(fb.get("user_id"), user_id)
-        self.assertEqual(fb.get("responses"), [])
-
- #+END_SRC
-
-
-* Response
-  =Response= is an entity that has fields =question= of type =Question=,
-  =answers= of type =Answer=, and =feedbacks= of type =Feedback=
-
-#+NAME: class_association_Table
-#+BEGIN_SRC python
-responses_answers = db.Table('responses_answers',
-		      db.Column('response_id', db.Integer, 
-                            db.ForeignKey('response.id')),
-		      db.Column('answer_id', db.Integer,
-                            db.ForeignKey('answer.id')))
-
-responses_feedbacks = db.Table('responses_feedbacks',
-		      db.Column('response_id', db.Integer, 
-                            db.ForeignKey('response.id')),
-		      db.Column('feedback_id', db.Integer,
-                            db.ForeignKey('feedback.id')))
-
-#+END_SRC
-
-
-#+NAME: class_Response
-#+BEGIN_SRC python
-args = {"__tablename__": "response",
-        "id": db.Column(db.Integer, primary_key=True),
-        "question_id": db.Column(db.Integer, 
-                                      db.ForeignKey('question.id'), 
-                                      unique=False, nullable=False),
-
-        "feedbacks": db.relationship('Feedback',
-                                       secondary=responses_feedbacks, 
-                                       backref='responses'),
-
-        "answers": db.relationship('Answer',
-                                       secondary=responses_answers, 
-                                       backref='responses')
-      }
-
-Response = ClassPersistenceTemplate.mk_persistent(Response, 
-                                   ['question', 'answers'], **args)
-
-#+END_SRC
-
-** Test Response
-#+NAME: class_TestResponse
-#+BEGIN_SRC python
-class TestPersistenceResponse(TestCase):
-    TESTING = True
-
-    def create_app(self):
-        app = create_app(config)
-        return app
-
-    def setUp(self):
-        db.create_all()
-
-    def tearDown(self):
-        db.session.remove()
-        db.drop_all()
-
-    def test_create_response(self):
-        print "test_create_response"
-
-        name = "how are labs?"
-        q_type = "radio"
-        question1 = Question(name=name, question_type=q_type)
-        question1.save()
-
-        ans = "excellent labs"
-        answer1 = Answer(name=ans)
-        answer1.save()
-
-        gateway_ip = "10.100.40.2"
-        lab_name = "cse01"
-        exp_name = "data01"
-        version = "open-edx-virtual-labs-v2.0"
-        user_id = "John123"
-        date = datetime.datetime.strptime("30-06-2016", "%d-%m-%Y").date()
-
-        fb = Feedback(gateway_ip=gateway_ip,
-                      lab_name=lab_name,
-                      exp_name=exp_name,
-                      date=date,
-                      version=version,
-                      user_id=user_id,
-                      responses=[])
-        fb.save()
-
-        res = Response(question=question1, answers=[answer1], feedbacks=[fb])
-        res.save()
-
-        response = Response.get_by_id(1)
-
-        self.assertEqual(response.get("question").get("name"), 
-                             question1.get("name"))
-
-        self.assertEqual(response.get("answers")[0].get("name"), 
-                             answer1.get("name"))
-
-        self.assertEqual(response.get("feedbacks")[0].get("lab_name"), 
-                             fb.get("lab_name"))
 
 #+END_SRC
 
 
 
+   
 * Infra                                                         :boilerplate:
 ** sources
 *** Imports 
@@ -353,8 +186,9 @@ if __name__ == '__main__':
 ** sources
 #+BEGIN_SRC python :tangle entities.py :eval no :noweb yes
 <<imports_for_sources>>
-<<class_Experiment>>
 <<class_Lab>>
+<<class_Experiment>>
+
 #+end_src
 
 

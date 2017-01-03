@@ -106,6 +106,17 @@ TYPE Discipline
 TYPE Developer
 #+END_SRC
 
+*** Section
+:PROPERTIES:
+:CUSTOM_ID: entity_section
+:END: 
+  Requirement satisfied: [[../requirements/index.org::#section][Section]]
+
+#+BEGIN_SRC spec :tangle spec.txt
+;;; Entity Types
+TYPE Section
+#+END_SRC
+
 *** Name
 :PROPERTIES:
 :CUSTOM_ID: entity_name
@@ -142,10 +153,11 @@ TYPE Email
 
 ;;; Relations with cardinality constraints
 
-[developer, lab]          : Developer +  >    Lab +
-[discipline, lab]         : Discipline +  >    Lab +
-[institute, lab]          : Institute !  >    Lab +
-[experiment, lab]         : Experiment +  >    Lab !
+[developer, lab]          : Developer +  > Lab +
+[discipline, lab]         : Discipline +  > Lab +
+[institute, lab]          : Institute !  > Lab +
+[experiment, lab]         : Experiment +  > Lab !
+[experiment, section]     : Experiment > Section
 [lab, name]               : Lab + > Name !
 [experiment name]         : Experiment + > Name !
 [institute, name]         : Institute ! > Name !
@@ -162,10 +174,10 @@ TYPE Email
 
 #+BEGIN_HTML
 <img src="https://docs.google.com/drawings/d/e/2PACX-1vQX1QRUkVjjW4hjHaUowOevT6_boqdslQfR0_awXAZmLPSx_UL8Qh_P5fYDoiCCm-IXzPX8LHs2pvId/pub?w=960&h=720">
-<p align="center"> Data Service Model </p>
+<p align="center"> Lab Data Service Model </p>
 
 #+END_HTML
-  To edit the Data Service Model image click [[https://docs.google.com/a/vlabs.ac.in/drawings/d/1Pc5ywXvy3RC4lws4KwBiv_qpukm_Fz6JPH4wh_CYjMo/edit?usp=sharing][here]]
+  To edit the Lab Data Service Model image click [[https://docs.google.com/a/vlabs.ac.in/drawings/d/1Pc5ywXvy3RC4lws4KwBiv_qpukm_Fz6JPH4wh_CYjMo/edit?usp=sharing][here]]
 
 
 * Keys
@@ -225,6 +237,7 @@ Sets
 
 #+END_SRC
 
+
 * Referential Integrity over primary and derived entity sets
 :PROPERTIES:
 :CUSTOM_ID: referential_integrity_relations
@@ -236,6 +249,7 @@ Sets
 [experiments, labs]         :  lab-set ! > experiment-set +
 
 #+END_SRC
+
 
 * Operations 
 
@@ -374,6 +388,7 @@ entity-set.   The operation may take additional parameters.
     The lab details are updated.
 #+END_SRC
 
+
 ** Update Experiment
 *** Parameters
 #+BEGIN_SRC spec :tangle spec.txt
@@ -395,6 +410,7 @@ entity-set.   The operation may take additional parameters.
 #+BEGIN_SRC spec :tangle spec.txt
     The experiment details are updated.
 #+END_SRC
+
 
 ** Update Institute
 *** Parameters
@@ -418,6 +434,7 @@ entity-set.   The operation may take additional parameters.
     The institute details are updated.
 #+END_SRC
 
+
 ** Update Discipline
 *** Parameters
 #+BEGIN_SRC spec :tangle spec.txt
@@ -439,6 +456,7 @@ entity-set.   The operation may take additional parameters.
 #+BEGIN_SRC spec :tangle spec.txt
     The discipline details are updated.
 #+END_SRC
+
 
 ** Update Developer
 *** Parameters
@@ -484,6 +502,7 @@ entity-set.   The operation may take additional parameters.
 
 #+END_SRC
 
+
 ** Delete Experiment
 *** Parameters
 #+BEGIN_SRC spec :tangle spec.txt
@@ -505,6 +524,7 @@ entity-set.   The operation may take additional parameters.
 
 #+END_SRC
 
+
 ** Delete Institute
 *** Parameters
 #+BEGIN_SRC spec :tangle spec.txt
@@ -525,6 +545,7 @@ entity-set.   The operation may take additional parameters.
     institute-set = institute-set - {i}
 
 #+END_SRC
+
 ** Delete Discipline 
 *** Parameters
 #+BEGIN_SRC spec :tangle spec.txt
@@ -545,6 +566,7 @@ entity-set.   The operation may take additional parameters.
     discipline-set = discipline-set - {d}
 
 #+END_SRC
+
 ** Delete Developer
 *** Parameters
 #+BEGIN_SRC spec :tangle spec.txt
