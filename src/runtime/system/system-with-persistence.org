@@ -126,94 +126,6 @@ class TestAddSection(TestCase):
 #+END_SRC
 
 
-* Test UpdateQuestion
-#+NAME: test_update_question
-#+BEGIN_SRC python
-class TestUpdateQuestion(TestCase):
-    TESTING = True
-
-    def create_app(self):
-        app = create_app(config)
-        return app
-
-    def setUp(self):
-        db.create_all()
-
-    def tearDown(self):
-        db.session.remove()
-        db.drop_all()
-
-    def test_update_question(self):
-        
-        print "test_update_question_in_system_persistence"
-        session_cls = System.delegate.entities['session']
-        question_cls = System.delegate.entities['question']
-
-        name="how are labs?"
-        radio="radio"
-        key = KEY
-        session = session_cls(key=key)
-        question = question_cls(name=name, question_type=radio)
-        question1 = System.do("add_question", question=question,
-                                  session=session)
-        name1="how are experiements?"
-        radio1="text"
-        question1 = System.do("update_question", question=question,
-                                  name=name1, question_type=radio1,
-                                  session=session)
-
-        new_question = question_cls.get_by_id(1)
-
-        self.assertEqual(new_question.get("name"), name1)
-        self.assertEqual(new_question.get("question_type"), radio1)
-            
-#+END_SRC
-
-
-* Test DeleteQuestion
-#+NAME: test_delete_question
-#+BEGIN_SRC python
-class TestDeleteQuestion(TestCase):
-    TESTING = True
-
-    def create_app(self):
-        app = create_app(config)
-        return app
-
-    def setUp(self):
-        db.create_all()
-
-    def tearDown(self):
-        db.session.remove()
-        db.drop_all()
-
-    def test_delete_question(self):
-        
-        print "test_delete_question_in_system_persistence"
-        session_cls = System.delegate.entities['session']
-        question_cls = System.delegate.entities['question']
-
-        name="how are labs?"
-        radio="radio"
-        key = KEY
-        session = session_cls(key=key)
-        question = question_cls(name=name, question_type=radio)
-        question1 = System.do("add_question", question=question,
-                                  session=session)
-
-        name1="how are experiments?"
-        radio1="text"
-        question1 = question_cls(name=name1, question_type=radio1)
-        question2 = System.do("add_question", question=question1,
-                                  session=session)
-
-        System.do("delete_question", q_id=1, session=session)
-
-        self.assertEqual(len(question_cls.get_all()), 1)
-            
-#+END_SRC
-
-
 * Test UpdateLab
 #+NAME: test_update_lab
 #+BEGIN_SRC python
@@ -267,6 +179,97 @@ class TestUpdateLab(TestCase):
 #+END_SRC
 
 
+* Test UpdateExperiment
+#+NAME: test_update_experiment
+#+BEGIN_SRC python
+class TestUpdateExperiment(TestCase):
+    TESTING = True
+
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_update_exp(self):
+        
+        print "test_update_exp_in_system_persistence"
+        session_cls = System.delegate.entities['session']
+        exp_cls = System.delegate.entities['experiment']
+
+        session = session_cls(key=KEY)
+        exp_name = "arrays"
+        exp_id = "cse02"
+        overview = "overview"
+        experiment = exp_cls(exp_name=exp_name, exp_id=exp_id, \
+                                        overview=overview)
+        experiment.save()
+
+        exp_name2 = "two dimentional arrays"
+        exp_id2 = "cse03"
+
+        exp1 = System.do("update_experiment", experiment=experiment, 
+                                  exp_name=exp_name2, exp_id=exp_id2, 
+                                  overview=overview, session=session)
+
+        new_exp = exp_cls.get_by_id(1)
+
+        self.assertEqual(new_exp.get("exp_name"), exp_name2)
+        self.assertEqual(new_exp.get("exp_id"), exp_id2)
+            
+#+END_SRC
+
+
+* Test UpdateSection
+#+NAME: test_update_section
+#+BEGIN_SRC python
+class TestUpdateSection(TestCase):
+    TESTING = True
+
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_update_section(self):
+        
+        print "test_update_section_in_system_persistence"
+        session_cls = System.delegate.entities['session']
+        section_cls = System.delegate.entities['section']
+
+        exp_name = "arrays"
+        exp_id = "cse02"
+        overview = "overview"
+        experiment = experiment_cls(exp_name=exp_name, exp_id=exp_id, \
+                                        overview=overview)
+        experiment.save()
+
+        exp_name2 = "two dimentional arrays"
+        exp_id2 = "cse03"
+
+        exp1 = System.do("update_experiment", experiment=experiment, 
+                                  exp_name=exp_name2, exp_id=exp_id2, 
+                                  session=session)
+
+        new_exp = exp_cls.get_by_id(1)
+
+        self.assertEqual(new_exp.get("exp_name"), exp_name2)
+        self.assertEqual(new_exp.get("exp_id"), exp_id2)
+            
+#+END_SRC
+
+
 * Infra                                                         :boilerplate:
 ** Tests
 *** Imports 
@@ -306,5 +309,6 @@ if __name__ == '__main__':
 <<test_add_experiment>>
 <<test_add_section>>
 <<test_update_lab>>
+<<test_update_experiment>>
 <<run_test_cases>>
 #+end_src

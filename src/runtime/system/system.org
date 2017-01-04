@@ -360,9 +360,9 @@ class AddExperiment():
 #+NAME: class_update_experiment
 #+begin_src python
 class UpdateExperiment():
-    arg_types = {"exp": is_experiment, "exp_name": is_str_or_none,
+    arg_types = {"experiment": is_experiment, "exp_name": is_str_or_none,
                      "exp_id": is_str_or_none,
-                     "overview" : is_str,
+                     "overview" : is_str_or_none,
                      "session": is_session}
     arity_and_type_checks_needed = True
 
@@ -378,7 +378,7 @@ class UpdateExperiment():
 
     @staticmethod
     def action(args):
-        experiment = args["exp"]
+        experiment = args["experiment"]
         if not "exp_name" in args:
            exp_name=experiment.get("exp_name")
         else:
@@ -492,7 +492,7 @@ class UpdateSection():
 
     @staticmethod
     def auth_check(args):
-        session = args['section']
+        session = args['session']
         if not System.is_session_valid(session):
             raise NotAuthorizedError("Not Authorized to perform this action")
 
@@ -508,7 +508,7 @@ class UpdateSection():
         else:
            name=args["name"]
 
-        section = System.delegate.update_section(experiment, name)
+        section = System.delegate.update_section(section, name)
         return section
 
 #+end_src
