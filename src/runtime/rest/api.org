@@ -379,18 +379,126 @@ class TestGetExperiment(TestCase):
 
  #+END_SRC
    
-** Update and Delete Experiment
-#+NAME: update_and_delete_experiment
+** Get and Add Section
+   REST API to get and add experiment.
+
+#+NAME: get_and_add_section
 #+BEGIN_SRC python
-@api.route('/experiments/<id>', methods=['GET', 'PUT', 'DELETE'])
-def update_and_delete_experiment(id):
+@api.route('/sections', methods=['GET', 'POST'])
+def add_section():
     if request.method == 'GET':
         try:
-            experiment = SystemInterface.get_experiment_by_id(id)
-            return jsonify(experiment)
+            sections = SystemInterface.get_sections()
+
+            return jsonify_list(sections)
+
+        except TypeError as err:
+            error_message = 'Malformed arguments, error: %s' % str(err)
+
+            return render_template('error.html', 
+                    data=error_message)
+
+        except Exception as err:
+            abort(500, 'error: %s' % str(err))
+       
+    if request.method == 'POST':
+        if request.is_json:
+            data_json = json.dumps(request.get_json())
+            data_dict = yaml.safe_load(data_json)
+        else:
+            abort(500, "the request does not contain data in json")
+
+        try:
+            section = SystemInterface.add_section(data_dict)
+            return jsonify(section)
+
+        except TypeError as err:
+            error_message = 'Malformed arguments, error: %s' % str(err)
+
+            return render_template('error.html', 
+                    data=error_message)
+
+        except Exception as err:
+            abort(500, 'error: %s' % str(err))
+            
+#+END_SRC
+
+
+*** TestAddSection
+ #+NAME: test_add_section
+ #+BEGIN_SRC python
+class TestAddSection(TestCase):
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_add_experiment(self):
+        print "test_add_section_in_rest"
+        payload = {'name': 'Quiz',
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/sections", data=json.dumps(payload),
+                                 headers=headers)
+
+        self.assertEqual(response.status_code, 200)
+
+ #+END_SRC
+   
+
+*** TestGetSection
+ #+NAME: test_get_Section
+ #+BEGIN_SRC python
+class TestGetSection(TestCase):
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_get_section(self):
+        print "test_get_section_in_rest"
+
+        payload = {'name': 'Theory',
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/section", data=json.dumps(payload),
+                                 headers=headers)
+
+        response = self.client.get("/sections", headers=headers)
+        self.assertEqual(response.status_code, 200)
+
+ #+END_SRC
+   
+** Update and Delete Section
+#+NAME: update_and_delete_section
+#+BEGIN_SRC python
+@api.route('/sections/<id>', methods=['GET', 'PUT', 'DELETE'])
+def update_and_delete_section(id):
+    if request.method == 'GET':
+        try:
+            section = SystemInterface.get_section_by_id(id)
+            return jsonify(section)
 
         except NotFoundError as err:
-            error_message = "No experiment found with id: %s found." % id
+            error_message = "No section found with id: %s found." % id
 
             return render_template('error.html',
                     data=error_message)
@@ -413,8 +521,8 @@ def update_and_delete_experiment(id):
             abort(500, "the request does not contain data in json")
 
         try:
-            exp = SystemInterface.update_experiment(data_dict)
-            return jsonify(exp)
+            section = SystemInterface.update_section(data_dict)
+            return jsonify(section)
 
         except TypeError as err:
             error_message = 'Malformed arguments, error: %s' % str(err)
@@ -428,7 +536,7 @@ def update_and_delete_experiment(id):
     if request.method == 'DELETE':
 
         try:
-            q1 = SystemInterface.delete_experiment(id)
+            section = SystemInterface.delete_section(id)
             return jsonify({"status":"sucess"})
 
         except TypeError as err:
@@ -441,10 +549,10 @@ def update_and_delete_experiment(id):
             abort(500, 'error: %s' % str(err))
 
 #+END_SRC
-*** TestUpdateExperiment
- #+NAME: test_update_experiment
+*** TestUpdateSection
+ #+NAME: test_update_section
  #+BEGIN_SRC python
-class TestUpdateExperiment(TestCase):
+class TestUpdateSection(TestCase):
     TESTING = True
     def create_app(self):
         app = create_app(config)
@@ -457,34 +565,30 @@ class TestUpdateExperiment(TestCase):
         db.session.remove()
         db.drop_all()
 
-    def test_update_experiment(self):
-        print "test_update_experiment"
-        payload = {'exp_name': 'arrays',
-                   'exp_id': 'cse01',
-                   'overview' : 'overview',
+    def test_update_section(self):
+        print "test_update_section"
+        payload = {'name': 'Theory',
                    'key': KEY}
 
-        payload1 = {'exp_name': 'Computer Programming',
-                   'exp_id': 'cse02',
-                   'overview' : 'overview',
+        payload1 = {'name': 'Theory',
                    'key': KEY}
 
         headers = {'Content-Type': 'application/json'}
 
-        response = self.client.post("/experients", data=json.dumps(payload),
+        response = self.client.post("/sections", data=json.dumps(payload),
                                  headers=headers)
 
-        response = self.client.put("/experiments/1", data=json.dumps(payload1),
+        response = self.client.put("/sections/1", data=json.dumps(payload1),
                                  headers=headers)
 
         self.assertEqual(response.status_code, 200)
 
  #+END_SRC
    
-*** TestDeleteExperiment
- #+NAME: test_delete_experiment
+*** TestDeleteSection
+ #+NAME: test_delete_section
  #+BEGIN_SRC python
-class TestDeleteExperiment(TestCase):
+class TestDeleteSection(TestCase):
     TESTING = True
     def create_app(self):
         app = create_app(config)
@@ -497,21 +601,19 @@ class TestDeleteExperiment(TestCase):
         db.session.remove()
         db.drop_all()
 
-    def test_delete_experiment(self):
-        print "test_delete_experiment"
+    def test_delete_section(self):
+        print "test_delete_section"
 
-        payload = {'exp_name': 'Data structures',
-                   'exp_id': 'cse02',
-                   'overview' : 'overview',
+        payload = {'name': 'Theory',
                    'key': KEY
                   }
 
         headers = {'Content-Type': 'application/json'}
 
-        response = self.client.post("/experiment", data=json.dumps(payload),
+        response = self.client.post("/sections", data=json.dumps(payload),
                                  headers=headers)
 
-        response = self.client.delete("/experiment/1", headers=headers)
+        response = self.client.delete("/sections/1", headers=headers)
 
         self.assertEqual(response.status_code, 200)
 
@@ -1375,6 +1477,8 @@ if __name__ == '__main__':
 <<update_and_delete_lab>>
 <<get_and_add_experiment>>
 <<update_and_delete_experiment>>
+<<update_and_delete_section>>
+<<get_and_add_section>>
 #+END_SRC
 
 
@@ -1388,6 +1492,10 @@ if __name__ == '__main__':
 <<test_add_experiment>>
 <<test_get_experiment>>
 <<test_update_experiment>>
+<<test_update_section>>
+<<test_delete_section>>
+<<test_get_Section>>
+<<test_add_section>>
 #<<test_delete_experiment>>
 <<run_test_cases>>
 #+end_src
