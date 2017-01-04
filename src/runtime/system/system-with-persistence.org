@@ -60,6 +60,72 @@ class TestAddLab(TestCase):
 #+END_SRC
 
 
+* Test AddExperiment
+#+NAME: test_add_experiment
+#+BEGIN_SRC python
+class TestAddExperiment(TestCase):
+    TESTING = True
+
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_add_experiment(self):
+        print "test_add_experiment_in_system_persistence"
+        session_cls = System.delegate.entities['session']
+        experiment_cls = System.delegate.entities['experiment']
+        exp_name = "arrays"
+        exp_id = "cse02"
+        overview = "overview"
+        experiment = experiment_cls(exp_name=exp_name, exp_id=exp_id, overview=overview)
+        key = KEY
+        session = session_cls(key=key)
+        experiment = System.do("add_experiment", experiment=experiment, session=session)
+        experiment1 = experiment_cls.get_by_id(1)
+        self.assertEqual(experiment1.get("exp_name"), exp_name)
+            
+#+END_SRC
+
+
+* Test AddSection
+#+NAME: test_add_section
+#+BEGIN_SRC python
+class TestAddSection(TestCase):
+    TESTING = True
+
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_add_section(self):
+        
+        print "test_add_section_in_system_persistence"
+        session_cls = System.delegate.entities['session']
+        section_cls = System.delegate.entities['section']
+
+        section = section_cls(name="Theory")
+        session = session_cls(key=KEY)
+        section = System.do("add_section", section=section, session=session)
+        new_section = section_cls.get_by_id(1)
+        self.assertEqual(new_section.get("name"), "Theory")
+            
+#+END_SRC
+
+
 * Test UpdateQuestion
 #+NAME: test_update_question
 #+BEGIN_SRC python
@@ -148,10 +214,10 @@ class TestDeleteQuestion(TestCase):
 #+END_SRC
 
 
-* Test AddExperiment
-#+NAME: test_add_experiment
+* Test UpdateLab
+#+NAME: test_update_lab
 #+BEGIN_SRC python
-class TestAddExperiment(TestCase):
+class TestUpdateLab(TestCase):
     TESTING = True
 
     def create_app(self):
@@ -165,243 +231,38 @@ class TestAddExperiment(TestCase):
         db.session.remove()
         db.drop_all()
 
-    def test_add_experiment(self):
-        print "test_add_experiment_in_system_persistence"
+    def test_update_lab(self):
+        
+        print "test_update_lab_in_system_persistence"
         session_cls = System.delegate.entities['session']
+        lab_cls = System.delegate.entities['lab']
         experiment_cls = System.delegate.entities['experiment']
+
         exp_name = "arrays"
         exp_id = "cse02"
         overview = "overview"
         experiment = experiment_cls(exp_name=exp_name, exp_id=exp_id, overview=overview)
+
+        lab_name1="Computer Programming"
+        lab_id1="CSE01"
         key = KEY
+        overview = "overview"
         session = session_cls(key=key)
-        experiment = System.do("add_experiment", experiment=experiment, session=session)
-        experiment1 = experiment_cls.get_by_id(1)
-        self.assertEqual(experiment1.get("exp_name"), exp_name)
-            
-#+END_SRC
+        lab = lab_cls(lab_id=lab_id1, lab_name=lab_name1, \
+                          overview=overview, experiments=[])
 
+        lab.save()
+        lab_name2="Computer Programming"
+        lab_id2="CSE01"
 
-* Test AddFeedback
-#+NAME: test_add_feedback
-#+BEGIN_SRC python
-class TestAddFeedback(TestCase):
-    TESTING = True
-
-    def create_app(self):
-        app = create_app(config)
-        return app
-
-    def setUp(self):
-        db.create_all()
-
-    def tearDown(self):
-        db.session.remove()
-        db.drop_all()
-
-    def test_add_feedback(self):
-        print "test_add_feedback_in_system_persistence"
-        session_cls = System.delegate.entities['session']
-        response_cls = System.delegate.entities['response']
-        question_cls = System.delegate.entities['question']
-        answer_cls = System.delegate.entities['answer']
-        feedback_cls = System.delegate.entities['feedback']
-        version = "open-edx-virtual-labs-v2.0"
-        user_id = "John123"
-        date = datetime.datetime.now().date()
-
-        data_dict = {'lab_name': 'data structure',
-                    'exp_name': 'tuples',
-                    'key' : KEY,
-                    'gateway_ip': '10.4.12.24',
-                    'date': date,
-                    'version': version,
-                    'user_id': user_id,
-                    'responses': [] 
-                   }
-        data_dict['session'] = session_cls(key=data_dict['key'])
-        del(data_dict['key'])
-        feedback = System.do("add_feedback", **data_dict)
-
-        fb = feedback_cls.get_by_id(1)
-        self.assertEqual(fb.get("gateway_ip"), '10.4.12.24')
-        self.assertEqual(fb.get("lab_name"), 'data structure')
-        self.assertEqual(fb.get("exp_name"), 'tuples')
-        self.assertEqual(fb.get("version"), version)
-        self.assertEqual(fb.get("user_id"), user_id)
-        self.assertEqual(fb.get("responses"), [])
-            
-#+END_SRC
-
-
-* Test AddResponsesToFeedback
-#+NAME: test_add_responses_to_feedback
-#+BEGIN_SRC python
-class TestAddResponsesToFeedback(TestCase):
-    TESTING = True
-
-    def create_app(self):
-        app = create_app(config)
-        return app
-
-    def setUp(self):
-        db.create_all()
-
-    def tearDown(self):
-        db.session.remove()
-        db.drop_all()
-
-    def test_add_responses_to_feedback(self):
-        print "test_add_responses_to_feedback_in_system_persistence"
-        session_cls = System.delegate.entities['session']
-        response_cls = System.delegate.entities['response']
-        question_cls = System.delegate.entities['question']
-        answer_cls = System.delegate.entities['answer']
-        feedback_cls = System.delegate.entities['feedback']
-
-        name = "how are labs?"
-        q_type = "radio"
-
-        question1 = question_cls(name=name, question_type=q_type)
-        question1.save()
-
-        ans = "excellent labs"
-        answer1 = answer_cls(name=ans)
-        answer1.save()
-
-        gateway_ip = "10.100.40.2"
-        lab_name = "cse01"
-        exp_name = "data01"
-        version = "open-edx-virtual-labs-v2.0"
-        user_id = "John123"
-        date = datetime.datetime.strptime("30-06-2016", "%d-%m-%Y").date()
-
-        fb = feedback_cls(gateway_ip=gateway_ip,
-                      lab_name=lab_name,
-                      exp_name=exp_name,
-                      date=date,
-                      version=version,
-                      user_id=user_id,
-                      responses=[])
-        fb.save()
-
-        res = response_cls(question=question1, answers=[answer1], 
-                           feedbacks=[fb])
-        key = KEY
-        session = session_cls(key=key)
-        fb1 = System.do("add_responses_to_feedback", responses=[res],
-                                  fb_id=1,
+        lab1 = System.do("update_lab", lab=lab, lab_name=lab_name2, 
+                                  lab_id=lab_id2, overview="overview",
                                   session=session)
 
-        feedback = feedback_cls.get_by_id(1)
+        new_lab = lab_cls.get_by_id(1)
 
-        self.assertEqual(feedback.get("lab_name"), lab_name)
-        self.assertEqual(feedback.get("responses")[0].get("question").\
-                             get("name"), question1.get("name"))
-        self.assertEqual(feedback.get("responses")[0].get("answers")[0].\
-                             get("name"), answer1.get("name"))
-
-#+END_SRC
-
-
-* Test GetFeedbackUsage
-#+NAME: test_get_feedback_usage
-#+BEGIN_SRC python
-class TestGetFeedbackUsage(TestCase):
-    TESTING = True
-
-    def create_app(self):
-        app = create_app(config)
-        return app
-
-    def setUp(self):
-        db.create_all()
-
-    def tearDown(self):
-        db.session.remove()
-        db.drop_all()
-
-    def test_get_feedback_usage(self):
-        print "test_get_feedback_usage_in_system_persistence"
-        session_cls = System.delegate.entities['session']
-        response_cls = System.delegate.entities['response']
-        question_cls = System.delegate.entities['question']
-        answer_cls = System.delegate.entities['answer']
-        feedback_cls = System.delegate.entities['feedback']
-        
-        user_id = "John123"
-        version = "open-edx-virtual-labs-v2.0"
-        date = datetime.datetime.now().date()
-        data_dict = {'lab_name': 'data structure',
-                    'exp_name': 'tuples',
-                    'key' : KEY,
-                    'gateway_ip': '10.4.12.24',
-                    'date': date,
-                    'version': version,
-                    'user_id': user_id,
-                    'responses': [] 
-                   }
-        data_dict['session'] = session_cls(key=data_dict['key'])
-        del(data_dict['key'])
-        gateway_ip = "10.4.12.24"
-        date = datetime.datetime.now().date()
-
-        feedback = System.do("add_feedback", **data_dict)
-
-        feedback_usage = System.do("get_feedback_usage",
-                                       gateway_ip=gateway_ip, 
-                                       date=date, 
-                                       session=data_dict['session'])
-        
-        self.assertEqual(feedback_usage, 1)
-            
-#+END_SRC
-
-
-* Test GetFeedbackDump
-#+NAME: test_get_feedback_dump
-#+BEGIN_SRC python
-class TestGetFeedbackDump(TestCase):
-    TESTING = True
-
-    def create_app(self):
-        app = create_app(config)
-        return app
-
-    def setUp(self):
-        db.create_all()
-
-    def tearDown(self):
-        db.session.remove()
-        db.drop_all()
-
-    def test_get_feedback_dump(self):
-        print "test_get_feedback_dump_in_system_persistence"
-        session_cls = System.delegate.entities['session']
-        response_cls = System.delegate.entities['response']
-        question_cls = System.delegate.entities['question']
-        answer_cls = System.delegate.entities['answer']
-        feedback_cls = System.delegate.entities['feedback']
-
-        date = datetime.datetime.now().date()
-        version = "open-edx-virtual-labs-v2.0"
-        user_id = "John123"
-        data_dict = {'lab_name': 'data structure',
-                    'exp_name': 'tuples',
-                    'key' : KEY,
-                    'gateway_ip': '10.4.12.24',
-                    'date': date,
-                    'version': version,
-                    'user_id': user_id,
-                    'responses': [] 
-                   }
-        data_dict['session'] = session_cls(key=data_dict['key'])
-        del(data_dict['key'])
-
-        feedback = System.do("add_feedback", **data_dict)
-
-        feedbacks = System.do("get_feedback_dump", date=date, session=data_dict['session'])
-        self.assertEqual(feedbacks[0].date, date)
+        self.assertEqual(new_lab.get("lab_name"), lab_name2)
+        self.assertEqual(new_lab.get("lab_id"), lab_id2)
             
 #+END_SRC
 
@@ -443,12 +304,7 @@ if __name__ == '__main__':
 <<populate_db>>
 <<test_add_lab>>
 <<test_add_experiment>>
-#<<test_delete_question>>
-#<<test_add_answer>>
-#<<test_add_feedback>>
-#<<test_update_question>>
-#<<test_get_feedback_usage>>
-#<<test_get_feedback_dump>>
-#<<test_add_responses_to_feedback>>
+<<test_add_section>>
+<<test_update_lab>>
 <<run_test_cases>>
 #+end_src
