@@ -427,6 +427,32 @@ class DeleteExperiment():
 #+end_src
 
 
+** =DeleteSection=
+#+NAME: class_delete_section
+#+begin_src python
+class DeleteSection():
+    arg_types = {"s_id": is_int, "session": is_session}
+    arity_and_type_checks_needed = True
+
+    @staticmethod
+    def auth_check(args):
+        session = args['session']
+        if not System.is_session_valid(session):
+            raise NotAuthorizedError("Not Authorized to perform this action")
+
+    @staticmethod
+    def state_check(args):
+        pass
+
+    @staticmethod
+    def action(args):
+        s_id = args["s_id"]
+        s_id = System.delegate.delete_section(s_id)
+        return s_id
+        
+#+end_src
+
+
 ** =AddSection=
 #+NAME: class_add_section
 #+begin_src python
@@ -455,7 +481,7 @@ class AddSection():
 
 #+end_src
 
-
+   
 ** =UpdateSection=
 #+NAME: class_update_section
 #+begin_src python
@@ -607,6 +633,8 @@ if __name__ == '__main__':
 <<do_function>>
 <<class_add_lab>>
 <<class_delete_lab>>
+<<class_delete_section>>
+<<class_update_section>>
 <<class_delete_experiment>>
 <<class_update_lab>>
 <<class_add_experiment>>
