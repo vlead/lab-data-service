@@ -529,6 +529,54 @@ class TestPersistenceDelegate(TestCase):
 #+END_SRC
 
 
+***  Add sections to a Experiment
+    This function adds sections to a given experiment.
+#+NAME: persistence_add_sections_to_experiment
+#+BEGIN_SRC python
+    def add_sections_to_experiment(self, eid, sections):
+        exp = self.get_exp_by_id(eid)
+        section_list = []
+        for section in sections:
+            if self.section_exists(section):
+                section = self.get_section(name=section.get('name'))
+            else:
+                section.save()
+
+            section_list.append(section)
+
+        exp.set(sections=section_list)
+        return exp
+
+#+END_SRC
+
+****  Tests
+#+NAME: test_persistence_add_sections_to_experiment
+#+BEGIN_SRC python
+    def test_add_saved_sections_to_experiment(self):
+         print "test_add_sections_to_experiment_in_persistence_delegate"
+
+         exp_name = "Number Systems"
+         exp_id = "EE99777"
+         overview = "overview"
+         exp = Experiment(exp_name=exp_name, exp_id=exp_id, \
+                                     overview=overview, sections=[])
+         exp.save()
+        
+         section1 = Section(name='Theory')
+         section1.save()
+         section2 = Section(name='Procedure')
+         section2.save()
+
+         exp1 = self.persistence_delegate.add_sections_to_experiment\
+                                     (exp.id, [section1, section2])
+        
+         self.assertEqual(len(exp1.get("sections")), 2)
+         self.assertEqual(lab1.get("sections")[0].get("name"), name)
+         self.assertEqual(lab1.get("sections")[1].get("name"), name)
+
+#+END_SRC
+
+
 ***  Get an object
     A generic function to find an object of type =cls= matching a given a criteria
 
