@@ -25,7 +25,8 @@ class PersistenceDelegate():
     def __init__(self):
         self.entities = {'session': Session,
                          'lab': Lab,
-                         'experiment' : Experiment
+                         'experiment' : Experiment,
+                         'section' : Section
 
                         }
 
@@ -125,6 +126,30 @@ class TestPersistenceDelegate(TestCase):
 
 #+END_SRC
 
+
+***  Check if =section= already exists
+    This function checks if a section name is already in the section-set of the =System=.
+#+NAME: persistence_section_exists
+#+BEGIN_SRC python
+    def section_exists(self, section):
+        name = section.get("name")
+        return section == self.get_section(name=name)
+        
+#+END_SRC
+
+**** Tests
+#+NAME: test_persistence_experiment_exists
+#+BEGIN_SRC python
+    def test_section_exists(self):
+        print "test_section_exists"
+        name = "Theory"
+        section = Section(name=name)
+        self.persistence_delegate.add_section(section)
+        self.assertEqual(self.persistence_delegate.section_exists(section),
+                            True)
+
+#+END_SRC
+
      
 ***  Add lab to the system
     This function adds lab to the system.
@@ -189,6 +214,30 @@ class TestPersistenceDelegate(TestCase):
          experiment = self.persistence_delegate.add_experiment(experiment)
          experiment = experiment.get_by_id(1)
          self.assertEqual(experiment.get("exp_name"), exp_name)
+
+#+END_SRC
+
+
+***  Add section to the system
+    This function adds section to the system.
+#+NAME: persistence_add_section
+#+BEGIN_SRC python
+    def add_section(self, section):
+        section.save()
+        return section
+
+#+END_SRC
+
+**** Tests
+#+NAME: test_persistence_add_section
+#+BEGIN_SRC python
+    def test_add_section(self):
+         print "test_add_section"
+         name = "Theory"
+         section = Section(name=name)
+         section = self.persistence_delegate.add_section(section)
+         section = section.get_by_id(1)
+         self.assertEqual(section.get("name"), name)
 
 #+END_SRC
 
@@ -258,6 +307,34 @@ class TestPersistenceDelegate(TestCase):
            (exp1, exp_name1, exp_id1, overview),
          exp2 = Experiment.get_by_id(1)
          self.assertEqual(exp2.get("exp_name"), exp_name1)
+
+#+END_SRC
+
+
+***  Update Section
+    This function updates existing section.
+#+NAME: persistence_update_section
+#+BEGIN_SRC python
+    def update_section(self, section, name):
+        section.set(name=name)
+        section.save()
+        return section
+
+#+END_SRC
+
+**** Tests
+#+NAME: test_persistence_update_section
+#+BEGIN_SRC python
+    def test_update_section(self):
+         print "test_update_section"
+         name = "Theory"
+         section = Section(name=name)
+         section1 = self.persistence_delegate.add_section(section)
+         name1 = "Procedure"         
+         section2 = self.persistence_delegate.update_section\
+           (section1, name1)
+         section2 = Section.get_by_id(1)
+         self.assertEqual(section2.get("name"), name1)
 
 #+END_SRC
 
@@ -348,6 +425,47 @@ class TestPersistenceDelegate(TestCase):
          self.persistence_delegate.delete_experiment(1)
 
          self.assertEqual(len(Experiment.get_all()), 1)
+
+#+END_SRC
+
+
+***  Delete Section 
+    This function delete existing section.
+#+NAME: persistence_delete_section
+#+BEGIN_SRC python
+    def delete_section(self, s_id):
+        record = Section.get_by_id(s_id)
+        if not record:
+            abort(404, 'No Section with id %s' % (e_id))
+        else:
+            try:
+                record.delete()
+                #db.session.delete(record)
+                #db.session.commit()
+            except Exception, e:
+                print e
+                abort(500, str(e))
+
+        return s_id
+
+#+END_SRC
+
+**** Tests
+#+NAME: test_persistence_delete_section
+#+BEGIN_SRC python
+    def test_delete_section(self):
+         print "test_delete_section"
+         name = "theory"
+         section = Section(name=name)
+         section1 = self.persistence_delegate.add_section(section)
+ 
+         name1 = "Procedure"
+         section1 = Section(name=name1)
+         section2 = self.persistence_delegate.add_section(section1)
+
+         self.persistence_delegate.delete_section(1)
+
+         self.assertEqual(len(Section.get_all()), 1)
 
 #+END_SRC
 
@@ -451,6 +569,34 @@ class TestPersistenceDelegate(TestCase):
 
 
 
+***  Get Section
+    This function returns a section if present in the database.  If the lab is
+    not present, =None= type is returned.
+#+NAME: persistence_get_section
+#+BEGIN_SRC python
+    def get_section(self, **kwargs):
+        return self.get_object(Section, **kwargs)
+
+#+END_SRC
+
+**** Tests
+#+NAME: test_persistence_get_section
+#+BEGIN_SRC python
+    def test_get_section(self):
+         print "test_get_section"
+         name = "Theory"
+         section = Section(name=name)
+         section.save()
+
+         section_obj = self.persistence_delegate.get_section(name=
+                                                section.get("name"))
+         self.assertEqual(section_obj.get("name"),
+                              section.get("name"))
+
+#+END_SRC
+
+
+
 ***  Get Experiment
     This function returns experiment if present in the database.  If the experiment is
     not present, =None= type is returned.
@@ -518,7 +664,7 @@ class TestPersistenceDelegate(TestCase):
 #+END_SRC
 
 
-
+      
 * Infra                                                         :boilerplate:
 
 ** sources
@@ -571,23 +717,28 @@ if __name__ == '__main__':
 <<persistence_key_exists>>
 <<persistence_get_object>>
 <<persistence_get_lab>>
+<<persistence_get_section>>
 <<persistence_get_experiment>>
-<<persistence_get_responses>>
-<<persistence_get_response>>
+#<<persistence_get_responses>>
+#<<persistence_get_response>>
 <<persistence_lab_exists>>
+<<persistence_section_exists>>
 <<persistence_experiment_exists>>
-<<persistence_response_exists>>
+#<<persistence_response_exists>>
 <<persistence_add_lab>>
+<<persistence_add_section>>
 <<persistence_delete_lab>>
+<<persistence_delete_section>>
 <<persistence_delete_experiment>>
 <<persistence_add_experiment>>
-<<persistence_add_feedback>>
+#<<persistence_add_feedback>>
 <<persistence_update_lab>>
+<<persistence_update_section>>
 <<persistence_update_experiment>>
-<<persistence_get_feedbacks>>
+#<<persistence_get_feedbacks>>
 <<persistence_get_lab_by_id>>
-<<persistence_get_feedback_usage>>
-<<persistence_get_feedback_dump>>
+#<<persistence_get_feedback_usage>>
+#<<persistence_get_feedback_dump>>
 <<persistence_add_experiments_to_lab>>
 
 #+end_src
@@ -599,18 +750,23 @@ if __name__ == '__main__':
 <<test_class_persistence_delegate>>
 #<<test_persistence_key_exists>>
 <<tes_persistence_get_lab>>
+<<test_persistence_get_section>>
 <<test_persistence_get_experiment>>
 #<<test_persistence_get_responses>>
 #<<test_persistence_get_response>>
 <<test_persistence_lab_exists>>
 <<test_persistence_experiment_exists>>
+<<test_persistence_experiment_exists>>
 #<<test_persistence_response_exists>>
 <<test_persistence_add_lab>>
+<<test_persistence_add_section>>
 <<test_persistence_delete_lab>>
+<<test_persistence_delete_section>>
 <<test_persistence_delete_experiment>>
 <<test_persistence_add_experiment>>
 #<<test_persistence_add_feedback>>
 <<test_persistence_update_lab>>
+<<test_persistence_update_section>>
 #<<test_persistence_get_feedbacks>>
 <<test_persistence_get_lab_by_id>>
 #<<test_persistence_get_feedback_usage>>
