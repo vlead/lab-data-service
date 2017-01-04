@@ -121,12 +121,14 @@ class TestLab(TestCase):
         exp_name = "Number Systems"
         exp_id = "EE99777"
         overview = "This is array exp"
-        experiment = Experiment(exp_name=exp_name, exp_id=exp_id, overview=overview)
+        experiment = Experiment(exp_name=exp_name, exp_id=exp_id, \
+                                    overview=overview, sections=[])
 
         lab_name = "Computer Programming"
         lab_id = "CSE01"
         overview = "This is data structures lab which deals about array,stack and ques..etc"
-        lab = Lab(lab_name=lab_name, lab_id=lab_id, overview=overview, experiments=[experiment])
+        lab = Lab(lab_name=lab_name, lab_id=lab_id, overview=overview,\
+                      experiments=[experiment])
 
         self.assertEqual(lab.get("lab_name"), lab_name)
         self.assertEqual(lab.get("lab_id"), lab_id)
@@ -141,12 +143,14 @@ class TestLab(TestCase):
    =Experiment= is an entity that has a field =exp_name= and =exp_id= which are string
 #+NAME: class_Experiment
 #+begin_src python
-Experiment.add_attributes(exp_name=is_str, exp_id=is_str, overview=is_str)
+Experiment.add_attributes(exp_name=is_str, exp_id=is_str, overview=is_str, \
+                              sections=are_sections)
 Experiment.__eq__ = lambda self, other: \
                   isinstance(other, self.__class__) and \
                   self.get("exp_name") == other.get("exp_name") and \
                   self.get("exp_id") == other.get("exp_id") and \
-                  self.get("overview") == other.get("overview")
+                  self.get("overview") == other.get("overview") and\
+                  self.get("sections") == other.get("sections")
 
 #+end_src
 
@@ -161,10 +165,12 @@ class TestExperiment(TestCase):
         exp_name = "Number Systems"
         exp_id = "EE99777"
         overview = "This is linked list experiment"
-        experiment = Experiment(exp_name=exp_name, exp_id=exp_id, overview=overview)
+        experiment = Experiment(exp_name=exp_name, exp_id=exp_id,
+                                    overview=overview, sections=[])
         self.assertEqual(experiment.get("exp_name"), exp_name)
         self.assertEqual(experiment.get("overview"), overview)
         self.assertEqual(experiment.get("exp_id"), exp_id)
+        self.assertEqual(experiment.get("sections"), [])
 
 #+END_SRC
 
