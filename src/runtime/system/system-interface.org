@@ -506,6 +506,71 @@ class TestAddExperiment(TestCase):
             SystemInterface.add_experiment(data_dict)
  #+END_SRC
 
+** Add Section
+#+NAME: class_add_section
+#+begin_src python
+    @staticmethod
+    def add_section(data_dict):
+        session_cls = System.delegate.entities['session']
+        section_cls = System.delegate.entities['section']
+
+        session = session_cls(key=data_dict['key'])
+        section = section_cls(name=data_dict['name'])
+        try:
+            current_app.logger.debug("running operation add_section")
+            question = System.do("add_section", section=section, 
+                                    session=session)
+            current_app.logger.debug("completed operation add_section")
+            return section.to_client()
+        except (ArityError, TypeError, NotAuthorizedError, StateError) as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+
+        except Exception as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+
+#+end_src
+
+*** TestAddSection
+ #+NAME: test_class_add_section
+ #+BEGIN_SRC python
+class TestAddSection(TestCase):
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_add_section_in_system_interface(self):
+        print "test_add_section_in_system_interface"
+
+        data_dict = {
+                    'key' : KEY,
+                    'name' : 'Theory'
+                   }
+
+        section = SystemInterface.add_section(data_dict)
+
+        self.assertEqual(section.get("name"), 
+                             data_dict['name'])
+        
+    def test_add_section_raises_type_error_in_system_interface(self):
+        print "test_add_section_raises_type_error_in_system_interface"
+
+        data_dict = {
+                    'key' : KEY,
+                    'name' : 123
+		    }
+        with self.assertRaises(TypeError):
+            SystemInterface.add_section(data_dict)
+ #+END_SRC
+
 ** Get Experiments
 
 #+NAME: class_get_experiments
@@ -732,6 +797,75 @@ class TestUpdateExperiment(TestCase):
 
  #+END_SRC
 
+** Update Section
+   
+#+NAME: class_update_section
+#+begin_src python
+    @staticmethod
+    def update_section(data_dict):
+        session_cls = System.delegate.entities['session']
+        section_cls = System.delegate.entities['section']
+
+        session = session_cls(key=data_dict['key'])
+        section = section_cls.get_by_id(data_dict['s_id'])
+
+        if 'name' not in data_dict:
+            name=str(section.get("name"))
+        else:
+            name=data_dict['name']
+
+        try:
+            current_app.logger.debug("running operation update_section")
+            section = System.do("update_section", name=name,
+                                    session=session)
+            current_app.logger.debug("completed operation update_section")
+            return section.to_client()
+        except (ArityError, TypeError, NotAuthorizedError, StateError) as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+
+        except Exception as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+#+end_src
+
+*** TestUpateSection
+ #+NAME: test_class_update_Section
+ #+BEGIN_SRC python
+class TestUpdateSection(TestCase):
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_update_section_name_in_system_interface(self):
+        print "test_update_section_name_in_system_interface"
+
+        data_dict = {
+                    'key' : KEY,
+                    'name': 'Theory'
+                   }
+
+        data_dict1 = {
+                    'key' : KEY,
+                    's_id': 1,
+                    'name': 'Quiz'
+                   }
+
+        section = SystemInterface.add_section(data_dict)
+        section1 = SystemInterface.update_section(data_dict1)
+        
+        self.assertEqual(section1.get("name"), data_dict1['name'])
+
+ #+END_SRC
+
 ** Delete Experiment
 #+NAME: class_delete_experiment
 #+begin_src python
@@ -796,6 +930,66 @@ class TestDeleteExperiment(TestCase):
 
  #+END_SRC
 
+** Delete Section
+#+NAME: class_delete_section
+#+begin_src python
+    @staticmethod
+    def delete_section(s_id):
+        session_cls = System.delegate.entities['session']
+
+        session = session_cls(key=KEY)
+        try:
+            current_app.logger.debug("running operation delete_section")
+            section = System.do("delete_section", s_id=int(s_id),
+                                    session=session)
+            current_app.logger.debug("completed operation delete_section")
+            return section
+        except (ArityError, TypeError, NotAuthorizedError, StateError) as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+
+        except Exception as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+#+end_src
+
+*** TestDeleteSection
+ #+NAME: test_class_delete_section
+ #+BEGIN_SRC python
+class TestDeleteSection(TestCase):
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_delete_section_in_system_interface(self):
+        print "test_delete_section_in_system_interface"
+
+        data_dict = {
+                    'key' : KEY,
+                    'name': 'Quiz'
+                   }
+
+        data_dict1 = {
+                    'key' : KEY,
+                    'name' : 'Theory'
+                   }
+
+        exp = SystemInterface.add_section(data_dict)
+        exp1 = SystemInterface.add_section(data_dict1)
+        s_id = SystemInterface.delete_section(1)
+        
+        self.assertEqual(s_id, 1)
+
+ #+END_SRC
+
 
 * Infra                                                         :boilerplate:
   
@@ -847,15 +1041,18 @@ if __name__ == '__main__':
 <<imports_for_sources>>
 <<class_system_interface>>
 <<class_add_lab>>
+<<class_add_section>>
 <<class_add_experiment>>
 <<class_get_labs>>
 <<class_get_lab_by_id>>
 <<class_delete_lab>>
 <<class_update_lab>>
+<<class_update_Section>>
 <<class_get_experiments>>
 <<class_get_experiment_by_id>>
 <<class_update_experiment>>
 <<class_delete_experiment>>
+<<class_delete_section>>
 #+end_src
 
 
@@ -864,6 +1061,7 @@ if __name__ == '__main__':
 <<imports_for_tests>>
 <<test_class_add_lab>>
 <<test_class_add_experiment>>
+<<test_class_add_section>>
 <<test_class_get_labs>>
 <<test_class_get_lab_by_id>>
 <<test_class_delete_lab>>
@@ -871,6 +1069,8 @@ if __name__ == '__main__':
 <<test_class_get_experiments>>
 <<test_class_get_experiment_by_id>>
 <<test_class_update_experiment>>
+<<test_class_update_Section>>
+<<test_class_delete_section>>
 <<run_test_cases>>
 #+end_src
  
