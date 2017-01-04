@@ -74,6 +74,7 @@ class TestPersistentLab(TestCase):
 
         lab1 = Lab.get_by_id(1)
         lab2 = Lab.get_by_id(2)
+        lab3 = Lab.get_by_id(3)
 
         self.assertEqual(lab1.get("lab_name"), lab_name1)
         self.assertEqual(lab1.get("lab_id"), lab_id1)
@@ -85,6 +86,8 @@ class TestPersistentLab(TestCase):
         self.assertEqual(lab2.get("lab_id"), lab_id2)
         self.assertEqual(lab2.get("overview"), overview2)
         self.assertEqual(lab2.get("experiments"), [])
+
+        self.assertEqual(lab3,None)
 
 #+END_SRC
 
@@ -133,10 +136,11 @@ class TestPersistenceExperiment(TestCase):
         exp = Experiment(exp_name=exp_name, exp_id=exp_id, overview=overview)
         exp.save()
         experiment = Experiment.get_by_id(1)
+        experiment1 = Experiment.get_by_id(2)
         self.assertEqual(experiment.get("exp_name"), exp_name)
         self.assertEqual(experiment.get("exp_id"), exp_id)
         self.assertEqual(experiment.get("overview"), overview)
-
+        self.assertEqual(experiment1,None)
 
 #+END_SRC
 
@@ -183,8 +187,10 @@ class TestPersistentSection(TestCase):
         section.save()
         
         section1 = Section.get_by_id(1)
+        section2 = Section.get_by_id(2)
 
         self.assertEqual(section1.get("name"), name)
+        self.assertEqual(section2,None)
 
 #+END_SRC
    
