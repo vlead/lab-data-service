@@ -144,12 +144,14 @@ class TestPersistenceExperiment(TestCase):
 
 
 * Section
-  =Section= is a class with attributes =name= of type =is_str=.
+
+=Section= is a class with an attribute =name= of type alphabetic string 
+
 #+NAME: class_Section
 #+begin_src python
 args = {"__tablename__": "section",
         "id": db.Column(db.Integer, primary_key=True),
-        "name": db.Column(db.String(255), unique=True, nullable=False)
+        "name": db.Column(db.String(255), unique=False)
         }
 
 Section = ClassPersistenceTemplate.mk_persistent(Section, ['name'], **args)
@@ -159,7 +161,9 @@ Section = ClassPersistenceTemplate.mk_persistent(Section, ['name'], **args)
 ** Test Section
 #+NAME: class_TestSection
 #+BEGIN_SRC python
-class TestPersistenceSection(TestCase):
+
+class TestPersistentSection(TestCase):
+
     TESTING = True
 
     def create_app(self):
@@ -174,18 +178,16 @@ class TestPersistenceSection(TestCase):
         db.drop_all()
 
     def test_create_section(self):
-        print "test_persistance_section"
+        print "test_persistent_section"
         name = "Theory"
         section = Section(name=name)
         section.save()
-        section = section.get_by_id(1)
-        self.assertEqual(section.get("name"), name)
+        section1 = Section.get_by_id(1)
+        self.assertEqual(section1.get("name"), name)
 
 #+END_SRC
 
 
-
-   
 * Infra                                                         :boilerplate:
 ** sources
 *** Imports 
@@ -232,6 +234,7 @@ if __name__ == '__main__':
 <<class_Lab>>
 <<class_Experiment>>
 <<class_Section>>
+
 #+end_src
 
 
@@ -241,8 +244,5 @@ if __name__ == '__main__':
 <<class_TestExperiment>>
 <<class_TestLab>>
 <<class_TestSection>>
-#<<class_TestAnswer>>
-#<<class_TestFeedback>>
-#<<class_TestResponse>>
 <<run_test_cases>>
 #+end_src
