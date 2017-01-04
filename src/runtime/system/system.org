@@ -1,6 +1,6 @@
-#+TITLE: System implementation for Feedback Portal
+#+TITLE: System implementation for LDS
 #+AUTHOR: VLEAD
-#+DATE: [2016-07-28 Thu]
+#+DATE: [2016-12-20 Thu]
 #+SETUPFILE: ../../org-templates/level-2.org
 #+TAGS: boilerplate(b)
 #+EXCLUDE_TAGS: boilerplate
@@ -455,6 +455,39 @@ class AddSection():
 
 #+end_src
 
+
+** =UpdateSection=
+#+NAME: class_update_section
+#+begin_src python
+class UpdateSection():
+    arg_types = {"section": is_section, "name": is_str_or_none,
+                     "session": is_session}
+    arity_and_type_checks_needed = True
+
+    @staticmethod
+    def auth_check(args):
+        session = args['section']
+        if not System.is_session_valid(session):
+            raise NotAuthorizedError("Not Authorized to perform this action")
+
+    @staticmethod
+    def state_check(args):
+        pass
+
+    @staticmethod
+    def action(args):
+        section = args["section"]
+        if not "name" in args:
+           name=section.get("name")
+        else:
+           name=args["name"]
+
+        section = System.delegate.update_section(experiment, name)
+        return section
+
+#+end_src
+
+
 ** =AddExperimentsToLab=
 #+NAME: class_add_experiments_to_lab
 #+begin_src python
@@ -525,7 +558,7 @@ ops_table = {'add_lab' : AddLab,
 
 from runtime.exceptions.custom_exceptions import *
 from runtime.objects.entities import is_str, is_lab,\
-     is_date, is_session, is_int, is_experiment,\
+     is_date, is_session, is_section, is_int, is_experiment,\
      are_experiments
 from runtime.utils.type_utils import is_str_or_none
 from runtime.config.system_config import KEY
@@ -578,6 +611,7 @@ if __name__ == '__main__':
 <<class_update_lab>>
 <<class_add_experiment>>
 <<class_update_experiment>>
+<<class_update_section>>
 <<class_add_experiments_to_lab>>
 <<class_add_section>>
 <<ops_table>>
