@@ -642,6 +642,69 @@ class TestGetExperiments(TestCase):
 
  #+END_SRC
 
+** Get Sections
+
+#+NAME: class_get_sections
+#+begin_src python
+    @staticmethod
+    def get_sections():
+        section_cls = System.delegate.entities['section']
+        try:
+            current_app.logger.debug("getting sections")
+            sections = section_cls.get_all()
+            section_dict_list = []
+            for section in sections:
+                section_x = section.to_client()
+                section_dict_list.append(section_x)
+            current_app.logger.debug("got sections")
+            return  section_dict_list
+
+        except (ArityError, TypeError, NotAuthorizedError, StateError) as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+
+        except Exception as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+#+end_src
+
+*** TestGetExperiments
+ #+NAME: test_class_get_sections
+ #+BEGIN_SRC python
+class TestGetSections(TestCase):
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_get_section_in_system_interface(self):
+        print "test_get_section_in_system_interface"
+
+        data_dict = {'name': 'Theory',
+                    'key' : KEY
+                   }
+
+        data_dict1 = {'name': 'Aim',
+            'key' : KEY
+           }
+
+        section1 = SystemInterface.add_section(data_dict)
+        section2 = SystemInterface.add_section(data_dict1)
+
+        section_list = SystemInterface.get_sections()
+        
+        self.assertEqual(section_list[0].get("name"), data_dict['name'])
+        self.assertEqual(section_list[1].get("name"), data_dict1['name'])
+
+ #+END_SRC
+
 ** Get Experiment By Id
 
 #+NAME: class_get_experiment_by_id
@@ -1053,6 +1116,7 @@ if __name__ == '__main__':
 <<class_update_experiment>>
 <<class_delete_experiment>>
 <<class_delete_section>>
+<<class_get_sections>>
 #+end_src
 
 
@@ -1063,6 +1127,7 @@ if __name__ == '__main__':
 <<test_class_add_experiment>>
 <<test_class_add_section>>
 <<test_class_get_labs>>
+<<test_class_get_sections>>
 <<test_class_get_lab_by_id>>
 <<test_class_delete_lab>>
 <<test_class_update_lab>>
