@@ -42,11 +42,13 @@ from runtime.rest.app import create_app
 from runtime.config import flask_app_config as config
 from runtime.utils.class_persistence_template import db
 from runtime.system.system import System
+from runtime.config.system_config import KEY
 
 def populate():
     session_cls = System.delegate.entities['session']
     lab_cls = System.delegate.entities['lab']
     experiment_cls = System.delegate.entities['experiment']
+    section_cls = System.delegate.entities['section']
     
     exp_name = "arrays"
     exp_id = "cse02"
@@ -62,6 +64,25 @@ def populate():
                       overview=overview, experiments=[experiment])
 
     lab.save()
+    name = "Theory"
+    section = section_cls(name=name)
+    section.save()
+    name = "Introduction"
+    section = section_cls(name=name)
+    section.save()
+    name = "Procedure"
+    section = section_cls(name=name)
+    section.save()
+    name = "Simulation"
+    section = section_cls(name=name)
+    section.save()
+    name = "Quiz"
+    section = section_cls(name=name)
+    section.save()
+    name = "Aim"
+    section = section_cls(name=name)
+    section.save()
+    
 
 if __name__ == "__main__":
     db.create_all(app=create_app(config))
