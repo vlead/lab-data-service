@@ -57,7 +57,7 @@ class TestPersistentLab(TestCase):
         exp_name = "Number Systems"
         exp_id = "EE99777"
         overview = "This is linked list experiment"
-        experiment = Experiment(exp_name=exp_name, exp_id=exp_id, overview=overview)
+        experiment = Experiment(exp_name=exp_name, exp_id=exp_id, overview=overview, sections=[])
         experiment.save()
 
         lab_name1="Computer Programming"
@@ -94,6 +94,17 @@ class TestPersistentLab(TestCase):
 
 * Experiment
   =Experiment= is a class with attributes =exp_name= and =exp_id= of type =is_email_str=.
+
+#+NAME: class_association_Table
+#+BEGIN_SRC python
+experiments_sections = db.Table('experiments_sections',
+		      db.Column('experiment_id', db.Integer, 
+                            db.ForeignKey('experiment.id')),
+		      db.Column('section_id', db.Integer,
+                            db.ForeignKey('section.id')))
+
+#+END_SRC
+
 #+NAME: class_Experiment
 #+begin_src python
 args = {"__tablename__": "experiment",
@@ -103,7 +114,11 @@ args = {"__tablename__": "experiment",
         "overview": db.Column(db.String(1000), unique=False, nullable=True),
         "lb_id": db.Column(db.Integer, 
                                 db.ForeignKey('lab.id'), 
-                                unique=False)
+                                unique=False),
+
+        "sections": db.relationship('Section',
+                    secondary=experiments_sections, 
+                    backref='experiments')
 
         }
 
@@ -133,7 +148,7 @@ class TestPersistenceExperiment(TestCase):
         exp_name = "Number Systems"
         exp_id = "EE99777"
         overview = "This is linked list experiment"
-        exp = Experiment(exp_name=exp_name, exp_id=exp_id, overview=overview)
+        exp = Experiment(exp_name=exp_name, exp_id=exp_id, overview=overview, sections=[])
         exp.save()
         experiment = Experiment.get_by_id(1)
         experiment1 = Experiment.get_by_id(2)
@@ -238,6 +253,7 @@ if __name__ == '__main__':
 #+BEGIN_SRC python :tangle entities.py :eval no :noweb yes
 <<imports_for_sources>>
 <<class_Lab>>
+<<class_association_Table>>
 <<class_Experiment>>
 <<class_Section>>
 

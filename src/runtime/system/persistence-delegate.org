@@ -131,6 +131,14 @@ class TestPersistenceDelegate(TestCase):
                             True)
         self.assertEqual(self.persistence_delegate.experiment_exists(experiment2),
                             False)
+        exp_name = "Number Systems"
+        exp_id = "EE99777"
+        overview = "overview"
+        experiment = Experiment(exp_name=exp_name, exp_id=exp_id, \
+                                    overview=overview, sections=[])
+        self.persistence_delegate.add_experiment(experiment)
+        self.assertEqual(self.persistence_delegate.experiment_exists\
+                             (experiment), True)
 
 #+END_SRC
 
@@ -181,7 +189,8 @@ class TestPersistenceDelegate(TestCase):
          exp_name = "Number Systems"
          exp_id = "EE99777"
          overview = "exp"
-         experiment = Experiment(exp_name=exp_name, exp_id=exp_id, overview=overview)
+         experiment = Experiment(exp_name=exp_name, exp_id=exp_id, \
+                                     overview=overview, sections=[])
          experiment.save()
 
          lab_name1="Computer Programming"
@@ -230,6 +239,12 @@ class TestPersistenceDelegate(TestCase):
          overview2="overview"
          experiment2 = Experiment(exp_name=exp_name2, exp_id=exp_id2, overview=overview2)
          
+         exp_name = "Number Systems"
+         exp_id = "EE99777"
+         overview = "overview"
+         experiment = Experiment(exp_name=exp_name, exp_id=exp_id, \
+                                     overview=overview, sections=[])
+         experiment = self.persistence_delegate.add_experiment(experiment)
          experiment = experiment.get_by_id(1)
 
          self.assertEqual(self.persistence_delegate.experiment_exists(experiment1.id),
@@ -322,7 +337,8 @@ class TestPersistenceDelegate(TestCase):
          exp_name = "Data Structures"
          exp_id = "cse01"
          overview = "overview"
-         exp = Experiment(exp_name=exp_name, exp_id=exp_id, overview=overview)
+         exp = Experiment(exp_name=exp_name, exp_id=exp_id, \
+                              overview=overview, sections=[])
          exp1 = self.persistence_delegate.add_experiment(exp)
          exp_name1 = "Computer Programming"
          exp_id1 = "cse02"
@@ -437,13 +453,15 @@ class TestPersistenceDelegate(TestCase):
          exp_name = "arrays"
          exp_id = "cse01"
          overview = "overview"
-         exp = Experiment(exp_name=exp_name, exp_id=exp_id, overview=overview)
+         exp = Experiment(exp_name=exp_name, exp_id=exp_id, \
+                              overview=overview, sections=[])
          exp1 = self.persistence_delegate.add_experiment(exp)
 
          exp_name1 = "linked list"
          exp_id1 = "cse02"
          overview = "overview"
-         exp1 = Experiment(exp_name=exp_name1, exp_id=exp_id1, overview=overview)
+         exp1 = Experiment(exp_name=exp_name1, exp_id=exp_id1, \
+                               overview=overview, sections=[])
          exp2 = self.persistence_delegate.add_experiment(exp1)
 
          self.persistence_delegate.delete_experiment(1)
@@ -530,7 +548,8 @@ class TestPersistenceDelegate(TestCase):
          exp_name = "Number Systems"
          exp_id = "EE99777"
          overview = "overview"
-         experiment = Experiment(exp_name=exp_name, exp_id=exp_id, overview=overview)
+         experiment = Experiment(exp_name=exp_name, exp_id=exp_id, \
+                                     overview=overview, sections=[])
          experiment.save()
         
          lab1 = Lab.get_by_id(1)
@@ -640,7 +659,8 @@ class TestPersistenceDelegate(TestCase):
          exp_name = "Number Systems"
          exp_id = "EE99777"
          overview = "overview"
-         exp = Experiment(exp_name=exp_name, exp_id=exp_id, overview=overview)
+         exp = Experiment(exp_name=exp_name, exp_id=exp_id,
+                              overview=overview, sections=[])
          exp.save()
          exp_obj = self.persistence_delegate.get_experiment(exp_name=
                                                 exp.get("exp_name"))
