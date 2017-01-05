@@ -105,9 +105,16 @@ class TestPersistenceDelegate(TestCase):
     This function checks if a user is already in the user-set of the =System=.
 #+NAME: persistence_experiment_exists
 #+BEGIN_SRC python
-    def experiment_exists(self, experiment):
-        exp_id = experiment.get("exp_id")
-        return experiment == self.get_experiment(exp_id=exp_id)
+    def experiment_exists(self, eid):
+        ret_val = False
+
+        try:
+            if Experiment.get_by_id(eid) is not None:
+                ret_val = True
+        except Exception as e:
+            pass
+
+        return ret_val
         
 #+END_SRC
 
@@ -119,26 +126,20 @@ class TestPersistenceDelegate(TestCase):
         exp_name1 = "Number Systems"
         exp_id1 = "EE99777"
         overview1 = "overview"
-        experiment1 = Experiment(exp_name=exp_name1, exp_id=exp_id1, overview=overview1)
-        exp1 = self.persistence_delegate.add_experiment(experiment)
+        experiment1 = Experiment(exp_name=exp_name1, exp_id=exp_id1,
+                                     overview=overview1, sections=[])
+        exp1 = self.persistence_delegate.add_experiment(experiment1)
 
         exp_name2 = "Transformations"
         exp_id2 = "EE98747"
         overview2 = "overview"
-        experiment2 = Experiment(exp_name=exp_name2, exp_id=exp_id2, overview=overview2)
+        experiment2 = Experiment(exp_name=exp_name2, exp_id=exp_id2, \
+                                     overview=overview2, sections=[])
 
-        self.assertEqual(self.persistence_delegate.experiment_exists(experiment1),
-                            True)
-        self.assertEqual(self.persistence_delegate.experiment_exists(experiment2),
-                            False)
-        exp_name = "Number Systems"
-        exp_id = "EE99777"
-        overview = "overview"
-        experiment = Experiment(exp_name=exp_name, exp_id=exp_id, \
-                                    overview=overview, sections=[])
-        self.persistence_delegate.add_experiment(experiment)
         self.assertEqual(self.persistence_delegate.experiment_exists\
-                             (experiment), True)
+                             (experiment1.id), True)
+        self.assertEqual(self.persistence_delegate.experiment_exists\
+                             (experiment2.id), False)
 
 #+END_SRC
 
@@ -159,10 +160,10 @@ class TestPersistenceDelegate(TestCase):
     def test_section_exists(self):
         print "test_section_exists"
         name1 = "Theory"
-        section1 = Section(name=name)
+        section1 = Section(name=name1)
         self.persistence_delegate.add_section(section1)
         name2 = "Assessment"
-        section2 = Section(name=name)
+        section2 = Section(name=name2)
         self.assertEqual(self.persistence_delegate.section_exists(section1),
                             True)
         self.assertEqual(self.persistence_delegate.section_exists(section2),
@@ -231,29 +232,23 @@ class TestPersistenceDelegate(TestCase):
          exp_name1 = "Number Systems"
          exp_id1 = "EE99777"
          overview1 = "overview"
-         experiment1 = Experiment(exp_name=exp_name1, exp_id=exp_id1, overview=overview1)
+         experiment1 = Experiment(exp_name=exp_name1, exp_id=exp_id1, 
+                                      overview=overview1, sections=[])
          experiment1 = self.persistence_delegate.add_experiment(experiment1)
          
          exp_name2="Transformations"
          exp_id2="EE99870"
          overview2="overview"
-         experiment2 = Experiment(exp_name=exp_name2, exp_id=exp_id2, overview=overview2)
+         experiment2 = Experiment(exp_name=exp_name2, exp_id=exp_id2,
+                                      overview=overview2, sections=[])
          
-         exp_name = "Number Systems"
-         exp_id = "EE99777"
-         overview = "overview"
-         experiment = Experiment(exp_name=exp_name, exp_id=exp_id, \
-                                     overview=overview, sections=[])
-         experiment = self.persistence_delegate.add_experiment(experiment)
-         experiment = experiment.get_by_id(1)
+         experiment = Experiment.get_by_id(1)
 
          self.assertEqual(self.persistence_delegate.experiment_exists(experiment1.id),
                           True)
          self.assertEqual(self.persistence_delegate.experiment_exists(experiment2.id),
                           False)
         
-        
-
 #+END_SRC
 
 
@@ -607,8 +602,8 @@ class TestPersistenceDelegate(TestCase):
                                      (exp.id, [section1, section2])
         
          self.assertEqual(len(exp1.get("sections")), 2)
-         self.assertEqual(lab1.get("sections")[0].get("name"), name)
-         self.assertEqual(lab1.get("sections")[1].get("name"), name)
+         self.assertEqual(exp1.get("sections")[0].get("name"), name)
+         self.assertEqual(exp1.get("sections")[1].get("name"), name)
 
 #+END_SRC
 
