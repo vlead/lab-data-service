@@ -554,6 +554,45 @@ class AddExperimentsToLab():
 
 
 
+** =AddSectionsToExperiment=
+#+NAME: class_add_sections_to_experiment
+#+begin_src python
+class AddSectionsToExperiment():
+    arg_types = {"sections": are_sections, "expid": is_int, 
+                     "session": is_session}
+    arity_and_type_checks_needed = True
+
+    @staticmethod
+    def auth_check(args):
+        session = args['session']
+        if not System.is_session_valid(session):
+            current_app.logger.error("auth error raised, session = %s" % 
+                                        session.to_client())
+            raise NotAuthorizedError("Not Authorized to perform this action")
+
+    @staticmethod
+    def state_check(args):
+        expid = args["expid"]
+        if not System.delegate.experiment_exists(expid):
+            current_app.logger.error("exp with id = %d does not exist"
+                                     " in System" % expid)
+            raise StateError("lab with id = %d does not exist in System"
+                                 % labid)
+
+    @staticmethod
+    def action(args):
+        expid = args["expid"]
+        sections = args["sections"]
+        try:
+            exp = System.delegate.add_sections_to_experiment(expid, sections) 
+            return exp
+        except Exception as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+
+#+end_src
+
+
 ** Operations Table
    Each operation has a corresponding implementation defined as a class.
 

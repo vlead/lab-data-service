@@ -65,7 +65,9 @@ class SystemInterface ():
         try:
             for exp in experiments:
                 experiment = exp_cls(exp_name=str(exp['exp_name']),
-                                        exp_id=str(exp['exp_id']), overview=str(exp['overview']), sections=[])
+                                        exp_id=str(exp['exp_id']), 
+                                        overview=str(exp['overview']), 
+                                        sections=[])
                 
                 exp_list.append(experiment)
             current_app.logger.debug("running operation add_experiments_to_lab")
@@ -104,7 +106,9 @@ class TestAddLab(TestCase):
                     'lab_id': 'cse02',
                     'overview' : 'overview',
                     'key' : KEY,
-                    'experiments': [{'exp_name': 'arrays', 'exp_id': 'exp123', 'overview' : 'overview', 'sections' : [] }]
+                    'experiments': [{'exp_name': 'arrays', 'exp_id': 'exp123',\
+                                         'overview' : 'overview', 
+                                         'sections' : [] }]
                    }
 
         lab = SystemInterface.add_lab(data_dict)
@@ -124,7 +128,9 @@ class TestAddLab(TestCase):
                     'lab_id': 123,
                     'overview' : 'overview',
                     'key' : KEY,
-                    'experiments': [{'exp_name': 'arrays', 'exp_id': 'exp123', 'overview' : 'overview', 'sections' : [] }]
+                    'experiments': [{'exp_name': 'arrays', 'exp_id':
+                                         'exp123', 'overview' : 'overview',
+                                         'sections' : [] }]
                    }
 
         with self.assertRaises(TypeError):
@@ -452,10 +458,15 @@ class TestUpdateLab(TestCase):
         experiment_cls = System.delegate.entities['experiment']
 
         session = session_cls(key=data_dict['key'])
+        del(data_dict['key'])
+
+        sections = data_dict['sections']
+        data_dict['sections'] = []
+
         experiment = experiment_cls(exp_name=data_dict['exp_name'],
                                 exp_id=data_dict['exp_id'],
                                 overview=data_dict['overview'],
-                                sections=[])
+                                sections=data_dict['sections'])
         try:
             current_app.logger.debug("running operation add_experiment")
             question = System.do("add_experiment", experiment=experiment, 
@@ -469,6 +480,25 @@ class TestUpdateLab(TestCase):
         except Exception as err:
             current_app.logger.error("Exception = %s" % str(err))
             raise err
+
+        section_list = []
+        try:
+            for section in sections:
+                section = section_cls(name=str(section['name']))
+                section_list.append(section)
+            current_app.logger.debug("running operation"
+                                     "add_sections_to_experiments")
+            experiment = System.do("add_sections_to_experiment",
+                                    sections=section_list,
+                                    secid=int(section.id),
+                                    session=session)
+            current_app.logger.debug("running operation"
+                                     "add_sections_to_experiment")
+            return experiment
+        except Exception as e:
+            experiment.delete()
+            current_app.logger.error("Exception = %s" % str(e))
+            raise e
 
 #+end_src
 
@@ -773,7 +803,7 @@ class TestGetExperimentById(TestCase):
                     'exp_name': 'stack',
                     'overview' : 'overview',
                     'exp_id': 'cse03'
-             
+                    'sections': []
                    }
 
         exp1 = SystemInterface.add_experiment(data_dict)
