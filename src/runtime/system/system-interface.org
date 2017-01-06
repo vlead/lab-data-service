@@ -1,4 +1,4 @@
-#+TITLE: System Interface implementation for Feedback Portal
+#+TITLE: System Interface implementation for LDS
 #+AUTHOR: VLEAD
 #+DATE: [2016-07-22 Tue]
 #+SETUPFILE: ../../org-templates/level-2.org
@@ -749,6 +749,70 @@ class TestGetSections(TestCase):
 
  #+END_SRC
 
+** Get Section By Id
+
+#+NAME: class_get_section_by_id
+#+begin_src python
+    @staticmethod
+    def get_section_by_id(id):
+        section_cls = System.delegate.entities['section']
+        try:
+            current_app.logger.debug("getting section by id")
+            section = section_cls.get_by_id(id)
+            if not section:
+                return ("No section found with id: %s" % (id))
+
+            return section.to_client()
+
+        except (ArityError, TypeError, NotAuthorizedError, StateError) as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+
+        except Exception as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+#+end_src
+
+*** TestGetSectionById
+ #+NAME: test_class_get_section_by_id
+ #+BEGIN_SRC python
+class TestGetSectionById(TestCase):
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_get_section_by_id_in_system_interface(self):
+        print "test_get_section_by_id_in_system_interface"
+
+        data_dict = {
+                    'key' : KEY,
+                    'name' : "Theory"
+                   }
+
+        data_dict1 = {
+                    'key' : KEY,
+                    'name' : "Quiz"
+                   }
+
+        section1 = SystemInterface.add_section(data_dict)
+        section2 = SystemInterface.add_section(data_dict1)
+
+        section_data_one = SystemInterface.get_section_by_id(1)
+        section_data_two = SystemInterface.get_section_by_id(2)
+        
+        self.assertEqual(section_data_one.get("name"), data_dict['name'])
+        self.assertEqual(section_data_two.get("name"), data_dict1['name'])
+
+ #+END_SRC
+
 ** Get Experiment By Id
 
 #+NAME: class_get_experiment_by_id
@@ -1155,6 +1219,7 @@ if __name__ == '__main__':
 <<class_add_experiment>>
 <<class_get_labs>>
 <<class_get_lab_by_id>>
+<<class_get_section_by_id>>
 <<class_delete_lab>>
 <<class_update_lab>>
 <<class_update_Section>>
@@ -1180,6 +1245,7 @@ if __name__ == '__main__':
 <<test_class_update_lab>>
 <<test_class_get_experiments>>
 <<test_class_get_experiment_by_id>>
+<<test_class_get_section_by_id>>
 <<test_class_update_experiment>>
 <<test_class_update_Section>>
 <<test_class_delete_section>>
