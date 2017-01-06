@@ -1,6 +1,6 @@
 #+TITLE: Design of lab-data-service
 #+AUTHOR: VLEAD
-#+DATE: [2016-12-04 Sun]
+#+DATE: [2017-05-01 Friday]
 #+SETUPFILE: ../org-templates/level-1.org
 #+TAGS: boilerplate(b)
 #+EXCLUDE_TAGS: boilerplate
@@ -20,7 +20,7 @@
   :PROPERTIES:
   :CUSTOM_ID: save_lab_specs
   :END:    
-  - URL :: /save_exp_spec_data
+  - URL :: /experiments
 
   - Method :: POST
 
@@ -29,55 +29,40 @@
   - Payload :: 
 #+BEGIN_EXAMPLE
 
-{"experiment": {"id": "e99847", 
-                  "name": "Parallel and distributed processing", 
-                  "overview": "This deals with eiciting how parallel and distributed processing is done", 
-                  "sections" : [{"name": "Introduction"},
-                                {"name": "Objective"},
-                                {"name": "Tutorial"},
-                                {"name": "Illustration"},
-                                {"name": "Procedure"},
-                                {"name": "Experiment"},        
-                                {"name": "Observations"},
-                                {"name": "Assignment"},  
-                                {"name": "References"}]
-                }
-  }
-
-#+END_EXAMPLE	       
-
-  - Success Response
-    + Status_Code: 200
-    + Content: 
-              {"status" : "successfully updated records"}
-
-  - Error Response:
-    + Contents :
-                {"status" : "error"}
-    
-  - Example:
-    [[http://localhost:5000/save_lab_spec_data][example url]]
-
-
-** Save lab spec data
-  :PROPERTIES:
-  :CUSTOM_ID: save_lab_specs
-  :END:    
-  - URL :: /save_lab_spec_data
-
-  - Method :: POST
-
-  - URL Params ::  None
-
-  - Payload :: 
-#+BEGIN_EXAMPLE
-
-{"lab": {"id": "cse02", 
-                  "name": "Computer Programming",
-                  "overview": "This lab deals with computer programming",
-                  "sections" : [{"name": "Introduction"},
-                                {"experiments": [e100, e200, ....]}]
-                }
+{
+  "exp_id": "e99847",
+  "key" : "<key>",
+  "exp_name": "Parallel and distributed processing",
+  "overview": "This deals with eiciting how parallel and distributed processing is done",
+  "sections": [
+    {
+      "name": "Introduction"
+    },
+    {
+      "name": "Objective"
+    },
+    {
+      "name": "Tutorial"
+    },
+    {
+      "name": "Illustration"
+    },
+    {
+      "name": "Procedure"
+    },
+    {
+      "name": "Experiment"
+    },
+    {
+      "name": "Observations"
+    },
+    {
+      "name": "Assignment"
+    },
+    {
+      "name": "References"
+    }
+  ]
 }
 
 #+END_EXAMPLE	       
@@ -85,14 +70,14 @@
   - Success Response
     + Status_Code: 200
     + Content: 
-              {"status" : "successfully updated records"}
+              {"status" : "successfully added records"}
 
   - Error Response:
     + Contents :
                 {"status" : "error"}
     
   - Example:
-    [[http://localhost:5000/save_lab_spec_data][example url]]
+    [[http://localhost:5000/save_exp_spec_data][example url]]
 
 
 ** Get all experiments
@@ -111,20 +96,54 @@
     + Status_Code: 200
       + Contents :
 
-        #+BEGIN_EXAMPLE
-
+#+BEGIN_EXAMPLE
 [
   {
+    "overview": "overview",
     "exp_name": "arrays",
-    "overview": "this is about arrays exp",
-    "id": 1,
+    "sections": [
+      {
+        "name": "Theory",
+        "id": 1
+      }
+    ],
+    "id": 2,
+    "exp_id": "cse01"
+  },
+  {
+    "overview": "overview",
+    "exp_name": "arrays",
+    "sections": [
+      {
+        "name": "Theory",
+        "id": 1
+      }
+    ],
+    "id": 4,
     "exp_id": "cse02"
   },
   {
-    "exp_name": "stack",
-    "overview": "this is about stacks",
-    "id": 2,
-    "exp_id": "cse022"
+    "overview": "This deals with eiciting how parallel and distributed processing is done",
+    "exp_name": "Parallel and distributed processing",
+    "sections": [
+      {
+        "name": "Introduction",
+        "id": 2
+      },
+      {
+        "name": "Objective",
+        "id": 3
+      }
+     ],
+    "id": 5,
+    "exp_id": "e99847"
+  },
+  {
+    "overview": "This deals with eiciting how parallel and distributed processing is done",
+    "exp_name": "Parallel and distributed processing",
+    "sections": [],
+    "id": 7,
+    "exp_id": "e99848"
   }
 ]
 
@@ -136,14 +155,50 @@
                 {"status" : "error"}
     
   - Example:
-    [[http://localhost:5000/save_lab_spec_data][example url]]
+    [[http://localhost:5000/experiments][example url]]
 
-
-** Get experiment by exp-id
+    
+** Update experiment by id
   :PROPERTIES:
   :CUSTOM_ID: save_lab_specs
   :END:    
-  - URL :: /experiments/<exp-id>
+  - URL :: /experiments/<id>
+
+  - Method :: PUT
+
+  - URL Params ::  None
+
+  - Payload :: 
+#+BEGIN_EXAMPLE
+
+  {
+    "exp_name": "arrays",
+    "overview": "this is about arrays exp",
+    "exp_id": "cse02",
+    "key" : "<key>"
+  }
+
+#+END_EXAMPLE	       
+
+  - Success Response
+    + Status_Code: 200
+      + Contents :
+                {"status" : "successfully updated records"}
+    
+  - Error Response:
+    + Contents :
+                {"status" : "error"}
+    
+  - Example:
+    [[http://localhost:5000/experiments/2][example url]]
+
+
+    
+** Get experiment by id
+  :PROPERTIES:
+  :CUSTOM_ID: save_lab_specs
+  :END:    
+  - URL :: /experiments/<id>
 
   - Method :: GET
 
@@ -156,10 +211,16 @@
       + Contents :
 #+BEGIN_EXAMPLE
 {
-  "exp_id": "cse02", 
-  "exp_name": "computers", 
-  "id": 1, 
-  "overview": "dfdsdfs"
+  "exp_id": "cse01", 
+  "exp_name": "arrays", 
+  "id": 2, 
+  "overview": "overview", 
+  "sections": [
+    {
+      "id": 1, 
+      "name": "Theory"
+    }
+  ]
 }
 
 #+END_EXAMPLE	       
@@ -170,14 +231,132 @@
                 {"status" : "error"}
     
   - Example:
-    [[http://localhost:5000/save_lab_spec_data][example url]]
+    [[http://localhost:5000/experiments/2][example url]]
 
 
-** Update experiment by exp-id
+** Delete exp by id
   :PROPERTIES:
   :CUSTOM_ID: save_lab_specs
   :END:    
-  - URL :: /experiments/<exp-id>
+  - URL :: /experiments/<id>
+
+  - Method :: DELETE
+
+  - URL Params ::  None
+
+  - Payload :: 
+
+  - Success Response
+    + Status_Code: 200
+      + Contents :
+                {"status" : "successfully deleted records"}
+    
+  - Error Response:
+    + Contents :
+                {"status" : "error"}
+    
+  - Example:
+    [[http://localhost:5000/experiments/2][example url]]
+
+
+** Save lab spec data
+  :PROPERTIES:
+  :CUSTOM_ID: save_lab_specs
+  :END:    
+  - URL :: /labs
+
+  - Method :: POST
+
+  - URL Params ::  None
+
+  - Payload :: 
+#+BEGIN_EXAMPLE
+
+{
+  "lab_id": "cse02",
+  "key": "<key>",
+  "lab_name": "Computer Programming",
+  "overview": "This lab deals with computer programming",
+  "experiments": [
+    {
+      "exp_id": "e99847",
+      "exp_name": "Parallel and distributed processing",
+      "overview": "This deals with eiciting how parallel and distributed processing is done",
+      "sections": [
+        {
+          "name": "Introduction"
+        },
+        {
+          "name": "Objective"
+        }
+      ]
+    }
+  ]
+}
+
+#+END_EXAMPLE	       
+
+  - Success Response
+    + Status_Code: 200
+    + Content: 
+              {"status" : "successfully added records"}
+
+  - Error Response:
+    + Contents :
+                {"status" : "error"}
+    
+  - Example:
+    [[http://localhost:5000/save_lab_spec_data][example url]]
+
+
+** Get lab by id
+  :PROPERTIES:
+  :CUSTOM_ID: save_lab_specs
+  :END:    
+  - URL :: /labs/<id>
+
+  - Method :: GET
+
+  - URL Params ::  None
+
+  - Payload :: 
+
+  - Success Response
+    + Status_Code: 200
+      + Contents :
+#+BEGIN_EXAMPLE
+{
+  "experiments": [
+    {
+      "exp_id": "e99848", 
+      "exp_name": "Parallel and distributed processing", 
+      "id": 7, 
+      "overview": "This deals with eiciting how parallel and distributed processing is done", 
+      "sections": []
+    }
+  ], 
+  "id": 2, 
+  "lab_id": "cse06", 
+  "lab_name": "Computer Programming", 
+  "overview": "This lab deals with computer programming"
+}
+
+#+END_EXAMPLE	       
+
+    
+  - Error Response:
+    + Contents :
+                {"status" : "error"}
+    
+  - Example:
+    [[http://localhost:5000/labs/2][example url]]
+
+
+** Update lab by id
+  :PROPERTIES:
+  :CUSTOM_ID: save_lab_specs
+  :END:    
+  - URL :: /labs/<id>
 
   - Method :: PUT
 
@@ -185,12 +364,14 @@
 
   - Payload :: 
 #+BEGIN_EXAMPLE
-  {
-    "exp_name": "arrays",
-    "overview": "this is about arrays exp",
-    "exp_id": "cse02",
-    "key" : "defaultkey"
-  }
+
+{
+  "key" : "<key",
+  "lab_id": "cse06", 
+  "lab_name": "Computer Programming", 
+  "overview": "This lab deals with computer programming"
+}
+
 
 #+END_EXAMPLE	       
 
@@ -204,9 +385,9 @@
                 {"status" : "error"}
     
   - Example:
-    [[http://localhost:5000/save_lab_spec_data][example url]]
+    [[http://localhost:5000/labs/2][example url]]
 
-
+    
 ** Get all labs
   :PROPERTIES:
   :CUSTOM_ID: save_lab_specs
@@ -223,20 +404,29 @@
     + Status_Code: 200
       + Contents :
 
-        #+BEGIN_EXAMPLE
-
+#+BEGIN_EXAMPLE
 [
   {
-    "exp_name": "arrays",
-    "overview": "this is about arrays exp",
+    "lab_name": "Computer Programming",
+    "experiments": [],
+    "overview": "This lab deals with computer programming",
     "id": 1,
-    "exp_id": "cse02"
+    "lab_id": "cse02"
   },
   {
-    "exp_name": "stack",
-    "overview": "this is about stacks",
+    "lab_name": "Computer Programming",
+    "experiments": [
+      {
+        "overview": "This deals with eiciting how parallel and distributed processing is done",
+        "exp_name": "Parallel and distributed processing",
+        "sections": [],
+        "id": 7,
+        "exp_id": "e99848"
+      }
+    ],
+    "overview": "This lab deals with computer programming",
     "id": 2,
-    "exp_id": "cse022"
+    "lab_id": "cse06"
   }
 ]
 
@@ -248,16 +438,16 @@
                 {"status" : "error"}
     
   - Example:
-    [[http://localhost:5000/save_lab_spec_data][example url]]
+    [[http://localhost:5000/labs][example url]]
 
 
-** Get lab by lb-id
+** Delete lab by id
   :PROPERTIES:
   :CUSTOM_ID: save_lab_specs
   :END:    
-  - URL :: /labs/<lab-id>
+  - URL :: /labs/<id>
 
-  - Method :: GET
+  - Method :: DELETE
 
   - URL Params ::  None
 
@@ -266,17 +456,41 @@
   - Success Response
     + Status_Code: 200
       + Contents :
+                 { "status" : "success" }
+    
+  - Error Response:
+    + Contents :
+                {"status" : "error"}
+    
+  - Example:
+    [[http://localhost:5000/experiments/2][example url]]
+
+
+** Add sections
+  :PROPERTIES:
+  :CUSTOM_ID: save_lab_specs
+  :END:    
+  - URL :: /sections
+
+  - Method :: POST
+
+  - URL Params ::  None
+
+  - Payload :: 
 #+BEGIN_EXAMPLE
+
 {
-  "exp_id": "cse02", 
-  "exp_name": "computers", 
-  "id": 1, 
-  "overview": "dfdsdfs"
+  "key": "<key>",
+  "name" : "Theory"
 }
 
 #+END_EXAMPLE	       
 
-    
+  - Success Response
+    + Status_Code: 200
+    + Content: 
+              {"status" : "successfully added records"}
+
   - Error Response:
     + Contents :
                 {"status" : "error"}
@@ -285,11 +499,70 @@
     [[http://localhost:5000/save_lab_spec_data][example url]]
 
 
-** Update lab by lab-id
+** Get all sections
   :PROPERTIES:
   :CUSTOM_ID: save_lab_specs
   :END:    
-  - URL :: /labs/<lab-id>
+  - URL :: /sections
+
+  - Method :: GET
+
+  - URL Params ::  None
+
+  - Payload :: 
+
+#+BEGIN_EXAMPLE
+
+[
+  {
+    "name": "Theory",
+    "id": 1
+  },
+  {
+    "name": "Introduction",
+    "id": 2
+  },
+  {
+    "name": "Objective",
+    "id": 3
+  },
+  {
+    "name": "Tutorial",
+    "id": 4
+  },
+  {
+    "name": "Experiment",
+    "id": 7
+  },
+  {
+    "name": "Observations",
+    "id": 8
+  }
+]
+
+#+END_EXAMPLE	       
+
+
+
+  - Success Response
+    + Status_Code: 200
+      + Contents :
+         {"status" : "success"}
+    
+  - Error Response:
+    + Contents :
+                {"status" : "error"}
+    
+  - Example:
+    [[http://localhost:5000/labs][example url]]
+
+
+
+** Update section by id
+  :PROPERTIES:
+  :CUSTOM_ID: save_lab_specs
+  :END:    
+  - URL :: /sections/<id>
 
   - Method :: PUT
 
@@ -297,12 +570,12 @@
 
   - Payload :: 
 #+BEGIN_EXAMPLE
-  {
-    "exp_name": "arrays",
-    "overview": "this is about arrays exp",
-    "exp_id": "cse02",
-    "key" : "defaultkey"
-  }
+
+{
+  "key" : "<key",
+  "name" : "Quiz"
+}
+
 
 #+END_EXAMPLE	       
 
@@ -316,8 +589,34 @@
                 {"status" : "error"}
     
   - Example:
-    [[http://localhost:5000/save_lab_spec_data][example url]]
+    [[http://localhost:5000/labs/2][example url]]
 
+
+
+
+** Delete section by id
+  :PROPERTIES:
+  :CUSTOM_ID: save_lab_specs
+  :END:    
+  - URL :: /sections/<id>
+
+  - Method :: DELETE
+
+  - URL Params ::  None
+
+  - Payload :: 
+
+  - Success Response
+    + Status_Code: 200
+      + Contents :
+                 { "status" : "success" }
+    
+  - Error Response:
+    + Contents :
+                {"status" : "error"}
+    
+  - Example:
+    [[http://localhost:5000/experiments/2][example url]]
 
 
 ** Get experiment resource map
@@ -339,7 +638,7 @@
       + Contents :
            
 #+BEGIN_EXAMPLE
-
+Not yet implemented
 
 #+END_EXAMPLE	       
 
@@ -368,8 +667,8 @@
     + Status_Code: 200
       + Contents :
 
-        #+BEGIN_EXAMPLE
-
+#+BEGIN_EXAMPLE
+Not yet implemented
 
 #+END_EXAMPLE	       
 
