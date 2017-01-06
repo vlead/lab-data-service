@@ -565,7 +565,7 @@ class TestPersistenceDelegate(TestCase):
 #+NAME: persistence_add_sections_to_experiment
 #+BEGIN_SRC python
     def add_sections_to_experiment(self, eid, sections):
-        exp = self.get_exp_by_id(eid)
+        exp = self.get_experiment_by_id(eid)
         section_list = []
         for section in sections:
             if self.section_exists(section):
@@ -602,8 +602,8 @@ class TestPersistenceDelegate(TestCase):
                                      (exp.id, [section1, section2])
         
          self.assertEqual(len(exp1.get("sections")), 2)
-         self.assertEqual(exp1.get("sections")[0].get("name"), name)
-         self.assertEqual(exp1.get("sections")[1].get("name"), name)
+         self.assertEqual(exp1.get("sections")[0].get("name"), 'Theory')
+         self.assertEqual(exp1.get("sections")[1].get("name"), 'Procedure')
 
 #+END_SRC
 
@@ -751,6 +751,45 @@ class TestPersistenceDelegate(TestCase):
 #+END_SRC
 
 
+
+***  Get Experiment By ID
+    This function returns a experiment object by an ID if present in database,
+    otherwise, =None= type is returned.
+
+#+NAME: persistence_get_experiment_by_id
+#+BEGIN_SRC python
+    def get_experiment_by_id(self, id):
+        ret_val = None
+        try:
+            ret_val = Experiment.get_by_id(id)
+        except Exception as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            ret_val = None
+        
+        return ret_val
+
+#+END_SRC
+
+****  Tests
+#+NAME: test_persistence_get_experiment_by_id
+#+BEGIN_SRC python
+    def test_get_experiment_by_id(self):
+         print "test_persistence_get_experiment_by_id"
+
+         exp_name = "Number Systems"
+         exp_id = "EE99777"
+         overview = "overview"
+         exp = Experiment(exp_name=exp_name, exp_id=exp_id,
+                              overview=overview, sections=[])
+         exp.save()
+
+         exp_obj = self.persistence_delegate.get_experiment_by_id(1)
+         self.assertEqual(exp_obj.get("exp_id"),
+                              exp_id)
+         self.assertEqual(exp_obj.get("exp_name"), exp_name)
+
+#+END_SRC
+
       
 * Infra                                                         :boilerplate:
 
@@ -825,6 +864,7 @@ if __name__ == '__main__':
 <<persistence_update_experiment>>
 
 <<persistence_get_lab_by_id>>
+<<persistence_get_experiment_by_id>>
 
 <<persistence_add_experiments_to_lab>>
 <<persistence_add_sections_to_experiment>>
@@ -858,6 +898,7 @@ if __name__ == '__main__':
 <<test_persistence_update_section>>
 
 <<test_persistence_get_lab_by_id>>
+<<test_persistence_get_experiment_by_id>>
 
 <<test_persistence_add_experiments_to_lab>>
 <<test_persistence_add_sections_to_experiment>>
