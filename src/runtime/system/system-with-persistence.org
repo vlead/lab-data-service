@@ -89,10 +89,62 @@ class TestAddExperiment(TestCase):
                                         overview=overview, sections=[])
         key = KEY
         session = session_cls(key=key)
-        experiment = System.do("add_experiment", experiment=experiment, session=session)
+        experiment = System.do("add_experiment", experiment=experiment, \
+                                session=session)
         experiment1 = experiment_cls.get_by_id(1)
         self.assertEqual(experiment1.get("exp_name"), exp_name)
             
+#+END_SRC
+
+
+* Test AddSectionsToExperiment
+#+NAME: test_add_sections_to_experiment
+#+BEGIN_SRC python
+class TestAddSectionsToExperiment(TestCase):
+    TESTING = True
+
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_add_sections_to_experiment(self):
+        print "test_add_sections_to_experiment_in_system_persistence"
+        session_cls = System.delegate.entities['session']
+        section_cls = System.delegate.entities['section']
+        experiment_cls = System.delegate.entities['experiment']
+
+        exp_name = "arrays"
+        exp_id = "cse02"
+        overview = "overview"
+        experiment = experiment_cls(exp_name=exp_name, exp_id=exp_id,
+                                        overview=overview, sections=[])
+        key = KEY
+        session = session_cls(key=key)
+        experiment = System.do("add_experiment", experiment=experiment, \
+                                session=session)
+        experiment1 = experiment_cls.get_by_id(1)
+
+        section1 = section_cls(name="Theory")
+        section1.save()
+
+        section2 = section_cls(name="Aim")
+        section2.save()
+        
+        experiment = System.do("add_sections_to_experiment", 
+                                expid=experiment.id,
+                                sections=[section1, section2],
+                                session=session)
+
+        self.assertEqual(experiment1.get("exp_name"), exp_name)
+        self.assertEqual(experiment1.get("sections")[0].get("name"), "Theory")
+        self.assertEqual(experiment1.get("sections")[1].get("name"), "Aim")            
 #+END_SRC
 
 
@@ -313,5 +365,6 @@ if __name__ == '__main__':
 <<test_add_section>>
 <<test_update_lab>>
 <<test_update_experiment>>
+<<test_add_sections_to_experiment>>
 <<run_test_cases>>
 #+end_src

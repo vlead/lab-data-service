@@ -455,6 +455,7 @@ class TestUpdateLab(TestCase):
     @staticmethod
     def add_experiment(data_dict):
         session_cls = System.delegate.entities['session']
+        section_cls = System.delegate.entities['section']
         experiment_cls = System.delegate.entities['experiment']
 
         session = session_cls(key=data_dict['key'])
@@ -472,7 +473,7 @@ class TestUpdateLab(TestCase):
             question = System.do("add_experiment", experiment=experiment, 
                                     session=session)
             current_app.logger.debug("completed operation add_experiment")
-            return experiment.to_client()
+
         except (ArityError, TypeError, NotAuthorizedError, StateError) as err:
             current_app.logger.error("Exception = %s" % str(err))
             raise err
@@ -490,11 +491,11 @@ class TestUpdateLab(TestCase):
                                      "add_sections_to_experiments")
             experiment = System.do("add_sections_to_experiment",
                                     sections=section_list,
-                                    secid=int(section.id),
+                                    expid=int(experiment.id),
                                     session=session)
             current_app.logger.debug("running operation"
                                      "add_sections_to_experiment")
-            return experiment
+            return experiment.to_client()
         except Exception as e:
             experiment.delete()
             current_app.logger.error("Exception = %s" % str(e))
