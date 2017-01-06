@@ -388,6 +388,145 @@ class TestGetExperiment(TestCase):
 
  #+END_SRC
    
+** Update and Delete Experiment
+#+NAME: update_and_delete_experiment
+#+BEGIN_SRC python
+@api.route('/experiments/<id>', methods=['GET', 'PUT', 'DELETE'])
+def update_and_delete_experiment(id):
+    if request.method == 'GET':
+        try:
+            section = SystemInterface.get_experiment_by_id(id)
+            return jsonify(section)
+
+        except NotFoundError as err:
+            error_message = "No experiment found with id: %s found." % id
+
+            return render_template('error.html',
+                    data=error_message)
+
+        except TypeError as err:
+            error_message = 'Malformed arguments, error: %s' % str(err)
+
+            return render_template('error.html', 
+                    data=error_message)
+
+        except Exception as err:
+            abort(500, 'error: %s' % str(err))
+    
+    if request.method == 'PUT':
+        if request.is_json:
+            data_json = json.dumps(request.get_json())
+            data_dict = yaml.safe_load(data_json)
+            data_dict['e_id']=id
+        else:
+            abort(500, "the request does not contain data in json")
+
+        try:
+            experiment = SystemInterface.update_experiment(data_dict)
+            return jsonify(experiment)
+
+        except TypeError as err:
+            error_message = 'Malformed arguments, error: %s' % str(err)
+
+            return render_template('error.html', 
+                    data=error_message)
+
+        except Exception as err:
+            abort(500, 'error: %s' % str(err))
+
+    if request.method == 'DELETE':
+
+        try:
+            experiment = SystemInterface.delete_experiment(id)
+            return jsonify({"status":"sucess"})
+
+        except TypeError as err:
+            error_message = 'Malformed arguments, error: %s' % str(err)
+
+            return render_template('error.html', 
+                    data=error_message)
+
+        except Exception as err:
+            abort(500, 'error: %s' % str(err))
+
+#+END_SRC
+*** TestUpdateExperiment
+ #+NAME: test_update_experiment
+ #+BEGIN_SRC python
+class TestUpdateExperiment(TestCase):
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_update_experiment(self):
+        print "test_update_experiment"
+
+        payload = {'exp_name': 'Theory',
+                   'exp_id': 'exp123',
+                   'overview': 'overview',
+                   'sections': [],
+                   'key': KEY}
+
+        payload1 = {'exp_name': 'Procedure',
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/experiments", data=json.dumps(payload),
+                                 headers=headers)
+
+        response = self.client.put("/experiments/1", data=json.dumps(payload1),
+                                 headers=headers)
+
+        self.assertEqual(response.status_code, 200)
+
+ #+END_SRC
+   
+*** TestDeleteExperiment
+ #+NAME: test_delete_experiment
+ #+BEGIN_SRC python
+class TestDeleteExperiment(TestCase):
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_delete_experiment(self):
+        print "test_delete_experiment"
+
+        payload = {'exp_name': 'Theory',
+                   'exp_id': 'exp123',
+                   'overview': 'overview',
+                   'sections': [],
+                   'key': KEY}
+
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/experiments", data=json.dumps(payload),
+                                 headers=headers)
+
+        response = self.client.delete("/experiments/1", headers=headers)
+
+        self.assertEqual(response.status_code, 200)
+
+ #+END_SRC
+   
 ** Get and Add Section
    REST API to get and add experiment.
 
@@ -1503,9 +1642,9 @@ if __name__ == '__main__':
 <<test_update_experiment>>
 <<test_update_section>>
 <<test_delete_section>>
+<<test_delete_experiment>>
 <<test_get_Section>>
 <<test_add_section>>
-#<<test_delete_experiment>>
 <<run_test_cases>>
 #+end_src
 
