@@ -59,8 +59,21 @@ class TestPersistenceDelegate(TestCase):
 ** Other functions
 
    Other functions that help =System= perform the operations. 
-   
-***  Check if =lab= already exists
+  
+*** Check if entity already exists 
+    The following three functions checks whether the given entity exists or
+    not. To optimize the code, apply the following three principles:
+
+    1) *Observe Pattern* : observe the common =pattern/code= in the given three functions.
+    2) *Abstract Structure* : extract the common =pattern/code= and replace the
+       common functionality with a new function definition.
+    3) *Mapping* : Now map the 3 functions to the common function in such a way
+       that it should return the appropriate solution. 
+    
+    By applying the above three principles on the below 3 functions, we get the
+    following fourth function.
+
+**** Check if =lab= already exists
     This function checks if a lab is already in the lab-set of the =System=.
 #+NAME: persistence_lab_exists
 #+BEGIN_SRC python
@@ -101,8 +114,7 @@ class TestPersistenceDelegate(TestCase):
 
 #+END_SRC
 
-
-***  Check if =experiment= already exists
+**** Check if =experiment= already exists
     This function checks if a user is already in the user-set of the =System=.
 #+NAME: persistence_experiment_exists
 #+BEGIN_SRC python
@@ -144,8 +156,7 @@ class TestPersistenceDelegate(TestCase):
 
 #+END_SRC
 
-
-***  Check if =section= already exists
+**** Check if =section= already exists
 
     This function checks if a section name is already in the section-set of the =System=.
 #+NAME: persistence_section_exists
@@ -173,7 +184,24 @@ class TestPersistenceDelegate(TestCase):
 
 #+END_SRC
 
-     
+**** Check if =entity= already exists
+    This function checks if an =entity= is already in the exists in the =System=.
+#+NAME: persistence_entity_exists
+#+BEGIN_SRC python
+    def experiment_exists(self, cls_name, id):
+        ret_val = False
+
+        try:
+            if cls_name.get_by_id(id) is not None:
+                ret_val = True
+        except Exception as e:
+            pass
+
+        return ret_val
+        
+#+END_SRC
+
+
 ***  Add lab to the system
     This function adds lab to the system.
 #+NAME: persistence_add_lab
