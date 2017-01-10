@@ -591,6 +591,37 @@ class AddSectionsToExperiment():
 #+end_src
 
 
+** =GetLab=
+#+NAME: class_get_lab
+#+begin_src python
+class GetLab():
+    arg_types = {"lab_id": is_str, "session": is_session}
+
+    arity_and_type_checks_needed = True
+
+    @staticmethod
+    def auth_check(args):
+        session = args['session']
+        current_app.logger.debug("checking authorization")
+        if not System.is_session_valid(session):
+            current_app.logger.debug("authorization is failed")
+            raise NotAuthorizedError("Not Authorized to perform this action")
+        current_app.logger.debug("authorization check is done")
+    @staticmethod
+    def state_check(args):
+        pass
+
+    @staticmethod
+    def action(args):
+        lab_id = args["lab_id"]
+
+        lab = System.delegate.get_lab(lab_id=lab_id)
+
+        return lab
+
+#+end_src
+
+
 ** Operations Table
    Each operation has a corresponding implementation defined as a class.
 
@@ -606,7 +637,8 @@ ops_table = {'add_lab' : AddLab,
              'add_section' : AddSection,
              'update_section' : UpdateSection,
              'delete_section' : DeleteSection,
-             'add_sections_to_experiment': AddSectionsToExperiment 
+             'add_sections_to_experiment': AddSectionsToExperiment,
+             'get_lab' : GetLab
              }
 
  #+END_SRC   
@@ -680,6 +712,7 @@ if __name__ == '__main__':
 <<class_add_experiments_to_lab>>
 <<class_add_sections_to_experiment>>
 <<class_add_section>>
+<<class_get_lab>>
 <<ops_table>>
 
 #+end_src
