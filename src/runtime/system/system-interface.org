@@ -357,6 +357,74 @@ class TestDeleteLab(TestCase):
 
  #+END_SRC
 
+** Get Lab by LabId
+#+NAME: class_get_lab_by_lab_id
+#+begin_src python
+    @staticmethod
+    def get_lab(lab_id):
+        session_cls = System.delegate.entities['session']
+
+        session = session_cls(key=KEY)
+        try:
+            current_app.logger.debug("running operation get_lab_by_lab_id")
+            lab = System.do("get_lab", lab_id=lab_id, session=session)
+            current_app.logger.debug("completed operation get_lab_by_lab_id")
+            return lab
+        except (ArityError, TypeError, NotAuthorizedError, StateError) as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+
+        except Exception as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+#+end_src
+
+*** TestGetLabByLabId
+ #+NAME: test_class_get_lab_by_labid
+ #+BEGIN_SRC python
+class TestDeleteLab(TestCase):
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_get_lab_by_labid_in_system_interface(self):
+        print "test_get_lab_by_labid_in_system_interface"
+
+        data_dict = {
+                    'key' : KEY,
+                    'lab_name': 'Data Structures',
+                    'lab_id': 'cse01',
+                    'overview' : 'overview',
+                    'experiments': []
+                   }
+
+        data_dict1 = {
+                    'key' : KEY,
+                    'lab_name': 'Computer Programming',
+                    'lab_id': 'cse02',
+                    'overview' : 'overview',
+                    'experiments': []
+                   }
+
+        lab = SystemInterface.add_lab(data_dict)
+        lab1 = SystemInterface.add_lab(data_dict1)
+
+        lab = SystemInterface.get_lab(data_dict['lab_id'])
+        lab1 = SystemInterface.get_lab(data_dict1['lab_id'])
+        
+        self.assertEqual(lab.get("lab_id"), data_dict['lab_id'])
+        self.assertEqual(lab1.get("lab_id"), data_dict1['lab_id'])
+
+ #+END_SRC
+
 ** Update Lab
 #+NAME: class_update_lab
 #+begin_src python
@@ -1220,6 +1288,7 @@ if __name__ == '__main__':
 <<class_update_experiment>>
 <<class_delete_experiment>>
 <<class_delete_section>>
+<<class_get_lab_by_lab_id>>
 <<class_get_sections>>
 #+end_src
 
@@ -1241,6 +1310,7 @@ if __name__ == '__main__':
 <<test_class_update_experiment>>
 <<test_class_update_Section>>
 <<test_class_delete_section>>
+<<test_class_get_lab_by_labid>>
 <<run_test_cases>>
 #+end_src
  
