@@ -27,7 +27,6 @@ class PersistenceDelegate():
                          'lab': Lab,
                          'experiment' : Experiment,
                          'section' : Section
-
                         }
 
 #+END_SRC
@@ -677,7 +676,8 @@ class TestPersistenceDelegate(TestCase):
          lab_name1="Computer Programming"
          lab_id1="CSE01"
          overview="overview"
-         lab = Lab(lab_name=lab_name1, lab_id=lab_id1, overview=overview)
+         lab = Lab(lab_name=lab_name1, lab_id=lab_id1, overview=overview,
+                       experiements=[])
          lab.save()
 
          lab_obj = self.persistence_delegate.get_lab(lab_name=
@@ -746,6 +746,94 @@ class TestPersistenceDelegate(TestCase):
 
 #+END_SRC
 
+
+
+***  Get Labs
+    This function returns all labs if present in the database.  If the labs are
+    not present, =None= type is returned.
+#+NAME: persistence_get_labs
+#+BEGIN_SRC python
+    def get_labs(self, **kwargs):
+        current_app.logger.debug("")
+        ret_val = None
+        try:
+            ret_val = Lab.apply_filters(**kwargs)
+        except NotFoundError as e:
+            ret_val = None
+        
+        return ret_val
+
+#+END_SRC
+
+****  Tests
+#+NAME: test_persistence_get_labs
+#+BEGIN_SRC python
+    def test_get_labs_with_same_overview(self):
+         print "test_get_labs_with_same_overview"
+         lab_name1="Computer Programming"
+         lab_id1="CSE01"
+         overview="overview"
+
+         lab1 = Lab(lab_name=lab_name1, lab_id=lab_id1, overview=overview,
+                        experiments=[])
+         lab1.save()
+
+         lab_name2="Data Structures"
+         lab_id2="CSE02"
+
+         lab2 = Lab(lab_name=lab_name2, lab_id=lab_id2, overview=overview,
+                        experiments=[])
+         lab2.save()
+
+         labs_list = self.persistence_delegate.get_labs(overview=overview)
+
+         self.assertEqual(labs_list[0].get("overview"), overview)
+         self.assertEqual(labs_list[1].get("overview"), overview)
+
+    def test_get_lab_with_given_lab_id(self):
+         print "test_get_lab_with_given_lab_id"
+         lab_name1="Computer Programming"
+         lab_id1="CSE01"
+         overview="overview"
+
+         lab1 = Lab(lab_name=lab_name1, lab_id=lab_id1, overview=overview,
+                        experiments=[])
+         lab1.save()
+
+         lab_name2="Data Structures"
+         lab_id2="CSE02"
+
+         lab2 = Lab(lab_name=lab_name2, lab_id=lab_id2, overview=overview,
+                        experiments=[])
+         lab2.save()
+
+         labs_list = self.persistence_delegate.get_labs(lab_id=lab_id1)
+
+         self.assertEqual(labs_list[0].get("lab_id"), lab_id1)
+
+    def test_get_lab_with_given_lab_id_and_lab_name(self):
+         print "test_get_lab_with_given_lab_id_and_labname"
+         lab_name1="Computer Programming"
+         lab_id1="CSE01"
+         overview="overview"
+
+         lab1 = Lab(lab_name=lab_name1, lab_id=lab_id1, overview=overview,
+                        experiments=[])
+         lab1.save()
+
+         lab_name2="Data Structures"
+         lab_id2="CSE02"
+
+         lab2 = Lab(lab_name=lab_name2, lab_id=lab_id2, overview=overview,
+                        experiments=[])
+         lab2.save()
+
+         labs_list = self.persistence_delegate.get_labs(lab_id=lab_id1,
+                                                            lab_name=lab_name1)
+
+         self.assertEqual(labs_list[0].get("lab_id"), lab_id1)
+
+#+END_SRC
 
 
 ***  Get Lab By ID
@@ -881,6 +969,8 @@ if __name__ == '__main__':
 <<persistence_get_section>>
 <<persistence_get_experiment>>
 
+<<persistence_get_labs>>
+
 <<persistence_lab_exists>>
 <<persistence_section_exists>>
 <<persistence_experiment_exists>>
@@ -914,6 +1004,8 @@ if __name__ == '__main__':
 <<tes_persistence_get_lab>>
 <<test_persistence_get_section>>
 <<test_persistence_get_experiment>>
+
+<<test_persistence_get_labs>>
 
 <<test_persistence_lab_exists>>
 <<test_persistence_experiment_exists>>
