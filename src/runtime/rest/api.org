@@ -21,6 +21,47 @@
 @api.route('/labs', methods=['GET', 'POST'])
 def add_lab():
     if request.method == 'GET':
+        if 'lab_id' in request.args and 'key' in request.args:
+            lab_id  = request.args['lab_id']
+            key = request.args['key']
+            
+            try:
+                current_app.logger.debug("execute get_lab_by_labid")
+                lab = SystemInterface.get_lab(lab_id, key)
+                current_app.logger.debug("executed get_lab_by_labid")
+                return jsonify(lab)
+                
+            except NotAuthorizedError as err:
+                error_message =  'Not Authorized error: %s' % str(err)
+                """
+                if request.headers['Content-Type'] == "application/json":
+                    abort(401, error_message)
+                else:
+                """
+                current_app.logger.error("%s" %(error_message))
+                return render_template('error.html', 
+                                       data=error_message)
+            except TypeError as err:
+                error_message = 'Malformed arguments, error: %s' % str(err)
+                """
+                if request.headerscurrent_app.logger.error("%s" %(error_message)))['Content-Type'] == "application/json":
+                abort(400, error_message)
+                else:
+                """
+                current_app.logger.error("%s" %(error_message))
+                return render_template('error.html', 
+                                       data=error_message)
+            except Exception as err:
+                error_message = 'error: %s' % str(err)
+                """
+                if request.headers['Content-Type'] == "application/json":
+                abort(400, error_message)
+                else:
+                """
+                current_app.logger.error("%s" %(error_message))
+                return render_template('error.html', 
+                                       data=error_message)
+
         try:
             labs = SystemInterface.get_labs()
             return jsonify_list(labs)
@@ -108,6 +149,24 @@ class TestGetLab(TestCase):
     def tearDown(self):
         db.session.remove()
         db.drop_all()
+
+    def test_get_lab_by_labid(self):
+        print "test_get_lab_by_labid_in_rest"
+
+        payload = {'lab_name': 'Data Structures',
+                   'lab_id': 'cse01',
+                   'overview' : 'overview',
+                   'key': KEY,
+                   'experiments': [],
+                  }
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/labs", data=json.dumps(payload),
+                                 headers=headers)
+
+        response = self.client.get("/labs?lab_id=cse01", headers=headers)
+        self.assertEqual(response.status_code, 200)
 
     def test_get_labs(self):
         print "test_get_lab_in_rest"
