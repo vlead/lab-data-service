@@ -21,13 +21,11 @@
 @api.route('/labs', methods=['GET', 'POST'])
 def add_lab():
     if request.method == 'GET':
-        if 'lab_id' in request.args and 'key' in request.args:
+        if 'lab_id' in request.args:
             lab_id  = request.args['lab_id']
-            key = request.args['key']
-            
             try:
                 current_app.logger.debug("execute get_lab_by_labid")
-                lab = SystemInterface.get_lab(lab_id, key)
+                lab = SystemInterface.get_lab(lab_id)
                 current_app.logger.debug("executed get_lab_by_labid")
                 return jsonify(lab)
                 
@@ -84,7 +82,7 @@ def add_lab():
 
         try:
             lab = SystemInterface.add_lab(data_dict)
-            return jsonify(lab.to_client())
+            return jsonify(lab)
 
         except TypeError as err:
             error_message = 'Malformed arguments, error: %s' % str(err)

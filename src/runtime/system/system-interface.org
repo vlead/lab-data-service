@@ -74,7 +74,7 @@ class SystemInterface ():
                                     labid=int(lab.id),
                                     session=session)
             current_app.logger.debug("running operation add_experiments_to_lab")
-            return lab
+            return lab.to_client()
         except Exception as e:
             lab.delete()
             current_app.logger.error("Exception = %s" % str(e))
@@ -363,13 +363,16 @@ class TestDeleteLab(TestCase):
     @staticmethod
     def get_lab(lab_id):
         session_cls = System.delegate.entities['session']
-
         session = session_cls(key=KEY)
         try:
             current_app.logger.debug("running operation get_lab_by_lab_id")
-            lab = System.do("get_lab", lab_id=lab_id, session=session)
+            lab = System.do("get_lab", lab_id=str(lab_id), session=session)
             current_app.logger.debug("completed operation get_lab_by_lab_id")
-            return lab
+            if not lab:
+                return ("No lab found with labid: %s" % (lab_id))
+
+            return lab.to_client()
+
         except (ArityError, TypeError, NotAuthorizedError, StateError) as err:
             current_app.logger.error("Exception = %s" % str(err))
             raise err
