@@ -220,6 +220,11 @@ def update_and_delete_lab():
         else:
             abort(500, "the request does not contain data in json")
 
+        if 'lab_id' in request.args:
+            data_dict['lab_id']  = request.args['lab_id']
+        else:
+            abort(500, "Please provide the 'lab_id' to update the lab")
+        
         try:
             lab = SystemInterface.update_lab(data_dict)
             return jsonify(lab)
@@ -312,12 +317,8 @@ class TestUpdateLab(TestCase):
                    'key': KEY}
 
         payload1 = {'lab_name': 'Computer Programming',
-                   'lab_id': 'cse02',
                    'key': KEY,
-                   'overview' : 'overview',
-                   'experiments': [{'exp_name': 'arrays', 'exp_id': 'exp123',
-                                        'overview' : 'overview',
-                                        'sections': []}]
+                   'overview' : 'cp overview'
                    }
 
         headers = {'Content-Type': 'application/json'}
@@ -325,8 +326,9 @@ class TestUpdateLab(TestCase):
         response = self.client.post("/labs", data=json.dumps(payload),
                                  headers=headers)
 
-        response = self.client.put("/labs/cse01", data=json.dumps(payload1),
-                                 headers=headers)
+        response = self.client.put("/labs?lab_id=cse01", 
+                                       data=json.dumps(payload1),
+                                       headers=headers)
 
         self.assertEqual(response.status_code, 200)
 

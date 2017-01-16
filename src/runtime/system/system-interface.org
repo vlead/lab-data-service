@@ -431,20 +431,12 @@ class TestDeleteLab(TestCase):
     @staticmethod
     def update_lab(data_dict):
         session_cls = System.delegate.entities['session']
-        lab_cls = System.delegate.entities['lab']
-
         session = session_cls(key=data_dict['key'])
-        lab = SystemInterface.get_lab(data_dict['lab_id'])
 
         if 'lab_name' not in data_dict:
             lab_name=str(lab.get("lab_name"))
         else:
             lab_name=data_dict['lab_name']
-
-        if 'lab_id' not in data_dict:
-            lab_id=str(lab.get("lab_id"))
-        else:
-            lab_id=data_dict['lab_id']
 
         if 'overview' not in data_dict:
             overview=str(lab.get("overview"))
@@ -453,8 +445,8 @@ class TestDeleteLab(TestCase):
 
         try:
             current_app.logger.debug("running operation update_lab")
-            lab = System.do("update_lab", lab=lab, lab_name=lab_name, 
-                                    lab_id=lab_id,
+            lab = System.do("update_lab", lab_id=data_dict['lab_id'],
+                                    lab_name=lab_name, 
                                     overview=overview,
                                     session=session)
             current_app.logger.debug("completed operation update_lab")
@@ -500,20 +492,16 @@ class TestUpdateLab(TestCase):
 
         data_dict1 = {
                     'key' : KEY,
-                    'lab_id': 'cse02',
-                    'overview' : 'overview',
+                    'overview' : 'computer programming overview',
                     'lab_name': 'Computer Programming',
-                    'experiments': [{'exp_name': 'arrays', \
-                                         'exp_id': 'exp123', \
-                                         'overview' : 'overview', \
-                                         'sections' : [] }]
+                    'lab_id': 'cse02'
                    }
 
         lab = SystemInterface.add_lab(data_dict)
         lab1 = SystemInterface.update_lab(data_dict1)
         
         self.assertEqual(lab1.get("lab_name"), data_dict1['lab_name'])
-        self.assertEqual(lab1.get("lab_id"), data_dict['lab_id'])
+        self.assertEqual(lab1.get("overview"), data_dict1['overview'])
 
  #+END_SRC
 
@@ -1286,7 +1274,7 @@ if __name__ == '__main__':
 <<class_get_lab_by_id>>
 <<class_get_section_by_id>>
 <<class_delete_lab>>
-#<<class_update_lab>>
+<<class_update_lab>>
 <<class_update_Section>>
 <<class_get_experiments>>
 <<class_get_experiment_by_id>>
@@ -1308,7 +1296,7 @@ if __name__ == '__main__':
 <<test_class_get_sections>>
 <<test_class_get_lab_by_id>>
 <<test_class_delete_lab>>
-#<<test_class_update_lab>>
+<<test_class_update_lab>>
 <<test_class_get_experiments>>
 <<test_class_get_experiment_by_id>>
 <<test_class_get_section_by_id>>
