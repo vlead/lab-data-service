@@ -8,7 +8,6 @@
 
 * Introduction
   Persistence is added to all the entities defined in [[../objects/entities.org][=objects=]].
-
   
 * Lab
 =Lab= is a class with an attribute =lab_name= of type alphabetic string and
@@ -24,7 +23,10 @@ args = {"__tablename__": "lab",
         "overview": db.Column(db.String(1000), unique=False, 
                                        nullable=True),
         "experiments": db.relationship('Experiment', backref=db.backref('lb'))
-
+        
+        "institutes": db.relationship('Institute',
+                    secondary=institutes_labs, 
+                    backref='institutes')
         }
 
 Lab = ClassPersistenceTemplate.mk_persistent(Lab, ['lab_id', 'experiments'],\
@@ -165,6 +167,15 @@ class TestPersistenceExperiment(TestCase):
 
   =Institute= is a class with attributes =inst_name= and =inst_id= of type =is_email_str=.
 
+#+NAME: class_association_Table1
+#+BEGIN_SRC python
+institutes_labs = db.Table('institutes_labs',
+		      db.Column('institute_id', db.Integer, 
+                            db.ForeignKey('institute.id')),
+		      db.Column('lab_id', db.Integer,
+                            db.ForeignKey('lab.id')))
+
+#+END_SRC
 #+NAME: class_Institute
 #+begin_src python
 args = {"__tablename__": "institute",
@@ -301,7 +312,9 @@ if __name__ == '__main__':
 <<imports_for_sources>>
 <<class_Lab>>
 <<class_association_Table>>
+<<class_association_Table1>>
 <<class_Experiment>>
+<<class_Institute>>
 <<class_Section>>
 
 #+end_src
@@ -313,5 +326,6 @@ if __name__ == '__main__':
 <<class_TestExperiment>>
 <<class_TestLab>>
 <<class_TestSection>>
+<<class_TestInstitute>>
 <<run_test_cases>>
 #+end_src
