@@ -13,20 +13,20 @@ called =System= that holds the state of the application
 (=user-set=, =session-set=, etc.).
 
 Each of the entities of the data model is implemented as
-an object.  Each entity is defined via a class definition, a
+an object. Each entity is defined via a class definition, a
 constructor and getter and setter methods that access and
 mutate the fields of the entity. 
 
 The main idea in the object model is that certain relations
 of the data model (those that are total functions) are
-implemented as /fields/.  For example the =Lab= object has
+implemented as /fields/. For example the =Lab= object has
 a field called =name= that holds an object of type =Name=.
 
-As a start, we do not implement all relations of the data
-model.  For example, the relation =lab: Name > Lab?= is
-not implemented.  It should be, if we desire to have an
+As a starting point, we do not implement all relations of the data
+model. For example, the relation =lab: Name > Lab?= is
+not implemented. It should be, if we desire to have an
 implementation that is /complete/ with respect to the data
-model.  Which elements of the data model are implemented and
+model. Which elements of the data model are implemented and
 which are not are decisions based on the end user
 requirements of the application.
 
@@ -38,6 +38,7 @@ Lab = ClassTemplate.mk_class("Lab")
 Experiment = ClassTemplate.mk_class("Experiment")
 Session = ClassTemplate.mk_class("Session")
 Section = ClassTemplate.mk_class("Section")
+Institute = ClassTemplate.mk_class("Institute")
 #+END_SRC
 
 
@@ -89,6 +90,19 @@ def are_sections(sections):
 
     return ret_val
 
+is_institute = is_inst(Institute)
+check_institute = check_pred(is_institute)
+
+def are_institutes(institutes):
+    ret_val = True
+    if is_list(institutes):
+        for institute in institutes:
+            if not is_institute(institute):
+                ret_val = False
+    else:
+        ret_val = False
+
+    return ret_val
 #+END_SRC
 
 
@@ -135,6 +149,36 @@ class TestLab(TestCase):
         self.assertEqual(lab.get("experiments")[0].get("exp_name"), 
                              experiment.get("exp_name"))
 
+#+END_SRC
+
+
+* Institute
+   =Institute= is an entity that has a field =name= and =inst_id= which are string
+#+NAME: class_Institute
+#+begin_src python
+Institute.add_attributes(inst_name=is_str,
+                    inst_id=is_str,
+                    )
+
+Institute.__eq__ = lambda self, other: \
+                  isinstance(other, self.__class__) and \
+                  self.get("inst_name") == other.get("inst_name") and \
+                  self.get("inst_id") == other.get("inst_id")                  
+#+end_src
+
+*** Test Institute
+#+NAME: class_TestInstitute
+#+BEGIN_SRC python
+class TestInstitute(TestCase):
+    TESTING = True
+    def test_object_institute(self):
+        print "test_object_institute"
+        inst_name = "IIIT Hyderabad"
+        inst_id = "IIIT-H"
+                    
+        self.assertEqual(institute.get("inst_name"), inst_name)
+        self.assertEqual(institute.get("inst_id"), inst_id)
+       
 #+END_SRC
 
 
@@ -272,6 +316,7 @@ if __name__ == '__main__':
 <<class_Lab>>
 <<class_Experiment>>
 <<class_Section>>
+<<class_Institute>>
 #+end_src
 
 
@@ -282,6 +327,7 @@ if __name__ == '__main__':
 <<class_TestLab>>
 <<class_TestExperiment>>
 <<class_TestSection>>
+<<class_TestInstitute>>
 <<run_test_cases>>
 
 #+end_src
