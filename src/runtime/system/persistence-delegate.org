@@ -233,7 +233,8 @@ class TestPersistenceDelegate(TestCase):
          lab_name2="Data Structures"
          lab_id2="CSE02"
          overview="lab overview"
-         lab2 = Lab(lab_name=lab_name2, lab_id=lab_id2, overview=overview, experiments=[])
+         lab2 = Lab(lab_name=lab_name2, lab_id=lab_id2, overview=overview, 
+                        experiments=[])
 
          self.assertEqual(self.persistence_delegate.lab_exists(lab1.id),
                           True)
@@ -328,7 +329,8 @@ class TestPersistenceDelegate(TestCase):
          lab_id = "cse01"
          overview = "overview lab"
          experiments = []
-         lab = Lab(lab_name=lab_name, lab_id=lab_id, overview=overview, experiments=experiments)
+         lab = Lab(lab_name=lab_name, lab_id=lab_id, overview=overview, 
+                       experiments=experiments)
          
          lab1 = self.persistence_delegate.add_lab(lab)
          lab_name1 = "Computer Programming"
@@ -411,10 +413,10 @@ class TestPersistenceDelegate(TestCase):
     This function delete existing lab.
 #+NAME: persistence_delete_lab
 #+BEGIN_SRC python
-    def delete_lab(self, l_id):
-        record = Lab.get_by_id(l_id)
+    def delete_lab(self, lab_id):
+        record = self.get_lab(lab_id=lab_id)
         if not record:
-            abort(404, 'No Lab with id %s' % (l_id))
+            abort(404, 'No Lab with lab_id %s' % (lab_id))
         else:
             try:
                 record.delete()
@@ -424,7 +426,7 @@ class TestPersistenceDelegate(TestCase):
                 print e
                 abort(500, str(e))
 
-        return l_id
+        return lab_id
 
 #+END_SRC
 
@@ -436,16 +438,18 @@ class TestPersistenceDelegate(TestCase):
          lab_name = "Data Structures"
          lab_id = "cse01"
          overview = "overview"
-         lab = Lab(lab_name=lab_name, lab_id=lab_id, overview=overview, experiments=[])
+         lab = Lab(lab_name=lab_name, lab_id=lab_id, overview=overview, 
+                       experiments=[])
          lab1 = self.persistence_delegate.add_lab(lab)
 
          lab_name1 = "Computer Programming"
          lab_id1 = "cse02"
          overview = "overview"
-         lab1 = Lab(lab_name=lab_name1, lab_id=lab_id1, overview=overview, experiments=[])
+         lab1 = Lab(lab_name=lab_name1, lab_id=lab_id1, overview=overview,
+                        experiments=[])
          lab2 = self.persistence_delegate.add_lab(lab1)
 
-         self.persistence_delegate.delete_lab(1)
+         self.persistence_delegate.delete_lab("cse01")
 
          self.assertEqual(len(Lab.get_all()), 1)
 

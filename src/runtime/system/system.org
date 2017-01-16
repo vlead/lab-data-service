@@ -291,8 +291,7 @@ class UpdateLab():
         else:
            overview = args["overview"]
 
-        lab = System.delegate.update_lab(lab, lab_name,\
-                                         lab_id, overview)
+        lab = System.delegate.update_lab(lab, lab_name, lab_id, overview)
         return lab
 
 #+end_src
@@ -302,7 +301,7 @@ class UpdateLab():
 #+NAME: class_delete_lab
 #+begin_src python
 class DeleteLab():
-    arg_types = {"l_id": is_int, "session": is_session}
+    arg_types = {"lab_id": is_str, "session": is_session}
     arity_and_type_checks_needed = True
 
     @staticmethod
@@ -317,9 +316,9 @@ class DeleteLab():
 
     @staticmethod
     def action(args):
-        l_id = args["l_id"]
-        l_id = System.delegate.delete_lab(l_id)
-        return l_id
+        lab_id = args["lab_id"]
+        lab_id = System.delegate.delete_lab(lab_id)
+        return lab_id
 
 #+end_src
 
@@ -607,6 +606,7 @@ class GetLab():
             current_app.logger.debug("authorization is failed")
             raise NotAuthorizedError("Not Authorized to perform this action")
         current_app.logger.debug("authorization check is done")
+
     @staticmethod
     def state_check(args):
         pass
