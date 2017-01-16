@@ -208,6 +208,57 @@ class TestPersistentSection(TestCase):
 #+END_SRC
 
 
+* Developer
+=Developer= is a class with an attribute =dev_name= of type alphabetic string and
+=email_id= of alphabetic string.
+
+#+NAME: class_Developer
+#+begin_src python
+args = {"__tablename__": "dev",
+        "id": db.Column(db.Integer, primary_key=True),
+        "email_id": db.Column(db.String(255), unique=True, nullable=False),
+        "dev_name": db.Column(db.String(255), unique=False, 
+                                       nullable=True)
+        }
+
+Dev = ClassPersistenceTemplate.mk_persistent(Dev, ['email_id', 'dev_name'],\
+                                                 **args)
+
+#+end_src
+
+*** Test Developer
+#+NAME: class_TestDeveloper
+#+BEGIN_SRC python
+class TestPersistentDeveloper(TestCase):
+    TESTING = True
+
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_create_lab(self):
+        print "test_persistent_dev"
+
+        dev_name="Mohit tahiliani"
+        email_id="mohit.tahiliani@gmail.com"
+        dev = Dev(dev_name=dev_name, email_id=email_id)
+        dev.save()
+        
+        dev = Dev.get_by_id(1)
+
+        self.assertEqual(dev.get("dev_name"), dev_name)
+        self.assertEqual(dev.get("email_id"), email_id)
+
+#+END_SRC
+
+
 * Infra                                                         :boilerplate:
 ** sources
 *** Imports 

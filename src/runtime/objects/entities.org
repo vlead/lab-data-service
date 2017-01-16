@@ -227,6 +227,38 @@ class TestSession(TestCase):
 #+END_SRC
     
 
+* Developer
+   =Developer= is an entity that has a field =name= and =email= which are string
+#+NAME: class_Developer
+#+begin_src python
+Developer.add_attributes(dev_name=is_str,
+                    email_id=is_str)
+
+Developer.__eq__ = lambda self, other: \
+                  isinstance(other, self.__class__) and \
+                  self.get("dev_name") == other.get("dev_name") and \
+                  self.get("email_id") == other.get("email_id")
+
+#+end_src
+
+*** Test Developer
+#+NAME: class_TestDeveloper
+#+BEGIN_SRC python
+class TestLab(TestCase):
+    TESTING = True
+    def test_object_dev(self):
+        print "test_object_dev"
+        dev_name = "Mohit Tahiliani"
+        email_id = "mohit.tahiliani@gmail.com"
+
+        dev = Dev(dev_name=dev_name, email_id=email_id)
+
+        self.assertEqual(dev.get("dev_name"), dev_name)
+        self.assertEqual(dev.get("email_id"), email_id)
+
+#+END_SRC
+
+
 * Infra                                                         :boilerplate:
    
 ** sources
