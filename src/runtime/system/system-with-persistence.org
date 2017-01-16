@@ -220,16 +220,16 @@ class TestUpdateLab(TestCase):
 
         lab.save()
         lab_name2="Computer Programming"
-        lab_id2="CSE01"
+        overview2="CSE01 overview"
 
-        lab1 = System.do("update_lab", lab=lab, lab_name=lab_name2, 
-                                  lab_id=lab_id2, overview="overview",
+        lab1 = System.do("update_lab", lab_name=lab_name2, 
+                                  lab_id=lab_id1, overview=overview2,
                                   session=session)
 
         new_lab = lab_cls.get_by_id(1)
 
         self.assertEqual(new_lab.get("lab_name"), lab_name2)
-        self.assertEqual(new_lab.get("lab_id"), lab_id2)
+        self.assertEqual(new_lab.get("overview"), overview2)
             
 #+END_SRC
 
@@ -325,6 +325,48 @@ class TestUpdateSection(TestCase):
 #+END_SRC
 
 
+* Test GetLab
+#+NAME: test_get_lab
+#+BEGIN_SRC python
+class TestGetLab(TestCase):
+    TESTING = True
+
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_get_lab(self):
+
+        print "test_get_lab_in_system_persistence"
+        session_cls = System.delegate.entities['session']
+        lab_cls = System.delegate.entities['lab']
+
+        lab_name1="Computer Programming"
+        lab_id1="CSE01"
+        key = KEY
+        overview = "overview"
+        session = session_cls(key=key)
+        lab = lab_cls(lab_id=lab_id1, lab_name=lab_name1, \
+                          overview=overview, experiments=[])
+
+        lab.save()
+
+        lab1 = System.do("get_lab", lab_id=lab_id1,
+                                  session=session)
+
+        self.assertEqual(lab1.get("lab_name"), lab_name1)
+        self.assertEqual(lab1.get("lab_id"), lab_id1)
+            
+#+END_SRC
+
+
 * Infra                                                         :boilerplate:
 ** Tests
 *** Imports 
@@ -366,5 +408,6 @@ if __name__ == '__main__':
 <<test_update_lab>>
 <<test_update_experiment>>
 <<test_add_sections_to_experiment>>
+<<test_get_lab>>
 <<run_test_cases>>
 #+end_src

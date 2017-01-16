@@ -27,7 +27,6 @@ class PersistenceDelegate():
                          'lab': Lab,
                          'experiment' : Experiment,
                          'section' : Section
-
                         }
 
 #+END_SRC
@@ -59,8 +58,21 @@ class TestPersistenceDelegate(TestCase):
 ** Other functions
 
    Other functions that help =System= perform the operations. 
-   
-***  Check if =lab= already exists
+  
+*** Check if entity already exists 
+    The following three functions checks whether the given entity exists or
+    not. To optimize the code, apply the following three principles:
+
+    1) *Observe Pattern* : observe the common =pattern/code= in the given three functions.
+    2) *Abstract Structure* : extract the common =pattern/code= and replace the
+       common functionality with a new function definition.
+    3) *Mapping* : Now map the 3 functions to the common function in such a way
+       that it should return the appropriate solution. 
+    
+    By applying the above three principles on the below 3 functions, we get the
+    following fourth function.
+
+**** Check if =lab= already exists
     This function checks if a lab is already in the lab-set of the =System=.
 #+NAME: persistence_lab_exists
 #+BEGIN_SRC python
@@ -101,8 +113,7 @@ class TestPersistenceDelegate(TestCase):
 
 #+END_SRC
 
-
-***  Check if =experiment= already exists
+**** Check if =experiment= already exists
     This function checks if a user is already in the user-set of the =System=.
 #+NAME: persistence_experiment_exists
 #+BEGIN_SRC python
@@ -144,8 +155,7 @@ class TestPersistenceDelegate(TestCase):
 
 #+END_SRC
 
-
-***  Check if =section= already exists
+**** Check if =section= already exists
 
     This function checks if a section name is already in the section-set of the =System=.
 #+NAME: persistence_section_exists
@@ -173,7 +183,24 @@ class TestPersistenceDelegate(TestCase):
 
 #+END_SRC
 
-     
+**** Check if =entity= already exists
+    This function checks if an =entity= is already in the exists in the =System=.
+#+NAME: persistence_entity_exists
+#+BEGIN_SRC python
+    def experiment_exists(self, cls_name, id):
+        ret_val = False
+
+        try:
+            if cls_name.get_by_id(id) is not None:
+                ret_val = True
+        except Exception as e:
+            pass
+
+        return ret_val
+        
+#+END_SRC
+
+
 ***  Add lab to the system
     This function adds lab to the system.
 #+NAME: persistence_add_lab
@@ -206,7 +233,8 @@ class TestPersistenceDelegate(TestCase):
          lab_name2="Data Structures"
          lab_id2="CSE02"
          overview="lab overview"
-         lab2 = Lab(lab_name=lab_name2, lab_id=lab_id2, overview=overview, experiments=[])
+         lab2 = Lab(lab_name=lab_name2, lab_id=lab_id2, overview=overview, 
+                        experiments=[])
 
          self.assertEqual(self.persistence_delegate.lab_exists(lab1.id),
                           True)
@@ -301,7 +329,8 @@ class TestPersistenceDelegate(TestCase):
          lab_id = "cse01"
          overview = "overview lab"
          experiments = []
-         lab = Lab(lab_name=lab_name, lab_id=lab_id, overview=overview, experiments=experiments)
+         lab = Lab(lab_name=lab_name, lab_id=lab_id, overview=overview, 
+                       experiments=experiments)
          
          lab1 = self.persistence_delegate.add_lab(lab)
          lab_name1 = "Computer Programming"
@@ -384,10 +413,10 @@ class TestPersistenceDelegate(TestCase):
     This function delete existing lab.
 #+NAME: persistence_delete_lab
 #+BEGIN_SRC python
-    def delete_lab(self, l_id):
-        record = Lab.get_by_id(l_id)
+    def delete_lab(self, lab_id):
+        record = self.get_lab(lab_id=lab_id)
         if not record:
-            abort(404, 'No Lab with id %s' % (l_id))
+            abort(404, 'No Lab with lab_id %s' % (lab_id))
         else:
             try:
                 record.delete()
@@ -397,7 +426,7 @@ class TestPersistenceDelegate(TestCase):
                 print e
                 abort(500, str(e))
 
-        return l_id
+        return lab_id
 
 #+END_SRC
 
@@ -409,16 +438,18 @@ class TestPersistenceDelegate(TestCase):
          lab_name = "Data Structures"
          lab_id = "cse01"
          overview = "overview"
-         lab = Lab(lab_name=lab_name, lab_id=lab_id, overview=overview, experiments=[])
+         lab = Lab(lab_name=lab_name, lab_id=lab_id, overview=overview, 
+                       experiments=[])
          lab1 = self.persistence_delegate.add_lab(lab)
 
          lab_name1 = "Computer Programming"
          lab_id1 = "cse02"
          overview = "overview"
-         lab1 = Lab(lab_name=lab_name1, lab_id=lab_id1, overview=overview, experiments=[])
+         lab1 = Lab(lab_name=lab_name1, lab_id=lab_id1, overview=overview,
+                        experiments=[])
          lab2 = self.persistence_delegate.add_lab(lab1)
 
-         self.persistence_delegate.delete_lab(1)
+         self.persistence_delegate.delete_lab("cse01")
 
          self.assertEqual(len(Lab.get_all()), 1)
 
@@ -649,7 +680,8 @@ class TestPersistenceDelegate(TestCase):
          lab_name1="Computer Programming"
          lab_id1="CSE01"
          overview="overview"
-         lab = Lab(lab_name=lab_name1, lab_id=lab_id1, overview=overview)
+         lab = Lab(lab_name=lab_name1, lab_id=lab_id1, overview=overview,
+                       experiements=[])
          lab.save()
 
          lab_obj = self.persistence_delegate.get_lab(lab_name=
@@ -718,6 +750,94 @@ class TestPersistenceDelegate(TestCase):
 
 #+END_SRC
 
+
+
+***  Get Labs
+    This function returns all labs if present in the database.  If the labs are
+    not present, =None= type is returned.
+#+NAME: persistence_get_labs
+#+BEGIN_SRC python
+    def get_labs(self, **kwargs):
+        current_app.logger.debug("")
+        ret_val = None
+        try:
+            ret_val = Lab.apply_filters(**kwargs)
+        except NotFoundError as e:
+            ret_val = None
+        
+        return ret_val
+
+#+END_SRC
+
+****  Tests
+#+NAME: test_persistence_get_labs
+#+BEGIN_SRC python
+    def test_get_labs_with_same_overview(self):
+         print "test_get_labs_with_same_overview"
+         lab_name1="Computer Programming"
+         lab_id1="CSE01"
+         overview="overview"
+
+         lab1 = Lab(lab_name=lab_name1, lab_id=lab_id1, overview=overview,
+                        experiments=[])
+         lab1.save()
+
+         lab_name2="Data Structures"
+         lab_id2="CSE02"
+
+         lab2 = Lab(lab_name=lab_name2, lab_id=lab_id2, overview=overview,
+                        experiments=[])
+         lab2.save()
+
+         labs_list = self.persistence_delegate.get_labs(overview=overview)
+
+         self.assertEqual(labs_list[0].get("overview"), overview)
+         self.assertEqual(labs_list[1].get("overview"), overview)
+
+    def test_get_lab_with_given_lab_id(self):
+         print "test_get_lab_with_given_lab_id"
+         lab_name1="Computer Programming"
+         lab_id1="CSE01"
+         overview="overview"
+
+         lab1 = Lab(lab_name=lab_name1, lab_id=lab_id1, overview=overview,
+                        experiments=[])
+         lab1.save()
+
+         lab_name2="Data Structures"
+         lab_id2="CSE02"
+
+         lab2 = Lab(lab_name=lab_name2, lab_id=lab_id2, overview=overview,
+                        experiments=[])
+         lab2.save()
+
+         labs_list = self.persistence_delegate.get_labs(lab_id=lab_id1)
+
+         self.assertEqual(labs_list[0].get("lab_id"), lab_id1)
+
+    def test_get_lab_with_given_lab_id_and_lab_name(self):
+         print "test_get_lab_with_given_lab_id_and_labname"
+         lab_name1="Computer Programming"
+         lab_id1="CSE01"
+         overview="overview"
+
+         lab1 = Lab(lab_name=lab_name1, lab_id=lab_id1, overview=overview,
+                        experiments=[])
+         lab1.save()
+
+         lab_name2="Data Structures"
+         lab_id2="CSE02"
+
+         lab2 = Lab(lab_name=lab_name2, lab_id=lab_id2, overview=overview,
+                        experiments=[])
+         lab2.save()
+
+         labs_list = self.persistence_delegate.get_labs(lab_id=lab_id1,
+                                                            lab_name=lab_name1)
+
+         self.assertEqual(labs_list[0].get("lab_id"), lab_id1)
+
+#+END_SRC
 
 
 ***  Get Lab By ID
@@ -853,6 +973,8 @@ if __name__ == '__main__':
 <<persistence_get_section>>
 <<persistence_get_experiment>>
 
+<<persistence_get_labs>>
+
 <<persistence_lab_exists>>
 <<persistence_section_exists>>
 <<persistence_experiment_exists>>
@@ -886,6 +1008,8 @@ if __name__ == '__main__':
 <<tes_persistence_get_lab>>
 <<test_persistence_get_section>>
 <<test_persistence_get_experiment>>
+
+<<test_persistence_get_labs>>
 
 <<test_persistence_lab_exists>>
 <<test_persistence_experiment_exists>>
