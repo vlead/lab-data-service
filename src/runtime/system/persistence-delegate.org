@@ -26,7 +26,8 @@ class PersistenceDelegate():
         self.entities = {'session': Session,
                          'lab': Lab,
                          'experiment' : Experiment,
-                         'section' : Section
+                         'section' : Section,
+                         'institute' : Institute
                         }
 
 #+END_SRC
@@ -200,6 +201,42 @@ class TestPersistenceDelegate(TestCase):
         
 #+END_SRC
 
+**** Check if =institute= already exists
+    This function checks if an institute is already in the institute-set of the =System=.
+#+NAME: persistence_institute_exists
+#+BEGIN_SRC python
+    def institute_exists(self, instid):
+        ret_val = False
+
+        try:
+            if Institute.get_by_id(instid) is not None:
+                ret_val = True
+        except Exception as e:
+            pass
+
+        return ret_val
+        
+#+END_SRC
+
+**** Tests
+#+NAME: test_persistence_institute_exists
+#+BEGIN_SRC python
+    def test_institute_exists(self):
+        print "test_institute_exists"
+        inst_name1 = "IIT Kanpur"
+        inst_id1 = "IITK"
+        inst1 = self.persistence_delegate.add_institute(institute1)
+
+        inst_name2 = "IIT Kharagpur"
+        inst_id2 = "IITKgp"
+       
+        self.assertEqual(self.persistence_delegate.institute_exists\
+                             (institute1.id), True)
+        self.assertEqual(self.persistence_delegate.institute_exists\
+                             (institute2.id), False)
+
+#+END_SRC
+
 
 ***  Add lab to the system
     This function adds lab to the system.
@@ -308,6 +345,39 @@ class TestPersistenceDelegate(TestCase):
 #+END_SRC
 
 
+***  Add institute to the system
+
+    This function adds institute to the system.
+#+NAME: persistence_add_institute
+#+BEGIN_SRC python
+    def add_institute(self, institute):
+        institute.save()
+        return institute
+
+#+END_SRC
+
+**** Tests
+#+NAME: test_persistence_add_institute
+#+BEGIN_SRC python
+    def test_add_institute(self):
+         print "test_add_institute"
+         inst_name1 = "IIT Kanpur"
+         inst_id1 = "IITK"
+         institute1 = self.persistence_delegate.add_institute(institute1)
+         
+         inst_name2= "IIT Kharagpur"
+         inst_id2= "IITKgp"
+         
+         institute = Institute.get_by_id(1)
+
+         self.assertEqual(self.persistence_delegate.institute_exists(institute1.id),
+                          True)
+         self.assertEqual(self.persistence_delegate.institute_exists(institute2.id),
+                          False)
+        
+#+END_SRC
+
+
 ***  Update lab 
     This function updates existing lab.
 #+NAME: persistence_update_lab
@@ -405,6 +475,35 @@ class TestPersistenceDelegate(TestCase):
            (section1, name1)
          section2 = Section.get_by_id(1)
          self.assertEqual(section2.get("name"), name1)
+
+#+END_SRC
+
+
+***  Update Institute 
+    This function updates existing institute.
+#+NAME: persistence_update_institute
+#+BEGIN_SRC python
+    def update_institute(self, institute, inst_name, inst_id):
+        institute.set(inst_name=inst_name, inst_id=inst_id)
+        institute.save()
+        return institute
+
+#+END_SRC
+
+**** Tests
+#+NAME: test_persistence_update_institute
+#+BEGIN_SRC python
+    def test_update_institute(self):
+         print "test_update_institute"
+         inst_name = "IIT Delhi"
+         inst_id = "IITD"
+         inst1 = self.persistence_delegate.add_institute(inst)
+
+         inst_name1 = "IIT Kanpur"
+         inst_id1 = "IITK"
+         inst2 = Institute.get_by_id(1)
+
+         self.assertEqual(inst2.get("inst_name"), inst_name1)
 
 #+END_SRC
 
@@ -544,6 +643,47 @@ class TestPersistenceDelegate(TestCase):
 #+END_SRC
 
 
+***  Delete Institute 
+    This function deletes existing institute.
+#+NAME: persistence_delete_institute
+#+BEGIN_SRC python
+    def delete_institute(self, in_id):
+        record = Institute.get_by_id(in_id)
+        if not record:
+            abort(404, 'No Institute with id %s' % (in_id))
+        else:
+            try:
+                record.delete()
+                #db.session.delete(record)
+                #db.session.commit()
+            except Exception, e:
+                print e
+                abort(500, str(e))
+
+        return in_id
+
+#+END_SRC
+
+**** Tests
+#+NAME: test_persistence_delete_institute
+#+BEGIN_SRC python
+    def test_delete_institute(self):
+         print "test_delete_institute"
+         inst_name = "IIT Delhi"
+         inst_id = "IITD"
+         inst1 = self.persistence_delegate.add_institute(inst)
+
+         inst_name1 = "IIT Kharagpur"
+         inst_id1 = "IITKgp"
+         inst2 = self.persistence_delegate.add_institute(inst1)
+
+         self.persistence_delegate.delete_institute(1)
+
+         self.assertEqual(len(Institute.get_all()), 1)
+
+#+END_SRC
+
+
 ***  Add experiments to a Lab
     This function adds experiments to a given lab.
 #+NAME: persistence_add_experiments_to_lab
@@ -593,6 +733,56 @@ class TestPersistenceDelegate(TestCase):
          self.assertEqual(lab1.get("experiments")[0].get("exp_id"), exp_id)
          self.assertEqual(lab1.get("experiments")[0].get("exp_name"),\
                                                       exp_name)
+
+#+END_SRC
+
+
+***  Add labs to an Institute
+    This function adds labs to a given institute.
+#+NAME: persistence_add_labs_to_institute
+#+BEGIN_SRC python
+    def add_labs_to_institute(self, instituteid, labs):
+        institute = self.get_institute_by_id(instituteid)
+        lab_list = []
+        for lab in labs:
+            if self.lab_exists(lab):
+                lab = self.get_lab(lab_id=lab.get('lab_id'),
+                                                 lab_name=lab.get('lab_name'))
+            else:
+                lab.save()
+
+            lab_list.append(lab)
+
+        institute.set(labs=lab_list)
+        return institute
+
+#+END_SRC
+
+****  Tests
+#+NAME: test_persistence_add_labs_to_institute
+#+BEGIN_SRC python
+    def test_add_saved_labs_to_institute(self):
+         print "test_add_labs_to_institute_in_persistence_delegate"
+
+         inst_name="IIT Kanpur"
+         inst_id="IITK"
+         institute = Institute(inst_name=inst_name, inst_id=inst_id, labs=[])
+         institute.save()
+        
+         lab_name = "Number Systems"
+         lab_id = "EE99777"
+         lab = Lab(lab_name=lab_name, lab_id=lab_id)
+         lab.save()
+         
+         institute1 = Lab.get_by_id(1)
+
+         institute1 = self.persistence_delegate.add_labs_to_institute(institute1.id, \
+                                                             [lab])
+        
+         self.assertEqual(len(institute1.get("labs")), 1)
+         self.assertEqual(institute1.get("labs")[0].get("lab_id"), lab_id)
+         self.assertEqual(institute1.get("labs")[0].get("lab_name"),\
+                                                      lab_name)
 
 #+END_SRC
 
@@ -750,6 +940,33 @@ class TestPersistenceDelegate(TestCase):
 
 #+END_SRC
 
+
+
+***  Get Institute
+    This function returns institute if present in the database. If the institute is
+    not present, =None= type is returned.
+#+NAME: persistence_get_institute
+#+BEGIN_SRC python
+    def get_institute(self, **kwargs):
+        return self.get_object(Institute, **kwargs)
+
+#+END_SRC
+
+**** Tests
+#+NAME: test_persistence_get_institute
+#+BEGIN_SRC python
+    def test_get_institute(self):
+         print "test_get_institute"
+
+         inst_name = "IIT Delhi"
+         inst_id = "IITD"
+         inst.save()
+         inst_obj = self.persistence_delegate.get_institute(inst_name=
+                                                inst.get("inst_name"))
+         self.assertEqual(inst_obj.get("inst_name"),
+                              inst.get("inst_name"))
+
+#+END_SRC
 
 
 ***  Get Labs
@@ -916,6 +1133,43 @@ class TestPersistenceDelegate(TestCase):
 
 #+END_SRC
 
+
+***  Get Institute By ID
+    This function returns an institute object by an ID if present in database,
+    otherwise, =None= type is returned.
+
+#+NAME: persistence_get_institute_by_id
+#+BEGIN_SRC python
+    def get_institute_by_id(self, id):
+        ret_val = None
+        try:
+            ret_val = Institute.get_by_id(id)
+        except Exception as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            ret_val = None
+        
+        return ret_val
+
+#+END_SRC
+
+****  Tests
+#+NAME: test_persistence_get_institute_by_id
+#+BEGIN_SRC python
+    def test_get_institute_by_id(self):
+         print "test_persistence_get_institute_by_id"
+
+         inst_name = "IIT Kanpur"
+         inst_id = "IITK"
+                                                 
+         inst.save()
+
+         inst_obj = self.persistence_delegate.get_institute_by_id(1)
+         self.assertEqual(inst_obj.get("inst_id"),
+                              inst_id)
+         self.assertEqual(inst_obj.get("inst_name"), inst_name)
+
+#+END_SRC
+
       
 * Infra                                                         :boilerplate:
 
@@ -972,31 +1226,37 @@ if __name__ == '__main__':
 <<persistence_get_lab>>
 <<persistence_get_section>>
 <<persistence_get_experiment>>
+<<persistence_get_institute>>
 
 <<persistence_get_labs>>
 
 <<persistence_lab_exists>>
 <<persistence_section_exists>>
 <<persistence_experiment_exists>>
+<<persistence_institute_exists>>
 
 <<persistence_add_lab>>
 <<persistence_add_experiment>>
 <<persistence_add_section>>
+<<persistence_add_institute>>
 
 <<persistence_delete_lab>>
 <<persistence_delete_section>>
 <<persistence_delete_experiment>>
+<<persistence_delete_institute>>
 
 <<persistence_update_lab>>
 <<persistence_update_section>>
 <<persistence_update_experiment>>
+<<persistence_update_institute>>
 
 <<persistence_get_lab_by_id>>
 <<persistence_get_experiment_by_id>>
+<<persistence_get_institute_by_id>>
 
 <<persistence_add_experiments_to_lab>>
 <<persistence_add_sections_to_experiment>>
-
+<<persistence_add_labs_to_institute>>
 #+end_src
 
 
@@ -1005,33 +1265,40 @@ if __name__ == '__main__':
 <<imports_for_tests_persistence>>
 <<test_class_persistence_delegate>>
 
-<<tes_persistence_get_lab>>
+<<test_persistence_get_lab>>
 <<test_persistence_get_section>>
 <<test_persistence_get_experiment>>
+<<test_persistence_get_institute>>
 
 <<test_persistence_get_labs>>
 
 <<test_persistence_lab_exists>>
 <<test_persistence_experiment_exists>>
 <<test_persistence_section_exists>>
+<<test_persistence_institute_exists>>
 
 <<test_persistence_add_lab>>
 <<test_persistence_add_section>>
 <<test_persistence_add_experiment>>
+<<test_persistence_add_institute>>
 
 <<test_persistence_delete_lab>>
 <<test_persistence_delete_section>>
 <<test_persistence_delete_experiment>>
+<<test_persistence_delete_institute>>
 
 <<test_persistence_update_lab>>
 <<test_persistence_update_experiment>>
 <<test_persistence_update_section>>
+<<test_persistence_update_institute>>
 
 <<test_persistence_get_lab_by_id>>
 <<test_persistence_get_experiment_by_id>>
+<<test_persistence_get_institute_by_id>>
 
 <<test_persistence_add_experiments_to_lab>>
 <<test_persistence_add_sections_to_experiment>>
+<<test_persistence_add_labs_to_institute>>
 <<run_test_cases>>
 
 #+end_src
