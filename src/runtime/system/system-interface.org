@@ -293,10 +293,10 @@ class TestGetLabById(TestCase):
     @staticmethod
     def delete_lab(lab_id, key):
         session_cls = System.delegate.entities['session']
-        session = session_cls(key=key)
+        session = session_cls(key=str(key))
         try:
             current_app.logger.debug("running operation delete_lab")
-            lab = System.do("delete_lab", lab_id=lab_id, session=session)
+            lab = System.do("delete_lab", lab_id=str(lab_id), session=session)
             current_app.logger.debug("completed operation delete_lab")
             return lab
         except (ArityError, TypeError, NotAuthorizedError, StateError) as err:
