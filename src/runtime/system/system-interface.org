@@ -425,6 +425,77 @@ class TestGetLabByLabId(TestCase):
 
  #+END_SRC
 
+** Get Experiment by ExpId
+#+NAME: class_get_lab_by_exp_id
+#+begin_src python
+    @staticmethod
+    def get_experiment(exp_id):
+        session_cls = System.delegate.entities['session']
+        session = session_cls(key=KEY)
+        try:
+            current_app.logger.debug("running operation get_lab_by_exp_id")
+            exp = System.do("get_experiment", exp_id=str(exp_id),
+                                session=session)
+            current_app.logger.debug("completed operation get_lab_by_exp_id")
+            if not exp:
+                return ("No exp found with expid: %s" % (exp_id))
+            return exp.to_client()
+
+        except (ArityError, TypeError, NotAuthorizedError, StateError) as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+
+        except Exception as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+#+end_src
+
+*** TestGetExpByExpId
+ #+NAME: test_class_get_exp_by_expid
+ #+BEGIN_SRC python
+class TestGetExpByExpId(TestCase):
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_get_exp_by_expid_in_system_interface(self):
+        print "test_get_exp_by_expid_in_system_interface"
+
+        data_dict = {
+                    'exp_name': 'Number Systems',
+                    'exp_id': 'EE99777',
+                    'overview': 'This is linked list experiment',
+                    'sections': [],
+                    'key': KEY
+                   }
+
+        data_dict1 = {
+                    'exp_name': 'Binary Systems',
+                    'exp_id': 'EE99778',
+                    'overview': 'This is linked list experiment',
+                    'sections': [],
+                    'key': KEY
+                   }
+
+        exp = SystemInterface.add_experiment(data_dict)
+        exp1 = SystemInterface.add_experiment(data_dict1)
+
+        exp = SystemInterface.get_experiment(data_dict['exp_id'])
+        exp1 = SystemInterface.get_experiment(data_dict1['exp_id'])
+        
+        self.assertEqual(exp.get("exp_id"), data_dict['exp_id'])
+        self.assertEqual(exp1.get("exp_id"), data_dict1['exp_id'])
+
+ #+END_SRC
+
 ** Update Lab
 #+NAME: class_update_lab
 #+begin_src python
@@ -1282,6 +1353,7 @@ if __name__ == '__main__':
 <<class_delete_experiment>>
 <<class_delete_section>>
 <<class_get_lab_by_lab_id>>
+<<class_get_lab_by_exp_id>>
 <<class_get_sections>>
 #+end_src
 
@@ -1304,6 +1376,7 @@ if __name__ == '__main__':
 <<test_class_update_Section>>
 <<test_class_delete_section>>
 <<test_class_get_lab_by_labid>>
+<<test_class_get_exp_by_expid>>
 <<run_test_cases>>
 #+end_src
  

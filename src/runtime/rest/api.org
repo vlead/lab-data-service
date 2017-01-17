@@ -14,7 +14,7 @@
 
   
 * REST
-** Get and Add Lab
+** Get Labs, Add Lab and Get Lab
 #+NAME: get_and_add_lab
 #+BEGIN_SRC python
 @api.route('/labs', methods=['GET', 'POST'])
@@ -132,7 +132,7 @@ class TestAddLab(TestCase):
  #+END_SRC
    
 *** TestGetLab
-#+NAME: test_get_lab
+#+NAME: test_get_labs
 #+BEGIN_SRC python
 class TestGetLab(TestCase):
     TESTING = True
@@ -148,7 +148,7 @@ class TestGetLab(TestCase):
         db.drop_all()
 
     def test_get_labs(self):
-        print "test_get_lab_in_rest"
+        print "test_get_labs_in_rest"
 
         payload = {'lab_name': 'Data Structures',
                    'lab_id': 'cse01',
@@ -256,10 +256,10 @@ def update_and_delete_lab():
                 abort(500, 'error: %s' % str(err))
 
 #+END_SRC
-*** TestGetLabbyLabid
+*** TestGetLabbyLabId
 #+NAME: test_get_lab_by_labid
 #+BEGIN_SRC python
-class TestGetLab(TestCase):
+class TestGetLabbyLabId(TestCase):
     TESTING = True
     def create_app(self):
         app = create_app(config)
@@ -380,6 +380,45 @@ REST API to get and add experiment.
 @api.route('/experiments', methods=['GET', 'POST'])
 def get_and_add_experiment():
     if request.method == 'GET':
+        if 'exp_id' in request.args:
+            exp_id  = request.args['exp_id']
+            try:
+                current_app.logger.debug("execute get_exp_by_expid")
+                exp = SystemInterface.get_experiment(exp_id)
+                current_app.logger.debug("executed get_exp_by_expid")
+                return jsonify(exp)
+                
+            except NotAuthorizedError as err:
+                error_message =  'Not Authorized error: %s' % str(err)
+                """
+                if request.headers['Content-Type'] == "application/json":
+                    abort(401, error_message)
+                else:
+                """
+                current_app.logger.error("%s" %(error_message))
+                return render_template('error.html', 
+                                       data=error_message)
+            except TypeError as err:
+                error_message = 'Malformed arguments, error: %s' % str(err)
+                """
+                if request.headerscurrent_app.logger.error("%s" %(error_message)))['Content-Type'] == "application/json":
+                abort(400, error_message)
+                else:
+                """
+                current_app.logger.error("%s" %(error_message))
+                return render_template('error.html', 
+                                       data=error_message)
+            except Exception as err:
+                error_message = 'error: %s' % str(err)
+                """
+                if request.headers['Content-Type'] == "application/json":
+                abort(400, error_message)
+                else:
+                """
+                current_app.logger.error("%s" %(error_message))
+                return render_template('error.html', 
+                                       data=error_message)
+
         try:
             experiments = SystemInterface.get_experiments()
 
@@ -388,8 +427,7 @@ def get_and_add_experiment():
         except TypeError as err:
             error_message = 'Malformed arguments, error: %s' % str(err)
 
-            return render_template('error.html', 
-                    data=error_message)
+            return render_template('error.html', data=error_message)
 
         except Exception as err:
             abort(500, 'error: %s' % str(err))
@@ -545,6 +583,41 @@ def update_and_delete_experiment(id):
 
         except Exception as err:
             abort(500, 'error: %s' % str(err))
+
+#+END_SRC
+*** TestGetExperimentbyExpid
+#+NAME: test_get_exp_by_expid
+#+BEGIN_SRC python
+class TestGetExp(TestCase):
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_get_experiment_by_expid(self):
+        print "test_get_experiment_by_expid_in_rest"
+
+        payload = {'exp_name': 'stack',
+                   'exp_id': 'cse01',
+                   'overview' : 'overview',
+                   'sections' : [],
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/experiments", data=json.dumps(payload),
+                                 headers=headers)
+
+        response = self.client.get("/experiments?exp_id=cse01", \
+                                       headers=headers)
+        self.assertEqual(response.status_code, 200)
 
 #+END_SRC
 *** TestUpdateExperiment
@@ -1734,10 +1807,11 @@ if __name__ == '__main__':
 #+BEGIN_SRC python :tangle test_api.py :eval no :noweb yes
 <<imports_for_tests>>
 <<test_add_lab>>
-#<<test_update_lab>>
+<<test_update_lab>>
 <<test_delete_lab>>
-<<test_get_lab>>
+<<test_get_labs>>
 <<test_get_lab_by_labid>>
+<<test_get_exp_by_expid>>
 <<test_add_experiment>>
 <<test_get_experiment>>
 <<test_update_experiment>>
