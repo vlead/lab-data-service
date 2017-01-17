@@ -293,10 +293,10 @@ class TestGetLabById(TestCase):
     @staticmethod
     def delete_lab(lab_id, key):
         session_cls = System.delegate.entities['session']
-        session = session_cls(key=key)
+        session = session_cls(key=str(key))
         try:
             current_app.logger.debug("running operation delete_lab")
-            lab = System.do("delete_lab", lab_id=lab_id, session=session)
+            lab = System.do("delete_lab", lab_id=str(lab_id), session=session)
             current_app.logger.debug("completed operation delete_lab")
             return lab
         except (ArityError, TypeError, NotAuthorizedError, StateError) as err:
@@ -349,7 +349,7 @@ class TestDeleteLab(TestCase):
 
         lab = SystemInterface.add_lab(data_dict)
         lab1 = SystemInterface.add_lab(data_dict1)
-        lab_id = SystemInterface.delete_lab(cse02)
+        lab_id = SystemInterface.delete_lab("cse02", KEY)
         
         self.assertEqual(lab_id, "cse02")
 
@@ -382,7 +382,7 @@ class TestDeleteLab(TestCase):
 *** TestGetLabByLabId
  #+NAME: test_class_get_lab_by_labid
  #+BEGIN_SRC python
-class TestDeleteLab(TestCase):
+class TestGetLabByLabId(TestCase):
     TESTING = True
     def create_app(self):
         app = create_app(config)
@@ -445,7 +445,7 @@ class TestDeleteLab(TestCase):
 
         try:
             current_app.logger.debug("running operation update_lab")
-            lab = System.do("update_lab", lab_id=data_dict['lab_id'],
+            lab = System.do("update_lab", lab_id=str(data_dict['lab_id']),
                                     lab_name=lab_name, 
                                     overview=overview,
                                     session=session)

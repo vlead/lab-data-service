@@ -61,6 +61,52 @@ class TestAddLab(TestCase):
 #+END_SRC
 
 
+* Test DeleteLab
+#+NAME:  test_delete_lab 
+#+BEGIN_SRC python
+class TestDeleteLab(TestCase):
+    TESTING = True
+
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_delete_lab(self):
+        
+        print "test_delete_lab_in_system_persistence"
+        session_cls = System.delegate.entities['session']
+        lab_cls = System.delegate.entities['lab']
+        experiment_cls = System.delegate.entities['experiment']
+
+        exp_name = "arrays"
+        exp_id = "cse02"
+        overview = "overview"
+        experiment = experiment_cls(exp_name=exp_name, exp_id=exp_id,
+                                        overview=overview, sections=[])
+
+        lab_name1="Computer Programming"
+        lab_id1="CSE01"
+        key = KEY
+        overview = "overview"
+        session = session_cls(key=key)
+        lab = lab_cls(lab_id=lab_id1, lab_name=lab_name1, \
+                          overview=overview, experiments=[])
+        lab.save()
+        lab1 = System.do("delete_lab", lab_id = lab_id1,
+                                  session=session)
+
+        self.assertEqual(lab1, lab_id1)
+            
+#+END_SRC
+
+
 * Test AddExperiment
 #+NAME: test_add_experiment
 #+BEGIN_SRC python
@@ -403,6 +449,7 @@ if __name__ == '__main__':
 <<imports_for_tests>>
 <<populate_db>>
 <<test_add_lab>>
+<<test_delete_lab>>
 <<test_add_experiment>>
 <<test_add_section>>
 <<test_update_lab>>
