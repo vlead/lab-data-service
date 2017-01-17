@@ -308,6 +308,34 @@ class TestPersistenceDelegate(TestCase):
 #+END_SRC
 
 
+***  Add developer to the system
+    This function adds developer to the system.
+#+NAME: persistence_add_developer
+#+BEGIN_SRC python
+    def add_dev(self, dev):
+        dev.save()
+        return dev
+
+#+END_SRC
+
+**** Tests
+#+NAME: test_persistence_add_dev
+#+BEGIN_SRC python
+    def test_add_dev(self):
+         print "test_add_dev"
+         dev_name="Prof. S. Dharmaraja"
+         email_id="dharmar@maths.iitd.ac.in"
+         dev = Dev(dev_name=dev_name, email_id=email_id)
+         dev = self.persistence_delegate.add_dev(dev)
+        
+         self.assertEqual(self.persistence_delegate.dev_exists(email.id),
+                          True)
+         self.assertEqual(self.persistence_delegate.dev_exists(email.id),
+                          False)
+
+#+END_SRC
+
+
 ***  Update lab 
     This function updates existing lab.
 #+NAME: persistence_update_lab
@@ -405,6 +433,45 @@ class TestPersistenceDelegate(TestCase):
            (section1, name1)
          section2 = Section.get_by_id(1)
          self.assertEqual(section2.get("name"), name1)
+
+#+END_SRC
+
+
+***  Update developer
+    This function updates existing developer.
+#+NAME: persistence_update_developer
+#+BEGIN_SRC python
+    def update_dev(self, dev, dev_name, email_id):
+        dev.set(dev_name=dev_name, email_id=email_id)
+        dev.save()
+        return dev
+
+#+END_SRC
+
+  
+**** Tests
+#+NAME: test_persistence_update_lab
+#+BEGIN_SRC python
+    def test_update_lab(self):
+         print "test_update_lab"
+         lab_name = "Data Structures"
+         lab_id = "cse01"
+         overview = "overview lab"
+         experiments = []
+         lab = Lab(lab_name=lab_name, lab_id=lab_id, overview=overview, 
+                       experiments=experiments)
+         
+         lab1 = self.persistence_delegate.add_lab(lab)
+         lab_name1 = "Computer Programming"
+         lab_id1 = "cse02"
+         overview1 = "overview"
+         lab2 = self.persistence_delegate.update_lab\
+           (lab1, lab_name1, lab_id1, overview=overview1),
+         lab2 = Lab.get_by_id(1)
+
+         self.assertEqual(lab2.get("lab_id"), lab_id1)
+         self.assertEqual(lab2.get("lab_name"), lab_name1)
+         self.assertEqual(lab2.get("overview"), overview1)
 
 #+END_SRC
 

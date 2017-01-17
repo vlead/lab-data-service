@@ -209,20 +209,18 @@ class TestPersistentSection(TestCase):
 
 
 * Developer
-=Developer= is a class with an attribute =dev_name= of type alphabetic string and
-=email_id= of alphabetic string.
+=Developer= is a class with an attribute =name= of type alphabetic string and =email= of alphabetic string.
 
 #+NAME: class_Developer
 #+begin_src python
 args = {"__tablename__": "dev",
         "id": db.Column(db.Integer, primary_key=True),
-        "email_id": db.Column(db.String(255), unique=True, nullable=False),
-        "dev_name": db.Column(db.String(255), unique=False, 
+        "email": db.Column(db.String(255), unique=True, nullable=False),
+        "name": db.Column(db.String(255), unique=False, 
                                        nullable=True)
         }
 
-Dev = ClassPersistenceTemplate.mk_persistent(Dev, ['email_id', 'dev_name'],\
-                                                 **args)
+Dev = ClassPersistenceTemplate.mk_persistent(Developer, ['email', 'name'], **args)
 
 #+end_src
 
@@ -243,18 +241,18 @@ class TestPersistentDeveloper(TestCase):
         db.session.remove()
         db.drop_all()
 
-    def test_create_lab(self):
+    def test_create_dev(self):
         print "test_persistent_dev"
 
-        dev_name="Mohit tahiliani"
-        email_id="mohit.tahiliani@gmail.com"
-        dev = Dev(dev_name=dev_name, email_id=email_id)
+        dev_name = "Mohit tahiliani"
+        email_id = "mohit.tahiliani@gmail.com"
+        dev = Developer(name=dev_name, email=email_id)
         dev.save()
         
         dev = Dev.get_by_id(1)
 
-        self.assertEqual(dev.get("dev_name"), dev_name)
-        self.assertEqual(dev.get("email_id"), email_id)
+        self.assertEqual(dev.get("name"), dev_name)
+        self.assertEqual(dev.get("email"), email_id)
 
 #+END_SRC
 
@@ -306,7 +304,7 @@ if __name__ == '__main__':
 <<class_association_Table>>
 <<class_Experiment>>
 <<class_Section>>
-
+<<class_Developer>>
 #+end_src
 
 
@@ -316,5 +314,6 @@ if __name__ == '__main__':
 <<class_TestExperiment>>
 <<class_TestLab>>
 <<class_TestSection>>
+<<class_TestDeveloper>>
 <<run_test_cases>>
 #+end_src

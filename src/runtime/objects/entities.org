@@ -38,6 +38,9 @@ Lab = ClassTemplate.mk_class("Lab")
 Experiment = ClassTemplate.mk_class("Experiment")
 Session = ClassTemplate.mk_class("Session")
 Section = ClassTemplate.mk_class("Section")
+Name = ClassTemplate.mk_class("Name")
+Email = ClassTemplate.mk_class("Email")
+Developer = ClassTemplate.mk_class("Developer")
 #+END_SRC
 
 
@@ -67,6 +70,10 @@ def are_labs(labs):
 is_experiment = is_inst(Experiment)
 check_experiment = check_pred(is_experiment)
 
+is_email = is_inst(Email)
+check_email = check_pred(is_email)
+
+
 def are_experiments(experiments):
     ret_val = True
     if is_list(experiments):
@@ -83,6 +90,48 @@ def are_sections(sections):
     if is_list(sections):
         for section in sections:
             if not is_section(section):
+                ret_val = False
+    else:
+        ret_val = False
+
+    return ret_val
+
+is_dev = is_inst(Developer)
+check_dev = check_pred(is_dev)
+
+def are_devs(devs):
+    ret_val = True
+    if is_list(devs):
+        for dev in devs:
+            if not is_dev(dev):
+                ret_val = False
+    else:
+        ret_val = False
+
+    return ret_val
+
+is_name = is_inst(Name)
+check_name = check_pred(is_name)
+
+def are_names(names):
+    ret_val = True
+    if is_list(names):
+        for name in names:
+            if not is_name(name):
+                ret_val = False
+    else:
+        ret_val = False
+
+    return ret_val
+
+is_email = is_inst(Email)
+check_email = check_pred(is_email)
+
+def are_emails(emails):
+    ret_val = True
+    if is_list(emails):
+        for dev in emails:
+            if not is_email(email):
                 ret_val = False
     else:
         ret_val = False
@@ -227,35 +276,95 @@ class TestSession(TestCase):
 #+END_SRC
     
 
+* Name
+   =Name= is an entity that has a field =name= which is string
+#+NAME: class_Name
+#+begin_src python
+
+Name.add_attributes(name=is_alphabetic_str)
+
+Name.__eq__ = lambda self, other: \
+                  isinstance(other, self.__class__) and \
+                  self.get("name") == other.get("name")
+#+end_src
+
+*** Test Name
+#+NAME: class_TestName
+#+BEGIN_SRC python
+class TestName(TestCase):
+    TESTING = True
+
+    def test_object_name(self):
+        print "test_object_name"
+        name1=Name(name="Jimi Hendrix")
+        self.assertEqual(is_name(Name(name="Jimi Hendrix")), True)
+        self.assertEqual(name1.get("name"), "Jimi Hendrix")
+        self.assertRaises(TypeError, Name, name="Jimi 123 Hendrix")
+
+#+END_SRC
+
+* Email
+   =Email= is an entity that has a field =email= with type =is_email_str=
+#+NAME: class_Email
+#+begin_src python
+
+Email.add_attributes(email=is_email_str)
+
+Email.__eq__ = lambda self, other: \
+                  isinstance(other, self.__class__) and \
+                  self.get("email") == other.get("email")
+#+end_src
+
+*** Test Email
+#+NAME: class_TestEmail
+#+BEGIN_SRC python
+class TestEmail(TestCase):
+    TESTING = True
+
+    def test_instantiate_email(self):
+        print "test_instantiate_email"
+        self.assertEqual(is_email(Email(email="jimi@gnu.org")), True)
+        self.assertEqual(Email(email="jimi@gnu.org").get("email"),
+                         "jimi@gnu.org")
+        self.assertRaises(TypeError, Name, name="jimi@@gnu.org")
+
+    def test_object_email(self):
+        print "test_object_email"
+        email1 = Email(email="abc@gmail.com")
+
+        self.assertEqual(email1 == email1, True)
+
+        email2 = Email(email="xyz@gmail.com")
+        self.assertEqual(email1 == email2, False)
+
+#+END_SRC
+
+
 * Developer
    =Developer= is an entity that has a field =name= and =email= which are string
 #+NAME: class_Developer
 #+begin_src python
-Developer.add_attributes(dev_name=is_str,
-                    email_id=is_str)
+
+Developer.add_attributes(name=is_name, email=is_email)
 
 Developer.__eq__ = lambda self, other: \
                   isinstance(other, self.__class__) and \
-                  self.get("dev_name") == other.get("dev_name") and \
-                  self.get("email_id") == other.get("email_id")
-
+                  self.get("name") == other.get("name") and\
+                  self.get("email") == other.get("email")
 #+end_src
 
 *** Test Developer
 #+NAME: class_TestDeveloper
 #+BEGIN_SRC python
-class TestLab(TestCase):
+class TestDev(TestCase):
     TESTING = True
     def test_object_dev(self):
         print "test_object_dev"
-        dev_name = "Mohit Tahiliani"
-        email_id = "mohit.tahiliani@gmail.com"
-
-        dev = Dev(dev_name=dev_name, email_id=email_id)
-
-        self.assertEqual(dev.get("dev_name"), dev_name)
-        self.assertEqual(dev.get("email_id"), email_id)
-
+        dev_name = Name(name="Mohit Tahiliani")
+        email_id = Email(email="mohit.tahiliani@gmail.com")
+        dev = Developer(name=dev_name, email=email_id)
+        self.assertEqual(dev.get("name").get("name"), dev_name.get("name"))
+        self.assertEqual(dev.get("email").get("email"), email_id.get("email"))
 #+END_SRC
 
 
@@ -304,6 +413,9 @@ if __name__ == '__main__':
 <<class_Lab>>
 <<class_Experiment>>
 <<class_Section>>
+<<class_Name>>
+<<class_Email>>
+<<class_Developer>>
 #+end_src
 
 
@@ -314,6 +426,8 @@ if __name__ == '__main__':
 <<class_TestLab>>
 <<class_TestExperiment>>
 <<class_TestSection>>
+<<class_TestName>>
+<<class_TestEmail>>
+<<class_TestDeveloper>>
 <<run_test_cases>>
-
 #+end_src
