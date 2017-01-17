@@ -863,7 +863,248 @@ class TestDeleteSection(TestCase):
 
  #+END_SRC
    
+** Get and Add Institute
+REST API to get and add institute.
+#+NAME: get_and_add_institute
+#+BEGIN_SRC python
+@api.route('/institutes', methods=['GET', 'POST'])
+def get_and_add_institute():
+    if request.method == 'GET':
+        try:
+            institutes = SystemInterface.get_institutes()
 
+            return jsonify_list(institutes)
+
+        except TypeError as err:
+            error_message = 'Malformed arguments, error: %s' % str(err)
+
+            return render_template('error.html', 
+                    data=error_message)
+
+        except Exception as err:
+            abort(500, 'error: %s' % str(err))
+       
+    if request.method == 'POST':
+        if request.is_json:
+            data_json = json.dumps(request.get_json())
+            data_dict = yaml.safe_load(data_json)
+        else:
+            abort(500, "the request does not contain data in json")
+
+        try:
+            inst = SystemInterface.add_institute(data_dict)
+            return jsonify(inst)
+
+        except TypeError as err:
+            error_message = 'Malformed arguments, error: %s' % str(err)
+
+            return render_template('error.html', 
+                    data=error_message)
+
+        except Exception as err:
+            abort(500, 'error: %s' % str(err))
+            
+#+END_SRC
+
+
+*** TestAddInstitute 
+ #+NAME: test_add_institute
+ #+BEGIN_SRC python
+class TestAddInstitute(TestCase):
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_add_institute(self):
+        print "test_add_institute_in_rest"
+        payload = {'inst_name': 'IIT Kanpur',
+                   'inst_id': 'IITK',
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/institutes", data=json.dumps(payload),
+                                 headers=headers)
+
+        self.assertEqual(response.status_code, 200)
+
+ #+END_SRC
+   
+*** TestGetInstitute 
+ #+NAME: test_get_Institute
+ #+BEGIN_SRC python
+class TestGetInstitute(TestCase):
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_get_institutes(self):
+        print "test_get_institutes_in_rest"
+
+        payload = {'inst_name': 'IIIT Hyderabad',
+                   'inst_id': 'IIITH',
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/institutes", data=json.dumps(payload),
+                                 headers=headers)
+
+        response = self.client.get("/institutes", headers=headers)
+        self.assertEqual(response.status_code, 200)
+
+ #+END_SRC
+   
+** Update and Delete Institute
+#+NAME: update_and_delete_institute
+#+BEGIN_SRC python
+@api.route('/institutes/<id>', methods=['GET', 'PUT', 'DELETE'])
+def update_and_delete_institute(id):
+    if request.method == 'GET':
+        try:
+            section = SystemInterface.get_institute_by_id(id)
+            return jsonify(section)
+
+        except NotFoundError as err:
+            error_message = "No institute found with id: %s found." % id
+
+            return render_template('error.html',
+                    data=error_message)
+
+        except TypeError as err:
+            error_message = 'Malformed arguments, error: %s' % str(err)
+
+            return render_template('error.html', 
+                    data=error_message)
+
+        except Exception as err:
+            abort(500, 'error: %s' % str(err))
+    
+    if request.method == 'PUT':
+        if request.is_json:
+            data_json = json.dumps(request.get_json())
+            data_dict = yaml.safe_load(data_json)
+            data_dict['i_id']=id
+        else:
+            abort(500, "the request does not contain data in json")
+
+        try:
+            experiment = SystemInterface.update_experiment(data_dict)
+            return jsonify(experiment)
+
+        except TypeError as err:
+            error_message = 'Malformed arguments, error: %s' % str(err)
+
+            return render_template('error.html', 
+                    data=error_message)
+
+        except Exception as err:
+            abort(500, 'error: %s' % str(err))
+
+    if request.method == 'DELETE':
+
+        try:
+            institute = SystemInterface.delete_institute(id)
+            return jsonify({"status":"success"})
+
+        except TypeError as err:
+            error_message = 'Malformed arguments, error: %s' % str(err)
+
+            return render_template('error.html', 
+                    data=error_message)
+
+        except Exception as err:
+            abort(500, 'error: %s' % str(err))
+
+#+END_SRC
+*** TestUpdateInstitute 
+ #+NAME: test_update_institute
+ #+BEGIN_SRC python
+class TestUpdateInstitute(TestCase):
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_update_institute(self):
+        print "test_update_institute"
+
+        payload = {'inst_name': 'IIT Kharagpur',
+                   'inst_id': 'IITKgp',
+                   'key': KEY}
+
+        payload1 = {'inst_name': 'IIT Kanpur',
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/institutes", data=json.dumps(payload),
+                                 headers=headers)
+
+        response = self.client.put("/institutes/1", data=json.dumps(payload1),
+                                 headers=headers)
+
+        self.assertEqual(response.status_code, 200)
+
+ #+END_SRC
+   
+*** TestDeleteInstitute 
+ #+NAME: test_delete_institute
+ #+BEGIN_SRC python
+class TestDeleteInstitute(TestCase):
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_delete_institute(self):
+        print "test_delete_institute"
+
+        payload = {'inst_name': 'IIT Kharagpur',
+                   'inst_id': 'IITKgp',
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/institutes", data=json.dumps(payload),
+                                 headers=headers)
+
+        response = self.client.delete("/institutes/1", headers=headers)
+
+        self.assertEqual(response.status_code, 200)
+
+ #+END_SRC
+   
 * WebApp
 
 ** Index HTML
@@ -1727,6 +1968,8 @@ if __name__ == '__main__':
 <<update_and_delete_experiment>>
 <<update_and_delete_section>>
 <<get_and_add_section>>
+<<update_and_delete_institute>>
+<<get_and_add_institute>>
 #+END_SRC
 
 
@@ -1746,6 +1989,10 @@ if __name__ == '__main__':
 <<test_delete_experiment>>
 <<test_get_Section>>
 <<test_add_section>>
+<<test_add_institute>>
+<<test_get_institute>>
+<<test_update_institute>>
+<<test_delete_institute>>
 <<run_test_cases>>
 #+end_src
 
