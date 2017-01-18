@@ -208,8 +208,131 @@ class TestPersistentSection(TestCase):
 #+END_SRC
 
 
+
+
+
+
+* Name
+=Name= is a class with an attribute =name= of type alphabetic string.
+
+#+NAME: class_association_Table
+#+BEGIN_SRC python
+names_info = db.Table('names_info',
+		      db.Column('name_id', db.Integer, 
+                            db.ForeignKey('name.id'))
+
+#+END_SRC
+
+#+NAME: class_Name
+#+begin_src python
+args = {"__tablename__": "name",
+        "name": db.Column(db.String(255), unique=False, 
+                                       nullable=True, primary_key=True)
+        }
+
+Name = ClassPersistenceTemplate.mk_persistent(Name, [], **args)
+
+#+end_src
+
+*** Test Name
+#+NAME: class_TestName
+#+BEGIN_SRC python
+class TestPersistentName(TestCase):
+    TESTING = True
+
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_create_dev(self):
+        print "test_persistent_name"
+
+        name = "Mohit tahiliani"
+        name1 = Name(name=name)
+        name1.save()
+        
+        name1 = Name.get_by_id(1)
+
+        self.assertEqual(name1.get("name"), name)
+
+#+END_SRC
+
+
+
+
+
+* Email
+=Email= is a class with an attribute =email= of type alphabetic string.
+
+#+NAME: class_association_Table
+#+BEGIN_SRC python
+emails_info = db.Table('emails_info',
+		      db.Column('email_id', db.Integer,
+                            db.ForeignKey('email.id')))
+
+#+END_SRC
+
+#+NAME: class_Email
+#+begin_src python
+args = {"__tablename__": "email",
+        "email": db.Column(db.String(255), unique=True, nullable=False, primary_key=True)
+        }
+
+Email = ClassPersistenceTemplate.mk_persistent(Email, ['email'], **args)
+
+#+end_src
+
+*** Test Email
+#+NAME: class_TestEmail
+#+BEGIN_SRC python
+class TestPersistentEmail(TestCase):
+    TESTING = True
+
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_create_email(self):
+        print "test_persistent_email"
+
+        email_id = "mohit.tahiliani@gmail.com"
+        email1 = Email(email=email_id)
+        email1.save()
+        
+        email1 = Email.get_by_id(1)
+
+        self.assertEqual(email1.get("email"), email_id)
+
+#+END_SRC
+
+
+
 * Developer
 =Developer= is a class with an attribute =name= of type alphabetic string and =email= of alphabetic string.
+
+#+NAME: class_association_Table
+#+BEGIN_SRC python
+developers_info = db.Table('developers_info',
+		      db.Column('name_id', db.Integer, 
+                            db.ForeignKey('name.id')),
+		      db.Column('email_id', db.Integer,
+                            db.ForeignKey('email.id')))
+
+#+END_SRC
 
 #+NAME: class_Developer
 #+begin_src python
@@ -220,7 +343,7 @@ args = {"__tablename__": "dev",
                                        nullable=True)
         }
 
-Dev = ClassPersistenceTemplate.mk_persistent(Developer, ['email', 'name'], **args)
+Developer = ClassPersistenceTemplate.mk_persistent(Developer, ['email'], **args)
 
 #+end_src
 
@@ -304,6 +427,8 @@ if __name__ == '__main__':
 <<class_association_Table>>
 <<class_Experiment>>
 <<class_Section>>
+<<class_Name>>
+<<class_Email>>
 <<class_Developer>>
 #+end_src
 
@@ -314,6 +439,8 @@ if __name__ == '__main__':
 <<class_TestExperiment>>
 <<class_TestLab>>
 <<class_TestSection>>
+<<class_TestName>>
+<<class_TestEmail>>
 <<class_TestDeveloper>>
 <<run_test_cases>>
 #+end_src
