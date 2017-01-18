@@ -36,6 +36,7 @@ requirements of the application.
 #+BEGIN_SRC python
 Lab = ClassTemplate.mk_class("Lab")
 Experiment = ClassTemplate.mk_class("Experiment")
+Discipline =  ClassTemplate.mk_class("Discipline")
 Session = ClassTemplate.mk_class("Session")
 Section = ClassTemplate.mk_class("Section")
 #+END_SRC
@@ -227,6 +228,36 @@ class TestSession(TestCase):
 #+END_SRC
     
 
+* Discipline
+   =Discipline= is an entity that has a field =dis_name= and =dis_id= which are string
+#+NAME: class_Discipline
+#+begin_src python
+
+Discipline.add_attributes(dis_name=is_str, dis_id=is_str)
+Discipline.__eq__ = lambda self, other: \
+                  isinstance(other, self.__class__) and \
+                  self.get("dis_name") == other.get("dis_name") and \
+                  self.get("dis_id") == other.get("dis_id")
+
+#+end_src
+
+*** Test Discipline 
+#+NAME: class_TestDiscipline
+#+BEGIN_SRC python
+class TestDiscipline(TestCase):
+    TESTING = True
+    def test_object_discipline(self):
+        print "test_object_discipline"
+        dis_name = "IIT Delhi"
+        dis_id = "ECE08"
+        discipline = Discipline(dis_name=dis_name, dis_id=dis_id)
+        self.assertEqual(discipline.get("dis_name"), dis_name)
+        self.assertEqual(discipline.get("dis_id"), dis_id)
+
+#+END_SRC
+
+
+
 * Infra                                                         :boilerplate:
    
 ** sources
@@ -271,6 +302,7 @@ if __name__ == '__main__':
 <<class_Session>>
 <<class_Lab>>
 <<class_Experiment>>
+<<class_Discipline>>
 <<class_Section>>
 #+end_src
 
@@ -281,6 +313,7 @@ if __name__ == '__main__':
 <<class_TestSession>>
 <<class_TestLab>>
 <<class_TestExperiment>>
+<<class_TestDiscipline>>
 <<class_TestSection>>
 <<run_test_cases>>
 
