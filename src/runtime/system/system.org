@@ -178,7 +178,7 @@ class TestSystemConstructor(TestCase):
 
     
 * =do= method 
-   The =do= method is the main work-horse of =System= which is construed as the
+   The =do= method is the main work-horse of =System= which is constructed as the
    =Controller=.  Every operation follows a template and realized as a class
    that defines:
    1. Number of Arguments
@@ -418,6 +418,101 @@ class DeleteExperiment():
 #+end_src
 
 
+** =AddInstitute=
+#+NAME: class_add_institute
+#+begin_src python
+class AddInstitute():
+    arg_types = {"institute": is_institute, "session": is_session}
+    arity_and_type_checks_needed = True
+
+    @staticmethod
+    def auth_check(args):
+        session = args['session']
+        if not System.is_session_valid(session):
+            raise NotAuthorizedError("Not Authorized to perform this action")
+
+    @staticmethod
+    def state_check(args):
+        institute = args["institute"]
+        if System.delegate.institute_exists(institute):
+            raise StateError("institute %s already exists in System"
+                                 % institute.to_client())
+
+    @staticmethod
+    def action(args):
+        institute = args["institute"]
+        institute = System.delegate.add_institute(institute)
+        return institute
+
+#+end_src
+
+
+
+** =UpdateInstitute=
+#+NAME: class_update_institute
+#+begin_src python
+class UpdateInstitute():
+    arg_types = {"institute": is_institute, "inst_name": is_str_or_none,
+                     "inst_id": is_str_or_none,
+                 }
+    arity_and_type_checks_needed = True
+
+    @staticmethod
+    def auth_check(args):
+        session = args['session']
+        if not System.is_session_valid(session):
+            raise NotAuthorizedError("Not Authorized to perform this action")
+
+    @staticmethod
+    def state_check(args):
+        pass
+
+    @staticmethod
+    def action(args):
+        institute = args["institute"]
+        if not "inst_name" in args:
+           inst_name=institute.get("inst_name")
+        else:
+           inst_name=args["inst_name"]
+
+        if not "inst_id" in args:
+           inst_id = institute.get("inst_id")
+        else:
+           inst_id = args["inst_id"]
+               
+        inst = System.delegate.update_institute(institute, inst_name,\
+            inst_id)
+        return inst
+
+#+end_src
+
+
+** =DeleteInstitute=
+#+NAME: class_delete_institute
+#+begin_src python
+class DeleteInstitute():
+    arg_types = {"i_id": is_int, "session": is_session}
+    arity_and_type_checks_needed = True
+
+    @staticmethod
+    def auth_check(args):
+        session = args['session']
+        if not System.is_session_valid(session):
+            raise NotAuthorizedError("Not Authorized to perform this action")
+
+    @staticmethod
+    def state_check(args):
+        pass
+
+    @staticmethod
+    def action(args):
+        i_id = args["i_id"]
+        i_id = System.delegate.delete_institute(i_id)
+        return i_id
+        
+#+end_src
+
+
 ** =DeleteSection=
 #+NAME: class_delete_section
 #+begin_src python
@@ -545,6 +640,45 @@ class AddExperimentsToLab():
 
 
 
+** =AddLabsToInstitute=
+#+NAME: class_add_labs_to_institute
+#+begin_src python
+class AddLabsToInstitute():
+    arg_types = {"labs": are_labs, "instituteid": is_int, 
+                     "session": is_session}
+    arity_and_type_checks_needed = True
+
+    @staticmethod
+    def auth_check(args):
+        session = args['session']
+        if not System.is_session_valid(session):
+            current_app.logger.error("auth error raised, session = %s" % 
+                                        session.to_client())
+            raise NotAuthorizedError("Not Authorized to perform this action")
+
+    @staticmethod
+    def state_check(args):
+        instituteid = args["instituteid"]
+        if not System.delegate.institute_exists(instituteid):
+            current_app.logger.error("institute with id = %d does not exist"
+                                     "in System" % instituteid)
+            raise StateError("institute with id = %d does not exist in System"
+                                 % instituteid)
+
+    @staticmethod
+    def action(args):
+        instituteid = args["instituteid"]
+        labs = args["labs"]
+        try:
+            institute = System.delegate.add_labs_to_institute(instituteid, labs) 
+            return institute
+        except Exception as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+
+#+end_src
+
+
 ** =AddSectionsToExperiment=
 #+NAME: class_add_sections_to_experiment
 #+begin_src python
@@ -626,6 +760,10 @@ ops_table = {'add_lab' : AddLab,
              'update_experiment' : UpdateExperiment,
              'delete_experiment' : DeleteExperiment,
              'add_experiments_to_lab' : AddExperimentsToLab,
+             'add_institute' : AddInstitute,
+             'update_institute': UpdateInstitute,
+             'delete_institute': DeleteInstitute,
+             'add_labs_to_institute' : AddLabsToInstitute,
              'add_section' : AddSection,
              'update_section' : UpdateSection,
              'delete_section' : DeleteSection,
@@ -700,8 +838,12 @@ if __name__ == '__main__':
 <<class_update_lab>>
 <<class_add_experiment>>
 <<class_update_experiment>>
+<<class_add_institute>>
+<<class_update_institute>>
+<<class_delete_institute>>
 <<class_update_section>>
 <<class_add_experiments_to_lab>>
+<<class_add_labs_to_institute>>
 <<class_add_sections_to_experiment>>
 <<class_add_section>>
 <<class_get_lab>>
