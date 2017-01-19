@@ -192,7 +192,32 @@ Institute = ClassPersistenceTemplate.mk_persistent(Institute, ['inst_id'], **arg
 #+NAME: class_TestInstitute
 #+BEGIN_SRC python
 class TestPersistenceInstitute(TestCase):
-=======
+    TESTING = True
+
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_create_institute(self):
+        print "test_persistance_institute"
+        inst_name = "IIT Kanpur"
+        inst_id = "IITK"
+        inst = Institute(inst_name=inst_name, inst_id=inst_id)
+        inst.save()
+        institute = Institute.get_by_id(1)
+        institute1 = Institute.get_by_id(2)
+        self.assertEqual(institute.get("inst_name"), inst_name)
+        self.assertEqual(institute.get("inst_id"), inst_id)       
+        self.assertEqual(institute1,None)
+
+#+END_SRC
 
 * Discipline
   =Discipline= is a class with attributes =dis_name= and =dis_id= of type =is_email_str=.
@@ -227,17 +252,6 @@ class TestPersistenceDiscipline(TestCase):
         db.session.remove()
         db.drop_all()
 
-    def test_create_institute(self):
-        print "test_persistance_institute"
-        inst_name = "IIT Kanpur"
-        inst_id = "IITK"
-        inst = Institute(inst_name=inst_name, inst_id=inst_id)
-        inst.save()
-        institute = Institute.get_by_id(1)
-        institute1 = Institute.get_by_id(2)
-        self.assertEqual(institute.get("inst_name"), inst_name)
-        self.assertEqual(institute.get("inst_id"), inst_id)       
-        self.assertEqual(institute1,None)
 
     def test_create_discipline(self):
         print "test_persistance_discipline"

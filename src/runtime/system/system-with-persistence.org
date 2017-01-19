@@ -148,12 +148,7 @@ class TestAddExperiment(TestCase):
 #+NAME: test_add_institute
 #+BEGIN_SRC python
 class TestAddInstitute(TestCase):
-=======
-* Test AddDiscipline
-#+NAME: test_add_experiment
-#+BEGIN_SRC python
-class TestAddDiscipline(TestCase):
->>>>>>> c5042d1500973a858d5aa067c92817f6e94899db
+
     TESTING = True
 
     def create_app(self):
@@ -181,7 +176,27 @@ class TestAddDiscipline(TestCase):
                                 session=session)
         institute1 = institute_cls.get_by_id(1)
         self.assertEqual(institute1.get("inst_name"), inst_name)
-=======
+#+END_SRC
+
+
+* Test AddDiscipline
+#+NAME: test_add_discipline
+#+BEGIN_SRC python
+class TestAddDiscipline(TestCase):
+
+    TESTING = True
+
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
     def test_add_discipline(self):
         print "test_add_discipline_in_system_persistence"
         session_cls = System.delegate.entities['session']
@@ -194,7 +209,6 @@ class TestAddDiscipline(TestCase):
         discipline = System.do("add_discipline", discipline=discipline, session=session)
         discipline1 = discipline_cls.get_by_id(1)
         self.assertEqual(discipline1.get("dis_name"), dis_name)
->>>>>>> c5042d1500973a858d5aa067c92817f6e94899db
             
 #+END_SRC
 
@@ -247,6 +261,7 @@ class TestAddSectionsToExperiment(TestCase):
         self.assertEqual(experiment1.get("exp_name"), exp_name)
         self.assertEqual(experiment1.get("sections")[0].get("name"), "Theory")
         self.assertEqual(experiment1.get("sections")[1].get("name"), "Aim")            
+
 #+END_SRC
 
 
