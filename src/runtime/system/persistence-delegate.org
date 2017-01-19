@@ -225,11 +225,13 @@ class TestPersistenceDelegate(TestCase):
         print "test_institute_exists"
         inst_name1 = "IIT Kanpur"
         inst_id1 = "IITK"
+        institute1 = Institute(inst_name=inst_name1, inst_id=inst_id1) 
         inst1 = self.persistence_delegate.add_institute(institute1)
 
         inst_name2 = "IIT Kharagpur"
         inst_id2 = "IITKgp"
-       
+        institute2 = Institute(inst_name=inst_name2, inst_id=inst_id2) 
+        
         self.assertEqual(self.persistence_delegate.institute_exists\
                              (institute1.id), True)
         self.assertEqual(self.persistence_delegate.institute_exists\
@@ -363,10 +365,12 @@ class TestPersistenceDelegate(TestCase):
          print "test_add_institute"
          inst_name1 = "IIT Kanpur"
          inst_id1 = "IITK"
+         institute1 = Institute(inst_name=inst_name1, inst_id=inst_id1)                             
          institute1 = self.persistence_delegate.add_institute(institute1)
          
          inst_name2= "IIT Kharagpur"
          inst_id2= "IITKgp"
+         institute2 = Institute(inst_name=inst_name2, inst_id=inst_id2) 
          
          institute = Institute.get_by_id(1)
 
@@ -497,13 +501,16 @@ class TestPersistenceDelegate(TestCase):
          print "test_update_institute"
          inst_name = "IIT Delhi"
          inst_id = "IITD"
+         inst = Institute(inst_name=inst_name, inst_id=inst_id)
          inst1 = self.persistence_delegate.add_institute(inst)
 
          inst_name1 = "IIT Kanpur"
          inst_id1 = "IITK"
+         inst2 = Institute(inst_name=inst_name1, inst_id=inst_id1)
+
          inst2 = Institute.get_by_id(1)
 
-         self.assertEqual(inst2.get("inst_name"), inst_name1)
+         self.assertEqual(inst2.get("inst_name1"), inst_name1)
 
 #+END_SRC
 
@@ -647,10 +654,10 @@ class TestPersistenceDelegate(TestCase):
     This function deletes existing institute.
 #+NAME: persistence_delete_institute
 #+BEGIN_SRC python
-    def delete_institute(self, in_id):
-        record = Institute.get_by_id(in_id)
+    def delete_institute(self, i_id):
+        record = Institute.get_by_id(i_id)
         if not record:
-            abort(404, 'No Institute with id %s' % (in_id))
+            abort(404, 'No Institute with id %s' % (i_id))
         else:
             try:
                 record.delete()
@@ -660,7 +667,7 @@ class TestPersistenceDelegate(TestCase):
                 print e
                 abort(500, str(e))
 
-        return in_id
+        return i_id
 
 #+END_SRC
 
@@ -671,10 +678,12 @@ class TestPersistenceDelegate(TestCase):
          print "test_delete_institute"
          inst_name = "IIT Delhi"
          inst_id = "IITD"
+         inst = Institute(inst_name=inst_name, inst_id=inst_id)                    
          inst1 = self.persistence_delegate.add_institute(inst)
 
          inst_name1 = "IIT Kharagpur"
          inst_id1 = "IITKgp"
+         inst1 = Institute(inst_name=inst_name, inst_id=inst_id) 
          inst2 = self.persistence_delegate.add_institute(inst1)
 
          self.persistence_delegate.delete_institute(1)
@@ -766,12 +775,13 @@ class TestPersistenceDelegate(TestCase):
 
          inst_name="IIT Kanpur"
          inst_id="IITK"
-         institute = Institute(inst_name=inst_name, inst_id=inst_id, labs=[])
+         institute = Institute(inst_name=inst_name, inst_id=inst_id)
          institute.save()
         
-         lab_name = "Number Systems"
-         lab_id = "EE99777"
-         lab = Lab(lab_name=lab_name, lab_id=lab_id)
+         lab_name = "Data Structures"
+         lab_id = "cse05"
+         overview = "overview"
+         lab = Lab(lab_name=lab_name, lab_id=lab_id, overview=overview, experiments=[])
          lab.save()
          
          institute1 = Lab.get_by_id(1)
@@ -960,6 +970,7 @@ class TestPersistenceDelegate(TestCase):
 
          inst_name = "IIT Delhi"
          inst_id = "IITD"
+         inst = Institute(inst_name=inst_name, inst_id=inst_id)                             
          inst.save()
          inst_obj = self.persistence_delegate.get_institute(inst_name=
                                                 inst.get("inst_name"))
@@ -1160,7 +1171,7 @@ class TestPersistenceDelegate(TestCase):
 
          inst_name = "IIT Kanpur"
          inst_id = "IITK"
-                                                 
+         inst = Institute(inst_name=inst_name, inst_id=inst_id)                                         
          inst.save()
 
          inst_obj = self.persistence_delegate.get_institute_by_id(1)
