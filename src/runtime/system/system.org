@@ -505,6 +505,187 @@ class UpdateSection():
 #+end_src
 
 
+** =AddName=
+#+NAME: class_add_name
+#+begin_src python
+class AddName():
+    arg_types = {"name": is_name}
+    arity_and_type_checks_needed = True
+
+    @staticmethod
+    def auth_check(args):
+        session = args['session']
+        if not System.is_session_valid(session):
+            raise NotAuthorizedError("Not Authorized to perform this action")
+
+    @staticmethod
+    def state_check(args):
+        name = args["name"]
+        if System.delegate.name_exists(name):
+            raise StateError("name %s already exists in System"
+                                 % name.to_client())
+
+    @staticmethod
+    def action(args):
+        name = args["name"]
+        name = System.delegate.add_name(name)
+        return name
+
+#+end_src
+
+
+** =AddEmail=
+#+NAME: class_add_email
+#+begin_src python
+class AddEmail():
+    arg_types = {"email": is_email}
+    arity_and_type_checks_needed = True
+
+    @staticmethod
+    def auth_check(args):
+        session = args['session']
+        if not System.is_session_valid(session):
+            raise NotAuthorizedError("Not Authorized to perform this action")
+
+    @staticmethod
+    def state_check(args):
+        email = args["email"]
+        if System.delegate.email_exists(email):
+            raise StateError("email %s already exists in System"
+                                 % email.to_client())
+
+    @staticmethod
+    def action(args):
+        email = args["email"]
+        email = System.delegate.add_email(email)
+        return email
+
+#+end_src
+
+
+** =AddDeveloper=
+#+NAME: class_add_developer
+#+begin_src python
+class AddDeveloper():
+    arg_types = {"developer": is_developer, "name": is_name, "email": is_email}
+    arity_and_type_checks_needed = True
+
+    @staticmethod
+    def auth_check(args):
+        session = args['session']
+        if not System.is_session_valid(session):
+            raise NotAuthorizedError("Not Authorized to perform this action")
+
+    @staticmethod
+    def state_check(args):
+        developer = args["developer"]
+        if System.delegate.developer_exists(developer):
+            raise StateError("developer %s already exists in System"
+                                 % developer.to_client())
+
+    @staticmethod
+    def action(args):
+        developer = args["developer"]
+        developer = System.delegate.add_developer(developer)
+        return developer
+
+#+end_src
+
+
+** =UpdateName=
+#+NAME: class_update_name
+#+begin_src python
+class UpdateName():
+    arg_types = {"name": is_name}
+    arity_and_type_checks_needed = True
+
+    @staticmethod
+    def auth_check(args):
+        session = args['session']
+        if not System.is_session_valid(session):
+            raise NotAuthorizedError("Not Authorized to perform this action")
+
+    @staticmethod
+    def state_check(args):
+        pass
+
+    @staticmethod
+    def action(args):
+        name = args["name"]
+        if not "name" in args:
+           name=name.get("name")
+        else:
+           name=args["name"]
+
+        section = System.delegate.update_name(name, name)
+        return name
+
+#+end_src
+
+
+** =UpdateEmail=
+#+NAME: class_update_email
+#+begin_src python
+class UpdateEmail():
+    arg_types = {"email": is_email}
+    arity_and_type_checks_needed = True
+
+    @staticmethod
+    def auth_check(args):
+        session = args['session']
+        if not System.is_session_valid(session):
+            raise NotAuthorizedError("Not Authorized to perform this action")
+
+    @staticmethod
+    def state_check(args):
+        pass
+
+    @staticmethod
+    def action(args):
+        email = args["email"]
+        if not "email" in args:
+           email=email.get("email")
+        else:
+           email=args["email"]
+
+        email = System.delegate.update_email(email, email)
+        return email
+
+#+end_src
+
+
+** =UpdateDeveloper=
+#+NAME: class_update_developer
+#+begin_src python
+class UpdateDeveloper():
+    arg_types = {"developer": is_developer, "name": is_name,
+                     "email": is_email}
+    arity_and_type_checks_needed = True
+
+    @staticmethod
+    def auth_check(args):
+        session = args['session']
+        if not System.is_session_valid(session):
+            raise NotAuthorizedError("Not Authorized to perform this action")
+
+    @staticmethod
+    def state_check(args):
+        pass
+
+    @staticmethod
+    def action(args):
+        developer = args["developer"]
+        if not "name" in args:
+           name=developer.get("name")
+        else:
+           name=args["name"]
+
+        section = System.delegate.update_developer(developer, name)
+        return developer
+
+#+end_src
+
+
 ** =AddExperimentsToLab=
 #+NAME: class_add_experiments_to_lab
 #+begin_src python
