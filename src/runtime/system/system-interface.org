@@ -612,15 +612,14 @@ class TestAddExperiment(TestCase):
     def add_institute(data_dict):
         session_cls = System.delegate.entities['session']       
         institute_cls = System.delegate.entities['institute']
-        lab_cls = System.delegate.entities['lab']
+#        lab_cls = System.delegate.entities['lab']
 
         session = session_cls(key=data_dict['key'])
         del(data_dict['key'])
-        labs = data_dict['labs']
-        data_dict['labs'] = []
-        institute = institute_cls(inst_name=data_dict['inst_name'],
-                                  inst_id=data_dict['inst_id'],
-                                  labs=data_dict['labs'])
+
+        institute = institute_cls(inst_name=str(data_dict['inst_name']),
+                                  inst_id=str(data_dict['inst_id']))
+
         try:
             current_app.logger.debug("running operation add_institute")
             question = System.do("add_institute", institute=institute, 
@@ -634,26 +633,6 @@ class TestAddExperiment(TestCase):
         except Exception as err:
             current_app.logger.error("Exception = %s" % str(err))
             raise err
-
-        lab_list = []
-        try:
-            for lab in labs:
-                lab = lab_cls(lab_name=str(lab['lab_name']),
-                              lab_id=str(lab['lab_id']))
-                lab_list.append(lab)
-            current_app.logger.debug("running operation"
-                                     "add_labs_to_institutes")
-            institute = System.do("add_labs_to_institute",
-                                    labs=lab_list,
-                                    instid=int(institute.id),
-                                    session=session)
-            current_app.logger.debug("running operation"
-                                     "add_labs_to_institute")
-            return institute.to_client()
-        except Exception as e:
-            institute.delete()
-            current_app.logger.error("Exception = %s" % str(e))
-            raise e
 
 #+end_src
 
@@ -1680,11 +1659,11 @@ if __name__ == '__main__':
 <<test_class_get_institute_by_id>>
 <<test_class_get_section_by_id>>
 <<test_class_update_experiment>>
-<<test_class_update_institute>>
+#<<test_class_update_institute>>
 <<test_class_update_Section>>
 <<test_class_delete_section>>
 <<test_class_delete_experiment>>
-<<test_class_delete_institute>>
+#<<test_class_delete_institute>>
 <<test_class_get_lab_by_labid>>
 <<run_test_cases>>
 #+end_src
