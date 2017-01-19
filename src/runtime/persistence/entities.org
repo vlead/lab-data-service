@@ -207,6 +207,7 @@ class TestPersistentSection(TestCase):
 
 #+END_SRC
 
+
 * Name
 =Name= is a class with an attribute =name= of type alphabetic string.
 
@@ -215,7 +216,10 @@ class TestPersistentSection(TestCase):
 args = {"__tablename__": "name",
         "id": db.Column(db.Integer, primary_key=True),
         "name": db.Column(db.String(255), unique=False,
-                                       nullable=True)
+                                       nullable=True),
+        "developers": db.relationship('Developer', 
+                                        backref=db.backref('name'))
+
         }
 
 Name = ClassPersistenceTemplate.mk_persistent(Name, [], **args)
@@ -251,6 +255,7 @@ class TestPersistentName(TestCase):
 
 #+END_SRC
 
+
 * Email
 =Email= is a class with an attribute =email= of type alphabetic string.
 
@@ -258,7 +263,10 @@ class TestPersistentName(TestCase):
 #+begin_src python
 args = {"__tablename__": "email",
         "id": db.Column(db.Integer, primary_key=True),
-        "email": db.Column(db.String(255), unique=True, nullable=False)
+        "email": db.Column(db.String(255), unique=True, nullable=False),
+        "developers": db.relationship('Developer', 
+                                        backref=db.backref('email'))
+
         }
 
 Email = ClassPersistenceTemplate.mk_persistent(Email, ['email'], **args)
@@ -300,7 +308,7 @@ class TestPersistentEmail(TestCase):
 
 #+NAME: class_Developer
 #+begin_src python
-args = {"__tablename__": "dev",
+args = {"__tablename__": "developer",
         "id": db.Column(db.Integer, primary_key=True),
         "name_id": db.Column(db.Integer, db.ForeignKey('name.id'),
                                  nullable=False),
@@ -334,7 +342,7 @@ class TestPersistentDeveloper(TestCase):
         dev_name.save()
         email_id = Email(email="mohit.tahiliani@gmail.com")
         email_id.save()
-        dev = Developer(name_id=dev_name, email_id=email_id)
+        dev = Developer(name=dev_name, email=email_id)
         dev.save()
         
         dev = Developer.get_by_id(1)
