@@ -616,9 +616,11 @@ class TestAddExperiment(TestCase):
 
         session = session_cls(key=data_dict['key'])
         del(data_dict['key'])
-
+        labs = data_dict['labs']
+        data_dict['labs'] = []
         institute = institute_cls(inst_name=data_dict['inst_name'],
-                                inst_id=data_dict['inst_id'])
+                                  inst_id=data_dict['inst_id'],
+                                  labs=data_dict['labs'])
         try:
             current_app.logger.debug("running operation add_institute")
             question = System.do("add_institute", institute=institute, 
@@ -636,7 +638,8 @@ class TestAddExperiment(TestCase):
         lab_list = []
         try:
             for lab in labs:
-                lab = lab_cls(name=str(lab['lab_name']))
+                lab = lab_cls(lab_name=str(lab['lab_name']),
+                              lab_id=str(lab['lab_id']))
                 lab_list.append(lab)
             current_app.logger.debug("running operation"
                                      "add_labs_to_institutes")
@@ -679,6 +682,8 @@ class TestAddInstitute(TestCase):
                     }
 
         institute = SystemInterface.add_institute(data_dict)
+        institute_cls = System.delegate.entities['institute']
+        institute = institute_cls.get_all()[0]
 
         self.assertEqual(institute.get("inst_name"), 
                              data_dict['inst_name'])
