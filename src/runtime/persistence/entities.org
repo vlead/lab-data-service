@@ -207,31 +207,18 @@ class TestPersistentSection(TestCase):
 
 #+END_SRC
 
-
-
-
-
-
 * Name
 =Name= is a class with an attribute =name= of type alphabetic string.
-
-#+NAME: class_association_Table
-#+BEGIN_SRC python
-names_info = db.Table('names_info',
-		      db.Column('name_id', db.Integer, 
-                            db.ForeignKey('name.id'))
-
-#+END_SRC
 
 #+NAME: class_Name
 #+begin_src python
 args = {"__tablename__": "name",
-        "name": db.Column(db.String(255), unique=False, 
-                                       nullable=True, primary_key=True)
+        "id": db.Column(db.Integer, primary_key=True),
+        "name": db.Column(db.String(255), unique=False,
+                                       nullable=True)
         }
 
 Name = ClassPersistenceTemplate.mk_persistent(Name, [], **args)
-
 #+end_src
 
 *** Test Name
@@ -264,29 +251,17 @@ class TestPersistentName(TestCase):
 
 #+END_SRC
 
-
-
-
-
 * Email
 =Email= is a class with an attribute =email= of type alphabetic string.
-
-#+NAME: class_association_Table
-#+BEGIN_SRC python
-emails_info = db.Table('emails_info',
-		      db.Column('email_id', db.Integer,
-                            db.ForeignKey('email.id')))
-
-#+END_SRC
 
 #+NAME: class_Email
 #+begin_src python
 args = {"__tablename__": "email",
-        "email": db.Column(db.String(255), unique=True, nullable=False, primary_key=True)
+        "id": db.Column(db.Integer, primary_key=True),
+        "email": db.Column(db.String(255), unique=True, nullable=False)
         }
 
 Email = ClassPersistenceTemplate.mk_persistent(Email, ['email'], **args)
-
 #+end_src
 
 *** Test Email
@@ -320,31 +295,20 @@ class TestPersistentEmail(TestCase):
 #+END_SRC
 
 
-
 * Developer
 =Developer= is a class with an attribute =name= of type alphabetic string and =email= of alphabetic string.
-
-#+NAME: class_association_Table
-#+BEGIN_SRC python
-developers_info = db.Table('developers_info',
-		      db.Column('name_id', db.Integer, 
-                            db.ForeignKey('name.id')),
-		      db.Column('email_id', db.Integer,
-                            db.ForeignKey('email.id')))
-
-#+END_SRC
 
 #+NAME: class_Developer
 #+begin_src python
 args = {"__tablename__": "dev",
         "id": db.Column(db.Integer, primary_key=True),
-        "email": db.Column(db.String(255), unique=True, nullable=False),
-        "name": db.Column(db.String(255), unique=False, 
-                                       nullable=True)
+        "name_id": db.Column(db.Integer, db.ForeignKey('name.id'),
+                                 nullable=False),
+        "email_id": db.Column(db.Integer,db.ForeignKey('email.id'),
+                                 unique=True, nullable=False)
         }
 
-Developer = ClassPersistenceTemplate.mk_persistent(Developer, ['email'], **args)
-
+Developer = ClassPersistenceTemplate.mk_persistent(Developer, [], **args)
 #+end_src
 
 *** Test Developer
@@ -366,16 +330,17 @@ class TestPersistentDeveloper(TestCase):
 
     def test_create_dev(self):
         print "test_persistent_dev"
-
-        dev_name = "Mohit tahiliani"
-        email_id = "mohit.tahiliani@gmail.com"
-        dev = Developer(name=dev_name, email=email_id)
+        dev_name = Name(name="Mohit Tahiliani")
+        dev_name.save()
+        email_id = Email(email="mohit.tahiliani@gmail.com")
+        email_id.save()
+        dev = Developer(name_id=dev_name, email_id=email_id)
         dev.save()
         
-        dev = Dev.get_by_id(1)
+        dev = Developer.get_by_id(1)
 
-        self.assertEqual(dev.get("name"), dev_name)
-        self.assertEqual(dev.get("email"), email_id)
+        self.assertEqual(dev.get("name").get("name"), dev_name.get("name"))
+        self.assertEqual(dev.get("email").get("email"), email_id.get("email"))
 
 #+END_SRC
 
