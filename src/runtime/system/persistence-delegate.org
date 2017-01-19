@@ -61,7 +61,7 @@ class TestPersistenceDelegate(TestCase):
 
    Other functions that help =System= perform the operations. 
   
-*** Check if entity already exists 
+***  Check if entity already exists 
     The following three functions checks whether the given entity exists or
     not. To optimize the code, apply the following three principles:
 
@@ -799,10 +799,10 @@ class TestPersistenceDelegate(TestCase):
     This function delete existing Discipline.
 #+NAME: persistence_delete_discipline
 #+BEGIN_SRC python
-    def delete_discipline(self, d_id):
-        record = Discipline.get_by_id(d_id)
+    def delete_discipline(self, dis_id):
+        record = self.get_discipline(dis_id=dis_id)
         if not record:
-            abort(404, 'No Discipline  with id %s' % (d_id))
+            abort(404, 'No Discipline  with dis_id %s' % (dis_id))
         else:
             try:
                 record.delete()
@@ -812,7 +812,7 @@ class TestPersistenceDelegate(TestCase):
                 print e
                 abort(500, str(e))
 
-        return d_id
+        return dis_id
 
 #+END_SRC
 
@@ -831,7 +831,7 @@ class TestPersistenceDelegate(TestCase):
          dis1 = Discipline (dis_name=dis_name1, dis_id=dis_id1)
          dis2 = self.persistence_delegate.add_discipline(dis1)
 
-         self.persistence_delegate.delete_discipline(1)
+         self.persistence_delegate.delete_discipline("EEE08")
 
          self.assertEqual(len(Discipline.get_all()), 1)
 
@@ -1211,12 +1211,13 @@ class TestPersistenceDelegate(TestCase):
                               inst.get("inst_name"))
 #+END_SRC
 
+
 ***  Get Discipline
     This function returns discipline if present in the database.  If the discipline is
     not present, =None= type is returned.
 #+NAME: persistence_get_discipline
 #+BEGIN_SRC python
-    def get_discipline (self, **kwargs):
+    def get_discipline(self, **kwargs):
         return self.get_object(Discipline, **kwargs)
 
 #+END_SRC
