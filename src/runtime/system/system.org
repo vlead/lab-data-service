@@ -351,7 +351,7 @@ class AddExperiment():
 #+NAME: class_update_experiment
 #+begin_src python
 class UpdateExperiment():
-    arg_types = {"experiment": is_experiment, "exp_name": is_str_or_none,
+    arg_types = {"exp_name": is_str_or_none,
                      "exp_id": is_str_or_none,
                      "overview" : is_str_or_none,
                      "session": is_session}
@@ -369,16 +369,13 @@ class UpdateExperiment():
 
     @staticmethod
     def action(args):
-        experiment = args["experiment"]
+        exp_id = args["exp_id"]
+        experiment = System.delegate.get_experiment(exp_id=exp_id)
+
         if not "exp_name" in args:
            exp_name=experiment.get("exp_name")
         else:
            exp_name=args["exp_name"]
-
-        if not "exp_id" in args:
-           exp_id = experiment.get("exp_id")
-        else:
-           exp_id = args["exp_id"]
         
         if not "overview" in args:
            overview = experiment.get("overview")
