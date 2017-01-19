@@ -485,6 +485,115 @@ class TestGetExperiment(TestCase):
 
  #+END_SRC
    
+** Get and Add Discipline
+   REST API to get and add question.
+
+#+NAME: get_and_add_lab
+#+BEGIN_SRC python
+@api.route('/disciplines', methods=['GET', 'POST'])
+def add_discipline():
+    if request.method == 'GET':
+        try:
+            disciplines = SystemInterface.get_disciplines()
+
+            return jsonify_list(disciplines)
+
+        except TypeError as err:
+            error_message = 'Malformed arguments, error: %s' % str(err)
+
+            return render_template('error.html', 
+                    data=error_message)
+
+        except Exception as err:
+            abort(500, 'error: %s' % str(err))
+       
+    if request.method == 'POST':
+        if request.is_json:
+            data_json = json.dumps(request.get_json())
+            data_dict = yaml.safe_load(data_json)
+        else:
+            abort(500, "the request does not contain data in json")
+
+        try:
+            dis = SystemInterface.add_discipline(data_dict)
+            return jsonify(dis)
+
+        except TypeError as err:
+            error_message = 'Malformed arguments, error: %s' % str(err)
+
+            return render_template('error.html', 
+                    data=error_message)
+
+        except Exception as err:
+            abort(500, 'error: %s' % str(err))
+            
+#+END_SRC
+
+
+*** TestAddDiscipline
+ #+NAME: test_add_lab
+ #+BEGIN_SRC python
+class TestAddDiscipline(TestCase):
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_add_discipline(self):
+        print "test_add_discipline_in_rest"
+        payload = {'dis_name': 'IIT Delhi',
+                   'dis_id': 'EEE10',
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/disciplines", data=json.dumps(payload),
+                                 headers=headers)
+
+        self.assertEqual(response.status_code, 200)
+
+ #+END_SRC
+   
+*** TestGetDiscipline
+ #+NAME: test_get_lab
+ #+BEGIN_SRC python
+class TestGetDiscipline(TestCase):
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_get_disciplines(self):
+        print "test_get_discipline_in_rest"
+
+        payload = {'dis_name': 'IIT Delhi',
+                   'dis_id': 'EEE10',
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/disciplines", data=json.dumps(payload),
+                                 headers=headers)
+
+        response = self.client.get("/disciplines", headers=headers)
+        self.assertEqual(response.status_code, 200)
+
+ #+END_SRC
+   
 ** Update and Delete Experiment
 #+NAME: update_and_delete_experiment
 #+BEGIN_SRC python
@@ -1966,6 +2075,7 @@ if __name__ == '__main__':
 <<get_and_add_lab>>
 <<update_and_delete_lab>>
 <<get_and_add_experiment>>
+<<get_and_add_discipline>>
 <<update_and_delete_experiment>>
 <<update_and_delete_section>>
 <<get_and_add_section>>
@@ -1983,6 +2093,8 @@ if __name__ == '__main__':
 <<test_get_lab>>
 <<test_get_lab_by_labid>>
 <<test_add_experiment>>
+<<test_add_discipline>>
+<<test_get_discipline>>
 <<test_get_experiment>>
 <<test_update_experiment>>
 <<test_update_section>>

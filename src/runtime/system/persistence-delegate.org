@@ -27,7 +27,8 @@ class PersistenceDelegate():
                          'lab': Lab,
                          'experiment' : Experiment,
                          'section' : Section,
-                         'institute' : Institute
+                         'institute' : Institute,
+                         'discipline' : Discipline
                         }
 
 #+END_SRC
@@ -240,6 +241,49 @@ class TestPersistenceDelegate(TestCase):
 #+END_SRC
 
 
+***  Check if =Discipline= already exists
+    This function checks if a discipline is already in the discipline-set of the =System=.
+#+NAME: persistence_discipline_exists
+#+BEGIN_SRC python
+    def discipline_exists(self, ds_id):
+        ret_val = False
+        try:
+            if Discipline.get_by_id(ds_id) is not None:
+                ret_val = True
+        except Exception as e:
+            pass
+
+        return ret_val
+
+        
+#+END_SRC
+
+**** Tests
+#+NAME: test_persistence_discipline_exists
+#+BEGIN_SRC python
+  
+    def test_discipline_exists(self):
+        print "test_discipline_exists"
+        dis_name1="IIT Delhi"
+        dis_id1="EEE08"
+        dis = Discipline(dis_name=dis_name1, dis_id=dis_id1)
+
+        dis1 = self.persistence_delegate.add_discipline(dis)
+
+        dis_name2="IIT Delhi"
+        dis_id2="EEE09"
+        dis2 = Discipline(dis_name=dis_name2, dis_id=dis_id2)
+
+        self.assertEqual(self.persistence_delegate.discipline_exists(dis1.id),
+                            True)
+        self.assertEqual(self.persistence_delegate.discipline_exists(dis2.id),
+                            False)
+     
+
+
+#+END_SRC
+   
+
 ***  Add lab to the system
     This function adds lab to the system.
 #+NAME: persistence_add_lab
@@ -320,6 +364,33 @@ class TestPersistenceDelegate(TestCase):
                           False)
         
 #+END_SRC
+
+
+***  Add discipline to the system
+    This function adds discipline to the system.
+#+NAME: persistence_add_discipline
+#+BEGIN_SRC python
+    def add_discipline(self, discipline):
+        discipline.save()
+        return discipline
+
+#+END_SRC
+
+**** Tests
+#+NAME: test_persistence_add_discipline
+#+BEGIN_SRC python
+    def test_add_discipline(self):
+         print "test_add_discipline"
+         dis_name = "IIT Delhi"
+         dis_id = "EEE08"
+         discipline = Discipline(dis_name=dis_name, dis_id=dis_id)
+         discipline = self.persistence_delegate.add_discipline(discipline)
+         discipline = discipline.get_by_id(1)
+         self.assertEqual(discipline.get("dis_name"), dis_name)
+         self.assertEqual(discipline.get("dis_id"), dis_id)
+
+#+END_SRC
+
 
 
 ***  Add section to the system
@@ -452,6 +523,38 @@ class TestPersistenceDelegate(TestCase):
          self.assertEqual(exp2.get("exp_name"), exp_name1)
 
 #+END_SRC
+
+
+***  Update Discipline 
+    This function updates existing discipline.
+#+NAME: persistence_update_discipline
+#+BEGIN_SRC python
+    def update_discipline(self, discipline, dis_name, dis_id):
+        discipline.set(dis_name=dis_name, dis_id=dis_id)
+        discipline.save()
+        return discipline
+
+#+END_SRC
+
+**** Tests
+#+NAME: test_persistence_update_discipline
+#+BEGIN_SRC python
+    def test_update_discipline(self):
+         print "test_update_discipline"
+         dis_name = "IIT Delhi"
+         dis_id = "EEE08"
+         dis = Discipline(dis_name=dis_name, dis_id=dis_id)
+         dis1 = self.persistence_delegate.add_discipline(dis)
+         dis_name1 = "IIT Bombay"
+         dis_id1 = "EEE09"
+         dis2 = self.persistence_delegate.update_discipline\
+           (dis1, dis_name1, dis_id1),
+         dis2 = Discipline.get_by_id(1)
+         self.assertEqual(dis2.get("dis_name"), dis_name1)
+         self.assertEqual(dis2.get("dis_id"), dis_id1)
+
+#+END_SRC
+
 
 
 ***  Update Section
@@ -605,6 +708,49 @@ class TestPersistenceDelegate(TestCase):
          self.persistence_delegate.delete_experiment(1)
 
          self.assertEqual(len(Experiment.get_all()), 1)
+
+#+END_SRC
+
+
+***  Delete Discipline 
+    This function delete existing Discipline.
+#+NAME: persistence_delete_discipline
+#+BEGIN_SRC python
+    def delete_discipline(self, d_id):
+        record = Discipline.get_by_id(d_id)
+        if not record:
+            abort(404, 'No Discipline  with id %s' % (d_id))
+        else:
+            try:
+                record.delete()
+                #db.session.delete(record)
+                #db.session.commit()
+            except Exception, e:
+                print e
+                abort(500, str(e))
+
+        return d_id
+
+#+END_SRC
+
+**** Tests
+#+NAME: test_persistence_delete_discipline
+#+BEGIN_SRC python
+    def test_delete_discipline(self):
+         print "test_delete_discipline"
+         dis_name = "IIT Delhi"
+         dis_id = "EEE08"
+         dis = Discipline(dis_name=dis_name, dis_id=dis_id)
+         dis1 = self.persistence_delegate.add_discipline(dis)
+
+         dis_name1 = "IIT Kanpur"
+         dis_id1 = "EEE10"
+         dis1 = Discipline (dis_name=dis_name1, dis_id=dis_id1)
+         dis2 = self.persistence_delegate.add_discipline(dis1)
+
+         self.persistence_delegate.delete_discipline(1)
+
+         self.assertEqual(len(Discipline.get_all()), 1)
 
 #+END_SRC
 
@@ -845,6 +991,9 @@ class TestPersistenceDelegate(TestCase):
 #+END_SRC
 
 
+***  Add discipline to the system
+
+
 ***  Get an object
     A generic function to find an object of type =cls= matching a given a criteria
 
@@ -881,7 +1030,7 @@ class TestPersistenceDelegate(TestCase):
          lab_id1="CSE01"
          overview="overview"
          lab = Lab(lab_name=lab_name1, lab_id=lab_id1, overview=overview,
-                       experiements=[])
+                       experiments=[])
          lab.save()
 
          lab_obj = self.persistence_delegate.get_lab(lab_name=
@@ -952,6 +1101,7 @@ class TestPersistenceDelegate(TestCase):
 
 
 
+
 ***  Get Institute
     This function returns institute if present in the database. If the institute is
     not present, =None= type is returned.
@@ -961,8 +1111,8 @@ class TestPersistenceDelegate(TestCase):
         return self.get_object(Institute, **kwargs)
 
 #+END_SRC
-
 **** Tests
+
 #+NAME: test_persistence_get_institute
 #+BEGIN_SRC python
     def test_get_institute(self):
@@ -976,6 +1126,31 @@ class TestPersistenceDelegate(TestCase):
                                                 inst.get("inst_name"))
          self.assertEqual(inst_obj.get("inst_name"),
                               inst.get("inst_name"))
+#+END_SRC
+
+***  Get Discipline
+    This function returns discipline if present in the database.  If the discipline is
+    not present, =None= type is returned.
+#+NAME: persistence_get_discipline
+#+BEGIN_SRC python
+    def get_discipline (self, **kwargs):
+        return self.get_object(Discipline, **kwargs)
+
+#+END_SRC
+
+**** Tests
+
+#+NAME: test_persistence_get_discipline
+#+BEGIN_SRC python
+    def test_get_discipline(self):
+         print "test_get_discipline"
+
+         dis_name = "IIT Delhi"
+         dis_id = "EEE08"
+         dis = Discipline (dis_name=dis_name, dis_id=dis_id)
+         dis.save()
+         dis_obj = self.persistence_delegate.get_discipline (dis_name=dis_name)
+         self.assertEqual(dis_obj.get("dis_name"), dis_name)
 
 #+END_SRC
 
@@ -1239,6 +1414,12 @@ if __name__ == '__main__':
 <<persistence_get_experiment>>
 <<persistence_get_institute>>
 
+<<persistence_get_discipline>>
+<<persistence_discipline_exists>>
+<<persistence_add_discipline>>
+<<persistence_delete_discipline>>
+<<persistence_update_discipline>>
+
 <<persistence_get_labs>>
 
 <<persistence_lab_exists>>
@@ -1275,7 +1456,11 @@ if __name__ == '__main__':
 #+BEGIN_SRC python :tangle test_persistence_delegate.py :eval no :noweb yes
 <<imports_for_tests_persistence>>
 <<test_class_persistence_delegate>>
-
+<<test_persistence_get_discipline>>
+<<test_persistence_discipline_exists>>
+<<test_persistence_add_discipline>>
+<<test_persistence_delete_discipline>>
+<<test_persistence_udpate_discipline>>
 <<test_persistence_get_lab>>
 <<test_persistence_get_section>>
 <<test_persistence_get_experiment>>
