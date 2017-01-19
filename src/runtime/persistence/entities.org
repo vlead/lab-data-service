@@ -8,8 +8,8 @@
 
 * Introduction
   Persistence is added to all the entities defined in [[../objects/entities.org][=objects=]].
-
   
+
 * Lab
 =Lab= is a class with an attribute =lab_name= of type alphabetic string and
 =lab_id= of alphabetic string.
@@ -24,7 +24,7 @@ args = {"__tablename__": "lab",
         "overview": db.Column(db.String(1000), unique=False, 
                                        nullable=True),
         "experiments": db.relationship('Experiment', backref=db.backref('lb'))
-
+        
         }
 
 Lab = ClassPersistenceTemplate.mk_persistent(Lab, ['lab_id', 'experiments'],\
@@ -158,7 +158,107 @@ class TestPersistenceExperiment(TestCase):
 
 #+END_SRC
 
+* Institute
 
+  =Institute= is a class with attributes =inst_name= and =inst_id= of type =is_email_str=.
+
+#+NAME: class_association_Table1
+#+BEGIN_SRC python
+institutes_labs = db.Table('institutes_labs',
+		      db.Column('institute_id', db.Integer, 
+                            db.ForeignKey('institute.id')),
+		      db.Column('lab_id', db.Integer,
+                            db.ForeignKey('lab.id')))
+
+#+END_SRC
+#+NAME: class_Institute
+#+begin_src python
+args = {"__tablename__": "institute",
+        "id": db.Column(db.Integer, primary_key=True),
+        "inst_name": db.Column(db.String(255), unique=False, nullable=True),
+        "inst_id": db.Column(db.String(255), unique=True, nullable=False),
+       }
+
+Institute = ClassPersistenceTemplate.mk_persistent(Institute, ['inst_id'], **args)
+
+#+end_src
+
+** Test Institute
+#+NAME: class_TestInstitute
+#+BEGIN_SRC python
+class TestPersistenceInstitute(TestCase):
+    TESTING = True
+
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_create_institute(self):
+        print "test_persistance_institute"
+        inst_name = "IIT Kanpur"
+        inst_id = "IITK"
+        inst = Institute(inst_name=inst_name, inst_id=inst_id)
+        inst.save()
+        institute = Institute.get_by_id(1)
+        institute1 = Institute.get_by_id(2)
+        self.assertEqual(institute.get("inst_name"), inst_name)
+        self.assertEqual(institute.get("inst_id"), inst_id)       
+        self.assertEqual(institute1,None)
+
+#+END_SRC
+
+* Discipline
+  =Discipline= is a class with attributes =dis_name= and =dis_id= of type =is_email_str=.
+#+NAME: class_Discipline
+#+begin_src python
+args = {"__tablename__": "discipline",
+        "id": db.Column(db.Integer, primary_key=True),
+        "dis_name": db.Column(db.String(255), unique=False, nullable=True),
+        "dis_id": db.Column(db.String(255), unique=True, nullable=False)
+       
+        }
+
+Discipline = ClassPersistenceTemplate.mk_persistent(Discipline, ['dis_id'], **args)
+
+#+end_src
+
+** Test Discipline
+#+NAME: class_TestDiscipline
+#+BEGIN_SRC python
+class TestPersistenceDiscipline(TestCase):
+
+    TESTING = True
+
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+
+    def test_create_discipline(self):
+        print "test_persistance_discipline"
+        dis_name = "IIT Delhi"
+        dis_id = "ECE08"
+        dis = Discipline(dis_name=dis_name, dis_id=dis_id)
+        dis.save()
+        discipline = Discipline.get_by_id(1)
+        self.assertEqual(discipline.get("dis_name"), dis_name)
+        self.assertEqual(discipline.get("dis_id"), dis_id)
+
+#+END_SRC
 
 
 * Section
@@ -398,7 +498,10 @@ if __name__ == '__main__':
 <<imports_for_sources>>
 <<class_Lab>>
 <<class_association_Table>>
+<<class_association_Table1>>
 <<class_Experiment>>
+<<class_Institute>>
+<<class_Discipline>>
 <<class_Section>>
 <<class_Name>>
 <<class_Email>>
@@ -410,10 +513,12 @@ if __name__ == '__main__':
 #+BEGIN_SRC python :tangle test_entities.py :eval no :noweb yes
 <<imports_for_tests>>
 <<class_TestExperiment>>
+<<class_TestDiscipline>>
 <<class_TestLab>>
 <<class_TestSection>>
 <<class_TestName>>
 <<class_TestEmail>>
 <<class_TestDeveloper>>
+<<class_TestInstitute>>
 <<run_test_cases>>
 #+end_src
