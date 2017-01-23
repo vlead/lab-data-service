@@ -546,9 +546,8 @@ class AddInstitute():
 #+NAME: class_update_institute
 #+begin_src python
 class UpdateInstitute():
-    arg_types = {"institute": is_institute, "inst_name": is_str_or_none,
-                     "inst_id": is_str_or_none,
-                 }
+    arg_types = {"inst_id": is_str, "inst_name": is_str_or_none, 
+                       "session": is_session}                               
     arity_and_type_checks_needed = True
 
     @staticmethod
@@ -563,20 +562,16 @@ class UpdateInstitute():
 
     @staticmethod
     def action(args):
-        institute = args["institute"]
+        inst_id = args["inst_id"]
+        institute = System.delegate.get_institute(inst_id=inst_id)
+
         if not "inst_name" in args:
-           inst_name=institute.get("inst_name")
+           inst_name=question.get("inst_name")
         else:
            inst_name=args["inst_name"]
-
-        if not "inst_id" in args:
-           inst_id = institute.get("inst_id")
-        else:
-           inst_id = args["inst_id"]
-               
-        inst = System.delegate.update_institute(institute, inst_name,\
-            inst_id)
-        return inst
+       
+        institute = System.delegate.update_institute(institute, inst_name, inst_id)
+        return institute
 
 #+end_src
 
@@ -585,7 +580,7 @@ class UpdateInstitute():
 #+NAME: class_delete_institute
 #+begin_src python
 class DeleteInstitute():
-    arg_types = {"i_id": is_int, "session": is_session}
+    arg_types = {"inst_id": is_str, "session": is_session}
     arity_and_type_checks_needed = True
 
     @staticmethod
@@ -600,9 +595,9 @@ class DeleteInstitute():
 
     @staticmethod
     def action(args):
-        i_id = args["i_id"]
-        i_id = System.delegate.delete_institute(i_id)
-        return i_id
+        inst_id = args["inst_id"]
+        inst_id = System.delegate.delete_institute(inst_id)
+        return inst_id
         
 #+end_src
 
@@ -1101,6 +1096,36 @@ class GetLab():
 #+end_src
 
 
+** =GetInstitute=
+#+NAME: class_get_institute
+#+begin_src python
+class GetInstitute():
+    arg_types = {"inst_id": is_str, "session": is_session}
+
+    arity_and_type_checks_needed = True
+
+    @staticmethod
+    def auth_check(args):
+        session = args['session']
+        current_app.logger.debug("checking authorization")
+        if not System.is_session_valid(session):
+            current_app.logger.debug("authorization is failed")
+            raise NotAuthorizedError("Not Authorized to perform this action")
+        current_app.logger.debug("authorization check is done")
+
+    @staticmethod
+    def state_check(args):
+        pass
+
+    @staticmethod
+    def action(args):
+        inst_id = args["inst_id"]
+        institute = System.delegate.get_institute(inst_id=inst_id)
+        return institute
+
+#+end_src
+
+
 ** Operations Table
    Each operation has a corresponding implementation defined as a class.
 
@@ -1133,7 +1158,8 @@ ops_table = {'add_lab' : AddLab,
              'get_lab' : GetLab,
              'add_discipline' : AddDiscipline,
              'update_discipline' : UpdateDiscipline,
-             'delete_discipline' : DeleteDiscipline
+             'delete_discipline' : DeleteDiscipline,
+             'get_institute' : GetInstitute
              }
 
  #+END_SRC   
