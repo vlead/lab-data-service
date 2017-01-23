@@ -616,6 +616,45 @@ class TestGetLab(TestCase):
 #+END_SRC
 
 
+* Test GetInstitute 
+#+NAME: test_get_institute
+#+BEGIN_SRC python
+class TestGetInstitute(TestCase):
+    TESTING = True
+
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_get_institute(self):
+
+        print "test_get_institute_in_system_persistence"
+        session_cls = System.delegate.entities['session']
+        institute_cls = System.delegate.entities['institute']
+
+        inst_name1= "IIT Kanpur"
+        inst_id1= "IITK"
+        key = KEY       
+        session = session_cls(key=key)
+        institute = institute_cls(inst_id=inst_id1, inst_name=inst_name1)
+                         
+        institute.save()
+
+        institute1 = System.do("get_institute", inst_id=inst_id1,
+                                  session=session)
+
+        self.assertEqual(institute1.get("inst_name"), inst_name1)
+        self.assertEqual(institute1.get("inst_id"), inst_id1)
+            
+#+END_SRC
+
 * Infra                                                         :boilerplate:
 ** Tests
 *** Imports 
@@ -653,16 +692,17 @@ if __name__ == '__main__':
 <<populate_db>>
 <<test_add_lab>>
 <<test_delete_lab>>
-#<<test_delete_institute>>
+<<test_delete_institute>>
 <<test_add_experiment>>
 <<test_add_institute>>
 <<test_add_discipline>>
 <<test_add_section>>
 <<test_update_lab>>
 <<test_update_experiment>>
-#<<test_update_institute>>
+<<test_update_institute>>
 <<test_add_sections_to_experiment>>
 #<<test_add_labs_to_institute>>
 <<test_get_lab>>
+<<test_get_institute>>
 <<run_test_cases>>
 #+end_src
