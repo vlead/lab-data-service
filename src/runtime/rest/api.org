@@ -840,6 +840,328 @@ class TestGetSection(TestCase):
 
  #+END_SRC
    
+** Get and Add Name
+REST API to get and add Name.
+#+NAME: get_and_add_name
+#+BEGIN_SRC python
+@api.route('/names', methods=['GET', 'POST'])
+def get_and_add_name():
+    if request.method == 'GET':
+        try:
+            names = SystemInterface.get_names()
+
+            return jsonify_list(names)
+
+        except TypeError as err:
+            error_message = 'Malformed arguments, error: %s' % str(err)
+
+            return render_template('error.html', 
+                    data=error_message)
+
+        except Exception as err:
+            abort(500, 'error: %s' % str(err))
+       
+    if request.method == 'POST':
+        if request.is_json:
+            data_json = json.dumps(request.get_json())
+            data_dict = yaml.safe_load(data_json)
+        else:
+            abort(500, "the request does not contain data in json")
+
+        try:
+            name = SystemInterface.add_name(data_dict)
+            return jsonify(name)
+
+        except TypeError as err:
+            error_message = 'Malformed arguments, error: %s' % str(err)
+
+            return render_template('error.html', 
+                    data=error_message)
+
+        except Exception as err:
+            abort(500, 'error: %s' % str(err))
+            
+#+END_SRC
+
+
+*** TestAddName
+ #+NAME: test_add_name
+ #+BEGIN_SRC python
+class TestAddName(TestCase):
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_add_name(self):
+        print "test_add_name_in_rest"
+        payload = {'name': 'Prof. ABC',
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/names", data=json.dumps(payload),
+                                 headers=headers)
+
+        self.assertEqual(response.status_code, 200)
+
+ #+END_SRC
+   
+
+*** TestGetName
+ #+NAME: test_get_Name
+ #+BEGIN_SRC python
+class TestGetName(TestCase):
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_get_name(self):
+        print "test_get_name_in_rest"
+
+        payload = {'name': 'Prof. ABC',
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/name", data=json.dumps(payload),
+                                 headers=headers)
+
+        response = self.client.get("/names", headers=headers)
+        self.assertEqual(response.status_code, 200)
+
+ #+END_SRC
+   
+** Get and Add Email
+REST API to get and add Email.
+#+NAME: get_and_add_email
+#+BEGIN_SRC python
+@api.route('/emails', methods=['GET', 'POST'])
+def get_and_add_email():
+    if request.method == 'GET':
+        try:
+            names = SystemInterface.get_emails()
+
+            return jsonify_list(emails)
+
+        except TypeError as err:
+            error_message = 'Malformed arguments, error: %s' % str(err)
+
+            return render_template('error.html', 
+                    data=error_message)
+
+        except Exception as err:
+            abort(500, 'error: %s' % str(err))
+       
+    if request.method == 'POST':
+        if request.is_json:
+            data_json = json.dumps(request.get_json())
+            data_dict = yaml.safe_load(data_json)
+        else:
+            abort(500, "the request does not contain data in json")
+
+        try:
+            email = SystemInterface.add_email(data_dict)
+            return jsonify(email)
+
+        except TypeError as err:
+            error_message = 'Malformed arguments, error: %s' % str(err)
+
+            return render_template('error.html', 
+                    data=error_message)
+
+        except Exception as err:
+            abort(500, 'error: %s' % str(err))
+            
+#+END_SRC
+
+
+*** TestAddEmail
+ #+NAME: test_add_email
+ #+BEGIN_SRC python
+class TestAddEmail(TestCase):
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_add_email(self):
+        print "test_add_email_in_rest"
+        payload = {'email': 'abc@gmail.com',
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/emails", data=json.dumps(payload),
+                                 headers=headers)
+
+        self.assertEqual(response.status_code, 200)
+
+ #+END_SRC
+   
+
+*** TestGetEmail
+ #+NAME: test_get_Email
+ #+BEGIN_SRC python
+class TestGetEmail(TestCase):
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_get_email(self):
+        print "test_get_email_in_rest"
+
+        payload = {'name': 'abc@gmail.com',
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/email", data=json.dumps(payload),
+                                 headers=headers)
+
+        response = self.client.get("/emails", headers=headers)
+        self.assertEqual(response.status_code, 200)
+
+ #+END_SRC
+   
+** Get and Add Developer
+REST API to get and add developer.
+#+NAME: get_and_add_developer
+#+BEGIN_SRC python
+@api.route('/developers', methods=['GET', 'POST'])
+def get_and_add_developer():
+    if request.method == 'GET':
+        try:
+            developers = SystemInterface.get_developers()
+
+            return jsonify_list(developers)
+
+        except TypeError as err:
+            error_message = 'Malformed arguments, error: %s' % str(err)
+
+            return render_template('error.html', 
+                    data=error_message)
+
+        except Exception as err:
+            abort(500, 'error: %s' % str(err))
+       
+    if request.method == 'POST':
+        if request.is_json:
+            data_json = json.dumps(request.get_json())
+            data_dict = yaml.safe_load(data_json)
+        else:
+            abort(500, "the request does not contain data in json")
+
+        try:
+            exp = SystemInterface.add_developer(data_dict)
+            return jsonify(exp)
+
+        except TypeError as err:
+            error_message = 'Malformed arguments, error: %s' % str(err)
+
+            return render_template('error.html', 
+                    data=error_message)
+
+        except Exception as err:
+            abort(500, 'error: %s' % str(err))
+            
+#+END_SRC
+
+
+*** TestAddDeveloper
+ #+NAME: test_add_developer
+ #+BEGIN_SRC python
+class TestAddDeveloper(TestCase):
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_add_developer(self):
+        print "test_add_developer_in_rest"
+        payload = {'dev_name': 'Prof. ABC',
+                   'dev_email': 'abc@gmail.com',
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/developers", data=json.dumps(payload),
+                                 headers=headers)
+
+        self.assertEqual(response.status_code, 200)
+
+ #+END_SRC
+   
+*** TestGetDeveloper
+ #+NAME: test_get_Developer
+ #+BEGIN_SRC python
+class TestGetDeveloper(TestCase):
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_get_developers(self):
+        print "test_get_developers_in_rest"
+
+        payload = {'dev_name': 'ABC',
+                   'dev_email': 'abc@gmail.com',
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/developers", data=json.dumps(payload),
+                                 headers=headers)
+
+        response = self.client.get("/developers", headers=headers)
+        self.assertEqual(response.status_code, 200)
+
+ #+END_SRC
+   
 ** Update and Delete Section
 #+NAME: update_and_delete_section
 #+BEGIN_SRC python
@@ -2079,6 +2401,9 @@ if __name__ == '__main__':
 <<update_and_delete_experiment>>
 <<update_and_delete_section>>
 <<get_and_add_section>>
+<<get_and_add_name>>
+<<get_and_add_email>>
+<<get_and_add_developer>>
 <<update_and_delete_institute>>
 <<get_and_add_institute>>
 #+END_SRC
@@ -2102,10 +2427,15 @@ if __name__ == '__main__':
 <<test_delete_experiment>>
 <<test_get_Section>>
 <<test_add_section>>
+<<test_get_Name>>
+<<test_add_name>>
+<<test_get_Email>>
+<<test_add_email>>
+<<test_get_Developer>>
+<<test_add_developer>>
 <<test_add_institute>>
 <<test_get_institute>>
 #<<test_update_institute>>
 #<<test_delete_institute>>
 <<run_test_cases>>
 #+end_src
-

@@ -417,6 +417,7 @@ class TestPersistenceDelegate(TestCase):
 
 #+END_SRC
 
+
 ***  Add name to the system
     This function adds name to the system.
 #+NAME: persistence_add_name
@@ -437,7 +438,32 @@ class TestPersistenceDelegate(TestCase):
          name = Name(name=name)
          name = self.persistence_delegate.add_name(name)
          name = name.get_by_id(1)
-         self.assertEqual(name.get("name"), name)
+         self.assertEqual(name.get("name"), name.get("name"))
+
+#+END_SRC
+
+
+***  Add email to the system
+    This function adds email to the system.
+#+NAME: persistence_add_email
+#+BEGIN_SRC python
+    def add_email(self, email):
+        email.save()
+        return email
+
+#+END_SRC
+
+
+**** Tests
+#+NAME: test_persistence_add_email
+#+BEGIN_SRC python
+    def test_add_email(self):
+         print "test_add_email"
+         email = "dharmar@maths.iitd.ac.in"
+         email = Email(email=email)
+         email = self.persistence_delegate.add_email(email)
+         email = email.get_by_id(1)
+         self.assertEqual(email.get("email"), email.get("email"))
 
 #+END_SRC
 
@@ -457,8 +483,8 @@ class TestPersistenceDelegate(TestCase):
 #+BEGIN_SRC python
     def test_add_dev(self):
          print "test_add_dev"
-         dev_name="Prof. S. Dharmaraja"
-         email_id="dharmar@maths.iitd.ac.in"
+         dev_name = Name(name="Prof. S. Dharmaraja")
+         email_id = Email(email="dharmar@maths.iitd.ac.in")
          dev = Dev(dev_name=dev_name, email_id=email_id)
          dev = self.persistence_delegate.add_dev(dev)
         
@@ -468,6 +494,7 @@ class TestPersistenceDelegate(TestCase):
                           False)
 
 #+END_SRC
+
 
 ***  Add institute to the system
 
@@ -501,6 +528,7 @@ class TestPersistenceDelegate(TestCase):
                           False)
         
 #+END_SRC
+
 
 ***  Update lab 
     This function updates existing lab.
@@ -539,6 +567,7 @@ class TestPersistenceDelegate(TestCase):
          self.assertEqual(lab2.get("overview"), overview1)
 
 #+END_SRC
+
 
 ***  Update Experiment 
     This function updates existing experiment.
@@ -633,6 +662,7 @@ class TestPersistenceDelegate(TestCase):
 
 #+END_SRC
 
+
 ***  Update developer
     This function updates existing developer.
 #+NAME: persistence_update_developer
@@ -669,6 +699,7 @@ class TestPersistenceDelegate(TestCase):
          self.assertEqual(lab2.get("lab_name"), lab_name1)
          self.assertEqual(lab2.get("overview"), overview1)
 #+END_SRC
+
 ***  Update Institute 
     This function updates existing institute.
 #+NAME: persistence_update_institute
@@ -974,7 +1005,7 @@ class TestPersistenceDelegate(TestCase):
 
 #+END_SRC
 
- 
+
 ***  Add labs to an Institute
     This function adds labs to a given institute.
 #+NAME: persistence_add_labs_to_institute
@@ -1533,6 +1564,10 @@ if __name__ == '__main__':
 <<persistence_add_experiments_to_lab>>
 <<persistence_add_sections_to_experiment>>
 <<persistence_add_labs_to_institute>>
+
+<<persistence_add_name>>
+<<persistence_add_email>>
+<<persistence_add_developer>>
 #+end_src
 
 
@@ -1579,6 +1614,10 @@ if __name__ == '__main__':
 <<test_persistence_add_experiments_to_lab>>
 <<test_persistence_add_sections_to_experiment>>
 #<<test_persistence_add_labs_to_institute>>
+
+<<test_persistence_add_name>>
+<<test_persistence_add_email>>
+<<test_persistence_add_developer>>
 <<run_test_cases>>
 
 #+end_src
