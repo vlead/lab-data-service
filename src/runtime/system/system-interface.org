@@ -1435,11 +1435,6 @@ class TestUpdateExperiment(TestCase):
         else:
             inst_name=data_dict['inst_name']
 
-        if 'inst_id' not in data_dict:
-            inst_id=str(inst.get("inst_id"))
-        else:
-            inst_id=data_dict['inst_id']
-
         try:
             current_app.logger.debug("running operation update_institute")
             institute = System.do("update_institute", inst_id=str(data_dict['inst_id']),
@@ -1478,20 +1473,20 @@ class TestUpdateInstitute(TestCase):
         data_dict = {
                     'key' : KEY,
                     'inst_name': 'IIT Kanpur',
-                    'inst_id': 'IITK'
+                    'inst_id': 'IITK',
+                    'overview' : 'overview'
                     }
 
         data_dict1 = {
                     'key' : KEY,
                     'inst_name': 'IIT Delhi',
-                    'inst_id': 'IITD'
+                    'inst_id': 'IITK'
                    }
 
         institute = SystemInterface.add_institute(data_dict)
         institute1 = SystemInterface.update_institute(data_dict1)
         
         self.assertEqual(institute1.get("inst_name"), data_dict1['inst_name'])
-        self.assertEqual(institute1.get("inst_id"), data_dict1['inst_id'])
 
  #+END_SRC
 
@@ -1675,18 +1670,19 @@ class TestDeleteInstitute(TestCase):
                     'key' : KEY,
                     'inst_name': 'IIT Kanpur',
                     'inst_id': 'IITK'
-                   }
+                    }
 
         data_dict1 = {
                     'key' : KEY,
                     'inst_name': 'IIT Kharagpur',
                     'inst_id': 'IITKgp'
-                   }
+                     }
+
         institute = SystemInterface.add_institute(data_dict)
         institute1 = SystemInterface.add_institute(data_dict1)
-        inst_id = SystemInterface.delete_institute("IITKgp", KEY)
+        inst_id = SystemInterface.delete_institute("IITK", KEY)
         
-        self.assertEqual(inst_id, "IITKgp")
+        self.assertEqual(inst_id, "IITK")
 
  #+END_SRC
 
