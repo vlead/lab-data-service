@@ -451,7 +451,7 @@ class TestUpdateExperiment(TestCase):
 #+NAME: test_update_institute
 #+BEGIN_SRC python
 class TestUpdateInstitute(TestCase):
-    TESTING = True
+  TESTING = True
 
     def create_app(self):
         app = create_app(config)
@@ -464,29 +464,28 @@ class TestUpdateInstitute(TestCase):
         db.session.remove()
         db.drop_all()
 
-    def test_update_inst(self):
+    def test_update_institute(self):
         
-        print "test_update_inst_in_system_persistence"
+        print "test_update_institute_in_system_persistence"
         session_cls = System.delegate.entities['session']
-        inst_cls = System.delegate.entities['institute']
+        institute_cls = System.delegate.entities['institute']
+              
+        inst_name1="IIT Kanpur"
+        inst_id1="IITK"
+        key = KEY
+        session = session_cls(key=key)
+        institute = institute_cls(inst_id=inst_id1, inst_name=inst_name1)
 
-        session = session_cls(key=KEY)
-        inst_name = "IIT Delhi"
-        inst_id = "IITD"
-        institute = inst_cls(inst_name=inst_name, inst_id=inst_id)
-                               
         institute.save()
 
-        inst_name2 = "IIT Kharagpur"
-        inst_id2 = "IITKgp"
+        inst_name2="IIT Kharagpur"
 
-        inst1 = System.do("update_institute", institute=institute, 
-                                  inst_name=inst_name2, inst_id=inst_id2) 
-                                 
-        new_inst = inst_cls.get_by_id(1)
+        institute1 = System.do("update_institute", inst_name=inst_name2, 
+                                  inst_id=inst_id1, session=session)
 
-        self.assertEqual(new_inst.get("inst_name"), inst_name2)
-        self.assertEqual(new_inst.get("inst_id"), inst_id2)
+        new_institute = institute_cls.get_by_id(1)
+
+        self.assertEqual(new_institute.get("inst_name"), inst_name2)
             
 #+END_SRC
 
