@@ -28,7 +28,10 @@ class PersistenceDelegate():
                          'experiment' : Experiment,
                          'section' : Section,
                          'institute' : Institute,
-                         'discipline' : Discipline
+                         'discipline' : Discipline,
+                         'name' : Name,
+                         'email' : Email,
+                         'developer' : Developer
                         }
 
 #+END_SRC
@@ -426,6 +429,16 @@ class TestPersistenceDelegate(TestCase):
         name.save()
         return name
 
+    def name_exists(self, id):
+        ret_val = False
+        try:
+            if Name.get_by_id(id) is not None:
+                ret_val = True
+        except Exception as e:
+            pass
+
+        return ret_val
+
 #+END_SRC
 
 
@@ -451,6 +464,16 @@ class TestPersistenceDelegate(TestCase):
         email.save()
         return email
 
+    def email_exists(self, email):
+        ret_val = False
+        try:
+            if Email.get_by_id(email) is not None:
+                ret_val = True
+        except Exception as e:
+            pass
+
+        return ret_val
+
 #+END_SRC
 
 
@@ -475,6 +498,16 @@ class TestPersistenceDelegate(TestCase):
     def add_dev(self, dev):
         dev.save()
         return dev
+
+    def developer_exists(self, dev_email):
+        ret_val = False
+        try:
+            if Developer.get_by_id(dev_email) is not None:
+                ret_val = True
+        except Exception as e:
+            pass
+
+        return ret_val
 
 #+END_SRC
 **** Tests
@@ -1471,7 +1504,7 @@ class TestPersistenceDelegate(TestCase):
 
 #+END_SRC
 
-      
+
 * Infra                                                         :boilerplate:
 
 ** sources
