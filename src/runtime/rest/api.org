@@ -20,19 +20,39 @@
 @api.route('/labs', methods=['GET', 'POST'])
 def get_and_add_lab():
     if request.method == 'GET':
-       try:
+        try:
            labs = SystemInterface.get_labs()
            return jsonify_list(labs)
-
-       except TypeError as err:
+         
+        except TypeError as err:
            error_message = 'Malformed arguments, error: %s' % str(err)
 
-           return render_template('error.html', 
+           return render_template('error.html',
                         data=error_message)
 
-       except Exception as err:
+        except Exception as err:
            abort(500, 'error: %s' % str(err))
-       
+
+    if request.method == 'POST':
+        if request.is_json:
+            data_json = json.dumps(request.get_json())
+            data_dict = yaml.safe_load(data_json)
+        else:
+            abort(500, "the request does not contain data in json")
+
+        try:
+            lab = SystemInterface.add_lab(data_dict)
+            return jsonify(lab)
+
+        except TypeError as err:
+            error_message = 'Malformed arguments, error: %s' % str(err)
+
+            return render_template('error.html',
+                    data=error_message)
+
+        except Exception as err:
+            abort(500, 'error: %s' % str(err))
+
     if request.method == 'POST':
         if request.is_json:
             data_json = json.dumps(request.get_json())
@@ -171,8 +191,7 @@ def update_and_delete_lab():
                 """
                 current_app.logger.error("%s" %(error_message))
                 return render_template('error.html', 
-                                       data=error_message)
-    
+                                       data=error_message)        
     if request.method == 'PUT':
         if request.is_json:
             data_json = json.dumps(request.get_json())
@@ -938,31 +957,12 @@ REST API to get and add institute.
 #+NAME: get_and_add_institute
 #+BEGIN_SRC python
 @api.route('/institutes', methods=['GET', 'POST'])
-def get_and_add_institute():
-    if request.method == 'GET':      
-       try:
-          institutes = SystemInterface.get_institutes()
-          return jsonify_list(institutes)
-
-       except TypeError as err:
-           error_message = 'Malformed arguments, error: %s' % str(err)
-
-           return render_template('error.html', 
-                    data=error_message)
-
-       except Exception as err:
-           abort(500, 'error: %s' % str(err))
-       
-    if request.method == 'POST':
-        if request.is_json:
-            data_json = json.dumps(request.get_json())
-            data_dict = yaml.safe_load(data_json)
-        else:
-            abort(500, "the request does not contain data in json")
-
+def add_institute():
+    if request.method == 'GET':
         try:
-           institute = SystemInterface.add_institute(data_dict)
-           return jsonify(institute)
+            institutes = SystemInterface.get_institutes()
+
+            return jsonify_list(institutes)
 
         except TypeError as err:
             error_message = 'Malformed arguments, error: %s' % str(err)
@@ -972,7 +972,27 @@ def get_and_add_institute():
 
         except Exception as err:
             abort(500, 'error: %s' % str(err))
-                           
+       
+    if request.method == 'POST':
+        if request.is_json:
+            data_json = json.dumps(request.get_json())
+            data_dict = yaml.safe_load(data_json)
+        else:
+            abort(500, "the request does not contain data in json")
+
+        try:
+            institute = SystemInterface.add_institute(data_dict)
+            return jsonify(institute)
+
+        except TypeError as err:
+            error_message = 'Malformed arguments, error: %s' % str(err)
+
+            return render_template('error.html', 
+                    data=error_message)
+
+        except Exception as err:
+            abort(500, 'error: %s' % str(err))
+            
 #+END_SRC
 
 *** TestAddInstitute 
@@ -1045,42 +1065,41 @@ class TestGetInstitute(TestCase):
 @api.route('/institutes', methods=['GET', 'PUT', 'DELETE'])
 def update_and_delete_institute():
     if request.method == 'GET':
-        if 'inst_id' in request.args:
-            inst_id  = request.args['inst_id']
-            try:
-                institute = SystemInterface.get_institute(inst_id)
-                return jsonify(institute)
-                
-            except NotAuthorizedError as err:
-                error_message =  'Not Authorized error: %s' % str(err)
-                """
-                if request.headers['Content-Type'] == "application/json":
-                    abort(401, error_message)
-                else:
-                """
-                current_app.logger.error("%s" %(error_message))
-                return render_template('error.html', 
+       if 'inst_id' in request.args:
+           inst_id  = request.args['inst_id']
+           try:
+               institute = SystemInterface.get_institute(inst_id)
+               return jsonify(institute)
+
+           except NotAuthorizedError as err:
+               error_message = 'Not Authorized error: %s' % str(err)
+               current_app.logger.error("%s" %(error_message))
+               return render_template('error.html',
                                        data=error_message)
-            except TypeError as err:
-                error_message = 'Malformed arguments, error: %s' % str(err)
-                """
-                if request.headerscurrent_app.logger.error("%s" %(error_message)))['Content-Type'] == "application/json":
-                abort(400, error_message)
-                else:
-                """
-                current_app.logger.error("%s" %(error_message))
-                return render_template('error.html', 
+           except TypeError as err:
+               error_message = 'Malformed arguments, error: %s' % str(err)
+               current_app.logger.error("%s" %(error_message))
+               return render_template('error.html',
                                        data=error_message)
-            except Exception as err:
-                error_message = 'error: %s' % str(err)
-                """
-                if request.headers['Content-Type'] == "application/json":
-                abort(400, error_message)
-                else:
-                """
-                current_app.logger.error("%s" %(error_message))
-                return render_template('error.html', 
-                                       data=error_message)
+           except Exception as err:
+               error_message = 'error: %s' % str(err)
+               current_app.logger.error("%s" %(error_message))
+               return render_template('error.html',
+                                        data=error_message)
+       else:
+           try:
+               institutes = SystemInterface.get_institutes()
+               print institutes
+               return jsonify_list(institutes)
+
+           except TypeError as err:
+               error_message = 'Malformed arguments, error: %s' % str(err)
+
+               return render_template('error.html',
+                                           data=error_message)
+
+           except Exception as err:
+               abort(500, 'error: %s' % str(err))
     
     if request.method == 'PUT':
         if request.is_json:
