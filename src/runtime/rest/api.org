@@ -20,57 +20,18 @@
 @api.route('/labs', methods=['GET', 'POST'])
 def get_and_add_lab():
     if request.method == 'GET':
-        if 'lab_id' in request.args:
-            lab_id  = request.args['lab_id']
-            try:
-                current_app.logger.debug("execute get_lab_by_labid")
-                lab = SystemInterface.get_lab(lab_id)
-                current_app.logger.debug("executed get_lab_by_labid")
-                return jsonify(lab)
-                
-            except NotAuthorizedError as err:
-                error_message =  'Not Authorized error: %s' % str(err)
-                """
-                if request.headers['Content-Type'] == "application/json":
-                    abort(401, error_message)
-                else:
-                """
-                current_app.logger.error("%s" %(error_message))
-                return render_template('error.html', 
-                                       data=error_message)
-            except TypeError as err:
-                error_message = 'Malformed arguments, error: %s' % str(err)
-                """
-                if request.headerscurrent_app.logger.error("%s" %(error_message)))['Content-Type'] == "application/json":
-                abort(400, error_message)
-                else:
-                """
-                current_app.logger.error("%s" %(error_message))
-                return render_template('error.html', 
-                                       data=error_message)
-            except Exception as err:
-                error_message = 'error: %s' % str(err)
-                """
-                if request.headers['Content-Type'] == "application/json":
-                abort(400, error_message)
-                else:
-                """
-                current_app.logger.error("%s" %(error_message))
-                return render_template('error.html', 
-                                       data=error_message)
+       try:
+           labs = SystemInterface.get_labs()
+           return jsonify_list(labs)
 
-        try:
-            labs = SystemInterface.get_labs()
-            return jsonify_list(labs)
+       except TypeError as err:
+           error_message = 'Malformed arguments, error: %s' % str(err)
 
-        except TypeError as err:
-            error_message = 'Malformed arguments, error: %s' % str(err)
+           return render_template('error.html', 
+                        data=error_message)
 
-            return render_template('error.html', 
-                    data=error_message)
-
-        except Exception as err:
-            abort(500, 'error: %s' % str(err))
+       except Exception as err:
+           abort(500, 'error: %s' % str(err))
        
     if request.method == 'POST':
         if request.is_json:
@@ -1020,7 +981,7 @@ def get_and_add_institute():
 
         try:
             institutes = SystemInterface.get_institutes()
-            return jsonify_list(institutes)
+            return jsonify(institutes)
 
         except TypeError as err:
             error_message = 'Malformed arguments, error: %s' % str(err)

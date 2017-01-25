@@ -885,10 +885,10 @@ class TestPersistenceDelegate(TestCase):
     This function deletes existing institute.
 #+NAME: persistence_delete_institute
 #+BEGIN_SRC python
-    def delete_institute(self, i_id):
-        record = Institute.get_by_id(i_id)
+    def delete_institute(self, inst_id):
+        record = self.get_institute(inst_id=inst_id)
         if not record:
-            abort(404, 'No Institute with id %s' % (i_id))
+            abort(404, 'No Institute with id %s' % (inst_id))
         else:
             try:
                 record.delete()
@@ -898,7 +898,7 @@ class TestPersistenceDelegate(TestCase):
                 print e
                 abort(500, str(e))
 
-        return i_id
+        return inst_id
 
 #+END_SRC
 
@@ -909,15 +909,15 @@ class TestPersistenceDelegate(TestCase):
          print "test_delete_institute"
          inst_name = "IIT Delhi"
          inst_id = "IITD"
-         inst = Institute(inst_name=inst_name, inst_id=inst_id)                    
-         inst1 = self.persistence_delegate.add_institute(inst)
+         institute = Institute(inst_name=inst_name, inst_id=inst_id)                    
+         institute1 = self.persistence_delegate.add_institute(institute)
 
          inst_name1 = "IIT Kharagpur"
          inst_id1 = "IITKgp"
-         inst1 = Institute(inst_name=inst_name, inst_id=inst_id) 
-         inst2 = self.persistence_delegate.add_institute(inst1)
+         institute1 = Institute(inst_name=inst_name1, inst_id=inst_id1) 
+         institute2 = self.persistence_delegate.add_institute(institute1)
 
-         self.persistence_delegate.delete_institute(1)
+         self.persistence_delegate.delete_institute("IITD")
 
          self.assertEqual(len(Institute.get_all()), 1)
 
