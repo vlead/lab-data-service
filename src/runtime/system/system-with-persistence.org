@@ -326,6 +326,46 @@ class TestUpdateExperiment(TestCase):
 #+END_SRC
 
 
+* Test DeleteExperiment
+#+NAME:  test_delete_experiment 
+#+BEGIN_SRC python
+class TestDeleteExperiment(TestCase):
+    TESTING = True
+
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_delete_exp(self):
+        
+        print "test_delete_exp_in_system_persistence"
+        session_cls = System.delegate.entities['session']
+        experiment_cls = System.delegate.entities['experiment']
+
+        exp_name = "arrays"
+        exp_id = "cse02"
+        overview = "overview"
+        key = KEY
+        experiment = experiment_cls(exp_name=exp_name, exp_id=exp_id,
+                                        overview=overview, sections=[])
+
+        experiment.save()
+        session = session_cls(key=key)
+        exp_id1 = System.do("delete_experiment", exp_id = exp_id,
+                                  session=session)
+
+        self.assertEqual(exp_id1, exp_id)
+            
+#+END_SRC
+
+
 * Test UpdateSection
 #+NAME: test_update_section
 #+BEGIN_SRC python
@@ -450,6 +490,7 @@ if __name__ == '__main__':
 <<populate_db>>
 <<test_add_lab>>
 <<test_delete_lab>>
+<<test_delete_experiment>>
 <<test_add_experiment>>
 <<test_add_section>>
 <<test_update_lab>>

@@ -460,10 +460,10 @@ class TestPersistenceDelegate(TestCase):
     This function delete existing experiment.
 #+NAME: persistence_delete_experiment
 #+BEGIN_SRC python
-    def delete_experiment(self, e_id):
-        record = Experiment.get_by_id(e_id)
+    def delete_experiment(self, exp_id):
+        record = self.get_experiment(exp_id=exp_id)
         if not record:
-            abort(404, 'No Experiment with id %s' % (e_id))
+            abort(404, 'No Experiment found with exp_id %s' % (exp_id))
         else:
             try:
                 record.delete()
@@ -473,7 +473,7 @@ class TestPersistenceDelegate(TestCase):
                 print e
                 abort(500, str(e))
 
-        return e_id
+        return exp_id
 
 #+END_SRC
 
@@ -496,7 +496,7 @@ class TestPersistenceDelegate(TestCase):
                                overview=overview, sections=[])
          exp2 = self.persistence_delegate.add_experiment(exp1)
 
-         self.persistence_delegate.delete_experiment(1)
+         self.persistence_delegate.delete_experiment(exp_id)
 
          self.assertEqual(len(Experiment.get_all()), 1)
 

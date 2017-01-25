@@ -172,46 +172,8 @@ class TestGetLab(TestCase):
 ** Update and Delete Lab
 #+NAME: update_and_delete_lab
 #+BEGIN_SRC python
-@api.route('/labs', methods=['GET', 'PUT', 'DELETE'])
+@api.route('/labs', methods=['PUT', 'DELETE'])
 def update_and_delete_lab():
-    if request.method == 'GET':
-        if 'lab_id' in request.args:
-            lab_id  = request.args['lab_id']
-            try:
-                lab = SystemInterface.get_lab(lab_id)
-                return jsonify(lab)
-                
-            except NotAuthorizedError as err:
-                error_message =  'Not Authorized error: %s' % str(err)
-                """
-                if request.headers['Content-Type'] == "application/json":
-                    abort(401, error_message)
-                else:
-                """
-                current_app.logger.error("%s" %(error_message))
-                return render_template('error.html', 
-                                       data=error_message)
-            except TypeError as err:
-                error_message = 'Malformed arguments, error: %s' % str(err)
-                """
-                if request.headerscurrent_app.logger.error("%s" %(error_message)))['Content-Type'] == "application/json":
-                abort(400, error_message)
-                else:
-                """
-                current_app.logger.error("%s" %(error_message))
-                return render_template('error.html', 
-                                       data=error_message)
-            except Exception as err:
-                error_message = 'error: %s' % str(err)
-                """
-                if request.headers['Content-Type'] == "application/json":
-                abort(400, error_message)
-                else:
-                """
-                current_app.logger.error("%s" %(error_message))
-                return render_template('error.html', 
-                                       data=error_message)
-    
     if request.method == 'PUT':
         if request.is_json:
             data_json = json.dumps(request.get_json())
@@ -374,7 +336,7 @@ class TestDeleteLab(TestCase):
  #+END_SRC
    
 ** Get and Add Experiment
-REST API to get and add experiment.
+   REST API to get single experiment by exp_id and get all experiments and add experiment.
 #+NAME: get_and_add_experiment
 #+BEGIN_SRC python
 @api.route('/experiments', methods=['GET', 'POST'])
@@ -523,93 +485,6 @@ class TestGetExperiment(TestCase):
 
  #+END_SRC
    
-** Update and Delete Experiment
-#+NAME: update_and_delete_experiment
-#+BEGIN_SRC python
-@api.route('/experiments', methods=['GET', 'PUT', 'DELETE'])
-def update_and_delete_experiment():
-    if request.method == 'GET':
-        if 'exp_id' in request.args:
-            exp_id  = request.args['exp_id']
-            try:
-                exp = SystemInterface.get_experiment(exp_id)
-                return jsonify(exp)
-                
-            except NotAuthorizedError as err:
-                error_message =  'Not Authorized error: %s' % str(err)
-                """
-                if request.headers['Content-Type'] == "application/json":
-                    abort(401, error_message)
-                else:
-                """
-                current_app.logger.error("%s" %(error_message))
-                return render_template('error.html', 
-                                       data=error_message)
-            except TypeError as err:
-                error_message = 'Malformed arguments, error: %s' % str(err)
-                """
-                if request.headerscurrent_app.logger.error("%s" %(error_message)))['Content-Type'] == "application/json":
-                abort(400, error_message)
-                else:
-                """
-                current_app.logger.error("%s" %(error_message))
-                return render_template('error.html', 
-                                       data=error_message)
-            except Exception as err:
-                error_message = 'error: %s' % str(err)
-                """
-                if request.headers['Content-Type'] == "application/json":
-                abort(400, error_message)
-                else:
-                """
-                current_app.logger.error("%s" %(error_message))
-                return render_template('error.html', 
-                                       data=error_message)
-    
-    if request.method == 'PUT':
-        if request.is_json:
-            data_json = json.dumps(request.get_json())
-            data_dict = yaml.safe_load(data_json)
-        else:
-            abort(500, "the request does not contain data in json")
-
-        if 'exp_id' in request.args:
-            data_dict['exp_id']  = request.args['exp_id']
-        else:
-            abort(500, "Please provide the 'exp_id' to update the exp")
-        
-        try:
-            exp = SystemInterface.update_experiment(data_dict)
-            return jsonify(exp)
-
-        except TypeError as err:
-            error_message = 'Malformed arguments, error: %s' % str(err)
-
-            return render_template('error.html', 
-                    data=error_message)
-
-        except Exception as err:
-            abort(500, 'error: %s' % str(err))
-
-    if request.method == 'DELETE':
-        if 'exp_id' in request.args and 'key' in request.args:
-            exp_id  = request.args['exp_id']
-            key = request.args['key']
-
-            try:
-                exp = SystemInterface.delete_exp(exp_id, key)
-
-                return jsonify({"status":"sucess"})
-
-            except TypeError as err:
-                error_message = 'Malformed arguments, error: %s' % str(err)
-
-                return render_template('error.html', data=error_message)
-
-            except Exception as err:
-                abort(500, 'error: %s' % str(err))
-
-#+END_SRC
 *** TestGetExperimentbyExpid
 #+NAME: test_get_exp_by_expid
 #+BEGIN_SRC python
@@ -643,6 +518,57 @@ class TestGetExp(TestCase):
         response = self.client.get("/experiments?exp_id=cse01", \
                                        headers=headers)
         self.assertEqual(response.status_code, 200)
+
+#+END_SRC
+** Update and Delete Experiment
+#+NAME: update_and_delete_experiment
+#+BEGIN_SRC python
+@api.route('/experiments', methods=['PUT', 'DELETE'])
+def update_and_delete_experiment():
+    if request.method == 'PUT':
+        if request.is_json:
+            data_json = json.dumps(request.get_json())
+            data_dict = yaml.safe_load(data_json)
+        else:
+            abort(500, "the request does not contain data in json")
+
+        if 'exp_id' in request.args:
+            data_dict['exp_id']  = request.args['exp_id']
+        else:
+            abort(500, "Please provide the 'exp_id' to update the exp")
+        
+        try:
+            exp = SystemInterface.update_experiment(data_dict)
+            return jsonify(exp)
+
+        except TypeError as err:
+            error_message = 'Malformed arguments, error: %s' % str(err)
+
+            return render_template('error.html', 
+                    data=error_message)
+
+        except Exception as err:
+            abort(500, 'error: %s' % str(err))
+
+    if request.method == 'DELETE':
+        print "inside delete"
+        if 'exp_id' in request.args and 'key' in request.args:
+            print "inside request"
+            exp_id  = request.args['exp_id']
+            key = request.args['key']
+            print exp_id
+            print key
+            try:
+                exp_id = SystemInterface.delete_exp(exp_id, key)
+                return jsonify({"status":"sucess"})
+
+            except TypeError as err:
+                error_message = 'Malformed arguments, error: %s' % str(err)
+
+                return render_template('error.html', data=error_message)
+
+            except Exception as err:
+                abort(500, 'error: %s' % str(err))
 
 #+END_SRC
 *** TestUpdateExperiment
@@ -709,7 +635,8 @@ class TestDeleteExperiment(TestCase):
                    'exp_id': 'exp123',
                    'overview': 'overview',
                    'sections': [],
-                   'key': KEY}
+                   'key': KEY
+                  }
 
 
         headers = {'Content-Type': 'application/json'}
@@ -717,7 +644,8 @@ class TestDeleteExperiment(TestCase):
         response = self.client.post("/experiments", data=json.dumps(payload),
                                  headers=headers)
 
-        response = self.client.delete("/experiments/exp123", headers=headers)
+        response = self.client.delete("/experiments/exp_id=exp123&key=defaultkey",
+                                          headers=headers)
 
         self.assertEqual(response.status_code, 200)
 

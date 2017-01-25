@@ -1164,13 +1164,13 @@ class TestUpdateSection(TestCase):
 #+NAME: class_delete_experiment
 #+begin_src python
     @staticmethod
-    def delete_experiment(e_id):
+    def delete_experiment(exp_id, key):
         session_cls = System.delegate.entities['session']
 
-        session = session_cls(key=KEY)
+        session = session_cls(key=str(key))
         try:
             current_app.logger.debug("running operation delete_experiment")
-            exp = System.do("delete_experiment", e_id=int(e_id),
+            exp = System.do("delete_experiment", exp_id=str(exp_id),
                                     session=session)
             current_app.logger.debug("completed operation delete_experiment")
             return exp
@@ -1183,7 +1183,7 @@ class TestUpdateSection(TestCase):
             raise err
 #+end_src
 
-*** TestDeleteLab
+*** TestDeleteExperiment
  #+NAME: test_class_delete_experiment
  #+BEGIN_SRC python
 class TestDeleteExperiment(TestCase):
@@ -1206,21 +1206,23 @@ class TestDeleteExperiment(TestCase):
                     'key' : KEY,
                     'exp_name': 'Data Structures',
                     'overview' : 'overview',
-                    'exp_id': 'cse01'
+                    'exp_id': 'cse01',
+                    'sections':[]
                    }
 
         data_dict1 = {
                     'key' : KEY,
                     'exp_name': 'Computer Programming',
                     'overview' : 'overview',
-                    'exp_id': 'cse02'
+                    'exp_id': 'cse02',
+                    'sections':[]
                    }
 
         exp = SystemInterface.add_experiment(data_dict)
         exp1 = SystemInterface.add_experiment(data_dict1)
-        e_id = SystemInterface.delete_experiment(1)
+        exp_id = SystemInterface.delete_experiment('cse02', KEY)
         
-        self.assertEqual(e_id, 1)
+        self.assertEqual(exp_id, 'cse02')
 
  #+END_SRC
 
@@ -1371,6 +1373,7 @@ if __name__ == '__main__':
 <<test_class_update_experiment>>
 <<test_class_update_Section>>
 <<test_class_delete_section>>
+<<test_class_delete_experiment>>
 <<test_class_get_lab_by_labid>>
 <<test_class_get_exp_by_expid>>
 <<run_test_cases>>
