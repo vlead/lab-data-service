@@ -541,7 +541,7 @@ class TestUpdateLab(TestCase):
         section_list = []
         try:
             for section in sections:
-                section = section_cls(name=str(section['name']))
+                section = section_cls(name=str(section))
                 section_list.append(section)
             current_app.logger.debug("running operation"
                                      "add_sections_to_experiments")
@@ -582,7 +582,7 @@ class TestAddExperiment(TestCase):
                     'exp_name': 'array',
                     'exp_id': 'cse02',
                     'overview' : 'overview', 
-                    'sections' : []
+                    'sections' : ["Introduction", "Quize"]
                    }
 
         experiment = SystemInterface.add_experiment(data_dict)
@@ -599,7 +599,7 @@ class TestAddExperiment(TestCase):
                     'exp_name': 'cse02',
                     'overview' : 'overview',
                     'exp_id': 123,
-                    'sections': []
+                    'sections': ["Theory", "Procedure"]
 		    }
         with self.assertRaises(TypeError):
             SystemInterface.add_experiment(data_dict)
