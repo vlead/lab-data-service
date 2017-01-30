@@ -44,14 +44,15 @@ class TestAddLab(TestCase):
         overview = "overview"
         experiment = experiment_cls(exp_name=exp_name, exp_id=exp_id,
                                         overview=overview, sections=[])
-
+        experiment.save()
+                                
         lab_name1="Computer Programming"
         lab_id1="CSE01"
         key = KEY
         overview = "overview"
         session = session_cls(key=key)
         lab = lab_cls(lab_id=lab_id1, lab_name=lab_name1, \
-                          overview=overview, experiments=[])
+                          overview=overview, experiments=[experiment])
         lab1 = System.do("add_lab", lab = lab,
                                   session=session)
         new_lab = lab_cls.get_by_id(1)
@@ -90,6 +91,7 @@ class TestDeleteLab(TestCase):
         overview = "overview"
         experiment = experiment_cls(exp_name=exp_name, exp_id=exp_id,
                                         overview=overview, sections=[])
+        experiment.save()
 
         lab_name1="Computer Programming"
         lab_id1="CSE01"
@@ -97,7 +99,7 @@ class TestDeleteLab(TestCase):
         overview = "overview"
         session = session_cls(key=key)
         lab = lab_cls(lab_id=lab_id1, lab_name=lab_name1, \
-                          overview=overview, experiments=[])
+                          overview=overview, experiments=[experiment])
         lab.save()
         lab1 = System.do("delete_lab", lab_id = lab_id1,
                                   session=session)
@@ -255,6 +257,7 @@ class TestUpdateLab(TestCase):
         overview = "overview"
         experiment = experiment_cls(exp_name=exp_name, exp_id=exp_id,
                                         overview=overview, sections=[])
+        experiment.save()
 
         lab_name1="Computer Programming"
         lab_id1="CSE01"
@@ -262,7 +265,7 @@ class TestUpdateLab(TestCase):
         overview = "overview"
         session = session_cls(key=key)
         lab = lab_cls(lab_id=lab_id1, lab_name=lab_name1, \
-                          overview=overview, experiments=[])
+                          overview=overview, experiments=[experiment])
 
         lab.save()
         lab_name2="Computer Programming"

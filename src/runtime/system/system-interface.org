@@ -53,9 +53,8 @@ class SystemInterface ():
         try:
             current_app.logger.debug("running operation add_lab")
             lab = System.do("add_lab", lab=lab, session=session)
- 
             current_app.logger.debug("completed operation add_lab")
-
+            return lab.to_client()
         except (ArityError, TypeError, NotAuthorizedError, StateError) as err:
             current_app.logger.error("Exception = %s" % str(err))
             raise err
