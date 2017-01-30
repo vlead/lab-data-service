@@ -502,46 +502,6 @@ class UpdateSection():
 #+end_src
 
 
-** =AddExperimentsToLab=
-#+NAME: class_add_experiments_to_lab
-#+begin_src python
-class AddExperimentsToLab():
-    arg_types = {"experiments": are_experiments, "labid": is_int, 
-                     "session": is_session}
-    arity_and_type_checks_needed = True
-
-    @staticmethod
-    def auth_check(args):
-        session = args['session']
-        if not System.is_session_valid(session):
-            current_app.logger.error("auth error raised, session = %s" % 
-                                        session.to_client())
-            raise NotAuthorizedError("Not Authorized to perform this action")
-
-    @staticmethod
-    def state_check(args):
-        labid = args["labid"]
-        if not System.delegate.lab_exists(labid):
-            current_app.logger.error("lab with id = %d does not exist"
-                                     " in System" % labid)
-            raise StateError("lab with id = %d does not exist in System"
-                                 % labid)
-
-    @staticmethod
-    def action(args):
-        labid = args["labid"]
-        experiments = args["experiments"]
-        try:
-            lab = System.delegate.add_experiments_to_lab(labid, experiments) 
-            return lab
-        except Exception as err:
-            current_app.logger.error("Exception = %s" % str(err))
-            raise err
-
-#+end_src
-
-
-
 ** =AddSectionsToExperiment=
 #+NAME: class_add_sections_to_experiment
 #+begin_src python
@@ -651,7 +611,6 @@ ops_table = {'add_lab' : AddLab,
              'add_experiment' : AddExperiment,
              'update_experiment' : UpdateExperiment,
              'delete_experiment' : DeleteExperiment,
-             'add_experiments_to_lab' : AddExperimentsToLab,
              'add_section' : AddSection,
              'update_section' : UpdateSection,
              'delete_section' : DeleteSection,
