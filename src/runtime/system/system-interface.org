@@ -39,12 +39,17 @@ class SystemInterface ():
         session = session_cls(key=data_dict['key'])
         del(data_dict['key'])
         experiments = data_dict['experiments']
-        data_dict['experiments'] = []
+
+        exp_list = []
+        for e_id in experiments:
+            experiment = System.do("get_experiment", exp_id=e_id, 
+                                       session=session)
+            exp_list.append(experiment)
 
         lab = lab_cls(lab_name=data_dict['lab_name'],
                                 lab_id=data_dict['lab_id'],
                                 overview=data_dict['overview'],
-                                experiments=data_dict['experiments'])
+                                experiments=exp_list)
         try:
             current_app.logger.debug("running operation add_lab")
             lab = System.do("add_lab", lab=lab, session=session)
@@ -58,27 +63,6 @@ class SystemInterface ():
         except Exception as err:
             current_app.logger.error("Exception = %s" % str(err))
             raise err
-
-        exp_list = []
-        try:
-            for exp in experiments:
-                experiment = exp_cls(exp_name=str(exp['exp_name']),
-                                        exp_id=str(exp['exp_id']), 
-                                        overview=str(exp['overview']), 
-                                        sections=[])
-                
-                exp_list.append(experiment)
-            current_app.logger.debug("running operation add_experiments_to_lab")
-            lab = System.do("add_experiments_to_lab",
-                                    experiments=exp_list,
-                                    labid=int(lab.id),
-                                    session=session)
-            current_app.logger.debug("running operation add_experiments_to_lab")
-            return lab.to_client()
-        except Exception as e:
-            lab.delete()
-            current_app.logger.error("Exception = %s" % str(e))
-            raise e
 
 #+end_src
 
@@ -100,13 +84,12 @@ class TestAddLab(TestCase):
 
     def test_add_lab_in_system_interface(self):
         print "test_add_lab_in_system_interface"
+
         data_dict = {'lab_name': 'data structure',
                     'lab_id': 'cse02',
                     'overview' : 'overview',
                     'key' : KEY,
-                    'experiments': [{'exp_name': 'arrays', 'exp_id': 'exp123',\
-                                         'overview' : 'overview', 
-                                         'sections' : [] }]
+                    'experiments': []
                    }
 
         lab = SystemInterface.add_lab(data_dict)
@@ -115,20 +98,20 @@ class TestAddLab(TestCase):
         
         self.assertEqual(lab.get("lab_name"), data_dict['lab_name'])
         self.assertEqual(lab.get("lab_id"), data_dict['lab_id'])
-        self.assertEqual(lab.get("experiments")[0].get("exp_name"), 'arrays')
-        self.assertEqual(lab.get("experiments")[0].get("exp_id"), 'exp123')
+        self.assertEqual(lab.get("experiments"), [])
+#        self.assertEqual(lab.get("experiments")[0].get("exp_name"), 'arrays')
+#        self.assertEqual(lab.get("experiments")[0].get("exp_id"), 'exp123')
 
 
     def test_add_lab_raises_type_error_in_system_interface(self):
         print "test_add_lab_raises_type_error_in_system_interface"
 
+
         data_dict = {'lab_name': 'data structure',
                     'lab_id': 123,
                     'overview' : 'overview',
                     'key' : KEY,
-                    'experiments': [{'exp_name': 'arrays', 'exp_id':
-                                         'exp123', 'overview' : 'overview',
-                                         'sections' : [] }]
+                    'experiments': []
                    }
 
         with self.assertRaises(TypeError):
@@ -184,16 +167,14 @@ class TestGetLabs(TestCase):
                     'lab_id': 'cse01',
                     'key' : KEY,
                     'overview' : 'overview',
-                    'experiments': [{'exp_name': 'arrays', 'exp_id': \
-                                         'exp123', 'overview' : 'overview', 'sections' : [] }]
+                    'experiments': []
                    }
 
         data_dict1 = {'lab_name': "Automata",
             'lab_id': 'DFA',
             'key' : KEY,
             'overview' : 'overview',
-            'experiments': [{'exp_name': 'arrays', 'exp_id': 'exp234', \
-                                 'overview' : 'overview', 'sections' : [] }]
+            'experiments': []
            }
 
         lab1 = SystemInterface.add_lab(data_dict)
@@ -257,9 +238,7 @@ class TestGetLabById(TestCase):
                     'lab_name': 'array',
                     'lab_id': 'cse02',
                     'overview' : 'overview',
-                    'experiments': [{'exp_name': 'arrays', 'exp_id': 
-                                         'exp123', 'overview' : 'overview', 
-                                         'sections' : [] }]
+                    'experiments': []
                    }
 
         data_dict1 = {
@@ -267,9 +246,7 @@ class TestGetLabById(TestCase):
                     'lab_name': 'stack',
                     'lab_id': 'cse03',
                     'overview' : 'overview',
-                    'experiments': [{'exp_name': 'arrays', 'exp_id':
-                                         'exp234', 'overview' : 'overview',
-                                         'sections' : [] }]
+                    'experiments': []
                    }
 
         lab1 = SystemInterface.add_lab(data_dict)
@@ -332,9 +309,7 @@ class TestDeleteLab(TestCase):
                     'lab_name': 'Data Structures',
                     'lab_id': 'cse01',
                     'overview' : 'overview',
-                    'experiments': [{'exp_name': 'arrays', 'exp_id':
-                                         'exp123', 'overview' : 'overview',
-                                         'sections' : [] }]
+                    'experiments': []
                    }
 
         data_dict1 = {
@@ -342,9 +317,7 @@ class TestDeleteLab(TestCase):
                     'lab_name': 'Computer Programming',
                     'lab_id': 'cse02',
                     'overview' : 'overview',
-                    'experiments': [{'exp_name': 'arrays', 'exp_id':
-                                         'exp234', 'overview' : 'overview',
-                                         'sections' : [] }]
+                    'experiments': []
                    }
 
         lab = SystemInterface.add_lab(data_dict)
@@ -555,10 +528,7 @@ class TestUpdateLab(TestCase):
                     'lab_name': 'Data Structures',
                     'lab_id': 'cse02',
                     'overview' : 'overview',
-                    'experiments': [{'exp_name': 'arrays', \
-                                         'exp_id': 'exp123', \
-                                         'overview' : 'overview', \
-                                         'sections' : [] }]
+                    'experiments': []
                    }
 
         data_dict1 = {
