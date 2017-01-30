@@ -44,15 +44,14 @@ class TestAddLab(TestCase):
         overview = "overview"
         experiment = experiment_cls(exp_name=exp_name, exp_id=exp_id,
                                         overview=overview, sections=[])
-        experiment.save()
-                                
+
         lab_name1="Computer Programming"
         lab_id1="CSE01"
         key = KEY
         overview = "overview"
         session = session_cls(key=key)
         lab = lab_cls(lab_id=lab_id1, lab_name=lab_name1, \
-                          overview=overview, experiments=[experiment])
+                          overview=overview, experiments=[])
         lab1 = System.do("add_lab", lab = lab,
                                   session=session)
         new_lab = lab_cls.get_by_id(1)
@@ -91,7 +90,6 @@ class TestDeleteLab(TestCase):
         overview = "overview"
         experiment = experiment_cls(exp_name=exp_name, exp_id=exp_id,
                                         overview=overview, sections=[])
-        experiment.save()
 
         lab_name1="Computer Programming"
         lab_id1="CSE01"
@@ -99,7 +97,7 @@ class TestDeleteLab(TestCase):
         overview = "overview"
         session = session_cls(key=key)
         lab = lab_cls(lab_id=lab_id1, lab_name=lab_name1, \
-                          overview=overview, experiments=[experiment])
+                          overview=overview, experiments=[])
         lab.save()
         lab1 = System.do("delete_lab", lab_id = lab_id1,
                                   session=session)
@@ -145,47 +143,10 @@ class TestAddExperiment(TestCase):
 #+END_SRC
 
 
-
-* Test AddInstitute 
-#+NAME: test_add_institute
-#+BEGIN_SRC python
-class TestAddInstitute(TestCase):
-
-    TESTING = True
-
-    def create_app(self):
-        app = create_app(config)
-        return app
-
-    def setUp(self):
-        db.create_all()
-
-    def tearDown(self):
-        db.session.remove()
-        db.drop_all()
-
-    def test_add_institute(self):
-        print "test_add_institute_in_system_persistence"
-        session_cls = System.delegate.entities['session']
-        institute_cls = System.delegate.entities['institute']
-        inst_name = "IIT Kanpur"
-        inst_id = "IITK"
-        institute = institute_cls(inst_name=inst_name, inst_id=inst_id)
-                                       
-        key = KEY
-        session = session_cls(key=key)
-        institute = System.do("add_institute", institute=institute, \
-                                session=session)
-        institute1 = institute_cls.get_by_id(1)
-        self.assertEqual(institute1.get("inst_name"), inst_name)
-#+END_SRC
-
-
 * Test AddDiscipline
-#+NAME: test_add_discipline
+#+NAME: test_add_experiment
 #+BEGIN_SRC python
 class TestAddDiscipline(TestCase):
-
     TESTING = True
 
     def create_app(self):
@@ -263,57 +224,6 @@ class TestAddSectionsToExperiment(TestCase):
         self.assertEqual(experiment1.get("exp_name"), exp_name)
         self.assertEqual(experiment1.get("sections")[0].get("name"), "Theory")
         self.assertEqual(experiment1.get("sections")[1].get("name"), "Aim")            
-
-#+END_SRC
-
-
-* Test AddLabsToInstitute 
-#+NAME: test_add_labs_to_institute
-#+BEGIN_SRC python
-class TestAddLabsToInstitute(TestCase):
-    TESTING = True
-
-    def create_app(self):
-        app = create_app(config)
-        return app
-
-    def setUp(self):
-        db.create_all()
-
-    def tearDown(self):
-        db.session.remove()
-        db.drop_all()
-
-    def test_add_labs_to_institute(self):
-        print "test_add_labs_to_institute_in_system_persistence"
-        session_cls = System.delegate.entities['session']
-        lab_cls = System.delegate.entities['lab']
-        institute_cls = System.delegate.entities['institute']
-
-        inst_name = "arrays"
-        inst_id = "cse02"
-        institute = institute_cls(inst_name=inst_name, inst_id=inst_id)
-                                        
-        key = KEY
-        session = session_cls(key=key)
-        institute = System.do("add_institute", institute=institute, \
-                                session=session)
-        institute1 = institute_cls.get_by_id(1)
-
-        lab1 = lab_cls(lab_name="Data Structures", lab_id="cse02")
-        lab1.save()
-
-        lab2 = lab_cls(lab_name="Computer Programming", lab_id="cse12")
-        lab2.save()
-        
-        institute = System.do("add_labs_to_institute", 
-                                instid=institute.id,
-                                labs=[lab1, lab2],
-                                session=session)
-
-        self.assertEqual(institute1.get("inst_name"), inst_name)
-        self.assertEqual(institute1.get("labs")[0].get("lab_name"), "Data Structures")
-        self.assertEqual(institute1.get("labs")[1].get("lab_name"), "Computer Programming")            
 #+END_SRC
 
 
@@ -378,7 +288,6 @@ class TestUpdateLab(TestCase):
         overview = "overview"
         experiment = experiment_cls(exp_name=exp_name, exp_id=exp_id,
                                         overview=overview, sections=[])
-        experiment.save()
 
         lab_name1="Computer Programming"
         lab_id1="CSE01"
@@ -386,7 +295,7 @@ class TestUpdateLab(TestCase):
         overview = "overview"
         session = session_cls(key=key)
         lab = lab_cls(lab_id=lab_id1, lab_name=lab_name1, \
-                          overview=overview, experiments=[experiment])
+                          overview=overview, experiments=[])
 
         lab.save()
         lab_name2="Computer Programming"
@@ -436,99 +345,17 @@ class TestUpdateExperiment(TestCase):
         experiment.save()
 
         exp_name2 = "two dimentional arrays"
-        overview2 = "exp overview"
+        exp_id2 = "cse03"
 
-        exp1 = System.do("update_experiment", exp_name=exp_name2,
-                             exp_id=exp_id, overview=overview2,
-                             session=session)
+        exp1 = System.do("update_experiment", experiment=experiment, 
+                                  exp_name=exp_name2, exp_id=exp_id2, 
+                                  overview=overview, session=session)
 
         new_exp = exp_cls.get_by_id(1)
 
         self.assertEqual(new_exp.get("exp_name"), exp_name2)
-        self.assertEqual(new_exp.get("overview"), overview2)
+        self.assertEqual(new_exp.get("exp_id"), exp_id2)
             
-#+END_SRC
-
-
-* Test DeleteExperiment
-#+NAME:  test_delete_experiment 
-#+BEGIN_SRC python
-class TestDeleteExperiment(TestCase):
-    TESTING = True
-
-    def create_app(self):
-        app = create_app(config)
-        return app
-
-    def setUp(self):
-        db.create_all()
-
-    def tearDown(self):
-        db.session.remove()
-        db.drop_all()
-
-    def test_delete_exp(self):
-        
-        print "test_delete_exp_in_system_persistence"
-        session_cls = System.delegate.entities['session']
-        experiment_cls = System.delegate.entities['experiment']
-
-        exp_name = "arrays"
-        exp_id = "cse02"
-        overview = "overview"
-        key = KEY
-        experiment = experiment_cls(exp_name=exp_name, exp_id=exp_id,
-                                        overview=overview, sections=[])
-
-        experiment.save()
-        session = session_cls(key=key)
-        exp_id1 = System.do("delete_experiment", exp_id = exp_id,
-                                  session=session)
-
-        self.assertEqual(exp_id1, exp_id)
-            
-#+END_SRC
-
-
-* Test UpdateInstitute 
-#+NAME: test_update_institute
-#+BEGIN_SRC python
-class TestUpdateInstitute(TestCase):
-    TESTING = True
-
-    def create_app(self):
-        app = create_app(config)
-        return app
-
-    def setUp(self):
-        db.create_all()
-
-    def tearDown(self):
-        db.session.remove()
-        db.drop_all()
-
-    def test_update_institute(self):
-
-        print "test_update_institute_in_system_persistence"
-        session_cls = System.delegate.entities['session']
-        institute_cls = System.delegate.entities['institute']
-
-        inst_name1="IIT Kanpur"
-        inst_id1="IITK"
-        key = KEY
-        session = session_cls(key=key)
-        institute = institute_cls(inst_id=inst_id1, inst_name=inst_name1)
-
-        institute.save()
-
-        inst_name2="IIT Kharagpur"
-
-        institute1 = System.do("update_institute", inst_name=inst_name2,
-                                  inst_id=inst_id1, session=session)
-
-        new_institute = institute_cls.get_by_id(1)
-
-        self.assertEqual(new_institute.get("inst_name"), inst_name2)
 #+END_SRC
 
 
@@ -555,44 +382,24 @@ class TestUpdateSection(TestCase):
         session_cls = System.delegate.entities['session']
         section_cls = System.delegate.entities['section']
 
-            
-#+END_SRC
+        exp_name = "arrays"
+        exp_id = "cse02"
+        overview = "overview"
+        experiment = experiment_cls(exp_name=exp_name, exp_id=exp_id, 
+                                        overview=overview, sections=[])
+        experiment.save()
 
+        exp_name2 = "two dimentional arrays"
+        exp_id2 = "cse03"
 
-* Test DeleteInstitute 
-#+NAME:  test_delete_institute 
-#+BEGIN_SRC python
-class TestDeleteInstitute(TestCase):
-    TESTING = True
-
-    def create_app(self):
-        app = create_app(config)
-        return app
-
-    def setUp(self):
-        db.create_all()
-
-    def tearDown(self):
-        db.session.remove()
-        db.drop_all()
-
-    def test_delete_institute(self):
-        
-        print "test_delete_institute_in_system_persistence"
-        session_cls = System.delegate.entities['session']
-        institute_cls = System.delegate.entities['institute']
-
-        inst_name= "IIT Kanpur"
-        inst_id= "IITK"
-        key = KEY
-        session = session_cls(key=key)
-        institute = institute_cls(inst_id=inst_id, inst_name=inst_name)
-                         
-        institute.save()
-        institute = System.do("delete_institute", inst_id = inst_id,
+        exp1 = System.do("update_experiment", experiment=experiment, 
+                                  exp_name=exp_name2, exp_id=exp_id2, 
                                   session=session)
 
-        self.assertEqual(institute, inst_id)
+        new_exp = exp_cls.get_by_id(1)
+
+        self.assertEqual(new_exp.get("exp_name"), exp_name2)
+        self.assertEqual(new_exp.get("exp_id"), exp_id2)
             
 #+END_SRC
 
@@ -639,45 +446,6 @@ class TestGetLab(TestCase):
 #+END_SRC
 
 
-* Test GetInstitute 
-#+NAME: test_get_institute
-#+BEGIN_SRC python
-class TestGetInstitute(TestCase):
-    TESTING = True
-
-    def create_app(self):
-        app = create_app(config)
-        return app
-
-    def setUp(self):
-        db.create_all()
-
-    def tearDown(self):
-        db.session.remove()
-        db.drop_all()
-
-    def test_get_institute(self):
-
-        print "test_get_institute_in_system_persistence"
-        session_cls = System.delegate.entities['session']
-        institute_cls = System.delegate.entities['institute']
-
-        inst_name1= "IIT Kanpur"
-        inst_id1= "IITK"
-        key = KEY       
-        session = session_cls(key=key)
-        institute = institute_cls(inst_id=inst_id1, inst_name=inst_name1)
-                         
-        institute.save()
-
-        institute1 = System.do("get_institute", inst_id=inst_id1,
-                                  session=session)
-
-        self.assertEqual(institute1.get("inst_name"), inst_name1)
-        self.assertEqual(institute1.get("inst_id"), inst_id1)
-            
-#+END_SRC
-
 * Infra                                                         :boilerplate:
 ** Tests
 *** Imports 
@@ -715,18 +483,12 @@ if __name__ == '__main__':
 <<populate_db>>
 <<test_add_lab>>
 <<test_delete_lab>>
-<<test_delete_experiment>>
-<<test_delete_institute>>
 <<test_add_experiment>>
-<<test_add_institute>>
 <<test_add_discipline>>
 <<test_add_section>>
 <<test_update_lab>>
 <<test_update_experiment>>
-<<test_update_institute>>
 <<test_add_sections_to_experiment>>
-#<<test_add_labs_to_institute>>
 <<test_get_lab>>
-<<test_get_institute>>
 <<run_test_cases>>
 #+end_src
