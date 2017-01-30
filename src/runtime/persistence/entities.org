@@ -14,6 +14,16 @@
 =Lab= is a class with an attribute =lab_name= of type alphabetic string and
 =lab_id= of alphabetic string.
 
+#+NAME: class_lab_association_Table
+#+BEGIN_SRC python
+lab_experiments = db.Table('lab_experiments',
+		      db.Column('labid', db.Integer, 
+                            db.ForeignKey('lab.id')),
+		      db.Column('expid', db.Integer,
+                            db.ForeignKey('experiment.id')))
+
+#+END_SRC
+
 #+NAME: class_Lab
 #+begin_src python
 args = {"__tablename__": "lab",
@@ -23,11 +33,13 @@ args = {"__tablename__": "lab",
                                        nullable=True),
         "overview": db.Column(db.String(1000), unique=False, 
                                        nullable=True),
-        "experiments": db.relationship('Experiment', backref=db.backref('lab'))
+        "experiments": db.relationship('Experiment',
+                    secondary=lab_experiments, 
+                    backref='labs')
 
         }
 
-Lab = ClassPersistenceTemplate.mk_persistent(Lab, ['lab_id', 'experiments'],\
+Lab = ClassPersistenceTemplate.mk_persistent(Lab, ['lab_id'],\
                                                  **args)
 
 #+end_src
@@ -55,19 +67,23 @@ class TestPersistentLab(TestCase):
         exp_name = "Number Systems"
         exp_id = "EE99777"
         overview = "This is linked list experiment"
-        experiment = Experiment(exp_name=exp_name, exp_id=exp_id, overview=overview, sections=[])
+        experiment = Experiment(exp_name=exp_name, exp_id=exp_id,
+                                    overview=overview, sections=[])
         experiment.save()
 
         lab_name1="Computer Programming"
         lab_id1="CSE01"
         overview1 = "This is data structures lab which deals about array,stack and ques..etc"
-        lab1 = Lab(lab_name=lab_name1, lab_id=lab_id1, overview=overview1, experiments=[experiment])
+        lab1 = Lab(lab_name=lab_name1, lab_id=lab_id1, overview=overview1,
+                       experiments=[experiment])
         lab1.save()
         
         lab_name2="Data Structures"
         lab_id2="CSE02"
-        overview2 = "This is data structures lab which deals about array,stack and ques..etc"
-        lab2 = Lab(lab_name=lab_name2, lab_id=lab_id2, overview=overview2, experiments=[])
+        overview2 = "This is data structures lab which deals about"
+        "array,stack and ques..etc"
+        lab2 = Lab(lab_name=lab_name2, lab_id=lab_id2, overview=overview2,
+                       experiments=[])
         lab2.save()
 
         lab1 = Lab.get_by_id(1)
@@ -85,7 +101,7 @@ class TestPersistentLab(TestCase):
         self.assertEqual(lab2.get("overview"), overview2)
         self.assertEqual(lab2.get("experiments"), [])
 
-        self.assertEqual(lab3,None)
+        self.assertEqual(lab3, None)
 
 #+END_SRC
 
@@ -94,7 +110,7 @@ class TestPersistentLab(TestCase):
 
   =Experiment= is a class with attributes =exp_name= and =exp_id= of type =is_email_str=.
 
-#+NAME: class_association_Table
+#+NAME: class_exp_association_Table
 #+BEGIN_SRC python
 experiments_sections = db.Table('experiments_sections',
 		      db.Column('experiment_id', db.Integer, 
@@ -251,8 +267,9 @@ if __name__ == '__main__':
 ** sources
 #+BEGIN_SRC python :tangle entities.py :eval no :noweb yes
 <<imports_for_sources>>
+<<class_lab_association_Table>>
 <<class_Lab>>
-<<class_association_Table>>
+<<class_exp_association_Table>>
 <<class_Experiment>>
 <<class_Section>>
 
