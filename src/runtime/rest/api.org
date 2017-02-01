@@ -1045,18 +1045,40 @@ REST API to get and add institute.
 @api.route('/institutes', methods=['GET', 'POST'])
 def add_institute():
     if request.method == 'GET':
-        try:
-            institutes = SystemInterface.get_institutes()
-            return jsonify(institutes)
+       if 'inst_id' in request.args:
+           inst_id  = request.args['inst_id']
+           try:
+               institute = SystemInterface.get_institute(inst_id)
+               return jsonify(institute)
 
-        except TypeError as err:
-            error_message = 'Malformed arguments, error: %s' % str(err)
+           except NotAuthorizedError as err:
+               error_message = 'Not Authorized error: %s' % str(err)
+               current_app.logger.error("%s" %(error_message))
+               return render_template('error.html',
+                                       data=error_message)
+           except TypeError as err:
+               error_message = 'Malformed arguments, error: %s' % str(err)
+               current_app.logger.error("%s" %(error_message))
+               return render_template('error.html',
+                                       data=error_message)
+           except Exception as err:
+               error_message = 'error: %s' % str(err)
+               current_app.logger.error("%s" %(error_message))
+               return render_template('error.html',
+                                        data=error_message)
+       else:
+           try:
+               institutes = SystemInterface.get_institutes()
+               return jsonify_list(institutes)
 
-            return render_template('error.html', 
-                    data=error_message)
+           except TypeError as err:
+               error_message = 'Malformed arguments, error: %s' % str(err)
 
-        except Exception as err:
-            abort(500, 'error: %s' % str(err))
+               return render_template('error.html',
+                                           data=error_message)
+
+           except Exception as err:
+               abort(500, 'error: %s' % str(err))
        
     if request.method == 'POST':
         if request.is_json:
@@ -1144,47 +1166,43 @@ class TestGetInstitute(TestCase):
 
  #+END_SRC
    
+*** TestGetInstitutebyInstituteid
+#+NAME: test_get_institute_by_instituteid
+#+BEGIN_SRC python
+class TestGetInstitute(TestCase):
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_get_institute_by_instituteid(self):
+        print "test_get_institute_by_instituteid_in_rest"
+
+        payload = {'inst_name': 'IIT Kanpur',
+                   'inst_id': 'IITK',
+                   'key': KEY
+                  }
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/institutes", data=json.dumps(payload),
+                                 headers=headers)
+
+        response = self.client.get("/institutes?inst_id=IITK", headers=headers)
+        self.assertEqual(response.status_code, 200)
+#+END_SRC
 ** Update and Delete Institute
 #+NAME: update_and_delete_institute
 #+BEGIN_SRC python
-@api.route('/institutes', methods=['GET', 'PUT', 'DELETE'])
+@api.route('/institutes', methods=['PUT', 'DELETE'])
 def update_and_delete_institute():
-    if request.method == 'GET':
-       if 'inst_id' in request.args:
-           inst_id  = request.args['inst_id']
-           try:
-               institute = SystemInterface.get_institute(inst_id)
-               return jsonify(institute)
-
-           except NotAuthorizedError as err:
-               error_message = 'Not Authorized error: %s' % str(err)
-               current_app.logger.error("%s" %(error_message))
-               return render_template('error.html',
-                                       data=error_message)
-           except TypeError as err:
-               error_message = 'Malformed arguments, error: %s' % str(err)
-               current_app.logger.error("%s" %(error_message))
-               return render_template('error.html',
-                                       data=error_message)
-           except Exception as err:
-               error_message = 'error: %s' % str(err)
-               current_app.logger.error("%s" %(error_message))
-               return render_template('error.html',
-                                        data=error_message)
-       else:
-           try:
-               institutes = SystemInterface.get_institutes()
-               return jsonify_list(institutes)
-
-           except TypeError as err:
-               error_message = 'Malformed arguments, error: %s' % str(err)
-
-               return render_template('error.html',
-                                           data=error_message)
-
-           except Exception as err:
-               abort(500, 'error: %s' % str(err))
-    
     if request.method == 'PUT':
         if request.is_json:
             data_json = json.dumps(request.get_json())
@@ -1229,38 +1247,7 @@ def update_and_delete_institute():
                 abort(500, 'error: %s' % str(err))
 
 #+END_SRC
-*** TestGetInstitutebyInstituteid
-#+NAME: test_get_institute_by_instituteid
-#+BEGIN_SRC python
-class TestGetInstitute(TestCase):
-    TESTING = True
-    def create_app(self):
-        app = create_app(config)
-        return app
 
-    def setUp(self):
-        db.create_all()
-
-    def tearDown(self):
-        db.session.remove()
-        db.drop_all()
-
-    def test_get_institute_by_instituteid(self):
-        print "test_get_institute_by_instituteid_in_rest"
-
-        payload = {'inst_name': 'IIT Kanpur',
-                   'inst_id': 'IITK',
-                   'key': KEY
-                  }
-
-        headers = {'Content-Type': 'application/json'}
-
-        response = self.client.post("/institutes", data=json.dumps(payload),
-                                 headers=headers)
-
-        response = self.client.get("/institutes?inst_id=IITK", headers=headers)
-        self.assertEqual(response.status_code, 200)
-#+END_SRC
 *** TestUpdateInstitute 
  #+NAME: test_update_institute
  #+BEGIN_SRC python
