@@ -245,17 +245,10 @@ class TestPersistenceDelegate(TestCase):
     This function checks if a discipline is already in the discipline-set of the =System=.
 #+NAME: persistence_discipline_exists
 #+BEGIN_SRC python
-    def discipline_exists(self, ds_id):
-        ret_val = False
-        try:
-            if Discipline.get_by_id(ds_id) is not None:
-                ret_val = True
-        except Exception as e:
-            pass
+    def discipline_exists(self, discipline):
+        dis_id = discipline.get("dis_id")
+        return discipline == self.get_discipline(dis_id=dis_id)
 
-        return ret_val
-
-        
 #+END_SRC
 
 **** Tests
@@ -274,9 +267,9 @@ class TestPersistenceDelegate(TestCase):
         dis_id2="EEE09"
         dis2 = Discipline(dis_name=dis_name2, dis_id=dis_id2)
 
-        self.assertEqual(self.persistence_delegate.discipline_exists(dis1.id),
+        self.assertEqual(self.persistence_delegate.discipline_exists(dis1),
                             True)
-        self.assertEqual(self.persistence_delegate.discipline_exists(dis2.id),
+        self.assertEqual(self.persistence_delegate.discipline_exists(dis2),
                             False)
      
 
