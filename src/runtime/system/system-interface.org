@@ -721,7 +721,6 @@ class TestAddExperiment(TestCase):
     def add_institute(data_dict):
         session_cls = System.delegate.entities['session']       
         institute_cls = System.delegate.entities['institute']
-#        lab_cls = System.delegate.entities['lab']
 
         session = session_cls(key=data_dict['key'])
         del(data_dict['key'])
@@ -1740,9 +1739,10 @@ class TestDeleteExperiment(TestCase):
 
         try:
             current_app.logger.debug("running operation delete_institute")
-            institute = System.do("delete_institute", inst_id=str(inst_id), session=session)
+            institute_id = System.do("delete_institute", inst_id=str(inst_id),
+                                      session=session)
             current_app.logger.debug("completed operation delete_institute")
-            return institute
+            return institute_id
         except (ArityError, TypeError, NotAuthorizedError, StateError) as err:
             current_app.logger.error("Exception = %s" % str(err))
             raise err
@@ -2008,6 +2008,8 @@ if __name__ == '__main__':
 <<test_class_get_sections>>
 <<test_class_get_lab_by_id>>
 <<test_class_delete_lab>>
+<<test_class_delete_experiment>>
+<<test_class_delete_institute>>
 <<test_class_update_lab>>
 <<test_class_get_experiments>>
 <<test_class_get_institutes>>
@@ -2019,13 +2021,12 @@ if __name__ == '__main__':
 <<test_class_update_institute>>
 <<test_class_update_Section>>
 <<test_class_delete_section>>
-<<test_class_delete_experiment>>
 <<test_class_get_lab_by_labid>>
 <<test_class_get_exp_by_expid>>
-<<test_class_delete_institute>>
 <<test_class_get_lab_by_labid>>
 <<test_class_get_institute_by_instituteid>>
 <<run_test_cases>>
+
 #+end_src
  
 
