@@ -78,16 +78,9 @@ class TestPersistenceDelegate(TestCase):
     This function checks if a lab is already in the lab-set of the =System=.
 #+NAME: persistence_lab_exists
 #+BEGIN_SRC python
-    def lab_exists(self, lb_id):
-        ret_val = False
-
-        try:
-            if Lab.get_by_id(lb_id) is not None:
-                ret_val = True
-        except Exception as e:
-            pass
-
-        return ret_val
+    def lab_exists(self, lab):
+        lab_id = lab.get("lab_id")
+        return lab == self.get_lab(lab_id=lab_id)
         
 #+END_SRC
 
@@ -99,18 +92,20 @@ class TestPersistenceDelegate(TestCase):
         lab_name1="Computer Programming"
         lab_id1="CSE01"
         overview1 = "overview"
-        lab = Lab(lab_name=lab_name1, lab_id=lab_id1, overview=overview1, experiments=[])
+        lab = Lab(lab_name=lab_name1, lab_id=lab_id1, overview=overview1,
+                      experiments=[])
 
         lab1 = self.persistence_delegate.add_lab(lab)
 
         lab_name2="Data Structures"
         lab_id2="CSE02"
         overview2 = "overview"
-        lab2 = Lab(lab_name=lab_name2, lab_id=lab_id2, overview=overview2, experiments=[])
+        lab2 = Lab(lab_name=lab_name2, lab_id=lab_id2, overview=overview2,
+                       experiments=[])
 
-        self.assertEqual(self.persistence_delegate.lab_exists(lab1.id),
+        self.assertEqual(self.persistence_delegate.lab_exists(lab1),
                             True)
-        self.assertEqual(self.persistence_delegate.lab_exists(lab2.id),
+        self.assertEqual(self.persistence_delegate.lab_exists(lab2),
                             False)
 
 #+END_SRC
@@ -312,9 +307,9 @@ class TestPersistenceDelegate(TestCase):
          lab2 = Lab(lab_name=lab_name2, lab_id=lab_id2, overview=overview, 
                         experiments=[])
 
-         self.assertEqual(self.persistence_delegate.lab_exists(lab1.id),
+         self.assertEqual(self.persistence_delegate.lab_exists(lab1),
                           True)
-         self.assertEqual(self.persistence_delegate.lab_exists(lab2.id),
+         self.assertEqual(self.persistence_delegate.lab_exists(lab2),
                           False)
 
 #+END_SRC
