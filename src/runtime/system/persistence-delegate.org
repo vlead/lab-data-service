@@ -417,6 +417,7 @@ class TestPersistenceDelegate(TestCase):
 
 #+END_SRC
 
+
 ***  Add name to the system
     This function adds name to the system.
 #+NAME: persistence_add_name
@@ -469,6 +470,7 @@ class TestPersistenceDelegate(TestCase):
 
 #+END_SRC
 
+
 ***  Add institute to the system
 
     This function adds institute to the system.
@@ -495,12 +497,13 @@ class TestPersistenceDelegate(TestCase):
          
          institute = Institute.get_by_id(1)
 
-         self.assertEqual(self.persistence_delegate.institute_exists(institute1.id),
-                          True)
-         self.assertEqual(self.persistence_delegate.institute_exists(institute2.id),
-                          False)
+         self.assertEqual(self.persistence_delegate.institute_exists\
+                              (institute1.id), True)
+         self.assertEqual(self.persistence_delegate.institute_exists\
+                              (institute2.id), False)
         
 #+END_SRC
+
 
 ***  Update lab 
     This function updates existing lab.
@@ -539,6 +542,7 @@ class TestPersistenceDelegate(TestCase):
          self.assertEqual(lab2.get("overview"), overview1)
 
 #+END_SRC
+
 
 ***  Update Experiment 
     This function updates existing experiment.
@@ -633,6 +637,7 @@ class TestPersistenceDelegate(TestCase):
 
 #+END_SRC
 
+
 ***  Update developer
     This function updates existing developer.
 #+NAME: persistence_update_developer
@@ -646,29 +651,12 @@ class TestPersistenceDelegate(TestCase):
 
   
 **** Tests
-#+NAME: test_persistence_update_lab
+#+NAME: test_persistence_update_developer
 #+BEGIN_SRC python
-    def test_update_lab(self):
-         print "test_update_lab"
-         lab_name = "Data Structures"
-         lab_id = "cse01"
-         overview = "overview lab"
-         experiments = []
-         lab = Lab(lab_name=lab_name, lab_id=lab_id, overview=overview, 
-                       experiments=experiments)
-         
-         lab1 = self.persistence_delegate.add_lab(lab)
-         lab_name1 = "Computer Programming"
-         lab_id1 = "cse02"
-         overview1 = "overview"
-         lab2 = self.persistence_delegate.update_lab\
-           (lab1, lab_name1, lab_id1, overview=overview1),
-         lab2 = Lab.get_by_id(1)
 
-         self.assertEqual(lab2.get("lab_id"), lab_id1)
-         self.assertEqual(lab2.get("lab_name"), lab_name1)
-         self.assertEqual(lab2.get("overview"), overview1)
 #+END_SRC
+
+
 ***  Update Institute 
     This function updates existing institute.
 #+NAME: persistence_update_institute
@@ -692,13 +680,13 @@ class TestPersistenceDelegate(TestCase):
 
          inst_name1 = "IIT Kanpur"
          inst_id1 = "IITK"
-         institute2 = Institute(inst_name=inst_name1, inst_id=inst_id1)
          institute2 = self.persistence_delegate.update_institute\
            (institute1, inst_name1, inst_id1),
-         institute2 = Institute.get_by_id(1)
 
-         self.assertEqual(institute2.get("inst_name"), inst_name1)
-         self.assertEqual(institute2.get("inst_id"), inst_id1)
+         institute = Institute.get_by_id(1)
+
+         self.assertEqual(institute.get("inst_name"), inst_name1)
+         self.assertEqual(institute.get("inst_id"), inst_id1)
 
 #+END_SRC
 
@@ -1209,8 +1197,11 @@ class TestPersistenceDelegate(TestCase):
          inst.save()
          inst_obj = self.persistence_delegate.get_institute(inst_name=
                                                 inst.get("inst_name"))
-         self.assertEqual(inst_obj.get("inst_name"),
-                              inst.get("inst_name"))
+
+         inst_obj1 = self.persistence_delegate.get_institute(inst_id=
+                                                inst.get("inst_id"))
+         self.assertEqual(inst_obj.get("inst_name"), inst.get("inst_name"))
+         self.assertEqual(inst_obj1.get("inst_id"), inst.get("inst_id"))
 #+END_SRC
 
 
@@ -1436,8 +1427,7 @@ class TestPersistenceDelegate(TestCase):
          inst.save()
 
          inst_obj = self.persistence_delegate.get_institute_by_id(1)
-         self.assertEqual(inst_obj.get("inst_id"),
-                              inst_id)
+         self.assertEqual(inst_obj.get("inst_id"), inst_id)
          self.assertEqual(inst_obj.get("inst_name"), inst_name)
 
 #+END_SRC
