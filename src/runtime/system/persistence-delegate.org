@@ -1099,17 +1099,17 @@ class TestPersistenceDelegate(TestCase):
 #+BEGIN_SRC python
     def test_get_lab(self):
          print "test_get_lab"
-         lab_name1="Computer Programming"
-         lab_id1="CSE01"
-         overview="overview"
+         lab_name1 = "Computer Programming"
+         lab_id1 = "CSE01"
+         overview = "overview"
          lab = Lab(lab_name=lab_name1, lab_id=lab_id1, overview=overview,
                        experiments=[])
          lab.save()
 
          lab_obj = self.persistence_delegate.get_lab(lab_name=
                                                 lab.get("lab_name"))
-         self.assertEqual(lab_obj.get("lab_name"),
-                              lab.get("lab_name"))
+         self.assertEqual(lab_obj.get("lab_name"), lab.get("lab_name"))
+         self.assertEqual(lab_obj.get("lab_id"), lab.get("lab_id"))
 
 #+END_SRC
 
@@ -1200,8 +1200,10 @@ class TestPersistenceDelegate(TestCase):
 
          inst_obj1 = self.persistence_delegate.get_institute(inst_id=
                                                 inst.get("inst_id"))
+
          self.assertEqual(inst_obj.get("inst_name"), inst.get("inst_name"))
          self.assertEqual(inst_obj1.get("inst_id"), inst.get("inst_id"))
+
 #+END_SRC
 
 
@@ -1316,6 +1318,48 @@ class TestPersistenceDelegate(TestCase):
                                                             lab_name=lab_name1)
 
          self.assertEqual(labs_list[0].get("lab_id"), lab_id1)
+
+#+END_SRC
+
+
+***  Get Institutes
+    This function returns all institutes if present in the database.  If institutes are
+    not present, =None= type is returned.
+#+NAME: persistence_get_institutes
+#+BEGIN_SRC python
+    def get_institutes(self, **kwargs):
+        current_app.logger.debug("")
+        ret_val = None
+        try:
+            ret_val = Institute.apply_filters(**kwargs)
+        except NotFoundError as e:
+            ret_val = None
+        
+        return ret_val
+
+#+END_SRC
+
+****  Tests
+#+NAME: test_persistence_get_institutes
+#+BEGIN_SRC python
+    def test_get_institutes(self):
+         print "test_get_institutes"
+
+         inst_name = "IIT Delhi"
+         inst_id = "IITD"
+         inst = Institute(inst_name=inst_name, inst_id=inst_id)                             
+         inst.save()
+         inst_obj = self.persistence_delegate.get_institute(inst_name=
+                                                inst.get("inst_name"))
+
+         insts_list = self.persistence_delegate.get_institutes(inst_id=
+                                                inst.get("inst_id"),
+                                                inst_name=
+                                                inst.get("inst_name"))
+
+         self.assertEqual(insts_list[0].get("inst_name"),
+                              inst.get("inst_name"))
+         self.assertEqual(insts_list[0].get("inst_id"), inst.get("inst_id"))
 
 #+END_SRC
 
@@ -1497,6 +1541,7 @@ if __name__ == '__main__':
 <<persistence_update_discipline>>
 
 <<persistence_get_labs>>
+<<persistence_get_institutes>>
 
 <<persistence_lab_exists>>
 <<persistence_section_exists>>
@@ -1543,6 +1588,7 @@ if __name__ == '__main__':
 <<test_persistence_get_institute>>
 
 <<test_persistence_get_labs>>
+<<test_persistence_get_institutes>>
 
 <<test_persistence_lab_exists>>
 <<test_persistence_experiment_exists>>
