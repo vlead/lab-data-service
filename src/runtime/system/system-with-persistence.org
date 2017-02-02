@@ -62,53 +62,6 @@ class TestAddLab(TestCase):
 #+END_SRC
 
 
-* Test DeleteLab
-#+NAME:  test_delete_lab 
-#+BEGIN_SRC python
-class TestDeleteLab(TestCase):
-    TESTING = True
-
-    def create_app(self):
-        app = create_app(config)
-        return app
-
-    def setUp(self):
-        db.create_all()
-
-    def tearDown(self):
-        db.session.remove()
-        db.drop_all()
-
-    def test_delete_lab(self):
-        
-        print "test_delete_lab_in_system_persistence"
-        session_cls = System.delegate.entities['session']
-        lab_cls = System.delegate.entities['lab']
-        experiment_cls = System.delegate.entities['experiment']
-
-        exp_name = "arrays"
-        exp_id = "cse02"
-        overview = "overview"
-        experiment = experiment_cls(exp_name=exp_name, exp_id=exp_id,
-                                        overview=overview, sections=[])
-        experiment.save()
-
-        lab_name1="Computer Programming"
-        lab_id1="CSE01"
-        key = KEY
-        overview = "overview"
-        session = session_cls(key=key)
-        lab = lab_cls(lab_id=lab_id1, lab_name=lab_name1, \
-                          overview=overview, experiments=[experiment])
-        lab.save()
-        lab1 = System.do("delete_lab", lab_id = lab_id1,
-                                  session=session)
-
-        self.assertEqual(lab1, lab_id1)
-            
-#+END_SRC
-
-
 * Test AddExperiment
 #+NAME: test_add_experiment
 #+BEGIN_SRC python
@@ -450,46 +403,6 @@ class TestUpdateExperiment(TestCase):
 #+END_SRC
 
 
-* Test DeleteExperiment
-#+NAME:  test_delete_experiment 
-#+BEGIN_SRC python
-class TestDeleteExperiment(TestCase):
-    TESTING = True
-
-    def create_app(self):
-        app = create_app(config)
-        return app
-
-    def setUp(self):
-        db.create_all()
-
-    def tearDown(self):
-        db.session.remove()
-        db.drop_all()
-
-    def test_delete_exp(self):
-        
-        print "test_delete_exp_in_system_persistence"
-        session_cls = System.delegate.entities['session']
-        experiment_cls = System.delegate.entities['experiment']
-
-        exp_name = "arrays"
-        exp_id = "cse02"
-        overview = "overview"
-        key = KEY
-        experiment = experiment_cls(exp_name=exp_name, exp_id=exp_id,
-                                        overview=overview, sections=[])
-
-        experiment.save()
-        session = session_cls(key=key)
-        exp_id1 = System.do("delete_experiment", exp_id = exp_id,
-                                  session=session)
-
-        self.assertEqual(exp_id1, exp_id)
-            
-#+END_SRC
-
-
 * Test UpdateInstitute 
 #+NAME: test_update_institute
 #+BEGIN_SRC python
@@ -512,6 +425,55 @@ class TestUpdateInstitute(TestCase):
         print "test_update_institute_in_system_persistence"
         session_cls = System.delegate.entities['session']
         institute_cls = System.delegate.entities['institute']
+
+        inst_name1="IIT Kanpur"
+        inst_id1="IITK"
+        key = KEY
+        session = session_cls(key=key)
+        institute = institute_cls(inst_id=inst_id1, inst_name=inst_name1)
+
+        institute.save()
+
+        inst_name2="IIT Kharagpur"
+
+        institute1 = System.do("update_institute", inst_name=inst_name2,
+                                  inst_id=inst_id1, session=session)
+
+        new_institute = institute_cls.get_by_id(1)
+
+        self.assertEqual(new_institute.get("inst_name"), inst_name2)
+#+END_SRC
+
+
+* Test UpdateDiscipline 
+#+NAME: test_update_discipline
+#+BEGIN_SRC python
+class TestUpdateInstitute(TestCase):
+    TESTING = True
+
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_update_discipline(self):
+
+        print "test_update_discipline_in_system_persistence"
+        session_cls = System.delegate.entities['session']
+        discipline_cls = System.delegate.entities['discipline']
+
+        dis_name = "arrays"
+        dis_id = "cse02"
+        discipline = discipline_cls(dis_name=dis_name, dis_id=dis_id)
+        discipline
+        key = KEY
+        session = session_cls(key=key)
 
         inst_name1="IIT Kanpur"
         inst_id1="IITK"
@@ -559,6 +521,46 @@ class TestUpdateSection(TestCase):
 #+END_SRC
 
 
+* Test DeleteExperiment
+#+NAME:  test_delete_experiment 
+#+BEGIN_SRC python
+class TestDeleteExperiment(TestCase):
+    TESTING = True
+
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_delete_exp(self):
+        
+        print "test_delete_exp_in_system_persistence"
+        session_cls = System.delegate.entities['session']
+        experiment_cls = System.delegate.entities['experiment']
+
+        exp_name = "arrays"
+        exp_id = "cse02"
+        overview = "overview"
+        key = KEY
+        experiment = experiment_cls(exp_name=exp_name, exp_id=exp_id,
+                                        overview=overview, sections=[])
+
+        experiment.save()
+        session = session_cls(key=key)
+        exp_id1 = System.do("delete_experiment", exp_id = exp_id,
+                                  session=session)
+
+        self.assertEqual(exp_id1, exp_id)
+            
+#+END_SRC
+
+
 * Test DeleteInstitute 
 #+NAME:  test_delete_institute 
 #+BEGIN_SRC python
@@ -593,6 +595,53 @@ class TestDeleteInstitute(TestCase):
                                   session=session)
 
         self.assertEqual(institute, inst_id)
+            
+#+END_SRC
+
+
+* Test DeleteLab
+#+NAME:  test_delete_lab 
+#+BEGIN_SRC python
+class TestDeleteLab(TestCase):
+    TESTING = True
+
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_delete_lab(self):
+        
+        print "test_delete_lab_in_system_persistence"
+        session_cls = System.delegate.entities['session']
+        lab_cls = System.delegate.entities['lab']
+        experiment_cls = System.delegate.entities['experiment']
+
+        exp_name = "arrays"
+        exp_id = "cse02"
+        overview = "overview"
+        experiment = experiment_cls(exp_name=exp_name, exp_id=exp_id,
+                                        overview=overview, sections=[])
+        experiment.save()
+
+        lab_name1="Computer Programming"
+        lab_id1="CSE01"
+        key = KEY
+        overview = "overview"
+        session = session_cls(key=key)
+        lab = lab_cls(lab_id=lab_id1, lab_name=lab_name1, \
+                          overview=overview, experiments=[experiment])
+        lab.save()
+        lab1 = System.do("delete_lab", lab_id = lab_id1,
+                                  session=session)
+
+        self.assertEqual(lab1, lab_id1)
             
 #+END_SRC
 
@@ -639,6 +688,48 @@ class TestGetLab(TestCase):
 #+END_SRC
 
 
+* Test GetExperiment
+#+NAME: test_get_exp
+#+BEGIN_SRC python
+class TestGetExp(TestCase):
+    TESTING = True
+
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_get_exp(self):
+
+        print "test_get_exp_in_system_persistence"
+        session_cls = System.delegate.entities['session']
+        exp_cls = System.delegate.entities['experiment']
+
+        experiment_cls = System.delegate.entities['experiment']
+        exp_name = "arrays"
+        exp_id = "cse02"
+        overview = "overview"
+        experiment = experiment_cls(exp_name=exp_name, exp_id=exp_id,
+                                        overview=overview, sections=[])
+        experiment.save()
+        key = KEY
+        session = session_cls(key=key)
+
+        experiment1 = System.do("get_experiment", exp_id=exp_id,
+                                    session=session)
+
+        self.assertEqual(experiment1.get("exp_name"), exp_name)
+        self.assertEqual(experiment1.get("exp_id"), exp_id)
+            
+#+END_SRC
+
+
 * Test GetInstitute 
 #+NAME: test_get_institute
 #+BEGIN_SRC python
@@ -674,6 +765,45 @@ class TestGetInstitute(TestCase):
 
         self.assertEqual(institute1.get("inst_name"), inst_name1)
         self.assertEqual(institute1.get("inst_id"), inst_id1)
+            
+#+END_SRC
+
+
+* Test GetDiscipline
+#+NAME: test_get_discipline
+#+BEGIN_SRC python
+class TestGetDiscipline(TestCase):
+    TESTING = True
+
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_get_discipline(self):
+
+        print "test_get_discipline_in_system_persistence"
+        session_cls = System.delegate.entities['session']
+        discipline_cls = System.delegate.entities['discipline']
+
+        dis_name = "arrays"
+        dis_id = "cse02"
+        discipline = discipline_cls(dis_name=dis_name, dis_id=dis_id)
+        discipline.save()
+        key = KEY
+        session = session_cls(key=key)
+
+        exp1 = System.do("get_discipline", dis_id=dis_id,
+                                  session=session)
+
+        self.assertEqual(exp1.get("dis_name"), dis_name)
+        self.assertEqual(exp1.get("dis_id"), dis_id)
             
 #+END_SRC
 
@@ -727,5 +857,8 @@ if __name__ == '__main__':
 <<test_add_sections_to_experiment>>
 <<test_get_lab>>
 <<test_get_institute>>
+<<test_get_exp>>
+<<test_get_discipline>>
 <<run_test_cases>>
+
 #+end_src
