@@ -194,16 +194,9 @@ class TestPersistenceDelegate(TestCase):
     This function checks if an institute is already in the institute-set of the =System=.
 #+NAME: persistence_institute_exists
 #+BEGIN_SRC python
-    def institute_exists(self, instid):
-        ret_val = False
-
-        try:
-            if Institute.get_by_id(instid) is not None:
-                ret_val = True
-        except Exception as e:
-            pass
-
-        return ret_val
+    def institute_exists(self, institute):
+        inst_id = institute.get("inst_id")
+        return institute == self.get_institute(inst_id=inst_id)
         
 #+END_SRC
 
@@ -222,9 +215,9 @@ class TestPersistenceDelegate(TestCase):
         institute2 = Institute(inst_name=inst_name2, inst_id=inst_id2) 
         
         self.assertEqual(self.persistence_delegate.institute_exists\
-                             (institute1.id), True)
+                             (institute1), True)
         self.assertEqual(self.persistence_delegate.institute_exists\
-                             (institute2.id), False)
+                             (institute2), False)
 
 #+END_SRC
 
@@ -479,9 +472,9 @@ class TestPersistenceDelegate(TestCase):
          institute = Institute.get_by_id(1)
 
          self.assertEqual(self.persistence_delegate.institute_exists\
-                              (institute1.id), True)
+                              (institute1), True)
          self.assertEqual(self.persistence_delegate.institute_exists\
-                              (institute2.id), False)
+                              (institute2), False)
         
 #+END_SRC
 
