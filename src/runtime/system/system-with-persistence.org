@@ -448,7 +448,7 @@ class TestUpdateInstitute(TestCase):
 * Test UpdateDiscipline 
 #+NAME: test_update_discipline
 #+BEGIN_SRC python
-class TestUpdateInstitute(TestCase):
+class TestUpdateDisciplilne(TestCase):
     TESTING = True
 
     def create_app(self):
@@ -471,26 +471,17 @@ class TestUpdateInstitute(TestCase):
         dis_name = "arrays"
         dis_id = "cse02"
         discipline = discipline_cls(dis_name=dis_name, dis_id=dis_id)
-        discipline
+        discipline.save()
         key = KEY
         session = session_cls(key=key)
 
-        inst_name1="IIT Kanpur"
-        inst_id1="IITK"
-        key = KEY
-        session = session_cls(key=key)
-        institute = institute_cls(inst_id=inst_id1, inst_name=inst_name1)
+        dis_name1 = "lists"
 
-        institute.save()
+        discipline1 = System.do("update_discipline", dis_name=dis_name1,
+                                  dis_id=dis_id, session=session)
 
-        inst_name2="IIT Kharagpur"
+        self.assertEqual(discipline1.get("dis_name"), dis_name1)
 
-        institute1 = System.do("update_institute", inst_name=inst_name2,
-                                  inst_id=inst_id1, session=session)
-
-        new_institute = institute_cls.get_by_id(1)
-
-        self.assertEqual(new_institute.get("inst_name"), inst_name2)
 #+END_SRC
 
 
@@ -854,6 +845,7 @@ if __name__ == '__main__':
 <<test_update_lab>>
 <<test_update_experiment>>
 <<test_update_institute>>
+<<test_update_discipline>>
 <<test_add_sections_to_experiment>>
 <<test_get_lab>>
 <<test_get_institute>>
