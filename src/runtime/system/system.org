@@ -315,7 +315,7 @@ class UpdateDiscipline():
         dis = System.delegate.get_disicipline(dis_id=dis_id)
 
         if not "dis_name" in args:
-           dis_name=question.get("dis_name")
+           dis_name=dis.get("dis_name")
         else:
            dis_name=args["dis_name"]
 
@@ -328,7 +328,6 @@ class UpdateDiscipline():
         return dis
 
 #+end_src
-
 
 ** =DeleteLab=
 #+NAME: class_delete_lab
@@ -383,7 +382,7 @@ class DeleteDiscipline():
 
 
 ** =AddDiscipline=
-#+NAME: class_add_experiment
+#+NAME: class_add_discipline
 #+begin_src python
 class AddDiscipline():
     arg_types = {"discipline": is_discipline, "session": is_session}
@@ -409,7 +408,6 @@ class AddDiscipline():
         return discipline
 
 #+end_src
-
 
 ** =AddExperiment=
 #+NAME: class_add_experiment
@@ -438,8 +436,6 @@ class AddExperiment():
         return experiment
 
 #+end_src
-
-
 
 ** =UpdateExperiment=
 #+NAME: class_update_experiment
@@ -991,7 +987,7 @@ class AddLabsToInstitute():
 #+NAME: class_add_sections_to_experiment
 #+begin_src python
 class AddSectionsToExperiment():
-    arg_types = {"sections": are_sections, "expid": is_int, 
+    arg_types = {"sections": are_sections, "experiment": is_experiment, 
                      "session": is_session}
     arity_and_type_checks_needed = True
 
@@ -1005,26 +1001,25 @@ class AddSectionsToExperiment():
 
     @staticmethod
     def state_check(args):
-        expid = args["expid"]
-        if not System.delegate.experiment_exists(expid):
+        experiment = args["experiment"]
+        if not System.delegate.experiment_exists(experiment):
             current_app.logger.error("exp with id = %d does not exist"
-                                     " in System" % expid)
+                                     " in System" % experiment)
             raise StateError("lab with id = %d does not exist in System"
                                  % labid)
 
     @staticmethod
     def action(args):
-        expid = args["expid"]
+        experiment = args["experiment"]
         sections = args["sections"]
         try:
-            exp = System.delegate.add_sections_to_experiment(expid, sections) 
+            exp = System.delegate.add_sections_to_experiment(experiment, sections) 
             return exp
         except Exception as err:
             current_app.logger.error("Exception = %s" % str(err))
             raise err
 
 #+end_src
-
 
 ** =GetLab=
 #+NAME: class_get_lab
@@ -1112,6 +1107,7 @@ class GetInstitute():
         return institute
 
 #+end_src
+
 
 
 ** Operations Table

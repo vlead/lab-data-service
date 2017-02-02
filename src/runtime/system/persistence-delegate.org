@@ -114,16 +114,9 @@ class TestPersistenceDelegate(TestCase):
     This function checks if a user is already in the user-set of the =System=.
 #+NAME: persistence_experiment_exists
 #+BEGIN_SRC python
-    def experiment_exists(self, eid):
-        ret_val = False
-
-        try:
-            if Experiment.get_by_id(eid) is not None:
-                ret_val = True
-        except Exception as e:
-            pass
-
-        return ret_val
+    def experiment_exists(self, experiment):
+        exp_id = experiment.get("exp_id")
+        return experiment == self.get_experiment(exp_id=exp_id)
         
 #+END_SRC
 
@@ -146,9 +139,9 @@ class TestPersistenceDelegate(TestCase):
                                      overview=overview2, sections=[])
 
         self.assertEqual(self.persistence_delegate.experiment_exists\
-                             (experiment1.id), True)
+                             (experiment1), True)
         self.assertEqual(self.persistence_delegate.experiment_exists\
-                             (experiment2.id), False)
+                             (experiment2), False)
 
 #+END_SRC
 
@@ -184,7 +177,7 @@ class TestPersistenceDelegate(TestCase):
     This function checks if an =entity= is already in the exists in the =System=.
 #+NAME: persistence_entity_exists
 #+BEGIN_SRC python
-    def experiment_exists(self, cls_name, id):
+    def entity_exists(self, cls_name, id):
         ret_val = False
 
         try:
@@ -346,9 +339,9 @@ class TestPersistenceDelegate(TestCase):
          
          experiment = Experiment.get_by_id(1)
 
-         self.assertEqual(self.persistence_delegate.experiment_exists(experiment1.id),
+         self.assertEqual(self.persistence_delegate.experiment_exists(experiment1),
                           True)
-         self.assertEqual(self.persistence_delegate.experiment_exists(experiment2.id),
+         self.assertEqual(self.persistence_delegate.experiment_exists(experiment2),
                           False)
         
 #+END_SRC
@@ -1008,8 +1001,7 @@ class TestPersistenceDelegate(TestCase):
     This function adds sections to a given experiment.
 #+NAME: persistence_add_sections_to_experiment
 #+BEGIN_SRC python
-    def add_sections_to_experiment(self, eid, sections):
-        exp = self.get_experiment_by_id(eid)
+    def add_sections_to_experiment(self, experiment, sections):
         section_list = []
         for section in sections:
             if self.section_exists(section):
@@ -1019,8 +1011,8 @@ class TestPersistenceDelegate(TestCase):
 
             section_list.append(section)
 
-        exp.set(sections=section_list)
-        return exp
+        experiment.set(sections=section_list)
+        return experiment
 
 #+END_SRC
 
@@ -1043,7 +1035,7 @@ class TestPersistenceDelegate(TestCase):
          section2.save()
 
          exp1 = self.persistence_delegate.add_sections_to_experiment\
-                                     (exp.id, [section1, section2])
+                                     (exp, [section1, section2])
         
          self.assertEqual(len(exp1.get("sections")), 2)
          self.assertEqual(exp1.get("sections")[0].get("name"), 'Theory')

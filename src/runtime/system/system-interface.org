@@ -656,11 +656,12 @@ class TestUpdateLab(TestCase):
                                      "add_sections_to_experiments")
             experiment = System.do("add_sections_to_experiment",
                                     sections=section_list,
-                                    expid=int(experiment.id),
+                                    experiment=experiment,
                                     session=session)
             current_app.logger.debug("running operation"
                                      "add_sections_to_experiment")
             return experiment.to_client()
+
         except Exception as e:
             experiment.delete()
             current_app.logger.error("Exception = %s" % str(e))
