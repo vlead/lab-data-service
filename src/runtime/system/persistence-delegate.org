@@ -73,8 +73,25 @@ class TestPersistenceDelegate(TestCase):
     
     By applying the above three principles on the below 3 functions, we get the
     following fourth function.
+**** Check if =entity= already exists
+    This function checks if an =entity= is already in the exists in the =System=.
+#+NAME: persistence_entity_exists
+#+BEGIN_SRC python
+    def entity_exists(self, cls_name, id):
+        ret_val = False
 
-**** Check if =lab= already exists
+        try:
+            if cls_name.get_by_id(id) is not None:
+                ret_val = True
+        except Exception as e:
+            pass
+
+        return ret_val
+        
+#+END_SRC
+
+
+*** Check if =lab= already exists
     This function checks if a lab is already in the lab-set of the =System=.
 #+NAME: persistence_lab_exists
 #+BEGIN_SRC python
@@ -110,7 +127,9 @@ class TestPersistenceDelegate(TestCase):
 
 #+END_SRC
 
-**** Check if =experiment= already exists
+
+*** Check if =experiment= already exists
+
     This function checks if a user is already in the user-set of the =System=.
 #+NAME: persistence_experiment_exists
 #+BEGIN_SRC python
@@ -145,7 +164,8 @@ class TestPersistenceDelegate(TestCase):
 
 #+END_SRC
 
-**** Check if =section= already exists
+
+*** Check if =section= already exists
 
     This function checks if a section name is already in the section-set of the =System=.
 #+NAME: persistence_section_exists
@@ -173,24 +193,8 @@ class TestPersistenceDelegate(TestCase):
 
 #+END_SRC
 
-**** Check if =entity= already exists
-    This function checks if an =entity= is already in the exists in the =System=.
-#+NAME: persistence_entity_exists
-#+BEGIN_SRC python
-    def entity_exists(self, cls_name, id):
-        ret_val = False
 
-        try:
-            if cls_name.get_by_id(id) is not None:
-                ret_val = True
-        except Exception as e:
-            pass
-
-        return ret_val
-        
-#+END_SRC
-
-**** Check if =institute= already exists
+*** Check if =institute= already exists
     This function checks if an institute is already in the institute-set of the =System=.
 #+NAME: persistence_institute_exists
 #+BEGIN_SRC python
