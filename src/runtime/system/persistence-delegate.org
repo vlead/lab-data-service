@@ -1041,9 +1041,6 @@ class TestPersistenceDelegate(TestCase):
 #+END_SRC
 
 
-***  Add discipline to the system
-
-
 ***  Get an object
     A generic function to find an object of type =cls= matching a given a criteria
 
@@ -1187,7 +1184,7 @@ class TestPersistenceDelegate(TestCase):
 ***  Get Discipline
     This function returns discipline if present in the database.  If the discipline is
     not present, =None= type is returned.
-#+NAME: persistence_get_discipline
+#+NAME: persistence_get_discipline 
 #+BEGIN_SRC python
     def get_discipline(self, **kwargs):
         return self.get_object(Discipline, **kwargs)
@@ -1203,10 +1200,13 @@ class TestPersistenceDelegate(TestCase):
 
          dis_name = "IIT Delhi"
          dis_id = "EEE08"
-         dis = Discipline (dis_name=dis_name, dis_id=dis_id)
+         dis = Discipline(dis_name=dis_name, dis_id=dis_id)
          dis.save()
-         dis_obj = self.persistence_delegate.get_discipline (dis_name=dis_name)
+         dis_obj = self.persistence_delegate.get_discipline(dis_name=dis_name)
+         dis_obj1 = self.persistence_delegate.get_discipline(dis_id=dis_id)
+
          self.assertEqual(dis_obj.get("dis_name"), dis_name)
+         self.assertEqual(dis_obj1.get("dis_id"), dis_id)
 
 #+END_SRC
 
@@ -1453,6 +1453,42 @@ class TestPersistenceDelegate(TestCase):
 
 #+END_SRC
 
+
+***  Get Discipline By ID
+    This function returns an discipline object by an ID if present in database,
+    otherwise, =None= type is returned.
+
+#+NAME: persistence_get_discipline_by_id
+#+BEGIN_SRC python
+    def get_discipline_by_id(self, id):
+        ret_val = None
+        try:
+            ret_val = Discipline.get_by_id(id)
+        except Exception as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            ret_val = None
+        
+        return ret_val
+
+#+END_SRC
+
+****  Tests
+#+NAME: test_persistence_get_discipline_by_id
+#+BEGIN_SRC python
+    def test_get_discipline_by_id(self):
+         print "test_persistence_get_discipline_by_id"
+
+         dis_name = "IIT Delhi"
+         dis_id = "EEE08"
+         dis = Discipline(dis_name=dis_name, dis_id=dis_id)
+         dis.save()
+
+         dis_obj = self.persistence_delegate.get_discipline_by_id(1)
+         self.assertEqual(dis_obj.get("dis_id"), dis_id)
+         self.assertEqual(dis_obj.get("dis_name"), dis_name)
+
+#+END_SRC
+
       
 * Infra                                                         :boilerplate:
 
@@ -1510,8 +1546,8 @@ if __name__ == '__main__':
 <<persistence_get_section>>
 <<persistence_get_experiment>>
 <<persistence_get_institute>>
-
 <<persistence_get_discipline>>
+
 <<persistence_discipline_exists>>
 <<persistence_add_discipline>>
 <<persistence_delete_discipline>>
@@ -1543,6 +1579,7 @@ if __name__ == '__main__':
 <<persistence_get_lab_by_id>>
 <<persistence_get_experiment_by_id>>
 <<persistence_get_institute_by_id>>
+<<persistence_get_discipline_by_id>>
 
 <<persistence_add_experiments_to_lab>>
 <<persistence_add_sections_to_experiment>>
@@ -1554,15 +1591,12 @@ if __name__ == '__main__':
 #+BEGIN_SRC python :tangle test_persistence_delegate.py :eval no :noweb yes
 <<imports_for_tests_persistence>>
 <<test_class_persistence_delegate>>
-<<test_persistence_get_discipline>>
-<<test_persistence_discipline_exists>>
-<<test_persistence_add_discipline>>
-<<test_persistence_delete_discipline>>
-<<test_persistence_udpate_discipline>>
+
 <<test_persistence_get_lab>>
 <<test_persistence_get_section>>
 <<test_persistence_get_experiment>>
 <<test_persistence_get_institute>>
+<<test_persistence_get_discipline>>
 
 <<test_persistence_get_labs>>
 <<test_persistence_get_institutes>>
@@ -1571,25 +1605,30 @@ if __name__ == '__main__':
 <<test_persistence_experiment_exists>>
 <<test_persistence_section_exists>>
 <<test_persistence_institute_exists>>
+<<test_persistence_discipline_exists>>
 
 <<test_persistence_add_lab>>
 <<test_persistence_add_section>>
 <<test_persistence_add_experiment>>
 <<test_persistence_add_institute>>
+<<test_persistence_add_discipline>>
 
 <<test_persistence_delete_lab>>
 <<test_persistence_delete_section>>
 <<test_persistence_delete_experiment>>
 <<test_persistence_delete_institute>>
+<<test_persistence_delete_discipline>>
 
 <<test_persistence_update_lab>>
 <<test_persistence_update_experiment>>
 <<test_persistence_update_section>>
 <<test_persistence_update_institute>>
+<<test_persistence_udpate_discipline>>
 
 <<test_persistence_get_lab_by_id>>
 <<test_persistence_get_experiment_by_id>>
 <<test_persistence_get_institute_by_id>>
+<<test_persistence_get_discipline_by_id>>
 
 <<test_persistence_add_experiments_to_lab>>
 <<test_persistence_add_sections_to_experiment>>
