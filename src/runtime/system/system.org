@@ -65,7 +65,7 @@ The class corresponding to each operation has five fields:
        An exception thrown by this function indicates a
        serious failure in the application (e.g., out of
        memory error). 
-
+       
 
 * The =System= class
   There is only one =System= in the application.
@@ -175,7 +175,7 @@ class TestSystemConstructor(TestCase):
             System.type_check(args, arg_types)
 
   #+END_SRC
-
+  
     
 * =do= method 
    The =do= method is the main work-horse of =System= which is constructed as the
@@ -756,7 +756,7 @@ class AddEmail():
 #+NAME: class_add_developer
 #+begin_src python
 class AddDeveloper():
-    arg_types = {"developer": is_developer, "name": is_name, "email": is_email, "session": is_session}
+    arg_types = {"developer": is_developer, "session": is_session}
     arity_and_type_checks_needed = True
 
     @staticmethod
@@ -781,42 +781,11 @@ class AddDeveloper():
 #+end_src
 
 
-** =UpdateName=
-#+NAME: class_update_name
+** =UpdateDeveloper=
+#+NAME: class_update_developer
 #+begin_src python
-class UpdateName():
-    arg_types = {"name": is_name}
-    arity_and_type_checks_needed = True
-
-    @staticmethod
-    def auth_check(args):
-        session = args['session']
-        if not System.is_session_valid(session):
-            raise NotAuthorizedError("Not Authorized to perform this action")
-
-    @staticmethod
-    def state_check(args):
-        pass
-
-    @staticmethod
-    def action(args):
-        name = args["name"]
-        if not "name" in args:
-           name=name.get("name")
-        else:
-           name=args["name"]
-
-        section = System.delegate.update_name(name, name)
-        return name
-
-#+end_src
-
-
-** =UpdateEmail=
-#+NAME: class_update_email
-#+begin_src python
-class UpdateEmail():
-    arg_types = {"email": is_email}
+class UpdateDeveloper():
+    arg_types = {"name": is_name, "email": is_email, "session": is_session}
     arity_and_type_checks_needed = True
 
     @staticmethod
@@ -832,44 +801,13 @@ class UpdateEmail():
     @staticmethod
     def action(args):
         email = args["email"]
+        developer = System.delegate.get_developer(email=email)
         if not "email" in args:
-           email=email.get("email")
-        else:
-           email=args["email"]
-
-        email = System.delegate.update_email(email, email)
-        return email
-
-#+end_src
-
-
-** =UpdateDeveloper=
-#+NAME: class_update_developer
-#+begin_src python
-class UpdateDeveloper():
-    arg_types = {"developer": is_developer, "name": is_name,
-                     "email": is_email}
-    arity_and_type_checks_needed = True
-
-    @staticmethod
-    def auth_check(args):
-        session = args['session']
-        if not System.is_session_valid(session):
-            raise NotAuthorizedError("Not Authorized to perform this action")
-
-    @staticmethod
-    def state_check(args):
-        pass
-
-    @staticmethod
-    def action(args):
-        developer = args["developer"]
-        if not "name" in args:
            name=developer.get("name")
         else:
            name=args["name"]
 
-        section = System.delegate.update_developer(developer, name)
+        developer = System.delegate.update_developer(developer, name, email)
         return developer
 
 #+end_src
@@ -879,7 +817,7 @@ class UpdateDeveloper():
 #+NAME: class_delete_name
 #+begin_src python
 class DeleteName():
-    arg_types = {"name_id": is_name}
+    arg_types = {"name": is_name, "session": is_session}
     arity_and_type_checks_needed = True
 
     @staticmethod
@@ -890,13 +828,16 @@ class DeleteName():
 
     @staticmethod
     def state_check(args):
-        pass
+        name = args["name"]
+        if not System.delegate.name_exists(name):
+            raise StateError("name %s does not exists in System"
+                                % name.to_client())
 
     @staticmethod
     def action(args):
-        name_id = args["name_id"]
-        name_id = System.delegate.delete_name(name_id)
-        return name_id
+        name = args["name"]
+        name1 = System.delegate.delete_name(name)
+        return name1
         
 #+end_src
 
@@ -905,7 +846,7 @@ class DeleteName():
 #+NAME: class_delete_email
 #+begin_src python
 class DeleteEmail():
-    arg_types = {"email_id": is_email}
+    arg_types = {"email": is_email, "session": is_session}
     arity_and_type_checks_needed = True
 
     @staticmethod
@@ -916,13 +857,16 @@ class DeleteEmail():
 
     @staticmethod
     def state_check(args):
-        pass
+        email = args["email"]
+        if not System.delegate.email_exists(email):
+            raise StateError("email %s does not exists in System"
+                                % email.to_client())
 
     @staticmethod
     def action(args):
-        email_id = args["email_id"]
-        email_id = System.delegate.delete_email(email_id)
-        return email_id
+        email = args["email"]
+        email = System.delegate.delete_email(email)
+        return email
         
 #+end_src
 
@@ -931,7 +875,7 @@ class DeleteEmail():
 #+NAME: class_delete_developer
 #+begin_src python
 class DeleteDeveloper():
-    arg_types = {"developer_id": is_developer, "name": is_name, "email": is_email}
+    arg_types = {"email": is_email, "session": is_session}
     arity_and_type_checks_needed = True
 
     @staticmethod
@@ -942,13 +886,16 @@ class DeleteDeveloper():
 
     @staticmethod
     def state_check(args):
-        pass
+        email = args["email"]
+        if not System.delegate.developer_exists(email):
+            raise StateError("developer with email_id: %s does not exists in System"
+                                % email.to_client())
 
     @staticmethod
     def action(args):
-        developer_id = args["developer_id"]
-        developer_id = System.delegate.delete_developer(developer_id)
-        return developer_id
+        email = args["email"]
+        email = System.delegate.delete_developer(email)
+        return email
         
 #+end_src
 
@@ -1101,6 +1048,96 @@ class GetLab():
 #+end_src
 
 
+** =GetName=
+#+NAME: class_get_name
+#+begin_src python
+class GetName():
+    arg_types = {"name": is_name, "session": is_session}
+
+    arity_and_type_checks_needed = True
+
+    @staticmethod
+    def auth_check(args):
+        session = args['session']
+        current_app.logger.debug("checking authorization")
+        if not System.is_session_valid(session):
+            current_app.logger.debug("authorization is failed")
+            raise NotAuthorizedError("Not Authorized to perform this action")
+        current_app.logger.debug("authorization check is done")
+
+    @staticmethod
+    def state_check(args):
+        pass
+
+    @staticmethod
+    def action(args):
+        name = args["name"]
+        name1 = System.delegate.get_name(name=name.get("name"))
+        return name1
+
+#+end_src
+
+
+** =GetEmail=
+#+NAME: class_get_email
+#+begin_src python
+class GetEmail():
+    arg_types = {"email": is_email, "session": is_session}
+
+    arity_and_type_checks_needed = True
+
+    @staticmethod
+    def auth_check(args):
+        session = args['session']
+        current_app.logger.debug("checking authorization")
+        if not System.is_session_valid(session):
+            current_app.logger.debug("authorization is failed")
+            raise NotAuthorizedError("Not Authorized to perform this action")
+        current_app.logger.debug("authorization check is done")
+
+    @staticmethod
+    def state_check(args):
+        pass
+
+    @staticmethod
+    def action(args):
+        email = args["email"]
+        email1 = System.delegate.get_email(email=email.get("email"))
+        return email1
+
+#+end_src
+
+
+** =GetDeveloper=
+#+NAME: class_get_developer
+#+begin_src python
+class GetDeveloper():
+    arg_types = {"email": is_email, "session": is_session}
+
+    arity_and_type_checks_needed = True
+
+    @staticmethod
+    def auth_check(args):
+        session = args['session']
+        current_app.logger.debug("checking authorization")
+        if not System.is_session_valid(session):
+            current_app.logger.debug("authorization is failed")
+            raise NotAuthorizedError("Not Authorized to perform this action")
+        current_app.logger.debug("authorization check is done")
+
+    @staticmethod
+    def state_check(args):
+        pass
+
+    @staticmethod
+    def action(args):
+        email = args["email"]
+        email = System.delegate.get_developer(email=email)
+        return email
+
+#+end_src
+
+
 ** Operations Table
    Each operation has a corresponding implementation defined as a class.
 
@@ -1123,8 +1160,6 @@ ops_table = {'add_lab' : AddLab,
              'add_name' : AddName,
              'add_email' : AddEmail,
              'add_developer' : AddDeveloper,
-             'update_name': UpdateName,
-             'update_email': UpdateEmail,
              'update_developer': UpdateDeveloper,
              'delete_name': DeleteName,
              'delete_email': DeleteEmail,
@@ -1133,7 +1168,10 @@ ops_table = {'add_lab' : AddLab,
              'get_lab' : GetLab,
              'add_discipline' : AddDiscipline,
              'update_discipline' : UpdateDiscipline,
-             'delete_discipline' : DeleteDiscipline
+             'delete_discipline' : DeleteDiscipline,
+             'get_name': GetName,
+             'get_email': GetEmail,
+             'get_developer': GetDeveloper
              }
 
  #+END_SRC   
@@ -1215,8 +1253,6 @@ if __name__ == '__main__':
 <<class_add_name>>
 <<class_add_email>>
 <<class_add_developer>>
-<<class_update_name>>
-<<class_update_email>>
 <<class_update_developer>>
 <<class_delete_name>>
 <<class_delete_email>>
@@ -1226,6 +1262,9 @@ if __name__ == '__main__':
 <<class_add_sections_to_experiment>>
 <<class_add_section>>
 <<class_get_lab>>
+<<class_get_name>>
+<<class_get_email>>
+<<class_get_developer>>
 <<ops_table>>
 
 #+end_src
