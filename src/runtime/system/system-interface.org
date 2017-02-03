@@ -268,34 +268,6 @@ class TestAddExperiment(TestCase):
             raise err
 
 #+END_SRC
-** Add Discipline
-#+NAME: class_add_discipline
-#+begin_src python
-    @staticmethod
-    def add_discipline(data_dict):
-        session_cls = System.delegate.entities['session']
-        discipline_cls = System.delegate.entities['discipline']
-
-        session = session_cls(key=data_dict['key'])
-        discipline = discipline_cls(dis_name=data_dict['dis_name'],
-                                dis_id=data_dict['dis_id'])
-        try:
-            current_app.logger.debug("running operation add_discipline")
-            question = System.do("add_discipline", discipline=discipline, 
-                                    session=session)
-            current_app.logger.debug("completed operation add_discipline")
-            return discipline.to_client()
-
-        except (ArityError, TypeError, NotAuthorizedError, StateError) as err:
-            current_app.logger.error("Exception = %s" % str(err))
-            raise err
-
-        except Exception as err:
-            current_app.logger.error("Exception = %s" % str(err))
-            raise err
-
-#+end_src
-
 *** TestAddInstitute 
  #+NAME: test_class_add_institute
  #+BEGIN_SRC python
@@ -330,6 +302,35 @@ class TestAddInstitute(TestCase):
         
 
  #+END_SRC
+** Add Discipline
+#+NAME: class_add_discipline
+#+begin_src python
+    @staticmethod
+    def add_discipline(data_dict):
+        session_cls = System.delegate.entities['session']
+        discipline_cls = System.delegate.entities['discipline']
+
+        session = session_cls(key=data_dict['key'])
+        discipline = discipline_cls(dis_name=data_dict['dis_name'],
+                                dis_id=data_dict['dis_id'])
+        try:
+            current_app.logger.debug("running operation add_discipline")
+            question = System.do("add_discipline", discipline=discipline, 
+                                    session=session)
+            current_app.logger.debug("completed operation add_discipline")
+            return discipline.to_client()
+
+        except (ArityError, TypeError, NotAuthorizedError, StateError) as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+
+        except Exception as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+
+#+end_src
+
+
 *** TestAddDiscipline
  #+NAME: test_class_add_discipline
  #+BEGIN_SRC python
@@ -371,60 +372,6 @@ class TestAddDiscipline(TestCase):
 		    }
         with self.assertRaises(TypeError):
             SystemInterface.add_discipline(data_dict)
-
- #+END_SRC
-*** TestAddDiscipline
- #+NAME: test_class_add_lab
- #+BEGIN_SRC python
-class TestAddDiscipline(TestCase):
-
-    TESTING = True
-    def create_app(self):
-        app = create_app(config)
-        return app
-
-    def setUp(self):
-        db.create_all()
-
-    def tearDown(self):
-        db.session.remove()
-        db.drop_all()
-
-    def test_add_discipline_in_system_interface(self):
-        print "test_add_discipline_in_system_interface"
-
-        data_dict = {'dis_name': 'data structure',
-                    'dis_id': 'cse01',
-                    'key' : KEY
-                   }
-
-        data_dict1 = {'dis_name': "Automata",
-            'dis_id': 'DFA',
-            'key' : KEY
-           }
-
-
-        dis = SystemInterface.add_lab(data_dict)
-        dis1 = SystemInterface.add_lab(data_dict1)
-        
-        self.assertEqual(lab.get("dis_id"), 
-                             data_dict['dis_id'])
-        self.assertEqual(lab.get("dis_name"), data_dict['dis_name'])
-        self.assertEqual(lab1.get("dis_id"), 
-                             data_dict1['dis_id'])
-        self.assertEqual(lab1.get("dis_name"), data_dict1['dis_name'])
-
-
-    def test_add_lab_raises_type_error_in_system_interface(self):
-        print "test_add_discipline_raises_type_error_in_system_interface"
-
-        data_dict = {'discipline_name': 'data structure',
-                    'dis_id': 123,
-                    'key' : KEY
-                   }
-
-        with self.assertRaises(TypeError):
-            SystemInterface.add_lab(data_dict)
 
  #+END_SRC
 
@@ -805,10 +752,10 @@ class TestGetSections(TestCase):
             raise err
 #+end_src
 
-*** TestGetExperiments
- #+NAME: test_class_get_experiments
+*** TestGetDisciplines
+ #+NAME: test_class_get_disciplines
  #+BEGIN_SRC python
-class TestGetExperiments(TestCase):
+class TestGetDisciplines(TestCase):
     TESTING = True
     def create_app(self):
         app = create_app(config)
@@ -821,33 +768,32 @@ class TestGetExperiments(TestCase):
         db.session.remove()
         db.drop_all()
 
-    def test_get_experiments_in_system_interface(self):
-        print "test_get_experiments_in_system_interface"
+    def test_get_disciplines_in_system_interface(self):
+        print "test_get_disciplines_in_system_interface"
 
-        data_dict = {'exp_name': 'stack',
-                    'exp_id': 'cse01',
+        data_dict = {'dis_name': 'data structure',
+                    'dis_id': 'cse01',
                     'key' : KEY
                    }
 
-        data_dict1 = {'exp_name': "arrays",
-            'exp_id': 'cse02',
+        data_dict1 = {'dis_name': "Automata",
+            'dis_id': 'DFA',
             'key' : KEY
            }
 
-        exp1 = SystemInterface.add_experiment(data_dict)
-        exp2 = SystemInterface.add_experiment(data_dict1)
+        dis = SystemInterface.add_discipline(data_dict)
+        dis1 = SystemInterface.add_discipline(data_dict1)
 
-        exp_list = SystemInterface.get_experiments()
+        dis_list = SystemInterface.get_disciplines()
         
-        self.assertEqual(exp_list[0].get("exp_name"), data_dict['exp_name'])
-        self.assertEqual(exp_list[1].get("exp_name"), data_dict1['exp_name'])
-        self.assertEqual(exp_list[0].get("exp_id"), 
-                             data_dict['exp_id'])
-        self.assertEqual(exp_list[1].get("exp_id"), 
-                             data_dict1['exp_id'])
+        self.assertEqual(dis_list[0].get("dis_name"), data_dict["dis_name"])
+        self.assertEqual(dis_list[1].get("dis_name"), data_dict1["dis_name"])
+        self.assertEqual(dis_list[0].get("dis_id"), 
+                             data_dict["dis_id"])
+        self.assertEqual(dis_list[1].get("dis_id"), 
+                             data_dict1["dis_id"])
 
  #+END_SRC
-
 
 ** Get Lab By Id
 #+NAME: class_get_lab_by_id
@@ -1135,6 +1081,74 @@ class TestGetInstituteById(TestCase):
                              data_dict['inst_id'])
         self.assertEqual(inst_data_two.get("inst_id"), 
                              data_dict1['inst_id'])
+
+ #+END_SRC
+
+** Get Discipline By Id
+#+NAME: class_get_discipline_by_id
+#+begin_src python
+    @staticmethod
+    def get_discipline_by_id(id):
+        discipline_cls = System.delegate.entities['discipline']
+        try:
+            current_app.logger.debug("getting discipline by id")
+            discipline = discipline_cls.get_by_id(id)
+            if not discipline:
+                return ("No discipline found with id: %s" % (id))
+
+            return discipline.to_client()
+
+        except (ArityError, TypeError, NotAuthorizedError, StateError) as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+
+        except Exception as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+#+end_src
+
+*** TestGetDisciplineById
+ #+NAME: test_class_get_discipline_by_id
+ #+BEGIN_SRC python
+class TestGetDisciplineById(TestCase):
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_get_discipline_by_id_in_system_interface(self):
+        print "test_get_discipline_by_id_in_system_interface"
+
+        data_dict = {'dis_name': 'data structure',
+                    'dis_id': 'cse01',
+                    'key' : KEY
+                   }
+
+        data_dict1 = {'dis_name': "Automata",
+            'dis_id': 'DFA',
+            'key' : KEY
+           }
+
+
+        dis = SystemInterface.add_discipline(data_dict)
+        dis1 = SystemInterface.add_discipline(data_dict1)
+
+        dis_data_one = SystemInterface.get_discipline_by_id(1)
+        dis_data_two = SystemInterface.get_discipline_by_id(2)
+        
+        self.assertEqual(dis_data_one.get("dis_name"), data_dict["dis_name"])
+        self.assertEqual(dis_data_two.get("dis_name"), data_dict1["dis_name"])
+        self.assertEqual(dis_data_one.get("dis_id"), 
+                             data_dict["dis_id"])
+        self.assertEqual(dis_data_two.get("dis_id"), 
+                             data_dict1["dis_id"])
 
  #+END_SRC
 
@@ -1441,6 +1455,70 @@ class TestUpdateSection(TestCase):
 
  #+END_SRC
 
+** Update Discipline
+#+NAME: class_update_discipline
+#+begin_src python       
+    @staticmethod
+    def update_discipline(data_dict):
+        session_cls = System.delegate.entities['session']
+        session = session_cls(key=data_dict['key'])
+
+        if "dis_name" not in data_dict:
+            dis_name=str(dis.get("dis_name"))
+        else:
+            dis_name=data_dict["dis_name"]
+
+        try:
+            current_app.logger.debug("running operation update_discipline")
+            discipline = System.do("update_discipline", dis_id=str(data_dict["dis_id"]),
+                                    dis_name=dis_name, 
+                                    session=session)
+            current_app.logger.debug("completed operation update_discipline")
+            return discipline.to_client()
+        except (ArityError, TypeError, NotAuthorizedError, StateError) as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+
+        except Exception as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+#+end_src
+
+*** TestUpateDiscipline 
+ #+NAME: test_class_update_Discipline
+ #+BEGIN_SRC python
+class TestUpdateDiscipline(TestCase):
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_update_discipline_name_in_system_interface(self):
+        print "test_update_discipline_name_in_system_interface"
+
+        data_dict = {'dis_name': 'Computer Science',
+                    'dis_id': 'CSE',
+                    'key' : KEY
+                   }
+
+        data_dict1 = {'dis_name': 'Computer Science and Engineering',
+            'dis_id': 'CSE',
+            'key' : KEY
+           }
+        dis1 = SystemInterface.add_discipline(data_dict)
+        dis = SystemInterface.update_discipline(data_dict1)
+        
+        self.assertEqual(dis.get("dis_name"), data_dict1['dis_name'])
+
+ #+END_SRC
+
 
 ** Delete Lab
 #+NAME: class_delete_lab
@@ -1649,10 +1727,10 @@ class TestDeleteInstitute(TestCase):
 #+NAME: class_delete_section
 #+begin_src python
     @staticmethod
-    def delete_section(s_id):
+    def delete_section(s_id, key):
         session_cls = System.delegate.entities['session']
 
-        session = session_cls(key=KEY)
+        session = session_cls(key=str(key))
         try:
             current_app.logger.debug("running operation delete_section")
             section = System.do("delete_section", s_id=int(s_id),
@@ -1699,9 +1777,63 @@ class TestDeleteSection(TestCase):
 
         exp = SystemInterface.add_section(data_dict)
         exp1 = SystemInterface.add_section(data_dict1)
-        s_id = SystemInterface.delete_section(1)
+        s_id = SystemInterface.delete_section(1, KEY)
         
         self.assertEqual(s_id, 1)
+
+ #+END_SRC
+
+** Delete Discipline
+#+NAME: class_delete_discipline
+#+begin_src python       
+    @staticmethod
+    def delete_discipline(dis_id, key):
+        session_cls = System.delegate.entities['session']
+        session = session_cls(key=str(key))
+
+        try:
+            current_app.logger.debug("running operation delete_discipline")
+            discipline_id = System.do("delete_discipline", dis_id=str(dis_id),
+                                    session=session)
+            current_app.logger.debug("completed operation delete_discipline")
+            return discipline_id
+        except (ArityError, TypeError, NotAuthorizedError, StateError) as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+
+        except Exception as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+#+end_src
+
+*** TestDeleteDiscipline 
+ #+NAME: test_class_delete_Discipline
+ #+BEGIN_SRC python
+class TestDeleteDiscipline(TestCase):
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_delete_discipline_name_in_system_interface(self):
+        print "test_update_discipline_name_in_system_interface"
+
+        data_dict = {'dis_name': 'Computer Science',
+                    'dis_id': 'CSE',
+                    'key' : KEY
+                   }
+
+        dis1 = SystemInterface.add_discipline(data_dict)
+        dis_id = SystemInterface.delete_discipline('CSE', KEY)
+        
+        self.assertEqual(dis_id, data_dict['dis_id'])
 
  #+END_SRC
 
@@ -1924,6 +2056,70 @@ class TestGetExpByExpId(TestCase):
 
  #+END_SRC
 
+** Get Discipline by DisId
+#+NAME: class_get_discipline_by_dis_id
+#+begin_src python
+    @staticmethod
+    def get_discipline(dis_id):
+        session_cls = System.delegate.entities['session']
+        session = session_cls(key=KEY)
+        try:
+            current_app.logger.debug("running operation get_discipline_by_dis_id")
+            dis = System.do("get_discipline", dis_id=str(dis_id), session=session)
+            current_app.logger.debug("completed operation get_institute_by_inst_id")
+            if not dis:
+                return ("No discipline found with disid: %s" % (dis_id))
+            return dis.to_client()
+
+        except (ArityError, TypeError, NotAuthorizedError, StateError) as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+
+        except Exception as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+#+end_src
+
+*** TestGetDisciplineByDisId
+ #+NAME: test_class_get_discipline_by_disid
+ #+BEGIN_SRC python
+class TestGetDisciplineByDisciplineId(TestCase):
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_get_discipline_by_disid_in_system_interface(self):
+        print "test_get_discipline_by_disid_in_system_interface"
+
+        data_dict = {'dis_name': 'Computer Science',
+                    'dis_id': 'CSE',
+                    'key' : KEY
+                   }
+
+        data_dict1 = {'dis_name': 'Electronics',
+                    'dis_id': 'ECE',
+                    'key' : KEY
+                   }
+
+        dis = SystemInterface.add_discipline(data_dict)
+        dis1 = SystemInterface.add_discipline(data_dict1)
+
+        dis = SystemInterface.get_discipline(data_dict['dis_id'])
+        dis1 = SystemInterface.get_discipline(data_dict1['dis_id'])
+        
+        self.assertEqual(dis.get("dis_id"), data_dict['dis_id'])
+        self.assertEqual(dis1.get("dis_id"), data_dict1['dis_id'])
+
+ #+END_SRC
+
 * Infra                                                         :boilerplate:
   
 ** sources
@@ -1973,64 +2169,84 @@ if __name__ == '__main__':
 #+BEGIN_SRC python :tangle system_interface.py :eval no :noweb yes
 <<imports_for_sources>>
 <<class_system_interface>>
+
 <<class_add_lab>>
 <<class_add_section>>
 <<class_add_experiment>>
 <<class_add_institute>>
 <<class_add_discipline>>
-<<class_get_labs>>
+
 <<class_get_lab_by_id>>
 <<class_get_section_by_id>>
 <<class_get_institute_by_id>>
+<<class_get_experiment_by_id>>
+<<class_get_discipline_by_id>>
+
 <<class_delete_lab>>
 <<class_delete_discipline>>
 <<class_delete_institute>>
+<<class_delete_experiment>>
+<<class_delete_section>>
+<<class_delete_discipline>>
+
 <<class_update_lab>>
 <<class_update_institute>>
 <<class_update_Section>>
+<<class_update_experiment>>
+<<class_update_discipline>>
+
+<<class_get_labs>>
 <<class_get_experiments>>
 <<class_get_institutes>>
 <<class_get_disciplines>>
-<<class_get_experiment_by_id>>
-<<class_update_experiment>>
-<<class_delete_experiment>>
-<<class_delete_section>>
+
 <<class_get_lab_by_lab_id>>
 <<class_get_lab_by_exp_id>>
-<<class_get_sections>>
 <<class_get_institute_by_inst_id>>
+<<class_get_discipline_by_dis_id>>
+
+<<class_get_sections>>
+
 #+end_src
 
 
 ** tests
 #+BEGIN_SRC python :tangle test_system_interface.py :eval no :noweb yes
 <<imports_for_tests>>
+
 <<test_class_add_lab>>
 <<test_class_add_experiment>>
 <<test_class_add_institute>>
 <<test_class_add_discipline>>
 <<test_class_add_section>>
-<<test_class_get_labs>>
-<<test_class_get_sections>>
-<<test_class_get_lab_by_id>>
+
 <<test_class_delete_lab>>
 <<test_class_delete_experiment>>
 <<test_class_delete_institute>>
-<<test_class_update_lab>>
+<<test_class_delete_section>>
+<<test_class_delete_Discipline>>
+
+<<test_class_get_labs>>
+<<test_class_get_sections>>
 <<test_class_get_experiments>>
 <<test_class_get_institutes>>
 <<test_class_get_disciplines>>
+
+<<test_class_get_lab_by_id>>
 <<test_class_get_experiment_by_id>>
 <<test_class_get_institute_by_id>>
 <<test_class_get_section_by_id>>
+
+<<test_class_update_lab>>
 <<test_class_update_experiment>>
 <<test_class_update_institute>>
 <<test_class_update_Section>>
-<<test_class_delete_section>>
+<<test_class_update_Discipline>>
+
 <<test_class_get_lab_by_labid>>
 <<test_class_get_exp_by_expid>>
-<<test_class_get_lab_by_labid>>
 <<test_class_get_institute_by_instituteid>>
+<<test_class_get_discipline_by_disid>>
 <<run_test_cases>>
 
 #+end_src
