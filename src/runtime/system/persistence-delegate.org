@@ -637,8 +637,8 @@ class TestPersistenceDelegate(TestCase):
     This function updates existing institute.
 #+NAME: persistence_update_institute
 #+BEGIN_SRC python
-    def update_institute(self, institute, inst_name, inst_id):
-        institute.set(inst_name=inst_name, inst_id=inst_id)
+    def update_institute(self, institute, inst_name):
+        institute.set(inst_name=inst_name)
         institute.save()
         return institute
 
@@ -657,12 +657,12 @@ class TestPersistenceDelegate(TestCase):
          inst_name1 = "IIT Kanpur"
          inst_id1 = "IITK"
          institute2 = self.persistence_delegate.update_institute\
-           (institute1, inst_name1, inst_id1),
+           (institute1, inst_name1),
 
          institute = Institute.get_by_id(1)
 
          self.assertEqual(institute.get("inst_name"), inst_name1)
-         self.assertEqual(institute.get("inst_id"), inst_id1)
+         self.assertEqual(institute.get("inst_id"), inst_id)
 
 #+END_SRC
 

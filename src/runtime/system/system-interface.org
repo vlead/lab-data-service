@@ -1366,6 +1366,9 @@ class TestUpdateExperiment(TestCase):
         session_cls = System.delegate.entities['session']
         session = session_cls(key=data_dict['key'])
 
+        inst_id = str(data_dict['inst_id'])
+        institute = System.do("get_institute", inst_id=inst_id, session=session)
+
         if 'inst_name' not in data_dict:
             inst_name=str(inst.get("inst_name"))
         else:
@@ -1373,7 +1376,7 @@ class TestUpdateExperiment(TestCase):
 
         try:
             current_app.logger.debug("running operation update_institute")
-            institute = System.do("update_institute", inst_id=str(data_dict['inst_id']),
+            institute = System.do("update_institute", institute=institute,
                                     inst_name=inst_name, 
                                     session=session)
             current_app.logger.debug("completed operation update_institute")

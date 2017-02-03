@@ -586,7 +586,7 @@ class UpdateDiscipline():
 #+NAME: class_update_institute
 #+begin_src python
 class UpdateInstitute():
-    arg_types = {"inst_id": is_str, "inst_name": is_str_or_none, 
+    arg_types = {"institute": is_institute, "inst_name": is_str_or_none, 
                        "session": is_session}                               
     arity_and_type_checks_needed = True
 
@@ -602,16 +602,9 @@ class UpdateInstitute():
 
     @staticmethod
     def action(args):
-        inst_id = args["inst_id"]
-        institute = System.delegate.get_institute(inst_id=inst_id)
-
-        if not "inst_name" in args:
-           inst_name = institute.get("inst_name")
-        else:
-           inst_name = args["inst_name"]
-       
-        institute = System.delegate.update_institute(institute, inst_name,
-                                                         inst_id)
+        inst_name = args["inst_name"]
+        institute = args["institute"]       
+        institute = System.delegate.update_institute(institute, inst_name)
         return institute
 
 #+end_src
