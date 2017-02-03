@@ -460,7 +460,7 @@ class AddDeveloper():
 #+NAME: class_update_lab
 #+begin_src python
 class UpdateLab():
-    arg_types = {"lab_id": is_str, "lab_name": is_str_or_none,
+    arg_types = {"lab": is_lab, "lab_name": is_str,
                      "overview" : is_str, "session": is_session}
     arity_and_type_checks_needed = True
 
@@ -476,20 +476,10 @@ class UpdateLab():
 
     @staticmethod
     def action(args):
-        lab_id = args["lab_id"]
-        lab = System.delegate.get_lab(lab_id=lab_id)
-
-        if not "lab_name" in args:
-           lab_name=question.get("lab_name")
-        else:
-           lab_name=args["lab_name"]
-
-        if not "overview" in args:
-           overview = lab.get("overview")
-        else:
-           overview = args["overview"]
-
-        lab = System.delegate.update_lab(lab, lab_name, lab_id, overview)
+        lab = args["lab"]
+        lab_name = args["lab_name"]
+        overview = args["overview"]
+        lab = System.delegate.update_lab(lab, lab_name, overview)
         return lab
 
 #+end_src

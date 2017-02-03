@@ -795,6 +795,7 @@ class TestGetDisciplines(TestCase):
 
  #+END_SRC
 
+
 ** Get Lab By Id
 #+NAME: class_get_lab_by_id
 #+begin_src python
@@ -1161,6 +1162,9 @@ class TestGetDisciplineById(TestCase):
         session_cls = System.delegate.entities['session']
         session = session_cls(key=data_dict['key'])
 
+        lab_id = str(data_dict['lab_id'])
+        lab = System.do("get_lab", lab_id=lab_id, session=session)
+
         if 'lab_name' not in data_dict:
             lab_name=str(lab.get("lab_name"))
         else:
@@ -1173,7 +1177,7 @@ class TestGetDisciplineById(TestCase):
 
         try:
             current_app.logger.debug("running operation update_lab")
-            lab = System.do("update_lab", lab_id=str(data_dict['lab_id']),
+            lab = System.do("update_lab", lab=lab,
                                     lab_name=lab_name, 
                                     overview=overview,
                                     session=session)
@@ -1227,7 +1231,6 @@ class TestUpdateLab(TestCase):
 
         data_dict1 = {
                     'key' : KEY,
-                    'overview' : 'computer programming overview',
                     'lab_name': 'Computer Programming',
                     'lab_id': 'cse02'
                    }
@@ -1236,6 +1239,41 @@ class TestUpdateLab(TestCase):
         lab1 = SystemInterface.update_lab(data_dict1)
         
         self.assertEqual(lab1.get("lab_name"), data_dict1['lab_name'])
+        self.assertEqual(lab1.get("lab_id"), data_dict['lab_id'])
+        self.assertEqual(lab1.get("overview"), data_dict['overview'])
+
+    def test_update_lab_overview_in_system_interface(self):
+        print "test_update_lab_name_in_system_interface"
+
+        data_dict = {
+                    'key' : KEY,
+                    'exp_name': 'arrays',
+                    'exp_id': 'exp123',
+                    'overview' : 'overview', 
+                    'sections' : []
+                   }
+
+        experiment = SystemInterface.add_experiment(data_dict)
+
+        data_dict = {
+                    'key' : KEY,
+                    'lab_name': 'Data Structures',
+                    'lab_id': 'cse02',
+                    'overview' : 'overview',
+                    'experiments': ['exp123']
+                   }
+
+        data_dict1 = {
+                    'key' : KEY,
+                    'overview': 'Computer Programming overview',
+                    'lab_id': 'cse02'
+                   }
+
+        lab = SystemInterface.add_lab(data_dict)
+        lab1 = SystemInterface.update_lab(data_dict1)
+        
+        self.assertEqual(lab1.get("lab_id"), data_dict['lab_id'])
+        self.assertEqual(lab1.get("lab_name"), data_dict['lab_name'])
         self.assertEqual(lab1.get("overview"), data_dict1['overview'])
 
  #+END_SRC
@@ -1251,14 +1289,14 @@ class TestUpdateLab(TestCase):
         session = session_cls(key=str(data_dict['key']))
 
         if 'exp_name' not in data_dict:
-            exp_name=''
+            exp_name= ''
         else:
             exp_name=str(data_dict['exp_name'])
 
         exp_id=str(data_dict['exp_id'])
 
         if 'overview' not in data_dict:
-            overview=''
+            overview= ''
         else:
             overview=str(data_dict['overview'])
 
