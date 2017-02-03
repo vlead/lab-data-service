@@ -629,10 +629,48 @@ class TestDeleteLab(TestCase):
         lab = lab_cls(lab_id=lab_id1, lab_name=lab_name1, \
                           overview=overview, experiments=[experiment])
         lab.save()
-        lab1 = System.do("delete_lab", lab_id = lab_id1,
+        lab_id = System.do("delete_lab", lab_id = lab_id1,
                                   session=session)
 
-        self.assertEqual(lab1, lab_id1)
+        self.assertEqual(lab_id, lab_id1)
+            
+#+END_SRC
+
+
+* Test DeleteDiscipline
+#+NAME:  test_delete_discipline 
+#+BEGIN_SRC python
+class TestDeleteDiscipline(TestCase):
+    TESTING = True
+
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_delete_discipline(self):
+        
+        print "test_delete_discipline_in_system_persistence"
+        session_cls = System.delegate.entities['session']
+        discipline_cls = System.delegate.entities['discipline']
+
+        dis_name = "arrays"
+        dis_id = "cse02"
+        discipline = discipline_cls(dis_name=dis_name, dis_id=dis_id)
+        discipline.save()
+        key = KEY
+        session = session_cls(key=key)
+
+        dis_id1 = System.do("delete_discipline", dis_id = dis_id,
+                                  session=session)
+
+        self.assertEqual(dis_id, dis_id1)
             
 #+END_SRC
 
@@ -838,6 +876,7 @@ if __name__ == '__main__':
 <<test_delete_lab>>
 <<test_delete_experiment>>
 <<test_delete_institute>>
+<<test_delete_discipline>>
 <<test_add_experiment>>
 <<test_add_institute>>
 <<test_add_discipline>>
