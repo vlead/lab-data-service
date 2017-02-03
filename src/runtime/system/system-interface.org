@@ -1505,14 +1505,17 @@ class TestUpdateSection(TestCase):
         session_cls = System.delegate.entities['session']
         session = session_cls(key=data_dict['key'])
 
+        dis_id = str(data_dict['dis_id'])
+        discipline = System.do("get_discipline", dis_id=dis_id, session=session)
+
         if "dis_name" not in data_dict:
-            dis_name=str(dis.get("dis_name"))
+            dis_name=str(discipline.get("dis_name"))
         else:
             dis_name=data_dict["dis_name"]
 
         try:
             current_app.logger.debug("running operation update_discipline")
-            discipline = System.do("update_discipline", dis_id=str(data_dict["dis_id"]),
+            discipline = System.do("update_discipline", discipline=discipline,
                                     dis_name=dis_name, 
                                     session=session)
             current_app.logger.debug("completed operation update_discipline")
