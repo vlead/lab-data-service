@@ -1287,23 +1287,24 @@ class TestUpdateLab(TestCase):
         exp_cls = System.delegate.entities['experiment']
 
         session = session_cls(key=str(data_dict['key']))
-
+        exp_id = str(data_dict['exp_id'])
+        experiment = System.do("get_experiment", exp_id=exp_id, session=session)
         if 'exp_name' not in data_dict:
-            exp_name= ''
+            exp_name=str(experiment.get("exp_name"))
         else:
-            exp_name=str(data_dict['exp_name'])
+            exp_name=data_dict['exp_name']
 
         exp_id=str(data_dict['exp_id'])
 
         if 'overview' not in data_dict:
-            overview= ''
+            overview=str(experiment.get("overview"))
         else:
-            overview=str(data_dict['overview'])
+            overview=data_dict['overview']
 
         try:
             current_app.logger.debug("running operation update_experiment")
             exp = System.do("update_experiment", exp_name=exp_name, 
-                                    exp_id=exp_id,
+                                    experiment=experiment,
                                     overview=overview,
                                     session=session)
             current_app.logger.debug("completed operation update_experiment")

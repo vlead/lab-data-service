@@ -490,8 +490,8 @@ class UpdateLab():
 #+begin_src python
 class UpdateExperiment():
     arg_types = {"exp_name": is_str_or_none,
-                     "exp_id": is_str,
-                     "overview" : is_str_or_none,
+                     "experiment": is_experiment,
+                     "overview" : is_str,
                      "session": is_session}
     arity_and_type_checks_needed = True
 
@@ -507,21 +507,10 @@ class UpdateExperiment():
 
     @staticmethod
     def action(args):
-        exp_id = args["exp_id"]
-        experiment = System.delegate.get_experiment(exp_id=exp_id)
-
-        if not "exp_name" in args:
-           exp_name=experiment.get("exp_name")
-        else:
-           exp_name=args["exp_name"]
-        
-        if not "overview" in args:
-           overview = experiment.get("overview")
-        else:
-           overview = args["overview"]
-
-        exp = System.delegate.update_experiment(experiment, exp_name,\
-            exp_id, overview)
+        experiment = args["experiment"]
+        exp_name=args["exp_name"]
+        overview = args["overview"]
+        exp = System.delegate.update_experiment(experiment, exp_name, overview)
         return exp
 
 #+end_src

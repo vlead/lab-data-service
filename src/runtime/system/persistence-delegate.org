@@ -524,8 +524,8 @@ class TestPersistenceDelegate(TestCase):
     This function updates existing experiment.
 #+NAME: persistence_update_experiment
 #+BEGIN_SRC python
-    def update_experiment(self, experiment, exp_name, exp_id, overview):
-        experiment.set(exp_name=exp_name, exp_id=exp_id, overview=overview)
+    def update_experiment(self, experiment, exp_name, overview):
+        experiment.set(exp_name=exp_name, overview=overview)
         experiment.save()
         return experiment
 
@@ -543,15 +543,15 @@ class TestPersistenceDelegate(TestCase):
                               overview=overview, sections=[])
          exp1 = self.persistence_delegate.add_experiment(exp)
          exp_name1 = "Computer Programming"
-         exp_id1 = "cse02"
-         overview1 = "overvewi exp"
+         overview1 = "overveiw exp"
          exp2 = self.persistence_delegate.update_experiment\
-           (exp1, exp_name1, exp_id1, overview),
+           (exp1, exp_name1, overview1),
          exp2 = Experiment.get_by_id(1)
          self.assertEqual(exp2.get("exp_name"), exp_name1)
+         self.assertEqual(exp2.get("overview"), overview1)
+         self.assertEqual(exp2.get("exp_id"), exp_id)
 
 #+END_SRC
-
 
 ***  Update Discipline 
     This function updates existing discipline.
