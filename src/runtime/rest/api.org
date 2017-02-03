@@ -947,6 +947,138 @@ class TestGetName(TestCase):
 
  #+END_SRC
    
+** Update and Delete Name
+#+NAME: update_and_delete_name
+#+BEGIN_SRC python
+@api.route('/names/<id>', methods=['GET', 'PUT', 'DELETE'])
+def update_and_delete_name(id):
+    if request.method == 'GET':
+        try:
+            name = SystemInterface.get_name_by_id(id)
+            return jsonify(section)
+
+        except NotFoundError as err:
+            error_message = "No name found with id: %s found." % id
+
+            return render_template('error.html',
+                    data=error_message)
+
+        except TypeError as err:
+            error_message = 'Malformed arguments, error: %s' % str(err)
+
+            return render_template('error.html', 
+                    data=error_message)
+
+        except Exception as err:
+            abort(500, 'error: %s' % str(err))
+    
+    if request.method == 'PUT':
+        if request.is_json:
+            data_json = json.dumps(request.get_json())
+            data_dict = yaml.safe_load(data_json)
+            data_dict['s_id']=id
+        else:
+            abort(500, "the request does not contain data in json")
+
+        try:
+            name = SystemInterface.update_name(data_dict)
+            return jsonify(name)
+
+        except TypeError as err:
+            error_message = 'Malformed arguments, error: %s' % str(err)
+
+            return render_template('error.html', 
+                    data=error_message)
+
+        except Exception as err:
+            abort(500, 'error: %s' % str(err))
+
+    if request.method == 'DELETE':
+
+        try:
+            name = SystemInterface.delete_name(id)
+            return jsonify({"status":"sucess"})
+
+        except TypeError as err:
+            error_message = 'Malformed arguments, error: %s' % str(err)
+
+            return render_template('error.html', 
+                    data=error_message)
+
+        except Exception as err:
+            abort(500, 'error: %s' % str(err))
+
+#+END_SRC
+*** TestUpdateName
+ #+NAME: test_update_name
+ #+BEGIN_SRC python
+class TestUpdateName(TestCase):
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_update_name(self):
+        print "test_update_name"
+        payload = {'name': 'Prof. Dharamaraj',
+                   'key': KEY}
+
+        payload1 = {'name': 'Prof. Raja',
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/names", data=json.dumps(payload),
+                                 headers=headers)
+
+        response = self.client.put("/names/1", data=json.dumps(payload1),
+                                 headers=headers)
+
+        self.assertEqual(response.status_code, 200)
+
+ #+END_SRC
+   
+*** TestDeleteName
+ #+NAME: test_delete_name
+ #+BEGIN_SRC python
+class TestDeleteName(TestCase):
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_delete_name(self):
+        print "test_delete_name"
+
+        payload = {'name': 'Prof. Dharamaraj',
+                   'key': KEY
+                  }
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/names", data=json.dumps(payload),
+                                 headers=headers)
+
+        response = self.client.delete("/names/1", headers=headers)
+
+        self.assertEqual(response.status_code, 200)
+
+ #+END_SRC
+   
 ** Get and Add Email
 REST API to get and add Email.
 #+NAME: get_and_add_email
@@ -1050,6 +1182,138 @@ class TestGetEmail(TestCase):
                                  headers=headers)
 
         response = self.client.get("/emails", headers=headers)
+        self.assertEqual(response.status_code, 200)
+
+ #+END_SRC
+   
+** Update and Delete Email
+#+NAME: update_and_delete_email
+#+BEGIN_SRC python
+@api.route('/emails/<id>', methods=['GET', 'PUT', 'DELETE'])
+def update_and_delete_email(id):
+    if request.method == 'GET':
+        try:
+            email = SystemInterface.get_email_by_id(id)
+            return jsonify(email)
+
+        except NotFoundError as err:
+            error_message = "No email found with id: %s found." % id
+
+            return render_template('error.html',
+                    data=error_message)
+
+        except TypeError as err:
+            error_message = 'Malformed arguments, error: %s' % str(err)
+
+            return render_template('error.html', 
+                    data=error_message)
+
+        except Exception as err:
+            abort(500, 'error: %s' % str(err))
+    
+    if request.method == 'PUT':
+        if request.is_json:
+            data_json = json.dumps(request.get_json())
+            data_dict = yaml.safe_load(data_json)
+            data_dict['s_id']=id
+        else:
+            abort(500, "the request does not contain data in json")
+
+        try:
+            email = SystemInterface.update_email(data_dict)
+            return jsonify(email)
+
+        except TypeError as err:
+            error_message = 'Malformed arguments, error: %s' % str(err)
+
+            return render_template('error.html', 
+                    data=error_message)
+
+        except Exception as err:
+            abort(500, 'error: %s' % str(err))
+
+    if request.method == 'DELETE':
+
+        try:
+            email = SystemInterface.delete_email(id)
+            return jsonify({"status":"sucess"})
+
+        except TypeError as err:
+            error_message = 'Malformed arguments, error: %s' % str(err)
+
+            return render_template('error.html', 
+                    data=error_message)
+
+        except Exception as err:
+            abort(500, 'error: %s' % str(err))
+
+#+END_SRC
+*** TestUpdateEmail
+ #+NAME: test_update_email
+ #+BEGIN_SRC python
+class TestUpdateEmail(TestCase):
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_update_email(self):
+        print "test_update_email"
+        payload = {'email': 'dharamaraj@gmail.com',
+                   'key': KEY}
+
+        payload1 = {'email': 'raja@gmail.com',
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/emails", data=json.dumps(payload),
+                                 headers=headers)
+
+        response = self.client.put("/emails/1", data=json.dumps(payload1),
+                                 headers=headers)
+
+        self.assertEqual(response.status_code, 200)
+
+ #+END_SRC
+   
+*** TestDeleteEmail
+ #+NAME: test_delete_email
+ #+BEGIN_SRC python
+class TestDeleteEmail(TestCase):
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_delete_email(self):
+        print "test_delete_email"
+
+        payload = {'email': 'dharamaraj@gmail.com',
+                   'key': KEY
+                  }
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/emails", data=json.dumps(payload),
+                                 headers=headers)
+
+        response = self.client.delete("/emails/1", headers=headers)
+
         self.assertEqual(response.status_code, 200)
 
  #+END_SRC
@@ -1158,6 +1422,141 @@ class TestGetDeveloper(TestCase):
                                  headers=headers)
 
         response = self.client.get("/developers", headers=headers)
+        self.assertEqual(response.status_code, 200)
+
+ #+END_SRC
+   
+** Update and Delete Developer
+#+NAME: update_and_delete_developer
+#+BEGIN_SRC python
+@api.route('/developers/<id>', methods=['GET', 'PUT', 'DELETE'])
+def update_and_delete_developer(id):
+    if request.method == 'GET':
+        try:
+            developer = SystemInterface.get_developer_by_id(id)
+            return jsonify(developer)
+
+        except NotFoundError as err:
+            error_message = "No developer found with id: %s found." % id
+
+            return render_template('error.html',
+                    data=error_message)
+
+        except TypeError as err:
+            error_message = 'Malformed arguments, error: %s' % str(err)
+
+            return render_template('error.html', 
+                    data=error_message)
+
+        except Exception as err:
+            abort(500, 'error: %s' % str(err))
+    
+    if request.method == 'PUT':
+        if request.is_json:
+            data_json = json.dumps(request.get_json())
+            data_dict = yaml.safe_load(data_json)
+            data_dict['s_id']=id
+        else:
+            abort(500, "the request does not contain data in json")
+
+        try:
+            developer = SystemInterface.update_developer(data_dict)
+            return jsonify(developer)
+
+        except TypeError as err:
+            error_message = 'Malformed arguments, error: %s' % str(err)
+
+            return render_template('error.html', 
+                    data=error_message)
+
+        except Exception as err:
+            abort(500, 'error: %s' % str(err))
+
+    if request.method == 'DELETE':
+
+        try:
+            developer = SystemInterface.delete_developer(id)
+            return jsonify({"status":"sucess"})
+
+        except TypeError as err:
+            error_message = 'Malformed arguments, error: %s' % str(err)
+
+            return render_template('error.html', 
+                    data=error_message)
+
+        except Exception as err:
+            abort(500, 'error: %s' % str(err))
+
+#+END_SRC
+*** TestUpdateDeveloper
+ #+NAME: test_update_developer
+ #+BEGIN_SRC python
+class TestUpdateDeveloper(TestCase):
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_update_developer(self):
+        print "test_update_developer"
+        payload = {'name': 'Prof. Dharamaraja',
+                   'email': 'dharamaraj@gmail.com',
+                   'key': KEY}
+
+        payload1 = {'name': 'Prof. Raja',
+                    'email': 'raja@gmail.com',
+                    'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/developers", data=json.dumps(payload),
+                                 headers=headers)
+
+        response = self.client.put("/developers/1", data=json.dumps(payload1),
+                                 headers=headers)
+
+        self.assertEqual(response.status_code, 200)
+
+ #+END_SRC
+   
+*** TestDeleteDeveloper
+ #+NAME: test_delete_developer
+ #+BEGIN_SRC python
+class TestDeleteDeveloper(TestCase):
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_delete_developer(self):
+        print "test_delete_developer"
+
+        payload = {'name': 'Prof. Dharamaraj',
+                   'email': 'dharamaraj@gmail.com',
+                   'key': KEY
+                  }
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/developers", data=json.dumps(payload),
+                                 headers=headers)
+
+        response = self.client.delete("/developers/1", headers=headers)
+
         self.assertEqual(response.status_code, 200)
 
  #+END_SRC
@@ -2404,6 +2803,9 @@ if __name__ == '__main__':
 <<get_and_add_name>>
 <<get_and_add_email>>
 <<get_and_add_developer>>
+<<update_and_delete_name>>
+<<update_and_delete_email>>
+<<update_and_delete_developer>>
 <<update_and_delete_institute>>
 <<get_and_add_institute>>
 #+END_SRC
@@ -2429,10 +2831,16 @@ if __name__ == '__main__':
 <<test_add_section>>
 <<test_get_Name>>
 <<test_add_name>>
+<<test_update_name>>
+<<test_delete_name>>
 <<test_get_Email>>
 <<test_add_email>>
+<<test_update_email>>
+<<test_delete_email>>
 <<test_get_Developer>>
 <<test_add_developer>>
+<<test_update_developer>>
+<<test_delete_developer>>
 <<test_add_institute>>
 <<test_get_institute>>
 #<<test_update_institute>>
