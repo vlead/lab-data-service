@@ -33,10 +33,12 @@ class TestAddLab(TestCase):
         db.drop_all()
 
     def test_add_lab(self):
-        
         print "test_add_lab_in_system_persistence"
+
         session_cls = System.delegate.entities['session']
         lab_cls = System.delegate.entities['lab']
+        institute_cls = System.delegate.entities['institute']
+        discipline_cls = System.delegate.entities['discipline']
         experiment_cls = System.delegate.entities['experiment']
 
         exp_name = "arrays"
@@ -45,16 +47,27 @@ class TestAddLab(TestCase):
         experiment = experiment_cls(exp_name=exp_name, exp_id=exp_id,
                                         overview=overview, sections=[])
         experiment.save()
+
+        inst_name = "IIT Kanpur"
+        inst_id = "IITK"
+        inst = institute_cls(inst_name=inst_name, inst_id=inst_id)
+        inst.save()
+
+        dis_name = "IIT Kanpur"
+        dis_id = "IITK"
+        discipline = discipline_cls(dis_name=dis_name, dis_id=dis_id)
+        discipline.save()
                                 
         lab_name1="Computer Programming"
         lab_id1="CSE01"
         key = KEY
         overview = "overview"
         session = session_cls(key=key)
-        lab = lab_cls(lab_id=lab_id1, lab_name=lab_name1, \
+        lab = lab_cls(lab_id=lab_id1, lab_name=lab_name1,        
+                          institute=inst, discipline=discipline,                  
                           overview=overview, experiments=[experiment])
-        lab1 = System.do("add_lab", lab = lab,
-                                  session=session)
+
+        lab1 = System.do("add_lab", lab=lab, session=session)
         new_lab = lab_cls.get_by_id(1)
         self.assertEqual(new_lab.get("lab_name"), lab_name1)
         self.assertEqual(new_lab.get("lab_id"), lab_id1)
@@ -324,6 +337,8 @@ class TestUpdateLab(TestCase):
         print "test_update_lab_in_system_persistence"
         session_cls = System.delegate.entities['session']
         lab_cls = System.delegate.entities['lab']
+        institute_cls = System.delegate.entities['institute']
+        discipline_cls = System.delegate.entities['discipline']
         experiment_cls = System.delegate.entities['experiment']
 
         exp_name = "arrays"
@@ -333,12 +348,23 @@ class TestUpdateLab(TestCase):
                                         overview=overview, sections=[])
         experiment.save()
 
+        inst_name = "IIT Kanpur"
+        inst_id = "IITK"
+        inst = institute_cls(inst_name=inst_name, inst_id=inst_id)
+        inst.save()
+
+        dis_name = "IIT Kanpur"
+        dis_id = "IITK"
+        discipline = discipline_cls(dis_name=dis_name, dis_id=dis_id)
+        discipline.save()
+
         lab_name1="Computer Programming"
         lab_id1="CSE01"
         key = KEY
         overview = "overview"
         session = session_cls(key=key)
         lab = lab_cls(lab_id=lab_id1, lab_name=lab_name1, \
+                          institute=inst, discipline=discipline,      
                           overview=overview, experiments=[experiment])
 
         lab.save()
@@ -613,6 +639,8 @@ class TestDeleteLab(TestCase):
         print "test_delete_lab_in_system_persistence"
         session_cls = System.delegate.entities['session']
         lab_cls = System.delegate.entities['lab']
+        institute_cls = System.delegate.entities['institute']
+        discipline_cls = System.delegate.entities['discipline']
         experiment_cls = System.delegate.entities['experiment']
 
         exp_name = "arrays"
@@ -622,12 +650,23 @@ class TestDeleteLab(TestCase):
                                         overview=overview, sections=[])
         experiment.save()
 
+        inst_name = "IIT Kanpur"
+        inst_id = "IITK"
+        inst = institute_cls(inst_name=inst_name, inst_id=inst_id)
+        inst.save()
+
+        dis_name = "IIT Kanpur"
+        dis_id = "IITK"
+        discipline = discipline_cls(dis_name=dis_name, dis_id=dis_id)
+        discipline.save()
+
         lab_name1="Computer Programming"
         lab_id1="CSE01"
         key = KEY
         overview = "overview"
         session = session_cls(key=key)
         lab = lab_cls(lab_id=lab_id1, lab_name=lab_name1, \
+                          institute=inst, discipline=discipline,
                           overview=overview, experiments=[experiment])
         lab.save()
         lab_id = System.do("delete_lab", lab_id = lab_id1,
@@ -698,13 +737,27 @@ class TestGetLab(TestCase):
         print "test_get_lab_in_system_persistence"
         session_cls = System.delegate.entities['session']
         lab_cls = System.delegate.entities['lab']
+        institute_cls = System.delegate.entities['institute']
+        discipline_cls = System.delegate.entities['discipline']
 
         lab_name1="Computer Programming"
         lab_id1="CSE01"
         key = KEY
         overview = "overview"
         session = session_cls(key=key)
+
+        inst_name = "IIT Kanpur"
+        inst_id = "IITK"
+        inst = institute_cls(inst_name=inst_name, inst_id=inst_id)
+        inst.save()
+
+        dis_name = "IIT Kanpur"
+        dis_id = "IITK"
+        discipline = discipline_cls(dis_name=dis_name, dis_id=dis_id)
+        discipline.save()
+
         lab = lab_cls(lab_id=lab_id1, lab_name=lab_name1, \
+                          institute=inst, discipline=discipline,
                           overview=overview, experiments=[])
 
         lab.save()
