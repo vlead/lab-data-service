@@ -8,11 +8,21 @@
 
 * Introduction
   Persistence is added to all the entities defined in [[../objects/entities.org][=objects=]].
-
   
+
 * Lab
 =Lab= is a class with an attribute =lab_name= of type alphabetic string and
 =lab_id= of alphabetic string.
+
+#+NAME: class_lab_association_Table
+#+BEGIN_SRC python
+lab_experiments = db.Table('lab_experiments',
+		      db.Column('labid', db.Integer, 
+                            db.ForeignKey('lab.id')),
+		      db.Column('expid', db.Integer,
+                            db.ForeignKey('experiment.id')))
+
+#+END_SRC
 
 #+NAME: class_Lab
 #+begin_src python
@@ -23,11 +33,18 @@ args = {"__tablename__": "lab",
                                        nullable=True),
         "overview": db.Column(db.String(1000), unique=False, 
                                        nullable=True),
-        "experiments": db.relationship('Experiment', backref=db.backref('lb'))
+        "experiments": db.relationship('Experiment',
+                    secondary=lab_experiments, 
+                    backref='labs'),
+
+        "institute_id": db.Column(db.Integer, db.ForeignKey('institute.id'), 
+                                      unique=False, nullable=False),
+        "discipline_id": db.Column(db.Integer, db.ForeignKey('discipline.id'), 
+                                      unique=False, nullable=False)
 
         }
 
-Lab = ClassPersistenceTemplate.mk_persistent(Lab, ['lab_id', 'experiments'],\
+Lab = ClassPersistenceTemplate.mk_persistent(Lab, ['lab_id'],\
                                                  **args)
 
 #+end_src
@@ -55,19 +72,35 @@ class TestPersistentLab(TestCase):
         exp_name = "Number Systems"
         exp_id = "EE99777"
         overview = "This is linked list experiment"
-        experiment = Experiment(exp_name=exp_name, exp_id=exp_id, overview=overview, sections=[])
+        experiment = Experiment(exp_name=exp_name, exp_id=exp_id,
+                                    overview=overview, sections=[])
         experiment.save()
+
+        inst_name = "IIT Kanpur"
+        inst_id = "IITK"
+        inst = Institute(inst_name=inst_name, inst_id=inst_id)
+        inst.save()
+
+        dis_name = "IIT Kanpur"
+        dis_id = "IITK"
+        discipline = Discipline(dis_name=dis_name, dis_id=dis_id)
+        discipline.save()
 
         lab_name1="Computer Programming"
         lab_id1="CSE01"
-        overview1 = "This is data structures lab which deals about array,stack and ques..etc"
-        lab1 = Lab(lab_name=lab_name1, lab_id=lab_id1, overview=overview1, experiments=[experiment])
+        overview1 = "This is data structures lab which deals about array,stack"
+        " and ques..etc"
+        lab1 = Lab(lab_name=lab_name1, lab_id=lab_id1, overview=overview1,
+                       experiments=[experiment], institute=inst,
+                       discipline=discipline)
         lab1.save()
         
         lab_name2="Data Structures"
         lab_id2="CSE02"
-        overview2 = "This is data structures lab which deals about array,stack and ques..etc"
-        lab2 = Lab(lab_name=lab_name2, lab_id=lab_id2, overview=overview2, experiments=[])
+        overview2 = "This is data structures lab which deals about"
+        "array,stack and ques..etc"
+        lab2 = Lab(lab_name=lab_name2, lab_id=lab_id2, overview=overview2,
+                       experiments=[], institute=inst, discipline=discipline)
         lab2.save()
 
         lab1 = Lab.get_by_id(1)
@@ -77,15 +110,24 @@ class TestPersistentLab(TestCase):
         self.assertEqual(lab1.get("lab_name"), lab_name1)
         self.assertEqual(lab1.get("lab_id"), lab_id1)
         self.assertEqual(lab1.get("overview"), overview1)
+        self.assertEqual(lab1.get("institute").get("inst_name"), 
+                             inst.get("inst_name"))
+        self.assertEqual(lab1.get("discipline").get("dis_name"), 
+                             discipline.get("dis_name"))
+
         self.assertEqual(lab1.get("experiments")[0].get("exp_name"), 
                              experiment.get("exp_name"))
 
         self.assertEqual(lab2.get("lab_name"), lab_name2)
         self.assertEqual(lab2.get("lab_id"), lab_id2)
         self.assertEqual(lab2.get("overview"), overview2)
+        self.assertEqual(lab2.get("institute").get("inst_name"), 
+                             inst.get("inst_name"))
+        self.assertEqual(lab2.get("discipline").get("dis_name"), 
+                             discipline.get("dis_name"))
         self.assertEqual(lab2.get("experiments"), [])
 
-        self.assertEqual(lab3,None)
+        self.assertEqual(lab3, None)
 
 #+END_SRC
 
@@ -94,7 +136,7 @@ class TestPersistentLab(TestCase):
 
   =Experiment= is a class with attributes =exp_name= and =exp_id= of type =is_email_str=.
 
-#+NAME: class_association_Table
+#+NAME: class_exp_association_Table
 #+BEGIN_SRC python
 experiments_sections = db.Table('experiments_sections',
 		      db.Column('experiment_id', db.Integer, 
@@ -159,6 +201,110 @@ class TestPersistenceExperiment(TestCase):
 #+END_SRC
 
 
+* Institute
+
+  =Institute= is a class with attributes =inst_name= and =inst_id= of type =is_email_str=.
+
+#+NAME: class_association_Table1
+#+BEGIN_SRC python
+institutes_labs = db.Table('institutes_labs',
+		      db.Column('institute_id', db.Integer, 
+                            db.ForeignKey('institute.id')),
+		      db.Column('lab_id', db.Integer,
+                            db.ForeignKey('lab.id')))
+
+#+END_SRC
+#+NAME: class_Institute
+#+begin_src python
+args = {"__tablename__": "institute",
+        "id": db.Column(db.Integer, primary_key=True),
+        "inst_name": db.Column(db.String(255), unique=False, nullable=True),
+        "inst_id": db.Column(db.String(255), unique=True, nullable=False),
+        "labs": db.relationship('Lab', backref=db.backref('institute'))
+
+       }
+
+Institute = ClassPersistenceTemplate.mk_persistent(Institute, ['inst_id'], **args)
+
+#+end_src
+
+** Test Institute
+#+NAME: class_TestInstitute
+#+BEGIN_SRC python
+class TestPersistenceInstitute(TestCase):
+    TESTING = True
+
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_create_institute(self):
+        print "test_persistance_institute"
+        inst_name = "IIT Kanpur"
+        inst_id = "IITK"
+        inst = Institute(inst_name=inst_name, inst_id=inst_id)
+        inst.save()
+        institute = Institute.get_by_id(1)
+        institute1 = Institute.get_by_id(2)
+        self.assertEqual(institute.get("inst_name"), inst_name)
+        self.assertEqual(institute.get("inst_id"), inst_id)       
+        self.assertEqual(institute1,None)
+
+#+END_SRC
+
+
+* Discipline
+  =Discipline= is a class with attributes =dis_name= and =dis_id= of type =is_email_str=.
+#+NAME: class_Discipline
+#+begin_src python
+args = {"__tablename__": "discipline",
+        "id": db.Column(db.Integer, primary_key=True),
+        "dis_name": db.Column(db.String(255), unique=False, nullable=True),
+        "dis_id": db.Column(db.String(255), unique=True, nullable=False),
+        "labs": db.relationship('Lab', backref=db.backref('discipline'))       
+        }
+
+Discipline = ClassPersistenceTemplate.mk_persistent(Discipline, ['dis_id'], **args)
+
+#+end_src
+
+** Test Discipline
+#+NAME: class_TestDiscipline
+#+BEGIN_SRC python
+class TestPersistenceDiscipline(TestCase):
+
+    TESTING = True
+
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+
+    def test_create_discipline(self):
+        print "test_persistance_discipline"
+        dis_name = "IIT Delhi"
+        dis_id = "ECE08"
+        dis = Discipline(dis_name=dis_name, dis_id=dis_id)
+        dis.save()
+        discipline = Discipline.get_by_id(1)
+        self.assertEqual(discipline.get("dis_name"), dis_name)
+        self.assertEqual(discipline.get("dis_id"), dis_id)
+
+#+END_SRC
 
 
 * Section
@@ -169,7 +315,7 @@ class TestPersistenceExperiment(TestCase):
 #+begin_src python
 args = {"__tablename__": "section",
         "id": db.Column(db.Integer, primary_key=True),
-        "name": db.Column(db.String(255), unique=False)
+        "name": db.Column(db.String(255), unique=True, nullable=False)
         }
 
 Section = ClassPersistenceTemplate.mk_persistent(Section, ['name'], **args)
@@ -204,6 +350,151 @@ class TestPersistentSection(TestCase):
         section2 = Section.get_by_id(2)
         self.assertEqual(section1.get("name"), name)
         self.assertEqual(section2,None)
+
+#+END_SRC
+
+
+* Name
+=Name= is a class with an attribute =name= of type alphabetic string.
+
+#+NAME: class_Name
+#+begin_src python
+args = {"__tablename__": "name",
+        "id": db.Column(db.Integer, primary_key=True),
+        "name": db.Column(db.String(255), unique=False,
+                                       nullable=True),
+        "developers": db.relationship('Developer', 
+                                        backref=db.backref('name'))
+
+        }
+
+Name = ClassPersistenceTemplate.mk_persistent(Name, [], **args)
+#+end_src
+
+*** Test Name
+#+NAME: class_TestName
+#+BEGIN_SRC python
+class TestPersistentName(TestCase):
+    TESTING = True
+
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_create_dev(self):
+        print "test_persistent_name"
+
+        name = "Mohit tahiliani"
+        name1 = Name(name=name)
+        name1.save()
+        
+        name1 = Name.get_by_id(1)
+
+        self.assertEqual(name1.get("name"), name)
+
+#+END_SRC
+
+
+* Email
+=Email= is a class with an attribute =email= of type alphabetic string.
+
+#+NAME: class_Email
+#+begin_src python
+args = {"__tablename__": "email",
+        "id": db.Column(db.Integer, primary_key=True),
+        "email": db.Column(db.String(255), unique=True, nullable=False),
+        "developers": db.relationship('Developer', 
+                                        backref=db.backref('email'))
+
+        }
+
+Email = ClassPersistenceTemplate.mk_persistent(Email, ['email'], **args)
+#+end_src
+
+*** Test Email
+#+NAME: class_TestEmail
+#+BEGIN_SRC python
+class TestPersistentEmail(TestCase):
+    TESTING = True
+
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_create_email(self):
+        print "test_persistent_email"
+
+        email_id = "mohit.tahiliani@gmail.com"
+        email1 = Email(email=email_id)
+        email1.save()
+        
+        email1 = Email.get_by_id(1)
+
+        self.assertEqual(email1.get("email"), email_id)
+
+#+END_SRC
+
+
+* Developer
+=Developer= is a class with an attribute =name= of type alphabetic string and =email= of alphabetic string.
+
+#+NAME: class_Developer
+#+begin_src python
+args = {"__tablename__": "developer",
+        "id": db.Column(db.Integer, primary_key=True),
+        "name_id": db.Column(db.Integer, db.ForeignKey('name.id'),
+                                 nullable=False),
+        "email_id": db.Column(db.Integer,db.ForeignKey('email.id'),
+                                 unique=True, nullable=False)
+        }
+
+Developer = ClassPersistenceTemplate.mk_persistent(Developer, [], **args)
+#+end_src
+
+*** Test Developer
+#+NAME: class_TestDeveloper
+#+BEGIN_SRC python
+class TestPersistentDeveloper(TestCase):
+    TESTING = True
+
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_create_dev(self):
+        print "test_persistent_dev"
+        dev_name = Name(name="Mohit Tahiliani")
+        dev_name.save()
+        email_id = Email(email="mohit.tahiliani@gmail.com")
+        email_id.save()
+        dev = Developer(name=dev_name, email=email_id)
+        dev.save()
+        
+        dev = Developer.get_by_id(1)
+
+        self.assertEqual(dev.get("name").get("name"), dev_name.get("name"))
+        self.assertEqual(dev.get("email").get("email"), email_id.get("email"))
 
 #+END_SRC
 
@@ -251,11 +542,18 @@ if __name__ == '__main__':
 ** sources
 #+BEGIN_SRC python :tangle entities.py :eval no :noweb yes
 <<imports_for_sources>>
+<<class_lab_association_Table>>
 <<class_Lab>>
+<<class_exp_association_Table>>
 <<class_association_Table>>
+<<class_association_Table1>>
 <<class_Experiment>>
+<<class_Institute>>
+<<class_Discipline>>
 <<class_Section>>
-
+<<class_Name>>
+<<class_Email>>
+<<class_Developer>>
 #+end_src
 
 
@@ -263,7 +561,12 @@ if __name__ == '__main__':
 #+BEGIN_SRC python :tangle test_entities.py :eval no :noweb yes
 <<imports_for_tests>>
 <<class_TestExperiment>>
+<<class_TestDiscipline>>
 <<class_TestLab>>
 <<class_TestSection>>
+<<class_TestName>>
+<<class_TestEmail>>
+<<class_TestDeveloper>>
+<<class_TestInstitute>>
 <<run_test_cases>>
 #+end_src
