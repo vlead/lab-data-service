@@ -117,6 +117,8 @@ class TestAddLab(TestCase):
         payload = {'lab_name': 'Data Structures',
                    'lab_id': 'cse01',
                    'key': KEY,
+                   'inst_id': 'IITK',
+                   'dis_id': 'CSE',
                    'overview' : 'overview',
                    'experiments': ['exp1']
                   }
@@ -163,6 +165,8 @@ class TestGetLab(TestCase):
         payload = {'lab_name': 'Data Structures',
                    'lab_id': 'cse01',
                    'overview' : 'overview',
+                   'inst_id': 'IITK',
+                   'dis_id': 'CSE',
                    'key': KEY,
                    'experiments': ['exp1']
                   }
@@ -210,6 +214,8 @@ class TestGetLabbyLabId(TestCase):
         payload = {'lab_name': 'Data Structures',
                    'lab_id': 'cse01',
                    'overview' : 'overview',
+                   'inst_id': 'IITK',
+                   'dis_id': 'CSE',
                    'key': KEY,
                    'experiments': ['exp1'],
                   }
@@ -894,6 +900,8 @@ class TestUpdateLab(TestCase):
         payload = {'lab_name': 'Data Structures',
                    'lab_id': 'cse01',
                    'overview' : 'overview',
+                   'inst_id': 'IITK',
+                   'dis_id': 'CSE',
                    'experiments':['exp1'],
                    'key': KEY}
 
@@ -945,10 +953,30 @@ class TestDeleteLab(TestCase):
         response = self.client.post("/experiments", data=json.dumps(payload),
                                  headers=headers)
 
+        payload = {'inst_name': 'IIT Kharagpur',
+                   'inst_id': 'IITK',
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/institutes", data=json.dumps(payload),
+                                 headers=headers)
+
+        payload = {'dis_name': 'Computer Science',
+                   'dis_id': 'CSE',
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/disciplines", data=json.dumps(payload),
+                                 headers=headers)
+
         payload = {'lab_name': 'Data structures',
                    'lab_id': 'cse02',
                    'key': KEY,
                    'overview' : 'overview',
+                   'inst_id': 'IITK',
+                   'dis_id': 'CSE',
                    'experiments': ['exp1']
                   }
 
@@ -1470,6 +1498,7 @@ class TestDeleteDiscipline(TestCase):
 
  #+END_SRC
    
+
 * WebApp
 
 ** Index HTML
