@@ -43,6 +43,7 @@ Name = ClassTemplate.mk_class("Name")
 Email = ClassTemplate.mk_class("Email")
 Developer = ClassTemplate.mk_class("Developer")
 Institute = ClassTemplate.mk_class("Institute")
+HostingInfo = ClassTemplate.mk_class("HostingInfo")
 
 #+END_SRC
 
@@ -162,6 +163,20 @@ def are_disciplines(disciplies):
     if is_list(disciplines):
         for discipline in disciplies:
             if not is_discipline(discipline):
+                ret_val = False
+    else:
+        ret_val = False
+
+    return ret_val
+
+is_hostinginfo = is_inst(HostingInfo)
+check_hostinginfo = check_pred(is_hostinginfo)
+
+def are_hostinginfos(hostinginfos):
+    ret_val = True
+    if is_list(hostinginfos):
+        for hostinginfo in hostinginfos:
+            if not is_hostinginfo(hostinginfo):
                 ret_val = False
     else:
         ret_val = False
@@ -478,6 +493,36 @@ class TestDev(TestCase):
 #+END_SRC
 
 
+* HostingInfo
+   =HostingInfo= is an entity that has a field =hosting_status= and =hosted_url= which are string
+#+NAME: class_HostingInfo
+#+begin_src python
+HostingInfo.add_attributes(hosting_status=is_str,
+                    hosted_url=is_url)
+
+HostingInfo.__eq__ = lambda self, other: \
+                  isinstance(other, self.__class__) and \
+                  self.get("hosting_status") == other.get("hosting_status") and \
+                  self.get("hosted_url") == other.get("hosted_url")
+#+end_src
+
+*** Test HostingInfo
+#+NAME: class_TestHostingInfo
+#+BEGIN_SRC python
+class TestHostingInfo(TestCase):
+    TESTING = True
+    def test_object_hostinginfo(self):
+        print "test_object_hostinginfo"
+        hosting_status = "hosted"
+        hosted_url = "http://cse14-iiith.vlabs.ac.in"
+        hostinginfo = HostingInfo(hosting_status=hosting_status, hosted_url=hosted_url)
+                                              
+        self.assertEqual(hostinginfo.get("hosting_status"), hosting_status)
+        self.assertEqual(hostinginfo.get("hosted_url"), hosted_url)
+       
+#+END_SRC
+
+
 * Infra                                                         :boilerplate:
    
 ** sources
@@ -528,6 +573,7 @@ if __name__ == '__main__':
 <<class_Email>>
 <<class_Developer>>
 <<class_Institute>>
+<<class_HostingInfo>>
 
 #+end_src
 
@@ -544,5 +590,6 @@ if __name__ == '__main__':
 <<class_TestEmail>>
 <<class_TestDeveloper>>
 <<class_TestInstitute>>
+<<class_TestHostingInfo>>
 <<run_test_cases>>
 #+end_src
