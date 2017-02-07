@@ -43,17 +43,14 @@ class SystemInterface ():
 
         exp_list = []
         for e_id in experiments:
-            experiment = System.do("get_experiment", exp_id=e_id, 
-                                       session=session)
+            experiment = System.do("get_experiment", exp_id=e_id)
             exp_list.append(experiment)
 
         inst_id = data_dict['inst_id']
-        institute = System.do("get_institute", inst_id=inst_id, 
-                                       session=session)
+        institute = System.do("get_institute", inst_id=inst_id)
 
         dis_id = data_dict['dis_id']
-        discipline = System.do("get_discipline", dis_id=dis_id, 
-                                       session=session)
+        discipline = System.do("get_discipline", dis_id=dis_id)
 
         lab = lab_cls(lab_name=data_dict['lab_name'],
                                 lab_id=data_dict['lab_id'],
@@ -66,6 +63,7 @@ class SystemInterface ():
             lab = System.do("add_lab", lab=lab, session=session)
             current_app.logger.debug("completed operation add_lab")
             return lab.to_client()
+
         except (ArityError, TypeError, NotAuthorizedError, StateError) as err:
             current_app.logger.error("Exception = %s" % str(err))
             raise err
@@ -1253,7 +1251,7 @@ class TestGetDisciplineById(TestCase):
         session = session_cls(key=data_dict['key'])
 
         lab_id = str(data_dict['lab_id'])
-        lab = System.do("get_lab", lab_id=lab_id, session=session)
+        lab = System.do("get_lab", lab_id=lab_id)
 
         if 'lab_name' not in data_dict:
             lab_name=str(lab.get("lab_name"))
@@ -1414,7 +1412,7 @@ class TestUpdateLab(TestCase):
 
         session = session_cls(key=str(data_dict['key']))
         exp_id = str(data_dict['exp_id'])
-        experiment = System.do("get_experiment", exp_id=exp_id, session=session)
+        experiment = System.do("get_experiment", exp_id=exp_id)
         if 'exp_name' not in data_dict:
             exp_name=str(experiment.get("exp_name"))
         else:
@@ -1493,7 +1491,7 @@ class TestUpdateExperiment(TestCase):
         session = session_cls(key=data_dict['key'])
 
         inst_id = str(data_dict['inst_id'])
-        institute = System.do("get_institute", inst_id=inst_id, session=session)
+        institute = System.do("get_institute", inst_id=inst_id)
 
         if 'inst_name' not in data_dict:
             inst_name=str(inst.get("inst_name"))
@@ -1632,7 +1630,7 @@ class TestUpdateSection(TestCase):
         session = session_cls(key=data_dict['key'])
 
         dis_id = str(data_dict['dis_id'])
-        discipline = System.do("get_discipline", dis_id=dis_id, session=session)
+        discipline = System.do("get_discipline", dis_id=dis_id)
 
         if "dis_name" not in data_dict:
             dis_name=str(discipline.get("dis_name"))
@@ -2034,10 +2032,9 @@ class TestDeleteDiscipline(TestCase):
     @staticmethod
     def get_institute(inst_id):
         session_cls = System.delegate.entities['session']
-        session = session_cls(key=KEY)
         try:
             current_app.logger.debug("running operation get_institute_by_inst_id")
-            institute = System.do("get_institute", inst_id=str(inst_id), session=session)
+            institute = System.do("get_institute", inst_id=str(inst_id))
             current_app.logger.debug("completed operation get_institute_by_inst_id")
             if not institute:
                 return ("No institute found with instituteid: %s" % (inst_id))
@@ -2099,11 +2096,9 @@ class TestGetInstituteByInstituteId(TestCase):
 #+begin_src python
     @staticmethod
     def get_lab(lab_id):
-        session_cls = System.delegate.entities['session']
-        session = session_cls(key=KEY)
         try:
             current_app.logger.debug("running operation get_lab_by_lab_id")
-            lab = System.do("get_lab", lab_id=str(lab_id), session=session)
+            lab = System.do("get_lab", lab_id=str(lab_id))
             current_app.logger.debug("completed operation get_lab_by_lab_id")
             if not lab:
                 return ("No lab found with labid: %s" % (lab_id))
@@ -2199,12 +2194,9 @@ class TestGetLabByLabId(TestCase):
 #+begin_src python
     @staticmethod
     def get_experiment(exp_id):
-        session_cls = System.delegate.entities['session']
-        session = session_cls(key=KEY)
         try:
             current_app.logger.debug("running operation get_lab_by_exp_id")
-            exp = System.do("get_experiment", exp_id=str(exp_id),
-                                session=session)
+            exp = System.do("get_experiment", exp_id=str(exp_id))
             current_app.logger.debug("completed operation get_lab_by_exp_id")
             if not exp:
                 return ("No exp found with expid: %s" % (exp_id))
@@ -2270,11 +2262,9 @@ class TestGetExpByExpId(TestCase):
 #+begin_src python
     @staticmethod
     def get_discipline(dis_id):
-        session_cls = System.delegate.entities['session']
-        session = session_cls(key=KEY)
         try:
             current_app.logger.debug("running operation get_discipline_by_dis_id")
-            dis = System.do("get_discipline", dis_id=str(dis_id), session=session)
+            dis = System.do("get_discipline", dis_id=str(dis_id))
             current_app.logger.debug("completed operation get_institute_by_inst_id")
             if not dis:
                 return ("No discipline found with disid: %s" % (dis_id))
