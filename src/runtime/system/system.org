@@ -430,7 +430,8 @@ class AddEmail():
 #+NAME: class_add_developer
 #+begin_src python
 class AddDeveloper():
-    arg_types = {"developer": is_developer, "name": is_name, "email": is_email, "session": is_session}
+    arg_types = {"developer": is_developer, "name": is_name,
+                     "email": is_email, "session": is_session}
     arity_and_type_checks_needed = True
 
     @staticmethod
@@ -472,7 +473,10 @@ class UpdateLab():
 
     @staticmethod
     def state_check(args):
-        pass
+        lab = args["lab"]
+        if not System.delegate.lab_exists(lab):
+            raise StateError("lab %s does not exists in System"
+                                 % lab.to_client())
 
     @staticmethod
     def action(args):
@@ -503,8 +507,11 @@ class UpdateExperiment():
 
     @staticmethod
     def state_check(args):
-        pass
-
+        experiment = args['experiment']
+        if not System.delegate.experiment_exists(experiment):
+            raise StateError("experiment %s does not exists in System"
+                                 % experiment.to_client())
+        
     @staticmethod
     def action(args):
         experiment = args["experiment"]
@@ -532,8 +539,11 @@ class UpdateSection():
 
     @staticmethod
     def state_check(args):
-        pass
-
+        section = args['section']
+        if not System.delegate.section_exists(section):
+            raise StateError("section %s does not exists in System"
+                                 % section.to_client())
+        
     @staticmethod
     def action(args):
         section = args["section"]
@@ -564,8 +574,11 @@ class UpdateDiscipline():
 
     @staticmethod
     def state_check(args):
-        pass
-
+        discipline = args['discipline']
+        if not System.delegate.discipline_exists(discipline):
+            raise StateError("discipline %s does not exists in System"
+                                 % discipline.to_client())
+        
     @staticmethod
     def action(args):
         discipline = args["discipline"]
@@ -592,7 +605,11 @@ class UpdateInstitute():
 
     @staticmethod
     def state_check(args):
-        pass
+        institute = args['institute']
+        if not System.delegate.institute_exists(institute):
+            raise StateError("institute %s does not exists in System"
+                                 % institute.to_client())
+
 
     @staticmethod
     def action(args):
@@ -619,7 +636,10 @@ class UpdateName():
 
     @staticmethod
     def state_check(args):
-        pass
+        name = args['name']
+        if not System.delegate.name_exists(name):
+            raise StateError("name %s does not exists in System"
+                                 % name.to_client())
 
     @staticmethod
     def action(args):
@@ -650,7 +670,10 @@ class UpdateEmail():
 
     @staticmethod
     def state_check(args):
-        pass
+        name = args['name']
+        if not System.delegate.name_exists(name):
+            raise StateError("name %s does not exists in System"
+                                 % name.to_client())
 
     @staticmethod
     def action(args):
@@ -682,7 +705,10 @@ class UpdateDeveloper():
 
     @staticmethod
     def state_check(args):
-        pass
+        developer = args["developer"]
+        if not System.delegate.developer_exists(developer):
+            raise StateError("developer %s does not exists in System"
+                                 % developer.to_client())
 
     @staticmethod
     def action(args):
