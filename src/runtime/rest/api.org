@@ -14,6 +14,7 @@
 
   
 * REST
+
 ** Get Labs, Add Lab and Get Lab
 *** API Designs 
 **** Add Lab
@@ -212,15 +213,38 @@ def get_and_add_lab():
             lab = SystemInterface.add_lab(data_dict)
             return jsonify(lab)
 
-        except TypeError as err:
-            error_message = 'Malformed arguments, error: %s' % str(err)
+        except NotAuthorizedError as e:
+            err_str = str(e)
+            msg = {"status": "failure",
+                    "status code": 401,
+                       "msg": err_str}
+            return jsonify(msg)
 
-            return render_template('error.html', 
-                    data=error_message)
+        except TypeError as e:
+            err_str = str(e)
+            msg = {"status": "failure",
+                       "msg": err_str }
+            return jsonify(msg)
 
-        except Exception as err:
-            abort(500, 'error: %s' % str(err))
-            
+        except StateError as e:
+            err_str = str(e)
+            msg = {"status": "failure",
+                       "msg": err_str}
+            return jsonify(msg)
+
+        except NotFoundError as e:
+            err_str = str(e)
+            msg = {"status": "failure",
+                       "status code": 404,
+                       "msg": err_str}
+            return jsonify(msg)
+
+        except Exception as e:
+            err_str = str(e)
+            msg = {"status": "failure",
+                       "msg": err_str}
+            return jsonify(msg)
+
 #+END_SRC
 
 *** Test Cases
@@ -243,6 +267,24 @@ class TestAddLab(TestCase):
 
     def test_add_lab(self):
         print "test_add_lab_in_rest"
+
+        payload = {'inst_name': 'IIT Kanpur',
+                   'inst_id': 'IITK',
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/institutes", data=json.dumps(payload),
+                                 headers=headers)
+
+        payload = {'dis_name': 'Computer Science',
+                   'dis_id': 'CSE',
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/disciplines", data=json.dumps(payload),
+                                 headers=headers)
 
         payload = {'exp_name': 'arrays',
                    'exp_id': 'exp1',
@@ -271,6 +313,7 @@ class TestAddLab(TestCase):
 
         self.assertEqual(response.status_code, 200)
 
+
  #+END_SRC
    
 **** TestGetLab
@@ -291,6 +334,24 @@ class TestGetLab(TestCase):
 
     def test_get_labs(self):
         print "test_get_labs_in_rest"
+
+        payload = {'inst_name': 'IIT Kanpur',
+                   'inst_id': 'IITK',
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/institutes", data=json.dumps(payload),
+                                 headers=headers)
+
+        payload = {'dis_name': 'Computer Science',
+                   'dis_id': 'CSE',
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/disciplines", data=json.dumps(payload),
+                                 headers=headers)
 
         payload = {'exp_name': 'arrays',
                    'exp_id': 'exp1',
@@ -340,6 +401,24 @@ class TestGetLabbyLabId(TestCase):
 
     def test_get_lab_by_labid(self):
         print "test_get_lab_by_labid_in_rest"
+
+        payload = {'inst_name': 'IIT Kanpur',
+                   'inst_id': 'IITK',
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/institutes", data=json.dumps(payload),
+                                 headers=headers)
+
+        payload = {'dis_name': 'Computer Science',
+                   'dis_id': 'CSE',
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/disciplines", data=json.dumps(payload),
+                                 headers=headers)
 
         payload = {'exp_name': 'arrays',
                    'exp_id': 'exp1',
@@ -1492,6 +1571,24 @@ class TestUpdateLab(TestCase):
     def test_update_lab(self):
         print "test_update_lab"
 
+        payload = {'inst_name': 'IIT Kanpur',
+                   'inst_id': 'IITK',
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/institutes", data=json.dumps(payload),
+                                 headers=headers)
+
+        payload = {'dis_name': 'Computer Science',
+                   'dis_id': 'CSE',
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/disciplines", data=json.dumps(payload),
+                                 headers=headers)
+
         payload = {'exp_name': 'arrays',
                    'exp_id': 'exp1',
                    'overview' : 'overview',
@@ -1591,7 +1688,7 @@ class TestDeleteLab(TestCase):
         response = self.client.post("/labs", data=json.dumps(payload),
                                  headers=headers)
 
-        response = self.client.delete("/labs?lab_id=cse02&key=<key>",
+        response = self.client.delete("/labs?lab_id=cse02&key=defaultkey",
                                           headers=headers)
 
         self.assertEqual(response.status_code, 200)
@@ -1717,7 +1814,6 @@ def update_and_delete_experiment():
             abort(500, 'error: %s' % str(err))
 
     if request.method == 'DELETE':
-        print "inside delete"
         if 'exp_id' in request.args and 'key' in request.args:
             exp_id  = request.args['exp_id']
             key = request.args['key']
@@ -1768,7 +1864,7 @@ class TestUpdateExperiment(TestCase):
         response = self.client.post("/experiments", data=json.dumps(payload),
                                  headers=headers)
 
-        response = self.client.put("/experiments/exp123",
+        response = self.client.put("/experiments?exp_id=exp123",
                                        data=json.dumps(payload1),
                                        headers=headers)
 
@@ -1808,7 +1904,7 @@ class TestDeleteExperiment(TestCase):
         response = self.client.post("/experiments", data=json.dumps(payload),
                                  headers=headers)
 
-        response = self.client.delete("/experiments/exp_id=exp123&key=<key>",
+        response = self.client.delete("/experiments?exp_id=exp123&key=defaultkey",
                                           headers=headers)
 
         self.assertEqual(response.status_code, 200)
@@ -2211,7 +2307,8 @@ class TestDeleteInstitute(TestCase):
         response = self.client.post("/institutes", data=json.dumps(payload),
                                  headers=headers)
 
-        response = self.client.delete("/institutes?inst_id=IITKgp&key=<key>", headers=headers)
+        response = self.client.delete("/institutes?inst_id=IITKgp&key=defaultkey",
+                                          headers=headers)
 
         self.assertEqual(response.status_code, 200)
 
@@ -2408,7 +2505,8 @@ class TestDeleteDiscipline(TestCase):
         response = self.client.post("/disciplines", data=json.dumps(payload),
                                  headers=headers)
 
-        response = self.client.delete("/disciplines?dis_id=CSE&key=<key>", headers=headers)
+        response = self.client.delete("/disciplines?dis_id=CSE&key=defaultkey", 
+                                          headers=headers)
 
         self.assertEqual(response.status_code, 200)
 
