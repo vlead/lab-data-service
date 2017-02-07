@@ -14,6 +14,7 @@
 
   
 * REST
+
 ** Get Labs, Add Lab and Get Lab
 *** API Designs 
 **** Add Lab
@@ -207,15 +208,38 @@ def get_and_add_lab():
             lab = SystemInterface.add_lab(data_dict)
             return jsonify(lab)
 
-        except TypeError as err:
-            error_message = 'Malformed arguments, error: %s' % str(err)
+        except NotAuthorizedError as e:
+            err_str = str(e)
+            msg = {"status": "failure",
+                    "status code": 401,
+                       "msg": err_str}
+            return jsonify(msg)
 
-            return render_template('error.html', 
-                    data=error_message)
+        except TypeError as e:
+            err_str = str(e)
+            msg = {"status": "failure",
+                       "msg": err_str }
+            return jsonify(msg)
 
-        except Exception as err:
-            abort(500, 'error: %s' % str(err))
-            
+        except StateError as e:
+            err_str = str(e)
+            msg = {"status": "failure",
+                       "msg": err_str}
+            return jsonify(msg)
+
+        except NotFoundError as e:
+            err_str = str(e)
+            msg = {"status": "failure",
+                       "status code": 404,
+                       "msg": err_str}
+            return jsonify(msg)
+
+        except Exception as e:
+            err_str = str(e)
+            msg = {"status": "failure",
+                       "msg": err_str}
+            return jsonify(msg)
+
 #+END_SRC
 
 *** Test Cases
@@ -283,6 +307,7 @@ class TestAddLab(TestCase):
                                  headers=headers)
 
         self.assertEqual(response.status_code, 200)
+
 
  #+END_SRC
    
@@ -1750,7 +1775,6 @@ def update_and_delete_experiment():
             abort(500, 'error: %s' % str(err))
 
     if request.method == 'DELETE':
-        print "inside delete"
         if 'exp_id' in request.args and 'key' in request.args:
             exp_id  = request.args['exp_id']
             key = request.args['key']
