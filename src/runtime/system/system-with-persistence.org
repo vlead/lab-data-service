@@ -315,6 +315,41 @@ class TestAddSection(TestCase):
 #+END_SRC
 
 
+* Test AddHostingInfo 
+#+NAME: test_add_hostinginfo
+#+BEGIN_SRC python
+class TestAddHostingInfo(TestCase):
+
+    TESTING = True
+
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_add_hostinginfo(self):
+        print "test_add_hostinginfo_in_system_persistence"
+        session_cls = System.delegate.entities['session']
+        hostinginfo_cls = System.delegate.entities['hostinginfo']
+        hosting_status = "hosted"
+        hosted_url = "http://cse14-iiith.vlabs.ac.in"
+        hostinginfo = hostinginfo_cls(hosting_status=hosting_status, hosted_url=hosted_url)
+                                       
+        key = KEY
+        session = session_cls(key=key)
+        hostinginfo = System.do("add_hostinginfo", hostinginfo=hostinginfo, \
+                                session=session)
+        hostinginfo1 = hostinginfo_cls.get_by_id(1)
+        self.assertEqual(hostinginfo1.get("hosting_status"), hosting_status)
+#+END_SRC
+
+
 * Test UpdateLab
 #+NAME: test_update_lab
 #+BEGIN_SRC python
@@ -539,6 +574,48 @@ class TestUpdateSection(TestCase):
 #+END_SRC
 
 
+* Test UpdateHostingInfo 
+#+NAME: test_update_hostinginfo
+#+BEGIN_SRC python
+class TestUpdateHostingInfo(TestCase):
+    TESTING = True
+
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_update_hostinginfo(self):
+
+        print "test_update_hostinginfo_in_system_persistence"
+        session_cls = System.delegate.entities['session']
+        hostinginfo_cls = System.delegate.entities['hostinginfo']
+
+        hosting_status1 = "hosted"
+        hosted_url1 = "http://cse14-iiith.vlabs.ac.in"
+        key = KEY
+        session = session_cls(key=key)
+        hostinginfo = hostinginfo_cls(hosting_status=hosting_status1, hosted_url=hosted_url1)
+
+        hostinginfo.save()
+
+        hosting_status2="not hosted"
+
+        hostinginfo1 = System.do("update_hostinginfo", hosting_status=hosting_status2,
+                                 hostinginfo=hostinginfo, session=session)
+
+        new_hostinginfo = hostinginfo_cls.get_by_id(1)
+
+        self.assertEqual(new_hostinginfo.get("hosting_status"), hosting_status2)
+#+END_SRC
+
+
 * Test DeleteExperiment
 #+NAME:  test_delete_experiment 
 #+BEGIN_SRC python
@@ -715,6 +792,44 @@ class TestDeleteDiscipline(TestCase):
 #+END_SRC
 
 
+* Test DeleteHostingInfo 
+#+NAME:  test_delete_hostinginfo 
+#+BEGIN_SRC python
+class TestDeleteHostingInfo(TestCase):
+    TESTING = True
+
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_delete_hostinginfo(self):
+        
+        print "test_delete_hostinginfo_in_system_persistence"
+        session_cls = System.delegate.entities['session']
+        hostinginfo_cls = System.delegate.entities['hostinginfo']
+
+        hosting_status = "hosted"
+        hosted_url = "http://cse14-iiith.vlabs.ac.in"
+        key = KEY
+        session = session_cls(key=key)
+        hostinginfo = hostinginfo_cls(hosting_status=hosting_status, hosted_url=hosted_url)
+                         
+        hostinginfo.save()
+        hostinginfo = System.do("delete_hostinginfo", hosted_url = hosted_url,
+                                  session=session)
+
+        self.assertEqual(hostinginfo, hosted_url)
+            
+#+END_SRC
+
+
 * Test GetLab
 #+NAME: test_get_lab
 #+BEGIN_SRC python
@@ -877,6 +992,42 @@ class TestGetDiscipline(TestCase):
 #+END_SRC
 
 
+* Test GetHostingInfo 
+#+NAME: test_get_hostinginfo
+#+BEGIN_SRC python
+class TestGetHostingInfo(TestCase):
+    TESTING = True
+
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_get_hostinginfo(self):
+
+        print "test_get_hostinginfo_in_system_persistence"
+        session_cls = System.delegate.entities['session']
+        hostinginfo_cls = System.delegate.entities['hostinginfo']
+
+        hosting_status1 = "hosted"
+        hosted_url1 = "http://cse14-iiith.vlabs.ac.in"
+        hostinginfo = hostinginfo_cls(hosting_status=hosting_status1, hosted_url=hosted_url1)
+        hostinginfo.save()
+
+        hostinginfo1 = System.do("get_hostinginfo", hosted_url=hosted_url1)
+
+        self.assertEqual(hostinginfo1.get("hosting_status"), hosting_status1)
+        self.assertEqual(hostinginfo1.get("hosted_url"), hosted_url1)
+            
+#+END_SRC
+
+
 * Infra                                                         :boilerplate:
 ** Tests
 *** Imports 
@@ -917,19 +1068,23 @@ if __name__ == '__main__':
 <<test_delete_experiment>>
 <<test_delete_institute>>
 <<test_delete_discipline>>
+<<test_delete_hostinginfo>>
 <<test_add_experiment>>
 <<test_add_institute>>
 <<test_add_discipline>>
 <<test_add_section>>
+<<test_add_hostinginfo>>
 <<test_update_lab>>
 <<test_update_experiment>>
 <<test_update_institute>>
 <<test_update_discipline>>
+<<test_update_hostinginfo>>
 <<test_add_sections_to_experiment>>
 <<test_get_lab>>
 <<test_get_institute>>
 <<test_get_exp>>
 <<test_get_discipline>>
+<<test_get_hostinginfo>>
 <<run_test_cases>>
 
 #+end_src

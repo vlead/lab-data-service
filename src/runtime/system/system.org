@@ -753,6 +753,38 @@ class UpdateDeveloper():
 #+end_src
 
 
+** =UpdateHostingInfo=
+#+NAME: class_update_hostinginfo
+#+begin_src python
+class UpdateHostingInfo():
+    arg_types = {"hostinginfo": is_hostinginfo, "hosting_status": is_str_or_none, 
+                       "session": is_session}                               
+    arity_and_type_checks_needed = True
+
+    @staticmethod
+    def auth_check(args):
+        session = args['session']
+        if not System.is_session_valid(session):
+            raise NotAuthorizedError("Not Authorized to perform this action")
+
+    @staticmethod
+    def state_check(args):
+        hostinginfo = args['hostinginfo']
+        if not System.delegate.hostinginfo_exists(hostinginfo):
+            raise StateError("hostinginfo %s does not exists in System"
+                                 % hostinginfo.to_client())
+
+
+    @staticmethod
+    def action(args):
+        hosting_status = args["hosting_status"]
+        hostinginfo = args["hostinginfo"]       
+        hostinginfo = System.delegate.update_hostinginfo(hostinginfo, hosting_status)
+        return hostinginfo
+
+#+end_src
+
+
 ** =DeleteLab=
 #+NAME: class_delete_lab
 #+begin_src python
@@ -983,6 +1015,36 @@ class DeleteDeveloper():
         developer_id = args["developer_id"]
         developer_id = System.delegate.delete_developer(developer_id)
         return developer_id
+        
+#+end_src
+
+
+** =DeleteHostingInfo=
+#+NAME: class_delete_hostinginfo
+#+begin_src python
+class DeleteHostingInfo():
+    arg_types = {"hosted_url": is_url, "session": is_session}
+    arity_and_type_checks_needed = True
+
+    @staticmethod
+    def auth_check(args):
+        session = args['session']
+        if not System.is_session_valid(session):
+            raise NotAuthorizedError("Not Authorized to perform this action")
+
+    @staticmethod
+    def state_check(args):
+        hosted_url = args['hosted_url']
+        hostinginfo = System.delegate.get_hostinginfo(hosted_url=hosted_url)
+        if not System.delegate.hostinginfo_exists(hostinginfo):
+            raise StateError("hostinginfo %s does not exists in System"
+                                 % hostinginfo.to_client())
+
+    @staticmethod
+    def action(args):
+        hosted_url = args["hosted_url"]
+        hosted_url = System.delegate.delete_hostinginfo(hosted_url)
+        return hosted_url
         
 #+end_src
 
@@ -1246,7 +1308,9 @@ ops_table = {'add_lab' : AddLab,
              'update_discipline' : UpdateDiscipline,
              'delete_discipline' : DeleteDiscipline,
              'add_hostinginfo' : AddHostingInfo,
-             'get_hostinginfo': GetHostingInfo
+             'get_hostinginfo': GetHostingInfo,
+             'update_hostinginfo': UpdateHostingInfo,
+             'delete_hostinginfo': DeleteHostingInfo
              }
 
  #+END_SRC   
@@ -1343,6 +1407,8 @@ if __name__ == '__main__':
 <<class_get_discipline>>
 <<class_add_hostinginfo>>
 <<class_get_hostinginfo>>
+<<class_update_hostinginfo>>
+<<class_delete_hostinginfo>>
 <<ops_table>>
 
 #+end_src
