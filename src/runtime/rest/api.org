@@ -524,51 +524,11 @@ class TestAddLab(TestCase):
  #+END_SRC
    
 
-** Get Institutes, Add Institute and Get Institute
+** Get Institutes and Get Institute
 *** API Design
-**** Add Institute
-  :PROPERTIES:
-  :CUSTOM_ID: add_institute
-  :END:    
-  - URL :: /institutes
-
-  - Method :: POST
-
-  - URL Params ::  None
-
-  - Payload :: 
-#+BEGIN_EXAMPLE
-{
-"inst_id": "iiith",
-"inst_name": "IIIT Hyderabad",
-"key": "<key>"
-}
-#+END_EXAMPLE	       
-
-  - Success Response
-    + Status_Code: 200
-    + Content: 
-#+BEGIN_EXAMPLE
-{
-  "id": 1, 
-  "inst_id": "iiith", 
-  "inst_name": "IIIT Hyderabad"
-}
-
-#+END_EXAMPLE
-
-  - Error Response:
-    + Contents :
-                {"status" : "error"}
-    
-  - Example:
-#+BEGIN_EXAMPLE
-http://localhost:5000/disciplines
-#+END_EXAMPLE
-    
 **** Get all Institutes
   :PROPERTIES:
-  :CUSTOM_ID: get_all_institutes
+  :CUSTOM_ID: api_get_all_institutes
   :END:    
   - URL :: /institutes
 
@@ -598,7 +558,7 @@ http://localhost:5000/institutes
 
 **** Get Institute by Inst id
   :PROPERTIES:
-  :CUSTOM_ID: get_institute_by_inst_id
+  :CUSTOM_ID: api_get_institute_by_inst_id
   :END:    
   - URL :: /institutes?inst_id=<inst_id>
 
@@ -627,11 +587,11 @@ http://localhost:5000/institutes?inst_id=iiith
 #+END_EXAMPLE
 
 *** Implementation
-REST API to get and add institute.
-#+NAME: get_and_add_institute
+REST API to get all institutes and get institute by inst id.
+#+NAME: get_institute
 #+BEGIN_SRC python
-@api.route('/institutes', methods=['GET', 'POST'])
-def add_institute():
+@api.route('/institutes', methods=['GET'])
+def get_institute():
     if request.method == 'GET':
        if 'inst_id' in request.args:
            inst_id  = request.args['inst_id']
@@ -667,61 +627,10 @@ def add_institute():
 
            except Exception as err:
                abort(500, 'error: %s' % str(err))
-       
-    if request.method == 'POST':
-        if request.is_json:
-            data_json = json.dumps(request.get_json())
-            data_dict = yaml.safe_load(data_json)
-        else:
-            abort(500, "the request does not contain data in json")
-
-        try:
-            institute = SystemInterface.add_institute(data_dict)
-            return jsonify(institute)
-
-        except TypeError as err:
-            error_message = 'Malformed arguments, error: %s' % str(err)
-
-            return render_template('error.html', 
-                    data=error_message)
-
-        except Exception as err:
-            abort(500, 'error: %s' % str(err))
             
 #+END_SRC
 
 *** Test Cases
-**** TestAddInstitute 
- #+NAME: test_add_institute
- #+BEGIN_SRC python
-class TestAddInstitute(TestCase):
-    TESTING = True
-    def create_app(self):
-        app = create_app(config)
-        return app
-
-    def setUp(self):
-        db.create_all()
-
-    def tearDown(self):
-        db.session.remove()
-        db.drop_all()
-
-    def test_add_institute(self):
-        print "test_add_institute_in_rest"
-        payload = {'inst_name': 'IIT Kanpur',
-                   'inst_id': 'IITK',
-                   'key': KEY}
-
-        headers = {'Content-Type': 'application/json'}
-
-        response = self.client.post("/institutes", data=json.dumps(payload),
-                                 headers=headers)
-
-        self.assertEqual(response.status_code, 200)
-
- #+END_SRC
-   
 **** TestGetInstitute 
  #+NAME: test_get_Institute
  #+BEGIN_SRC python
@@ -788,6 +697,109 @@ class TestGetInstitute(TestCase):
         self.assertEqual(response.status_code, 200)
 #+END_SRC
 
+
+** Add Institute 
+*** API Design
+**** Add Institute
+  :PROPERTIES:
+  :CUSTOM_ID: api_add_institute
+  :END:    
+  - URL :: /institutes
+
+  - Method :: POST
+
+  - URL Params ::  None
+
+  - Payload :: 
+#+BEGIN_EXAMPLE
+{
+"inst_id": "iiith",
+"inst_name": "IIIT Hyderabad",
+"key": "<key>"
+}
+#+END_EXAMPLE	       
+
+  - Success Response
+    + Status_Code: 200
+    + Content: 
+#+BEGIN_EXAMPLE
+{
+  "id": 1, 
+  "inst_id": "iiith", 
+  "inst_name": "IIIT Hyderabad"
+}
+
+#+END_EXAMPLE
+
+  - Error Response:
+    + Contents :
+                {"status" : "error"}
+    
+  - Example:
+#+BEGIN_EXAMPLE
+http://localhost:5000/disciplines
+#+END_EXAMPLE
+    
+*** Implementation
+REST API to add an institute.
+#+NAME: add_institute
+#+BEGIN_SRC python
+@api.route('/institutes', methods=['POST'])
+def add_institute():
+    if request.method == 'POST':
+        if request.is_json:
+            data_json = json.dumps(request.get_json())
+            data_dict = yaml.safe_load(data_json)
+        else:
+            abort(500, "the request does not contain data in json")
+
+        try:
+            institute = SystemInterface.add_institute(data_dict)
+            return jsonify(institute)
+
+        except TypeError as err:
+            error_message = 'Malformed arguments, error: %s' % str(err)
+
+            return render_template('error.html', 
+                    data=error_message)
+
+        except Exception as err:
+            abort(500, 'error: %s' % str(err))
+            
+#+END_SRC
+
+*** Test Cases
+**** TestAddInstitute 
+ #+NAME: test_add_institute
+ #+BEGIN_SRC python
+class TestAddInstitute(TestCase):
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_add_institute(self):
+        print "test_add_institute_in_rest"
+        payload = {'inst_name': 'IIT Kanpur',
+                   'inst_id': 'IITK',
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/institutes", data=json.dumps(payload),
+                                 headers=headers)
+
+        self.assertEqual(response.status_code, 200)
+
+ #+END_SRC
+   
 
 ** Get Disciplines, Add Discipline and Get Discipline
 *** API Design
@@ -3547,7 +3559,9 @@ if __name__ == '__main__':
 <<get_and_add_section>>
 <<update_and_delete_institute>>
 <<update_and_delete_discipline>>
-<<get_and_add_institute>>
+<<get_institute>>
+<<add_institute>>
+
 #+END_SRC
 
 
