@@ -1095,64 +1095,11 @@ class TestAddDiscipline(TestCase):
  #+END_SRC
    
 
-** Get Experiments, Add Experiment and Get Experiment
+** Get Experiments and Get Experiment
 *** API Designs
-**** Add Experiment
-  :PROPERTIES:
-  :CUSTOM_ID: add_experiment
-  :END:    
-  - URL :: /experiments
-
-  - Method :: POST
-
-  - URL Params ::  None
-
-  - Payload :: 
-#+BEGIN_EXAMPLE
-{
-  "exp_id": "exp9", 
-  "exp_name": "arrays", 
-  "key":"<key>",
-  "overview": "overview", 
-  "sections": ["Theory", "Procedure"]
-}
-#+END_EXAMPLE	       
-
-  - Success Response
-    + Status_Code: 200
-    + Content: 
-#+BEGIN_EXAMPLE
-{
-  "exp_id": "exp9", 
-  "exp_name": "arrays", 
-  "id": 1, 
-  "overview": "overview", 
-  "sections": [
-    {
-      "id": 1, 
-      "name": "Theory"
-    }, 
-    {
-      "id": 2, 
-      "name": "Procedure"
-    }
-  ]
-}
-
-#+END_EXAMPLE
-
-  - Error Response:
-    + Contents :
-                {"status" : "error"}
-    
-  - Example:
-#+BEGIN_EXAMPLE
-http://localhost:5000/experiments
-#+END_EXAMPLE
-
 **** Get all experiments
   :PROPERTIES:
-  :CUSTOM_ID: get_all_experiments
+  :CUSTOM_ID: api_get_all_experiments
   :END:    
   - URL :: /experiments
 
@@ -1200,7 +1147,7 @@ http://localhost:5000/experiments
 
 **** Get experiment by exp_id
   :PROPERTIES:
-  :CUSTOM_ID: get_all_experiments
+  :CUSTOM_ID: api_get_all_experiments
   :END:    
   - URL :: /experiments?exp_id=<exp_id>
 
@@ -1244,11 +1191,11 @@ http://localhost:5000/experiments?exp_id=exp9
 #+END_EXAMPLE
 
 *** Implementation
- REST API to get single experiment by exp_id and get all experiments and add experiment.
-#+NAME: get_and_add_experiment
+ REST API to get single experiment by exp_id and get all experiments.
+#+NAME: get_experiment
 #+BEGIN_SRC python
-@api.route('/experiments', methods=['GET', 'POST'])
-def get_and_add_experiment():
+@api.route('/experiments', methods=['GET'])
+def get_experiment():
     if request.method == 'GET':
         if 'exp_id' in request.args:
             exp_id  = request.args['exp_id']
@@ -1270,11 +1217,6 @@ def get_and_add_experiment():
                                        data=error_message)
             except TypeError as err:
                 error_message = 'Malformed arguments, error: %s' % str(err)
-                """
-                if request.headerscurrent_app.logger.error("%s" %(error_message)))['Content-Type'] == "application/json":
-                abort(400, error_message)
-                else:
-                """
                 current_app.logger.error("%s" %(error_message))
                 return render_template('error.html', 
                                        data=error_message)
@@ -1302,62 +1244,9 @@ def get_and_add_experiment():
             except Exception as err:
                 abort(500, 'error: %s' % str(err))
        
-    if request.method == 'POST':
-        if request.is_json:
-            data_json = json.dumps(request.get_json())
-            data_dict = yaml.safe_load(data_json)
-        else:
-            abort(500, "the request does not contain data in json")
-
-        try:
-            exp = SystemInterface.add_experiment(data_dict)
-            return jsonify(exp)
-
-        except TypeError as err:
-            error_message = 'Malformed arguments, error: %s' % str(err)
-
-            return render_template('error.html', 
-                    data=error_message)
-
-        except Exception as err:
-            abort(500, 'error: %s' % str(err))
-            
 #+END_SRC
 
 *** Test Cases
-**** TestAddExperiment
- #+NAME: test_add_experiment
- #+BEGIN_SRC python
-class TestAddExperiment(TestCase):
-    TESTING = True
-    def create_app(self):
-        app = create_app(config)
-        return app
-
-    def setUp(self):
-        db.create_all()
-
-    def tearDown(self):
-        db.session.remove()
-        db.drop_all()
-
-    def test_add_experiment(self):
-        print "test_add_experiment_in_rest"
-        payload = {'exp_name': 'arrays',
-                   'exp_id': 'cse01',
-                   'overview' : 'overview',
-                   'sections': [],
-                   'key': KEY}
-
-        headers = {'Content-Type': 'application/json'}
-
-        response = self.client.post("/experiments", data=json.dumps(payload),
-                                 headers=headers)
-
-        self.assertEqual(response.status_code, 200)
-
- #+END_SRC
-   
 **** TestGetExperiment
  #+NAME: test_get_Experiment
  #+BEGIN_SRC python
@@ -1429,6 +1318,124 @@ class TestGetExp(TestCase):
 
 #+END_SRC
 
+
+** Add Experiment 
+*** API Designs
+**** Add Experiment
+  :PROPERTIES:
+  :CUSTOM_ID: api_add_experiment
+  :END:    
+  - URL :: /experiments
+
+  - Method :: POST
+
+  - URL Params ::  None
+
+  - Payload :: 
+#+BEGIN_EXAMPLE
+{
+  "exp_id": "exp9", 
+  "exp_name": "arrays", 
+  "key":"<key>",
+  "overview": "overview", 
+  "sections": ["Theory", "Procedure"]
+}
+#+END_EXAMPLE	       
+
+  - Success Response
+    + Status_Code: 200
+    + Content: 
+#+BEGIN_EXAMPLE
+{
+  "exp_id": "exp9", 
+  "exp_name": "arrays", 
+  "id": 1, 
+  "overview": "overview", 
+  "sections": [
+    {
+      "id": 1, 
+      "name": "Theory"
+    }, 
+    {
+      "id": 2, 
+      "name": "Procedure"
+    }
+  ]
+}
+
+#+END_EXAMPLE
+
+  - Error Response:
+    + Contents :
+                {"status" : "error"}
+    
+  - Example:
+#+BEGIN_EXAMPLE
+http://localhost:5000/experiments
+#+END_EXAMPLE
+
+*** Implementation
+ REST API to add an experiment.
+#+NAME: add_experiment
+#+BEGIN_SRC python
+@api.route('/experiments', methods=['POST'])
+def get_add_experiment():
+    if request.method == 'POST':
+        if request.is_json:
+            data_json = json.dumps(request.get_json())
+            data_dict = yaml.safe_load(data_json)
+        else:
+            abort(500, "the request does not contain data in json")
+
+        try:
+            exp = SystemInterface.add_experiment(data_dict)
+            return jsonify(exp)
+
+        except TypeError as err:
+            error_message = 'Malformed arguments, error: %s' % str(err)
+
+            return render_template('error.html', 
+                    data=error_message)
+
+        except Exception as err:
+            abort(500, 'error: %s' % str(err))
+            
+#+END_SRC
+
+*** Test Cases
+**** TestAddExperiment
+ #+NAME: test_add_experiment
+ #+BEGIN_SRC python
+class TestAddExperiment(TestCase):
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_add_experiment(self):
+        print "test_add_experiment_in_rest"
+        payload = {'exp_name': 'arrays',
+                   'exp_id': 'cse01',
+                   'overview' : 'overview',
+                   'sections': [],
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/experiments", data=json.dumps(payload),
+                                 headers=headers)
+
+        self.assertEqual(response.status_code, 200)
+
+ #+END_SRC
+   
 
 ** Get and Add Section
 *** API Design
@@ -3597,7 +3604,8 @@ if __name__ == '__main__':
 <<get_lab>>
 <<add_lab>>
 <<update_and_delete_lab>>
-<<get_and_add_experiment>>
+<<get_experiment>>
+<<add_experiment>>
 <<get_disciplines>>
 <<add_discipline>>
 <<update_and_delete_experiment>>
