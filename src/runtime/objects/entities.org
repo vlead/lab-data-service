@@ -43,6 +43,7 @@ Name = ClassTemplate.mk_class("Name")
 Email = ClassTemplate.mk_class("Email")
 Developer = ClassTemplate.mk_class("Developer")
 Institute = ClassTemplate.mk_class("Institute")
+Assets = ClassTemplate.mk_class("Assets")
 HostingInfo = ClassTemplate.mk_class("HostingInfo")
 
 #+END_SRC
@@ -357,8 +358,6 @@ class TestSession(TestCase):
 #+END_SRC
     
 
-<<<<<<< HEAD
-
 
 * Name
    =Name= is an entity that has a field =name= which is string
@@ -482,6 +481,34 @@ class TestDev(TestCase):
 #+END_SRC
 
 
+* Assets
+   =Assets= is an entity that has a field =type= and =path= which are string
+#+NAME: class_Assets
+#+begin_src python
+Assets.add_attributes(path=is_str,
+                    asset_type=is_str)
+
+Assets.__eq__ = lambda self, other: \
+                  isinstance(other, self.__class__) and \
+                  self.get("path") == other.get("path") and \
+                  self.get("asset_type") == other.get("asset_type")                  
+#+end_src
+
+*** Test Assets
+#+NAME: class_TestAssets
+#+BEGIN_SRC python
+class TestAssets(TestCase):
+    TESTING = True
+    def test_object_assets(self):
+        print "test_object_assets"
+        path = "vlabs.ac.in/static/images/logo.png"
+        asset_type = "Image"
+        assets = Assets(path=path, asset_type=asset_type)
+                                              
+        self.assertEqual(assets.get("path"), path)
+        self.assertEqual(assets.get("asset_type"), asset_type)
+#+end_src
+
 * HostingInfo
    =HostingInfo= is an entity that has a field =hosting_status= and =hosted_url= which are string
 #+NAME: class_HostingInfo
@@ -562,8 +589,8 @@ if __name__ == '__main__':
 <<class_Email>>
 <<class_Developer>>
 <<class_Institute>>
+<<class_Assets>>
 <<class_HostingInfo>>
-
 #+end_src
 
 
@@ -579,6 +606,7 @@ if __name__ == '__main__':
 <<class_TestEmail>>
 <<class_TestDeveloper>>
 <<class_TestInstitute>>
+<<class_TestAssets>>
 <<class_TestHostingInfo>>
 <<run_test_cases>>
 #+end_src
