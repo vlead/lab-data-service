@@ -15,84 +15,11 @@
   
 * REST
 
-** Get Labs, Add Lab and Get Lab
+** Get Labs and Get Lab
 *** API Designs 
-**** Add Lab
-  :PROPERTIES:
-  :CUSTOM_ID: add_lab
-  :END:    
-  - URL :: /labs
-
-  - Method :: POST
-
-  - URL Params ::  None
-
-  - Payload :: 
-#+BEGIN_EXAMPLE
-{
-  "experiments": ["exp9"], 
-  "lab_id": "cse09", 
-  "lab_name": "Data Structures", 
-  "overview": "overview",
-  "key": "<key>",
-  "inst_id": "iiith",
-  "dis_id": "cse"
-}
-#+END_EXAMPLE	       
-
-  - Success Response
-    + Status_Code: 200
-    + Content: 
-#+BEGIN_EXAMPLE
-{
-  "discipline": {
-    "dis_id": "cse", 
-    "dis_name": "Computer Science", 
-    "id": 1
-  }, 
-  "experiments": [
-    {
-      "exp_id": "exp9", 
-      "exp_name": "arrays", 
-      "id": 1, 
-      "overview": "overview", 
-      "sections": [
-        {
-          "id": 2, 
-          "name": "Procedure"
-        }, 
-        {
-          "id": 1, 
-          "name": "Theory"
-        }
-      ]
-    }
-  ], 
-  "id": 1, 
-  "institute": {
-    "id": 1, 
-    "inst_id": "iiith", 
-    "inst_name": "IIIT Hyderabad"
-  }, 
-  "lab_id": "cse09", 
-  "lab_name": "Data Structures", 
-  "overview": "overview"
-}
-
-#+END_EXAMPLE
-
-  - Error Response:
-    + Contents :
-                {"status" : "error"}
-    
-  - Example:
-#+BEGIN_EXAMPLE
-http://localhost:5000/labs
-#+END_EXAMPLE 
-
 **** Get all labs
   :PROPERTIES:
-  :CUSTOM_ID: get_all_labs
+  :CUSTOM_ID: api_get_all_labs
   :END:    
   - URL :: /labs
 
@@ -157,7 +84,7 @@ http://localhost:5000/labs
 
 **** Get lab by lab_id
   :PROPERTIES:
-  :CUSTOM_ID: get_lab_by_lab_id
+  :CUSTOM_ID: api_get_lab_by_lab_id
   :END:    
   - URL :: /labs?lab_id=<lab_id>
 
@@ -219,10 +146,10 @@ http://localhost:5000/labs?lab_id=cse09
 #+END_EXAMPLE  
 
 *** Implementation
-#+NAME: get_and_add_lab
+#+NAME: get_lab
 #+BEGIN_SRC python
-@api.route('/labs', methods=['GET', 'POST'])
-def get_and_add_lab():
+@api.route('/labs', methods=['GET'])
+def get_lab():
     if request.method == 'GET':
         if 'lab_id' in request.args:
             lab_id  = request.args['lab_id']
@@ -264,120 +191,9 @@ def get_and_add_lab():
             except Exception as err:
                 abort(500, 'error: %s' % str(err))
 
-    if request.method == 'POST':
-        if request.is_json:
-            data_json = json.dumps(request.get_json())
-            data_dict = yaml.safe_load(data_json)
-        else:
-            abort(500, "the request does not contain data in json")
-
-        try:
-            lab = SystemInterface.add_lab(data_dict)
-            return jsonify(lab)
-
-        except NotAuthorizedError as e:
-            err_str = str(e)
-            msg = {"status": "failure",
-                    "status code": 401,
-                       "msg": err_str}
-            return jsonify(msg)
-
-        except TypeError as e:
-            err_str = str(e)
-            msg = {"status": "failure",
-                       "msg": err_str }
-            return jsonify(msg)
-
-        except StateError as e:
-            err_str = str(e)
-            msg = {"status": "failure",
-                       "msg": err_str}
-            return jsonify(msg)
-
-        except NotFoundError as e:
-            err_str = str(e)
-            msg = {"status": "failure",
-                       "status code": 404,
-                       "msg": err_str}
-            return jsonify(msg)
-
-        except Exception as e:
-            err_str = str(e)
-            msg = {"status": "failure",
-                       "msg": err_str}
-            return jsonify(msg)
-
 #+END_SRC
 
 *** Test Cases
-**** TestAddLab
-
-#+NAME: test_add_lab
-#+BEGIN_SRC python
-class TestAddLab(TestCase):
-    TESTING = True
-    def create_app(self):
-        app = create_app(config)
-        return app
-
-    def setUp(self):
-        db.create_all()
-
-    def tearDown(self):
-        db.session.remove()
-        db.drop_all()
-
-    def test_add_lab(self):
-        print "test_add_lab_in_rest"
-
-        payload = {'inst_name': 'IIT Kanpur',
-                   'inst_id': 'IITK',
-                   'key': KEY}
-
-        headers = {'Content-Type': 'application/json'}
-
-        response = self.client.post("/institutes", data=json.dumps(payload),
-                                 headers=headers)
-
-        payload = {'dis_name': 'Computer Science',
-                   'dis_id': 'CSE',
-                   'key': KEY}
-
-        headers = {'Content-Type': 'application/json'}
-
-        response = self.client.post("/disciplines", data=json.dumps(payload),
-                                 headers=headers)
-
-        payload = {'exp_name': 'arrays',
-                   'exp_id': 'exp1',
-                   'overview' : 'overview',
-                   'sections': [],
-                   'key': KEY}
-
-        headers = {'Content-Type': 'application/json'}
-
-        response = self.client.post("/experiments", data=json.dumps(payload),
-                                 headers=headers)
-
-        payload = {'lab_name': 'Data Structures',
-                   'lab_id': 'cse01',
-                   'key': KEY,
-                   'inst_id': 'IITK',
-                   'dis_id': 'CSE',
-                   'overview' : 'overview',
-                   'experiments': ['exp1']
-                  }
-
-        headers = {'Content-Type': 'application/json'}
-
-        response = self.client.post("/labs", data=json.dumps(payload),
-                                 headers=headers)
-
-        self.assertEqual(response.status_code, 200)
-
-
- #+END_SRC
-   
 **** TestGetLab
 #+NAME: test_get_labs
 #+BEGIN_SRC python
@@ -512,6 +328,201 @@ class TestGetLabbyLabId(TestCase):
 
 #+END_SRC
 
+
+** Add Lab 
+*** API Designs 
+**** Add Lab
+  :PROPERTIES:
+  :CUSTOM_ID: api_add_lab
+  :END:    
+  - URL :: /labs
+
+  - Method :: POST
+
+  - URL Params ::  None
+
+  - Payload :: 
+#+BEGIN_EXAMPLE
+{
+  "experiments": ["exp9"], 
+  "lab_id": "cse09", 
+  "lab_name": "Data Structures", 
+  "overview": "overview",
+  "key": "<key>",
+  "inst_id": "iiith",
+  "dis_id": "cse"
+}
+#+END_EXAMPLE	       
+
+  - Success Response
+    + Status_Code: 200
+    + Content: 
+#+BEGIN_EXAMPLE
+{
+  "discipline": {
+    "dis_id": "cse", 
+    "dis_name": "Computer Science", 
+    "id": 1
+  }, 
+  "experiments": [
+    {
+      "exp_id": "exp9", 
+      "exp_name": "arrays", 
+      "id": 1, 
+      "overview": "overview", 
+      "sections": [
+        {
+          "id": 2, 
+          "name": "Procedure"
+        }, 
+        {
+          "id": 1, 
+          "name": "Theory"
+        }
+      ]
+    }
+  ], 
+  "id": 1, 
+  "institute": {
+    "id": 1, 
+    "inst_id": "iiith", 
+    "inst_name": "IIIT Hyderabad"
+  }, 
+  "lab_id": "cse09", 
+  "lab_name": "Data Structures", 
+  "overview": "overview"
+}
+
+#+END_EXAMPLE
+
+  - Error Response:
+    + Contents :
+                {"status" : "error"}
+    
+  - Example:
+#+BEGIN_EXAMPLE
+http://localhost:5000/labs
+#+END_EXAMPLE 
+
+*** Implementation
+#+NAME: add_lab
+#+BEGIN_SRC python
+@api.route('/labs', methods=['POST'])
+def add_lab():
+    if request.method == 'POST':
+        if request.is_json:
+            data_json = json.dumps(request.get_json())
+            data_dict = yaml.safe_load(data_json)
+        else:
+            abort(500, "the request does not contain data in json")
+
+        try:
+            lab = SystemInterface.add_lab(data_dict)
+            return jsonify(lab)
+
+        except NotAuthorizedError as e:
+            err_str = str(e)
+            msg = {"status": "failure",
+                    "status code": 401,
+                       "msg": err_str}
+            return jsonify(msg)
+
+        except TypeError as e:
+            err_str = str(e)
+            msg = {"status": "failure",
+                       "msg": err_str }
+            return jsonify(msg)
+
+        except StateError as e:
+            err_str = str(e)
+            msg = {"status": "failure",
+                       "msg": err_str}
+            return jsonify(msg)
+
+        except NotFoundError as e:
+            err_str = str(e)
+            msg = {"status": "failure",
+                       "status code": 404,
+                       "msg": err_str}
+            return jsonify(msg)
+
+        except Exception as e:
+            err_str = str(e)
+            msg = {"status": "failure",
+                       "msg": err_str}
+            return jsonify(msg)
+
+#+END_SRC
+
+*** Test Cases
+**** TestAddLab
+
+#+NAME: test_add_lab
+#+BEGIN_SRC python
+class TestAddLab(TestCase):
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_add_lab(self):
+        print "test_add_lab_in_rest"
+
+        payload = {'inst_name': 'IIT Kanpur',
+                   'inst_id': 'IITK',
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/institutes", data=json.dumps(payload),
+                                 headers=headers)
+
+        payload = {'dis_name': 'Computer Science',
+                   'dis_id': 'CSE',
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/disciplines", data=json.dumps(payload),
+                                 headers=headers)
+
+        payload = {'exp_name': 'arrays',
+                   'exp_id': 'exp1',
+                   'overview' : 'overview',
+                   'sections': [],
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/experiments", data=json.dumps(payload),
+                                 headers=headers)
+
+        payload = {'lab_name': 'Data Structures',
+                   'lab_id': 'cse01',
+                   'key': KEY,
+                   'inst_id': 'IITK',
+                   'dis_id': 'CSE',
+                   'overview' : 'overview',
+                   'experiments': ['exp1']
+                  }
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/labs", data=json.dumps(payload),
+                                 headers=headers)
+
+        self.assertEqual(response.status_code, 200)
+
+
+ #+END_SRC
+   
 
 ** Get Institutes, Add Institute and Get Institute
 *** API Design
@@ -3526,7 +3537,8 @@ if __name__ == '__main__':
 ** sources
 #+BEGIN_SRC python :tangle api.py :eval no :noweb yes
 <<imports_for_sources>>
-<<get_and_add_lab>>
+<<get_lab>>
+<<add_lab>>
 <<update_and_delete_lab>>
 <<get_and_add_experiment>>
 <<get_and_add_discipline>>
