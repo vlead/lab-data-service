@@ -1137,7 +1137,7 @@ class TestGetEmails(TestCase):
         email = email_cls(email=data_dict['email'])
 #       email.save()
 #        email=SystemInterface.add_email(data_dict['email'], data_dict['key'])
-        developer = developer_cls(name=str(data_dict['name']), email=(data_dict['email']))
+        developer = developer_cls(name=name, email=email)
         try:
             current_app.logger.debug("running operation add_developer")
             developer = System.do("add_developer", developer=developer,
@@ -1176,14 +1176,15 @@ class TestAddDeveloper(TestCase):
 
         data_dict = {
                     'key': KEY,
-                    'dev_name': 'Prof. S. Dharmaraja',
-                    'dev_email': 'dharmar@maths.iitd.ac.in'
+                    'name': 'Prof. S. Dharmaraja',
+                    'email': 'dharmar@maths.iitd.ac.in'
                    }
 
         developer = SystemInterface.add_developer(data_dict)
         self.assertEqual(developer.get("name").get("name"),
-                             data_dict['dev_name'])
-        self.assertEqual(developer.get("email").get("email"), data_dict['dev_email'])
+                             data_dict['name'])
+        self.assertEqual(developer.get("email").get("email"),
+                             data_dict['email'])
 
     def test_add_developer_raises_type_error_in_system_interface(self):
         print "test_add_developer_raises_type_error_in_system_interface"

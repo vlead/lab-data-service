@@ -312,10 +312,10 @@ class TestPersistenceDelegate(TestCase):
     This function checks if an developer is already in the developer-set of the =System=.
 #+NAME: persistence_developer_exists
 #+BEGIN_SRC python
-    def developer_exists(self, email):
+    def developer_exists(self, developer):
         ret_val = False
         try:
-            if self.get_developer(email=email) is not None:
+            if self.get_developer(email=developer.get("email")) is not None:
                 ret_val = True
         except Exception as e:
             pass
@@ -342,9 +342,9 @@ class TestPersistenceDelegate(TestCase):
         email_id2.save()
         developer2 = Developer(name=dev_name2, email=email_id2)
 
-        self.assertEqual(self.persistence_delegate.developer_exists(developer1.get("email")), True)
+        self.assertEqual(self.persistence_delegate.developer_exists(developer1), True)
         self.assertEqual(self.persistence_delegate.developer_exists\
-                             (developer2.get("email").get("email")), False)
+                             (developer2), False)
 #+END_SRC
 
 
@@ -580,29 +580,25 @@ class TestPersistenceDelegate(TestCase):
 #+NAME: persistence_add_developer
 #+BEGIN_SRC python
     def add_developer(self, developer):
-        if self.developer_exists(developer):
-            developer = self.get_developer(email=developer.get('email').get('email'))
-        else:
-            developer.save()
-
+        developer.save()
         return developer
 
 #+END_SRC
 **** Tests
 
-#+NAME: test_persistence_add_dev
+#+NAME: test_persistence_add_developer
 #+BEGIN_SRC python
     def test_add_developer(self):
          print "test_add_dev"
          dev_name = Name(name="Prof. S. Dharmaraja")
-         email_id = Email(email="dharmar@maths.iitd.ac.in")
-         dev = Dev(dev_name=dev_name, email_id=email_id)
+         dev_name.save()
+         email = Email(email="dharmar@maths.iitd.ac.in")
+         email.save()
+         dev = Developer(name=dev_name, email=email)
          dev = self.persistence_delegate.add_developer(dev)
         
-         self.assertEqual(self.persistence_delegate.dev_exists(email.id),
+         self.assertEqual(self.persistence_delegate.developer_exists(dev),
                           True)
-         self.assertEqual(self.persistence_delegate.dev_exists(email.id),
-                          False)
 
 #+END_SRC
 
@@ -1345,6 +1341,7 @@ class TestPersistenceDelegate(TestCase):
 
 
 ***  Add discipline to the system
+
 
 ***  Get an object
     A generic function to find an object of type =cls= matching a given a criteria
