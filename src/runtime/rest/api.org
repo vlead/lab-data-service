@@ -1437,46 +1437,11 @@ class TestAddExperiment(TestCase):
  #+END_SRC
    
 
-** Get and Add Section
+** Get Section
 *** API Design
-**** Add sections
-  :PROPERTIES:
-  :CUSTOM_ID: add_sections
-  :END:    
-  - URL :: /sections
-
-  - Method :: POST
-
-  - URL Params ::  None
-
-  - Payload :: 
-#+BEGIN_EXAMPLE
-
-{
-  "key": "<key>",
-  "name" : "Theory"
-}
-
-#+END_EXAMPLE	       
-
-  - Success Response
-    + Status_Code: 200
-    + Content: 
-              {"status" : "successfully added records"}
-
-  - Error Response:
-    + Contents :
-                {"status" : "error"}
-    
-  - Example:
-#+BEGIN_EXAMPLE
-http://localhost:5000/save_lab_spec_data
-#+END_EXAMPLE 
-
-
 **** Get all Sections
   :PROPERTIES:
-  :CUSTOM_ID: get_all_sections
+  :CUSTOM_ID: api_get_all_sections
   :END:    
   - URL :: /sections
 
@@ -1521,13 +1486,12 @@ http://localhost:5000/save_lab_spec_data
 http://localhost:5000/sections
 #+END_EXAMPLE
     
-
 *** Implementation 
-REST API to get and add Section.
-#+NAME: get_and_add_section
+REST API to get Section.
+#+NAME: get_section
 #+BEGIN_SRC python
-@api.route('/sections', methods=['GET', 'POST'])
-def get_and_add_section():
+@api.route('/sections', methods=['GET'])
+def get_section():
     if request.method == 'GET':
         try:
             sections = SystemInterface.get_sections()
@@ -1542,7 +1506,85 @@ def get_and_add_section():
 
         except Exception as err:
             abort(500, 'error: %s' % str(err))
-       
+            
+#+END_SRC
+
+*** Test Cases
+**** TestGetSection
+ #+NAME: test_get_Section
+ #+BEGIN_SRC python
+class TestGetSection(TestCase):
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_get_section(self):
+        print "test_get_section_in_rest"
+
+        payload = {'name': 'Theory',
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/section", data=json.dumps(payload),
+                                 headers=headers)
+
+        response = self.client.get("/sections", headers=headers)
+        self.assertEqual(response.status_code, 200)
+
+ #+END_SRC
+   
+
+** Add Section
+*** API Design
+**** Add sections
+  :PROPERTIES:
+  :CUSTOM_ID: api_add_sections
+  :END:    
+  - URL :: /sections
+
+  - Method :: POST
+
+  - URL Params ::  None
+
+  - Payload :: 
+#+BEGIN_EXAMPLE
+
+{
+  "key": "<key>",
+  "name" : "Theory"
+}
+
+#+END_EXAMPLE	       
+
+  - Success Response
+    + Status_Code: 200
+    + Content: 
+              {"status" : "successfully added records"}
+
+  - Error Response:
+    + Contents :
+                {"status" : "error"}
+    
+  - Example:
+#+BEGIN_EXAMPLE
+http://localhost:5000/save_lab_spec_data
+#+END_EXAMPLE 
+
+*** Implementation 
+REST API to  add Section.
+#+NAME: add_section
+#+BEGIN_SRC python
+@api.route('/sections', methods=['POST'])
+def add_section():
     if request.method == 'POST':
         if request.is_json:
             data_json = json.dumps(request.get_json())
@@ -1592,38 +1634,6 @@ class TestAddSection(TestCase):
         response = self.client.post("/sections", data=json.dumps(payload),
                                  headers=headers)
 
-        self.assertEqual(response.status_code, 200)
-
- #+END_SRC
-   
-**** TestGetSection
- #+NAME: test_get_Section
- #+BEGIN_SRC python
-class TestGetSection(TestCase):
-    TESTING = True
-    def create_app(self):
-        app = create_app(config)
-        return app
-
-    def setUp(self):
-        db.create_all()
-
-    def tearDown(self):
-        db.session.remove()
-        db.drop_all()
-
-    def test_get_section(self):
-        print "test_get_section_in_rest"
-
-        payload = {'name': 'Theory',
-                   'key': KEY}
-
-        headers = {'Content-Type': 'application/json'}
-
-        response = self.client.post("/section", data=json.dumps(payload),
-                                 headers=headers)
-
-        response = self.client.get("/sections", headers=headers)
         self.assertEqual(response.status_code, 200)
 
  #+END_SRC
@@ -3610,7 +3620,8 @@ if __name__ == '__main__':
 <<add_discipline>>
 <<update_and_delete_experiment>>
 <<update_and_delete_section>>
-<<get_and_add_section>>
+<<get_section>>
+<<add_section>>
 <<update_and_delete_institute>>
 <<update_and_delete_discipline>>
 <<get_institute>>
