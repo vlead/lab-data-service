@@ -368,6 +368,35 @@ class AddDiscipline():
 #+end_src
 
 
+** =AddHostingInfo=
+#+NAME: class_add_hostinginfo
+#+begin_src python
+class AddHostingInfo():
+    arg_types = {"hostinginfo": is_hostinginfo, "session": is_session}
+    arity_and_type_checks_needed = True
+
+    @staticmethod
+    def auth_check(args):
+        session = args['session']
+        if not System.is_session_valid(session):
+            raise NotAuthorizedError("Not Authorized to perform this action")
+
+    @staticmethod
+    def state_check(args):
+        hostinginfo = args["hostinginfo"]
+        if System.delegate.hostinginfo_exists(hostinginfo):
+            raise StateError("hostinginfo %s already exists in System"
+                                 % hostinginfo.to_client())
+
+    @staticmethod
+    def action(args):
+        hostinginfo = args["hostinginfo"]
+        hostinginfo = System.delegate.add_hostinginfo(hostinginfo)
+        return hostinginfo
+
+#+end_src
+
+
 ** =AddName=
 #+NAME: class_add_name
 #+begin_src python
@@ -1071,6 +1100,35 @@ class GetDiscipline():
 
 
 
+** =GetHostingInfo=
+#+NAME: class_get_hostinginfo
+#+begin_src python
+class GetHostingInfo():
+    arg_types = {"hosted_url": is_url}
+    arity_and_type_checks_needed = True
+
+    @staticmethod
+    def auth_check(args):
+        pass
+
+    @staticmethod
+    def state_check(args):
+        hosted_url = args['hosted_url']
+        hostinginfo = System.delegate.get_hostinginfo(hosted_url=hosted_url)
+        if not System.delegate.hostinginfo_exists(hostinginfo):
+            raise StateError("hostinginfo %s does not exists in System"
+                                 % hostinginfo.to_client())
+        
+    @staticmethod
+    def action(args):
+        hosted_url = args["hosted_url"]
+        hostinginfo = System.delegate.get_hostinginfo(hosted_url=hosted_url)
+        return hostinginfo
+
+#+end_src
+
+
+
 ** =AddLabsToInstitute=
 #+NAME: class_add_labs_to_institute
 #+begin_src python
@@ -1186,7 +1244,9 @@ ops_table = {'add_lab' : AddLab,
              'get_experiment' : GetExperiment,
              'add_discipline' : AddDiscipline,
              'update_discipline' : UpdateDiscipline,
-             'delete_discipline' : DeleteDiscipline
+             'delete_discipline' : DeleteDiscipline,
+             'add_hostinginfo' : AddHostingInfo,
+             'get_hostinginfo': GetHostingInfo
              }
 
  #+END_SRC   
@@ -1204,7 +1264,8 @@ from runtime.exceptions.custom_exceptions import *
 from runtime.objects.entities import is_str, is_lab, are_labs,\
      is_date, is_session, is_section, is_int, is_experiment,\
      are_experiments, are_sections, is_name, is_email, is_developer,\
-     is_institute, are_institutes, is_discipline, are_disciplines
+     is_institute, are_institutes, is_discipline, are_disciplines,\
+     is_url, is_hostinginfo
 
 from runtime.utils.type_utils import is_str_or_none
 from runtime.config.system_config import KEY
@@ -1280,6 +1341,8 @@ if __name__ == '__main__':
 <<class_get_experiment>>
 <<class_get_institute>>
 <<class_get_discipline>>
+<<class_add_hostinginfo>>
+<<class_get_hostinginfo>>
 <<ops_table>>
 
 #+end_src

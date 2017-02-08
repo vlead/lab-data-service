@@ -28,7 +28,8 @@ class PersistenceDelegate():
                          'experiment' : Experiment,
                          'section' : Section,
                          'institute' : Institute,
-                         'discipline' : Discipline
+                         'discipline' : Discipline,
+                         'hostinginfo': HostingInfo
                         }
 
 #+END_SRC
@@ -274,6 +275,38 @@ class TestPersistenceDelegate(TestCase):
 #+END_SRC
    
 
+*** Check if =hostinginfo= already exists
+    This function checks if an hostinginfo is already in the hostinginfo-set of the =System=.
+#+NAME: persistence_hostinginfo_exists
+#+BEGIN_SRC python
+    def hostinginfo_exists(self, hostinginfo):
+        hosted_url = hostinginfo.get("hosted_url")
+        return hostinginfo == self.get_hostinginfo(hosted_url=hosted_url)
+        
+#+END_SRC
+
+**** Tests
+#+NAME: test_persistence_hostinginfo_exists
+#+BEGIN_SRC python
+    def test_hostinginfo_exists(self):
+        print "test_hostinginfo_exists"
+        hosting_status1 = "hosted"
+        hosted_url1 = "http://cse14-iiith.vlabs.ac.in"
+        hostinginfo1 = HostingInfo(hosting_status=hosting_status1, hosted_url=hosted_url1)
+        host1 = self.persistence_delegate.add_hostinginfo(hostinginfo1)
+
+        hosting_status2 = "not hosted"
+        hosted_url2 = "http://iitkgp.vlab.co.in/"
+        hostinginfo2 = HostingInfo(hosting_status=hosting_status2, hosted_url=hosted_url2)
+        
+        self.assertEqual(self.persistence_delegate.hostinginfo_exists\
+                             (hostinginfo1), True)
+        self.assertEqual(self.persistence_delegate.hostinginfo_exists\
+                             (hostinginfo2), False)
+
+#+END_SRC
+
+
 ***  Add lab to the system
     This function adds lab to the system.
 #+NAME: persistence_add_lab
@@ -507,6 +540,40 @@ class TestPersistenceDelegate(TestCase):
 #+END_SRC
 
 
+***  Add hostinginfo to the system
+
+    This function adds hostinginfo to the system.
+#+NAME: persistence_add_hostinginfo
+#+BEGIN_SRC python
+    def add_hostinginfo(self, hostinginfo):
+        hostinginfo.save()
+        return hostinginfo
+
+#+END_SRC
+**** Tests
+#+NAME: test_persistence_add_hostinginfo
+#+BEGIN_SRC python
+    def test_add_hostinginfo(self):
+         print "test_add_hostinginfo"
+         hosting_status1 = "hosted"
+         hosted_url1 = "http://cse14-iiith.vlabs.ac.in"
+         hostinginfo1 = HostingInfo(hosting_status=hosting_status1, hosted_url=hosted_url1)
+         hostinginfo1 = self.persistence_delegate.add_hostinginfo(hostinginfo1)
+         
+         hosting_status2 = "not hosted"
+         hosted_url2 = "http://iitkgp.vlab.co.in/"
+         hostinginfo2 = HostingInfo(hosting_status=hosting_status2, hosted_url=hosted_url2)
+
+         hostinginfo = HostingInfo.get_by_id(1)
+
+         self.assertEqual(self.persistence_delegate.hostinginfo_exists\
+                             (hostinginfo1), True)
+         self.assertEqual(self.persistence_delegate.hostinginfo_exists\
+                             (hostinginfo2), False)
+        
+#+END_SRC
+
+
 ***  Update lab 
     This function updates existing lab.
 #+NAME: persistence_update_lab
@@ -697,6 +764,39 @@ class TestPersistenceDelegate(TestCase):
 
          self.assertEqual(institute.get("inst_name"), inst_name1)
          self.assertEqual(institute.get("inst_id"), inst_id)
+
+#+END_SRC
+
+
+***  Update HostingInfo 
+    This function updates existing hostinginfo.
+#+NAME: persistence_update_hostinginfo
+#+BEGIN_SRC python
+    def update_hostinginfo(self, hostinginfo, hosting_status):
+        hostinginfo.set(hosting_status=hosting_status)
+        hostinginfo.save()
+        return hostinginfo
+
+#+END_SRC
+
+**** Tests
+#+NAME: test_persistence_update_hostinginfo
+#+BEGIN_SRC python
+    def test_update_hostinginfo(self):
+         print "test_update_hostinginfo"
+         hosting_status = "hosted"
+         hosted_url = "http://cse14-iiith.vlabs.ac.in"
+         hostinginfo = HostingInfo(hosting_status=hosting_status, hosted_url=hosted_url)
+         hostinginfo1 = self.persistence_delegate.add_hostinginfo(hostinginfo)
+
+         hosting_status1 = "not hosted"
+         hostinginfo2 = self.persistence_delegate.update_hostinginfo\
+           (hostinginfo1, hosting_status1),
+
+         hostinginfo = HostingInfo.get_by_id(1)
+
+         self.assertEqual(hostinginfo.get("hosting_status"), hosting_status1)
+         self.assertEqual(hostinginfo.get("hosted_url"), hosted_url)
 
 #+END_SRC
 
@@ -930,6 +1030,49 @@ class TestPersistenceDelegate(TestCase):
          self.persistence_delegate.delete_institute("IITD")
 
          self.assertEqual(len(Institute.get_all()), 1)
+
+#+END_SRC
+
+
+***  Delete HostingInfo 
+    This function deletes existing hostinginfo.
+#+NAME: persistence_delete_hostinginfo
+#+BEGIN_SRC python
+    def delete_hostinginfo(self, hosted_url):
+        record = self.get_hostinginfo(hosted_url=hosted_url)
+        if not record:
+            abort(404, 'No HostingInfo with id %s' % (hosted_url))
+        else:
+            try:
+                record.delete()
+                #db.session.delete(record)
+                #db.session.commit()
+            except Exception, e:
+                print e
+                abort(500, str(e))
+
+        return hosted_url
+
+#+END_SRC
+
+**** Tests
+#+NAME: test_persistence_delete_hostinginfo
+#+BEGIN_SRC python
+    def test_delete_hostinginfo(self):
+         print "test_delete_hostinginfo"
+         hosting_status = "hosted"
+         hosted_url = "http://cse14-iiith.vlabs.ac.in"
+         hostinginfo = HostingInfo(hosting_status=hosting_status, hosted_url=hosted_url)
+         hostinginfo1 = self.persistence_delegate.add_hostinginfo(hostinginfo)
+
+         hosting_status1 = "not hosted"
+         hosted_url1 = "http://iitkgp.vlab.co.in/"
+         hostinginfo1 = HostingInfo(hosting_status=hosting_status1, hosted_url=hosted_url1)
+         hostinginfo2 = self.persistence_delegate.add_hostinginfo(hostinginfo1)
+
+         self.persistence_delegate.delete_hostinginfo("http://cse14-iiith.vlabs.ac.in")
+
+         self.assertEqual(len(HostingInfo.get_all()), 1)
 
 #+END_SRC
 
@@ -1456,6 +1599,38 @@ class TestPersistenceDelegate(TestCase):
 #+END_SRC
 
 
+***  Get HostingInfo
+    This function returns hostinginfo if present in the database. If the hostinginfo is
+    not present, =None= type is returned.
+#+NAME: persistence_get_hostinginfo
+#+BEGIN_SRC python
+    def get_hostinginfo(self, **kwargs):
+        return self.get_object(HostingInfo, **kwargs)
+
+#+END_SRC
+**** Tests
+
+#+NAME: test_persistence_get_hostinginfo
+#+BEGIN_SRC python
+    def test_get_hostinginfo(self):
+         print "test_get_hostinginfo"
+
+         hosting_status = "hosted"
+         hosted_url = "http://cse14-iiith.vlabs.ac.in"
+         host = HostingInfo(hosting_status=hosting_status, hosted_url=hosted_url)
+         host.save()
+         host_obj = self.persistence_delegate.get_hostinginfo(hosting_status=
+                                                host.get("hosting_status"))
+
+         host_obj1 = self.persistence_delegate.get_hostinginfo(hosted_url=
+                                                host.get("hosted_url"))
+
+         self.assertEqual(host_obj.get("hosting_status"), host.get("hosting_status"))
+         self.assertEqual(host_obj1.get("hosted_url"), host.get("hosted_url"))
+
+#+END_SRC
+
+
 ***  Get Lab By ID
     This function returns a lab object by an ID if present in database,
     otherwise, =None= type is returned.
@@ -1675,6 +1850,7 @@ if __name__ == '__main__':
 <<persistence_get_experiment>>
 <<persistence_get_institute>>
 <<persistence_get_discipline>>
+<<persistence_get_hostinginfo>>
 
 <<persistence_discipline_exists>>
 <<persistence_add_discipline>>
@@ -1688,21 +1864,25 @@ if __name__ == '__main__':
 <<persistence_section_exists>>
 <<persistence_experiment_exists>>
 <<persistence_institute_exists>>
+<<persistence_hostinginfo_exists>>
 
 <<persistence_add_lab>>
 <<persistence_add_experiment>>
 <<persistence_add_section>>
 <<persistence_add_institute>>
+<<persistence_add_hostinginfo>>
 
 <<persistence_delete_lab>>
 <<persistence_delete_section>>
 <<persistence_delete_experiment>>
 <<persistence_delete_institute>>
+<<persistence_delete_hostinginfo>>
 
 <<persistence_update_lab>>
 <<persistence_update_section>>
 <<persistence_update_experiment>>
 <<persistence_update_institute>>
+<<persistence_update_hostinginfo>>
 
 <<persistence_get_lab_by_id>>
 <<persistence_get_experiment_by_id>>
@@ -1725,6 +1905,7 @@ if __name__ == '__main__':
 <<test_persistence_get_experiment>>
 <<test_persistence_get_institute>>
 <<test_persistence_get_discipline>>
+<<test_persistence_get_hostinginfo>>
 
 <<test_persistence_get_labs>>
 <<test_persistence_get_institutes>>
@@ -1734,24 +1915,28 @@ if __name__ == '__main__':
 <<test_persistence_section_exists>>
 <<test_persistence_institute_exists>>
 <<test_persistence_discipline_exists>>
+<<test_persistence_hostinginfo_exists>>
 
 <<test_persistence_add_lab>>
 <<test_persistence_add_section>>
 <<test_persistence_add_experiment>>
 <<test_persistence_add_institute>>
 <<test_persistence_add_discipline>>
+<<test_persistence_add_hostinginfo>>
 
 <<test_persistence_delete_lab>>
 <<test_persistence_delete_section>>
 <<test_persistence_delete_experiment>>
 <<test_persistence_delete_institute>>
 <<test_persistence_delete_discipline>>
+<<test_persistence_delete_hostinginfo>>
 
 <<test_persistence_update_lab>>
 <<test_persistence_update_experiment>>
 <<test_persistence_update_section>>
 <<test_persistence_update_institute>>
-<<test_persistence_udpate_discipline>>
+<<test_persistence_update_discipline>>
+<<test_persistence_update_hostinginfo>>
 
 <<test_persistence_get_lab_by_id>>
 <<test_persistence_get_experiment_by_id>>
