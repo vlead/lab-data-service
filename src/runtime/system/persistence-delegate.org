@@ -768,6 +768,39 @@ class TestPersistenceDelegate(TestCase):
 #+END_SRC
 
 
+***  Update HostingInfo 
+    This function updates existing hostinginfo.
+#+NAME: persistence_update_hostinginfo
+#+BEGIN_SRC python
+    def update_hostinginfo(self, hostinginfo, hosting_status):
+        hostinginfo.set(hosting_status=hosting_status)
+        hostinginfo.save()
+        return hostinginfo
+
+#+END_SRC
+
+**** Tests
+#+NAME: test_persistence_update_hostinginfo
+#+BEGIN_SRC python
+    def test_update_hostinginfo(self):
+         print "test_update_hostinginfo"
+         hosting_status = "hosted"
+         hosted_url = "http://cse14-iiith.vlabs.ac.in"
+         hostinginfo = HostingInfo(hosting_status=hosting_status, hosted_url=hosted_url)
+         hostinginfo1 = self.persistence_delegate.add_hostinginfo(hostinginfo)
+
+         hosting_status1 = "not hosted"
+         hostinginfo2 = self.persistence_delegate.update_hostinginfo\
+           (hostinginfo1, hosting_status1),
+
+         hostinginfo = HostingInfo.get_by_id(1)
+
+         self.assertEqual(hostinginfo.get("hosting_status"), hosting_status1)
+         self.assertEqual(hostinginfo.get("hosted_url"), hosted_url)
+
+#+END_SRC
+
+
 ***  Delete lab 
     This function delete existing lab.
 #+NAME: persistence_delete_lab
@@ -997,6 +1030,49 @@ class TestPersistenceDelegate(TestCase):
          self.persistence_delegate.delete_institute("IITD")
 
          self.assertEqual(len(Institute.get_all()), 1)
+
+#+END_SRC
+
+
+***  Delete HostingInfo 
+    This function deletes existing hostinginfo.
+#+NAME: persistence_delete_hostinginfo
+#+BEGIN_SRC python
+    def delete_hostinginfo(self, hosted_url):
+        record = self.get_hostinginfo(hosted_url=hosted_url)
+        if not record:
+            abort(404, 'No HostingInfo with id %s' % (hosted_url))
+        else:
+            try:
+                record.delete()
+                #db.session.delete(record)
+                #db.session.commit()
+            except Exception, e:
+                print e
+                abort(500, str(e))
+
+        return hosted_url
+
+#+END_SRC
+
+**** Tests
+#+NAME: test_persistence_delete_hostinginfo
+#+BEGIN_SRC python
+    def test_delete_hostinginfo(self):
+         print "test_delete_hostinginfo"
+         hosting_status = "hosted"
+         hosted_url = "http://cse14-iiith.vlabs.ac.in"
+         hostinginfo = HostingInfo(hosting_status=hosting_status, hosted_url=hosted_url)
+         hostinginfo1 = self.persistence_delegate.add_hostinginfo(hostinginfo)
+
+         hosting_status1 = "not hosted"
+         hosted_url1 = "http://iitkgp.vlab.co.in/"
+         hostinginfo1 = HostingInfo(hosting_status=hosting_status1, hosted_url=hosted_url1)
+         hostinginfo2 = self.persistence_delegate.add_hostinginfo(hostinginfo1)
+
+         self.persistence_delegate.delete_hostinginfo("http://cse14-iiith.vlabs.ac.in")
+
+         self.assertEqual(len(HostingInfo.get_all()), 1)
 
 #+END_SRC
 
@@ -1554,6 +1630,7 @@ class TestPersistenceDelegate(TestCase):
 
 #+END_SRC
 
+
 ***  Get Lab By ID
     This function returns a lab object by an ID if present in database,
     otherwise, =None= type is returned.
@@ -1799,11 +1876,13 @@ if __name__ == '__main__':
 <<persistence_delete_section>>
 <<persistence_delete_experiment>>
 <<persistence_delete_institute>>
+<<persistence_delete_hostinginfo>>
 
 <<persistence_update_lab>>
 <<persistence_update_section>>
 <<persistence_update_experiment>>
 <<persistence_update_institute>>
+<<persistence_update_hostinginfo>>
 
 <<persistence_get_lab_by_id>>
 <<persistence_get_experiment_by_id>>
@@ -1850,12 +1929,14 @@ if __name__ == '__main__':
 <<test_persistence_delete_experiment>>
 <<test_persistence_delete_institute>>
 <<test_persistence_delete_discipline>>
+<<test_persistence_delete_hostinginfo>>
 
 <<test_persistence_update_lab>>
 <<test_persistence_update_experiment>>
 <<test_persistence_update_section>>
 <<test_persistence_update_institute>>
-<<test_persistence_udpate_discipline>>
+<<test_persistence_update_discipline>>
+<<test_persistence_update_hostinginfo>>
 
 <<test_persistence_get_lab_by_id>>
 <<test_persistence_get_experiment_by_id>>
