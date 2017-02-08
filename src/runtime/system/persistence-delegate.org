@@ -580,6 +580,11 @@ class TestPersistenceDelegate(TestCase):
 #+NAME: persistence_add_developer
 #+BEGIN_SRC python
     def add_developer(self, developer):
+        name = developer.get("name")
+        email = developer.get("email")
+        if not self.name_exists(name.get("name")):
+            name.save()
+        email.save()
         developer.save()
         return developer
 
@@ -589,11 +594,33 @@ class TestPersistenceDelegate(TestCase):
 #+NAME: test_persistence_add_developer
 #+BEGIN_SRC python
     def test_add_developer(self):
-         print "test_add_dev"
+         print "test_add_developer"
          dev_name = Name(name="Prof. S. Dharmaraja")
          dev_name.save()
          email = Email(email="dharmar@maths.iitd.ac.in")
          email.save()
+         dev = Developer(name=dev_name, email=email)
+         dev = self.persistence_delegate.add_developer(dev)
+        
+         self.assertEqual(self.persistence_delegate.developer_exists(dev),
+                          True)
+
+    def test_add_developer_without_saving_name(self):
+         print "test_add_developer_without_saving_name"
+         dev_name = Name(name="Prof. S. Dharmaraja")
+         email = Email(email="dharmar@maths.iitd.ac.in")
+         email.save()
+         dev = Developer(name=dev_name, email=email)
+         dev = self.persistence_delegate.add_developer(dev)
+        
+         self.assertEqual(self.persistence_delegate.developer_exists(dev),
+                          True)
+
+    def test_add_developer_without_saving_email(self):
+         print "test_add_developer_without_saving_email"
+         dev_name = Name(name="Prof. S. Dharmaraja")
+         dev_name.save()
+         email = Email(email="dharmar@maths.iitd.ac.in")
          dev = Developer(name=dev_name, email=email)
          dev = self.persistence_delegate.add_developer(dev)
         
@@ -1126,8 +1153,10 @@ class TestPersistenceDelegate(TestCase):
          print "test_delete_developer"
          dev_name = Name(name="Prof. S. Dharmaraja")
          dev_name.save()
+
          email_id = Email(email="dharmar@maths.iitd.ac.in")
          email_id.save()
+
          dev = Developer(name=dev_name, email=email_id)
          dev1 = self.persistence_delegate.add_developer(dev)
 
@@ -1141,6 +1170,8 @@ class TestPersistenceDelegate(TestCase):
          self.persistence_delegate.delete_developer(dev3.get("email"))
 
          self.assertEqual(len(Developer.get_all()), 1)
+         self.assertEqual(len(Email.get_all()), 1)
+
 
 #+END_SRC
 
