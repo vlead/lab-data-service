@@ -499,6 +499,54 @@ class TestPersistentDeveloper(TestCase):
 #+END_SRC
 
 
+* HostingInfo
+
+  =HostingInfo= is a class with attributes =hosting_status= and =hosted_url=.
+
+#+NAME: class_HostingInfo
+#+begin_src python
+args = {"__tablename__": "hostinginfo",
+        "id": db.Column(db.Integer, primary_key=True),
+        "hosting_status": db.Column(db.String(255), unique=False, nullable=True),
+        "hosted_url": db.Column(db.String(255), unique=True, nullable=False)
+       }
+
+HostingInfo = ClassPersistenceTemplate.mk_persistent(HostingInfo, ['hosted_url'], **args)
+
+#+end_src
+
+** Test HostingInfo
+#+NAME: class_TestHostingInfo
+#+BEGIN_SRC python
+class TestPersistenceHostingInfo(TestCase):
+    TESTING = True
+
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_create_hostinginfo(self):
+        print "test_persistent_hostinginfo"
+        hosting_status = "hosted"
+        hosted_url = "http://cse14-iiith.vlabs.ac.in"
+        host = HostingInfo(hosting_status=hosting_status, hosted_url=hosted_url)
+        host.save()
+        hostinginfo = HostingInfo.get_by_id(1)
+        hostinginfo1 = HostingInfo.get_by_id(2)
+        self.assertEqual(hostinginfo.get("hosting_status"), hosting_status)
+        self.assertEqual(hostinginfo.get("hosted_url"), hosted_url)
+        self.assertEqual(hostinginfo1,None)
+
+#+END_SRC
+
+
 * Infra                                                         :boilerplate:
 ** sources
 *** Imports 
@@ -554,6 +602,7 @@ if __name__ == '__main__':
 <<class_Name>>
 <<class_Email>>
 <<class_Developer>>
+<<class_HostingInfo>>
 #+end_src
 
 
@@ -568,5 +617,6 @@ if __name__ == '__main__':
 <<class_TestEmail>>
 <<class_TestDeveloper>>
 <<class_TestInstitute>>
+<<class_TestHostingInfo>>
 <<run_test_cases>>
 #+end_src

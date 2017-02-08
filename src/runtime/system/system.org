@@ -430,7 +430,8 @@ class AddEmail():
 #+NAME: class_add_developer
 #+begin_src python
 class AddDeveloper():
-    arg_types = {"developer": is_developer, "name": is_name, "email": is_email, "session": is_session}
+    arg_types = {"developer": is_developer, "name": is_name,
+                     "email": is_email, "session": is_session}
     arity_and_type_checks_needed = True
 
     @staticmethod
@@ -472,7 +473,10 @@ class UpdateLab():
 
     @staticmethod
     def state_check(args):
-        pass
+        lab = args["lab"]
+        if not System.delegate.lab_exists(lab):
+            raise StateError("lab %s does not exists in System"
+                                 % lab.to_client())
 
     @staticmethod
     def action(args):
@@ -503,8 +507,11 @@ class UpdateExperiment():
 
     @staticmethod
     def state_check(args):
-        pass
-
+        experiment = args['experiment']
+        if not System.delegate.experiment_exists(experiment):
+            raise StateError("experiment %s does not exists in System"
+                                 % experiment.to_client())
+        
     @staticmethod
     def action(args):
         experiment = args["experiment"]
@@ -532,8 +539,11 @@ class UpdateSection():
 
     @staticmethod
     def state_check(args):
-        pass
-
+        section = args['section']
+        if not System.delegate.section_exists(section):
+            raise StateError("section %s does not exists in System"
+                                 % section.to_client())
+        
     @staticmethod
     def action(args):
         section = args["section"]
@@ -564,8 +574,11 @@ class UpdateDiscipline():
 
     @staticmethod
     def state_check(args):
-        pass
-
+        discipline = args['discipline']
+        if not System.delegate.discipline_exists(discipline):
+            raise StateError("discipline %s does not exists in System"
+                                 % discipline.to_client())
+        
     @staticmethod
     def action(args):
         discipline = args["discipline"]
@@ -592,7 +605,11 @@ class UpdateInstitute():
 
     @staticmethod
     def state_check(args):
-        pass
+        institute = args['institute']
+        if not System.delegate.institute_exists(institute):
+            raise StateError("institute %s does not exists in System"
+                                 % institute.to_client())
+
 
     @staticmethod
     def action(args):
@@ -608,7 +625,7 @@ class UpdateInstitute():
 #+NAME: class_update_name
 #+begin_src python
 class UpdateName():
-    arg_types = {"name": is_name}
+    arg_types = {"name": is_name, "session": is_session}
     arity_and_type_checks_needed = True
 
     @staticmethod
@@ -619,7 +636,10 @@ class UpdateName():
 
     @staticmethod
     def state_check(args):
-        pass
+        name = args['name']
+        if not System.delegate.name_exists(name):
+            raise StateError("name %s does not exists in System"
+                                 % name.to_client())
 
     @staticmethod
     def action(args):
@@ -639,7 +659,7 @@ class UpdateName():
 #+NAME: class_update_email
 #+begin_src python
 class UpdateEmail():
-    arg_types = {"email": is_email}
+    arg_types = {"email": is_email, "session": is_session}
     arity_and_type_checks_needed = True
 
     @staticmethod
@@ -650,7 +670,10 @@ class UpdateEmail():
 
     @staticmethod
     def state_check(args):
-        pass
+        email = args['email']
+        if not System.delegate.email_exists(email):
+            raise StateError("email %s does not exists in System"
+                                 % email.to_client())
 
     @staticmethod
     def action(args):
@@ -671,7 +694,7 @@ class UpdateEmail():
 #+begin_src python
 class UpdateDeveloper():
     arg_types = {"developer": is_developer, "name": is_name,
-                     "email": is_email}
+                     "email": is_email, "session": is_session}
     arity_and_type_checks_needed = True
 
     @staticmethod
@@ -682,7 +705,10 @@ class UpdateDeveloper():
 
     @staticmethod
     def state_check(args):
-        pass
+        developer = args["developer"]
+        if not System.delegate.developer_exists(developer):
+            raise StateError("developer %s does not exists in System"
+                                 % developer.to_client())
 
     @staticmethod
     def action(args):
@@ -713,7 +739,11 @@ class DeleteLab():
 
     @staticmethod
     def state_check(args):
-        pass
+        lab_id = args['lab_id']
+        lab = System.delegate.get_lab(lab_id=lab_id)
+        if not System.delegate.lab_exists(lab):
+            raise StateError("lab %s does not exists in System"
+                                 % lab.to_client())
 
     @staticmethod
     def action(args):
@@ -739,7 +769,11 @@ class DeleteExperiment():
 
     @staticmethod
     def state_check(args):
-        pass
+        exp_id = args['exp_id']
+        experiment = System.delegate.get_experiment(exp_id=exp_id)
+        if not System.delegate.experiment_exists(experiment):
+            raise StateError("experiment %s does not exists in System"
+                                 % experiment.to_client())
 
     @staticmethod
     def action(args):
@@ -765,7 +799,11 @@ class DeleteDiscipline():
 
     @staticmethod
     def state_check(args):
-        pass
+        dis_id = args['dis_id']
+        discipline = System.delegate.get_discipline(dis_id=dis_id)    
+        if not System.delegate.discipline_exists(discipline):
+            raise StateError("discipline %s does not exists in System"
+                                 % discipline.to_client())
 
     @staticmethod
     def action(args):
@@ -792,7 +830,11 @@ class DeleteInstitute():
 
     @staticmethod
     def state_check(args):
-        pass
+        inst_id = args['inst_id']
+        institute = System.delegate.get_institute(inst_id=inst_id)    
+        if not System.delegate.institute_exists(institute):
+            raise StateError("institute %s does not exists in System"
+                                 % institute.to_client())
 
     @staticmethod
     def action(args):
@@ -844,7 +886,10 @@ class DeleteName():
 
     @staticmethod
     def state_check(args):
-        pass
+        name = args['name']
+        if not System.delegate.name_exists(name):
+            raise StateError("name %s does not exists in System"
+                                 % name.to_client())
 
     @staticmethod
     def action(args):
@@ -870,7 +915,10 @@ class DeleteEmail():
 
     @staticmethod
     def state_check(args):
-        pass
+        email = args['email']
+        if not System.delegate.email_exists(email):
+            raise StateError("email %s does not exists in System"
+                                 % email.to_client())
 
     @staticmethod
     def action(args):
@@ -896,7 +944,10 @@ class DeleteDeveloper():
 
     @staticmethod
     def state_check(args):
-        pass
+        developer = args["developer"]
+        if not System.delegate.developer_exists(developer):
+            raise StateError("developer %s does not exists in System"
+                                 % developer.to_client())
 
     @staticmethod
     def action(args):
@@ -911,22 +962,20 @@ class DeleteDeveloper():
 #+NAME: class_get_lab
 #+begin_src python
 class GetLab():
-    arg_types = {"lab_id": is_str, "session": is_session}
-
+    arg_types = {"lab_id": is_str}
     arity_and_type_checks_needed = True
 
     @staticmethod
     def auth_check(args):
-        session = args['session']
-        current_app.logger.debug("checking authorization")
-        if not System.is_session_valid(session):
-            current_app.logger.debug("authorization is failed")
-            raise NotAuthorizedError("Not Authorized to perform this action")
-        current_app.logger.debug("authorization check is done")
+        pass
 
     @staticmethod
     def state_check(args):
-        pass
+        lab_id = args['lab_id']
+        lab = System.delegate.get_lab(lab_id=lab_id)
+        if not System.delegate.lab_exists(lab):
+            raise StateError("lab %s does not exists in System"
+                                 % lab.to_client())
 
     @staticmethod
     def action(args):
@@ -941,21 +990,19 @@ class GetLab():
 #+NAME: class_get_experiment
 #+begin_src python
 class GetExperiment():
-    arg_types = {"exp_id": is_str, "session": is_session}
+    arg_types = {"exp_id": is_str}
     arity_and_type_checks_needed = True
 
     @staticmethod
     def auth_check(args):
-        session = args['session']
-        current_app.logger.debug("checking authorization")
-        if not System.is_session_valid(session):
-            current_app.logger.debug("authorization is failed")
-            raise NotAuthorizedError("Not Authorized to perform this action")
-        current_app.logger.debug("authorization check is done")
-
+        pass
     @staticmethod
     def state_check(args):
-        pass
+        exp_id = args['exp_id']
+        exp = System.delegate.get_experiment(exp_id=exp_id)
+        if not System.delegate.experiment_exists(exp):
+            raise StateError("experiment %s does not exists in System"
+                                 % experiment.to_client())
 
     @staticmethod
     def action(args):
@@ -970,22 +1017,21 @@ class GetExperiment():
 #+NAME: class_get_institute
 #+begin_src python
 class GetInstitute():
-    arg_types = {"inst_id": is_str, "session": is_session}
+    arg_types = {"inst_id": is_str}
     arity_and_type_checks_needed = True
 
     @staticmethod
     def auth_check(args):
-        session = args['session']
-        current_app.logger.debug("checking authorization")
-        if not System.is_session_valid(session):
-            current_app.logger.debug("authorization is failed")
-            raise NotAuthorizedError("Not Authorized to perform this action")
-        current_app.logger.debug("authorization check is done")
+        pass
 
     @staticmethod
     def state_check(args):
-        pass
-
+        inst_id = args['inst_id']
+        institute = System.delegate.get_institute(inst_id=inst_id)    
+        if not System.delegate.institute_exists(institute):
+            raise StateError("institute %s does not exists in System"
+                                 % institute.to_client())
+        
     @staticmethod
     def action(args):
         inst_id = args["inst_id"]
@@ -1000,22 +1046,21 @@ class GetInstitute():
 #+NAME: class_get_discipline
 #+begin_src python
 class GetDiscipline():
-    arg_types = {"dis_id": is_str, "session": is_session}
+    arg_types = {"dis_id": is_str}
     arity_and_type_checks_needed = True
 
     @staticmethod
     def auth_check(args):
-        session = args['session']
-        current_app.logger.debug("checking authorization")
-        if not System.is_session_valid(session):
-            current_app.logger.debug("authorization is failed")
-            raise NotAuthorizedError("Not Authorized to perform this action")
-        current_app.logger.debug("authorization check is done")
+        pass
 
     @staticmethod
     def state_check(args):
-        pass
-
+        dis_id = args['dis_id']
+        discipline = System.delegate.get_discipline(dis_id=dis_id)    
+        if not System.delegate.discipline_exists(discipline):
+            raise StateError("discipline %s does not exists in System"
+                                 % discipline.to_client())
+        
     @staticmethod
     def action(args):
         dis_id = args["dis_id"]

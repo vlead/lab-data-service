@@ -735,16 +735,13 @@ class TestGetLab(TestCase):
     def test_get_lab(self):
 
         print "test_get_lab_in_system_persistence"
-        session_cls = System.delegate.entities['session']
         lab_cls = System.delegate.entities['lab']
         institute_cls = System.delegate.entities['institute']
         discipline_cls = System.delegate.entities['discipline']
 
         lab_name1="Computer Programming"
         lab_id1="CSE01"
-        key = KEY
         overview = "overview"
-        session = session_cls(key=key)
 
         inst_name = "IIT Kanpur"
         inst_id = "IITK"
@@ -762,8 +759,8 @@ class TestGetLab(TestCase):
 
         lab.save()
 
-        lab1 = System.do("get_lab", lab_id=lab_id1,
-                                  session=session)
+        lab1 = System.do("get_lab", lab_id=lab_id1)
+
 
         self.assertEqual(lab1.get("lab_name"), lab_name1)
         self.assertEqual(lab1.get("lab_id"), lab_id1)
@@ -791,7 +788,6 @@ class TestGetExp(TestCase):
     def test_get_exp(self):
 
         print "test_get_exp_in_system_persistence"
-        session_cls = System.delegate.entities['session']
         exp_cls = System.delegate.entities['experiment']
 
         experiment_cls = System.delegate.entities['experiment']
@@ -801,11 +797,8 @@ class TestGetExp(TestCase):
         experiment = experiment_cls(exp_name=exp_name, exp_id=exp_id,
                                         overview=overview, sections=[])
         experiment.save()
-        key = KEY
-        session = session_cls(key=key)
 
-        experiment1 = System.do("get_experiment", exp_id=exp_id,
-                                    session=session)
+        experiment1 = System.do("get_experiment", exp_id=exp_id)
 
         self.assertEqual(experiment1.get("exp_name"), exp_name)
         self.assertEqual(experiment1.get("exp_id"), exp_id)
@@ -838,13 +831,10 @@ class TestGetInstitute(TestCase):
 
         inst_name1= "IIT Kanpur"
         inst_id1= "IITK"
-        key = KEY       
-        session = session_cls(key=key)
         institute = institute_cls(inst_id=inst_id1, inst_name=inst_name1)
         institute.save()
 
-        institute1 = System.do("get_institute", inst_id=inst_id1,
-                                  session=session)
+        institute1 = System.do("get_institute", inst_id=inst_id1)
 
         self.assertEqual(institute1.get("inst_name"), inst_name1)
         self.assertEqual(institute1.get("inst_id"), inst_id1)
@@ -872,18 +862,14 @@ class TestGetDiscipline(TestCase):
     def test_get_discipline(self):
 
         print "test_get_discipline_in_system_persistence"
-        session_cls = System.delegate.entities['session']
         discipline_cls = System.delegate.entities['discipline']
 
         dis_name = "arrays"
         dis_id = "cse02"
         discipline = discipline_cls(dis_name=dis_name, dis_id=dis_id)
         discipline.save()
-        key = KEY
-        session = session_cls(key=key)
 
-        exp1 = System.do("get_discipline", dis_id=dis_id,
-                                  session=session)
+        exp1 = System.do("get_discipline", dis_id=dis_id)
 
         self.assertEqual(exp1.get("dis_name"), dis_name)
         self.assertEqual(exp1.get("dis_id"), dis_id)
