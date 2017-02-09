@@ -821,13 +821,15 @@ class TestDeleteDeveloper(TestCase):
 
         dev_name = name_cls(name="Prof. Dharmaraj")
         dev_name.save()
+
         email_id = email_cls(email="abc@gmail.com")
         email_id.save()
+
         key = KEY
         session = session_cls(key=key)
         developer = developer_cls(name=dev_name, email=email_id)
-
         developer.save()
+
         email = System.do("delete_developer", email=email_id, session=session)
 
         self.assertEqual(email.get("email"), email_id.get("email"))

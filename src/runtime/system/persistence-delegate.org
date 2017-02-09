@@ -1128,7 +1128,6 @@ class TestPersistenceDelegate(TestCase):
 #+NAME: persistence_delete_developer
 #+BEGIN_SRC python
     def delete_developer(self, email_id):
-#        email = Email(email=email_id)
         record = self.get_developer(email=email_id)
         if not record:
             abort(404, 'No Developer with id %s' % (email_id))
@@ -1136,8 +1135,6 @@ class TestPersistenceDelegate(TestCase):
             try:
                 record.delete()
                 self.delete_email(email_id)
-                #db.session.delete(record)
-                #db.session.commit()
             except Exception, e:
                 print e
                 abort(500, str(e))
@@ -1164,6 +1161,7 @@ class TestPersistenceDelegate(TestCase):
          dev_name1.save()
          email_id1 = Email(email="yamraja@maths.iitd.ac.in")
          email_id1.save()
+
          dev2 = Developer(name=dev_name1, email=email_id1)
          dev3 = self.persistence_delegate.add_developer(dev2)
 
