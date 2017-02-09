@@ -2953,12 +2953,12 @@ class TestDeleteEmail(TestCase):
 #+NAME: class_delete_developer
 #+begin_src python
     @staticmethod
-    def delete_developer(data_dict):
+    def delete_developer(email_id, key):
         session_cls = System.delegate.entities['session']
         email_cls = System.delegate.entities['email']
 
-        session = session_cls(key=data_dict['key'])
-        email = email_cls(email=data_dict['email'])
+        session = session_cls(key=str(key))
+        email = email_cls(email=email_id)
 
         try:
             current_app.logger.debug("running operation delete_developer")
@@ -3009,9 +3009,10 @@ class TestDeleteDeveloper(TestCase):
 
         developer = SystemInterface.add_developer(data_dict)
         developer1 = SystemInterface.add_developer(data_dict1)
-        dev_id = SystemInterface.delete_developer(data_dict['email'])
+        dev = SystemInterface.delete_developer(data_dict['email'],
+                                                      data_dict['key'])
         
-        self.assertEqual(dev_id, data_dict['email'])
+        self.assertEqual(dev.get("email"), data_dict['email'])
 
  #+END_SRC
 
