@@ -45,6 +45,7 @@ Developer = ClassTemplate.mk_class("Developer")
 Institute = ClassTemplate.mk_class("Institute")
 Assets = ClassTemplate.mk_class("Assets")
 HostingInfo = ClassTemplate.mk_class("HostingInfo")
+IntegrationStatus = ClassTemplate.mk_class("IntegrationStatus")
 
 #+END_SRC
 
@@ -172,6 +173,9 @@ def are_disciplines(disciplies):
 
 is_hostinginfo = is_inst(HostingInfo)
 check_hostinginfo = check_pred(is_hostinginfo)
+
+is_integrationstatus = is_inst(IntegrationStatus)
+check_hostinginfo = check_pred(is_integrationstatus)
 
 #+END_SRC
 
@@ -509,6 +513,7 @@ class TestAssets(TestCase):
         self.assertEqual(assets.get("asset_type"), asset_type)
 #+end_src
 
+
 * HostingInfo
    =HostingInfo= is an entity that has a field =hosting_status= and =hosted_url= which are string
 #+NAME: class_HostingInfo
@@ -536,6 +541,34 @@ class TestHostingInfo(TestCase):
         self.assertEqual(hostinginfo.get("hosting_status"), hosting_status)
         self.assertEqual(hostinginfo.get("hosted_url"), hosted_url)
        
+#+END_SRC
+
+
+* IntegrationStatus
+   =IntegrationStatus= is an entity that has a field =integration_level= with type =is_int=
+#+NAME: class_IntegrationStatus
+#+begin_src python
+
+IntegrationStatus.add_attributes(integration_level=is_int)
+
+IntegrationStatus.__eq__ = lambda self, other: \
+                  isinstance(other, self.__class__) and \
+                  self.get("integration_level") == other.get("integration_level")
+#+end_src
+
+*** Test IntegrationStatus
+#+NAME: class_TestIntegrationStatus
+#+BEGIN_SRC python
+class TestIntegrationStatus(TestCase):
+    TESTING = True
+
+    def test_object_integrationstatus(self):
+        print "test_object_integrationstatus"
+        integration_level = 4
+        integrationstatus = IntegrationStatus(integration_level=integration_level)
+
+        self.assertEqual(integrationstatus.get("integration_level"), integration_level)
+
 #+END_SRC
 
 
@@ -591,6 +624,7 @@ if __name__ == '__main__':
 <<class_Institute>>
 <<class_Assets>>
 <<class_HostingInfo>>
+<<class_IntegrationStatus>>
 #+end_src
 
 
@@ -608,5 +642,6 @@ if __name__ == '__main__':
 <<class_TestInstitute>>
 <<class_TestAssets>>
 <<class_TestHostingInfo>>
+<<class_TestIntegrationStatus>>
 <<run_test_cases>>
 #+end_src
