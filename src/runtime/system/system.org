@@ -65,7 +65,7 @@ The class corresponding to each operation has five fields:
        An exception thrown by this function indicates a
        serious failure in the application (e.g., out of
        memory error). 
-
+       
 
 * The =System= class
   There is only one =System= in the application.
@@ -175,7 +175,7 @@ class TestSystemConstructor(TestCase):
             System.type_check(args, arg_types)
 
   #+END_SRC
-
+  
     
 * =do= method 
    The =do= method is the main work-horse of =System= which is constructed as the
@@ -459,8 +459,7 @@ class AddEmail():
 #+NAME: class_add_developer
 #+begin_src python
 class AddDeveloper():
-    arg_types = {"developer": is_developer, "name": is_name,
-                     "email": is_email, "session": is_session}
+    arg_types = {"developer": is_developer, "session": is_session}
     arity_and_type_checks_needed = True
 
     @staticmethod
@@ -483,7 +482,6 @@ class AddDeveloper():
         return developer
 
 #+end_src
-
 
 
 ** =UpdateLab=
@@ -723,7 +721,7 @@ class UpdateEmail():
 #+begin_src python
 class UpdateDeveloper():
     arg_types = {"developer": is_developer, "name": is_name,
-                     "email": is_email, "session": is_session}
+                     "session": is_session}
     arity_and_type_checks_needed = True
 
     @staticmethod
@@ -751,7 +749,6 @@ class UpdateDeveloper():
         return developer
 
 #+end_src
-
 
 ** =UpdateHostingInfo=
 #+NAME: class_update_hostinginfo
@@ -841,7 +838,6 @@ class DeleteExperiment():
         
 #+end_src
 
-
 ** =DeleteDiscipline=
 #+NAME: class_delete_discipline
 #+begin_src python
@@ -903,6 +899,7 @@ class DeleteInstitute():
 #+end_src
 
 
+
 ** =DeleteSection=
 #+NAME: class_delete_section
 #+begin_src python
@@ -933,7 +930,7 @@ class DeleteSection():
 #+NAME: class_delete_name
 #+begin_src python
 class DeleteName():
-    arg_types = {"name_id": is_name}
+    arg_types = {"name": is_name, "session": is_session}
     arity_and_type_checks_needed = True
 
     @staticmethod
@@ -951,9 +948,9 @@ class DeleteName():
 
     @staticmethod
     def action(args):
-        name_id = args["name_id"]
-        name_id = System.delegate.delete_name(name_id)
-        return name_id
+        name = args["name"]
+        name1 = System.delegate.delete_name(name)
+        return name1
         
 #+end_src
 
@@ -962,7 +959,7 @@ class DeleteName():
 #+NAME: class_delete_email
 #+begin_src python
 class DeleteEmail():
-    arg_types = {"email_id": is_email}
+    arg_types = {"email": is_email, "session": is_session}
     arity_and_type_checks_needed = True
 
     @staticmethod
@@ -980,9 +977,9 @@ class DeleteEmail():
 
     @staticmethod
     def action(args):
-        email_id = args["email_id"]
-        email_id = System.delegate.delete_email(email_id)
-        return email_id
+        email = args["email"]
+        email = System.delegate.delete_email(email)
+        return email
         
 #+end_src
 
@@ -991,7 +988,7 @@ class DeleteEmail():
 #+NAME: class_delete_developer
 #+begin_src python
 class DeleteDeveloper():
-    arg_types = {"developer_id": is_developer, "name": is_name, "email": is_email}
+    arg_types = {"email": is_email, "session": is_session}
     arity_and_type_checks_needed = True
 
     @staticmethod
@@ -1002,16 +999,13 @@ class DeleteDeveloper():
 
     @staticmethod
     def state_check(args):
-        developer = args["developer"]
-        if not System.delegate.developer_exists(developer):
-            raise StateError("developer %s does not exists in System"
-                                 % developer.to_client())
+        pass
 
     @staticmethod
     def action(args):
-        developer_id = args["developer_id"]
-        developer_id = System.delegate.delete_developer(developer_id)
-        return developer_id
+        email = args["email"]
+        email = System.delegate.delete_developer(email)
+        return email
         
 #+end_src
 
@@ -1226,10 +1220,6 @@ class AddLabsToInstitute():
 
 #+end_src
 
-
->>>>>>> cfbf6b04c78ea3dc5c6b9832b77a32ee35cc8745
-
-
 ** =AddSectionsToExperiment=
 #+NAME: class_add_sections_to_experiment
 #+begin_src python
@@ -1270,6 +1260,91 @@ class AddSectionsToExperiment():
 
 
 
+** =GetName=
+#+NAME: class_get_name
+#+begin_src python
+class GetName():
+    arg_types = {"name": is_name, "session": is_session}
+
+    arity_and_type_checks_needed = True
+
+    @staticmethod
+    def auth_check(args):
+        session = args['session']
+        current_app.logger.debug("checking authorization")
+        if not System.is_session_valid(session):
+            current_app.logger.debug("authorization is failed")
+            raise NotAuthorizedError("Not Authorized to perform this action")
+        current_app.logger.debug("authorization check is done")
+
+    @staticmethod
+    def state_check(args):
+        pass
+
+    @staticmethod
+    def action(args):
+        name = args["name"]
+        name1 = System.delegate.get_name(name=name.get("name"))
+        return name1
+
+#+end_src
+
+
+** =GetEmail=
+#+NAME: class_get_email
+#+begin_src python
+class GetEmail():
+    arg_types = {"email": is_email, "session": is_session}
+
+    arity_and_type_checks_needed = True
+
+    @staticmethod
+    def auth_check(args):
+        session = args['session']
+        current_app.logger.debug("checking authorization")
+        if not System.is_session_valid(session):
+            current_app.logger.debug("authorization is failed")
+            raise NotAuthorizedError("Not Authorized to perform this action")
+        current_app.logger.debug("authorization check is done")
+
+    @staticmethod
+    def state_check(args):
+        pass
+
+    @staticmethod
+    def action(args):
+        email = args["email"]
+        email1 = System.delegate.get_email(email=email.get("email"))
+        return email1
+
+#+end_src
+
+
+** =GetDeveloper=
+#+NAME: class_get_developer
+#+begin_src python
+class GetDeveloper():
+    arg_types = {"email": is_email}
+
+    arity_and_type_checks_needed = True
+
+    @staticmethod
+    def auth_check(args):
+        pass
+
+    @staticmethod
+    def state_check(args):
+        pass
+
+    @staticmethod
+    def action(args):
+        email = args["email"]
+        email = System.delegate.get_developer(email=email)
+        return email
+
+#+end_src
+
+
 ** Operations Table
    Each operation has a corresponding implementation defined as a class.
 
@@ -1293,8 +1368,6 @@ ops_table = {'add_lab' : AddLab,
              'add_name' : AddName,
              'add_email' : AddEmail,
              'add_developer' : AddDeveloper,
-             'update_name': UpdateName,
-             'update_email': UpdateEmail,
              'update_developer': UpdateDeveloper,
              'delete_name': DeleteName,
              'delete_email': DeleteEmail,
@@ -1304,6 +1377,9 @@ ops_table = {'add_lab' : AddLab,
              'add_discipline' : AddDiscipline,
              'update_discipline' : UpdateDiscipline,
              'delete_discipline' : DeleteDiscipline,
+             'get_name': GetName,
+             'get_email': GetEmail,
+             'get_developer': GetDeveloper,
              'add_hostinginfo' : AddHostingInfo,
              'get_hostinginfo': GetHostingInfo,
              'update_hostinginfo': UpdateHostingInfo,
@@ -1390,8 +1466,6 @@ if __name__ == '__main__':
 <<class_add_name>>
 <<class_add_email>>
 <<class_add_developer>>
-<<class_update_name>>
-<<class_update_email>>
 <<class_update_developer>>
 <<class_delete_name>>
 <<class_delete_email>>
@@ -1399,6 +1473,9 @@ if __name__ == '__main__':
 <<class_add_sections_to_experiment>>
 <<class_add_section>>
 <<class_get_lab>>
+<<class_get_name>>
+<<class_get_email>>
+<<class_get_developer>>
 <<class_get_experiment>>
 <<class_get_institute>>
 <<class_get_discipline>>

@@ -315,6 +315,72 @@ class TestAddSection(TestCase):
 #+END_SRC
 
 
+
+* Test AddName
+#+NAME: test_add_name
+#+BEGIN_SRC python
+class TestAddName(TestCase):
+    TESTING = True
+
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_add_name(self):
+        
+        print "test_add_name_in_system_persistence"
+        session_cls = System.delegate.entities['session']
+        name_cls = System.delegate.entities['name']
+
+        name = name_cls(name="Prof. S. Dharmaraja")
+        session = session_cls(key=KEY)
+        name = System.do("add_name", name=name, session=session)
+        new_name = name_cls.get_by_id(1)
+        self.assertEqual(new_name.get("name"), "Prof. S. Dharmaraja")
+            
+#+END_SRC
+
+
+* Test AddEmail
+#+NAME: test_add_email
+#+BEGIN_SRC python
+class TestAddEmail(TestCase):
+
+    TESTING = True
+
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_add_email(self):
+
+        print "test_add_email_in_system_persistence"
+        session_cls = System.delegate.entities['session']
+        email_cls = System.delegate.entities['email']
+
+        email = email_cls(email="dharmar@maths.iitd.ac.in")
+        session = session_cls(key=KEY)
+        email = System.do("add_email", email=email, session=session)
+        new_email = email_cls.get_by_id(1)
+        self.assertEqual(new_email.get("email"), "dharmar@maths.iitd.ac.in")
+
+#+END_SRC
+
+
 * Test AddHostingInfo 
 #+NAME: test_add_hostinginfo
 #+BEGIN_SRC python
@@ -347,6 +413,47 @@ class TestAddHostingInfo(TestCase):
                                 session=session)
         hostinginfo1 = hostinginfo_cls.get_by_id(1)
         self.assertEqual(hostinginfo1.get("hosting_status"), hosting_status)
+
+#+END_SRC
+
+
+* Test AddDeveloper
+#+NAME: test_add_developer
+#+BEGIN_SRC python
+class TestAddDeveloper(TestCase):
+    TESTING = True
+
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_add_developer(self):
+        print "test_add_developer_in_system_persistence"
+        session_cls = System.delegate.entities['session']
+        developer_cls = System.delegate.entities['developer']
+        email_cls = System.delegate.entities['email']
+        name_cls = System.delegate.entities['name']
+
+        name = name_cls(name="Prof. S. Dharmaraja")
+        name.save()
+        email = email_cls(email="dharmar@maths.iitd.ac.in")
+        email.save()
+
+        developer = developer_cls(name=name, email=email)
+        key = KEY
+        session = session_cls(key=key)
+
+        developer = System.do("add_developer", developer=developer, session=session)
+
+        self.assertEqual(developer.get("name").get("name"), name.get("name"))
+
 #+END_SRC
 
 
@@ -656,6 +763,52 @@ class TestDeleteExperiment(TestCase):
 #+END_SRC
 
 
+* Test UpdateDeveloper
+#+NAME: test_update_developer
+#+BEGIN_SRC python
+class TestUpdateDeveloper(TestCase):
+    TESTING = True
+
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_update_developer(self):
+
+        print "test_update_exp_in_system_persistence"
+        session_cls = System.delegate.entities['session']
+        name_cls = System.delegate.entities['name']
+        email_cls = System.delegate.entities['email']
+        dev_cls = System.delegate.entities['developer']
+
+        session = session_cls(key=KEY)
+        dev_name = name_cls(name="Prof. Dharmaraja")
+        dev_name.save()
+        email_id = email_cls(email="raja@gmail.com")
+        email_id.save()
+        developer = dev_cls(name=dev_name, email=email_id)
+        developer.save()
+        dev_name2 = name_cls(name="Prof. Raja")
+        dev_name2.save()
+
+        dev1 = System.do("update_developer", developer=developer,
+                             name=dev_name2,  session=session)
+
+        new_dev = dev_cls.get_by_id(1)
+
+        self.assertEqual(new_dev.get("name").get("name"),
+                             dev_name2.get('name'))
+
+#+END_SRC
+
+
 * Test DeleteInstitute 
 #+NAME:  test_delete_institute 
 #+BEGIN_SRC python
@@ -693,6 +846,41 @@ class TestDeleteInstitute(TestCase):
             
 #+END_SRC
 
+
+
+* Test DeleteName 
+#+NAME:  test_delete_name 
+#+BEGIN_SRC python
+class TestDeleteName(TestCase):
+
+    TESTING = True
+
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_delete_name(self):
+        print "test_delete_name_in_system_persistence"
+        session_cls = System.delegate.entities['session']
+        name_cls = System.delegate.entities['name']
+
+        name = "Prof. Dharmaraj"
+        key = KEY
+        session = session_cls(key=key)
+        name1 = name_cls(name=name)
+
+        name1.save()
+        name2 = System.do("delete_name", name=name1, session=session)
+        self.assertEqual(name, name2.get("name"))
+
+#+END_SRC
 
 * Test DeleteLab
 #+NAME:  test_delete_lab 
@@ -754,6 +942,41 @@ class TestDeleteLab(TestCase):
 #+END_SRC
 
 
+* Test DeleteEmail
+#+NAME:  test_delete_email 
+#+BEGIN_SRC python
+class TestDeleteEmail(TestCase):
+    TESTING = True
+
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_delete_email(self):
+
+        print "test_delete_email_in_system_persistence"
+        session_cls = System.delegate.entities['session']
+        email_cls = System.delegate.entities['email']
+
+        email = "abc@gmail.com"
+        key = KEY
+        session = session_cls(key=key)
+        email1 = email_cls(email=email)
+
+        email1.save()
+        email2 = System.do("delete_email", email = email1, session=session)
+
+        self.assertEqual(email1.get("email"), email2.get("email"))
+#+END_SRC
+
+
 * Test DeleteDiscipline
 #+NAME:  test_delete_discipline 
 #+BEGIN_SRC python
@@ -792,10 +1015,54 @@ class TestDeleteDiscipline(TestCase):
 #+END_SRC
 
 
+* Test DeleteDeveloper
+#+NAME:  test_delete_developer 
+#+BEGIN_SRC python
+class TestDeleteDeveloper(TestCase):
+    TESTING = True
+
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_delete_developer(self):
+
+        print "test_delete_name_in_system_persistence"
+        session_cls = System.delegate.entities['session']
+        name_cls = System.delegate.entities['name']
+        email_cls = System.delegate.entities['email']
+        developer_cls = System.delegate.entities['developer']
+
+        dev_name = name_cls(name="Prof. Dharmaraj")
+        dev_name.save()
+
+        email_id = email_cls(email="abc@gmail.com")
+        email_id.save()
+
+        key = KEY
+        session = session_cls(key=key)
+        developer = developer_cls(name=dev_name, email=email_id)
+        developer.save()
+
+        email = System.do("delete_developer", email=email_id, session=session)
+
+        self.assertEqual(email.get("email"), email_id.get("email"))
+
+#+END_SRC
+
+
 * Test DeleteHostingInfo 
 #+NAME:  test_delete_hostinginfo 
 #+BEGIN_SRC python
 class TestDeleteHostingInfo(TestCase):
+
     TESTING = True
 
     def create_app(self):
@@ -883,10 +1150,49 @@ class TestGetLab(TestCase):
 #+END_SRC
 
 
+
+
+* Test GetName
+#+NAME: test_get_name
+#+BEGIN_SRC python
+class TestGetName(TestCase):
+    TESTING = True
+
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_get_name(self):
+
+        print "test_get_name_in_system_persistence"
+        session_cls = System.delegate.entities['session']
+        name_cls = System.delegate.entities['name']
+
+        name1="Prof. Dharmaraj"
+        key = KEY
+        session = session_cls(key=key)
+        name = name_cls(name=name1)
+
+        name.save()
+
+        name2 = System.do("get_name", name=name, session=session)
+
+        self.assertEqual(name2.get("name"), name1)
+#+END_SRC
+
+
 * Test GetExperiment
 #+NAME: test_get_exp
 #+BEGIN_SRC python
 class TestGetExp(TestCase):
+
     TESTING = True
 
     def create_app(self):
@@ -921,10 +1227,47 @@ class TestGetExp(TestCase):
 #+END_SRC
 
 
+* Test GetEmail
+#+NAME: test_get_email
+#+BEGIN_SRC python
+class TestGetEmail(TestCase):
+    TESTING = True
+
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_get_email(self):
+
+        print "test_get_email_in_system_persistence"
+        session_cls = System.delegate.entities['session']
+        email_cls = System.delegate.entities['email']
+
+        email1="abc@gmail.com"
+        key = KEY
+        session = session_cls(key=key)
+        email = email_cls(email=email1)
+
+        email.save()
+
+        email2 = System.do("get_email", email=email, session=session)
+
+        self.assertEqual(email2.get("email"), email1)
+
+#+END_SRC
+
 * Test GetInstitute 
 #+NAME: test_get_institute
 #+BEGIN_SRC python
 class TestGetInstitute(TestCase):
+
     TESTING = True
 
     def create_app(self):
@@ -992,10 +1335,53 @@ class TestGetDiscipline(TestCase):
 #+END_SRC
 
 
+
+* Test GetDeveloper
+#+NAME: test_get_developer
+#+BEGIN_SRC python
+class TestGetDeveloper(TestCase):
+    TESTING = True
+
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_get_developer(self):
+
+        print "test_get_developer_in_system_persistence"
+        session_cls = System.delegate.entities['session']
+        name_cls = System.delegate.entities['name']
+        email_cls = System.delegate.entities['email']
+        dev_cls = System.delegate.entities['developer']
+
+        dev_name1 = name_cls(name="Prof. Dharmaraj")
+        dev_name1.save()
+        email_id1 = email_cls(email="abc@gmail.com")
+        email_id1.save()
+        key = KEY
+        session = session_cls(key=key)
+        developer = dev_cls(name=dev_name1, email=email_id1)
+        developer.save()
+        developer1 = System.do("get_developer", email=email_id1)
+
+        self.assertEqual(developer1.get("name"), dev_name1)
+        self.assertEqual(developer1.get("email"), email_id1)
+
+#+END_SRC
+
+
 * Test GetHostingInfo 
 #+NAME: test_get_hostinginfo
 #+BEGIN_SRC python
 class TestGetHostingInfo(TestCase):
+
     TESTING = True
 
     def create_app(self):
@@ -1073,6 +1459,15 @@ if __name__ == '__main__':
 <<test_add_institute>>
 <<test_add_discipline>>
 <<test_add_section>>
+<<test_add_name>>
+<<test_add_email>>
+<<test_add_developer>>
+<<test_update_lab>>
+<<test_update_experiment>>
+<<test_update_developer>>
+<<test_delete_name>>
+<<test_delete_email>>
+<<test_delete_developer>>
 <<test_add_hostinginfo>>
 <<test_update_lab>>
 <<test_update_experiment>>
@@ -1081,6 +1476,9 @@ if __name__ == '__main__':
 <<test_update_hostinginfo>>
 <<test_add_sections_to_experiment>>
 <<test_get_lab>>
+<<test_get_name>>
+<<test_get_email>>
+<<test_get_developer>>
 <<test_get_institute>>
 <<test_get_exp>>
 <<test_get_discipline>>

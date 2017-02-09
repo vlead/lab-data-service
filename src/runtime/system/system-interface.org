@@ -10,7 +10,7 @@
   System Interface is the glue that between the =rest= and =system=.  The world
   of =rest= uses =json= and the world of =system= uses objects.  System
   Interface allows these two worlds to talk to each other. 
-
+  
   
 * The =SystemInterface= class
 ** Constructor
@@ -553,6 +553,275 @@ class TestAddHostingInfo(TestCase):
 
  #+END_SRC
 
+** Add Name
+#+NAME: class_add_name
+#+begin_src python
+    @staticmethod
+    def add_name(data_dict):
+        session_cls = System.delegate.entities['session']
+        name_cls = System.delegate.entities['name']
+
+        session = session_cls(key=data_dict['key'])
+        name = name_cls(name=data_dict['name'])
+        try:
+            current_app.logger.debug("running operation add_section")
+            question = System.do("add_name", name=name, session=session)
+            current_app.logger.debug("completed operation add_name")
+            return name.to_client()
+        except (ArityError, TypeError, NotAuthorizedError, StateError) as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+
+        except Exception as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+
+#+end_src
+
+*** TestAddName
+ #+NAME: test_class_add_name
+ #+BEGIN_SRC python
+class TestAddName(TestCase):
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_add_name_in_system_interface(self):
+        print "test_add_name_in_system_interface"
+
+        data_dict = {
+                    'key': KEY,
+                    'name' : 'Prof. S. Dharmaraja'
+                   }
+
+        name = SystemInterface.add_name(data_dict)
+
+        self.assertEqual(name.get("name"), 
+                             data_dict['name'])
+        
+    def test_add_name_raises_type_error_in_system_interface(self):
+        print "test_add_name_raises_type_error_in_system_interface"
+
+        data_dict = {
+                    'key': KEY,
+                    'name' : 123
+		    }
+        with self.assertRaises(TypeError):
+            SystemInterface.add_name(data_dict)
+ #+END_SRC
+ 
+** Add Email
+#+NAME: class_add_email
+#+begin_src python
+    @staticmethod
+    def add_email(data_dict):
+        session_cls = System.delegate.entities['session']
+        email_cls = System.delegate.entities['email']
+
+        session = session_cls(key=data_dict['key'])
+        email = email_cls(email=data_dict['email'])
+        try:
+            current_app.logger.debug("running operation add_email")
+            question = System.do("add_email", email=email, session=session)
+            current_app.logger.debug("completed operation add_email")
+            return email.to_client()
+        except (ArityError, TypeError, NotAuthorizedError, StateError) as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+
+        except Exception as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+
+#+end_src
+
+*** TestAddEmail
+ #+NAME: test_class_add_email
+ #+BEGIN_SRC python
+class TestAddEmail(TestCase):
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_add_email_in_system_interface(self):
+        print "test_add_email_in_system_interface"
+
+        data_dict = {
+                    'key': KEY,
+                    'email' : 'dharmar@maths.iitd.ac.in'
+                   }
+
+        email = SystemInterface.add_email(data_dict)
+
+        self.assertEqual(email.get("email"), 
+                             data_dict['email'])
+        
+    def test_add_email_raises_type_error_in_system_interface(self):
+        print "test_add_email_raises_type_error_in_system_interface"
+
+        data_dict = {
+                    'key': KEY,
+                    'email' : 123
+		    }
+        with self.assertRaises(TypeError):
+            SystemInterface.add_email(data_dict)
+ #+END_SRC
+
+#** Get Emails
+#+NAME: class_get_emails
+#+begin_src python
+    @staticmethod
+    def get_emails():
+        email_cls = System.delegate.entities['email']
+        try:
+            current_app.logger.debug("getting emails")
+            emails = email_cls.get_all()
+            email_dict_list = []
+            for email in emails:
+                email_x = email.to_client()
+                email_dict_list.append(email_x)
+            current_app.logger.debug("got emails")
+            return  email_dict_list
+
+        except (ArityError, TypeError, NotAuthorizedError, StateError) as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+
+        except Exception as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+#+end_src
+
+#*** TestGetEmails
+ #+NAME: test_class_get_emails
+ #+BEGIN_SRC python
+class TestGetEmails(TestCase):
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_get_emails_in_system_interface(self):
+        print "test_get_emails_in_system_interface"
+
+        data_dict = {'email': 'dharamaraj@gmail.com',
+                     'key': KEY
+                    }
+
+        data_dict1 = {'email': 'raja@gmail.com',
+                      'key': KEY
+                     }
+
+        email1 = SystemInterface.add_email(data_dict)
+        email2 = SystemInterface.add_email(data_dict1)
+
+        emails_list = SystemInterface.get_emails()
+        
+        self.assertEqual(emails_list[0].get("email"), data_dict['email'])
+        self.assertEqual(emails_list[1].get("email"), data_dict1['email'])
+
+ #+END_SRC
+
+** Add Developer
+#+NAME: class_add_developer
+#+begin_src python
+    @staticmethod
+    def add_developer(data_dict):
+        session_cls = System.delegate.entities['session']
+        name_cls = System.delegate.entities['name']
+        email_cls = System.delegate.entities['email']
+        developer_cls = System.delegate.entities['developer']
+
+        session = session_cls(key=data_dict['key'])
+        name = name_cls(name=str(data_dict['name']))
+        name.save()
+#        name=SystemInterface.add_name(data_dict['name'], data_dict['key'])
+        email = email_cls(email=data_dict['email'])
+        email.save()
+#        email=SystemInterface.add_email(data_dict['email'], data_dict['key'])
+        developer = developer_cls(name=name, email=email)
+        try:
+            current_app.logger.debug("running operation add_developer")
+            developer = System.do("add_developer", developer=developer,
+                                    session=session)
+            current_app.logger.debug("completed operation add_developer")
+
+            return developer
+        except (ArityError, TypeError, NotAuthorizedError, StateError) as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+
+        except Exception as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+
+#+end_src
+  
+
+*** TestAddDeveloper
+ #+NAME: test_class_add_developer
+ #+BEGIN_SRC python
+class TestAddDeveloper(TestCase):
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_add_developer_in_system_interface(self):
+        print "test_add_developer_in_system_interface"
+
+        data_dict = {
+                    'key': KEY,
+                    'name': 'Prof. S. Dharmaraja',
+                    'email': 'dharmar@maths.iitd.ac.in'
+                   }
+
+        developer = SystemInterface.add_developer(data_dict)
+        self.assertEqual(developer.get("name").get("name"),
+                             data_dict['name'])
+        self.assertEqual(developer.get("email").get("email"),
+                             data_dict['email'])
+
+    def test_add_developer_raises_type_error_in_system_interface(self):
+        print "test_add_developer_raises_type_error_in_system_interface"
+
+        data_dict = {
+                    'key': KEY,
+                    'name': 'Prof. S. Dharmaraja',
+                    'email': 123456
+		    }
+
+        with self.assertRaises(TypeError):
+            SystemInterface.add_developer(data_dict)
+ #+END_SRC
+
 
 ** Get Labs
 #+NAME: class_get_labs
@@ -993,6 +1262,199 @@ class TestGetHostingInfos(TestCase):
                              data_dict['hosted_url'])
         self.assertEqual(host_list[1].get("hosted_url"), 
                              data_dict1['hosted_url'])
+
+ #+END_SRC
+
+** Get Names
+
+#+NAME: class_get_names
+#+begin_src python
+    @staticmethod
+    def get_names():
+        name_cls = System.delegate.entities['name']
+        try:
+            current_app.logger.debug("getting names")
+            names = name_cls.get_all()
+            name_dict_list = []
+            for name in names:
+                name_x = name.to_client()
+                name_dict_list.append(name_x)
+            current_app.logger.debug("got names")
+            return  name_dict_list
+
+        except (ArityError, TypeError, NotAuthorizedError, StateError) as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+
+        except Exception as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+#+end_src
+
+*** TestGetNames
+ #+NAME: test_class_get_names
+ #+BEGIN_SRC python
+class TestGetNames(TestCase):
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_get_name_in_system_interface(self):
+        print "test_get_name_in_system_interface"
+
+        data_dict = {'name': 'Prof. Dharamaraj',
+                    'key': KEY
+                   }
+
+        data_dict1 = {'name': 'Prof. Yamaraja',
+                     'key': KEY
+                     }
+
+        name1 = SystemInterface.add_name(data_dict)
+        name2 = SystemInterface.add_name(data_dict1)
+
+        name_list = SystemInterface.get_names()
+        
+        self.assertEqual(name_list[0].get("name"), data_dict['name'])
+        self.assertEqual(name_list[1].get("name"), data_dict1['name'])
+
+ #+END_SRC
+
+** Get Emails
+
+#+NAME: class_get_emails
+#+begin_src python
+    @staticmethod
+    def get_emails():
+        email_cls = System.delegate.entities['email']
+        try:
+            current_app.logger.debug("getting emails")
+            emails = email_cls.get_all()
+            email_dict_list = []
+            for email in emails:
+                email_x = email.to_client()
+                email_dict_list.append(email_x)
+            current_app.logger.debug("got emails")
+            return  email_dict_list
+
+        except (ArityError, TypeError, NotAuthorizedError, StateError) as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+
+        except Exception as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+#+end_src
+
+*** TestGetEmails
+ #+NAME: test_class_get_emails
+ #+BEGIN_SRC python
+class TestGetEmails(TestCase):
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_get_email_in_system_interface(self):
+        print "test_get_email_in_system_interface"
+
+        data_dict = {'email': 'abc@gmail.com',
+                    'key': KEY
+                   }
+
+        data_dict1 = {'email': 'xyz@gmail.com',
+                     'key': KEY
+                     }
+
+        email1 = SystemInterface.add_email(data_dict)
+        email2 = SystemInterface.add_email(data_dict1)
+
+        email_list = SystemInterface.get_emails()
+        
+        self.assertEqual(email_list[0].get("email"), data_dict['email'])
+        self.assertEqual(email_list[1].get("email"), data_dict1['email'])
+
+ #+END_SRC
+
+** Get Developers
+
+#+NAME: class_get_developers
+#+begin_src python
+    @staticmethod
+    def get_developers():
+        developer_cls = System.delegate.entities['developer']
+        try:
+            current_app.logger.debug("getting developes")
+            developers = developer_cls.get_all()
+            developer_dict_list = []
+            for developer in developers:
+                developer_x = developer.to_client()
+                developer_dict_list.append(developer_x)
+            current_app.logger.debug("got developers")
+            return  developer_dict_list
+
+        except (ArityError, TypeError, NotAuthorizedError, StateError) as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+
+        except Exception as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+#+end_src
+
+*** TestGetDevelopers
+ #+NAME: test_class_get_developers
+ #+BEGIN_SRC python
+class TestGetDevelopers(TestCase):
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_get_developer_in_system_interface(self):
+        print "test_get_developer_in_system_interface"
+
+        data_dict = {'name': 'Prof. Dharamaja',
+                     'email': 'abc@gmail.com',
+                     'key': KEY
+                   }
+
+        data_dict1 = {'name': 'Prof. Yamraja',
+                      'email': 'xyz@gmail.com',
+                      'key': KEY
+                     }
+
+        developer1 = SystemInterface.add_developer(data_dict)
+        developer2 = SystemInterface.add_developer(data_dict1)
+
+        developer_list = SystemInterface.get_developers()
+        
+        self.assertEqual(developer_list[0].get("name").get("name"),
+                             data_dict['name'])
+        self.assertEqual(developer_list[1].get("name").get("name"),
+                             data_dict1['name'])
 
  #+END_SRC
 
@@ -1443,7 +1905,7 @@ class TestUpdateLab(TestCase):
         experiment = SystemInterface.add_experiment(data_dict)
 
         data_dict = {
-                    'key' : KEY,
+                    'key': KEY,
                     'inst_name': 'IIT Kanpur',
                     'inst_id': 'IITK'
                     }
@@ -1891,6 +2353,81 @@ class TestUpdateHostingInfo(TestCase):
 
  #+END_SRC
 
+** Update Developer
+#+NAME: class_update_developer
+#+begin_src python
+    @staticmethod
+    def update_developer(data_dict):
+        session_cls = System.delegate.entities['session']
+        name_cls = System.delegate.entities['name']
+        email_cls = System.delegate.entities['email']
+        developer_cls = System.delegate.entities['developer']
+
+        session = session_cls(key=data_dict['key'])
+        email = email_cls(email=data_dict['email'])
+        developer = System.do("get_developer", email=email)
+
+        if 'name' not in data_dict:
+            name=str(developer.get("name"))
+        else:
+            name=name_cls(name=str(data_dict['name']))
+
+        try:
+            current_app.logger.debug("running operation update_developer")
+            developer = System.do("update_developer", name=name,
+                                      developer=developer,
+                                      session=session)
+            current_app.logger.debug("completed operation update_developer")
+            return developer.to_client()
+
+        except (ArityError, TypeError, NotAuthorizedError, StateError) as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+
+        except Exception as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+#+end_src
+
+*** TestUpateDeveloper
+ #+NAME: test_class_update_Developer
+ #+BEGIN_SRC python
+class TestUpdateDeveloper(TestCase):
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_update_developer_name_in_system_interface(self):
+        print "test_update_developer_name_in_system_interface"
+
+        data_dict = {
+                    'key': KEY,
+                    'name': 'Prof. Dharamaraja',
+                    'email': 'dharamaraj@gmail.com'
+                   }
+
+        data_dict1 = {
+                    'key': KEY,
+                    'email': 'dharamaraj@gmail.com',
+                    'name': 'Prof. Raja'
+                   }
+
+        developer = SystemInterface.add_developer(data_dict)
+        developer1 = SystemInterface.update_developer(data_dict1)
+
+        self.assertEqual(developer1.get("name").get("name"),
+                             data_dict1['name'])
+
+ #+END_SRC
+
 
 ** Delete Lab
 #+NAME: class_delete_lab
@@ -2289,6 +2826,196 @@ class TestDeleteHostingInfo(TestCase):
 
  #+END_SRC
 
+** Delete Name
+#+NAME: class_delete_name
+#+begin_src python
+    @staticmethod
+    def delete_name(data_dict):
+        session_cls = System.delegate.entities['session']
+        name_cls = System.delegate.entities['name']
+
+        session = session_cls(key=str(data_dict['key']))
+        name = name_cls(name=str(data_dict['name']))
+        try:
+            current_app.logger.debug("running operation delete_name")
+            name = System.do("delete_name", name=name, session=session)
+            current_app.logger.debug("completed operation delete_name")
+            return name
+        except (ArityError, TypeError, NotAuthorizedError, StateError) as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+
+        except Exception as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+#+end_src
+
+*** TestDeleteName
+ #+NAME: test_class_delete_name
+ #+BEGIN_SRC python
+class TestDeleteName(TestCase):
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_delete_name_in_system_interface(self):
+        print "test_delete_name_in_system_interface"
+
+        data_dict = {
+                    'key': KEY,
+                    'name': 'Prof. Dharamaraja'
+                   }
+
+        data_dict1 = {
+                    'key': KEY,
+                    'name' : 'Prof. Raja'
+                   }
+
+        name = SystemInterface.add_name(data_dict)
+        name1 = SystemInterface.add_name(data_dict1)
+        name_id = SystemInterface.delete_name(data_dict1)
+
+        self.assertEqual(name_id.get("name"), data_dict1["name"])
+
+ #+END_SRC
+
+** Delete Email
+#+NAME: class_delete_email
+#+begin_src python
+    @staticmethod
+    def delete_email(data_dict):
+        session_cls = System.delegate.entities['session']
+        email_cls = System.delegate.entities['email']
+
+        session = session_cls(key=data_dict['key'])
+        email = email_cls(email=data_dict['email'])
+        try:
+            current_app.logger.debug("running operation delete_email")
+            email = System.do("delete_email", email=email,
+                                    session=session)
+            current_app.logger.debug("completed operation delete_email")
+            return email
+        except (ArityError, TypeError, NotAuthorizedError, StateError) as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+
+        except Exception as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+#+end_src
+
+*** TestDeleteEmail
+ #+NAME: test_class_delete_email
+ #+BEGIN_SRC python
+class TestDeleteEmail(TestCase):
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_delete_email_in_system_interface(self):
+        print "test_delete_email_in_system_interface"
+
+        data_dict = {
+                    'key': KEY,
+                    'email': 'abc@gmail.com'
+                   }
+
+        data_dict1 = {
+                    'key': KEY,
+                    'email' : 'xyz@gmail.com'
+                   }
+
+        email = SystemInterface.add_email(data_dict)
+        email1 = SystemInterface.add_email(data_dict1)
+        email_id = SystemInterface.delete_email(data_dict1)
+
+        self.assertEqual(email_id.get("email"), data_dict1["email"])
+
+ #+END_SRC
+
+** Delete Developer
+#+NAME: class_delete_developer
+#+begin_src python
+    @staticmethod
+    def delete_developer(email_id, key):
+        session_cls = System.delegate.entities['session']
+        email_cls = System.delegate.entities['email']
+
+        session = session_cls(key=str(key))
+        email = email_cls(email=email_id)
+
+        try:
+            current_app.logger.debug("running operation delete_developer")
+            developer = System.do("delete_developer", email=email,
+                                    session=session)
+            current_app.logger.debug("completed operation delete_developer")
+            return developer
+
+        except (ArityError, TypeError, NotAuthorizedError, StateError) as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+
+        except Exception as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+#+end_src
+
+*** TestDeleteDeveloper
+ #+NAME: test_class_delete_developer
+ #+BEGIN_SRC python
+class TestDeleteDeveloper(TestCase):
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_delete_developer_in_system_interface(self):
+        print "test_delete_developer_in_system_interface"
+
+        data_dict = {
+                    'key': KEY,
+                    'name': 'Prof. Dharmaraj',
+                    'email': 'abc@gmail.com'
+                   }
+
+        data_dict1 = {
+                    'key': KEY,
+                    'name' : 'Prof. Raja',
+                    'email': 'xyz@gmail.com'
+                   }
+
+        developer = SystemInterface.add_developer(data_dict)
+        developer1 = SystemInterface.add_developer(data_dict1)
+        dev = SystemInterface.delete_developer(data_dict['email'],
+                                                      data_dict['key'])
+        
+        self.assertEqual(dev.get("email"), data_dict['email'])
+
+ #+END_SRC
+
 
 ** Get Institute by InstituteId
 #+NAME: class_get_institute_by_inst_id
@@ -2639,6 +3366,10 @@ if __name__ == '__main__':
 <<class_add_experiment>>
 <<class_add_institute>>
 <<class_add_discipline>>
+<<class_add_name>>
+<<class_add_email>>
+<<class_add_developer>>
+<<class_get_labs>>
 <<class_add_hostinginfo>>
 
 <<class_get_lab_by_id>>
@@ -2674,6 +3405,13 @@ if __name__ == '__main__':
 <<class_get_discipline_by_dis_id>>
 
 <<class_get_sections>>
+<<class_update_developer>>
+<<class_get_names>>
+<<class_get_emails>>
+<<class_get_developers>>
+<<class_delete_name>>
+<<class_delete_email>>
+<<class_delete_developer>>
 
 #+end_src
 
@@ -2687,6 +3425,9 @@ if __name__ == '__main__':
 <<test_class_add_institute>>
 <<test_class_add_discipline>>
 <<test_class_add_section>>
+<<test_class_add_name>>
+<<test_class_add_email>>
+<<test_class_add_developer>>
 <<test_class_add_hostinginfo>>
 
 <<test_class_delete_lab>>
@@ -2695,6 +3436,7 @@ if __name__ == '__main__':
 <<test_class_delete_section>>
 <<test_class_delete_Discipline>>
 <<test_class_delete_hostinginfo>>
+
 
 <<test_class_get_labs>>
 <<test_class_get_sections>>
@@ -2716,6 +3458,13 @@ if __name__ == '__main__':
 <<test_class_update_hostinginfo>>
 
 <<test_class_get_lab_by_labid>>
+<<test_class_update_developer>>
+<<test_class_get_names>>
+<<test_class_get_emails>>
+<<test_class_get_developers>>
+<<test_class_delete_name>>
+<<test_class_delete_email>>
+<<test_class_delete_developer>>
 <<test_class_get_exp_by_expid>>
 <<test_class_get_institute_by_instituteid>>
 <<test_class_get_discipline_by_disid>>
