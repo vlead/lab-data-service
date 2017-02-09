@@ -29,7 +29,8 @@ class PersistenceDelegate():
                          'section' : Section,
                          'institute' : Institute,
                          'discipline' : Discipline,
-                         'hostinginfo': HostingInfo
+                         'hostinginfo': HostingInfo,
+                         'integrationstatus': IntegrationStatus
                         }
 
 #+END_SRC
@@ -307,6 +308,36 @@ class TestPersistenceDelegate(TestCase):
 #+END_SRC
 
 
+*** Check if =integrationstatus= already exists
+    This function checks if an integrationstatus is already in the integrationstatus-set of the =System=.
+#+NAME: persistence_integrationstatus_exists
+#+BEGIN_SRC python
+    def integrationstatus_exists(self, integrationstatus):
+        integration_level = integrationstatus.get("integration_level")
+        return integrationstatus == self.get_integrationstatus(integration_level=integration_level)
+        
+#+END_SRC
+
+**** Tests
+#+NAME: test_persistence_integrationstatus_exists
+#+BEGIN_SRC python
+    def test_integrationstatus_exists(self):
+        print "test_integrationstatus_exists"
+        integration_level1 = 4
+        integrationstatus1 = IntegrationStatus(integration_level=integration_level1)
+        intstatus1 = self.persistence_delegate.add_integrationstatus(integrationstatus1)
+
+        integration_level2 = 2
+        integrationstatus2 = IntegrationStatus(integration_level=integration_level2)
+        
+        self.assertEqual(self.persistence_delegate.integrationstatus_exists\
+                             (integrationstatus1), True)
+        self.assertEqual(self.persistence_delegate.integrationstatus_exists\
+                             (integrationstatus2), False)
+
+#+END_SRC
+
+
 ***  Add lab to the system
     This function adds lab to the system.
 #+NAME: persistence_add_lab
@@ -570,6 +601,38 @@ class TestPersistenceDelegate(TestCase):
                              (hostinginfo1), True)
          self.assertEqual(self.persistence_delegate.hostinginfo_exists\
                              (hostinginfo2), False)
+        
+#+END_SRC
+
+
+***  Add integrationstatus to the system
+
+    This function adds integrationstatus to the system.
+#+NAME: persistence_add_integrationstatus
+#+BEGIN_SRC python
+    def add_integrationstatus(self, integrationstatus):
+        integrationstatus.save()
+        return integrationstatus
+
+#+END_SRC
+**** Tests
+#+NAME: test_persistence_add_integrationstatus
+#+BEGIN_SRC python
+    def test_add_integrationstatus(self):
+         print "test_add_integrationstatus"
+         integration_level1 = 4
+         integrationstatus1 = IntegrationStatus(integration_level=integration_level1)
+         integrationstatus1 = self.persistence_delegate.add_integrationstatus(integrationstatus1)
+         
+         integration_level2= 2
+         integrationstatus2 = IntegrationStatus(integration_level=integration_level2)
+         
+         integrationstatus = IntegrationStatus.get_by_id(1)
+
+         self.assertEqual(self.persistence_delegate.integrationstatus_exists\
+                              (integrationstatus1), True)
+         self.assertEqual(self.persistence_delegate.integrationstatus_exists\
+                              (integrationstatus2), False)
         
 #+END_SRC
 
@@ -1073,6 +1136,47 @@ class TestPersistenceDelegate(TestCase):
          self.persistence_delegate.delete_hostinginfo("http://cse14-iiith.vlabs.ac.in")
 
          self.assertEqual(len(HostingInfo.get_all()), 1)
+
+#+END_SRC
+
+
+***  Delete IntegrationStatus
+    This function deletes existing integrationstatus.
+#+NAME: persistence_delete_integrationstatus
+#+BEGIN_SRC python
+    def delete_integrationstatus(self, integration_level):
+        record = self.get_integrationstatus(integration_level=integration_level)
+        if not record:
+            abort(404, 'No IntegrationStatus with id %s' % (integration_level))
+        else:
+            try:
+                record.delete()
+                #db.session.delete(record)
+                #db.session.commit()
+            except Exception, e:
+                print e
+                abort(500, str(e))
+
+        return integration_level
+
+#+END_SRC
+
+**** Tests
+#+NAME: test_persistence_delete_integrationstatus
+#+BEGIN_SRC python
+    def test_delete_integrationstatus(self):
+         print "test_delete_integrationstatus"
+         integration_level = 4
+         integrationstatus = IntegrationStatus(integration_level=integration_level)                    
+         integrationstatus1 = self.persistence_delegate.add_integrationstatus(integrationstatus)
+
+         integration_level1 = 2
+         integrationstatus1 = IntegrationStatus(integration_level=integration_level1)
+         integrationstatus2 = self.persistence_delegate.add_integrationstatus(integrationstatus1)
+
+         self.persistence_delegate.delete_integrationstatus(integration_level)
+
+         self.assertEqual(len(IntegrationStatus.get_all()), 1)
 
 #+END_SRC
 
@@ -1631,6 +1735,33 @@ class TestPersistenceDelegate(TestCase):
 #+END_SRC
 
 
+***  Get IntegrationStatus
+    This function returns integrationstatus if present in the database. If the integrationstatus is
+    not present, =None= type is returned.
+#+NAME: persistence_get_integrationstatus
+#+BEGIN_SRC python
+    def get_integrationstatus(self, **kwargs):
+        return self.get_object(IntegrationStatus, **kwargs)
+
+#+END_SRC
+
+**** Tests
+#+NAME: test_persistence_get_integrationstatus
+#+BEGIN_SRC python
+    def test_get_integrationstatus(self):
+         print "test_get_integrationstatus"
+
+         integration_level = 4
+         intstatus = IntegrationStatus(integration_level=integration_level)                             
+         intstatus.save()
+         intstatus_obj = self.persistence_delegate.get_integrationstatus(integration_level=
+                                                intstatus.get("integration_level"))
+
+         self.assertEqual(intstatus_obj.get("integration_level"), intstatus.get("integration_level"))
+
+#+END_SRC
+
+
 ***  Get Lab By ID
     This function returns a lab object by an ID if present in database,
     otherwise, =None= type is returned.
@@ -1851,6 +1982,7 @@ if __name__ == '__main__':
 <<persistence_get_institute>>
 <<persistence_get_discipline>>
 <<persistence_get_hostinginfo>>
+<<persistence_get_integrationstatus>>
 
 <<persistence_discipline_exists>>
 <<persistence_add_discipline>>
@@ -1865,18 +1997,21 @@ if __name__ == '__main__':
 <<persistence_experiment_exists>>
 <<persistence_institute_exists>>
 <<persistence_hostinginfo_exists>>
+<<persistence_integrationstatus_exists>>
 
 <<persistence_add_lab>>
 <<persistence_add_experiment>>
 <<persistence_add_section>>
 <<persistence_add_institute>>
 <<persistence_add_hostinginfo>>
+<<persistence_add_integrationstatus>>
 
 <<persistence_delete_lab>>
 <<persistence_delete_section>>
 <<persistence_delete_experiment>>
 <<persistence_delete_institute>>
 <<persistence_delete_hostinginfo>>
+<<persistence_delete_integrationstatus>>
 
 <<persistence_update_lab>>
 <<persistence_update_section>>
@@ -1906,6 +2041,7 @@ if __name__ == '__main__':
 <<test_persistence_get_institute>>
 <<test_persistence_get_discipline>>
 <<test_persistence_get_hostinginfo>>
+<<test_persistence_get_integrationstatus>>
 
 <<test_persistence_get_labs>>
 <<test_persistence_get_institutes>>
@@ -1916,13 +2052,14 @@ if __name__ == '__main__':
 <<test_persistence_institute_exists>>
 <<test_persistence_discipline_exists>>
 <<test_persistence_hostinginfo_exists>>
-
+<<test_persistence_integrationstatus_exists>>
 <<test_persistence_add_lab>>
 <<test_persistence_add_section>>
 <<test_persistence_add_experiment>>
 <<test_persistence_add_institute>>
 <<test_persistence_add_discipline>>
 <<test_persistence_add_hostinginfo>>
+<<test_persistence_add_integrationstatus>>
 
 <<test_persistence_delete_lab>>
 <<test_persistence_delete_section>>
@@ -1930,6 +2067,7 @@ if __name__ == '__main__':
 <<test_persistence_delete_institute>>
 <<test_persistence_delete_discipline>>
 <<test_persistence_delete_hostinginfo>>
+<<test_persistence_delete_integrationstatus>>
 
 <<test_persistence_update_lab>>
 <<test_persistence_update_experiment>>
