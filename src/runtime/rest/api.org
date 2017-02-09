@@ -1622,6 +1622,220 @@ class TestGetSection(TestCase):
  #+END_SRC
    
 
+** Get HostingInfos and Get HostingInfo
+*** API Design
+**** Get all HostingInfos
+  :PROPERTIES:
+  :CUSTOM_ID: api_get_all_institutes
+  :END:    
+  - URL :: /hostinginfos
+
+  - Method :: GET
+
+  - URL Params ::  None
+
+  - Payload :: 
+
+  - Success Response
+    + Status_Code: 200
+      + Contents :
+
+#+BEGIN_EXAMPLE
+[{"hosting_status": "hosted", "id": 1, "hosted_url": "http://cse14-iiith.vlabs.ac.in"}]
+#+END_EXAMPLE	       
+
+    
+  - Error Response:
+    + Contents :
+                {"status" : "error"}
+    
+  - Example:
+#+BEGIN_EXAMPLE
+http://localhost:5000/hostinginfos
+#+END_EXAMPLE
+
+*** Implementation
+REST API to get all hostinginfos.
+#+NAME: get_hostinginfo
+#+BEGIN_SRC python
+@api.route('/hostinginfos', methods=['GET'])
+def get_hostinginfo():
+    if request.method == 'GET':
+       if 'hosted_url' in request.args:
+           hosted_url  = request.args['hosted_url']
+           try:
+               hostinginfo = SystemInterface.get_hostinginfo(hosted_url)
+               return jsonify(hostinginfo)
+
+           except NotAuthorizedError as err:
+               error_message = 'Not Authorized error: %s' % str(err)
+               current_app.logger.error("%s" %(error_message))
+               return render_template('error.html',
+                                       data=error_message)
+           except TypeError as err:
+               error_message = 'Malformed arguments, error: %s' % str(err)
+               current_app.logger.error("%s" %(error_message))
+               return render_template('error.html',
+                                       data=error_message)
+           except Exception as err:
+               error_message = 'error: %s' % str(err)
+               current_app.logger.error("%s" %(error_message))
+               return render_template('error.html',
+                                        data=error_message)
+       else:
+           try:
+               hostinginfos = SystemInterface.get_hostinginfos()
+               return jsonify_list(hostinginfos)
+
+           except TypeError as err:
+               error_message = 'Malformed arguments, error: %s' % str(err)
+
+               return render_template('error.html',
+                                           data=error_message)
+
+           except Exception as err:
+               abort(500, 'error: %s' % str(err))
+            
+#+END_SRC
+
+*** Test Cases
+**** TestGetHostingInfo 
+ #+NAME: test_get_HostingInfo
+ #+BEGIN_SRC python
+class TestGetHostingInfo(TestCase):
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_get_hostinginfos(self):
+        print "test_get_hostinginfos_in_rest"
+
+        payload = {'hosting_status': 'hosted',
+                   'hosted_url': 'http://cse14-iiith.vlabs.ac.in',
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/hostinginfos", data=json.dumps(payload),
+                                 headers=headers)
+
+        response = self.client.get("/hostinginfos", headers=headers)
+        self.assertEqual(response.status_code, 200)
+
+ #+END_SRC
+   
+
+** Add HostingInfo
+*** API Design
+**** Add HostingInfo
+  :PROPERTIES:
+  :CUSTOM_ID: api_add_institute
+  :END:    
+  - URL :: /hostinginfos
+
+  - Method :: POST
+
+  - URL Params ::  None
+
+  - Payload :: 
+#+BEGIN_EXAMPLE
+{
+"hosted_url": "http://cse14-iiith.vlabs.ac.in",
+"hosting_status": "hosted",
+"key": "<key>"
+}
+#+END_EXAMPLE	       
+
+  - Success Response
+    + Status_Code: 200
+    + Content: 
+#+BEGIN_EXAMPLE
+{
+  "id": 1, 
+  "hosted_url": "http://cse14-iiith.vlabs.ac.in", 
+  "hosting_status": "hosted"
+}
+
+#+END_EXAMPLE
+
+  - Error Response:
+    + Contents :
+                {"status" : "error"}
+    
+  - Example:
+#+BEGIN_EXAMPLE
+http://localhost:5000/hostinginfos
+#+END_EXAMPLE
+    
+*** Implementation
+REST API to add an hostinginfo.
+#+NAME: add_hostinginfo
+#+BEGIN_SRC python
+@api.route('/hostinginfos', methods=['POST'])
+def add_hostinginfo():
+    if request.method == 'POST':
+        if request.is_json:
+            data_json = json.dumps(request.get_json())
+            data_dict = yaml.safe_load(data_json)
+        else:
+            abort(500, "the request does not contain data in json")
+
+        try:
+            hostinginfo = SystemInterface.add_hostinginfo(data_dict)
+            return jsonify(hostinginfo)
+
+        except TypeError as err:
+            error_message = 'Malformed arguments, error: %s' % str(err)
+
+            return render_template('error.html', 
+                    data=error_message)
+
+        except Exception as err:
+            abort(500, 'error: %s' % str(err))
+            
+#+END_SRC
+
+*** Test Cases
+**** TestAddInstitute 
+ #+NAME: test_add_hostinginfo
+ #+BEGIN_SRC python
+class TestAddHostingInfo(TestCase):
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_add_hostinginfo(self):
+        print "test_add_hostinginfo_in_rest"
+        payload = {'hosting_status': 'hosted',
+                   'hosted_url': 'http://cse14-iiith.vlabs.ac.in',
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/hostinginfos", data=json.dumps(payload),
+                                 headers=headers)
+
+        self.assertEqual(response.status_code, 200)
+
+ #+END_SRC
+   
+
 ** Update and Delete Lab
 *** API Design
 **** Update lab by labid
@@ -2413,7 +2627,6 @@ class TestDeleteSection(TestCase):
     http://localhost:5000/disciplines?dis_id=cse&key=<key>
 #+END_EXAMPLE
 
-
 *** Implementation
 #+NAME: update_and_delete_institute
 #+BEGIN_SRC python
@@ -2730,6 +2943,205 @@ class TestDeleteDiscipline(TestCase):
                                  headers=headers)
 
         response = self.client.delete("/disciplines?dis_id=CSE&key=defaultkey", 
+                                          headers=headers)
+
+        self.assertEqual(response.status_code, 200)
+
+ #+END_SRC
+   
+
+** Update and Delete HostingInfo
+*** API Design
+**** Update hostinginfos by hosted_url
+  :PROPERTIES:
+  :CUSTOM_ID: update_institutes_by_instid
+  :END:    
+  - URL :: /hostinginfos/<hosted_url>
+
+  - Method :: PUT
+
+  - URL Params ::  None
+
+  - Payload :: 
+#+BEGIN_EXAMPLE
+{
+"hosting_status": "hosted",
+  "key": "<key>"
+}
+
+#+END_EXAMPLE
+  - Success Response
+    + Status_Code: 200
+      + Contents :
+#+BEGIN_EXAMPLE
+{
+  "id": 1, 
+  "hosted_url": "http://cse14-iiith.vlabs.ac.in",
+  "hosting_status": "hosted"
+}
+
+#+END_EXAMPLE
+
+    
+  - Error Response:
+    + Contents :
+                {"status" : "error"}
+    
+  - Example:
+#+BEGIN_EXAMPLE
+    http://localhost:5000/hostinginfos?hosted_url=http://cse14-iiith.vlabs.ac.in
+#+END_EXAMPLE
+
+
+**** Delete hostinginfo by hosted_url
+  :PROPERTIES:
+  :CUSTOM_ID: delete_institute_by_inst_id
+  :END:    
+  - URL :: /hostinginfos?<hosted_url>&key=<key>
+
+  - Method :: DELETE
+
+  - URL Params ::  None
+
+  - Payload :: 
+
+  - Success Response
+    + Status_Code: 200
+      + Contents :
+#+BEGIN_EXAMPLE
+{
+  "status": "sucess"
+}
+
+#+END_EXAMPLE
+    
+  - Error Response:
+    + Contents :
+                {"status" : "error"}
+    
+  - Example:
+#+BEGIN_EXAMPLE
+    http://localhost:5000/hostinginfos?hosted_url=http://cse14-iiith.vlabs.ac.in&key=<key>
+#+END_EXAMPLE
+
+*** Implementation
+#+NAME: update_and_delete_hostinginfo
+#+BEGIN_SRC python
+@api.route('/hostinginfos', methods=['PUT', 'DELETE'])
+def update_and_delete_hostinginfo():
+    if request.method == 'PUT':
+        if request.is_json:
+            data_json = json.dumps(request.get_json())
+            data_dict = yaml.safe_load(data_json)
+        else:
+            abort(500, "the request does not contain data in json")
+
+        if 'hosted_url' in request.args:
+            data_dict['hosted_url']  = request.args['hosted_url']
+        else:
+            abort(500, "Please provide the 'hosted_url' to update the hostinginfo")
+        
+        try:
+            hostinginfo = SystemInterface.update_hostinginfo(data_dict)
+            return jsonify(hostinginfo)
+
+        except TypeError as err:
+            error_message = 'Malformed arguments, error: %s' % str(err)
+
+            return render_template('error.html', 
+                    data=error_message)
+
+        except Exception as err:
+            abort(500, 'error: %s' % str(err))
+
+    if request.method == 'DELETE':
+        if 'hosted_url' in request.args and 'key' in request.args:
+            hosted_url  = request.args['hosted_url']
+            key = request.args['key']
+
+            try:
+                hostinginfo = SystemInterface.delete_hostinginfo(hosted_url, key)
+
+                return jsonify({"status":"sucess"})
+
+            except TypeError as err:
+                error_message = 'Malformed arguments, error: %s' % str(err)
+
+                return render_template('error.html', data=error_message)
+
+            except Exception as err:
+                abort(500, 'error: %s' % str(err))
+
+#+END_SRC
+
+*** Test Cases
+**** TestUpdateHostingInfo 
+ #+NAME: test_update_hostinginfo
+ #+BEGIN_SRC python
+class TestUpdateHostingInfo(TestCase):
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_update_hostinginfo(self):
+        print "test_update_hostinginfo"
+
+        payload = {'hosting_status': 'hosted',
+                   'hosted_url': 'http://cse14-iiith.vlabs.ac.in',
+                   'key': KEY}
+
+        payload1 = {'hosting_status': 'not hosted',
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/hostinginfos", data=json.dumps(payload),
+                                 headers=headers)
+
+        response = self.client.put("/hostinginfos?hosted_url=http://cse14-iiith.vlabs.ac.in", data=json.dumps(payload1),
+                                 headers=headers)
+
+        self.assertEqual(response.status_code, 200)
+
+ #+END_SRC
+   
+**** TestDeleteHostingInfo
+ #+NAME: test_delete_hostinginfo
+ #+BEGIN_SRC python
+class TestDeleteHostingInfo(TestCase):
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_delete_hostinginfo(self):
+        print "test_delete_hostinginfo"
+
+        payload = {'hosting_status': 'hosted',
+                   'hosted_url': 'http://cse14-iiith.vlabs.ac.in',
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/hostinginfos", data=json.dumps(payload),
+                                 headers=headers)
+
+        response = self.client.delete("/hostinginfos?hosted_url=http://cse14-iiith.vlabs.ac.in&key=defaultkey",
                                           headers=headers)
 
         self.assertEqual(response.status_code, 200)
@@ -3607,7 +4019,9 @@ if __name__ == '__main__':
 <<update_and_delete_discipline>>
 <<get_institute>>
 <<add_institute>>
-
+<<get_hostinginfo>>
+<<add_hostinginfo>>
+<<update_and_delete_hostinginfo>>
 #+END_SRC
 
 
@@ -3637,6 +4051,10 @@ if __name__ == '__main__':
 <<test_update_institute>>
 <<test_delete_institute>>
 <<test_delete_discipline>>
+<<test_get_HostingInfo>>
+<<test_add_hostinginfo>>
+<<test_update_hostinginfo>>
+<<test_delete_hostinginfo>>
 <<run_test_cases>>
 #+end_src
 

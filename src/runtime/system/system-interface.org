@@ -488,6 +488,71 @@ class TestAddSection(TestCase):
             SystemInterface.add_section(data_dict)
  #+END_SRC
 
+** Add HostingInfo
+#+NAME: class_add_hostinginfo
+#+begin_src python
+    @staticmethod
+    def add_hostinginfo(data_dict):
+        session_cls = System.delegate.entities['session']       
+        hostinginfo_cls = System.delegate.entities['hostinginfo']
+
+        session = session_cls(key=data_dict['key'])
+        del(data_dict['key'])
+
+        hostinginfo = hostinginfo_cls(hosting_status=str(data_dict['hosting_status']),
+                                  hosted_url=str(data_dict['hosted_url']))
+
+        try:
+            current_app.logger.debug("running operation add_hostinginfo")
+            hostinginfo = System.do("add_hostinginfo", hostinginfo=hostinginfo,
+                                    session=session)
+            current_app.logger.debug("completed operation add_hostinginfo")
+            return hostinginfo.to_client()
+
+        except (ArityError, TypeError, NotAuthorizedError, StateError) as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+
+        except Exception as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+
+#+END_SRC
+*** TestAddHostingInfo
+ #+NAME: test_class_add_hostinginfo
+ #+BEGIN_SRC python
+class TestAddHostingInfo(TestCase):
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_add_hostinginfo_in_system_interface(self):
+        print "test_add_hostinginfo_in_system_interface"
+
+        data_dict = {
+                    'key' : KEY,
+                    'hosting_status': 'hosted',
+                    'hosted_url': 'http://cse14-iiith.vlabs.ac.in'
+                    }
+
+        hostinginfo = SystemInterface.add_hostinginfo(data_dict)
+        hostinginfo_cls = System.delegate.entities['hostinginfo']
+        hostinginfo = hostinginfo_cls.get_all()[0]
+
+        self.assertEqual(hostinginfo.get("hosting_status"),
+                             data_dict['hosting_status'])
+        self.assertEqual(hostinginfo.get("hosted_url"), data_dict['hosted_url'])
+        
+
+ #+END_SRC
+
 
 ** Get Labs
 #+NAME: class_get_labs
@@ -860,6 +925,74 @@ class TestGetDisciplines(TestCase):
                              data_dict["dis_id"])
         self.assertEqual(dis_list[1].get("dis_id"), 
                              data_dict1["dis_id"])
+
+ #+END_SRC
+
+** Get HostingInfos
+#+NAME: class_get_hostinginfos
+#+begin_src python
+    @staticmethod
+    def get_hostinginfos():
+        hostinginfo_cls = System.delegate.entities['hostinginfo']
+        try:
+            current_app.logger.debug("getting hostinginfos")
+            hostinginfos = hostinginfo_cls.get_all()
+            host_dict_list = []
+            for host in hostinginfos:
+                host_x = host.to_client()
+                host_dict_list.append(host_x)
+            current_app.logger.debug("got hostinginfos")
+            return  host_dict_list
+
+        except (ArityError, TypeError, NotAuthorizedError, StateError) as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+
+        except Exception as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+#+end_src
+
+*** TestGetHostingInfos
+ #+NAME: test_class_get_hostinginfos
+ #+BEGIN_SRC python
+class TestGetHostingInfos(TestCase):
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_get_hostinginfos_in_system_interface(self):
+        print "test_get_hostinginfos_in_system_interface"
+
+        data_dict = {'hosting_status': 'hosted',
+                     'hosted_url': 'http://cse14-iiith.vlabs.ac.in',
+                     'key' : KEY
+                    }
+
+        data_dict1 = {'hosting_status': 'not hosted',
+                      'hosted_url': 'http://iitkgp.vlab.co.in',
+                      'key' : KEY
+                     }
+
+        host1 = SystemInterface.add_hostinginfo(data_dict)
+        host2 = SystemInterface.add_hostinginfo(data_dict1)
+
+        host_list = SystemInterface.get_hostinginfos()
+        
+        self.assertEqual(host_list[0].get("hosting_status"), data_dict['hosting_status'])
+        self.assertEqual(host_list[1].get("hosting_status"), data_dict1['hosting_status'])
+        self.assertEqual(host_list[0].get("hosted_url"), 
+                             data_dict['hosted_url'])
+        self.assertEqual(host_list[1].get("hosted_url"), 
+                             data_dict1['hosted_url'])
 
  #+END_SRC
 
@@ -1688,6 +1821,76 @@ class TestUpdateDiscipline(TestCase):
 
  #+END_SRC
 
+** Update HostingInfo
+#+NAME: class_update_hostinginfo
+#+begin_src python       
+    @staticmethod
+    def update_hostinginfo(data_dict):
+        session_cls = System.delegate.entities['session']
+        session = session_cls(key=data_dict['key'])
+
+        hosted_url = str(data_dict['hosted_url'])
+        hostinginfo = System.do("get_hostinginfo", hosted_url=hosted_url)
+
+        if 'hosting_status' not in data_dict:
+            hosting_status=str(hostinginfo.get("hosting_status"))
+        else:
+            hosting_status=data_dict['hosting_status']
+
+        try:
+            current_app.logger.debug("running operation update_hostinginfo")
+            hostinginfo = System.do("update_hostinginfo", hostinginfo=hostinginfo,
+                                    hosting_status=hosting_status, 
+                                    session=session)
+            current_app.logger.debug("completed operation update_hostinginfo")
+            return hostinginfo.to_client()
+        except (ArityError, TypeError, NotAuthorizedError, StateError) as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+
+        except Exception as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+#+end_src
+
+*** TestUpateHostingInfo
+ #+NAME: test_class_update_hostinginfo
+ #+BEGIN_SRC python
+class TestUpdateHostingInfo(TestCase):
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_update_hostinginfo_in_system_interface(self):
+        print "test_update_hostinginfo_in_system_interface"
+
+        data_dict = {
+                    'key' : KEY,
+                    'hosting_status': 'hosted',
+                    'hosted_url': 'http://cse14-iiith.vlabs.ac.in'
+                    }
+
+        data_dict1 = {
+                    'key' : KEY,
+                    'hosting_status': 'not hosted',
+                    'hosted_url': 'http://cse14-iiith.vlabs.ac.in'
+                   }
+
+        hostinginfo = SystemInterface.add_hostinginfo(data_dict)
+        hostinginfo1 = SystemInterface.update_hostinginfo(data_dict1)
+        
+        self.assertEqual(hostinginfo1.get("hosting_status"), data_dict1['hosting_status'])
+
+ #+END_SRC
+
 
 ** Delete Lab
 #+NAME: class_delete_lab
@@ -1805,7 +2008,6 @@ class TestDeleteLab(TestCase):
             raise err
 #+end_src
 
-<<<<<<< HEAD
 *** TestDeleteExperiment 
  #+NAME: test_class_delete_experiment
  #+BEGIN_SRC python
@@ -2022,6 +2224,68 @@ class TestDeleteDiscipline(TestCase):
         dis_id = SystemInterface.delete_discipline('CSE', KEY)
         
         self.assertEqual(dis_id, data_dict['dis_id'])
+
+ #+END_SRC
+
+** Delete HostingInfo
+#+NAME: class_delete_hostinginfo
+#+begin_src python
+    @staticmethod
+    def delete_hostinginfo(hosted_url, key):
+        session_cls = System.delegate.entities['session']
+        session = session_cls(key=str(key))
+
+        try:
+            current_app.logger.debug("running operation delete_hostinginfo")
+            hostinginfo_id = System.do("delete_hostinginfo", hosted_url=str(hosted_url),
+                                      session=session)
+            current_app.logger.debug("completed operation delete_hostinginfo")
+            return hostinginfo_id
+        except (ArityError, TypeError, NotAuthorizedError, StateError) as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+
+        except Exception as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+#+end_src
+
+*** TestDeleteHostedInfo
+ #+NAME: test_class_delete_hostinginfo
+ #+BEGIN_SRC python
+class TestDeleteHostingInfo(TestCase):
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_delete_hostinginfo_in_system_interface(self):
+        print "test_delete_hostinginfo_in_system_interface"
+
+        data_dict = {
+                    'key' : KEY,
+                    'hosting_status': 'hosted',
+                    'hosted_url': 'http://cse14-iiith.vlabs.ac.in'
+                    }
+
+        data_dict1 = {
+                    'key' : KEY,
+                    'hosting_status': 'not hosted',
+                    'hosted_url': 'http://iitkgp.vlab.co.in'
+                     }
+
+        hostinginfo = SystemInterface.add_hostinginfo(data_dict)
+        hostinginfo1 = SystemInterface.add_hostinginfo(data_dict1)
+        hosted_url = SystemInterface.delete_hostinginfo("http://iitkgp.vlab.co.in", KEY)
+        
+        self.assertEqual(hosted_url, "http://iitkgp.vlab.co.in")
 
  #+END_SRC
 
@@ -2375,6 +2639,7 @@ if __name__ == '__main__':
 <<class_add_experiment>>
 <<class_add_institute>>
 <<class_add_discipline>>
+<<class_add_hostinginfo>>
 
 <<class_get_lab_by_id>>
 <<class_get_section_by_id>>
@@ -2388,17 +2653,20 @@ if __name__ == '__main__':
 <<class_delete_experiment>>
 <<class_delete_section>>
 <<class_delete_discipline>>
+<<class_delete_hostinginfo>>
 
 <<class_update_lab>>
 <<class_update_institute>>
 <<class_update_Section>>
 <<class_update_experiment>>
 <<class_update_discipline>>
+<<class_update_hostinginfo>>
 
 <<class_get_labs>>
 <<class_get_experiments>>
 <<class_get_institutes>>
 <<class_get_disciplines>>
+<<class_get_hostinginfos>>
 
 <<class_get_lab_by_lab_id>>
 <<class_get_lab_by_exp_id>>
@@ -2419,18 +2687,21 @@ if __name__ == '__main__':
 <<test_class_add_institute>>
 <<test_class_add_discipline>>
 <<test_class_add_section>>
+<<test_class_add_hostinginfo>>
 
 <<test_class_delete_lab>>
 <<test_class_delete_experiment>>
 <<test_class_delete_institute>>
 <<test_class_delete_section>>
 <<test_class_delete_Discipline>>
+<<test_class_delete_hostinginfo>>
 
 <<test_class_get_labs>>
 <<test_class_get_sections>>
 <<test_class_get_experiments>>
 <<test_class_get_institutes>>
 <<test_class_get_disciplines>>
+<<test_class_get_hostinginfos>>
 
 <<test_class_get_lab_by_id>>
 <<test_class_get_experiment_by_id>>
@@ -2442,6 +2713,7 @@ if __name__ == '__main__':
 <<test_class_update_institute>>
 <<test_class_update_Section>>
 <<test_class_update_Discipline>>
+<<test_class_update_hostinginfo>>
 
 <<test_class_get_lab_by_labid>>
 <<test_class_get_exp_by_expid>>
