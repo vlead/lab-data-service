@@ -721,7 +721,7 @@ class UpdateEmail():
 #+begin_src python
 class UpdateDeveloper():
     arg_types = {"developer": is_developer, "name": is_name,
-                     "email": is_email, "session": is_session}
+                     "session": is_session}
     arity_and_type_checks_needed = True
 
     @staticmethod
@@ -999,10 +999,10 @@ class DeleteDeveloper():
 
     @staticmethod
     def state_check(args):
-        developer = args["developer"]
-        if not System.delegate.developer_exists(developer):
+        email = args["email"]
+        if not System.delegate.developer_exists(email):
             raise StateError("developer %s does not exists in System"
-                                 % developer.to_client())
+                                 % email.to_client())
 
     @staticmethod
     def action(args):
@@ -1327,18 +1327,13 @@ class GetEmail():
 #+NAME: class_get_developer
 #+begin_src python
 class GetDeveloper():
-    arg_types = {"email": is_email, "session": is_session}
+    arg_types = {"email": is_email}
 
     arity_and_type_checks_needed = True
 
     @staticmethod
     def auth_check(args):
-        session = args['session']
-        current_app.logger.debug("checking authorization")
-        if not System.is_session_valid(session):
-            current_app.logger.debug("authorization is failed")
-            raise NotAuthorizedError("Not Authorized to perform this action")
-        current_app.logger.debug("authorization check is done")
+        pass
 
     @staticmethod
     def state_check(args):

@@ -881,8 +881,8 @@ class TestPersistenceDelegate(TestCase):
     This function updates existing developer.
 #+NAME: persistence_update_developer
 #+BEGIN_SRC python
-    def update_developer(self, dev, dev_name, email_id):
-        dev.set(name=dev_name, email=email_id)
+    def update_developer(self, dev, dev_name):
+        dev.set(name=dev_name)
         dev.save()
         return dev
 
@@ -903,12 +903,10 @@ class TestPersistenceDelegate(TestCase):
 
          dev_name1 = Name(name="Prof. S. raja")
          dev_name1.save()
-         email_id1 = Email(email="raja@maths.iitd.ac.in")
-         email_id1.save()
-         dev2 = self.persistence_delegate.update_developer(dev1, dev_name1, email_id1)
+
+         dev2 = self.persistence_delegate.update_developer(dev1, dev_name1)
 
          self.assertEqual(dev1.get("name").get("name"), dev_name1.get("name"))
-         self.assertEqual(dev1.get("email").get("email"), email_id1.get("email"))
 
 #+END_SRC
 

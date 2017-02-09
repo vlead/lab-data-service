@@ -2364,20 +2364,22 @@ class TestUpdateHostingInfo(TestCase):
         developer_cls = System.delegate.entities['developer']
 
         session = session_cls(key=data_dict['key'])
-        developer = developer_cls.get_by_id(data_dict['dev_id'])
+        email = email_cls(email=data_dict['email'])
+        developer = System.do("get_developer", email=email)
 
         if 'name' not in data_dict:
             name=str(developer.get("name"))
         else:
             name=name_cls(name=str(data_dict['name']))
 
-        email=email_cls(email=data_dict['email'])
         try:
             current_app.logger.debug("running operation update_developer")
-            developer = System.do("update_developer", name=name, email=email,\
-                                             session=session)
+            developer = System.do("update_developer", name=name,
+                                      developer=developer,
+                                      session=session)
             current_app.logger.debug("completed operation update_developer")
             return developer.to_client()
+
         except (ArityError, TypeError, NotAuthorizedError, StateError) as err:
             current_app.logger.error("Exception = %s" % str(err))
             raise err
@@ -2421,7 +2423,9 @@ class TestUpdateDeveloper(TestCase):
         developer = SystemInterface.add_developer(data_dict)
         developer1 = SystemInterface.update_developer(data_dict1)
 
-        self.assertEqual(developer1.get("name"), data_dict1['name'])
+        self.assertEqual(developer1.get("name").get("name"),
+                             data_dict1['name'])
+
  #+END_SRC
 
 
@@ -2958,7 +2962,7 @@ class TestDeleteEmail(TestCase):
 
         try:
             current_app.logger.debug("running operation delete_developer")
-            developer = System.do("delete_developer", email=str(email),
+            developer = System.do("delete_developer", email=email,
                                     session=session)
             current_app.logger.debug("completed operation delete_developer")
             return developer

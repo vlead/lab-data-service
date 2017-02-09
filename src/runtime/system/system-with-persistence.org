@@ -798,11 +798,13 @@ class TestUpdateDeveloper(TestCase):
         dev_name2 = name_cls(name="Prof. Raja")
         dev_name2.save()
 
-        dev1 = System.do("update_developer", name=dev_name2, email=email_id, session=session)
+        dev1 = System.do("update_developer", developer=developer,
+                             name=dev_name2,  session=session)
 
         new_dev = dev_cls.get_by_id(1)
 
-        self.assertEqual(new_dev.get("name").get("name"), dev_name2.get('name'))
+        self.assertEqual(new_dev.get("name").get("name"),
+                             dev_name2.get('name'))
 
 #+END_SRC
 
@@ -1367,7 +1369,7 @@ class TestGetDeveloper(TestCase):
         session = session_cls(key=key)
         developer = dev_cls(name=dev_name1, email=email_id1)
         developer.save()
-        developer1 = System.do("get_developer", email=email_id1, session=session)
+        developer1 = System.do("get_developer", email=email_id1)
 
         self.assertEqual(developer1.get("name"), dev_name1)
         self.assertEqual(developer1.get("email"), email_id1)
