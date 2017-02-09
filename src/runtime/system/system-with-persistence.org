@@ -33,10 +33,12 @@ class TestAddLab(TestCase):
         db.drop_all()
 
     def test_add_lab(self):
-        
         print "test_add_lab_in_system_persistence"
+
         session_cls = System.delegate.entities['session']
         lab_cls = System.delegate.entities['lab']
+        institute_cls = System.delegate.entities['institute']
+        discipline_cls = System.delegate.entities['discipline']
         experiment_cls = System.delegate.entities['experiment']
 
         exp_name = "arrays"
@@ -44,65 +46,31 @@ class TestAddLab(TestCase):
         overview = "overview"
         experiment = experiment_cls(exp_name=exp_name, exp_id=exp_id,
                                         overview=overview, sections=[])
+        experiment.save()
 
+        inst_name = "IIT Kanpur"
+        inst_id = "IITK"
+        inst = institute_cls(inst_name=inst_name, inst_id=inst_id)
+        inst.save()
+
+        dis_name = "IIT Kanpur"
+        dis_id = "IITK"
+        discipline = discipline_cls(dis_name=dis_name, dis_id=dis_id)
+        discipline.save()
+                                
         lab_name1="Computer Programming"
         lab_id1="CSE01"
         key = KEY
         overview = "overview"
         session = session_cls(key=key)
-        lab = lab_cls(lab_id=lab_id1, lab_name=lab_name1, \
-                          overview=overview, experiments=[])
-        lab1 = System.do("add_lab", lab = lab,
-                                  session=session)
+        lab = lab_cls(lab_id=lab_id1, lab_name=lab_name1,        
+                          institute=inst, discipline=discipline,                  
+                          overview=overview, experiments=[experiment])
+
+        lab1 = System.do("add_lab", lab=lab, session=session)
         new_lab = lab_cls.get_by_id(1)
         self.assertEqual(new_lab.get("lab_name"), lab_name1)
         self.assertEqual(new_lab.get("lab_id"), lab_id1)
-            
-#+END_SRC
-
-
-* Test DeleteLab
-#+NAME:  test_delete_lab 
-#+BEGIN_SRC python
-class TestDeleteLab(TestCase):
-    TESTING = True
-
-    def create_app(self):
-        app = create_app(config)
-        return app
-
-    def setUp(self):
-        db.create_all()
-
-    def tearDown(self):
-        db.session.remove()
-        db.drop_all()
-
-    def test_delete_lab(self):
-        
-        print "test_delete_lab_in_system_persistence"
-        session_cls = System.delegate.entities['session']
-        lab_cls = System.delegate.entities['lab']
-        experiment_cls = System.delegate.entities['experiment']
-
-        exp_name = "arrays"
-        exp_id = "cse02"
-        overview = "overview"
-        experiment = experiment_cls(exp_name=exp_name, exp_id=exp_id,
-                                        overview=overview, sections=[])
-
-        lab_name1="Computer Programming"
-        lab_id1="CSE01"
-        key = KEY
-        overview = "overview"
-        session = session_cls(key=key)
-        lab = lab_cls(lab_id=lab_id1, lab_name=lab_name1, \
-                          overview=overview, experiments=[])
-        lab.save()
-        lab1 = System.do("delete_lab", lab_id = lab_id1,
-                                  session=session)
-
-        self.assertEqual(lab1, lab_id1)
             
 #+END_SRC
 
@@ -254,7 +222,7 @@ class TestAddSectionsToExperiment(TestCase):
         section2.save()
         
         experiment = System.do("add_sections_to_experiment", 
-                                expid=experiment.id,
+                                experiment=experiment,
                                 sections=[section1, section2],
                                 session=session)
 
@@ -347,6 +315,7 @@ class TestAddSection(TestCase):
 #+END_SRC
 
 
+
 * Test AddName
 #+NAME: test_add_name
 #+BEGIN_SRC python
@@ -383,6 +352,7 @@ class TestAddName(TestCase):
 #+NAME: test_add_email
 #+BEGIN_SRC python
 class TestAddEmail(TestCase):
+
     TESTING = True
 
     def create_app(self):
@@ -407,6 +377,42 @@ class TestAddEmail(TestCase):
         email = System.do("add_email", email=email, session=session)
         new_email = email_cls.get_by_id(1)
         self.assertEqual(new_email.get("email"), "dharmar@maths.iitd.ac.in")
+
+#+END_SRC
+
+
+* Test AddHostingInfo 
+#+NAME: test_add_hostinginfo
+#+BEGIN_SRC python
+class TestAddHostingInfo(TestCase):
+
+    TESTING = True
+
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_add_hostinginfo(self):
+        print "test_add_hostinginfo_in_system_persistence"
+        session_cls = System.delegate.entities['session']
+        hostinginfo_cls = System.delegate.entities['hostinginfo']
+        hosting_status = "hosted"
+        hosted_url = "http://cse14-iiith.vlabs.ac.in"
+        hostinginfo = hostinginfo_cls(hosting_status=hosting_status, hosted_url=hosted_url)
+                                       
+        key = KEY
+        session = session_cls(key=key)
+        hostinginfo = System.do("add_hostinginfo", hostinginfo=hostinginfo, \
+                                session=session)
+        hostinginfo1 = hostinginfo_cls.get_by_id(1)
+        self.assertEqual(hostinginfo1.get("hosting_status"), hosting_status)
 
 #+END_SRC
 
@@ -451,7 +457,6 @@ class TestAddDeveloper(TestCase):
 #+END_SRC
 
 
-
 * Test UpdateLab
 #+NAME: test_update_lab
 #+BEGIN_SRC python
@@ -474,6 +479,8 @@ class TestUpdateLab(TestCase):
         print "test_update_lab_in_system_persistence"
         session_cls = System.delegate.entities['session']
         lab_cls = System.delegate.entities['lab']
+        institute_cls = System.delegate.entities['institute']
+        discipline_cls = System.delegate.entities['discipline']
         experiment_cls = System.delegate.entities['experiment']
 
         exp_name = "arrays"
@@ -481,6 +488,17 @@ class TestUpdateLab(TestCase):
         overview = "overview"
         experiment = experiment_cls(exp_name=exp_name, exp_id=exp_id,
                                         overview=overview, sections=[])
+        experiment.save()
+
+        inst_name = "IIT Kanpur"
+        inst_id = "IITK"
+        inst = institute_cls(inst_name=inst_name, inst_id=inst_id)
+        inst.save()
+
+        dis_name = "IIT Kanpur"
+        dis_id = "IITK"
+        discipline = discipline_cls(dis_name=dis_name, dis_id=dis_id)
+        discipline.save()
 
         lab_name1="Computer Programming"
         lab_id1="CSE01"
@@ -488,14 +506,15 @@ class TestUpdateLab(TestCase):
         overview = "overview"
         session = session_cls(key=key)
         lab = lab_cls(lab_id=lab_id1, lab_name=lab_name1, \
-                          overview=overview, experiments=[])
+                          institute=inst, discipline=discipline,      
+                          overview=overview, experiments=[experiment])
 
         lab.save()
         lab_name2="Computer Programming"
         overview2="CSE01 overview"
 
         lab1 = System.do("update_lab", lab_name=lab_name2, 
-                                  lab_id=lab_id1, overview=overview2,
+                                  lab=lab, overview=overview2,
                                   session=session)
 
         new_lab = lab_cls.get_by_id(1)
@@ -538,16 +557,17 @@ class TestUpdateExperiment(TestCase):
         experiment.save()
 
         exp_name2 = "two dimentional arrays"
-        exp_id2 = "cse03"
+        overview2 = "exp overview"
 
-        exp1 = System.do("update_experiment", experiment=experiment, 
-                                  exp_name=exp_name2, exp_id=exp_id2, 
-                                  overview=overview, session=session)
+        exp1 = System.do("update_experiment", exp_name=exp_name2,
+                             experiment=experiment, overview=overview2,
+                             session=session)
 
         new_exp = exp_cls.get_by_id(1)
 
         self.assertEqual(new_exp.get("exp_name"), exp_name2)
-        self.assertEqual(new_exp.get("exp_id"), exp_id2)
+        self.assertEqual(new_exp.get("overview"), overview2)
+        self.assertEqual(new_exp.get("exp_id"), exp_id)
             
 #+END_SRC
 
@@ -569,30 +589,68 @@ class TestUpdateInstitute(TestCase):
         db.session.remove()
         db.drop_all()
 
-    def test_update_inst(self):
-        
-        print "test_update_inst_in_system_persistence"
-        session_cls = System.delegate.entities['session']
-        inst_cls = System.delegate.entities['institute']
+    def test_update_institute(self):
 
-        session = session_cls(key=KEY)
-        inst_name = "IIT Delhi"
-        inst_id = "IITD"
-        institute = inst_cls(inst_name=inst_name, inst_id=inst_id)
-                               
+        print "test_update_institute_in_system_persistence"
+        session_cls = System.delegate.entities['session']
+        institute_cls = System.delegate.entities['institute']
+
+        inst_name1="IIT Kanpur"
+        inst_id1="IITK"
+        key = KEY
+        session = session_cls(key=key)
+        institute = institute_cls(inst_id=inst_id1, inst_name=inst_name1)
+
         institute.save()
 
-        inst_name2 = "IIT Kharagpur"
-        inst_id2 = "IITKgp"
+        inst_name2="IIT Kharagpur"
 
-        inst1 = System.do("update_institute", institute=institute, 
-                                  inst_name=inst_name2, inst_id=inst_id2) 
-                                 
-        new_inst = inst_cls.get_by_id(1)
+        institute1 = System.do("update_institute", inst_name=inst_name2,
+                                 institute=institute, session=session)
 
-        self.assertEqual(new_inst.get("inst_name"), inst_name2)
-        self.assertEqual(new_inst.get("inst_id"), inst_id2)
-            
+        new_institute = institute_cls.get_by_id(1)
+
+        self.assertEqual(new_institute.get("inst_name"), inst_name2)
+#+END_SRC
+
+
+* Test UpdateDiscipline 
+#+NAME: test_update_discipline
+#+BEGIN_SRC python
+class TestUpdateDisciplilne(TestCase):
+    TESTING = True
+
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_update_discipline(self):
+
+        print "test_update_discipline_in_system_persistence"
+        session_cls = System.delegate.entities['session']
+        discipline_cls = System.delegate.entities['discipline']
+
+        dis_name = "arrays"
+        dis_id = "cse02"
+        discipline = discipline_cls(dis_name=dis_name, dis_id=dis_id)
+        discipline.save()
+        key = KEY
+        session = session_cls(key=key)
+
+        dis_name1 = "lists"
+
+        discipline1 = System.do("update_discipline", dis_name=dis_name1,
+                                  discipline=discipline, session=session)
+
+        self.assertEqual(discipline1.get("dis_name"), dis_name1)
+
 #+END_SRC
 
 
@@ -619,24 +677,88 @@ class TestUpdateSection(TestCase):
         session_cls = System.delegate.entities['session']
         section_cls = System.delegate.entities['section']
 
+            
+#+END_SRC
+
+
+* Test UpdateHostingInfo 
+#+NAME: test_update_hostinginfo
+#+BEGIN_SRC python
+class TestUpdateHostingInfo(TestCase):
+    TESTING = True
+
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_update_hostinginfo(self):
+
+        print "test_update_hostinginfo_in_system_persistence"
+        session_cls = System.delegate.entities['session']
+        hostinginfo_cls = System.delegate.entities['hostinginfo']
+
+        hosting_status1 = "hosted"
+        hosted_url1 = "http://cse14-iiith.vlabs.ac.in"
+        key = KEY
+        session = session_cls(key=key)
+        hostinginfo = hostinginfo_cls(hosting_status=hosting_status1, hosted_url=hosted_url1)
+
+        hostinginfo.save()
+
+        hosting_status2="not hosted"
+
+        hostinginfo1 = System.do("update_hostinginfo", hosting_status=hosting_status2,
+                                 hostinginfo=hostinginfo, session=session)
+
+        new_hostinginfo = hostinginfo_cls.get_by_id(1)
+
+        self.assertEqual(new_hostinginfo.get("hosting_status"), hosting_status2)
+#+END_SRC
+
+
+* Test DeleteExperiment
+#+NAME:  test_delete_experiment 
+#+BEGIN_SRC python
+class TestDeleteExperiment(TestCase):
+    TESTING = True
+
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_delete_exp(self):
+        
+        print "test_delete_exp_in_system_persistence"
+        session_cls = System.delegate.entities['session']
+        experiment_cls = System.delegate.entities['experiment']
+
         exp_name = "arrays"
         exp_id = "cse02"
         overview = "overview"
-        experiment = experiment_cls(exp_name=exp_name, exp_id=exp_id, 
+        key = KEY
+        experiment = experiment_cls(exp_name=exp_name, exp_id=exp_id,
                                         overview=overview, sections=[])
+
         experiment.save()
-
-        exp_name2 = "two dimentional arrays"
-        exp_id2 = "cse03"
-
-        exp1 = System.do("update_experiment", experiment=experiment, 
-                                  exp_name=exp_name2, exp_id=exp_id2, 
+        session = session_cls(key=key)
+        exp_id1 = System.do("delete_experiment", exp_id = exp_id,
                                   session=session)
 
-        new_exp = exp_cls.get_by_id(1)
-
-        self.assertEqual(new_exp.get("exp_name"), exp_name2)
-        self.assertEqual(new_exp.get("exp_id"), exp_id2)
+        self.assertEqual(exp_id1, exp_id)
             
 #+END_SRC
 
@@ -723,10 +845,12 @@ class TestDeleteInstitute(TestCase):
 #+END_SRC
 
 
+
 * Test DeleteName 
 #+NAME:  test_delete_name 
 #+BEGIN_SRC python
 class TestDeleteName(TestCase):
+
     TESTING = True
 
     def create_app(self):
@@ -741,7 +865,6 @@ class TestDeleteName(TestCase):
         db.drop_all()
 
     def test_delete_name(self):
-
         print "test_delete_name_in_system_persistence"
         session_cls = System.delegate.entities['session']
         name_cls = System.delegate.entities['name']
@@ -754,6 +877,65 @@ class TestDeleteName(TestCase):
         name1.save()
         name2 = System.do("delete_name", name=name1, session=session)
         self.assertEqual(name, name2.get("name"))
+
+#+END_SRC
+
+* Test DeleteLab
+#+NAME:  test_delete_lab 
+#+BEGIN_SRC python
+class TestDeleteLab(TestCase):
+    TESTING = True
+
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_delete_lab(self):
+        
+        print "test_delete_lab_in_system_persistence"
+        session_cls = System.delegate.entities['session']
+        lab_cls = System.delegate.entities['lab']
+        institute_cls = System.delegate.entities['institute']
+        discipline_cls = System.delegate.entities['discipline']
+        experiment_cls = System.delegate.entities['experiment']
+
+        exp_name = "arrays"
+        exp_id = "cse02"
+        overview = "overview"
+        experiment = experiment_cls(exp_name=exp_name, exp_id=exp_id,
+                                        overview=overview, sections=[])
+        experiment.save()
+
+        inst_name = "IIT Kanpur"
+        inst_id = "IITK"
+        inst = institute_cls(inst_name=inst_name, inst_id=inst_id)
+        inst.save()
+
+        dis_name = "IIT Kanpur"
+        dis_id = "IITK"
+        discipline = discipline_cls(dis_name=dis_name, dis_id=dis_id)
+        discipline.save()
+
+        lab_name1="Computer Programming"
+        lab_id1="CSE01"
+        key = KEY
+        overview = "overview"
+        session = session_cls(key=key)
+        lab = lab_cls(lab_id=lab_id1, lab_name=lab_name1, \
+                          institute=inst, discipline=discipline,
+                          overview=overview, experiments=[experiment])
+        lab.save()
+        lab_id = System.do("delete_lab", lab_id = lab_id1,
+                                  session=session)
+
+        self.assertEqual(lab_id, lab_id1)
             
 #+END_SRC
 
@@ -790,6 +972,43 @@ class TestDeleteEmail(TestCase):
         email2 = System.do("delete_email", email = email1, session=session)
 
         self.assertEqual(email1.get("email"), email2.get("email"))
+#+END_SRC
+
+
+* Test DeleteDiscipline
+#+NAME:  test_delete_discipline 
+#+BEGIN_SRC python
+class TestDeleteDiscipline(TestCase):
+    TESTING = True
+
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_delete_discipline(self):
+        
+        print "test_delete_discipline_in_system_persistence"
+        session_cls = System.delegate.entities['session']
+        discipline_cls = System.delegate.entities['discipline']
+
+        dis_name = "arrays"
+        dis_id = "cse02"
+        discipline = discipline_cls(dis_name=dis_name, dis_id=dis_id)
+        discipline.save()
+        key = KEY
+        session = session_cls(key=key)
+
+        dis_id1 = System.do("delete_discipline", dis_id = dis_id,
+                                  session=session)
+
+        self.assertEqual(dis_id, dis_id1)
             
 #+END_SRC
 
@@ -837,6 +1056,45 @@ class TestDeleteDeveloper(TestCase):
 #+END_SRC
 
 
+* Test DeleteHostingInfo 
+#+NAME:  test_delete_hostinginfo 
+#+BEGIN_SRC python
+class TestDeleteHostingInfo(TestCase):
+
+    TESTING = True
+
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_delete_hostinginfo(self):
+        
+        print "test_delete_hostinginfo_in_system_persistence"
+        session_cls = System.delegate.entities['session']
+        hostinginfo_cls = System.delegate.entities['hostinginfo']
+
+        hosting_status = "hosted"
+        hosted_url = "http://cse14-iiith.vlabs.ac.in"
+        key = KEY
+        session = session_cls(key=key)
+        hostinginfo = hostinginfo_cls(hosting_status=hosting_status, hosted_url=hosted_url)
+                         
+        hostinginfo.save()
+        hostinginfo = System.do("delete_hostinginfo", hosted_url = hosted_url,
+                                  session=session)
+
+        self.assertEqual(hostinginfo, hosted_url)
+            
+#+END_SRC
+
+
 * Test GetLab
 #+NAME: test_get_lab
 #+BEGIN_SRC python
@@ -857,26 +1115,39 @@ class TestGetLab(TestCase):
     def test_get_lab(self):
 
         print "test_get_lab_in_system_persistence"
-        session_cls = System.delegate.entities['session']
         lab_cls = System.delegate.entities['lab']
+        institute_cls = System.delegate.entities['institute']
+        discipline_cls = System.delegate.entities['discipline']
 
         lab_name1="Computer Programming"
         lab_id1="CSE01"
-        key = KEY
         overview = "overview"
-        session = session_cls(key=key)
+
+        inst_name = "IIT Kanpur"
+        inst_id = "IITK"
+        inst = institute_cls(inst_name=inst_name, inst_id=inst_id)
+        inst.save()
+
+        dis_name = "IIT Kanpur"
+        dis_id = "IITK"
+        discipline = discipline_cls(dis_name=dis_name, dis_id=dis_id)
+        discipline.save()
+
         lab = lab_cls(lab_id=lab_id1, lab_name=lab_name1, \
+                          institute=inst, discipline=discipline,
                           overview=overview, experiments=[])
 
         lab.save()
 
-        lab1 = System.do("get_lab", lab_id=lab_id1,
-                                  session=session)
+        lab1 = System.do("get_lab", lab_id=lab_id1)
+
 
         self.assertEqual(lab1.get("lab_name"), lab_name1)
         self.assertEqual(lab1.get("lab_id"), lab_id1)
             
 #+END_SRC
+
+
 
 
 * Test GetName
@@ -912,6 +1183,44 @@ class TestGetName(TestCase):
         name2 = System.do("get_name", name=name, session=session)
 
         self.assertEqual(name2.get("name"), name1)
+#+END_SRC
+
+
+* Test GetExperiment
+#+NAME: test_get_exp
+#+BEGIN_SRC python
+class TestGetExp(TestCase):
+
+    TESTING = True
+
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_get_exp(self):
+
+        print "test_get_exp_in_system_persistence"
+        exp_cls = System.delegate.entities['experiment']
+
+        experiment_cls = System.delegate.entities['experiment']
+        exp_name = "arrays"
+        exp_id = "cse02"
+        overview = "overview"
+        experiment = experiment_cls(exp_name=exp_name, exp_id=exp_id,
+                                        overview=overview, sections=[])
+        experiment.save()
+
+        experiment1 = System.do("get_experiment", exp_id=exp_id)
+
+        self.assertEqual(experiment1.get("exp_name"), exp_name)
+        self.assertEqual(experiment1.get("exp_id"), exp_id)
             
 #+END_SRC
 
@@ -949,8 +1258,80 @@ class TestGetEmail(TestCase):
         email2 = System.do("get_email", email=email, session=session)
 
         self.assertEqual(email2.get("email"), email1)
+
+#+END_SRC
+
+* Test GetInstitute 
+#+NAME: test_get_institute
+#+BEGIN_SRC python
+class TestGetInstitute(TestCase):
+
+    TESTING = True
+
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_get_institute(self):
+
+        print "test_get_institute_in_system_persistence"
+        session_cls = System.delegate.entities['session']
+        institute_cls = System.delegate.entities['institute']
+
+        inst_name1= "IIT Kanpur"
+        inst_id1= "IITK"
+        institute = institute_cls(inst_id=inst_id1, inst_name=inst_name1)
+        institute.save()
+
+        institute1 = System.do("get_institute", inst_id=inst_id1)
+
+        self.assertEqual(institute1.get("inst_name"), inst_name1)
+        self.assertEqual(institute1.get("inst_id"), inst_id1)
             
 #+END_SRC
+
+
+* Test GetDiscipline
+#+NAME: test_get_discipline
+#+BEGIN_SRC python
+class TestGetDiscipline(TestCase):
+    TESTING = True
+
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_get_discipline(self):
+
+        print "test_get_discipline_in_system_persistence"
+        discipline_cls = System.delegate.entities['discipline']
+
+        dis_name = "arrays"
+        dis_id = "cse02"
+        discipline = discipline_cls(dis_name=dis_name, dis_id=dis_id)
+        discipline.save()
+
+        exp1 = System.do("get_discipline", dis_id=dis_id)
+
+        self.assertEqual(exp1.get("dis_name"), dis_name)
+        self.assertEqual(exp1.get("dis_id"), dis_id)
+            
+#+END_SRC
+
 
 
 * Test GetDeveloper
@@ -990,6 +1371,43 @@ class TestGetDeveloper(TestCase):
 
         self.assertEqual(developer1.get("name"), dev_name1)
         self.assertEqual(developer1.get("email"), email_id1)
+
+#+END_SRC
+
+
+* Test GetHostingInfo 
+#+NAME: test_get_hostinginfo
+#+BEGIN_SRC python
+class TestGetHostingInfo(TestCase):
+
+    TESTING = True
+
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_get_hostinginfo(self):
+
+        print "test_get_hostinginfo_in_system_persistence"
+        session_cls = System.delegate.entities['session']
+        hostinginfo_cls = System.delegate.entities['hostinginfo']
+
+        hosting_status1 = "hosted"
+        hosted_url1 = "http://cse14-iiith.vlabs.ac.in"
+        hostinginfo = hostinginfo_cls(hosting_status=hosting_status1, hosted_url=hosted_url1)
+        hostinginfo.save()
+
+        hostinginfo1 = System.do("get_hostinginfo", hosted_url=hosted_url1)
+
+        self.assertEqual(hostinginfo1.get("hosting_status"), hosting_status1)
+        self.assertEqual(hostinginfo1.get("hosted_url"), hosted_url1)
             
 #+END_SRC
 
@@ -1031,7 +1449,10 @@ if __name__ == '__main__':
 <<populate_db>>
 <<test_add_lab>>
 <<test_delete_lab>>
-#<<test_delete_institute>>
+<<test_delete_experiment>>
+<<test_delete_institute>>
+<<test_delete_discipline>>
+<<test_delete_hostinginfo>>
 <<test_add_experiment>>
 <<test_add_institute>>
 <<test_add_discipline>>
@@ -1045,12 +1466,21 @@ if __name__ == '__main__':
 <<test_delete_name>>
 <<test_delete_email>>
 <<test_delete_developer>>
-#<<test_update_institute>>
+<<test_add_hostinginfo>>
+<<test_update_lab>>
+<<test_update_experiment>>
+<<test_update_institute>>
+<<test_update_discipline>>
+<<test_update_hostinginfo>>
 <<test_add_sections_to_experiment>>
-#<<test_add_labs_to_institute>>
 <<test_get_lab>>
 <<test_get_name>>
 <<test_get_email>>
 <<test_get_developer>>
+<<test_get_institute>>
+<<test_get_exp>>
+<<test_get_discipline>>
+<<test_get_hostinginfo>>
 <<run_test_cases>>
+
 #+end_src
