@@ -822,7 +822,6 @@ class TestAddDeveloper(TestCase):
             SystemInterface.add_developer(data_dict)
  #+END_SRC
 
-
 ** Add IntegrationStatus
 #+NAME: class_add_integrationstatus
 #+begin_src python
@@ -1517,6 +1516,68 @@ class TestGetDevelopers(TestCase):
                              data_dict['name'])
         self.assertEqual(developer_list[1].get("name").get("name"),
                              data_dict1['name'])
+
+ #+END_SRC
+
+** Get IntegrationStatuss
+#+NAME: class_get_integrationstatuss
+#+begin_src python
+    @staticmethod
+    def get_integrationstatuss():
+        integrationstatus_cls = System.delegate.entities['integrationstatus']
+        try:
+            current_app.logger.debug("getting integrationstatuss")
+            integrationstatuss = integrationstatus_cls.get_all()
+            intstatus_dict_list = []
+            for intstatus in integrationstatuss:
+                intstatus_x = intstatus.to_client()
+                intstatus_dict_list.append(intstatus_x)
+            current_app.logger.debug("got integrationstatuss")
+            return  intstatus_dict_list
+
+        except (ArityError, TypeError, NotAuthorizedError, StateError) as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+
+        except Exception as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+#+end_src
+
+*** TestGetIntigrationStatuss
+ #+NAME: test_class_get_integrationstatuss
+ #+BEGIN_SRC python
+class TestGetIntegrationStatuss(TestCase):
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_get_integrationstatuss_in_system_interface(self):
+        print "test_get_integrationstatuss_in_system_interface"
+
+        data_dict = {'integration_level': 4,
+                    'key' : KEY
+                    }
+
+        data_dict1 = {'integration_level': 2,
+                     'key' : KEY
+                     }
+
+        intstatus1 = SystemInterface.add_integrationstatus(data_dict)
+        intstatus2 = SystemInterface.add_integrationstatus(data_dict1)
+
+        intstatus_list = SystemInterface.get_integrationstatuss()
+        
+        self.assertEqual(intstatus_list[0].get("integration_level"), data_dict['integration_level'])
+        self.assertEqual(intstatus_list[1].get("integration_level"), data_dict1['integration_level'])
 
  #+END_SRC
 
@@ -3078,6 +3139,66 @@ class TestDeleteDeveloper(TestCase):
 
  #+END_SRC
 
+** Delete IntegrationStatus
+#+NAME: class_delete_integrationstatus
+#+begin_src python
+    @staticmethod
+    def delete_integrationstatus(integration_level, key):
+        session_cls = System.delegate.entities['session']
+        session = session_cls(key=str(key))
+
+        try:
+            current_app.logger.debug("running operation delete_integrationstatus")
+            integrationstatus_id = System.do("delete_integrationstatus", integration_level=int(integration_level),
+                                      session=session)
+            current_app.logger.debug("completed operation delete_integrationstatus")
+            return integrationstatus_id
+        except (ArityError, TypeError, NotAuthorizedError, StateError) as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+
+        except Exception as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+#+end_src
+
+*** TestDeleteIntegrationStatus
+ #+NAME: test_class_delete_integrationstatus
+ #+BEGIN_SRC python
+class TestDeleteIntegrationStatus(TestCase):
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_delete_integrationstatus_in_system_interface(self):
+        print "test_delete_integrationstatus_in_system_interface"
+
+        data_dict = {
+                    'key' : KEY,
+                    'integration_level': 4
+                    }
+
+        data_dict1 = {
+                    'key' : KEY,
+                    'integration_level': 2
+                     }
+
+        integrationstatus = SystemInterface.add_integrationstatus(data_dict)
+        integrationstatus1 = SystemInterface.add_integrationstatus(data_dict1)
+        integration_level = SystemInterface.delete_integrationstatus(2, KEY)
+        
+        self.assertEqual(integration_level, 2)
+
+ #+END_SRC
+
 
 ** Get Institute by InstituteId
 #+NAME: class_get_institute_by_inst_id
@@ -3448,6 +3569,7 @@ if __name__ == '__main__':
 <<class_delete_section>>
 <<class_delete_discipline>>
 <<class_delete_hostinginfo>>
+<<class_delete_integrationstatus>>
 
 <<class_update_lab>>
 <<class_update_institute>>
@@ -3461,6 +3583,7 @@ if __name__ == '__main__':
 <<class_get_institutes>>
 <<class_get_disciplines>>
 <<class_get_hostinginfos>>
+<<class_get_integrationstatuss>>
 
 <<class_get_lab_by_lab_id>>
 <<class_get_lab_by_exp_id>>
@@ -3500,7 +3623,7 @@ if __name__ == '__main__':
 <<test_class_delete_section>>
 <<test_class_delete_Discipline>>
 <<test_class_delete_hostinginfo>>
-
+<<test_class_delete_integrationstatus>>
 
 <<test_class_get_labs>>
 <<test_class_get_sections>>
@@ -3508,6 +3631,7 @@ if __name__ == '__main__':
 <<test_class_get_institutes>>
 <<test_class_get_disciplines>>
 <<test_class_get_hostinginfos>>
+<<test_class_get_integrationstatuss>>
 
 <<test_class_get_lab_by_id>>
 <<test_class_get_experiment_by_id>>
