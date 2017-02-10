@@ -1658,7 +1658,7 @@ class TestAddSection(TestCase):
       + Contents :
 
 #+BEGIN_EXAMPLE
-[{"hosting_status": "hosted", "id": 1, "hosted_url": "http://cse14-iiith.vlabs.ac.in"}]
+[{"hosting_status": "hosted", "id": 1, "hosted_url": "http://cse14-iiith.vlabs.ac.in", "hosted_on": "cloud"}]
 #+END_EXAMPLE	       
 
     
@@ -1737,6 +1737,7 @@ class TestGetHostingInfo(TestCase):
 
         payload = {'hosting_status': 'hosted',
                    'hosted_url': 'http://cse14-iiith.vlabs.ac.in',
+                   'hosted_on': 'cloud',
                    'key': KEY}
 
         headers = {'Content-Type': 'application/json'}
@@ -1767,6 +1768,7 @@ class TestGetHostingInfo(TestCase):
 {
 "hosted_url": "http://cse14-iiith.vlabs.ac.in",
 "hosting_status": "hosted",
+"hosted_on": "cloud",
 "key": "<key>"
 }
 #+END_EXAMPLE	       
@@ -1778,7 +1780,8 @@ class TestGetHostingInfo(TestCase):
 {
   "id": 1, 
   "hosted_url": "http://cse14-iiith.vlabs.ac.in", 
-  "hosting_status": "hosted"
+  "hosting_status": "hosted",
+  "hosted_on": "cloud"
 }
 
 #+END_EXAMPLE
@@ -1841,6 +1844,7 @@ class TestAddHostingInfo(TestCase):
         print "test_add_hostinginfo_in_rest"
         payload = {'hosting_status': 'hosted',
                    'hosted_url': 'http://cse14-iiith.vlabs.ac.in',
+                   'hosted_on': 'cloud',
                    'key': KEY}
 
         headers = {'Content-Type': 'application/json'}
@@ -2837,37 +2841,6 @@ class TestDeleteSection(TestCase):
     http://localhost:5000/institutes?inst_id=iiith
 #+END_EXAMPLE
 
-**** Delete institute by inst_id
-  :PROPERTIES:
-  :CUSTOM_ID: delete_institute_by_inst_id
-  :END:    
-  - URL :: /institutes?<inst_id>&key=<key>
-
-  - Method :: DELETE
-
-  - URL Params ::  None
-
-  - Payload :: 
-
-  - Success Response
-    + Status_Code: 200
-      + Contents :
-#+BEGIN_EXAMPLE
-{
-  "status": "sucess"
-}
-
-#+END_EXAMPLE
-    
-  - Error Response:
-    + Contents :
-                {"status" : "error"}
-    
-  - Example:
-#+BEGIN_EXAMPLE
-    http://localhost:5000/disciplines?dis_id=cse&key=<key>
-#+END_EXAMPLE
-
 *** Implementation
 #+NAME: update_institute
 #+BEGIN_SRC python
@@ -3257,7 +3230,8 @@ class TestDeleteDiscipline(TestCase):
 #+BEGIN_EXAMPLE
 {
 "hosting_status": "hosted",
-  "key": "<key>"
+"hosted_on": "cloud",
+"key": "<key>"
 }
 
 #+END_EXAMPLE
@@ -3268,7 +3242,8 @@ class TestDeleteDiscipline(TestCase):
 {
   "id": 1, 
   "hosted_url": "http://cse14-iiith.vlabs.ac.in",
-  "hosting_status": "hosted"
+  "hosting_status": "hosted",
+  "hosted_on": "cloud"
 }
 
 #+END_EXAMPLE
@@ -3337,10 +3312,10 @@ class TestUpdateHostingInfo(TestCase):
 
         payload = {'hosting_status': 'hosted',
                    'hosted_url': 'http://cse14-iiith.vlabs.ac.in',
+                   'hosted_on': 'cloud',
                    'key': KEY}
 
-        payload1 = {'hosting_status': 'not hosted',
-                   'key': KEY}
+        payload1 = {'hosting_status': 'not hosted', 'hosted_on': 'server', 'key': KEY}
 
         headers = {'Content-Type': 'application/json'}
 
@@ -3434,6 +3409,7 @@ class TestDeleteHostingInfo(TestCase):
 
         payload = {'hosting_status': 'hosted',
                    'hosted_url': 'http://cse14-iiith.vlabs.ac.in',
+                   'hosted_on': 'cloud',
                    'key': KEY}
 
         headers = {'Content-Type': 'application/json'}

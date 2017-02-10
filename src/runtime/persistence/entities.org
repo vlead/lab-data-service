@@ -508,7 +508,8 @@ class TestPersistentDeveloper(TestCase):
 args = {"__tablename__": "hostinginfo",
         "id": db.Column(db.Integer, primary_key=True),
         "hosting_status": db.Column(db.String(255), unique=False, nullable=True),
-        "hosted_url": db.Column(db.String(255), unique=True, nullable=False)
+        "hosted_url": db.Column(db.String(255), unique=True, nullable=False),
+        "hosted_on": db.Column(db.String(255), unique=False, nullable=True)
        }
 
 HostingInfo = ClassPersistenceTemplate.mk_persistent(HostingInfo, ['hosted_url'], **args)
@@ -536,12 +537,14 @@ class TestPersistenceHostingInfo(TestCase):
         print "test_persistent_hostinginfo"
         hosting_status = "hosted"
         hosted_url = "http://cse14-iiith.vlabs.ac.in"
-        host = HostingInfo(hosting_status=hosting_status, hosted_url=hosted_url)
+        hosted_on = "cloud"
+        host = HostingInfo(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
         host.save()
         hostinginfo = HostingInfo.get_by_id(1)
         hostinginfo1 = HostingInfo.get_by_id(2)
         self.assertEqual(hostinginfo.get("hosting_status"), hosting_status)
         self.assertEqual(hostinginfo.get("hosted_url"), hosted_url)
+        self.assertEqual(hostinginfo.get("hosted_on"), hosted_on)
         self.assertEqual(hostinginfo1,None)
 
 #+END_SRC

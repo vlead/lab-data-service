@@ -405,7 +405,8 @@ class TestAddHostingInfo(TestCase):
         hostinginfo_cls = System.delegate.entities['hostinginfo']
         hosting_status = "hosted"
         hosted_url = "http://cse14-iiith.vlabs.ac.in"
-        hostinginfo = hostinginfo_cls(hosting_status=hosting_status, hosted_url=hosted_url)
+        hosted_on = "cloud"
+        hostinginfo = hostinginfo_cls(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
                                        
         key = KEY
         session = session_cls(key=key)
@@ -413,6 +414,7 @@ class TestAddHostingInfo(TestCase):
                                 session=session)
         hostinginfo1 = hostinginfo_cls.get_by_id(1)
         self.assertEqual(hostinginfo1.get("hosting_status"), hosting_status)
+        self.assertEqual(hostinginfo1.get("hosted_on"), hosted_on)
 
 #+END_SRC
 
@@ -740,20 +742,23 @@ class TestUpdateHostingInfo(TestCase):
 
         hosting_status1 = "hosted"
         hosted_url1 = "http://cse14-iiith.vlabs.ac.in"
+        hosted_on1 = "cloud"
         key = KEY
         session = session_cls(key=key)
-        hostinginfo = hostinginfo_cls(hosting_status=hosting_status1, hosted_url=hosted_url1)
+        hostinginfo = hostinginfo_cls(hosting_status=hosting_status1, hosted_url=hosted_url1, hosted_on=hosted_on1)
 
         hostinginfo.save()
 
-        hosting_status2="not hosted"
-
-        hostinginfo1 = System.do("update_hostinginfo", hosting_status=hosting_status2,
+        hosting_status2 ="not hosted"
+        hosted_on2 = "server"
+        hostinginfo1 = System.do("update_hostinginfo", hosting_status=hosting_status2, hosted_on=hosted_on2,
                                  hostinginfo=hostinginfo, session=session)
 
         new_hostinginfo = hostinginfo_cls.get_by_id(1)
 
         self.assertEqual(new_hostinginfo.get("hosting_status"), hosting_status2)
+        self.assertEqual(new_hostinginfo.get("hosted_on"), hosted_on2)
+
 #+END_SRC
 
 
@@ -1118,9 +1123,10 @@ class TestDeleteHostingInfo(TestCase):
 
         hosting_status = "hosted"
         hosted_url = "http://cse14-iiith.vlabs.ac.in"
+        hosted_on = "cloud"
         key = KEY
         session = session_cls(key=key)
-        hostinginfo = hostinginfo_cls(hosting_status=hosting_status, hosted_url=hosted_url)
+        hostinginfo = hostinginfo_cls(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
                          
         hostinginfo.save()
         hostinginfo = System.do("delete_hostinginfo", hosted_url = hosted_url,
@@ -1476,13 +1482,15 @@ class TestGetHostingInfo(TestCase):
 
         hosting_status1 = "hosted"
         hosted_url1 = "http://cse14-iiith.vlabs.ac.in"
-        hostinginfo = hostinginfo_cls(hosting_status=hosting_status1, hosted_url=hosted_url1)
+        hosted_on1 = "cloud"
+        hostinginfo = hostinginfo_cls(hosting_status=hosting_status1, hosted_url=hosted_url1, hosted_on=hosted_on1)
         hostinginfo.save()
 
         hostinginfo1 = System.do("get_hostinginfo", hosted_url=hosted_url1)
 
         self.assertEqual(hostinginfo1.get("hosting_status"), hosting_status1)
         self.assertEqual(hostinginfo1.get("hosted_url"), hosted_url1)
+        self.assertEqual(hostinginfo1.get("hosted_on"), hosted_on1)
             
 #+END_SRC
 

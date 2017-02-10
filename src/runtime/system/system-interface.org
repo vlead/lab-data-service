@@ -500,7 +500,8 @@ class TestAddSection(TestCase):
         del(data_dict['key'])
 
         hostinginfo = hostinginfo_cls(hosting_status=str(data_dict['hosting_status']),
-                                  hosted_url=str(data_dict['hosted_url']))
+                                  hosted_url=str(data_dict['hosted_url']),
+                                  hosted_on=str(data_dict['hosted_on']))
 
         try:
             current_app.logger.debug("running operation add_hostinginfo")
@@ -539,7 +540,8 @@ class TestAddHostingInfo(TestCase):
         data_dict = {
                     'key' : KEY,
                     'hosting_status': 'hosted',
-                    'hosted_url': 'http://cse14-iiith.vlabs.ac.in'
+                    'hosted_url': 'http://cse14-iiith.vlabs.ac.in',
+                    'hosted_on': 'cloud'
                     }
 
         hostinginfo = SystemInterface.add_hostinginfo(data_dict)
@@ -549,7 +551,7 @@ class TestAddHostingInfo(TestCase):
         self.assertEqual(hostinginfo.get("hosting_status"),
                              data_dict['hosting_status'])
         self.assertEqual(hostinginfo.get("hosted_url"), data_dict['hosted_url'])
-        
+        self.assertEqual(hostinginfo.get("hosted_on"), data_dict['hosted_on'])
 
  #+END_SRC
 
@@ -1304,11 +1306,13 @@ class TestGetHostingInfos(TestCase):
 
         data_dict = {'hosting_status': 'hosted',
                      'hosted_url': 'http://cse14-iiith.vlabs.ac.in',
+                     'hosted_on': 'cloud',
                      'key' : KEY
                     }
 
         data_dict1 = {'hosting_status': 'not hosted',
                       'hosted_url': 'http://iitkgp.vlab.co.in',
+                      'hosted_on': 'server',
                       'key' : KEY
                      }
 
@@ -1319,10 +1323,10 @@ class TestGetHostingInfos(TestCase):
         
         self.assertEqual(host_list[0].get("hosting_status"), data_dict['hosting_status'])
         self.assertEqual(host_list[1].get("hosting_status"), data_dict1['hosting_status'])
-        self.assertEqual(host_list[0].get("hosted_url"), 
-                             data_dict['hosted_url'])
-        self.assertEqual(host_list[1].get("hosted_url"), 
-                             data_dict1['hosted_url'])
+        self.assertEqual(host_list[0].get("hosted_url"), data_dict['hosted_url'])
+        self.assertEqual(host_list[1].get("hosted_url"), data_dict1['hosted_url'])
+        self.assertEqual(host_list[0].get("hosted_on"), data_dict['hosted_on'])
+        self.assertEqual(host_list[1].get("hosted_on"), data_dict1['hosted_on'])
 
  #+END_SRC
 
@@ -2422,10 +2426,15 @@ class TestUpdateDiscipline(TestCase):
         else:
             hosting_status=data_dict['hosting_status']
 
+        if 'hosted_on' not in data_dict:
+            hosted_on=str(hostinginfo.get("hosted_on"))
+        else:
+            hosted_on=data_dict['hosted_on']
+
         try:
             current_app.logger.debug("running operation update_hostinginfo")
             hostinginfo = System.do("update_hostinginfo", hostinginfo=hostinginfo,
-                                    hosting_status=hosting_status, 
+                                    hosting_status=hosting_status, hosted_on=hosted_on,
                                     session=session)
             current_app.logger.debug("completed operation update_hostinginfo")
             return hostinginfo.to_client()
@@ -2460,19 +2469,22 @@ class TestUpdateHostingInfo(TestCase):
         data_dict = {
                     'key' : KEY,
                     'hosting_status': 'hosted',
-                    'hosted_url': 'http://cse14-iiith.vlabs.ac.in'
+                    'hosted_url': 'http://cse14-iiith.vlabs.ac.in',
+                    'hosted_on': 'cloud'
                     }
 
         data_dict1 = {
                     'key' : KEY,
                     'hosting_status': 'not hosted',
-                    'hosted_url': 'http://cse14-iiith.vlabs.ac.in'
+                    'hosted_url': 'http://cse14-iiith.vlabs.ac.in',
+                    'hosted_on': 'server'
                    }
 
         hostinginfo = SystemInterface.add_hostinginfo(data_dict)
         hostinginfo1 = SystemInterface.update_hostinginfo(data_dict1)
         
         self.assertEqual(hostinginfo1.get("hosting_status"), data_dict1['hosting_status'])
+        self.assertEqual(hostinginfo1.get("hosted_on"), data_dict1['hosted_on'])
 
  #+END_SRC
 
@@ -2932,13 +2944,15 @@ class TestDeleteHostingInfo(TestCase):
         data_dict = {
                     'key' : KEY,
                     'hosting_status': 'hosted',
-                    'hosted_url': 'http://cse14-iiith.vlabs.ac.in'
+                    'hosted_url': 'http://cse14-iiith.vlabs.ac.in',
+                    'hosted_on': 'cloud'
                     }
 
         data_dict1 = {
                     'key' : KEY,
                     'hosting_status': 'not hosted',
-                    'hosted_url': 'http://iitkgp.vlab.co.in'
+                    'hosted_url': 'http://iitkgp.vlab.co.in',
+                    'hosted_on': 'server'
                      }
 
         hostinginfo = SystemInterface.add_hostinginfo(data_dict)

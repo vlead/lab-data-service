@@ -515,16 +515,18 @@ class TestAssets(TestCase):
 
 
 * HostingInfo
-   =HostingInfo= is an entity that has a field =hosting_status= and =hosted_url= which are string
+   =HostingInfo= is an entity that has a field =hosting_status=, =hosted_url=
+   and =hosting_on= which are string
 #+NAME: class_HostingInfo
 #+begin_src python
 HostingInfo.add_attributes(hosting_status=is_str,
-                    hosted_url=is_url)
+                    hosted_url=is_url, hosted_on=is_str)
 
 HostingInfo.__eq__ = lambda self, other: \
                   isinstance(other, self.__class__) and \
                   self.get("hosting_status") == other.get("hosting_status") and \
-                  self.get("hosted_url") == other.get("hosted_url")
+                  self.get("hosted_url") == other.get("hosted_url") and \
+                  self.get("hosted_on") == other.get("hosted_on")
 #+end_src
 
 *** Test HostingInfo
@@ -536,10 +538,12 @@ class TestHostingInfo(TestCase):
         print "test_object_hostinginfo"
         hosting_status = "hosted"
         hosted_url = "http://cse14-iiith.vlabs.ac.in"
-        hostinginfo = HostingInfo(hosting_status=hosting_status, hosted_url=hosted_url)
+        hosted_on = "cloud"
+        hostinginfo = HostingInfo(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
                                               
         self.assertEqual(hostinginfo.get("hosting_status"), hosting_status)
         self.assertEqual(hostinginfo.get("hosted_url"), hosted_url)
+        self.assertEqual(hostinginfo.get("hosted_on"), hosted_on)
        
 #+END_SRC
 
