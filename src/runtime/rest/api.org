@@ -1643,7 +1643,7 @@ class TestAddSection(TestCase):
 *** API Design
 **** Get all HostingInfos
   :PROPERTIES:
-  :CUSTOM_ID: api_get_all_institutes
+  :CUSTOM_ID: api_get_all_hostinginfos
   :END:    
   - URL :: /hostinginfos
 
@@ -1754,7 +1754,7 @@ class TestGetHostingInfo(TestCase):
 *** API Design
 **** Add HostingInfo
   :PROPERTIES:
-  :CUSTOM_ID: api_add_institute
+  :CUSTOM_ID: api_add_hostinginfo
   :END:    
   - URL :: /hostinginfos
 
@@ -1846,6 +1846,216 @@ class TestAddHostingInfo(TestCase):
         headers = {'Content-Type': 'application/json'}
 
         response = self.client.post("/hostinginfos", data=json.dumps(payload),
+                                 headers=headers)
+
+        self.assertEqual(response.status_code, 200)
+
+ #+END_SRC
+   
+
+** Get IntegrationStatuss and Get IntegrationStatus
+*** API Design
+**** Get all IntegrationStatuss
+  :PROPERTIES:
+  :CUSTOM_ID: api_get_all_integrationstatuss
+  :END:    
+  - URL :: /integrationstatuss
+
+  - Method :: GET
+
+  - URL Params ::  None
+
+  - Payload :: 
+
+  - Success Response
+    + Status_Code: 200
+      + Contents :
+
+#+BEGIN_EXAMPLE
+[{"integration_level": 4, "id": 1}]
+#+END_EXAMPLE	       
+
+    
+  - Error Response:
+    + Contents :
+                {"status" : "error"}
+    
+  - Example:
+#+BEGIN_EXAMPLE
+http://localhost:5000/integrationstatuss
+#+END_EXAMPLE
+
+*** Implementation
+REST API to get all integrationstatuss.
+#+NAME: get_integrationstatus
+#+BEGIN_SRC python
+@api.route('/integrationstatuss', methods=['GET'])
+def get_integrationstatus():
+    if request.method == 'GET':
+       if 'integration_level' in request.args:
+           integration_level  = request.args['integration_level']
+           try:
+               integrationstatus = SystemInterface.get_integrationstatus(integration_level)
+               return jsonify(integrationstatus)
+
+           except NotAuthorizedError as err:
+               error_message = 'Not Authorized error: %s' % str(err)
+               current_app.logger.error("%s" %(error_message))
+               return render_template('error.html',
+                                       data=error_message)
+           except TypeError as err:
+               error_message = 'Malformed arguments, error: %s' % str(err)
+               current_app.logger.error("%s" %(error_message))
+               return render_template('error.html',
+                                       data=error_message)
+           except Exception as err:
+               error_message = 'error: %s' % str(err)
+               current_app.logger.error("%s" %(error_message))
+               return render_template('error.html',
+                                        data=error_message)
+       else:
+           try:
+               integrationstatuss = SystemInterface.get_integrationstatuss()
+               return jsonify_list(integrationstatuss)
+
+           except TypeError as err:
+               error_message = 'Malformed arguments, error: %s' % str(err)
+
+               return render_template('error.html',
+                                           data=error_message)
+
+           except Exception as err:
+               abort(500, 'error: %s' % str(err))
+            
+#+END_SRC
+
+*** Test Cases
+**** TestGetIntegrationStatus 
+ #+NAME: test_get_IntegrationStatus
+ #+BEGIN_SRC python
+class TestGetIntegrationStatus(TestCase):
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_get_integrationstatuss(self):
+        print "test_get_integrationstatuss_in_rest"
+
+        payload = {'integration_level': 4,
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/integrationstatuss", data=json.dumps(payload),
+                                 headers=headers)
+
+        response = self.client.get("/integrationstatuss", headers=headers)
+        self.assertEqual(response.status_code, 200)
+
+ #+END_SRC
+   
+
+** Add IntegrationStatus 
+*** API Design
+**** Add IntegrationStatus
+  :PROPERTIES:
+  :CUSTOM_ID: api_add_integrationstatus
+  :END:    
+  - URL :: /integrationstatuss
+
+  - Method :: POST
+
+  - URL Params ::  None
+
+  - Payload :: 
+#+BEGIN_EXAMPLE
+{
+"integration_level": 4,
+"key": "<key>"
+}
+#+END_EXAMPLE	       
+
+  - Success Response
+    + Status_Code: 200
+    + Content: 
+#+BEGIN_EXAMPLE
+{
+  "id": 1, 
+  "integration_level": 4
+}
+
+#+END_EXAMPLE
+
+  - Error Response:
+    + Contents :
+                {"status" : "error"}
+    
+  - Example:
+#+BEGIN_EXAMPLE
+http://localhost:5000/integrationstatuss
+#+END_EXAMPLE
+    
+*** Implementation
+REST API to add an integrationstatus.
+#+NAME: add_integrationstatus
+#+BEGIN_SRC python
+@api.route('/integrationstatuss', methods=['POST'])
+def add_integrationstatus():
+    if request.method == 'POST':
+        if request.is_json:
+            data_json = json.dumps(request.get_json())
+            data_dict = yaml.safe_load(data_json)
+        else:
+            abort(500, "the request does not contain data in json")
+
+        try:
+            integrationstatus = SystemInterface.add_integrationstatus(data_dict)
+            return jsonify(integrationstatus)
+
+        except TypeError as err:
+            error_message = 'Malformed arguments, error: %s' % str(err)
+
+            return render_template('error.html', 
+                    data=error_message)
+
+        except Exception as err:
+            abort(500, 'error: %s' % str(err))
+            
+#+END_SRC
+
+*** Test Cases
+**** TestAddIntegrationStatus 
+ #+NAME: test_add_integrationstatus
+ #+BEGIN_SRC python
+class TestAddIntegrationStatus(TestCase):
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_add_integrationstatus(self):
+        print "test_add_integrationstatus_in_rest"
+        payload = {'integration_level': 4,
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/integrationstatuss", data=json.dumps(payload),
                                  headers=headers)
 
         self.assertEqual(response.status_code, 200)
@@ -3035,7 +3245,7 @@ class TestDeleteDiscipline(TestCase):
 *** API Design
 **** Update hostinginfos by hosted_url
   :PROPERTIES:
-  :CUSTOM_ID: update_institutes_by_instid
+  :CUSTOM_ID: update_hostinginfos_by_hosted_url
   :END:    
   - URL :: /hostinginfos/<hosted_url>
 
@@ -3149,7 +3359,7 @@ class TestUpdateHostingInfo(TestCase):
 *** API Design
 **** Delete hostinginfo by hosted_url
   :PROPERTIES:
-  :CUSTOM_ID: delete_institute_by_inst_id
+  :CUSTOM_ID: delete_hostinginfo_by_hosted_url
   :END:    
   - URL :: /hostinginfos?<hosted_url>&key=<key>
 
@@ -3239,6 +3449,99 @@ class TestDeleteHostingInfo(TestCase):
  #+END_SRC
    
 
+** Delete IntegrationStatus
+*** API Design
+**** Delete integrationstatus by integration_level
+  :PROPERTIES:
+  :CUSTOM_ID: api_delete_integrationstatus_by_integration_level
+  :END:    
+  - URL :: /integrationstatuss?<integration_level>&key=<key>
+
+  - Method :: DELETE
+
+  - URL Params ::  None
+
+  - Payload :: 
+
+  - Success Response
+    + Status_Code: 200
+      + Contents :
+#+BEGIN_EXAMPLE
+{
+  "status": "sucess"
+}
+
+#+END_EXAMPLE
+    
+  - Error Response:
+    + Contents :
+                {"status" : "error"}
+    
+  - Example:
+#+BEGIN_EXAMPLE
+    http://localhost:5000/integrationstatuss?integration_level=4&key=<key>
+#+END_EXAMPLE
+
+*** Implementation
+#+NAME: delete_integrationstatus
+#+BEGIN_SRC python
+@api.route('/integrationstatuss', methods=['DELETE'])
+def delete_integrationstatus():
+    if request.method == 'DELETE':
+        if 'integration_level' in request.args and 'key' in request.args:
+            integration_level  = request.args['integration_level']
+            key = request.args['key']
+
+            try:
+                integrationstatus = SystemInterface.delete_integrationstatus(integration_level, key)
+                return jsonify({"status":"sucess"})
+
+            except TypeError as err:
+                error_message = 'Malformed arguments, error: %s' % str(err)
+
+                return render_template('error.html', data=error_message)
+
+            except Exception as err:
+                abort(500, 'error: %s' % str(err))
+
+#+END_SRC
+
+*** Test Cases
+**** TestDeleteIntegrationStatus
+ #+NAME: test_delete_integrationstatus
+ #+BEGIN_SRC python
+class TestDeleteIntegrationStatus(TestCase):
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_delete_integrationstatus(self):
+        print "test_delete_integrationstatus"
+
+        payload = {'integration_level': 4,
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/integrationstatuss", data=json.dumps(payload),
+                                 headers=headers)
+
+        response = self.client.delete("/integrationstatuss?integration_level=4&key=defaultkey",
+                                          headers=headers)
+
+        self.assertEqual(response.status_code, 200)
+
+ #+END_SRC
+   
+
 * Infra                                                         :boilerplate:
 
 ** sources
@@ -3319,6 +3622,9 @@ if __name__ == '__main__':
 <<add_hostinginfo>>
 <<update_hostinginfo>>
 <<delete_hostinginfo>>
+<<get_integrationstatus>>
+<<add_integrationstatus>>
+<<delete_integrationstatus>>
 #+END_SRC
 
 
@@ -3364,5 +3670,8 @@ if __name__ == '__main__':
 <<test_add_hostinginfo>>
 <<test_update_hostinginfo>>
 <<test_delete_hostinginfo>>
+<<test_get_IntegrationStatus>>
+<<test_add_integrationstatus>>
+<<test_delete_integrationstatus>>
 <<run_test_cases>>
 #+end_src
