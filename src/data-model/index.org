@@ -156,24 +156,24 @@ TYPE Name
 TYPE Email
 #+END_SRC
 
-*** HostingInformation
+*** HostingInfo
 :PROPERTIES:
-:CUSTOM_ID: entity_HostingInformation
+:CUSTOM_ID: entity_HostingInfo
 :END: 
-  Requirement satisfied: [[../requirements/index.org::#req6][HostingInformation]]
+  Requirement satisfied: [[../requirements/index.org::#req6][HostingInfo]]
 #+BEGIN_SRC spec :tangle spec.txt
 ;;; Entity Types
-TYPE HostingInformation
+TYPE HostingInfo
 #+END_SRC
 
-*** Assets
+*** Asset
 :PROPERTIES:
-:CUSTOM_ID: entity_Assets
+:CUSTOM_ID: entity_Asset
 :END: 
-  Requirement satisfied: [[../requirements/index.org::#req7][Assets]]
+  Requirement satisfied: [[../requirements/index.org::#req7][Asset]]
 #+BEGIN_SRC spec :tangle spec.txt
 ;;; Entity Types
-TYPE Assets
+TYPE Asset
 #+END_SRC
 
 *** IntegrationStatus
@@ -214,8 +214,11 @@ TYPE IntegrationStatus
 [discipline, name]        : Discipline ! > Name !
 [developer, name]         : Developer + > Name !
 [developer, email]        : Developer ! > Email !
-[hostinginformation, lab] : HostingInformation ! > Lab +
-[assets, lab]             : Assets + > lab !
+[hostinginfo, lab]        : HostingInfo ! > Lab !
+[asset, lab]              : Asset ! > Lab !
+[asset, discipline]       : Asset + > Discipline +
+[asset, experiment]       : Asset ! > experiment !
+[asset, institute]        : Asset + > institutes !
 [integrationstatus, lab]  : IntegrationStatus ! > Lab *
 
 #+END_SRC
@@ -286,8 +289,8 @@ Sets
   institute-set          : lab-set.institute          ; set of institutes in the system
   discipline-set         : lab-set.discipline         ; set of disciplines in the system
   developer-set          : lab-set.developer          ; set of developers in the system
-  hostinginformation-set : lab-set.hostinginformation ; set of hosting information in the system
-  assets-set             : lab-set.assets             ; set of assets in the system
+  hostinginfo-set        : lab-set.hostinginfo        ; set of hosting information in the system
+  asset-set              : lab-set.asset              ; set of assets in the system
   integrationstatus-set  : lab-set.integrationstatus  ; set of integration status in the system
 
   name-set        : developer-set.name         ; set of all names of developers in the system
@@ -300,10 +303,11 @@ Sets
   inst-id-set     : institute-set.inst_id      ; set of all inst_ids in the system
   disc-name-set   : discipline-set.disc_name   ; set of all disc-names in the system
   disc-id-set     : discipline-set.disc_id     ; set of all disc_ids in the system
-  hosting-status-set : hostinginformation-set.hosting_status ; set of all hosting_status in the system
-  hosted-url-set : hostinginformation-set.hosted_url    ; set of all hosted_urls in the system
-  assets-type-set : assets-set.assets_type     ; set of all assets_types in the system
-  assets-path-set : assets-set.assets_path     ; set of all assets_paths in the system
+  hosting-status-set : hostinginfo-set.hosting_status ; set of all hosting_status in the system
+  hosted-url-set  : hostinginfo-set.hosted_url ; set of all hosted_urls in the system
+  hosted_on-set   : hostinginfo-set.hosted_on  ; set of sll hosted_on in the system
+  asset-type-set  : asset-set.asset_type       ; set of all assets_types in the system
+  asset-path-set  : asset-set.asset_path       ; set of all assets_paths in the system
   integration-status-set : integrationstatus-set.level ; set of all levels in the system
 
 #+END_SRC
@@ -318,8 +322,8 @@ Sets
 [developers, institutes]    :  institute-set ! > developer-set +      
 [developers, labs]          :  lab-set + > developer-set + 
 [experiments, labs]         :  lab-set ! > experiment-set +
-[hostinginformation, labs]  :  lab-set + > hostinginformation-set !
-[assets, labs]              :  lab-set ! > assets-set +
+[hostinginfo, labs]         :  lab-set + > hostinginfo-set !
+[asset, labs]               :  lab-set ! > asset-set +
 [integrationstatus, labs]   :  lab-set * > integrationstatus-set !
 
 #+END_SRC
@@ -517,74 +521,74 @@ entity-set.   The operation may take additional parameters.
 #+END_SRC 
 
 
-** Add HostingInformation
+** Add HostingInfo
   :PROPERTIES:
-  :CUSTOM_ID: add_hostinginformation
+  :CUSTOM_ID: add_hostinginfo
   :END:
 *** Parameters
   :PROPERTIES:
-  :CUSTOM_ID: add_hostinginformation_parameters
+  :CUSTOM_ID: add_hostinginfo_parameters
   :END:
 #+BEGIN_SRC spec :tangle spec.txt
-    h: HostingInformation, s: Session
+    h: HostingInfo, s: Session
 #+END_SRC
 *** Actor credentials
   :PROPERTIES:
-  :CUSTOM_ID: add_hostinginformation_actor_credentials
+  :CUSTOM_ID: add_hostinginfo_actor_credentials
   :END:
 #+BEGIN_SRC spec :tangle spec.txt
     s.key == system configured key
 #+END_SRC
 *** Referential Integrity
   :PROPERTIES:
-  :CUSTOM_ID: add_hostinginformation_referential_integrity
+  :CUSTOM_ID: add_hostinginfo_referential_integrity
   :END:
 #+BEGIN_SRC spec :tangle spec.txt
-    h : ~hostinginformation-set
+    h : ~hostinginfo-set
 #+END_SRC
 *** Effect
   :PROPERTIES:
-  :CUSTOM_ID: add_hostinginformation_effect
+  :CUSTOM_ID: add_hostinginfo_effect
   :END:
 #+BEGIN_SRC spec :tangle spec.txt
-    h = new hostinginformation
-    hostinginformation-set = hostinginformation-set U {h}
+    h = new hostinginfo
+    hostinginfo-set = hostinginfo-set U {h}
 #+END_SRC
 
 
 
-** Add Assets
+** Add Asset
 :PROPERTIES:
-  :CUSTOM_ID: add_assets
+  :CUSTOM_ID: add_asset
   :END:
 *** Parameters
   :PROPERTIES:
-  :CUSTOM_ID: add_assets_parameters
+  :CUSTOM_ID: add_asset_parameters
   :END:
 #+BEGIN_SRC spec :tangle spec.txt
-    a: Assets, s: Session
+    a: Asset, s: Session
 #+END_SRC
 *** Actor credentials
   :PROPERTIES:
-  :CUSTOM_ID: add_assets_actor_credentials
+  :CUSTOM_ID: add_asset_actor_credentials
   :END:
 #+BEGIN_SRC spec :tangle spec.txt
     s.key == system configured key
 #+END_SRC
 *** Referential Integrity
   :PROPERTIES:
-  :CUSTOM_ID: add_assets_referential_integrity
+  :CUSTOM_ID: add_asset_referential_integrity
   :END:
 #+BEGIN_SRC spec :tangle spec.txt
-    a: ~assets-set
+    a: ~asset-set
 #+END_SRC
 *** Effect
   :PROPERTIES:
-  :CUSTOM_ID: add_assets_effect
+  :CUSTOM_ID: add_asset_effect
   :END:
 #+BEGIN_SRC spec :tangle spec.txt
-    a = new assets    
-   assets-set = assets-set U {a}
+    a = new asset    
+   asset-set = asset-set U {a}
 #+END_SRC
 
 
@@ -813,79 +817,80 @@ entity-set.   The operation may take additional parameters.
 #+END_SRC
 
 
-** Update HostingInformation
+** Update HostingInfo
   :PROPERTIES:
-  :CUSTOM_ID: update_hostinginformation
+  :CUSTOM_ID: update_hostinginfo
   :END:
 *** Parameters
   :PROPERTIES:
-  :CUSTOM_ID: update_hostinginformation_parameters
+  :CUSTOM_ID: update_hostinginfo_parameters
   :END:
 #+BEGIN_SRC spec :tangle spec.txt
-   hs: hosting_status, hu: hosted_url, h: HostingInformation , s: Session
+   hs: hosting_status, hu: hosted_url, ho: hosted_on, h: HostingInfo , s: Session
    #+END_SRC
 *** Actor credentials
   :PROPERTIES:
-  :CUSTOM_ID: update_hostinginformation_actor_credentials
+  :CUSTOM_ID: update_hostinginfo_actor_credentials
   :END:
 #+BEGIN_SRC spec :tangle spec.txt
     s.key == system configured key
 #+END_SRC
 *** Referential Integrity
   :PROPERTIES:
-  :CUSTOM_ID: update_hostinginformation_referential_integrity
+  :CUSTOM_ID: update_hostinginfo_referential_integrity
   :END:
 #+BEGIN_SRC spec :tangle spec.txt
-    h  : hostinginformation-set
+    h  : hostinginfo-set
     s  : session-set
     hs : hosting-status-set
     hu : ~hosted-url-set
+    ho : hosted-on-set
 
 #+END_SRC
 *** Effect
   :PROPERTIES:
-  :CUSTOM_ID: update_hostinginformation_effect
+  :CUSTOM_ID: update_hostinginfo_effect
   :END:
 #+BEGIN_SRC spec :tangle spec.txt
-    The HostingInformation details are updated.
+    The HostingInfo details are updated.
 #+END_SRC
 
 
-** Update Assets
+** Update Asset
   :PROPERTIES:
-  :CUSTOM_ID: update_assets
+  :CUSTOM_ID: update_asset
   :END:
 *** Parameters
   :PROPERTIES:
-  :CUSTOM_ID: update_assets_parameters
+  :CUSTOM_ID: update_asset_parameters
   :END:
 #+BEGIN_SRC spec :tangle spec.txt
-    at: assets_type, ap: assets_path, a: Assets, s: Session
+    at: asset_type, ap: asset_path, a: Asset, s: Session
 #+END_SRC
 *** Actor credentials
   :PROPERTIES:
-  :CUSTOM_ID: update_assets_actor_credentials
+  :CUSTOM_ID: update_asset_actor_credentials
   :END:
 #+BEGIN_SRC spec :tangle spec.txt
     s.key == system configured key
 #+END_SRC
 *** Referential Integrity
   :PROPERTIES:
-  :CUSTOM_ID: update_assets_referential_integrity
+  :CUSTOM_ID: update_asset_referential_integrity
   :END:
 #+BEGIN_SRC spec :tangle spec.txt
-    a : assets-set
+    a : asset-set
     s : session-set
-    at: assets-type-set
-    ap: ~assets-path-set
+    at: asset-type-set
+    ap: ~asset-path-set
 
 #+END_SRC
 *** Effect
   :PROPERTIES:
-  :CUSTOM_ID: update_assets_effect
+  :CUSTOM_ID: update_asset_effect
   :END:
 #+BEGIN_SRC spec :tangle spec.txt
-    The Assets details are updated.
+    The Asset details are updated.
 #+END_SRC
 
 
@@ -1110,76 +1115,76 @@ entity-set.   The operation may take additional parameters.
 #+END_SRC
 
 
-** Delete HostingInformation
+** Delete HostingInfo
   :PROPERTIES:
-  :CUSTOM_ID: delete_hostinginformation
+  :CUSTOM_ID: delete_hostinginfo
   :END:
 *** Parameters
   :PROPERTIES:
-  :CUSTOM_ID: delete_hostinginformation_parameters
+  :CUSTOM_ID: delete_hostinginfo_parameters
   :END:
 #+BEGIN_SRC spec :tangle spec.txt
-    h: HostingInformation, s: Session
+    h: HostingInfo, s: Session
 #+END_SRC
 *** Actor credentials
   :PROPERTIES:
-  :CUSTOM_ID: delete_hostinginformation_actor_credentials
+  :CUSTOM_ID: delete_hostinginfo_actor_credentials
   :END:
 #+BEGIN_SRC spec :tangle spec.txt
     s.key == system configured key
 #+END_SRC
 *** Referential Integrity
   :PROPERTIES:
-  :CUSTOM_ID: delete_hostinginformation_referential_integrity
+  :CUSTOM_ID: delete_hostinginfo_referential_integrity
   :END:
 #+BEGIN_SRC spec :tangle spec.txt
-    h : hostinginformation-set
+    h : hostinginfo-set
     s : session-set
 
 #+END_SRC
 *** Effect
   :PROPERTIES:
-  :CUSTOM_ID: delete_hostinginformation_effect
+  :CUSTOM_ID: delete_hostinginfo_effect
   :END:
 #+BEGIN_SRC spec :tangle spec.txt
-    hostinginformation-set = hostinginformation-set - {h}
+    hostinginfo-set = hostinginfo-set - {h}
     
 #+END_SRC
 
 
-** Delete Assets
+** Delete Asset
   :PROPERTIES:
-  :CUSTOM_ID: delete_assets
+  :CUSTOM_ID: delete_asset
   :END:
 *** Parameters
   :PROPERTIES:
-  :CUSTOM_ID: delete_assets_parameters
+  :CUSTOM_ID: delete_asset_parameters
   :END:
 #+BEGIN_SRC spec :tangle spec.txt
-    a: Assets, s: Session
+    a: Asset, s: Session
 #+END_SRC
 *** Actor credentials
   :PROPERTIES:
-  :CUSTOM_ID: delete_assets_actor_credentials
+  :CUSTOM_ID: delete_asset_actor_credentials
   :END:
 #+BEGIN_SRC spec :tangle spec.txt
     s.key == system configured key
 #+END_SRC
 *** Referential Integrity
   :PROPERTIES:
-  :CUSTOM_ID: delete_assets_referential_integrity
+  :CUSTOM_ID: delete_asset_referential_integrity
   :END:
 #+BEGIN_SRC spec :tangle spec.txt
-    a : assets-set
+    a : asset-set
     s : session-set
 
 #+END_SRC
 *** Effect
   :PROPERTIES:
-  :CUSTOM_ID: delete_assets_effect
+  :CUSTOM_ID: delete_asset_effect
   :END:
 #+BEGIN_SRC spec :tangle spec.txt
-    assets-set = assets-set - {a}
+    asset-set = asset-set - {a}
 
 #+END_SRC
 
