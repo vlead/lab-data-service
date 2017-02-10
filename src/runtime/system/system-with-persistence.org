@@ -457,6 +457,40 @@ class TestAddDeveloper(TestCase):
 #+END_SRC
 
 
+* Test AddIntegrationStatus 
+#+NAME: test_add_integrationstatus
+#+BEGIN_SRC python
+class TestAddIntegrationStatus(TestCase):
+
+    TESTING = True
+
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_add_integrationstatus(self):
+        print "test_add_integrationstatus_in_system_persistence"
+        session_cls = System.delegate.entities['session']
+        integrationstatus_cls = System.delegate.entities['integrationstatus']
+        integration_level = 4
+        integrationstatus = integrationstatus_cls(integration_level=integration_level)
+                                       
+        key = KEY
+        session = session_cls(key=key)
+        integrationstatus = System.do("add_integrationstatus", integrationstatus=integrationstatus, \
+                                session=session)
+        integrationstatus1 = integrationstatus_cls.get_by_id(1)
+        self.assertEqual(integrationstatus1.get("integration_level"), integration_level)
+#+END_SRC
+
+
 * Test UpdateLab
 #+NAME: test_update_lab
 #+BEGIN_SRC python
@@ -1097,6 +1131,44 @@ class TestDeleteHostingInfo(TestCase):
 #+END_SRC
 
 
+* Test DeleteIntegrationStatus 
+#+NAME:  test_delete_integrationstatus 
+#+BEGIN_SRC python
+class TestDeleteIntegrationStatus(TestCase):
+    TESTING = True
+
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_delete_integrationstatus(self):
+        
+        print "test_delete_integrationstatus_in_system_persistence"
+        session_cls = System.delegate.entities['session']
+        integrationstatus_cls = System.delegate.entities['integrationstatus']
+
+        integration_level= 4
+        key = KEY
+        session = session_cls(key=key)
+        integrationstatus = integrationstatus_cls(integration_level=integration_level)
+                         
+        integrationstatus.save()
+        integrationstatus = System.do("delete_integrationstatus", integration_level = integration_level,
+                                  session=session)
+
+        self.assertEqual(integrationstatus, integration_level)
+            
+#+END_SRC
+
+
+
 * Test GetLab
 #+NAME: test_get_lab
 #+BEGIN_SRC python
@@ -1263,6 +1335,7 @@ class TestGetEmail(TestCase):
 
 #+END_SRC
 
+
 * Test GetInstitute 
 #+NAME: test_get_institute
 #+BEGIN_SRC python
@@ -1414,6 +1487,41 @@ class TestGetHostingInfo(TestCase):
 #+END_SRC
 
 
+* Test GetIntegrationStatus 
+#+NAME: test_get_integrationstatus
+#+BEGIN_SRC python
+class TestGetIntegrationStatus(TestCase):
+
+    TESTING = True
+
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_get_integrationstatus(self):
+
+        print "test_get_integrationstatus_in_system_persistence"
+        session_cls = System.delegate.entities['session']
+        integrationstatus_cls = System.delegate.entities['integrationstatus']
+
+        integration_level1= 4
+        integrationstatus = integrationstatus_cls(integration_level=integration_level1)
+        integrationstatus.save()
+
+        integrationstatus1 = System.do("get_integrationstatus", integration_level=integration_level1)
+
+        self.assertEqual(integrationstatus1.get("integration_level"), integration_level1)
+            
+#+END_SRC
+
+
 * Infra                                                         :boilerplate:
 ** Tests
 *** Imports 
@@ -1462,12 +1570,14 @@ if __name__ == '__main__':
 <<test_add_name>>
 <<test_add_email>>
 <<test_add_developer>>
+<<test_add_integrationstatus>>
 <<test_update_lab>>
 <<test_update_experiment>>
 <<test_update_developer>>
 <<test_delete_name>>
 <<test_delete_email>>
 <<test_delete_developer>>
+<<test_delete_integrationstatus>>
 <<test_add_hostinginfo>>
 <<test_update_lab>>
 <<test_update_experiment>>
@@ -1483,6 +1593,7 @@ if __name__ == '__main__':
 <<test_get_exp>>
 <<test_get_discipline>>
 <<test_get_hostinginfo>>
+<<test_get_integrationstatus>>
 <<run_test_cases>>
 
 #+end_src

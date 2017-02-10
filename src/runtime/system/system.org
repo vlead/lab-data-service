@@ -484,6 +484,35 @@ class AddDeveloper():
 #+end_src
 
 
+** =AddIntegrationStatus=
+#+NAME: class_add_integrationstatus
+#+begin_src python
+class AddIntegrationStatus():
+    arg_types = {"integrationstatus": is_integrationstatus, "session": is_session}
+    arity_and_type_checks_needed = True
+
+    @staticmethod
+    def auth_check(args):
+        session = args['session']
+        if not System.is_session_valid(session):
+            raise NotAuthorizedError("Not Authorized to perform this action")
+
+    @staticmethod
+    def state_check(args):
+        integrationstatus = args["integrationstatus"]
+        if System.delegate.integrationstatus_exists(integrationstatus):
+            raise StateError("integrationstatus %s already exists in System"
+                                 % integrationstatus.to_client())
+
+    @staticmethod
+    def action(args):
+        integrationstatus = args["integrationstatus"]
+        integrationstatus = System.delegate.add_integrationstatus(integrationstatus)
+        return integrationstatus
+
+#+end_src
+
+
 ** =UpdateLab=
 #+NAME: class_update_lab
 #+begin_src python
@@ -1040,6 +1069,37 @@ class DeleteHostingInfo():
 #+end_src
 
 
+** =DeleteIntegrationStatus=
+#+NAME: class_delete_integrationstatus
+#+begin_src python
+class DeleteIntegrationStatus():
+    arg_types = {"integration_level": is_int, "session": is_session}
+    arity_and_type_checks_needed = True
+
+    @staticmethod
+    def auth_check(args):
+        session = args['session']
+        if not System.is_session_valid(session):
+            raise NotAuthorizedError("Not Authorized to perform this action")
+
+    @staticmethod
+    def state_check(args):
+        integration_level = args['integration_level']
+        integrationstatus = System.delegate.get_integrationstatus(integration_level=integration_level)    
+        if not System.delegate.integrationstatus_exists(integrationstatus):
+            raise StateError("integrationstatus %s does not exists in System"
+                                 % integrationstatus.to_client())
+
+    @staticmethod
+    def action(args):
+        integration_level = args["integration_level"]
+        integration_level = System.delegate.delete_integrationstatus(integration_level)
+        return integration_level
+        
+#+end_src
+
+
+
 ** =GetLab=
 #+NAME: class_get_lab
 #+begin_src python
@@ -1345,6 +1405,35 @@ class GetDeveloper():
 #+end_src
 
 
+** =GetIntegrationStatus=
+#+NAME: class_get_integrationstatus
+#+begin_src python
+class GetIntegrationStatus():
+    arg_types = {"integration_level": is_int}
+    arity_and_type_checks_needed = True
+
+    @staticmethod
+    def auth_check(args):
+        pass
+
+    @staticmethod
+    def state_check(args):
+        integration_level = args['integration_level']
+        integrationstatus = System.delegate.get_integrationstatus(integration_level=integration_level)    
+        if not System.delegate.integrationstatus_exists(integrationstatus):
+            raise StateError("integrationstatus %s does not exists in System"
+                                 % integrationstatus.to_client())
+        
+    @staticmethod
+    def action(args):
+        integration_level = args["integration_level"]
+        integrationstatus = System.delegate.get_integrationstatus(integration_level=integration_level)
+        return integrationstatus
+
+#+end_src
+
+
+
 ** Operations Table
    Each operation has a corresponding implementation defined as a class.
 
@@ -1383,7 +1472,10 @@ ops_table = {'add_lab' : AddLab,
              'add_hostinginfo' : AddHostingInfo,
              'get_hostinginfo': GetHostingInfo,
              'update_hostinginfo': UpdateHostingInfo,
-             'delete_hostinginfo': DeleteHostingInfo
+             'delete_hostinginfo': DeleteHostingInfo,
+             'add_integrationstatus' : AddIntegrationStatus,
+             'get_integrationstatus': GetIntegrationStatus,
+             'delete_integrationstatus': DeleteIntegrationStatus
              }
 
  #+END_SRC   
@@ -1402,7 +1494,7 @@ from runtime.objects.entities import is_str, is_lab, are_labs,\
      is_date, is_session, is_section, is_int, is_experiment,\
      are_experiments, are_sections, is_name, is_email, is_developer,\
      is_institute, are_institutes, is_discipline, are_disciplines,\
-     is_url, is_hostinginfo
+     is_url, is_hostinginfo, is_integrationstatus
 
 from runtime.utils.type_utils import is_str_or_none
 from runtime.config.system_config import KEY
@@ -1483,6 +1575,9 @@ if __name__ == '__main__':
 <<class_get_hostinginfo>>
 <<class_update_hostinginfo>>
 <<class_delete_hostinginfo>>
+<<class_add_integrationstatus>>
+<<class_get_integrationstatus>>
+<<class_delete_integrationstatus>>
 <<ops_table>>
 
 #+end_src

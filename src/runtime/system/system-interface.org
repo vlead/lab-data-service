@@ -823,6 +823,68 @@ class TestAddDeveloper(TestCase):
  #+END_SRC
 
 
+** Add IntegrationStatus
+#+NAME: class_add_integrationstatus
+#+begin_src python
+    @staticmethod
+    def add_integrationstatus(data_dict):
+        session_cls = System.delegate.entities['session']       
+        integrationstatus_cls = System.delegate.entities['integrationstatus']
+
+        session = session_cls(key=data_dict['key'])
+        del(data_dict['key'])
+
+        integrationstatus = integrationstatus_cls(integration_level=data_dict['integration_level'])
+
+        try:
+            current_app.logger.debug("running operation add_integrationstatus")
+            integrationstatus = System.do("add_integrationstatus", integrationstatus=integrationstatus,
+                                    session=session)
+            current_app.logger.debug("completed operation add_integrationstatus")
+            return integrationstatus.to_client()
+
+        except (ArityError, TypeError, NotAuthorizedError, StateError) as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+
+        except Exception as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+
+#+END_SRC
+*** TestAddIntegrationStatus
+ #+NAME: test_class_add_integrationstatus
+ #+BEGIN_SRC python
+class TestAddIntegrationStatus(TestCase):
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_add_integrationstatus_in_system_interface(self):
+        print "test_add_integrationstatus_in_system_interface"
+
+        data_dict = {
+                    'key' : KEY,
+                    'integration_level': 4
+                    }
+
+        integrationstatus = SystemInterface.add_integrationstatus(data_dict)
+        integrationstatus_cls = System.delegate.entities['integrationstatus']
+        integrationstatus = integrationstatus_cls.get_all()[0]
+
+        self.assertEqual(integrationstatus.get("integration_level"), 
+                             data_dict['integration_level'])
+
+ #+END_SRC
+
+
 ** Get Labs
 #+NAME: class_get_labs
 #+begin_src python
@@ -3371,6 +3433,7 @@ if __name__ == '__main__':
 <<class_add_developer>>
 <<class_get_labs>>
 <<class_add_hostinginfo>>
+<<class_add_integrationstatus>>
 
 <<class_get_lab_by_id>>
 <<class_get_section_by_id>>
@@ -3429,6 +3492,7 @@ if __name__ == '__main__':
 <<test_class_add_email>>
 <<test_class_add_developer>>
 <<test_class_add_hostinginfo>>
+<<test_class_add_integrationstatus>>
 
 <<test_class_delete_lab>>
 <<test_class_delete_experiment>>
