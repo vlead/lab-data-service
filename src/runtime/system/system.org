@@ -1100,10 +1100,10 @@ class DeleteIntegrationStatus():
 
 
 
-** =GetLab=
-#+NAME: class_get_lab
+** =GetLabbyLabId=
+#+NAME: class_get_lab_by_lab_id
 #+begin_src python
-class GetLab():
+class GetLabbyLabId():
     arg_types = {"lab_id": is_str}
     arity_and_type_checks_needed = True
 
@@ -1124,6 +1124,30 @@ class GetLab():
         lab_id = args["lab_id"]
         lab = System.delegate.get_lab(lab_id=lab_id)
         return lab
+
+#+end_src
+
+
+** =GetLabsbyInstitute=
+#+NAME: class_get_labs_by_institute
+#+begin_src python
+class GetLabsbyInstitute():
+    arg_types = {"institute": is_institute}
+    arity_and_type_checks_needed = True
+
+    @staticmethod
+    def auth_check(args):
+        pass
+
+    @staticmethod
+    def state_check(args):
+        pass
+
+    @staticmethod
+    def action(args):
+        institute = args["institute"]
+        labs = System.delegate.get_labs(institute=institute)
+        return labs
 
 #+end_src
 
@@ -1279,6 +1303,7 @@ class AddLabsToInstitute():
             raise err
 
 #+end_src
+
 
 ** =AddSectionsToExperiment=
 #+NAME: class_add_sections_to_experiment
@@ -1442,7 +1467,7 @@ class GetIntegrationStatus():
 ops_table = {'add_lab' : AddLab,
              'update_lab': UpdateLab,
              'delete_lab': DeleteLab,
-             'get_lab': GetLab,
+             'get_lab': GetLabbyLabId,
              'get_discipline': GetDiscipline,
              'add_experiment' : AddExperiment,
              'update_experiment' : UpdateExperiment,
@@ -1466,6 +1491,7 @@ ops_table = {'add_lab' : AddLab,
              'add_discipline' : AddDiscipline,
              'update_discipline' : UpdateDiscipline,
              'delete_discipline' : DeleteDiscipline,
+             'get_labs_by_institute' : GetLabsbyInstitute,
              'get_name': GetName,
              'get_email': GetEmail,
              'get_developer': GetDeveloper,
@@ -1564,7 +1590,7 @@ if __name__ == '__main__':
 <<class_delete_developer>>
 <<class_add_sections_to_experiment>>
 <<class_add_section>>
-<<class_get_lab>>
+<<class_get_lab_by_lab_id>>
 <<class_get_name>>
 <<class_get_email>>
 <<class_get_developer>>
@@ -1578,6 +1604,7 @@ if __name__ == '__main__':
 <<class_add_integrationstatus>>
 <<class_get_integrationstatus>>
 <<class_delete_integrationstatus>>
+<<class_get_labs_by_institute>>
 <<ops_table>>
 
 #+end_src

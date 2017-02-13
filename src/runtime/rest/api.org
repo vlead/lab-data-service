@@ -177,6 +177,33 @@ def get_lab():
                 current_app.logger.error("%s" %(error_message))
                 return render_template('error.html', 
                                        data=error_message)        
+        if 'lab_name' in request.args:
+            lab_name  = request.args['lab_name']
+            try:
+                lab = SystemInterface.get_lab(lab_name)
+                return jsonify(lab)
+                
+            except NotAuthorizedError as err:
+                error_message =  'Not Authorized error: %s' % str(err)
+                """
+                if request.headers['Content-Type'] == "application/json":
+                    abort(401, error_message)
+                else:
+                """
+                current_app.logger.error("%s" %(error_message))
+                return render_template('error.html', 
+                                       data=error_message)
+            except TypeError as err:
+                error_message = 'Malformed arguments, error: %s' % str(err)
+                current_app.logger.error("%s" %(error_message))
+                return render_template('error.html', 
+                                       data=error_message)
+            except Exception as err:
+                error_message = 'error: %s' % str(err)
+                current_app.logger.error("%s" %(error_message))
+                return render_template('error.html', 
+                                       data=error_message)        
+
         else:
             try:
                 labs = SystemInterface.get_labs()

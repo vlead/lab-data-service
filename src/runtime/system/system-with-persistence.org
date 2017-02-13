@@ -921,6 +921,7 @@ class TestDeleteName(TestCase):
 
 #+END_SRC
 
+
 * Test DeleteLab
 #+NAME:  test_delete_lab 
 #+BEGIN_SRC python
@@ -1224,6 +1225,60 @@ class TestGetLab(TestCase):
 
         self.assertEqual(lab1.get("lab_name"), lab_name1)
         self.assertEqual(lab1.get("lab_id"), lab_id1)
+            
+#+END_SRC
+
+
+
+
+* Test GetLabsByInstitute
+#+NAME: test_get_labs_by_institute
+#+BEGIN_SRC python
+class TestGetLabByInstitute(TestCase):
+    TESTING = True
+
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_get_labs_by_institute(self):
+
+        print "test_get_labs_by_institute_in_system_persistence"
+        lab_cls = System.delegate.entities['lab']
+        institute_cls = System.delegate.entities['institute']
+        discipline_cls = System.delegate.entities['discipline']
+
+        lab_name1="Computer Programming"
+        lab_id1="CSE01"
+        overview = "overview"
+
+        inst_name = "IIT Kanpur"
+        inst_id = "IITK"
+        inst = institute_cls(inst_name=inst_name, inst_id=inst_id)
+        inst.save()
+
+        dis_name = "IIT Kanpur"
+        dis_id = "IITK"
+        discipline = discipline_cls(dis_name=dis_name, dis_id=dis_id)
+        discipline.save()
+
+        lab = lab_cls(lab_id=lab_id1, lab_name=lab_name1, \
+                          institute=inst, discipline=discipline,
+                          overview=overview, experiments=[])
+
+        lab.save()
+
+        labs = System.do("get_labs_by_institute", institute=inst)
+
+        self.assertEqual(labs[0].get("lab_name"), lab_name1)
+        self.assertEqual(labs[0].get("lab_id"), lab_id1)
             
 #+END_SRC
 
@@ -1602,6 +1657,7 @@ if __name__ == '__main__':
 <<test_get_discipline>>
 <<test_get_hostinginfo>>
 <<test_get_integrationstatus>>
+<<test_get_labs_by_institute>>
 <<run_test_cases>>
 
 #+end_src

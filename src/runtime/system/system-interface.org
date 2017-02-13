@@ -1585,7 +1585,6 @@ class TestGetIntegrationStatuss(TestCase):
 
  #+END_SRC
 
-
 ** Get Lab By Id
 #+NAME: class_get_lab_by_id
 #+begin_src python
@@ -3279,18 +3278,21 @@ class TestGetInstituteByInstituteId(TestCase):
 
  #+END_SRC
 
-** Get Lab by LabId
-#+NAME: class_get_lab_by_lab_id
+** Get Labs by Institute
+#+NAME: class_get_labs_by_institute
 #+begin_src python
     @staticmethod
-    def get_lab(lab_id):
+    def get_labs_by_institute(institute):
         try:
-            current_app.logger.debug("running operation get_lab_by_lab_id")
-            lab = System.do("get_lab", lab_id=str(lab_id))
-            current_app.logger.debug("completed operation get_lab_by_lab_id")
-            if not lab:
-                return ("No lab found with labid: %s" % (lab_id))
-            return lab.to_client()
+            current_app.logger.debug("running operation get_labs_by_institute")
+            labs = System.do("get_labs_by_institute", institute=institute)
+            current_app.logger.debug("completed operation get_labs_by_institute")
+            labs_dict_list = []
+            for lab in labs:
+                lab_x = lab.to_client()
+                lab_dict_list.append(lab_x)
+            current_app.logger.debug("got labs")
+            return  lab_dict_list
 
         except (ArityError, TypeError, NotAuthorizedError, StateError) as err:
             current_app.logger.error("Exception = %s" % str(err))
@@ -3301,10 +3303,10 @@ class TestGetInstituteByInstituteId(TestCase):
             raise err
 #+end_src
 
-*** TestGetLabByLabId
- #+NAME: test_class_get_lab_by_labid
+*** TestGetLabsByInstitute
+ #+NAME: test_class_get_labs_by_institute
  #+BEGIN_SRC python
-class TestGetLabByLabId(TestCase):
+class TestGetLabsByInstitute(TestCase):
     TESTING = True
     def create_app(self):
         app = create_app(config)
@@ -3317,8 +3319,8 @@ class TestGetLabByLabId(TestCase):
         db.session.remove()
         db.drop_all()
 
-    def test_get_lab_by_labid_in_system_interface(self):
-        print "test_get_lab_by_labid_in_system_interface"
+    def test_get_labs_by_institute_in_system_interface(self):
+        print "test_get_labs_by_institute_in_system_interface"
 
         data_dict = {
                     'key' : KEY,
@@ -3369,11 +3371,9 @@ class TestGetLabByLabId(TestCase):
         lab = SystemInterface.add_lab(data_dict)
         lab1 = SystemInterface.add_lab(data_dict1)
 
-        lab = SystemInterface.get_lab(data_dict['lab_id'])
-        lab1 = SystemInterface.get_lab(data_dict1['lab_id'])
+        labs = SystemInterface.get_labs_by_institute("IIT Kanpur")
         
-        self.assertEqual(lab.get("lab_id"), data_dict['lab_id'])
-        self.assertEqual(lab1.get("lab_id"), data_dict1['lab_id'])
+        self.assertEqual(labs[0].get("inst_name"), "IIT Kanpur")
 
  #+END_SRC
 
@@ -3603,6 +3603,7 @@ if __name__ == '__main__':
 <<class_get_lab_by_exp_id>>
 <<class_get_institute_by_inst_id>>
 <<class_get_discipline_by_dis_id>>
+<<class_get_labs_by_institute>>
 
 <<class_get_sections>>
 <<class_update_developer>>
@@ -3647,6 +3648,7 @@ if __name__ == '__main__':
 <<test_class_get_hostinginfos>>
 <<test_class_get_integrationstatuss>>
 
+
 <<test_class_get_lab_by_id>>
 <<test_class_get_experiment_by_id>>
 <<test_class_get_institute_by_id>>
@@ -3660,6 +3662,8 @@ if __name__ == '__main__':
 <<test_class_update_hostinginfo>>
 
 <<test_class_get_lab_by_labid>>
+<<test_class_get_labs_by_institute>>
+
 <<test_class_update_developer>>
 <<test_class_get_names>>
 <<test_class_get_emails>>
