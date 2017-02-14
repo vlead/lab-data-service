@@ -1530,6 +1530,208 @@ class TestGetIntegrationStatus(TestCase):
 #+END_SRC
 
 
+* Test AddAsset
+#+NAME: test_add_asset
+#+BEGIN_SRC python
+class TestAddAsset(TestCase):
+    TESTING = True
+
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_add_asset(self):
+        print "test_add_asset_in_system_persistence"
+        session_cls = System.delegate.entities['session']
+        asset_cls = System.delegate.entities['asset']
+        asset_type = "Image"
+        path = "vlabs.ac.in/static/images/logo.png"
+        asset = asset_cls(path=path, asset_type=asset_type)
+        key = KEY
+        session = session_cls(key=key)
+        asset = System.do("add_asset", asset=asset, \
+                                session=session)
+        asset1 = asset_cls.get_by_id(1)
+        self.assertEqual(asset1.get("asset_type"), asset_type)
+            
+#+END_SRC
+
+
+
+* Test UpdateAsset
+#+NAME: test_update_asset
+#+BEGIN_SRC python
+class TestUpdateAsset(TestCase):
+    TESTING = True
+
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_update_asset(self):
+        
+        print "test_update_asset_in_system_persistence"
+        session_cls = System.delegate.entities['session']
+        asset_cls = System.delegate.entities['asset']
+
+        session = session_cls(key=KEY)
+        asset_type = "Icon"
+        path = "vlabs.ac.in/static/images/icon.png"
+        asset = asset_cls(asset_type=asset_type, path=path)
+        asset.save()
+
+        asset_type2 = "Video"
+
+        asst1 = System.do("update_asset", asset_type=asset_type2,
+                             asset=asset)
+
+        new_asst = asset_cls.get_by_id(1)
+
+        self.assertEqual(new_asst.get("asset_type"), asset_type2)
+        self.assertEqual(new_asst.get("path"), path)
+            
+#+END_SRC
+
+
+* Test DeleteAsset
+#+NAME:  test_delete_asset 
+#+BEGIN_SRC python
+class TestDeleteAsset(TestCase):
+    TESTING = True
+
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_delete_asst(self):
+        
+        print "test_delete_asst_in_system_persistence"
+        session_cls = System.delegate.entities['session']
+        asset_cls = System.delegate.entities['asset']
+
+        asset_type = "Image"
+        path = "vlabs.ac.in.static/images/logo.png"
+        key = KEY
+        asset = asset_cls(asset_type=asset_type, path=path)
+
+        asset.save()
+        session = session_cls(key=key)
+        asset = System.do("delete_asset", path=path,
+                                  session=session)
+
+        self.assertEqual(asset, path)
+            
+#+END_SRC
+
+
+* Test GetAsset
+#+NAME: test_get_asset
+#+BEGIN_SRC python
+class TestGetAsset(TestCase):
+
+    TESTING = True
+
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_get_asset(self):
+
+        print "test_get_asset_in_system_persistence"
+        asset_cls = System.delegate.entities['asset']
+        session_cls = System.delegate.entities['session']
+
+        asset_type = "Video"
+        path = "vlabs.ac.in/static/images/logo.png"
+        asset = asset_cls(asset_type=asset_type, path=path)
+        asset.save()
+
+        asset1 = System.do("get_asset", path=path)
+
+        self.assertEqual(asset1.get("asset_type"), asset_type)
+        self.assertEqual(asset1.get("path"), path)
+            
+#+END_SRC
+
+
+* Test AddAssetsToLab
+#+NAME: test_add_assets_to_lab
+#+BEGIN_SRC python
+class TestAddAssetsToLab(TestCase):
+    TESTING = True
+
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_add_assets_to_lab(self):
+        print "test_add_assets_to_lab_in_system_persistence"
+        session_cls = System.delegate.entities['session']
+        asset_cls = System.delegate.entities['asset']
+        lab_cls = System.delegate.entities['lab']
+
+        lab_name = "data structures"
+        lab_id = "cse02"
+        lab = lab_cls(lab_name=lab_name, lab_id=lab_id)
+        key = KEY
+        session = session_cls(key=key)
+        lab = System.do("add_lab", lab=lab, \
+                                session=session)
+        lab1 = lab_cls.get_by_id(1)
+
+        asset1 = asset_cls(asset_type="Image")
+        asset1.save()
+
+        asset2 = asset_cls(asset_type="Video")
+        asset2.save()
+        
+        lab = System.do("add_assets_to_lab", 
+                                lab=lab,
+                                assets=[asset1, asset2],
+                                session=session)
+
+        self.assertEqual(lab1.get("lab_name"), lab_name)
+        self.assertEqual(lab1.get("assets")[0].get("asset_type"), "Image")
+        self.assertEqual(lab1.get("assets")[1].get("asset_type"), "Video")            
+
+#+END_SRC
+
+
 * Infra                                                         :boilerplate:
 ** Tests
 *** Imports 
@@ -1602,6 +1804,11 @@ if __name__ == '__main__':
 <<test_get_discipline>>
 <<test_get_hostinginfo>>
 <<test_get_integrationstatus>>
+<<test_update_asset>>
+<<test_add_assets_to_lab>>
+<<test_get_asset>>
+<<test_delete_asset>>
+<<test_add_asset>>
 <<run_test_cases>>
 
 #+end_src
