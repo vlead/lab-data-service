@@ -3709,6 +3709,39 @@ class TestGetDisciplineByDisciplineId(TestCase):
 
 
 
+** Add Asset
+#+NAME: class_add_asset
+#+begin_src python
+    @staticmethod
+    def add_asset(data_dict):
+        session_cls = System.delegate.entities['session']       
+        asset_cls = System.delegate.entities['asset']
+
+        session = session_cls(key=data_dict['key'])
+        del(data_dict['key'])
+
+        asset = asset_cls(asset_type=str(data_dict['asset_type']),
+                                  path=str(data_dict['path']))
+
+        try:
+            current_app.logger.debug("running operation add_asset")
+            asset = System.do("add_asset", asset=asset,
+                                    session=session)
+            current_app.logger.debug("completed operation add_asset")
+            return asset.to_client()
+
+        except (ArityError, TypeError, NotAuthorizedError, StateError) as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+
+        except Exception as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+
+#+END_SRC
+
+
+
 * Infra                                                         :boilerplate:
   
 ** sources
@@ -3815,6 +3848,7 @@ if __name__ == '__main__':
 <<class_delete_name>>
 <<class_delete_email>>
 <<class_delete_developer>>
+<<class_add_asset>>
 
 #+end_src
 
