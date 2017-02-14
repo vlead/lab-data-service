@@ -1486,6 +1486,164 @@ class GetIntegrationStatus():
 
 
 
+** =AddAsset=
+#+NAME: class_add_asset
+#+begin_src python
+class AddAsset():
+    arg_types = {"asset": is_asset, "session": is_session}
+    arity_and_type_checks_needed = True
+
+    @staticmethod
+    def auth_check(args):
+        session = args['session']
+        if not System.is_session_valid(session):
+            raise NotAuthorizedError("Not Authorized to perform this action")
+
+    @staticmethod
+    def state_check(args):
+        asset = args["asset"]
+        if System.delegate.asset_exists(asset):
+            raise StateError("asset %s already exists in System"
+                                 % asset.to_client())
+
+    @staticmethod
+    def action(args):
+        asset = args["asset"]
+        asset = System.delegate.add_asset(asset)
+        return asset
+
+#+end_src
+
+
+** =UpdateAsset=
+#+NAME: class_update_asset
+#+begin_src python
+class UpdateAsset():
+    arg_types = {"asset_type": is_str_or_none,
+                     "asset": is_asset,
+                     "session": is_session}
+    arity_and_type_checks_needed = True
+
+    @staticmethod
+    def auth_check(args):
+        session = args['session']
+        if not System.is_session_valid(session):
+            raise NotAuthorizedError("Not Authorized to perform this action")
+
+    @staticmethod
+    def state_check(args):
+        asset = args['asset']
+        if not System.delegate.asset_exists(asset):
+            raise StateError("asset %s does not exists in System"
+                                 % asset.to_client())
+        
+    @staticmethod
+    def action(args):
+        asset = args["asset"]
+        asset_type=args["asset_type"]
+        asst = System.delegate.update_asset(asset,asset_type)
+        return asst
+
+#+end_src
+
+
+** =DeleteAsset=
+#+NAME: class_delete_asset
+#+begin_src python
+class DeleteAsset():
+    arg_types = {"path": is_str, "session": is_session}
+    arity_and_type_checks_needed = True
+
+    @staticmethod
+    def auth_check(args):
+        session = args['session']
+        if not System.is_session_valid(session):
+            raise NotAuthorizedError("Not Authorized to perform this action")
+
+    @staticmethod
+    def state_check(args):
+        path = args['path']
+        asset = System.delegate.get_asset(path=path)
+        if not System.delegate.asset_exists(asset):
+            raise StateError("asset %s does not exists in System"
+                                 % asset.to_client())
+
+    @staticmethod
+    def action(args):
+        path = args["path"]
+        path = System.delegate.delete_asset(path)
+        return path
+        
+#+end_src
+
+
+** =GetAsset=
+#+NAME: class_get_asset
+#+begin_src python
+class GetAsset():
+    arg_types = {"path": is_str}
+    arity_and_type_checks_needed = True
+
+    @staticmethod
+    def auth_check(args):
+        pass
+    @staticmethod
+    def state_check(args):
+        path = args['path']
+        asst = System.delegate.get_asset(path=path)
+        if not System.delegate.asset_exists(asst):
+            raise StateError("asset %s does not exists in System"
+                                 % asset.to_client())
+
+    @staticmethod
+    def action(args):
+        path = args["path"]
+        asst = System.delegate.get_asset(path=path)
+        return asst
+
+#+end_src
+
+
+** =AddAssetsToLab=
+#+NAME: class_add_assets_to_lab
+#+begin_src python
+class AddAssetsToLab():
+    arg_types = {"assets": are_assets, "lab": is_lab, 
+                     "session": is_session}
+    arity_and_type_checks_needed = True
+
+    @staticmethod
+    def auth_check(args):
+        session = args['session']
+        if not System.is_session_valid(session):
+            current_app.logger.error("auth error raised, session = %s" % 
+                                        session.to_client())
+            raise NotAuthorizedError("Not Authorized to perform this action")
+
+    @staticmethod
+    def state_check(args):
+        lab = args["lab"]
+        if not System.delegate.lab_exists(lab):
+            current_app.logger.error("lab with id = %d does not exist"
+                                     " in System" % lab)
+            raise StateError("lab with id = %d does not exist in System"
+                                 % labid)
+
+    @staticmethod
+    def action(args):
+        lab = args["lab"]
+        assets = args["assets"]
+        try:
+            lab = System.delegate.add_assets_to_lab(lab, assets) 
+            return lab
+        except Exception as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+
+#+end_src
+
+
+
 ** Operations Table
    Each operation has a corresponding implementation defined as a class.
 
@@ -1529,7 +1687,12 @@ ops_table = {'add_lab' : AddLab,
              'delete_hostinginfo': DeleteHostingInfo,
              'add_integrationstatus' : AddIntegrationStatus,
              'get_integrationstatus': GetIntegrationStatus,
-             'delete_integrationstatus': DeleteIntegrationStatus
+             'delete_integrationstatus': DeleteIntegrationStatus,
+             'add_asset':AddAsset,
+             'delete_asset': DeleteAsset,
+             'get_asset': GetAsset,
+             'update_asset': UpdateAsset,
+             'add_assets_to_lab': AddAssetsToLab
              }
 
  #+END_SRC   
@@ -1548,7 +1711,7 @@ from runtime.objects.entities import is_str, is_lab, are_labs,\
      is_date, is_session, is_section, is_int, is_experiment,\
      are_experiments, are_sections, is_name, is_email, is_developer,\
      is_institute, are_institutes, is_discipline, are_disciplines,\
-     is_url, is_hostinginfo, is_integrationstatus
+     is_url, is_hostinginfo, is_integrationstatus, is_asset, are_assets
 
 from runtime.utils.type_utils import is_str_or_none
 from runtime.config.system_config import KEY
@@ -1634,6 +1797,11 @@ if __name__ == '__main__':
 <<class_get_integrationstatus>>
 <<class_delete_integrationstatus>>
 <<class_get_labs_by_institute>>
+<<class_add_asset>>
+<<class_get_asset>>
+<<class_update_asset>>
+<<class_delete_asset>>
+<<class_add_assets_to_lab>>
 <<ops_table>>
 
 #+end_src

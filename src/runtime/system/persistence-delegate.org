@@ -30,6 +30,7 @@ class PersistenceDelegate():
                          'institute' : Institute,
                          'discipline' : Discipline,
                          'hostinginfo': HostingInfo,
+                         'asset' : Asset,
                          'integrationstatus': IntegrationStatus,
                          'name' : Name,
                          'email' : Email,
@@ -417,6 +418,37 @@ class TestPersistenceDelegate(TestCase):
 #+END_SRC
 
 
+*** Check if =asset= already exists
+
+    This function checks if a user is already in the user-set of the =System=.
+#+NAME: persistence_asset_exists
+#+BEGIN_SRC python
+    def asset_exists(self, asset):
+        path = asset.get("path")
+        return asset == self.get_asset(path=path)
+#+END_SRC
+
+**** Tests
+#+NAME: test_persistence_asset_exists
+#+BEGIN_SRC python
+    def test_asset_exists(self):
+        print "test_asset_exists"
+        asset_type1 = "Image"
+        path1 = "vlabs.ac.in/static/images/logo.png"
+        asset1 = Asset(asset_type=asset_type1, path=path1)
+        asst1 = self.persistence_delegate.add_asset(asset1)
+
+        asset_type2 = "Icon"
+        path2 = "vlabs.ac.in/static/images/icon.png"
+        asset2 = Asset(asset_type=asset_type2, path=path2)
+
+        self.assertEqual(self.persistence_delegate.asset_exists\
+                             (asst1), True)
+        self.assertEqual(self.persistence_delegate.asset_exists\
+                             (asset2), False)
+#+END_SRC
+
+
 *** Check if =integrationstatus= already exists
     This function checks if an integrationstatus is already in the integrationstatus-set of the =System=.
 #+NAME: persistence_integrationstatus_exists
@@ -768,6 +800,40 @@ class TestPersistenceDelegate(TestCase):
 #+END_SRC
 
 
+***  Add asset to the system
+
+    This function adds asset to the system.
+#+NAME: persistence_add_asset
+#+BEGIN_SRC python
+    def add_asset(self, asset):
+        asset.save()
+        return asset
+
+#+END_SRC
+
+**** Tests
+#+NAME: test_persistence_add_asset
+#+BEGIN_SRC python
+    def test_add_asset(self):
+         print "test_add_asset"
+         asset_type1 = "Image"
+         path1 = "vlabs.ac.in/static/images/logo.png"
+         asset1 = Asset(asset_type=asset_type1, path=path1)
+         asset1 = self.persistence_delegate.add_asset(asset1)
+         
+         asset_type2 = "Video"
+         path2 = "vlabs.ac.in/static/images/icon.png"
+         asset2 = Asset(asset_type=asset_type2, path=path2)
+         
+         asset = Asset.get_by_id(1)
+
+         self.assertEqual(self.persistence_delegate.asset_exists(asset1),
+                          True)
+         self.assertEqual(self.persistence_delegate.asset_exists(asset2),
+                          False)
+#+END_SRC
+
+
 ***  Add integrationstatus to the system
 
     This function adds integrationstatus to the system.
@@ -1043,6 +1109,38 @@ class TestPersistenceDelegate(TestCase):
          self.assertEqual(hostinginfo.get("hosting_status"), hosting_status1)
          self.assertEqual(hostinginfo.get("hosted_url"), hosted_url)
          self.assertEqual(hostinginfo.get("hosted_on"), hosted_on1)
+
+#+END_SRC
+
+
+***  Update Asset 
+    This function updates existing asset.
+#+NAME: persistence_update_asset
+#+BEGIN_SRC python
+    def update_asset(self, asset, asset_type):
+        asset.set(asset_type=asset_type)
+        asset.save()
+        return asset
+
+#+END_SRC
+
+**** Tests
+#+NAME: test_persistence_update_asset
+#+BEGIN_SRC python
+    def test_update_asset(self):
+         print "test_update_asset"
+         asset_type = "Image"
+         path = "vlabs.ac.in/static/images/logo.png"
+         asset = Asset(asset_type=asset_type, path=path)
+         asst1 = self.persistence_delegate.add_asset(asset)
+
+         asset_type1 = "Video"
+         path1 = "vlabs.ac.in/static/images/icon.png"
+         asst2 = self.persistence_delegate.update_asset\
+           (asst1, asset_type1),
+         asst2 = Asset.get_by_id(1)
+         self.assertEqual(asst2.get("asset_type"), asset_type1)
+         self.assertEqual(asst2.get("path"), path)
 
 #+END_SRC
 
@@ -1454,6 +1552,48 @@ class TestPersistenceDelegate(TestCase):
 
 #+END_SRC
 
+***  Delete Asset 
+    This function delete existing asset.
+#+NAME: persistence_delete_asset
+#+BEGIN_SRC python
+    def delete_asset(self, path):
+        record = self.get_asset(path=path)
+        if not record:
+            abort(404, 'No Asset found with path %s' % (path))
+        else:
+            try:
+                record.delete()
+                #db.session.delete(record)
+                #db.session.commit()
+            except Exception, e:
+                print e
+                abort(500, str(e))
+
+        return path
+
+#+END_SRC
+
+**** Tests
+#+NAME: test_persistence_delete_asset
+#+BEGIN_SRC python
+    def test_delete_asset(self):
+         print "test_delete_asset"
+         asset_type = "Image"
+         path = "vlabs.ac.in/static/images/logo.png"
+         asset = Asset(asset_type=asset_type, path=path)
+         asset1 = self.persistence_delegate.add_asset(asset)
+
+         asset_type1 = "Icon"
+         path1 = "vlabs.ac.in/static/images/icon.png"
+         asset1 = Asset(asset_type=asset_type1, path=path1)
+         asset2 = self.persistence_delegate.add_asset(asset1)
+
+         self.persistence_delegate.delete_asset(path)
+
+         self.assertEqual(len(Asset.get_all()), 1)
+#+END_SRC
+
+
 
 ***  Delete IntegrationStatus
     This function deletes existing integrationstatus.
@@ -1475,7 +1615,6 @@ class TestPersistenceDelegate(TestCase):
         return integration_level
 
 #+END_SRC
-
 **** Tests
 #+NAME: test_persistence_delete_integrationstatus
 #+BEGIN_SRC python
@@ -1494,6 +1633,7 @@ class TestPersistenceDelegate(TestCase):
          self.assertEqual(len(IntegrationStatus.get_all()), 1)
 
 #+END_SRC
+
 
 
 ***  Add experiments to a Lab
@@ -1938,6 +2078,36 @@ class TestPersistenceDelegate(TestCase):
 #+END_SRC
 
 
+***  Get Asset
+    This function returns asset if present in the database.  If the asset is
+    not present, =None= type is returned.
+#+NAME: persistence_get_asset
+#+BEGIN_SRC python
+    def get_asset(self, **kwargs):
+        return self.get_object(Asset, **kwargs)
+
+#+END_SRC
+
+**** Tests
+#+NAME: test_persistence_get_asset
+#+BEGIN_SRC python
+    def test_get_asset(self):
+         print "test_get_asset"
+
+         asset_type = "Image"
+         path = "vlabs.ac.in/static/images/logo.png"
+         asset = Asset(asset_type=asset_type, path=path)
+         asset.save()
+         asset_obj = self.persistence_delegate.get_asset(asset_type=
+                                                asset.get("asset_type"))
+         self.assertEqual(asset_obj.get("asset_type"),
+                              asset.get("asset_type"))
+
+#+END_SRC
+
+
+
+
 ***  Get Labs
     This function returns all labs if present in the database.  If the labs are
     not present, =None= type is returned.
@@ -2201,6 +2371,48 @@ class TestPersistenceDelegate(TestCase):
 #+END_SRC
 
 
+***  Get Assets
+    This function returns all assets if present in the database.  If assets are
+    not present, =None= type is returned.
+#+NAME: persistence_get_assets
+#+BEGIN_SRC python
+    def get_assets(self, **kwargs):
+        current_app.logger.debug("")
+        ret_val = None
+        try:
+            ret_val = Asset.apply_filters(**kwargs)
+        except NotFoundError as e:
+            ret_val = None
+        
+        return ret_val
+
+#+END_SRC
+
+****  Tests
+#+NAME: test_persistence_get_assets
+#+BEGIN_SRC python
+    def test_get_assets(self):
+         print "test_get_assets"
+
+         asset_type = "Image"
+         path = "vlabs.ac.in/static/images/logo.png"
+         asset = Asset(path=path, asset_type=asset_type)                             
+         asset.save()
+         asset_obj = self.persistence_delegate.get_asset(asset_type=
+                                                asset.get("asset_type"))
+
+         assets_list = self.persistence_delegate.get_assets(path=
+                                                asset.get("path"),
+                                                asset_type=
+                                                asset.get("asset_type"))
+
+         self.assertEqual(assets_list[0].get("asset_type"),
+                              asset.get("asset_type"))
+         self.assertEqual(assets_list[0].get("path"), asset.get("path"))
+
+#+END_SRC
+
+
 ***  Get Lab By ID
     This function returns a lab object by an ID if present in database,
     otherwise, =None= type is returned.
@@ -2420,8 +2632,8 @@ if __name__ == '__main__':
 <<persistence_get_institute>>
 <<persistence_get_discipline>>
 <<persistence_get_hostinginfo>>
+<<persistence_get_asset>>
 <<persistence_get_integrationstatus>>
-
 <<persistence_discipline_exists>>
 <<persistence_add_discipline>>
 <<persistence_delete_discipline>>
@@ -2429,6 +2641,7 @@ if __name__ == '__main__':
 
 <<persistence_get_labs>>
 <<persistence_get_institutes>>
+<<persistence_get_assets>>
 
 <<persistence_lab_exists>>
 <<persistence_section_exists>>
@@ -2438,6 +2651,7 @@ if __name__ == '__main__':
 <<persistence_email_exists>>
 <<persistence_developer_exists>>
 <<persistence_hostinginfo_exists>>
+<<persistence_asset_exists>>
 <<persistence_integrationstatus_exists>>
 
 <<persistence_add_lab>>
@@ -2445,6 +2659,7 @@ if __name__ == '__main__':
 <<persistence_add_section>>
 <<persistence_add_institute>>
 <<persistence_add_hostinginfo>>
+<<persistence_add_asset>>
 <<persistence_add_integrationstatus>>
 
 <<persistence_delete_lab>>
@@ -2452,6 +2667,7 @@ if __name__ == '__main__':
 <<persistence_delete_experiment>>
 <<persistence_delete_institute>>
 <<persistence_delete_hostinginfo>>
+<<persistence_delete_asset>>
 <<persistence_delete_integrationstatus>>
 
 <<persistence_update_lab>>
@@ -2459,11 +2675,13 @@ if __name__ == '__main__':
 <<persistence_update_experiment>>
 <<persistence_update_institute>>
 <<persistence_update_hostinginfo>>
+<<persistence_update_asset>>
 
 <<persistence_get_lab_by_id>>
 <<persistence_get_experiment_by_id>>
 <<persistence_get_institute_by_id>>
 <<persistence_get_discipline_by_id>>
+<<persistence_get_asset_by_path>>
 
 <<persistence_add_experiments_to_lab>>
 <<persistence_add_sections_to_experiment>>
@@ -2496,10 +2714,12 @@ if __name__ == '__main__':
 <<test_persistence_get_institute>>
 <<test_persistence_get_discipline>>
 <<test_persistence_get_hostinginfo>>
+<<test_persistence_get_asset>>
 <<test_persistence_get_integrationstatus>>
 
 <<test_persistence_get_labs>>
 <<test_persistence_get_institutes>>
+<<test_persistence_get_assets>>
 
 <<test_persistence_lab_exists>>
 <<test_persistence_experiment_exists>>
@@ -2510,6 +2730,8 @@ if __name__ == '__main__':
 <<test_persistence_institute_exists>>
 <<test_persistence_discipline_exists>>
 <<test_persistence_hostinginfo_exists>>
+<<test_persistence_asset_exists>>
+
 <<test_persistence_integrationstatus_exists>>
 <<test_persistence_add_lab>>
 <<test_persistence_add_section>>
@@ -2517,6 +2739,7 @@ if __name__ == '__main__':
 <<test_persistence_add_institute>>
 <<test_persistence_add_discipline>>
 <<test_persistence_add_hostinginfo>>
+<<test_persistence_add_asset>>
 <<test_persistence_add_integrationstatus>>
 
 <<test_persistence_delete_lab>>
@@ -2525,6 +2748,7 @@ if __name__ == '__main__':
 <<test_persistence_delete_institute>>
 <<test_persistence_delete_discipline>>
 <<test_persistence_delete_hostinginfo>>
+<<test_persistence_delete_asset>>
 <<test_persistence_delete_integrationstatus>>
 
 <<test_persistence_update_lab>>
@@ -2533,11 +2757,13 @@ if __name__ == '__main__':
 <<test_persistence_update_institute>>
 <<test_persistence_update_discipline>>
 <<test_persistence_update_hostinginfo>>
+<<test_persistence_update_asset>>
 
 <<test_persistence_get_lab_by_id>>
 <<test_persistence_get_experiment_by_id>>
 <<test_persistence_get_institute_by_id>>
 <<test_persistence_get_discipline_by_id>>
+<<test_persistence_get_asset_by_path>>
 
 <<test_persistence_add_experiments_to_lab>>
 <<test_persistence_add_sections_to_experiment>>
