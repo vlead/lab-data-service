@@ -993,7 +993,8 @@ class TestGetLabs(TestCase):
 #+begin_src python
     @staticmethod
     def get_labs_by_institute(inst_name):
-        institute = System.do("get_institute_by_inst_name", inst_name=inst_name)
+        institute = System.do("get_institute_by_institute_name",
+                                  inst_name=inst_name)
         try:
             current_app.logger.debug("running operation get_labs_by_institute")
             labs = System.do("get_labs_by_institute", institute=institute)
@@ -1001,9 +1002,9 @@ class TestGetLabs(TestCase):
             labs_dict_list = []
             for lab in labs:
                 lab_x = lab.to_client()
-                lab_dict_list.append(lab_x)
+                labs_dict_list.append(lab_x)
             current_app.logger.debug("got labs")
-            return  lab_dict_list
+            return  labs_dict_list
 
         except (ArityError, TypeError, NotAuthorizedError, StateError) as err:
             current_app.logger.error("Exception = %s" % str(err))
@@ -1083,8 +1084,8 @@ class TestGetLabsByInstitute(TestCase):
         lab1 = SystemInterface.add_lab(data_dict1)
 
         labs = SystemInterface.get_labs_by_institute("IIT Kanpur")
-        
-        self.assertEqual(labs[0].get("inst_name"), "IIT Kanpur")
+
+        self.assertEqual(labs[0]['institute']['inst_name'], "IIT Kanpur")
 
  #+END_SRC
 

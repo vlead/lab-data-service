@@ -1102,10 +1102,10 @@ class DeleteIntegrationStatus():
 
 
 
-** =GetLabbyLabId=
-#+NAME: class_get_lab_by_lab_id
+** =GetLab=
+#+NAME: class_get_lab
 #+begin_src python
-class GetLabbyLabId():
+class GetLab():
     arg_types = {"lab_id": is_str}
     arity_and_type_checks_needed = True
 
@@ -1126,30 +1126,6 @@ class GetLabbyLabId():
         lab_id = args["lab_id"]
         lab = System.delegate.get_lab(lab_id=lab_id)
         return lab
-
-#+end_src
-
-
-** =GetLabsbyInstitute=
-#+NAME: class_get_labs_by_institute
-#+begin_src python
-class GetLabsbyInstitute():
-    arg_types = {"institute": is_institute}
-    arity_and_type_checks_needed = True
-
-    @staticmethod
-    def auth_check(args):
-        pass
-
-    @staticmethod
-    def state_check(args):
-        pass
-
-    @staticmethod
-    def action(args):
-        institute = args["institute"]
-        labs = System.delegate.get_labs(institute=institute)
-        return labs
 
 #+end_src
 
@@ -1181,10 +1157,10 @@ class GetExperiment():
 #+end_src
 
 
-** =GetInstituteByInstituteId=
-#+NAME: class_get_institute_by_inst_id
+** =GetInstitute=
+#+NAME: class_get_institute
 #+begin_src python
-class GetInstituteByInstituteId():
+class GetInstitute():
     arg_types = {"inst_id": is_str}
     arity_and_type_checks_needed = True
 
@@ -1211,7 +1187,7 @@ class GetInstituteByInstituteId():
 
 
 ** =GetInstituteByInstituteName=
-#+NAME: class_get_institute_by_inst_name
+#+NAME: class_get_institute_by_institute_name
 #+begin_src python
 class GetInstituteByInstituteName():
     arg_types = {"inst_name": is_str}
@@ -1223,12 +1199,8 @@ class GetInstituteByInstituteName():
 
     @staticmethod
     def state_check(args):
-        inst_name = args['inst_name']
-        institute = System.delegate.get_institute(inst_name=inst_name)    
-        if not System.delegate.institute_exists(institute):
-            raise StateError("institute %s does not exists in System"
-                                 % institute.to_client())
-        
+        pass
+
     @staticmethod
     def action(args):
         inst_name = args["inst_name"]
@@ -1295,6 +1267,30 @@ class GetHostingInfo():
 
 #+end_src
 
+
+
+** =GetLabsByInstitute=
+#+NAME: class_get_labs_by_institute
+#+begin_src python
+class GetLabsByInstitute():
+    arg_types = {"institute": is_institute}
+    arity_and_type_checks_needed = True
+
+    @staticmethod
+    def auth_check(args):
+        pass
+
+    @staticmethod
+    def state_check(args):
+        pass
+
+    @staticmethod
+    def action(args):
+        institute = args['institute']
+        labs = System.delegate.get_labs(institute=institute)
+        return labs
+
+#+end_src
 
 
 ** =AddLabsToInstitute=
@@ -1498,7 +1494,8 @@ class GetIntegrationStatus():
 ops_table = {'add_lab' : AddLab,
              'update_lab': UpdateLab,
              'delete_lab': DeleteLab,
-             'get_lab': GetLabbyLabId,
+             'get_lab': GetLab,
+             'get_labs_by_institute': GetLabsByInstitute,
              'get_discipline': GetDiscipline,
              'add_experiment' : AddExperiment,
              'update_experiment' : UpdateExperiment,
@@ -1507,6 +1504,7 @@ ops_table = {'add_lab' : AddLab,
              'update_institute': UpdateInstitute,
              'delete_institute': DeleteInstitute,
              'get_institute' : GetInstitute,
+             'get_institute_by_institute_name' : GetInstituteByInstituteName,
              'add_section' : AddSection,
              'update_section' : UpdateSection,
              'delete_section' : DeleteSection,
@@ -1522,7 +1520,6 @@ ops_table = {'add_lab' : AddLab,
              'add_discipline' : AddDiscipline,
              'update_discipline' : UpdateDiscipline,
              'delete_discipline' : DeleteDiscipline,
-             'get_labs_by_institute' : GetLabsbyInstitute,
              'get_name': GetName,
              'get_email': GetEmail,
              'get_developer': GetDeveloper,
@@ -1621,15 +1618,14 @@ if __name__ == '__main__':
 <<class_delete_developer>>
 <<class_add_sections_to_experiment>>
 <<class_add_section>>
-<<class_get_lab_by_lab_id>>
-<<class_get_institute_by_inst_id>>
+<<class_get_lab>>
 <<class_get_name>>
 <<class_get_email>>
 <<class_get_developer>>
 <<class_get_experiment>>
-<<class_get_institute_by_inst_id>>
-<<class_get_institute_by_inst_name>>
+<<class_get_institute>>
 <<class_get_discipline>>
+<<class_get_institute_by_institute_name>>
 <<class_add_hostinginfo>>
 <<class_get_hostinginfo>>
 <<class_update_hostinginfo>>
