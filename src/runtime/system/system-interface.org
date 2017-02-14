@@ -3776,6 +3776,39 @@ class TestAddAsset(TestCase):
 
 
 
+** Update Asset
+#+NAME: class_update_asset
+#+begin_src python       
+    @staticmethod
+    def update_asset(data_dict):
+        session_cls = System.delegate.entities['session']
+        session = session_cls(key=data_dict['key'])
+
+        path = str(data_dict['path'])
+        asset = System.do("get_asset", path=path)
+
+        if 'asset_path' not in data_dict:
+            asset_path=str(asset.get("asset_path"))
+        else:
+            asset_path=data_dict['asset_path']
+
+        try:
+            current_app.logger.debug("running operation update_asset")
+            asset = System.do("update_asset", asset=asset,
+                                    inst_name=inst_name, 
+                                    session=session)
+            current_app.logger.debug("completed operation update_asset")
+            return asset.to_client()
+        except (ArityError, TypeError, NotAuthorizedError, StateError) as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+
+        except Exception as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+#+end_src
+
+
 * Infra                                                         :boilerplate:
   
 ** sources
@@ -3883,7 +3916,7 @@ if __name__ == '__main__':
 <<class_delete_email>>
 <<class_delete_developer>>
 <<class_add_asset>>
-
+<<class_update_asset>>
 #+end_src
 
 
