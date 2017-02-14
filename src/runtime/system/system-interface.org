@@ -3807,6 +3807,43 @@ class TestAddAsset(TestCase):
             current_app.logger.error("Exception = %s" % str(err))
             raise err
 #+end_src
+*** TestUpdateAsset 
+#+NAME: test_class_update_asset
+#+BEGIN_SRC python
+class TestUpdateAsset(TestCase):
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_update_asset_name_in_system_interface(self):
+        print "test_update_asset_name_in_system_interface"
+
+        data_dict = {
+                    'key' : KEY,
+                    'asset_type': 'Image',
+                    'path': 'vlabs.ac.in/static/images/logo.png'
+                    }
+
+        data_dict1 = {
+                    'key' : KEY,
+                    'asset_type': 'Video', 
+                    'path': 'vlabs.ac.in/static/images/icon.png'
+                    }
+
+        asset = SystemInterface.add_asset(data_dict)
+        asset1 = SystemInterface.update_asset(data_dict1)
+        
+        self.assertEqual(asset1.get("asset_type"), data_dict1['])
+
+#+END_SRC
 
 
 * Infra                                                         :boilerplate:
@@ -3979,6 +4016,7 @@ if __name__ == '__main__':
 <<test_class_get_institute_by_instituteid>>
 <<test_class_get_discipline_by_disid>>
 <<test_class_add_asset>>
+<<test_class_update_asset>>
 <<run_test_cases>>
 
 #+end_src
