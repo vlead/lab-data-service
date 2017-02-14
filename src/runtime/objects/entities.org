@@ -45,6 +45,7 @@ Developer = ClassTemplate.mk_class("Developer")
 Institute = ClassTemplate.mk_class("Institute")
 Asset = ClassTemplate.mk_class("Asset")
 HostingInfo = ClassTemplate.mk_class("HostingInfo")
+IntegrationStatus = ClassTemplate.mk_class("IntegrationStatus")
 
 #+END_SRC
 
@@ -172,6 +173,9 @@ def are_disciplines(disciplies):
 
 is_hostinginfo = is_inst(HostingInfo)
 check_hostinginfo = check_pred(is_hostinginfo)
+
+is_integrationstatus = is_inst(IntegrationStatus)
+check_hostinginfo = check_pred(is_integrationstatus)
 
 #+END_SRC
 
@@ -509,17 +513,20 @@ class TestAsset(TestCase):
         self.assertEqual(asset.get("asset_type"), asset_type)
 #+end_src
 
+
 * HostingInfo
-   =HostingInfo= is an entity that has a field =hosting_status= and =hosted_url= which are string
+   =HostingInfo= is an entity that has a field =hosting_status=, =hosted_url=
+   and =hosting_on= which are string
 #+NAME: class_HostingInfo
 #+begin_src python
 HostingInfo.add_attributes(hosting_status=is_str,
-                    hosted_url=is_url)
+                    hosted_url=is_url, hosted_on=is_str)
 
 HostingInfo.__eq__ = lambda self, other: \
                   isinstance(other, self.__class__) and \
                   self.get("hosting_status") == other.get("hosting_status") and \
-                  self.get("hosted_url") == other.get("hosted_url")
+                  self.get("hosted_url") == other.get("hosted_url") and \
+                  self.get("hosted_on") == other.get("hosted_on")
 #+end_src
 
 *** Test HostingInfo
@@ -531,11 +538,41 @@ class TestHostingInfo(TestCase):
         print "test_object_hostinginfo"
         hosting_status = "hosted"
         hosted_url = "http://cse14-iiith.vlabs.ac.in"
-        hostinginfo = HostingInfo(hosting_status=hosting_status, hosted_url=hosted_url)
+        hosted_on = "cloud"
+        hostinginfo = HostingInfo(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
                                               
         self.assertEqual(hostinginfo.get("hosting_status"), hosting_status)
         self.assertEqual(hostinginfo.get("hosted_url"), hosted_url)
+        self.assertEqual(hostinginfo.get("hosted_on"), hosted_on)
        
+#+END_SRC
+
+
+* IntegrationStatus
+   =IntegrationStatus= is an entity that has a field =integration_level= with type =is_int=
+#+NAME: class_IntegrationStatus
+#+begin_src python
+
+IntegrationStatus.add_attributes(integration_level=is_int)
+
+IntegrationStatus.__eq__ = lambda self, other: \
+                  isinstance(other, self.__class__) and \
+                  self.get("integration_level") == other.get("integration_level")
+#+end_src
+
+*** Test IntegrationStatus
+#+NAME: class_TestIntegrationStatus
+#+BEGIN_SRC python
+class TestIntegrationStatus(TestCase):
+    TESTING = True
+
+    def test_object_integrationstatus(self):
+        print "test_object_integrationstatus"
+        integration_level = 4
+        integrationstatus = IntegrationStatus(integration_level=integration_level)
+
+        self.assertEqual(integrationstatus.get("integration_level"), integration_level)
+
 #+END_SRC
 
 
@@ -591,6 +628,7 @@ if __name__ == '__main__':
 <<class_Institute>>
 <<class_Asset>>
 <<class_HostingInfo>>
+<<class_IntegrationStatus>>
 #+end_src
 
 
@@ -608,5 +646,6 @@ if __name__ == '__main__':
 <<class_TestInstitute>>
 <<class_TestAsset>>
 <<class_TestHostingInfo>>
+<<class_TestIntegrationStatus>>
 <<run_test_cases>>
 #+end_src

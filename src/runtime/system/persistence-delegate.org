@@ -30,7 +30,11 @@ class PersistenceDelegate():
                          'institute' : Institute,
                          'discipline' : Discipline,
                          'hostinginfo': HostingInfo,
-                         'asset' : Asset
+                         'asset' : Asset,
+                         'integrationstatus': IntegrationStatus,
+                         'name' : Name,
+                         'email' : Email,
+                         'developer' : Developer
                         }
 
 #+END_SRC
@@ -239,6 +243,110 @@ class TestPersistenceDelegate(TestCase):
 
 #+END_SRC
 
+**** Check if =name= already exists
+
+    This function checks if a name is already in the name-set of the =System=.
+#+NAME: persistence_name_exists
+#+BEGIN_SRC python
+    def name_exists(self, name):
+        ret_val = False
+        try:
+            if self.get_name(name=name.get("name")) is not None:
+                ret_val = True
+        except Exception as e:
+            pass
+        return ret_val
+        
+#+END_SRC
+
+**** Tests
+#+NAME: test_persistence_name_exists
+#+BEGIN_SRC python
+    def test_name_exists(self):
+        print "test_name_exists"
+        name1 = "Prof. Dharmaraj"
+        name2 = Name(name=name1)
+        self.persistence_delegate.add_name(name2)
+        name3 = "Prof. Raja"
+        name4 = Name(name=name3)
+        self.assertEqual(self.persistence_delegate.name_exists(name2),
+                            True)
+        self.assertEqual(self.persistence_delegate.name_exists(name4),
+                            False)
+
+#+END_SRC
+
+**** Check if =email= already exists
+    This function checks if an email is already in the email-set of the =System=.
+#+NAME: persistence_email_exists
+#+BEGIN_SRC python
+    def email_exists(self, email):
+        ret_val = False
+        try:
+            if self.get_email(email=email.get("email")) is not None:
+                ret_val = True
+        except Exception as e:
+            pass
+
+        return ret_val
+        
+#+END_SRC
+
+**** Tests
+#+NAME: test_persistence_email_exists
+#+BEGIN_SRC python
+    def test_email_exists(self):
+        print "test_email_exists"
+        email1 = "abc@gmail.com"
+        email2 = Email(email=email1)
+        self.persistence_delegate.add_email(email2)
+        email3 = "xyz@gmail.com"
+        email4 = Email(email=email3)
+        self.assertEqual(self.persistence_delegate.email_exists(email2), True)
+        self.assertEqual(self.persistence_delegate.email_exists(email4), False)
+
+#+END_SRC
+
+
+**** Check if =developer= already exists
+    This function checks if an developer is already in the developer-set of the =System=.
+#+NAME: persistence_developer_exists
+#+BEGIN_SRC python
+    def developer_exists(self, developer):
+        ret_val = False
+        try:
+            if self.get_developer(email=developer.get("email")) is not None:
+                ret_val = True
+        except Exception as e:
+            pass
+
+        return ret_val
+        
+#+END_SRC
+
+**** Tests
+#+NAME: test_persistence_developer_exists
+#+BEGIN_SRC python
+    def test_developer_exists(self):
+        print "test_developer_exists"
+        dev_name1 = Name(name="Prof. Dharmaraj")
+        dev_name1.save()
+        email_id1 = Email(email="abc@gmail.com")
+        email_id1.save()
+        developer1 = Developer(name=dev_name1, email=email_id1)
+        developer1.save()
+
+        dev_name2 = Name(name="Prof. Raja")
+        dev_name2.save()
+        email_id2 = Email(email="xyz@gmail.com")
+        email_id2.save()
+        developer2 = Developer(name=dev_name2, email=email_id2)
+
+        self.assertEqual(self.persistence_delegate.developer_exists(developer1), True)
+        self.assertEqual(self.persistence_delegate.developer_exists\
+                             (developer2), False)
+#+END_SRC
+
 
 ***  Check if =Discipline= already exists
     This function checks if a discipline is already in the discipline-set of the =System=.
@@ -281,7 +389,7 @@ class TestPersistenceDelegate(TestCase):
 #+NAME: persistence_hostinginfo_exists
 #+BEGIN_SRC python
     def hostinginfo_exists(self, hostinginfo):
-        hosted_url = hostinginfo.get("hosted_url")
+        hosted_url = str(hostinginfo.get("hosted_url"))
         return hostinginfo == self.get_hostinginfo(hosted_url=hosted_url)
         
 #+END_SRC
@@ -293,12 +401,14 @@ class TestPersistenceDelegate(TestCase):
         print "test_hostinginfo_exists"
         hosting_status1 = "hosted"
         hosted_url1 = "http://cse14-iiith.vlabs.ac.in"
-        hostinginfo1 = HostingInfo(hosting_status=hosting_status1, hosted_url=hosted_url1)
+        hosted_on1 = "cloud"
+        hostinginfo1 = HostingInfo(hosting_status=hosting_status1, hosted_url=hosted_url1, hosted_on=hosted_on1)
         host1 = self.persistence_delegate.add_hostinginfo(hostinginfo1)
 
         hosting_status2 = "not hosted"
         hosted_url2 = "http://iitkgp.vlab.co.in/"
-        hostinginfo2 = HostingInfo(hosting_status=hosting_status2, hosted_url=hosted_url2)
+        hosted_on2 = "server"
+        hostinginfo2 = HostingInfo(hosting_status=hosting_status2, hosted_url=hosted_url2, hosted_on=hosted_on2)
         
         self.assertEqual(self.persistence_delegate.hostinginfo_exists\
                              (hostinginfo1), True)
@@ -316,7 +426,6 @@ class TestPersistenceDelegate(TestCase):
     def asset_exists(self, asset):
         path = asset.get("path")
         return asset == self.get_asset(path=path)
-        
 #+END_SRC
 
 **** Tests
@@ -337,9 +446,37 @@ class TestPersistenceDelegate(TestCase):
                              (asst1), True)
         self.assertEqual(self.persistence_delegate.asset_exists\
                              (asset2), False)
-
 #+END_SRC
 
+
+*** Check if =integrationstatus= already exists
+    This function checks if an integrationstatus is already in the integrationstatus-set of the =System=.
+#+NAME: persistence_integrationstatus_exists
+#+BEGIN_SRC python
+    def integrationstatus_exists(self, integrationstatus):
+        integration_level = integrationstatus.get("integration_level")
+        return integrationstatus == self.get_integrationstatus(integration_level=integration_level)
+        
+#+END_SRC
+
+**** Tests
+#+NAME: test_persistence_integrationstatus_exists
+#+BEGIN_SRC python
+    def test_integrationstatus_exists(self):
+        print "test_integrationstatus_exists"
+        integration_level1 = 4
+        integrationstatus1 = IntegrationStatus(integration_level=integration_level1)
+        intstatus1 = self.persistence_delegate.add_integrationstatus(integrationstatus1)
+
+        integration_level2 = 2
+        integrationstatus2 = IntegrationStatus(integration_level=integration_level2)
+        
+        self.assertEqual(self.persistence_delegate.integrationstatus_exists\
+                             (integrationstatus1), True)
+        self.assertEqual(self.persistence_delegate.integrationstatus_exists\
+                             (integrationstatus2), False)
+
+#+END_SRC
 
 
 ***  Add lab to the system
@@ -508,7 +645,32 @@ class TestPersistenceDelegate(TestCase):
          name = Name(name=name)
          name = self.persistence_delegate.add_name(name)
          name = name.get_by_id(1)
-         self.assertEqual(name.get("name"), name)
+         self.assertEqual(name.get("name"), name.get("name"))
+
+#+END_SRC
+
+
+***  Add email to the system
+    This function adds email to the system.
+#+NAME: persistence_add_email
+#+BEGIN_SRC python
+    def add_email(self, email):
+        email.save()
+        return email
+
+#+END_SRC
+
+
+**** Tests
+#+NAME: test_persistence_add_email
+#+BEGIN_SRC python
+    def test_add_email(self):
+         print "test_add_email"
+         email = "dharmar@maths.iitd.ac.in"
+         email = Email(email=email)
+         email = self.persistence_delegate.add_email(email)
+         email = email.get_by_id(1)
+         self.assertEqual(email.get("email"), email.get("email"))
 
 #+END_SRC
 
@@ -517,26 +679,53 @@ class TestPersistenceDelegate(TestCase):
     This function adds developer to the system.
 #+NAME: persistence_add_developer
 #+BEGIN_SRC python
-    def add_dev(self, dev):
-        dev.save()
-        return dev
+    def add_developer(self, developer):
+        name = developer.get("name")
+        email = developer.get("email")
+        if not self.name_exists(name.get("name")):
+            name.save()
+        email.save()
+        developer.save()
+        return developer
 
 #+END_SRC
 **** Tests
 
-#+NAME: test_persistence_add_dev
+#+NAME: test_persistence_add_developer
 #+BEGIN_SRC python
-    def test_add_dev(self):
-         print "test_add_dev"
-         dev_name="Prof. S. Dharmaraja"
-         email_id="dharmar@maths.iitd.ac.in"
-         dev = Dev(dev_name=dev_name, email_id=email_id)
-         dev = self.persistence_delegate.add_dev(dev)
+    def test_add_developer(self):
+         print "test_add_developer"
+         dev_name = Name(name="Prof. S. Dharmaraja")
+         dev_name.save()
+         email = Email(email="dharmar@maths.iitd.ac.in")
+         email.save()
+         dev = Developer(name=dev_name, email=email)
+         dev = self.persistence_delegate.add_developer(dev)
         
-         self.assertEqual(self.persistence_delegate.dev_exists(email.id),
+         self.assertEqual(self.persistence_delegate.developer_exists(dev),
                           True)
-         self.assertEqual(self.persistence_delegate.dev_exists(email.id),
-                          False)
+
+    def test_add_developer_without_saving_name(self):
+         print "test_add_developer_without_saving_name"
+         dev_name = Name(name="Prof. S. Dharmaraja")
+         email = Email(email="dharmar@maths.iitd.ac.in")
+         email.save()
+         dev = Developer(name=dev_name, email=email)
+         dev = self.persistence_delegate.add_developer(dev)
+        
+         self.assertEqual(self.persistence_delegate.developer_exists(dev),
+                          True)
+
+    def test_add_developer_without_saving_email(self):
+         print "test_add_developer_without_saving_email"
+         dev_name = Name(name="Prof. S. Dharmaraja")
+         dev_name.save()
+         email = Email(email="dharmar@maths.iitd.ac.in")
+         dev = Developer(name=dev_name, email=email)
+         dev = self.persistence_delegate.add_developer(dev)
+        
+         self.assertEqual(self.persistence_delegate.developer_exists(dev),
+                          True)
 
 #+END_SRC
 
@@ -592,12 +781,14 @@ class TestPersistenceDelegate(TestCase):
          print "test_add_hostinginfo"
          hosting_status1 = "hosted"
          hosted_url1 = "http://cse14-iiith.vlabs.ac.in"
-         hostinginfo1 = HostingInfo(hosting_status=hosting_status1, hosted_url=hosted_url1)
+         hosted_on1 = "cloud"
+         hostinginfo1 = HostingInfo(hosting_status=hosting_status1, hosted_url=hosted_url1, hosted_on=hosted_on1)
          hostinginfo1 = self.persistence_delegate.add_hostinginfo(hostinginfo1)
          
          hosting_status2 = "not hosted"
          hosted_url2 = "http://iitkgp.vlab.co.in/"
-         hostinginfo2 = HostingInfo(hosting_status=hosting_status2, hosted_url=hosted_url2)
+         hosted_on2 = "server"
+         hostinginfo2 = HostingInfo(hosting_status=hosting_status2, hosted_url=hosted_url2, hosted_on=hosted_on2)
 
          hostinginfo = HostingInfo.get_by_id(1)
 
@@ -640,6 +831,37 @@ class TestPersistenceDelegate(TestCase):
                           True)
          self.assertEqual(self.persistence_delegate.asset_exists(asset2),
                           False)
+#+END_SRC
+
+
+***  Add integrationstatus to the system
+
+    This function adds integrationstatus to the system.
+#+NAME: persistence_add_integrationstatus
+#+BEGIN_SRC python
+    def add_integrationstatus(self, integrationstatus):
+        integrationstatus.save()
+        return integrationstatus
+
+#+END_SRC
+**** Tests
+#+NAME: test_persistence_add_integrationstatus
+#+BEGIN_SRC python
+    def test_add_integrationstatus(self):
+         print "test_add_integrationstatus"
+         integration_level1 = 4
+         integrationstatus1 = IntegrationStatus(integration_level=integration_level1)
+         integrationstatus1 = self.persistence_delegate.add_integrationstatus(integrationstatus1)
+         
+         integration_level2= 2
+         integrationstatus2 = IntegrationStatus(integration_level=integration_level2)
+         
+         integrationstatus = IntegrationStatus.get_by_id(1)
+
+         self.assertEqual(self.persistence_delegate.integrationstatus_exists\
+                              (integrationstatus1), True)
+         self.assertEqual(self.persistence_delegate.integrationstatus_exists\
+                              (integrationstatus2), False)
         
 #+END_SRC
 
@@ -792,8 +1014,8 @@ class TestPersistenceDelegate(TestCase):
     This function updates existing developer.
 #+NAME: persistence_update_developer
 #+BEGIN_SRC python
-    def update_dev(self, dev, dev_name, email_id):
-        dev.set(dev_name=dev_name, email_id=email_id)
+    def update_developer(self, dev, dev_name):
+        dev.set(name=dev_name)
         dev.save()
         return dev
 
@@ -803,6 +1025,21 @@ class TestPersistenceDelegate(TestCase):
 **** Tests
 #+NAME: test_persistence_update_developer
 #+BEGIN_SRC python
+    def test_update_developer(self):
+         print "test_update_developer"
+         dev_name = Name(name="Prof. S. Dharmaraja")
+         dev_name.save()
+         email_id = Email(email="dharmar@maths.iitd.ac.in")
+         email_id.save()
+         dev = Developer(name=dev_name, email=email_id)
+         dev1 = self.persistence_delegate.add_developer(dev)
+
+         dev_name1 = Name(name="Prof. S. raja")
+         dev_name1.save()
+
+         dev2 = self.persistence_delegate.update_developer(dev1, dev_name1)
+
+         self.assertEqual(dev1.get("name").get("name"), dev_name1.get("name"))
 
 #+END_SRC
 
@@ -844,8 +1081,8 @@ class TestPersistenceDelegate(TestCase):
     This function updates existing hostinginfo.
 #+NAME: persistence_update_hostinginfo
 #+BEGIN_SRC python
-    def update_hostinginfo(self, hostinginfo, hosting_status):
-        hostinginfo.set(hosting_status=hosting_status)
+    def update_hostinginfo(self, hostinginfo, hosting_status, hosted_on):
+        hostinginfo.set(hosting_status=hosting_status, hosted_on=hosted_on)
         hostinginfo.save()
         return hostinginfo
 
@@ -858,17 +1095,20 @@ class TestPersistenceDelegate(TestCase):
          print "test_update_hostinginfo"
          hosting_status = "hosted"
          hosted_url = "http://cse14-iiith.vlabs.ac.in"
-         hostinginfo = HostingInfo(hosting_status=hosting_status, hosted_url=hosted_url)
+         hosted_on = "cloud"
+         hostinginfo = HostingInfo(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
          hostinginfo1 = self.persistence_delegate.add_hostinginfo(hostinginfo)
 
          hosting_status1 = "not hosted"
+         hosted_on1 = "server"
          hostinginfo2 = self.persistence_delegate.update_hostinginfo\
-           (hostinginfo1, hosting_status1),
+           (hostinginfo1, hosting_status1, hosted_on1),
 
          hostinginfo = HostingInfo.get_by_id(1)
 
          self.assertEqual(hostinginfo.get("hosting_status"), hosting_status1)
          self.assertEqual(hostinginfo.get("hosted_url"), hosted_url)
+         self.assertEqual(hostinginfo.get("hosted_on"), hosted_on1)
 
 #+END_SRC
 
@@ -1095,6 +1335,136 @@ class TestPersistenceDelegate(TestCase):
 #+END_SRC
 
 
+***  Delete Name 
+    This function delete existing name.
+#+NAME: persistence_delete_name
+#+BEGIN_SRC python
+    def delete_name(self, name):
+        record = self.get_name(name=name.get("name"))
+        if not record:
+            abort(404, 'No Name with id %s' % (name))
+        else:
+            try:
+                record.delete()
+                #db.session.delete(record)
+                #db.session.commit()
+            except Exception, e:
+                print e
+                abort(500, str(e))
+
+        return name
+
+#+END_SRC
+
+**** Tests
+#+NAME: test_persistence_delete_name
+#+BEGIN_SRC python
+    def test_delete_name(self):
+         print "test_delete_name"
+         name = "Prof. Dharmaraj"
+         name = Name(name=name)
+         name.save()
+
+         name1 = "Prof. Yamraj"
+         name2 = Name(name=name1)
+         name2.save()
+
+         self.persistence_delegate.delete_name(name2)
+
+         self.assertEqual(len(Name.get_all()), 1)
+
+#+END_SRC
+
+
+***  Delete Email 
+    This function delete existing email.
+#+NAME: persistence_delete_email
+#+BEGIN_SRC python
+    def delete_email(self, email_id):
+        record = self.get_email(email=email_id.get("email"))
+        if not record:
+            abort(404, 'No Email with id %s' % (email_id))
+        else:
+            try:
+                record.delete()
+                #db.session.delete(record)
+                #db.session.commit()
+            except Exception, e:
+                print e
+                abort(500, str(e))
+
+        return email_id
+
+#+END_SRC
+
+**** Tests
+#+NAME: test_persistence_delete_email
+#+BEGIN_SRC python
+    def test_delete_email(self):
+         email = Email(email="abc@gmail.com")
+         email1 = self.persistence_delegate.add_email(email)
+
+         email1 = Email(email="xyz@gmail.com")
+         email2 = self.persistence_delegate.add_email(email1)
+
+         self.persistence_delegate.delete_email(email)
+
+         self.assertEqual(len(Email.get_all()), 1)
+
+#+END_SRC
+
+
+***  Delete Developer 
+    This function delete existing developer.
+#+NAME: persistence_delete_developer
+#+BEGIN_SRC python
+    def delete_developer(self, email_id):
+        record = self.get_developer(email=email_id)
+        if not record:
+            abort(404, 'No Developer with id %s' % (email_id))
+        else:
+            try:
+                record.delete()
+                self.delete_email(email_id)
+            except Exception, e:
+                print e
+                abort(500, str(e))
+
+        return email_id
+
+#+END_SRC
+
+**** Tests
+#+NAME: test_persistence_delete_developer
+#+BEGIN_SRC python
+    def test_delete_developer(self):
+         print "test_delete_developer"
+         dev_name = Name(name="Prof. S. Dharmaraja")
+         dev_name.save()
+
+         email_id = Email(email="dharmar@maths.iitd.ac.in")
+         email_id.save()
+
+         dev = Developer(name=dev_name, email=email_id)
+         dev1 = self.persistence_delegate.add_developer(dev)
+
+         dev_name1 = Name(name="Prof. S. Yamraja")
+         dev_name1.save()
+         email_id1 = Email(email="yamraja@maths.iitd.ac.in")
+         email_id1.save()
+
+         dev2 = Developer(name=dev_name1, email=email_id1)
+         dev3 = self.persistence_delegate.add_developer(dev2)
+
+         self.persistence_delegate.delete_developer(dev3.get("email"))
+
+         self.assertEqual(len(Developer.get_all()), 1)
+         self.assertEqual(len(Email.get_all()), 1)
+
+
+#+END_SRC
+
+
 ***  Delete Institute 
     This function deletes existing institute.
 #+NAME: persistence_delete_institute
@@ -1166,12 +1536,14 @@ class TestPersistenceDelegate(TestCase):
          print "test_delete_hostinginfo"
          hosting_status = "hosted"
          hosted_url = "http://cse14-iiith.vlabs.ac.in"
-         hostinginfo = HostingInfo(hosting_status=hosting_status, hosted_url=hosted_url)
+         hosted_on = "cloud"
+         hostinginfo = HostingInfo(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
          hostinginfo1 = self.persistence_delegate.add_hostinginfo(hostinginfo)
 
          hosting_status1 = "not hosted"
          hosted_url1 = "http://iitkgp.vlab.co.in/"
-         hostinginfo1 = HostingInfo(hosting_status=hosting_status1, hosted_url=hosted_url1)
+         hosted_on1 = "server"
+         hostinginfo1 = HostingInfo(hosting_status=hosting_status1, hosted_url=hosted_url1, hosted_on=hosted_on1)
          hostinginfo2 = self.persistence_delegate.add_hostinginfo(hostinginfo1)
 
          self.persistence_delegate.delete_hostinginfo("http://cse14-iiith.vlabs.ac.in")
@@ -1179,7 +1551,6 @@ class TestPersistenceDelegate(TestCase):
          self.assertEqual(len(HostingInfo.get_all()), 1)
 
 #+END_SRC
-
 
 ***  Delete Asset 
     This function delete existing asset.
@@ -1220,8 +1591,49 @@ class TestPersistenceDelegate(TestCase):
          self.persistence_delegate.delete_asset(path)
 
          self.assertEqual(len(Asset.get_all()), 1)
+#+END_SRC
+
+
+
+***  Delete IntegrationStatus
+    This function deletes existing integrationstatus.
+#+NAME: persistence_delete_integrationstatus
+#+BEGIN_SRC python
+    def delete_integrationstatus(self, integration_level):
+        record = self.get_integrationstatus(integration_level=integration_level)
+        if not record:
+            abort(404, 'No IntegrationStatus with id %s' % (integration_level))
+        else:
+            try:
+                record.delete()
+                #db.session.delete(record)
+                #db.session.commit()
+            except Exception, e:
+                print e
+                abort(500, str(e))
+
+        return integration_level
 
 #+END_SRC
+**** Tests
+#+NAME: test_persistence_delete_integrationstatus
+#+BEGIN_SRC python
+    def test_delete_integrationstatus(self):
+         print "test_delete_integrationstatus"
+         integration_level = 4
+         integrationstatus = IntegrationStatus(integration_level=integration_level)                    
+         integrationstatus1 = self.persistence_delegate.add_integrationstatus(integrationstatus)
+
+         integration_level1 = 2
+         integrationstatus1 = IntegrationStatus(integration_level=integration_level1)
+         integrationstatus2 = self.persistence_delegate.add_integrationstatus(integrationstatus1)
+
+         self.persistence_delegate.delete_integrationstatus(integration_level)
+
+         self.assertEqual(len(IntegrationStatus.get_all()), 1)
+
+#+END_SRC
+
 
 
 ***  Add experiments to a Lab
@@ -1289,7 +1701,7 @@ class TestPersistenceDelegate(TestCase):
 
 #+END_SRC
 
- 
+
 ***  Add labs to an Institute
     This function adds labs to a given institute.
 #+NAME: persistence_add_labs_to_institute
@@ -1482,6 +1894,91 @@ class TestPersistenceDelegate(TestCase):
                                                 section.get("name"))
          self.assertEqual(section_obj.get("name"),
                               section.get("name"))
+
+#+END_SRC
+
+
+
+***  Get Name
+    This function returns a name if present in the database.  If the name is
+    not present, =None= type is returned.
+#+NAME: persistence_get_name
+#+BEGIN_SRC python
+    def get_name(self, **kwargs):
+        return self.get_object(Name, **kwargs)
+
+#+END_SRC
+
+**** Tests
+#+NAME: test_persistence_get_name
+#+BEGIN_SRC python
+    def test_get_name(self):
+         print "test_get_name"
+         name = "Prof. Dharamaraja"
+         name = Name(name=name)
+         name.save()
+
+         name_obj = self.persistence_delegate.get_name(name=
+                                                name.get("name"))
+         self.assertEqual(name_obj.get("name"),
+                              name.get("name"))
+
+#+END_SRC
+
+
+
+***  Get Email
+    This function returns a email if present in the database.  If the email is
+    not present, =None= type is returned.
+#+NAME: persistence_get_email
+#+BEGIN_SRC python
+    def get_email(self, **kwargs):
+        return self.get_object(Email, **kwargs)
+
+#+END_SRC
+
+**** Tests
+#+NAME: test_persistence_get_email
+#+BEGIN_SRC python
+    def test_get_email(self):
+         print "test_get_email"
+         email = "abc@gmail.com"
+         email = Email(email=email)
+         email.save()
+
+         email_obj = self.persistence_delegate.get_email(email=
+                                                email.get("email"))
+         self.assertEqual(email_obj.get("email"),
+                              email.get("email"))
+
+#+END_SRC
+
+
+
+***  Get Developer
+    This function returns a developer if present in the database.  If the
+    developer is not present, =None= type is returned.
+#+NAME: persistence_get_developer
+#+BEGIN_SRC python
+    def get_developer(self, **kwargs):
+        return self.get_object(Developer, **kwargs)
+
+#+END_SRC
+
+**** Tests
+#+NAME: test_persistence_get_developer
+#+BEGIN_SRC python
+    def test_get_developer(self):
+         print "test_get_developer"
+         dev_name = Name(name="Prof. S. Dharmaraja")
+         dev_name.save()
+         email_id = Email(email="dharmar@maths.iitd.ac.in")
+         email_id.save()
+         dev = Developer(name=dev_name, email=email_id)
+         dev.save()
+
+         dev_obj = self.persistence_delegate.get_developer(email=dev.get("email"))
+         self.assertEqual(dev_obj.get("email").get("email"), email_id.get("email"))
 
 #+END_SRC
 
@@ -1794,7 +2291,8 @@ class TestPersistenceDelegate(TestCase):
 
          hosting_status = "hosted"
          hosted_url = "http://cse14-iiith.vlabs.ac.in"
-         host = HostingInfo(hosting_status=hosting_status, hosted_url=hosted_url)
+         hosted_on = "cloud"
+         host = HostingInfo(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
          host.save()
          host_obj = self.persistence_delegate.get_hostinginfo(hosting_status=
                                                 host.get("hosting_status"))
@@ -1802,8 +2300,39 @@ class TestPersistenceDelegate(TestCase):
          host_obj1 = self.persistence_delegate.get_hostinginfo(hosted_url=
                                                 host.get("hosted_url"))
 
+         host_obj2 = self.persistence_delegate.get_hostinginfo(hosted_on=
+                                                host.get("hosted_on"))
+
          self.assertEqual(host_obj.get("hosting_status"), host.get("hosting_status"))
          self.assertEqual(host_obj1.get("hosted_url"), host.get("hosted_url"))
+         self.assertEqual(host_obj2.get("hosted_on"), host.get("hosted_on"))
+
+#+END_SRC
+
+
+***  Get IntegrationStatus
+    This function returns integrationstatus if present in the database. If the integrationstatus is
+    not present, =None= type is returned.
+#+NAME: persistence_get_integrationstatus
+#+BEGIN_SRC python
+    def get_integrationstatus(self, **kwargs):
+        return self.get_object(IntegrationStatus, **kwargs)
+
+#+END_SRC
+
+**** Tests
+#+NAME: test_persistence_get_integrationstatus
+#+BEGIN_SRC python
+    def test_get_integrationstatus(self):
+         print "test_get_integrationstatus"
+
+         integration_level = 4
+         intstatus = IntegrationStatus(integration_level=integration_level)                             
+         intstatus.save()
+         intstatus_obj = self.persistence_delegate.get_integrationstatus(integration_level=
+                                                intstatus.get("integration_level"))
+
+         self.assertEqual(intstatus_obj.get("integration_level"), intstatus.get("integration_level"))
 
 #+END_SRC
 
@@ -2010,8 +2539,6 @@ class TestPersistenceDelegate(TestCase):
 
 #+END_SRC
 
-
-      
 * Infra                                                         :boilerplate:
 
 ** sources
@@ -2071,7 +2598,7 @@ if __name__ == '__main__':
 <<persistence_get_discipline>>
 <<persistence_get_hostinginfo>>
 <<persistence_get_asset>>
-
+<<persistence_get_integrationstatus>>
 <<persistence_discipline_exists>>
 <<persistence_add_discipline>>
 <<persistence_delete_discipline>>
@@ -2085,8 +2612,12 @@ if __name__ == '__main__':
 <<persistence_section_exists>>
 <<persistence_experiment_exists>>
 <<persistence_institute_exists>>
+<<persistence_name_exists>>
+<<persistence_email_exists>>
+<<persistence_developer_exists>>
 <<persistence_hostinginfo_exists>>
 <<persistence_asset_exists>>
+<<persistence_integrationstatus_exists>>
 
 <<persistence_add_lab>>
 <<persistence_add_experiment>>
@@ -2094,6 +2625,7 @@ if __name__ == '__main__':
 <<persistence_add_institute>>
 <<persistence_add_hostinginfo>>
 <<persistence_add_asset>>
+<<persistence_add_integrationstatus>>
 
 <<persistence_delete_lab>>
 <<persistence_delete_section>>
@@ -2101,6 +2633,7 @@ if __name__ == '__main__':
 <<persistence_delete_institute>>
 <<persistence_delete_hostinginfo>>
 <<persistence_delete_asset>>
+<<persistence_delete_integrationstatus>>
 
 <<persistence_update_lab>>
 <<persistence_update_section>>
@@ -2118,6 +2651,20 @@ if __name__ == '__main__':
 <<persistence_add_experiments_to_lab>>
 <<persistence_add_sections_to_experiment>>
 <<persistence_add_labs_to_institute>>
+
+<<persistence_add_name>>
+<<persistence_add_email>>
+<<persistence_add_developer>>
+
+<<persistence_update_developer>>
+
+<<persistence_delete_name>>
+<<persistence_delete_email>>
+<<persistence_delete_developer>>
+
+<<persistence_get_name>>
+<<persistence_get_email>>
+<<persistence_get_developer>>
 #+end_src
 
 
@@ -2133,6 +2680,7 @@ if __name__ == '__main__':
 <<test_persistence_get_discipline>>
 <<test_persistence_get_hostinginfo>>
 <<test_persistence_get_asset>>
+<<test_persistence_get_integrationstatus>>
 
 <<test_persistence_get_labs>>
 <<test_persistence_get_institutes>>
@@ -2141,11 +2689,15 @@ if __name__ == '__main__':
 <<test_persistence_lab_exists>>
 <<test_persistence_experiment_exists>>
 <<test_persistence_section_exists>>
+<<test_persistence_name_exists>>
+<<test_persistence_email_exists>>
+<<test_persistence_developer_exists>>
 <<test_persistence_institute_exists>>
 <<test_persistence_discipline_exists>>
 <<test_persistence_hostinginfo_exists>>
 <<test_persistence_asset_exists>>
 
+<<test_persistence_integrationstatus_exists>>
 <<test_persistence_add_lab>>
 <<test_persistence_add_section>>
 <<test_persistence_add_experiment>>
@@ -2153,6 +2705,7 @@ if __name__ == '__main__':
 <<test_persistence_add_discipline>>
 <<test_persistence_add_hostinginfo>>
 <<test_persistence_add_asset>>
+<<test_persistence_add_integrationstatus>>
 
 <<test_persistence_delete_lab>>
 <<test_persistence_delete_section>>
@@ -2161,6 +2714,7 @@ if __name__ == '__main__':
 <<test_persistence_delete_discipline>>
 <<test_persistence_delete_hostinginfo>>
 <<test_persistence_delete_asset>>
+<<test_persistence_delete_integrationstatus>>
 
 <<test_persistence_update_lab>>
 <<test_persistence_update_experiment>>
@@ -2179,6 +2733,20 @@ if __name__ == '__main__':
 <<test_persistence_add_experiments_to_lab>>
 <<test_persistence_add_sections_to_experiment>>
 #<<test_persistence_add_labs_to_institute>>
+
+<<test_persistence_add_name>>
+<<test_persistence_add_email>>
+<<test_persistence_add_developer>>
+
+<<test_persistence_update_developer>>
+
+<<test_persistence_delete_name>>
+<<test_persistence_delete_email>>
+<<test_persistence_delete_developer>>
+
+<<test_persistence_get_name>>
+<<test_persistence_get_email>>
+<<test_persistence_get_developer>>
 <<run_test_cases>>
 
 #+end_src

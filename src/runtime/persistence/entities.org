@@ -508,7 +508,8 @@ class TestPersistentDeveloper(TestCase):
 args = {"__tablename__": "hostinginfo",
         "id": db.Column(db.Integer, primary_key=True),
         "hosting_status": db.Column(db.String(255), unique=False, nullable=True),
-        "hosted_url": db.Column(db.String(255), unique=True, nullable=False)
+        "hosted_url": db.Column(db.String(255), unique=True, nullable=False),
+        "hosted_on": db.Column(db.String(255), unique=False, nullable=True)
        }
 
 HostingInfo = ClassPersistenceTemplate.mk_persistent(HostingInfo, ['hosted_url'], **args)
@@ -536,12 +537,14 @@ class TestPersistenceHostingInfo(TestCase):
         print "test_persistent_hostinginfo"
         hosting_status = "hosted"
         hosted_url = "http://cse14-iiith.vlabs.ac.in"
-        host = HostingInfo(hosting_status=hosting_status, hosted_url=hosted_url)
+        hosted_on = "cloud"
+        host = HostingInfo(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
         host.save()
         hostinginfo = HostingInfo.get_by_id(1)
         hostinginfo1 = HostingInfo.get_by_id(2)
         self.assertEqual(hostinginfo.get("hosting_status"), hosting_status)
         self.assertEqual(hostinginfo.get("hosted_url"), hosted_url)
+        self.assertEqual(hostinginfo.get("hosted_on"), hosted_on)
         self.assertEqual(hostinginfo1,None)
 
 #+END_SRC
@@ -591,6 +594,51 @@ class TestPersistenceAsset(TestCase):
         self.assertEqual(asset.get("path"), path)
         self.assertEqual(asset.get("asset_type"), asset_type)       
         self.assertEqual(asset1,None)
+
+#+END_SRC
+
+
+* IntegrationStatus
+
+  =IntegrationStatus= is a class with attributes =integration_level= of type =is_int=.
+
+#+NAME: class_IntegrationStatus
+#+begin_src python
+args = {"__tablename__": "integrationstatus",
+        "id": db.Column(db.Integer, primary_key=True),
+        "integration_level": db.Column(db.Integer, unique=True, nullable=False),
+       }
+
+IntegrationStatus = ClassPersistenceTemplate.mk_persistent(IntegrationStatus, ['integration_level'], **args)
+
+#+end_src
+
+** Test IntegrationStatus
+#+NAME: class_TestIntegrationStatus
+#+BEGIN_SRC python
+class TestPersistenceIntegrationStatus(TestCase):
+    TESTING = True
+
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_create_integrationstatus(self):
+        print "test_persistance_integrationstatus"
+        integration_level = 4
+        intstatus = IntegrationStatus(integration_level=integration_level)
+        intstatus.save()
+        integrationstatus = IntegrationStatus.get_by_id(1)
+        integrationstatus1 = IntegrationStatus.get_by_id(2)
+        self.assertEqual(integrationstatus.get("integration_level"), integration_level)
+        self.assertEqual(integrationstatus1,None)
 
 #+END_SRC
 
@@ -652,6 +700,7 @@ if __name__ == '__main__':
 <<class_Developer>>
 <<class_HostingInfo>>
 <<class_Asset>>
+<<class_IntegrationStatus>>
 #+end_src
 
 
@@ -668,5 +717,7 @@ if __name__ == '__main__':
 <<class_TestInstitute>>
 <<class_TestHostingInfo>>
 <<class_TestAsset>>
+<<class_TestAssets>>
+<<class_TestIntegrationStatus>>
 <<run_test_cases>>
 #+end_src

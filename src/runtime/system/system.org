@@ -65,7 +65,7 @@ The class corresponding to each operation has five fields:
        An exception thrown by this function indicates a
        serious failure in the application (e.g., out of
        memory error). 
-
+       
 
 * The =System= class
   There is only one =System= in the application.
@@ -175,7 +175,7 @@ class TestSystemConstructor(TestCase):
             System.type_check(args, arg_types)
 
   #+END_SRC
-
+  
     
 * =do= method 
    The =do= method is the main work-horse of =System= which is constructed as the
@@ -459,8 +459,7 @@ class AddEmail():
 #+NAME: class_add_developer
 #+begin_src python
 class AddDeveloper():
-    arg_types = {"developer": is_developer, "name": is_name,
-                     "email": is_email, "session": is_session}
+    arg_types = {"developer": is_developer, "session": is_session}
     arity_and_type_checks_needed = True
 
     @staticmethod
@@ -484,6 +483,34 @@ class AddDeveloper():
 
 #+end_src
 
+
+** =AddIntegrationStatus=
+#+NAME: class_add_integrationstatus
+#+begin_src python
+class AddIntegrationStatus():
+    arg_types = {"integrationstatus": is_integrationstatus, "session": is_session}
+    arity_and_type_checks_needed = True
+
+    @staticmethod
+    def auth_check(args):
+        session = args['session']
+        if not System.is_session_valid(session):
+            raise NotAuthorizedError("Not Authorized to perform this action")
+
+    @staticmethod
+    def state_check(args):
+        integrationstatus = args["integrationstatus"]
+        if System.delegate.integrationstatus_exists(integrationstatus):
+            raise StateError("integrationstatus %s already exists in System"
+                                 % integrationstatus.to_client())
+
+    @staticmethod
+    def action(args):
+        integrationstatus = args["integrationstatus"]
+        integrationstatus = System.delegate.add_integrationstatus(integrationstatus)
+        return integrationstatus
+
+#+end_src
 
 
 ** =UpdateLab=
@@ -723,7 +750,7 @@ class UpdateEmail():
 #+begin_src python
 class UpdateDeveloper():
     arg_types = {"developer": is_developer, "name": is_name,
-                     "email": is_email, "session": is_session}
+                     "session": is_session}
     arity_and_type_checks_needed = True
 
     @staticmethod
@@ -749,6 +776,34 @@ class UpdateDeveloper():
 
         section = System.delegate.update_developer(developer, name)
         return developer
+
+#+end_src
+
+** =UpdateHostingInfo=
+#+NAME: class_update_hostinginfo
+#+begin_src python
+class UpdateHostingInfo():
+    arg_types = {"hostinginfo": is_hostinginfo, "hosting_status": is_str_or_none, "hosted_on": is_str_or_none, "session": is_session}                               
+    arity_and_type_checks_needed = True
+
+    @staticmethod
+    def auth_check(args):
+        session = args['session']
+        if not System.is_session_valid(session):
+            raise NotAuthorizedError("Not Authorized to perform this action")
+
+    @staticmethod
+    def state_check(args):
+        pass
+
+
+    @staticmethod
+    def action(args):
+        hosting_status = args["hosting_status"]
+        hosted_on = args["hosted_on"]
+        hostinginfo = args["hostinginfo"]       
+        hostinginfo = System.delegate.update_hostinginfo(hostinginfo, hosting_status, hosted_on)
+        return hostinginfo
 
 #+end_src
 
@@ -812,7 +867,6 @@ class DeleteExperiment():
         
 #+end_src
 
-
 ** =DeleteDiscipline=
 #+NAME: class_delete_discipline
 #+begin_src python
@@ -874,6 +928,7 @@ class DeleteInstitute():
 #+end_src
 
 
+
 ** =DeleteSection=
 #+NAME: class_delete_section
 #+begin_src python
@@ -904,7 +959,7 @@ class DeleteSection():
 #+NAME: class_delete_name
 #+begin_src python
 class DeleteName():
-    arg_types = {"name_id": is_name}
+    arg_types = {"name": is_name, "session": is_session}
     arity_and_type_checks_needed = True
 
     @staticmethod
@@ -922,9 +977,9 @@ class DeleteName():
 
     @staticmethod
     def action(args):
-        name_id = args["name_id"]
-        name_id = System.delegate.delete_name(name_id)
-        return name_id
+        name = args["name"]
+        name1 = System.delegate.delete_name(name)
+        return name1
         
 #+end_src
 
@@ -933,7 +988,7 @@ class DeleteName():
 #+NAME: class_delete_email
 #+begin_src python
 class DeleteEmail():
-    arg_types = {"email_id": is_email}
+    arg_types = {"email": is_email, "session": is_session}
     arity_and_type_checks_needed = True
 
     @staticmethod
@@ -951,9 +1006,9 @@ class DeleteEmail():
 
     @staticmethod
     def action(args):
-        email_id = args["email_id"]
-        email_id = System.delegate.delete_email(email_id)
-        return email_id
+        email = args["email"]
+        email = System.delegate.delete_email(email)
+        return email
         
 #+end_src
 
@@ -962,7 +1017,7 @@ class DeleteEmail():
 #+NAME: class_delete_developer
 #+begin_src python
 class DeleteDeveloper():
-    arg_types = {"developer_id": is_developer, "name": is_name, "email": is_email}
+    arg_types = {"email": is_email, "session": is_session}
     arity_and_type_checks_needed = True
 
     @staticmethod
@@ -973,18 +1028,76 @@ class DeleteDeveloper():
 
     @staticmethod
     def state_check(args):
-        developer = args["developer"]
-        if not System.delegate.developer_exists(developer):
-            raise StateError("developer %s does not exists in System"
-                                 % developer.to_client())
+        pass
 
     @staticmethod
     def action(args):
-        developer_id = args["developer_id"]
-        developer_id = System.delegate.delete_developer(developer_id)
-        return developer_id
+        email = args["email"]
+        email = System.delegate.delete_developer(email)
+        return email
         
 #+end_src
+
+
+** =DeleteHostingInfo=
+#+NAME: class_delete_hostinginfo
+#+begin_src python
+class DeleteHostingInfo():
+    arg_types = {"hosted_url": is_url, "session": is_session}
+    arity_and_type_checks_needed = True
+
+    @staticmethod
+    def auth_check(args):
+        session = args['session']
+        if not System.is_session_valid(session):
+            raise NotAuthorizedError("Not Authorized to perform this action")
+
+    @staticmethod
+    def state_check(args):
+        hosted_url = args['hosted_url']
+        hostinginfo = System.delegate.get_hostinginfo(hosted_url=hosted_url)
+        if not System.delegate.hostinginfo_exists(hostinginfo):
+            raise StateError("hostinginfo %s does not exists in System"
+                                 % hostinginfo.to_client())
+
+    @staticmethod
+    def action(args):
+        hosted_url = args["hosted_url"]
+        hosted_url = System.delegate.delete_hostinginfo(hosted_url)
+        return hosted_url
+        
+#+end_src
+
+
+** =DeleteIntegrationStatus=
+#+NAME: class_delete_integrationstatus
+#+begin_src python
+class DeleteIntegrationStatus():
+    arg_types = {"integration_level": is_int, "session": is_session}
+    arity_and_type_checks_needed = True
+
+    @staticmethod
+    def auth_check(args):
+        session = args['session']
+        if not System.is_session_valid(session):
+            raise NotAuthorizedError("Not Authorized to perform this action")
+
+    @staticmethod
+    def state_check(args):
+        integration_level = args['integration_level']
+        integrationstatus = System.delegate.get_integrationstatus(integration_level=integration_level)    
+        if not System.delegate.integrationstatus_exists(integrationstatus):
+            raise StateError("integrationstatus %s does not exists in System"
+                                 % integrationstatus.to_client())
+
+    @staticmethod
+    def action(args):
+        integration_level = args["integration_level"]
+        integration_level = System.delegate.delete_integrationstatus(integration_level)
+        return integration_level
+        
+#+end_src
+
 
 
 ** =GetLab=
@@ -1167,10 +1280,6 @@ class AddLabsToInstitute():
 
 #+end_src
 
-
->>>>>>> cfbf6b04c78ea3dc5c6b9832b77a32ee35cc8745
-
-
 ** =AddSectionsToExperiment=
 #+NAME: class_add_sections_to_experiment
 #+begin_src python
@@ -1211,6 +1320,120 @@ class AddSectionsToExperiment():
 
 
 
+** =GetName=
+#+NAME: class_get_name
+#+begin_src python
+class GetName():
+    arg_types = {"name": is_name, "session": is_session}
+
+    arity_and_type_checks_needed = True
+
+    @staticmethod
+    def auth_check(args):
+        session = args['session']
+        current_app.logger.debug("checking authorization")
+        if not System.is_session_valid(session):
+            current_app.logger.debug("authorization is failed")
+            raise NotAuthorizedError("Not Authorized to perform this action")
+        current_app.logger.debug("authorization check is done")
+
+    @staticmethod
+    def state_check(args):
+        pass
+
+    @staticmethod
+    def action(args):
+        name = args["name"]
+        name1 = System.delegate.get_name(name=name.get("name"))
+        return name1
+
+#+end_src
+
+
+** =GetEmail=
+#+NAME: class_get_email
+#+begin_src python
+class GetEmail():
+    arg_types = {"email": is_email, "session": is_session}
+
+    arity_and_type_checks_needed = True
+
+    @staticmethod
+    def auth_check(args):
+        session = args['session']
+        current_app.logger.debug("checking authorization")
+        if not System.is_session_valid(session):
+            current_app.logger.debug("authorization is failed")
+            raise NotAuthorizedError("Not Authorized to perform this action")
+        current_app.logger.debug("authorization check is done")
+
+    @staticmethod
+    def state_check(args):
+        pass
+
+    @staticmethod
+    def action(args):
+        email = args["email"]
+        email1 = System.delegate.get_email(email=email.get("email"))
+        return email1
+
+#+end_src
+
+
+** =GetDeveloper=
+#+NAME: class_get_developer
+#+begin_src python
+class GetDeveloper():
+    arg_types = {"email": is_email}
+
+    arity_and_type_checks_needed = True
+
+    @staticmethod
+    def auth_check(args):
+        pass
+
+    @staticmethod
+    def state_check(args):
+        pass
+
+    @staticmethod
+    def action(args):
+        email = args["email"]
+        email = System.delegate.get_developer(email=email)
+        return email
+
+#+end_src
+
+
+** =GetIntegrationStatus=
+#+NAME: class_get_integrationstatus
+#+begin_src python
+class GetIntegrationStatus():
+    arg_types = {"integration_level": is_int}
+    arity_and_type_checks_needed = True
+
+    @staticmethod
+    def auth_check(args):
+        pass
+
+    @staticmethod
+    def state_check(args):
+        integration_level = args['integration_level']
+        integrationstatus = System.delegate.get_integrationstatus(integration_level=integration_level)    
+        if not System.delegate.integrationstatus_exists(integrationstatus):
+            raise StateError("integrationstatus %s does not exists in System"
+                                 % integrationstatus.to_client())
+        
+    @staticmethod
+    def action(args):
+        integration_level = args["integration_level"]
+        integrationstatus = System.delegate.get_integrationstatus(integration_level=integration_level)
+        return integrationstatus
+
+#+end_src
+
+
+
 ** Operations Table
    Each operation has a corresponding implementation defined as a class.
 
@@ -1234,8 +1457,6 @@ ops_table = {'add_lab' : AddLab,
              'add_name' : AddName,
              'add_email' : AddEmail,
              'add_developer' : AddDeveloper,
-             'update_name': UpdateName,
-             'update_email': UpdateEmail,
              'update_developer': UpdateDeveloper,
              'delete_name': DeleteName,
              'delete_email': DeleteEmail,
@@ -1245,8 +1466,16 @@ ops_table = {'add_lab' : AddLab,
              'add_discipline' : AddDiscipline,
              'update_discipline' : UpdateDiscipline,
              'delete_discipline' : DeleteDiscipline,
+             'get_name': GetName,
+             'get_email': GetEmail,
+             'get_developer': GetDeveloper,
              'add_hostinginfo' : AddHostingInfo,
-             'get_hostinginfo': GetHostingInfo
+             'get_hostinginfo': GetHostingInfo,
+             'update_hostinginfo': UpdateHostingInfo,
+             'delete_hostinginfo': DeleteHostingInfo,
+             'add_integrationstatus' : AddIntegrationStatus,
+             'get_integrationstatus': GetIntegrationStatus,
+             'delete_integrationstatus': DeleteIntegrationStatus
              }
 
  #+END_SRC   
@@ -1265,7 +1494,7 @@ from runtime.objects.entities import is_str, is_lab, are_labs,\
      is_date, is_session, is_section, is_int, is_experiment,\
      are_experiments, are_sections, is_name, is_email, is_developer,\
      is_institute, are_institutes, is_discipline, are_disciplines,\
-     is_url, is_hostinginfo
+     is_url, is_hostinginfo, is_integrationstatus
 
 from runtime.utils.type_utils import is_str_or_none
 from runtime.config.system_config import KEY
@@ -1329,8 +1558,6 @@ if __name__ == '__main__':
 <<class_add_name>>
 <<class_add_email>>
 <<class_add_developer>>
-<<class_update_name>>
-<<class_update_email>>
 <<class_update_developer>>
 <<class_delete_name>>
 <<class_delete_email>>
@@ -1338,11 +1565,19 @@ if __name__ == '__main__':
 <<class_add_sections_to_experiment>>
 <<class_add_section>>
 <<class_get_lab>>
+<<class_get_name>>
+<<class_get_email>>
+<<class_get_developer>>
 <<class_get_experiment>>
 <<class_get_institute>>
 <<class_get_discipline>>
 <<class_add_hostinginfo>>
 <<class_get_hostinginfo>>
+<<class_update_hostinginfo>>
+<<class_delete_hostinginfo>>
+<<class_add_integrationstatus>>
+<<class_get_integrationstatus>>
+<<class_delete_integrationstatus>>
 <<ops_table>>
 
 #+end_src
