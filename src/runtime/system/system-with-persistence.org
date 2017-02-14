@@ -1813,21 +1813,22 @@ class TestAddAssetsToLab(TestCase):
 
         lab_name = "data structures"
         lab_id = "cse02"
-        lab = lab_cls(lab_name=lab_name, lab_id=lab_id)
+        overview = "overview"
+        lab = lab_cls(lab_name=lab_name, lab_id=lab_id, overview=overview)
         key = KEY
         session = session_cls(key=key)
         lab = System.do("add_lab", lab=lab, \
                                 session=session)
         lab1 = lab_cls.get_by_id(1)
 
-        asset1 = asset_cls(asset_type="Image")
+        asset1 = asset_cls(asset_type="Image", path="vlabs.ac.in/static/images/icon.png")
         asset1.save()
 
-        asset2 = asset_cls(asset_type="Video")
+        asset2 = asset_cls(asset_type="Video", path="vlabs.ac.in/static/images/logo.png")
         asset2.save()
         
         lab = System.do("add_assets_to_lab", 
-                                lab=lab,
+                                labid=lab.id,
                                 assets=[asset1, asset2],
                                 session=session)
 
