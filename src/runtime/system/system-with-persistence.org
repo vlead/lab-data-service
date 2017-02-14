@@ -921,6 +921,7 @@ class TestDeleteName(TestCase):
 
 #+END_SRC
 
+
 * Test DeleteLab
 #+NAME:  test_delete_lab 
 #+BEGIN_SRC python
@@ -1583,28 +1584,27 @@ class TestUpdateAsset(TestCase):
         db.drop_all()
 
     def test_update_asset(self):
-        
         print "test_update_asset_in_system_persistence"
         session_cls = System.delegate.entities['session']
         asset_cls = System.delegate.entities['asset']
 
-        session = session_cls(key=KEY)
-        asset_type = "Icon"
-        path = "vlabs.ac.in/static/images/icon.png"
-        asset = asset_cls(asset_type=asset_type, path=path)
+        key = KEY
+        session = session_cls(key=key)
+        asset_type1 = "Icon"
+        path1 = "vlabs.ac.in/static/images/icon.png"
+        asset = asset_cls(asset_type=asset_type1, path=path1)
         asset.save()
 
         asset_type2 = "Video"
 
-        asst1 = System.do("update_asset", asset_type=asset_type2,
-                             asset=asset)
+        asset1 = System.do("update_asset", asset_type=asset_type2,
+                             asset=asset, session=session)
 
-        new_asst = asset_cls.get_by_id(1)
+        new_asset = asset_cls.get_by_id(1)
 
-        self.assertEqual(new_asst.get("asset_type"), asset_type2)
-        self.assertEqual(new_asst.get("path"), path)
-            
-#+END_SRC
+        self.assertEqual(new_asset.get("asset_type"), asset_type2)
+        
+ #+END_SRC
 
 
 * Test DeleteAsset
