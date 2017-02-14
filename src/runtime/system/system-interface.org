@@ -3740,6 +3740,40 @@ class TestGetDisciplineByDisciplineId(TestCase):
 
 #+END_SRC
 
+*** TestAddAsset 
+#+NAME: test_class_add_asset
+#+BEGIN_SRC python
+class TestAddAsset(TestCase):
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_add_asset_in_system_interface(self):
+        print "test_add_asset_in_system_interface"
+
+        data_dict = {
+                    'key' : KEY,
+                    'asset_type': 'Image',
+                    'path': 'vlabs.ac.in/static/images/icon.png'
+                    }
+
+        asset = SystemInterface.add_asset(data_dict)
+        asset_cls = System.delegate.entities['asset']
+        asset = asset_cls.get_all()[0]
+
+        self.assertEqual(asset.get("asset_type"), 
+                             data_dict['asset_type'])
+        self.assertEqual(asset.get("path"), data_dict['path'])
+        
+#+END_SRC
+
 
 
 * Infra                                                         :boilerplate:
@@ -3911,6 +3945,7 @@ if __name__ == '__main__':
 <<test_class_get_exp_by_expid>>
 <<test_class_get_institute_by_instituteid>>
 <<test_class_get_discipline_by_disid>>
+<<test_class_add_asset>>
 <<run_test_cases>>
 
 #+end_src
