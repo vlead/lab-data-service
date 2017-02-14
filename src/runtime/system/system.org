@@ -779,6 +779,7 @@ class UpdateDeveloper():
 
 #+end_src
 
+
 ** =UpdateHostingInfo=
 #+NAME: class_update_hostinginfo
 #+begin_src python
@@ -866,6 +867,7 @@ class DeleteExperiment():
         return exp_id
         
 #+end_src
+
 
 ** =DeleteDiscipline=
 #+NAME: class_delete_discipline
@@ -1179,10 +1181,10 @@ class GetExperiment():
 #+end_src
 
 
-** =GetInstitute=
-#+NAME: class_get_institute
+** =GetInstituteByInstituteId=
+#+NAME: class_get_institute_by_inst_id
 #+begin_src python
-class GetInstitute():
+class GetInstituteByInstituteId():
     arg_types = {"inst_id": is_str}
     arity_and_type_checks_needed = True
 
@@ -1202,6 +1204,35 @@ class GetInstitute():
     def action(args):
         inst_id = args["inst_id"]
         institute = System.delegate.get_institute(inst_id=inst_id)
+        return institute
+
+#+end_src
+
+
+
+** =GetInstituteByInstituteName=
+#+NAME: class_get_institute_by_inst_name
+#+begin_src python
+class GetInstituteByInstituteName():
+    arg_types = {"inst_name": is_str}
+    arity_and_type_checks_needed = True
+
+    @staticmethod
+    def auth_check(args):
+        pass
+
+    @staticmethod
+    def state_check(args):
+        inst_name = args['inst_name']
+        institute = System.delegate.get_institute(inst_name=inst_name)    
+        if not System.delegate.institute_exists(institute):
+            raise StateError("institute %s does not exists in System"
+                                 % institute.to_client())
+        
+    @staticmethod
+    def action(args):
+        inst_name = args["inst_name"]
+        institute = System.delegate.get_institute(inst_name=inst_name)
         return institute
 
 #+end_src
@@ -1591,11 +1622,13 @@ if __name__ == '__main__':
 <<class_add_sections_to_experiment>>
 <<class_add_section>>
 <<class_get_lab_by_lab_id>>
+<<class_get_institute_by_inst_id>>
 <<class_get_name>>
 <<class_get_email>>
 <<class_get_developer>>
 <<class_get_experiment>>
-<<class_get_institute>>
+<<class_get_institute_by_inst_id>>
+<<class_get_institute_by_inst_name>>
 <<class_get_discipline>>
 <<class_add_hostinginfo>>
 <<class_get_hostinginfo>>

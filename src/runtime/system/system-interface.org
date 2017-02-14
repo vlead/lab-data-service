@@ -988,6 +988,106 @@ class TestGetLabs(TestCase):
 
  #+END_SRC
 
+** Get Labs by Institute
+#+NAME: class_get_labs_by_institute
+#+begin_src python
+    @staticmethod
+    def get_labs_by_institute(inst_name):
+        institute = System.do("get_institute_by_inst_name", inst_name=inst_name)
+        try:
+            current_app.logger.debug("running operation get_labs_by_institute")
+            labs = System.do("get_labs_by_institute", institute=institute)
+            current_app.logger.debug("completed operation get_labs_by_institute")
+            labs_dict_list = []
+            for lab in labs:
+                lab_x = lab.to_client()
+                lab_dict_list.append(lab_x)
+            current_app.logger.debug("got labs")
+            return  lab_dict_list
+
+        except (ArityError, TypeError, NotAuthorizedError, StateError) as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+
+        except Exception as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+#+end_src
+
+*** TestGetLabsByInstitute
+ #+NAME: test_class_get_labs_by_institute
+ #+BEGIN_SRC python
+class TestGetLabsByInstitute(TestCase):
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_get_labs_by_institute_in_system_interface(self):
+        print "test_get_labs_by_institute_in_system_interface"
+
+        data_dict = {
+                    'key' : KEY,
+                    'exp_name': 'arrays',
+                    'exp_id': 'exp123',
+                    'overview' : 'overview', 
+                    'sections' : []
+                   }
+
+        experiment = SystemInterface.add_experiment(data_dict)
+
+        data_dict = {
+                    'key' : KEY,
+                    'inst_name': 'IIT Kanpur',
+                    'inst_id': 'IITK'
+                    }
+
+        institute = SystemInterface.add_institute(data_dict)
+
+        data_dict = {
+                    'key' : KEY,
+                    'dis_name': 'computer science',
+                    'dis_id': 'CSE'
+                   }
+
+        discipline = SystemInterface.add_discipline(data_dict)
+
+        data_dict = {
+                    'key' : KEY,
+                    'lab_name': 'Data Structures',
+                    'lab_id': 'cse01',
+                    'overview' : 'overview',
+                    'inst_id': 'IITK',
+                    'dis_id': 'CSE',
+                    'experiments': ['exp123']
+                   }
+
+        data_dict1 = {
+                    'key' : KEY,
+                    'lab_name': 'Computer Programming',
+                    'lab_id': 'cse02',
+                    'overview' : 'overview',
+                    'inst_id': 'IITK',
+                    'dis_id': 'CSE',
+                    'experiments': ['exp123']
+                   }
+
+        lab = SystemInterface.add_lab(data_dict)
+        lab1 = SystemInterface.add_lab(data_dict1)
+
+        labs = SystemInterface.get_labs_by_institute("IIT Kanpur")
+        
+        self.assertEqual(labs[0].get("inst_name"), "IIT Kanpur")
+
+ #+END_SRC
+
 ** Get Experiments
 #+NAME: class_get_experiments
 #+begin_src python
@@ -3278,21 +3378,18 @@ class TestGetInstituteByInstituteId(TestCase):
 
  #+END_SRC
 
-** Get Labs by Institute
-#+NAME: class_get_labs_by_institute
+** Get Lab by LabId
+#+NAME: class_get_lab_by_lab_id
 #+begin_src python
     @staticmethod
-    def get_labs_by_institute(institute):
+    def get_lab(lab_id):
         try:
-            current_app.logger.debug("running operation get_labs_by_institute")
-            labs = System.do("get_labs_by_institute", institute=institute)
-            current_app.logger.debug("completed operation get_labs_by_institute")
-            labs_dict_list = []
-            for lab in labs:
-                lab_x = lab.to_client()
-                lab_dict_list.append(lab_x)
-            current_app.logger.debug("got labs")
-            return  lab_dict_list
+            current_app.logger.debug("running operation get_lab_by_lab_id")
+            lab = System.do("get_lab", lab_id=str(lab_id))
+            current_app.logger.debug("completed operation get_lab_by_lab_id")
+            if not lab:
+                return ("No lab found with labid: %s" % (lab_id))
+            return lab.to_client()
 
         except (ArityError, TypeError, NotAuthorizedError, StateError) as err:
             current_app.logger.error("Exception = %s" % str(err))
@@ -3303,10 +3400,10 @@ class TestGetInstituteByInstituteId(TestCase):
             raise err
 #+end_src
 
-*** TestGetLabsByInstitute
- #+NAME: test_class_get_labs_by_institute
+*** TestGetLabByLabId
+ #+NAME: test_class_get_lab_by_labid
  #+BEGIN_SRC python
-class TestGetLabsByInstitute(TestCase):
+class TestGetLabByLabId(TestCase):
     TESTING = True
     def create_app(self):
         app = create_app(config)
@@ -3319,8 +3416,8 @@ class TestGetLabsByInstitute(TestCase):
         db.session.remove()
         db.drop_all()
 
-    def test_get_labs_by_institute_in_system_interface(self):
-        print "test_get_labs_by_institute_in_system_interface"
+    def test_get_lab_by_labid_in_system_interface(self):
+        print "test_get_lab_by_labid_in_system_interface"
 
         data_dict = {
                     'key' : KEY,
@@ -3371,12 +3468,13 @@ class TestGetLabsByInstitute(TestCase):
         lab = SystemInterface.add_lab(data_dict)
         lab1 = SystemInterface.add_lab(data_dict1)
 
-        labs = SystemInterface.get_labs_by_institute("IIT Kanpur")
+        lab = SystemInterface.get_lab(data_dict['lab_id'])
+        lab1 = SystemInterface.get_lab(data_dict1['lab_id'])
         
-        self.assertEqual(labs[0].get("inst_name"), "IIT Kanpur")
+        self.assertEqual(lab.get("lab_id"), data_dict['lab_id'])
+        self.assertEqual(lab1.get("lab_id"), data_dict1['lab_id'])
 
  #+END_SRC
-
 ** Get Experiment by ExpId
 #+NAME: class_get_lab_by_exp_id
 #+begin_src python
