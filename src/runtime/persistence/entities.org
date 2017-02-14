@@ -550,26 +550,26 @@ class TestPersistenceHostingInfo(TestCase):
 #+END_SRC
 
 
-* Assets
+* Asset
 
-  =Assets= is a class with attributes =path= and =asset_type= of type =is_str=.
-#+NAME: class_Assets
+  =Asset= is a class with attributes =path= and =asset_type= of type =is_str=.
+#+NAME: class_Asset
 #+begin_src python
-args = {"__tablename__": "assets",
+args = {"__tablename__": "asset",
         "id": db.Column(db.Integer, primary_key=True),
         "asset_type": db.Column(db.String(255), unique=False, nullable=True),
         "path": db.Column(db.String(255), unique=True, nullable=False)
         
        }
 
-Assets = ClassPersistenceTemplate.mk_persistent(Assets, ['path'], **args)
+Asset = ClassPersistenceTemplate.mk_persistent(Asset, ['path'], **args)
 
 #+end_src
 
-** Test Assets
-#+NAME: class_TestAssets
+** Test Asset
+#+NAME: class_TestAsset
 #+BEGIN_SRC python
-class TestPersistenceAssets(TestCase):
+class TestPersistenceAsset(TestCase):
     TESTING = True
 
     def create_app(self):
@@ -583,17 +583,17 @@ class TestPersistenceAssets(TestCase):
         db.session.remove()
         db.drop_all()
 
-    def test_create_assets(self):
-        print "test_persistance_assets"
+    def test_create_asset(self):
+        print "test_persistance_asset"
         path = "vlabs.ac.in/static/images/logo.png"
         asset_type = "Image"
-        assets = Assets(path=path, asset_type=asset_type)
-        assets.save()
-        assets = assets.get_by_id(1)
-        assets1 = assets.get_by_id(2)
-        self.assertEqual(assets.get("path"), path)
-        self.assertEqual(assets.get("asset_type"), asset_type)       
-        self.assertEqual(assets1,None)
+        asset = Asset(path=path, asset_type=asset_type)
+        asset.save()
+        asset = asset.get_by_id(1)
+        asset1 = asset.get_by_id(2)
+        self.assertEqual(asset.get("path"), path)
+        self.assertEqual(asset.get("asset_type"), asset_type)       
+        self.assertEqual(asset1,None)
 
 #+END_SRC
 
@@ -699,7 +699,7 @@ if __name__ == '__main__':
 <<class_Email>>
 <<class_Developer>>
 <<class_HostingInfo>>
-<<class_Assets>>
+<<class_Asset>>
 <<class_IntegrationStatus>>
 #+end_src
 
@@ -716,6 +716,7 @@ if __name__ == '__main__':
 <<class_TestDeveloper>>
 <<class_TestInstitute>>
 <<class_TestHostingInfo>>
+<<class_TestAsset>>
 <<class_TestAssets>>
 <<class_TestIntegrationStatus>>
 <<run_test_cases>>
