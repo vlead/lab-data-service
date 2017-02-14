@@ -1552,6 +1552,7 @@ class TestPersistenceDelegate(TestCase):
 
 #+END_SRC
 
+
 ***  Delete Asset 
     This function delete existing asset.
 #+NAME: persistence_delete_asset
@@ -2228,6 +2229,40 @@ class TestPersistenceDelegate(TestCase):
 
          self.assertEqual(labs_list[0].get("lab_id"), lab_id1)
 
+    def test_get_lab_with_given_institute(self):
+         print "test_get_lab_with_given_institute"
+         lab_name1="Computer Programming"
+         lab_id1="CSE01"
+         overview="overview"
+
+         inst_name = "IIT Kanpur"
+         inst_id = "IITK"
+         inst = Institute(inst_name=inst_name, inst_id=inst_id)
+         inst.save()
+
+         dis_name = "IIT Kanpur"
+         dis_id = "IITK"
+         discipline = Discipline(dis_name=dis_name, dis_id=dis_id)
+         discipline.save()
+
+         lab1 = Lab(lab_name=lab_name1, lab_id=lab_id1, overview=overview,
+                        institute=inst, discipline=discipline,
+                        experiments=[])
+         lab1.save()
+
+         lab_name2="Data Structures"
+         lab_id2="CSE02"
+
+         lab2 = Lab(lab_name=lab_name2, lab_id=lab_id2, overview=overview,
+                        institute=inst, discipline=discipline,
+                        experiments=[])
+         lab2.save()
+
+         labs_list = self.persistence_delegate.get_labs(institute=inst)
+
+         self.assertEqual(labs_list[0].get("institute").get("inst_id"),
+                              lab1.get("institute").get("inst_id"))
+
 #+END_SRC
 
 
@@ -2538,6 +2573,7 @@ class TestPersistenceDelegate(TestCase):
          self.assertEqual(dis_obj.get("dis_name"), dis_name)
 
 #+END_SRC
+
 
 * Infra                                                         :boilerplate:
 

@@ -1216,6 +1216,31 @@ class GetInstitute():
 
 
 
+** =GetInstituteByInstituteName=
+#+NAME: class_get_institute_by_institute_name
+#+begin_src python
+class GetInstituteByInstituteName():
+    arg_types = {"inst_name": is_str}
+    arity_and_type_checks_needed = True
+
+    @staticmethod
+    def auth_check(args):
+        pass
+
+    @staticmethod
+    def state_check(args):
+        pass
+
+    @staticmethod
+    def action(args):
+        inst_name = args["inst_name"]
+        institute = System.delegate.get_institute(inst_name=inst_name)
+        return institute
+
+#+end_src
+
+
+
 ** =GetDiscipline=
 #+NAME: class_get_discipline
 #+begin_src python
@@ -1274,6 +1299,52 @@ class GetHostingInfo():
 #+end_src
 
 
+** =GetLabsByInstitute=
+#+NAME: class_get_labs_by_institute
+#+begin_src python
+class GetLabsByInstitute():
+    arg_types = {"institute": is_institute}
+    arity_and_type_checks_needed = True
+
+    @staticmethod
+    def auth_check(args):
+        pass
+
+    @staticmethod
+    def state_check(args):
+        pass
+
+    @staticmethod
+    def action(args):
+        institute = args['institute']
+        labs = System.delegate.get_labs(institute=institute)
+        return labs
+
+#+end_src
+
+
+** =GetLabsByLabName=
+#+NAME: class_get_labs_by_lab_name
+#+begin_src python
+class GetLabsByLabName():
+    arg_types = {"lab_name": is_str}
+    arity_and_type_checks_needed = True
+
+    @staticmethod
+    def auth_check(args):
+        pass
+
+    @staticmethod
+    def state_check(args):
+        pass
+
+    @staticmethod
+    def action(args):
+        lab_name = args['lab_name']
+        labs = System.delegate.get_labs(lab_name=lab_name)
+        return labs
+
+#+end_src
 
 
 ** =AddLabsToInstitute=
@@ -1645,6 +1716,8 @@ ops_table = {'add_lab' : AddLab,
              'update_lab': UpdateLab,
              'delete_lab': DeleteLab,
              'get_lab': GetLab,
+             'get_labs_by_institute': GetLabsByInstitute,
+             'get_labs_by_lab_name': GetLabsByLabName, 
              'get_discipline': GetDiscipline,
              'add_experiment' : AddExperiment,
              'update_experiment' : UpdateExperiment,
@@ -1653,6 +1726,7 @@ ops_table = {'add_lab' : AddLab,
              'update_institute': UpdateInstitute,
              'delete_institute': DeleteInstitute,
              'get_institute' : GetInstitute,
+             'get_institute_by_institute_name' : GetInstituteByInstituteName,
              'add_section' : AddSection,
              'update_section' : UpdateSection,
              'delete_section' : DeleteSection,
@@ -1778,6 +1852,7 @@ if __name__ == '__main__':
 <<class_get_experiment>>
 <<class_get_institute>>
 <<class_get_discipline>>
+<<class_get_institute_by_institute_name>>
 <<class_add_hostinginfo>>
 <<class_get_hostinginfo>>
 <<class_update_hostinginfo>>
@@ -1785,6 +1860,8 @@ if __name__ == '__main__':
 <<class_add_integrationstatus>>
 <<class_get_integrationstatus>>
 <<class_delete_integrationstatus>>
+<<class_get_labs_by_institute>>
+<<class_get_labs_by_lab_name>>
 <<class_add_asset>>
 <<class_get_asset>>
 <<class_update_asset>>
