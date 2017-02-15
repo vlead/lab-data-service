@@ -249,6 +249,7 @@ class TestPersistenceDelegate(TestCase):
 
 #+END_SRC
 
+
 *** Check if =name= already exists
 
     This function checks if a name is already in the name-set of the =System=.
@@ -281,6 +282,7 @@ class TestPersistenceDelegate(TestCase):
                             False)
 
 #+END_SRC
+
 
 *** Check if =email= already exists
     This function checks if an email is already in the email-set of the =System=.
@@ -506,6 +508,10 @@ class TestPersistenceDelegate(TestCase):
          experiment = Experiment(exp_name=exp_name, exp_id=exp_id, \
                                      overview=overview, sections=[])
          experiment.save()
+         
+         integration_level = 4
+         integrationstatus = IntegrationStatus(integration_level=integration_level)
+         integrationstatus.save()
 
          inst_name = "IIT Kanpur"
          inst_id = "IITK"
@@ -527,15 +533,18 @@ class TestPersistenceDelegate(TestCase):
          overview="lab"
          lab1 = Lab(lab_name=lab_name1, lab_id=lab_id1, \
                         institute=inst, discipline=discipline, asset=asset, \
-                        overview=overview, experiments=[experiment])
+                        overview=overview, experiments=[experiment], \
+                        integrationstatus=integrationstatus)
+
          lab1 = self.persistence_delegate.add_lab(lab1)
         
          lab_name2="Data Structures"
          lab_id2="CSE02"
          overview="lab overview"
+
          lab2 = Lab(lab_name=lab_name2, lab_id=lab_id2, overview=overview, 
                         institute=inst, discipline=discipline, asset=asset,
-                        experiments=[])
+                        experiments=[], integrationstatus=integrationstatus)
 
          self.assertEqual(self.persistence_delegate.lab_exists(lab1),
                           True)
@@ -1195,6 +1204,10 @@ class TestPersistenceDelegate(TestCase):
          inst = Institute(inst_name=inst_name, inst_id=inst_id)
          inst.save()
 
+         integration_level = 4
+         integrationstatus = IntegrationStatus(integration_level=integration_level)                    
+         integrationstatus.save()
+
          dis_name = "IIT Kanpur"
          dis_id = "IITK"
          discipline = Discipline(dis_name=dis_name, dis_id=dis_id)
@@ -1205,17 +1218,20 @@ class TestPersistenceDelegate(TestCase):
          asset = Asset(asset_type=asset_type, path=path)
          asset.save()
 
-         lab = Lab(lab_name=lab_name, lab_id=lab_id, overview=overview, 
-                       institute=inst, discipline=discipline, asset=asset, 
-                       experiments=[])
+         lab = Lab(lab_name=lab_name, lab_id=lab_id, overview=overview, \
+                       institute=inst, discipline=discipline, asset=asset, \
+                       experiments=[], integrationstatus=integrationstatus)
+
          lab1 = self.persistence_delegate.add_lab(lab)
 
          lab_name1 = "Computer Programming"
          lab_id1 = "cse02"
          overview = "overview"
+
          lab1 = Lab(lab_name=lab_name1, lab_id=lab_id1, overview=overview,
                         institute=inst, discipline=discipline, asset=asset, 
-                        experiments=[])
+                        experiments=[], integrationstatus=integrationstatus)
+
          lab2 = self.persistence_delegate.add_lab(lab1)
 
          self.persistence_delegate.delete_lab("cse01")
@@ -1699,16 +1715,21 @@ class TestPersistenceDelegate(TestCase):
          discipline = Discipline(dis_name=dis_name, dis_id=dis_id)
          discipline.save()
 
-         lab = Lab(lab_name=lab_name, lab_id=lab_id, overview=overview,
-                       institute=inst, discipline=discipline,
-                       experiments=[])
+         integration_level = 4
+         integrationstatus = IntegrationStatus(integration_level=integration_level)
+         integrationstatus.save()
+
+         lab = Lab(lab_name=lab_name, lab_id=lab_id, overview=overview, \
+                       institute=inst, discipline=discipline, \
+                       experiments=[], integrationstatus=integrationstatus)
          lab.save()
 
          exp_name = "Number Systems"
          exp_id = "EE99777"
          overview = "overview"
          experiment = Experiment(exp_name=exp_name, exp_id=exp_id, \
-                                     overview=overview, sections=[])
+                                     overview=overview, sections=[], \
+                                     integrationstatus=integrationstatus)
          experiment.save()
         
          lab1 = Lab.get_by_id(1)
@@ -1840,9 +1861,13 @@ class TestPersistenceDelegate(TestCase):
          discipline = Discipline(dis_name=dis_name, dis_id=dis_id)
          discipline.save()
 
-         lab = Lab(lab_name=lab_name, lab_id=lab_id, overview=overview, 
-                       institute=inst, discipline=discipline,
-                       experiments=[])
+         integration_level = 4
+         integrationstatus = IntegrationStatus(integration_level=integration_level)
+         integrationstatus.save()
+
+         lab = Lab(lab_name=lab_name, lab_id=lab_id, overview=overview, \
+                       institute=inst, discipline=discipline, \
+                       experiments=[], integrationstatus=integrationstatus)
          lab.save()
          
          institute1 = Lab.get_by_id(1)
@@ -1955,9 +1980,13 @@ class TestPersistenceDelegate(TestCase):
          asset = Asset(asset_type=asset_type, path=path)
          asset.save()
 
-         lab = Lab(lab_name=lab_name1, lab_id=lab_id1, overview=overview,
-                       institute=inst, discipline=discipline, asset=asset, 
-                       experiments=[])
+         integration_level = 4
+         integrationstatus = IntegrationStatus(integration_level=integration_level)
+         integrationstatus.save()
+
+         lab = Lab(lab_name=lab_name1, lab_id=lab_id1, overview=overview, \
+                       institute=inst, discipline=discipline, asset=asset, \
+                       experiments=[], integrationstatus=integrationstatus)
          lab.save()
 
          lab_obj = self.persistence_delegate.get_lab(lab_name=
@@ -2247,17 +2276,21 @@ class TestPersistenceDelegate(TestCase):
          asset = Asset(asset_type=asset_type, path=path)
          asset.save()
 
-         lab1 = Lab(lab_name=lab_name1, lab_id=lab_id1, overview=overview,
-                        institute=inst, discipline=discipline, asset=asset,
-                        experiments=[])
+         integration_level = 4
+         integrationstatus = IntegrationStatus(integration_level=integration_level)
+         integrationstatus.save()
+
+         lab1 = Lab(lab_name=lab_name1, lab_id=lab_id1, overview=overview, \
+                        institute=inst, discipline=discipline, asset=asset, \
+                        experiments=[], integrationstatus=integrationstatus)
          lab1.save()
 
          lab_name2="Data Structures"
          lab_id2="CSE02"
 
-         lab2 = Lab(lab_name=lab_name2, lab_id=lab_id2, overview=overview,
-                        institute=inst, discipline=discipline, asset=asset,
-                        experiments=[])
+         lab2 = Lab(lab_name=lab_name2, lab_id=lab_id2, overview=overview, \
+                        institute=inst, discipline=discipline, asset=asset, \
+                        experiments=[], integrationstatus=integrationstatus)
          lab2.save()
 
          labs_list = self.persistence_delegate.get_labs(overview=overview)
@@ -2286,17 +2319,21 @@ class TestPersistenceDelegate(TestCase):
          asset = Asset(asset_type=asset_type, path=path)
          asset.save()
 
-         lab1 = Lab(lab_name=lab_name1, lab_id=lab_id1, overview=overview,
-                        institute=inst, discipline=discipline, asset=asset, 
-                        experiments=[])
+         integration_level = 4
+         integrationstatus = IntegrationStatus(integration_level=integration_level)
+         integrationstatus.save()
+
+         lab1 = Lab(lab_name=lab_name1, lab_id=lab_id1, overview=overview, \
+                        institute=inst, discipline=discipline, asset=asset, \
+                        experiments=[], integratiostatus=integrationstatus)
          lab1.save()
 
          lab_name2="Data Structures"
          lab_id2="CSE02"
 
-         lab2 = Lab(lab_name=lab_name2, lab_id=lab_id2, overview=overview,
-                        institute=inst, discipline=discipline, asset=asset,
-                        experiments=[])
+         lab2 = Lab(lab_name=lab_name2, lab_id=lab_id2, overview=overview, \
+                        institute=inst, discipline=discipline, asset=asset, \
+                        experiments=[], integrationstatus=integrationstatus)
          lab2.save()
 
          labs_list = self.persistence_delegate.get_labs(lab_id=lab_id1)
@@ -2323,17 +2360,21 @@ class TestPersistenceDelegate(TestCase):
          asset = Asset(asset_type=asset_type, path=path)
          asset.save()
 
-         lab1 = Lab(lab_name=lab_name1, lab_id=lab_id1, overview=overview,
-                        institute=inst, discipline=discipline, asset=asset, 
-                        experiments=[])
+         integration_level = 4
+         integrationstatus = IntegrationStatus(integration_level=integration_level)
+         integrationstatus.save()
+
+         lab1 = Lab(lab_name=lab_name1, lab_id=lab_id1, overview=overview, \
+                        institute=inst, discipline=discipline, asset=asset, \
+                        experiments=[], integrationstatus=integrationstatus)
          lab1.save()
 
          lab_name2="Data Structures"
          lab_id2="CSE02"
 
-         lab2 = Lab(lab_name=lab_name2, lab_id=lab_id2, overview=overview,
-                        institute=inst, discipline=discipline, asset=asset,
-                        experiments=[])
+         lab2 = Lab(lab_name=lab_name2, lab_id=lab_id2, overview=overview, \
+                        institute=inst, discipline=discipline, asset=asset, \
+                        experiments=[], integrationstatus=integrationstatus)
          lab2.save()
 
          labs_list = self.persistence_delegate.get_labs(lab_id=lab_id1,
@@ -2362,17 +2403,21 @@ class TestPersistenceDelegate(TestCase):
          asset = Asset(asset_type=asset_type, path=path)
          asset.save()
 
-         lab1 = Lab(lab_name=lab_name1, lab_id=lab_id1, overview=overview,
-                        institute=inst, discipline=discipline, asset=asset, 
-                        experiments=[])
+         integration_level = 4
+         integrationstatus = IntegrationStatus(integration_level=integration_level)
+         integrationstatus.save()
+
+         lab1 = Lab(lab_name=lab_name1, lab_id=lab_id1, overview=overview, \
+                        institute=inst, discipline=discipline, asset=asset, \
+                        experiments=[], integrationstatus=integrationstatus)
          lab1.save()
 
          lab_name2="Data Structures"
          lab_id2="CSE02"
 
-         lab2 = Lab(lab_name=lab_name2, lab_id=lab_id2, overview=overview,
-                        institute=inst, discipline=discipline, asset=asset, 
-                        experiments=[])
+         lab2 = Lab(lab_name=lab_name2, lab_id=lab_id2, overview=overview, \
+                        institute=inst, discipline=discipline, asset=asset, \
+                        experiments=[], integrationstatus=integrationstatus)
          lab2.save()
 
          labs_list = self.persistence_delegate.get_labs(institute=inst)
@@ -2572,9 +2617,14 @@ class TestPersistenceDelegate(TestCase):
          asset = Asset(asset_type=asset_type, path=path)
          asset.save()
 
-         lab = Lab(lab_name=lab_name1, lab_id=lab_id1, overview=overview, 
-                       institute=inst, discipline=discipline, asset=asset, 
-                       experiments=[])
+         integration_level = 4
+         integrationstatus = IntegrationStatus(integration_level=integration_level)
+         integrationstatus.save()
+
+         lab = Lab(lab_name=lab_name1, lab_id=lab_id1, overview=overview, \
+                       institute=inst, discipline=discipline, asset=asset, \
+                       experiments=[], integrationstatus=integrationstatus)
+
          lab.save()
 
          lab_obj = self.persistence_delegate.get_lab_by_id(1)

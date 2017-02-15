@@ -104,6 +104,7 @@ class TestPersistentLab(TestCase):
         " and ques..etc"
         lab1 = Lab(lab_name=lab_name1, lab_id=lab_id1, overview=overview1,
                        experiments=[experiment], institute=inst,
+                       discipline=discipline, integrationstatus=intstatus)
                        discipline=discipline, integrationstatus=intstatus, asset=asset)
 
         lab1.save()
@@ -112,6 +113,9 @@ class TestPersistentLab(TestCase):
         lab_id2="CSE02"
         overview2 = "This is data structures lab which deals about"
         "array,stack and ques..etc"
+        lab2 = Lab(lab_name=lab_name2, lab_id=lab_id2, overview=overview2,
+                       experiments=[], institute=inst, discipline=discipline, 
+                       integrationstatus=intstatus)
         lab2 = Lab(lab_name=lab_name2, lab_id=lab_id2, overview=overview2, 
                        integrationstatus=intstatus, experiments=[], 
                    institute=inst, discipline=discipline, asset=asset)
@@ -129,8 +133,6 @@ class TestPersistentLab(TestCase):
                              inst.get("inst_name"))
         self.assertEqual(lab1.get("discipline").get("dis_name"), 
                              discipline.get("dis_name"))
-        self.assertEqual(lab1.get("asset").get("asset_type"), 
-                             asset.get("asset_type"))
 
         self.assertEqual(lab1.get("experiments")[0].get("exp_name"), 
                              experiment.get("exp_name"))
@@ -144,8 +146,6 @@ class TestPersistentLab(TestCase):
                              inst.get("inst_name"))
         self.assertEqual(lab2.get("discipline").get("dis_name"), 
                              discipline.get("dis_name"))
-        self.assertEqual(lab2.get("asset").get("asset_type"), 
-                             asset.get("asset_type"))
         self.assertEqual(lab2.get("experiments"), [])
         self.assertEqual(lab2.get("integrationstatus").get("integration_level"), 
                              intstatus.get("integration_level"))
@@ -580,6 +580,8 @@ class TestPersistenceHostingInfo(TestCase):
 args = {"__tablename__": "asset",
         "id": db.Column(db.Integer, primary_key=True),
         "asset_type": db.Column(db.String(255), unique=False, nullable=True),
+        "path": db.Column(db.String(255), unique=True, nullable=False)
+        
         "path": db.Column(db.String(255), unique=True, nullable=False),
         "labs": db.relationship('Lab', backref=db.backref('asset'))
        }
@@ -688,7 +690,9 @@ import unittest
 from flask_testing import TestCase
 from sqlalchemy.exc import IntegrityError
 from runtime.persistence.entities import *
-#from flask import create_app
+#from flask <
+
+import create_app
 from runtime.rest.app import create_app
 
 config = {
