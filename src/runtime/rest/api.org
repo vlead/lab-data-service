@@ -4017,6 +4017,215 @@ class TestAddAsset(TestCase):
  #+END_SRC
    
 
+** Update Asset
+*** API Design
+**** Update assets by path
+  :PROPERTIES:
+  :CUSTOM_ID: api_update_institutes_by_instid
+  :END:    
+  - URL :: /assets/<path>
+
+  - Method :: PUT
+
+  - URL Params ::  None
+
+  - Payload :: 
+#+BEGIN_EXAMPLE
+{
+"asset_type": "Image",
+  "key": "<key>"
+}
+
+#+END_EXAMPLE
+  - Success Response
+    + Status_Code: 200
+      + Contents :
+#+BEGIN_EXAMPLE
+{
+  "id": 1, 
+  "path": "vlabs.ac.in/images/static/logo.png", 
+  "asset_type": "Image"
+}
+
+#+END_EXAMPLE
+
+    
+  - Error Response:
+    + Contents :
+                {"status" : "error"}
+    
+  - Example:
+#+BEGIN_EXAMPLE
+    http://localhost:5000/assets?path=vlabs.ac.in/images/static/logo.png
+#+END_EXAMPLE
+
+*** Implementation
+#+NAME: update_asset
+#+BEGIN_SRC python
+@api.route('/assets', methods=['PUT'])
+def update_asset():
+    if request.method == 'PUT':
+        if request.is_json:
+            data_json = json.dumps(request.get_json())
+            data_dict = yaml.safe_load(data_json)
+        else:
+            abort(500, "the request does not contain data in json")
+
+        if 'path' in request.args:
+            data_dict['path']  = request.args['path']
+        else:
+            abort(500, "Please provide the 'path' to update the asset")
+        
+        try:
+            asset = SystemInterface.update_asset(data_dict)
+            return jsonify(asset)
+
+        except TypeError as err:
+            error_message = 'Malformed arguments, error: %s' % str(err)
+
+            return render_template('error.html', 
+                    data=error_message)
+
+        except Exception as err:
+            abort(500, 'error: %s' % str(err))
+
+#+END_SRC
+
+*** Test Cases
+**** TestUpdateAsset  
+ #+NAME: test_update_asset
+ #+BEGIN_SRC python
+class TestUpdateAsset(TestCase):
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_update_asset(self):
+        print "test_update_asset"
+
+        payload = {'asset_type': 'Image',
+                   'path': 'vlabs.ac.in/images/static/logo.png',
+                   'key': KEY}
+
+        payload1 = {'asset_type': 'Video',
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/assets", data=json.dumps(payload),
+                                 headers=headers)
+
+        response = self.client.put("/assets?path=vlabs.ac.in/images/static/logo.png", data=json.dumps(payload1),
+                                 headers=headers)
+
+        self.assertEqual(response.status_code, 200)
+
+ #+END_SRC
+   
+
+** Delete Asset
+*** API Design
+**** Delete asset by path
+  :PROPERTIES:
+  :CUSTOM_ID: api_delete_institute_by_inst_id
+  :END:    
+  - URL :: /assets?<path>&key=<key>
+
+  - Method :: DELETE
+
+  - URL Params ::  None
+
+  - Payload :: 
+
+  - Success Response
+    + Status_Code: 200
+      + Contents :
+#+BEGIN_EXAMPLE
+{
+  "status": "sucess"
+}
+
+#+END_EXAMPLE
+    
+  - Error Response:
+    + Contents :
+                {"status" : "error"}
+    
+  - Example:
+#+BEGIN_EXAMPLE
+    http://localhost:5000/assets?path=vlabs.ac.in/images&key=<key>
+#+END_EXAMPLE
+
+*** Implementation
+#+NAME: delete_asset
+#+BEGIN_SRC python
+@api.route('/assets', methods=['DELETE'])
+def delete_asset():
+    if request.method == 'DELETE':
+        if 'path' in request.args and 'key' in request.args:
+            path  = request.args['path']
+            key = request.args['key']
+
+            try:
+                asset = SystemInterface.delete_asset(path, key)
+                return jsonify({"status":"sucess"})
+
+            except TypeError as err:
+                error_message = 'Malformed arguments, error: %s' % str(err)
+
+                return render_template('error.html', data=error_message)
+
+            except Exception as err:
+                abort(500, 'error: %s' % str(err))
+
+#+END_SRC
+
+*** Test Cases
+**** TestDeleteAsset  
+ #+NAME: test_delete_asset
+ #+BEGIN_SRC python
+class TestDeleteAsset(TestCase):
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_delete_asset(self):
+        print "test_delete_asset"
+
+        payload = {'asset_type': 'Image',
+                   'path': 'vlabs.ac.in/images/static/logo.png',
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/assets", data=json.dumps(payload),
+                                 headers=headers)
+
+        response = self.client.delete("/assets?path=vlabs.ac.in/images/static/logo.png&key=defaultkey",
+                                          headers=headers)
+
+        self.assertEqual(response.status_code, 200)
+
+ #+END_SRC
+   
+
+
 * Infra                                                         :boilerplate:
 
 ** sources
@@ -4102,6 +4311,8 @@ if __name__ == '__main__':
 <<delete_integrationstatus>>
 <<get_asset>>
 <<add_asset>>
+<<update_asset>>
+<<delete_asset>>
 #+END_SRC
 
 
@@ -4154,5 +4365,7 @@ if __name__ == '__main__':
 <<test_delete_integrationstatus>>
 <<test_get_asset>>
 <<test_add_asset>>
+<<test_update_asset>>
+<<test_delete_asset>>
 <<run_test_cases>>
 #+end_src
