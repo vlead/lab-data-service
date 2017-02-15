@@ -24,15 +24,6 @@ lab_experiments = db.Table('lab_experiments',
                      
 #+END_SRC
 
-#+NAME: class_integrationstatus_association_Table
-#+BEGIN_SRC python
-labs_integrationstatus = db.Table('labs_integrationstatus',
-		      db.Column('lab_id', db.Integer, 
-                            db.ForeignKey('lab.id')),
-		      db.Column('integration_level', db.Integer,
-                            db.ForeignKey('integrationstatus.id')))
-
-#+END_SRC
 
 #+NAME: class_Lab
 #+begin_src python
@@ -51,7 +42,7 @@ args = {"__tablename__": "lab",
                                       unique=False, nullable=False),
         "discipline_id": db.Column(db.Integer, db.ForeignKey('discipline.id'), 
                                       unique=False, nullable=False),
-        "integration_level": db.Column(db.Integer, db.ForeignKey('integationstatus.id'),
+        "integrationstatus_id": db.Column(db.Integer, db.ForeignKey('integrationstatus.id'),
                                       unique=False, nullable=False)
         }
 
@@ -97,13 +88,17 @@ class TestPersistentLab(TestCase):
         discipline = Discipline(dis_name=dis_name, dis_id=dis_id)
         discipline.save()
 
+        integration_level = 4
+        intstatus = IntegrationStatus(integration_level=integration_level)
+        intstatus.save()
+
         lab_name1="Computer Programming"
         lab_id1="CSE01"
         overview1 = "This is data structures lab which deals about array,stack"
         " and ques..etc"
         lab1 = Lab(lab_name=lab_name1, lab_id=lab_id1, overview=overview1,
                        experiments=[experiment], institute=inst,
-                       discipline=discipline)
+                       discipline=discipline, integrationstatus=intstatus)
         lab1.save()
         
         lab_name2="Data Structures"
@@ -111,7 +106,8 @@ class TestPersistentLab(TestCase):
         overview2 = "This is data structures lab which deals about"
         "array,stack and ques..etc"
         lab2 = Lab(lab_name=lab_name2, lab_id=lab_id2, overview=overview2,
-                       experiments=[], institute=inst, discipline=discipline)
+                       experiments=[], institute=inst, discipline=discipline, 
+                       integrationstatus=intstatus)
         lab2.save()
 
         lab1 = Lab.get_by_id(1)
@@ -128,6 +124,8 @@ class TestPersistentLab(TestCase):
 
         self.assertEqual(lab1.get("experiments")[0].get("exp_name"), 
                              experiment.get("exp_name"))
+        self.assertEqual(lab1.get("integrationstatus").get("integration_level"), 
+                             intstatus.get("integration_level"))
 
         self.assertEqual(lab2.get("lab_name"), lab_name2)
         self.assertEqual(lab2.get("lab_id"), lab_id2)
@@ -137,6 +135,8 @@ class TestPersistentLab(TestCase):
         self.assertEqual(lab2.get("discipline").get("dis_name"), 
                              discipline.get("dis_name"))
         self.assertEqual(lab2.get("experiments"), [])
+        self.assertEqual(lab2.get("integrationstatus").get("integration_level"), 
+                             intstatus.get("integration_level"))
 
         self.assertEqual(lab3, None)
 
@@ -617,6 +617,7 @@ class TestPersistenceAsset(TestCase):
 args = {"__tablename__": "integrationstatus",
         "id": db.Column(db.Integer, primary_key=True),
         "integration_level": db.Column(db.Integer, unique=True, nullable=False),
+        "labs": db.relationship('Lab', backref=db.backref('integrationstatus'))
        }
 
 IntegrationStatus = ClassPersistenceTemplate.mk_persistent(IntegrationStatus, ['integration_level'], **args)

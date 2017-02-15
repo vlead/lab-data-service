@@ -203,6 +203,7 @@ Lab.add_attributes(lab_name=is_str,
                     overview=is_str,
                     institute=is_institute,
                     discipline=is_discipline,
+                    integrationstatus=is_integrationstatus,
                     experiments=are_experiments)
 
 Lab.__eq__ = lambda self, other: \
@@ -212,6 +213,7 @@ Lab.__eq__ = lambda self, other: \
                   self.get("overview") == other.get("overview") and \
                   self.get("institute") == other.get("institute") and \
                   self.get("discipline") == other.get("discipline") and \
+                  self.get("integrationstatus") == other.get("integrationstatus") and \
                   self.get("experiments") == other.get("experiments")
 
 #+end_src
@@ -235,6 +237,9 @@ class TestLab(TestCase):
         dis_id = "IITK"
         discipline = Discipline(dis_name=dis_name, dis_id=dis_id)
 
+        integration_level = 4
+        integrationstatus = IntegrationStatus(integration_level=integration_level)
+
         experiment = Experiment(exp_name=exp_name, exp_id=exp_id, \
                                     overview=overview, sections=[])
 
@@ -244,6 +249,7 @@ class TestLab(TestCase):
         "and ques..etc"
         lab = Lab(lab_name=lab_name, lab_id=lab_id, overview=overview,
                       institute=inst, discipline=discipline,
+                      integrationstatus=integrationstatus,
                       experiments=[experiment])
 
         self.assertEqual(lab.get("lab_name"), lab_name)
@@ -251,6 +257,8 @@ class TestLab(TestCase):
         self.assertEqual(lab.get("overview"), overview)
         self.assertEqual(lab.get("institute").get("inst_name"), 
                              inst.get("inst_name"))
+        self.assertEqual(lab.get("integrationstatus").get("integration_level"), 
+                             integrationstatus.get("integration_level"))
         self.assertEqual(lab.get("experiments")[0].get("exp_name"), 
                              experiment.get("exp_name"))
 
