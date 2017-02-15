@@ -553,7 +553,8 @@ class TestAddHostingInfo(TestCase):
         self.assertEqual(hostinginfo.get("hosted_url"), data_dict['hosted_url'])
         self.assertEqual(hostinginfo.get("hosted_on"), data_dict['hosted_on'])
 
- #+END_SR
+ #+END_SRC
+
 ** Add Name
 #+NAME: class_add_name
 #+begin_src python
@@ -3737,7 +3738,8 @@ class TestGetDisciplineByDisciplineId(TestCase):
             current_app.logger.error("Exception = %s" % str(err))
             raise err
 
-#+END_SRC
+#+end_src
+
 *** TestAddAsset 
 #+NAME: test_class_add_asset
 #+BEGIN_SRC python
@@ -3772,6 +3774,7 @@ class TestAddAsset(TestCase):
         
 #+END_SRC
 
+
 ** Update Asset
 #+NAME: class_update_asset
 #+begin_src python       
@@ -3787,9 +3790,12 @@ class TestAddAsset(TestCase):
             asset_type=str(asset.get("asset_type"))
         else:
             asset_type=data_dict['asset_type']
+
         try:
             current_app.logger.debug("running operation update_asset")
-            asset = System.do("update_asset", asset=asset, asset_type=asset_type, session=session)
+            asset = System.do("update_asset", asset=asset,
+                                    asset_type=asset_type, 
+                                    session=session)
             current_app.logger.debug("completed operation update_asset")
             return asset.to_client()
         except (ArityError, TypeError, NotAuthorizedError, StateError) as err:
@@ -3800,10 +3806,9 @@ class TestAddAsset(TestCase):
             current_app.logger.error("Exception = %s" % str(err))
             raise err
 #+end_src
-
-*** TestUpateAsset 
- #+NAME: test_class_update_Asset
- #+BEGIN_SRC python
+*** TestUpdateAsset 
+#+NAME: test_class_update_asset
+#+BEGIN_SRC python
 class TestUpdateAsset(TestCase):
     TESTING = True
     def create_app(self):
@@ -3837,7 +3842,8 @@ class TestUpdateAsset(TestCase):
         
         self.assertEqual(asset1.get("asset_type"), data_dict1['asset_type'])
 
-#+end_src
+#+END_SRC
+
 
 ** Delete Asset
 #+NAME: class_delete_asset
@@ -3899,7 +3905,8 @@ class TestDeleteAsset(TestCase):
         
         self.assertEqual(path, "vlabs.ac.in/static/images/icon.png")
 
- #+END_SRC
+#+END_SRC
+
 
 ** Get Assets
 #+NAME: class_get_assets
@@ -3926,48 +3933,6 @@ class TestDeleteAsset(TestCase):
             raise err
 #+end_src
 
-*** TestGetAssets
- #+NAME: test_class_get_assets
- #+BEGIN_SRC python
-class TestGetAssets(TestCase):
-    TESTING = True
-    def create_app(self):
-        app = create_app(config)
-        return app
-
-    def setUp(self):
-        db.create_all()
-
-    def tearDown(self):
-        db.session.remove()
-        db.drop_all()
-
-    def test_get_assets_in_system_interface(self):
-        print "test_get_assets_in_system_interface"
-
-        data_dict = {'asset_type': 'Image',
-                    'path': 'vlabs.ac.in/static/images/logo.png',
-                    'key' : KEY
-                    }
-
-        data_dict1 = {'asset_type': 'Video',
-                    'path': 'vlabs.ac.in/static/images/icon.png',
-                    'key' : KEY
-                    }
-
-        asset1 = SystemInterface.add_asset(data_dict)
-        asset2 = SystemInterface.add_asset(data_dict1)
-
-        asset_list = SystemInterface.get_assets()
-        
-        self.assertEqual(asset_list[0].get("asset_type"), data_dict['asset_type'])
-        self.assertEqual(asset_list[1].get("asset_type"), data_dict['asset_type']
-        self.assertEqual(asset_list[0].get("path"), 
-                             data_dict['path'])
-        self.assertEqual(asset_list[1].get("path"), 
-                             data_dict['path'])
-
- #+END_SRC
 
 * Infra                                                         :boilerplate:
   
@@ -4081,6 +4046,7 @@ if __name__ == '__main__':
 <<class_get_assets>>
 #+end_src
 
+
 ** tests
 #+BEGIN_SRC python :tangle test_system_interface.py :eval no :noweb yes
 <<imports_for_tests>>
@@ -4139,7 +4105,6 @@ if __name__ == '__main__':
 <<test_class_get_exp_by_expid>>
 <<test_class_get_institute_by_instituteid>>
 <<test_class_get_discipline_by_disid>>
-
 <<test_class_add_asset>>
 #<<test_class_update_asset>>
 <<test_class_delete_asset>>
