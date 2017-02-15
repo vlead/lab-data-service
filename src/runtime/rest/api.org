@@ -15,7 +15,7 @@
   
 * REST
 
-** Get Labs and Get Lab
+** Get Labs, Get Lab, Get Labs by institute
 *** API Designs 
 **** Get all labs
   :PROPERTIES:
@@ -145,6 +145,69 @@ http://localhost:5000/labs
 http://localhost:5000/labs?lab_id=cse09
 #+END_EXAMPLE  
 
+**** Get lab by institute
+  :PROPERTIES:
+  :CUSTOM_ID: api_get_lab_by_lab_id
+  :END:    
+  - URL :: /labs?institute_name=<inst_name>
+
+  - Method :: GET
+
+  - URL Params ::  None
+
+  - Payload :: 
+
+  - Success Response
+    + Status_Code: 200
+      + Contents :
+
+#+BEGIN_EXAMPLE
+  {
+    "discipline": {
+      "dis_id": "cse",
+      "id": 1,
+      "dis_name": "Computer Science"
+    },
+    "lab_id": "cse09",
+    "institute": {
+      "inst_name": "IIIT Hyderabad",
+      "id": 1,
+      "inst_id": "iiith"
+    },
+    "overview": "overview",
+    "lab_name": "Data Structures",
+    "experiments": [
+      {
+        "overview": "overview",
+        "exp_name": "arrays",
+        "sections": [
+          {
+            "name": "Procedure",
+            "id": 2
+          },
+          {
+            "name": "Theory",
+            "id": 1
+          }
+        ],
+        "id": 1,
+        "exp_id": "exp9"
+      }
+    ],
+    "id": 1
+  }
+#+END_EXAMPLE	       
+
+    
+  - Error Response:
+    + Contents :
+                {"status" : "error"}
+    
+  - Example:
+#+BEGIN_EXAMPLE
+http://localhost:5000/labs?institute_name=IIIT Hyderabad
+#+END_EXAMPLE  
+
 *** Implementation
 #+NAME: get_lab
 #+BEGIN_SRC python
@@ -157,16 +220,6 @@ def get_lab():
                 lab = SystemInterface.get_lab(lab_id)
                 return jsonify(lab)
                 
-            except NotAuthorizedError as err:
-                error_message =  'Not Authorized error: %s' % str(err)
-                """
-                if request.headers['Content-Type'] == "application/json":
-                    abort(401, error_message)
-                else:
-                """
-                current_app.logger.error("%s" %(error_message))
-                return render_template('error.html', 
-                                       data=error_message)
             except TypeError as err:
                 error_message = 'Malformed arguments, error: %s' % str(err)
                 current_app.logger.error("%s" %(error_message))
@@ -177,6 +230,40 @@ def get_lab():
                 current_app.logger.error("%s" %(error_message))
                 return render_template('error.html', 
                                        data=error_message)        
+        elif 'lab_name' in request.args:
+            lab_name  = request.args['lab_name']
+            try:
+                labs = SystemInterface.get_labs_by_lab_name(lab_name)
+                return jsonify(labs)
+                
+            except TypeError as err:
+                error_message = 'Malformed arguments, error: %s' % str(err)
+                current_app.logger.error("%s" %(error_message))
+                return render_template('error.html', 
+                                       data=error_message)
+            except Exception as err:
+                error_message = 'error: %s' % str(err)
+                current_app.logger.error("%s" %(error_message))
+                return render_template('error.html', 
+                                       data=error_message)        
+
+        elif 'institute_name' in request.args:
+            institute_name  = request.args['institute_name']
+            try:
+                labs = SystemInterface.get_labs_by_institute(institute_name)
+                return jsonify_list(labs)
+                
+            except TypeError as err:
+                error_message = 'Malformed arguments, error: %s' % str(err)
+                current_app.logger.error("%s" %(error_message))
+                return render_template('error.html', 
+                                       data=error_message)
+            except Exception as err:
+                error_message = 'error: %s' % str(err)
+                current_app.logger.error("%s" %(error_message))
+                return render_template('error.html', 
+                                       data=error_message)        
+
         else:
             try:
                 labs = SystemInterface.get_labs()
@@ -324,6 +411,140 @@ class TestGetLabbyLabId(TestCase):
                                  headers=headers)
 
         response = self.client.get("/labs?lab_id=cse01", headers=headers)
+        self.assertEqual(response.status_code, 200)
+
+#+END_SRC
+
+**** TestGetLabsbyInstitute
+#+NAME: test_get_labs_by_institute
+#+BEGIN_SRC python
+class TestGetLabsbyInstitute(TestCase):
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_get_labs_by_institute(self):
+        print "test_get_labs_by_institute_in_rest"
+
+        payload = {'inst_name': 'IIT Kanpur',
+                   'inst_id': 'IITK',
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/institutes", data=json.dumps(payload),
+                                 headers=headers)
+
+        payload = {'dis_name': 'Computer Science',
+                   'dis_id': 'CSE',
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/disciplines", data=json.dumps(payload),
+                                 headers=headers)
+
+        payload = {'exp_name': 'arrays',
+                   'exp_id': 'exp1',
+                   'overview' : 'overview',
+                   'sections': [],
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/experiments", data=json.dumps(payload),
+                                 headers=headers)
+
+        payload = {'lab_name': 'Data Structures',
+                   'lab_id': 'cse01',
+                   'overview' : 'overview',
+                   'inst_id': 'IITK',
+                   'dis_id': 'CSE',
+                   'key': KEY,
+                   'experiments': ['exp1'],
+                  }
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/labs", data=json.dumps(payload),
+                                 headers=headers)
+
+        response = self.client.get("/labs?institute_name=IIT Kanpur", headers=headers)
+        self.assertEqual(response.status_code, 200)
+
+#+END_SRC
+
+**** TestGetLabsbyLabName
+#+NAME: test_get_labs_by_lab_name
+#+BEGIN_SRC python
+class TestGetLabsbyLabName(TestCase):
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_get_labs_by_lab_name(self):
+        print "test_get_labs_by_lab_name_in_rest"
+
+        payload = {'inst_name': 'IIT Kanpur',
+                   'inst_id': 'IITK',
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/institutes", data=json.dumps(payload),
+                                 headers=headers)
+
+        payload = {'dis_name': 'Computer Science',
+                   'dis_id': 'CSE',
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/disciplines", data=json.dumps(payload),
+                                 headers=headers)
+
+        payload = {'exp_name': 'arrays',
+                   'exp_id': 'exp1',
+                   'overview' : 'overview',
+                   'sections': [],
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/experiments", data=json.dumps(payload),
+                                 headers=headers)
+
+        payload = {'lab_name': 'Data Structures',
+                   'lab_id': 'cse01',
+                   'overview' : 'overview',
+                   'inst_id': 'IITK',
+                   'dis_id': 'CSE',
+                   'key': KEY,
+                   'experiments': ['exp1'],
+                  }
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/labs", data=json.dumps(payload),
+                                 headers=headers)
+
+        response = self.client.get("/labs?lab_name=Data Structures", headers=headers)
         self.assertEqual(response.status_code, 200)
 
 #+END_SRC
@@ -4837,6 +5058,8 @@ if __name__ == '__main__':
 <<test_delete_lab>>
 <<test_get_labs>>
 <<test_get_lab_by_labid>>
+<<test_get_labs_by_institute>>
+<<test_get_labs_by_lab_name>>
 <<test_get_exp_by_expid>>
 <<test_get_discipline_by_disid>>
 <<test_add_experiment>>

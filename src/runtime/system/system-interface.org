@@ -987,6 +987,207 @@ class TestGetLabs(TestCase):
 
  #+END_SRC
 
+** Get Labs by Institute
+#+NAME: class_get_labs_by_institute
+#+begin_src python
+    @staticmethod
+    def get_labs_by_institute(inst_name):
+        institute = System.do("get_institute_by_institute_name",
+                                  inst_name=str(inst_name))
+        try:
+            current_app.logger.debug("running operation get_labs_by_institute")
+            labs = System.do("get_labs_by_institute", institute=institute)
+            current_app.logger.debug("completed operation get_labs_by_institute")
+            labs_dict_list = []
+            for lab in labs:
+                lab_x = lab.to_client()
+                labs_dict_list.append(lab_x)
+            current_app.logger.debug("got labs")
+            return  labs_dict_list
+
+        except (ArityError, TypeError, NotAuthorizedError, StateError) as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+
+        except Exception as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+#+end_src
+
+*** TestGetLabsByInstitute
+ #+NAME: test_class_get_labs_by_institute
+ #+BEGIN_SRC python
+class TestGetLabsByInstitute(TestCase):
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_get_labs_by_institute_in_system_interface(self):
+        print "test_get_labs_by_institute_in_system_interface"
+
+        data_dict = {
+                    'key' : KEY,
+                    'exp_name': 'arrays',
+                    'exp_id': 'exp123',
+                    'overview' : 'overview', 
+                    'sections' : []
+                   }
+
+        experiment = SystemInterface.add_experiment(data_dict)
+
+        data_dict = {
+                    'key' : KEY,
+                    'inst_name': 'IIT Kanpur',
+                    'inst_id': 'IITK'
+                    }
+
+        institute = SystemInterface.add_institute(data_dict)
+
+        data_dict = {
+                    'key' : KEY,
+                    'dis_name': 'computer science',
+                    'dis_id': 'CSE'
+                   }
+
+        discipline = SystemInterface.add_discipline(data_dict)
+
+        data_dict = {
+                    'key' : KEY,
+                    'lab_name': 'Data Structures',
+                    'lab_id': 'cse01',
+                    'overview' : 'overview',
+                    'inst_id': 'IITK',
+                    'dis_id': 'CSE',
+                    'experiments': ['exp123']
+                   }
+
+        data_dict1 = {
+                    'key' : KEY,
+                    'lab_name': 'Computer Programming',
+                    'lab_id': 'cse02',
+                    'overview' : 'overview',
+                    'inst_id': 'IITK',
+                    'dis_id': 'CSE',
+                    'experiments': ['exp123']
+                   }
+
+        lab = SystemInterface.add_lab(data_dict)
+        lab1 = SystemInterface.add_lab(data_dict1)
+
+        labs = SystemInterface.get_labs_by_institute("IIT Kanpur")
+
+        self.assertEqual(labs[0]['institute']['inst_name'], "IIT Kanpur")
+
+ #+END_SRC
+
+** Get Labs by LabName
+#+NAME: class_get_labs_by_lab_name
+#+begin_src python
+    @staticmethod
+    def get_labs_by_lab_name(lab_name):
+
+        try:
+            current_app.logger.debug("running operation get_labs_by_lab_name")
+            labs = System.do("get_labs_by_lab_name", lab_name=str(lab_name))
+            current_app.logger.debug("completed operation get_labs_by_lab_name")
+            labs_dict_list = []
+            for lab in labs:
+                lab_x = lab.to_client()
+                labs_dict_list.append(lab_x)
+            current_app.logger.debug("got labs")
+            return  labs_dict_list
+
+        except (ArityError, TypeError, NotAuthorizedError, StateError) as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+
+        except Exception as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+#+end_src
+
+*** TestGetLabsByLabName
+ #+NAME: test_class_get_labs_by_lab_name
+ #+BEGIN_SRC python
+class TestGetLabsByLabName(TestCase):
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_get_labs_by_lab_name_in_system_interface(self):
+        print "test_get_labs_by_lab_name_in_system_interface"
+
+        data_dict = {
+                    'key' : KEY,
+                    'exp_name': 'arrays',
+                    'exp_id': 'exp123',
+                    'overview' : 'overview', 
+                    'sections' : []
+                   }
+
+        experiment = SystemInterface.add_experiment(data_dict)
+
+        data_dict = {
+                    'key' : KEY,
+                    'inst_name': 'IIT Kanpur',
+                    'inst_id': 'IITK'
+                    }
+
+        institute = SystemInterface.add_institute(data_dict)
+
+        data_dict = {
+                    'key' : KEY,
+                    'dis_name': 'computer science',
+                    'dis_id': 'CSE'
+                   }
+
+        discipline = SystemInterface.add_discipline(data_dict)
+
+        data_dict = {
+                    'key' : KEY,
+                    'lab_name': 'Data Structures',
+                    'lab_id': 'cse01',
+                    'overview' : 'overview',
+                    'inst_id': 'IITK',
+                    'dis_id': 'CSE',
+                    'experiments': ['exp123']
+                   }
+
+        data_dict1 = {
+                    'key' : KEY,
+                    'lab_name': 'Computer Programming',
+                    'lab_id': 'cse02',
+                    'overview' : 'overview',
+                    'inst_id': 'IITK',
+                    'dis_id': 'CSE',
+                    'experiments': ['exp123']
+                   }
+
+        lab = SystemInterface.add_lab(data_dict)
+        lab1 = SystemInterface.add_lab(data_dict1)
+
+        labs = SystemInterface.get_labs_by_lab_name(data_dict['lab_name'])
+
+        self.assertEqual(labs[0]['lab_name'], data_dict['lab_name'])
+
+ #+END_SRC
+
 ** Get Experiments
 #+NAME: class_get_experiments
 #+begin_src python
@@ -1583,7 +1784,6 @@ class TestGetIntegrationStatuss(TestCase):
         self.assertEqual(intstatus_list[1].get("integration_level"), data_dict1['integration_level'])
 
  #+END_SRC
-
 
 ** Get Lab By Id
 #+NAME: class_get_lab_by_id
@@ -3376,7 +3576,6 @@ class TestGetLabByLabId(TestCase):
         self.assertEqual(lab1.get("lab_id"), data_dict1['lab_id'])
 
  #+END_SRC
-
 ** Get Experiment by ExpId
 #+NAME: class_get_lab_by_exp_id
 #+begin_src python
@@ -3508,6 +3707,233 @@ class TestGetDisciplineByDisciplineId(TestCase):
  #+END_SRC
 
 
+
+
+** Add Asset
+#+NAME: class_add_asset
+#+begin_src python
+    @staticmethod
+    def add_asset(data_dict):
+        session_cls = System.delegate.entities['session']       
+        asset_cls = System.delegate.entities['asset']
+
+        session = session_cls(key=data_dict['key'])
+        del(data_dict['key'])
+
+        asset = asset_cls(asset_type=str(data_dict['asset_type']),
+                                  path=str(data_dict['path']))
+
+        try:
+            current_app.logger.debug("running operation add_asset")
+            asset = System.do("add_asset", asset=asset,
+                                    session=session)
+            current_app.logger.debug("completed operation add_asset")
+            return asset.to_client()
+
+        except (ArityError, TypeError, NotAuthorizedError, StateError) as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+
+        except Exception as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+
+#+END_SRC
+
+*** TestAddAsset 
+#+NAME: test_class_add_asset
+#+BEGIN_SRC python
+class TestAddAsset(TestCase):
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_add_asset_in_system_interface(self):
+        print "test_add_asset_in_system_interface"
+
+        data_dict = {
+                    'key' : KEY,
+                    'asset_type': 'Image',
+                    'path': 'vlabs.ac.in/static/images/icon.png'
+                    }
+
+        asset = SystemInterface.add_asset(data_dict)
+        asset_cls = System.delegate.entities['asset']
+        asset = asset_cls.get_all()[0]
+
+        self.assertEqual(asset.get("asset_type"), 
+                             data_dict['asset_type'])
+        self.assertEqual(asset.get("path"), data_dict['path'])
+        
+#+END_SRC
+
+
+
+** Update Asset
+#+NAME: class_update_asset
+#+begin_src python       
+    @staticmethod
+    def update_asset(data_dict):
+        session_cls = System.delegate.entities['session']
+        session = session_cls(key=data_dict['key'])
+
+        path = str(data_dict['path'])
+        asset = System.do("get_asset", path=path)
+
+        if 'asset_type' not in data_dict:
+            asset_type=str(asset.get("asset_type"))
+        else:
+            asset_type=data_dict['asset_type']
+
+        try:
+            current_app.logger.debug("running operation update_asset")
+            asset = System.do("update_asset", asset=asset,
+                                    asset_type=asset_type, 
+                                    session=session)
+            current_app.logger.debug("completed operation update_asset")
+            return asset.to_client()
+        except (ArityError, TypeError, NotAuthorizedError, StateError) as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+
+        except Exception as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+#+end_src
+*** TestUpdateAsset 
+#+NAME: test_class_update_asset
+#+BEGIN_SRC python
+class TestUpdateAsset(TestCase):
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_update_asset_name_in_system_interface(self):
+        print "test_update_asset_name_in_system_interface"
+
+        data_dict = {
+                    'key' : KEY,
+                    'asset_type': 'Image',
+                    'path': 'vlabs.ac.in/static/images/logo.png'
+                    }
+
+        data_dict1 = {
+                    'key' : KEY,
+                    'asset_type': 'Video', 
+                    'path': 'vlabs.ac.in/static/images/icon.png'
+                    }
+
+        asset = SystemInterface.add_asset(data_dict)
+        asset1 = SystemInterface.update_asset(data_dict1)
+        
+        self.assertEqual(asset1.get("asset_type"), data_dict1['asset_type'])
+
+#+END_SRC
+
+
+** Delete Asset
+#+NAME: class_delete_asset
+#+begin_src python
+    @staticmethod
+    def delete_asset(path, key):
+        session_cls = System.delegate.entities['session']
+        session = session_cls(key=str(key))
+
+        try:
+            current_app.logger.debug("running operation delete_asset")
+            asset_path = System.do("delete_asset", path=str(path),
+                                      session=session)
+            current_app.logger.debug("completed operation delete_asset")
+            return asset_path
+        except (ArityError, TypeError, NotAuthorizedError, StateError) as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+
+        except Exception as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+#+end_src
+
+*** TestDeleteAsset 
+#+NAME: test_class_delete_asset
+#+BEGIN_SRC python
+class TestDeleteAsset(TestCase):
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_delete_asset_in_system_interface(self):
+        print "test_delete_asset_in_system_interface"
+
+        data_dict = {
+                    'key' : KEY,
+                    'asset_type': 'Image',
+                    'path': 'vlabs.ac.in/static/images/logo.png'
+                    }
+
+        data_dict1 = {
+                    'key' : KEY,
+                    'asset_type': 'Video',
+                    'path': 'vlabs.ac.in/static/images/icon.png'
+                    }
+
+        asset = SystemInterface.add_asset(data_dict)
+        asset1 = SystemInterface.add_asset(data_dict1)
+        path = SystemInterface.delete_asset("vlabs.ac.in/static/images/icon.png", KEY)
+        
+        self.assertEqual(path, "vlabs.ac.in/static/images/icon.png")
+
+#+END_SRC
+
+** Get Assets
+#+NAME: class_get_assets
+#+begin_src python
+    @staticmethod
+    def get_assets():
+        asset_cls = System.delegate.entities['asset']
+        try:
+            current_app.logger.debug("getting assets")
+            assets = asset_cls.get_all()
+            asset_dict_list = []
+            for asset in assets:
+                asset_x = asset.to_client()
+                asset_dict_list.append(asset_x)
+            current_app.logger.debug("got assets")
+            return  asset_dict_list
+
+        except (ArityError, TypeError, NotAuthorizedError, StateError) as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+
+        except Exception as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+#+end_src
+
+
 * Infra                                                         :boilerplate:
   
 ** sources
@@ -3603,6 +4029,8 @@ if __name__ == '__main__':
 <<class_get_lab_by_exp_id>>
 <<class_get_institute_by_inst_id>>
 <<class_get_discipline_by_dis_id>>
+<<class_get_labs_by_institute>>
+<<class_get_labs_by_lab_name>>
 
 <<class_get_sections>>
 <<class_update_developer>>
@@ -3612,7 +4040,10 @@ if __name__ == '__main__':
 <<class_delete_name>>
 <<class_delete_email>>
 <<class_delete_developer>>
-
+<<class_add_asset>>
+#<<class_update_asset>>
+<<class_delete_asset>>
+<<class_get_assets>>
 #+end_src
 
 
@@ -3647,6 +4078,7 @@ if __name__ == '__main__':
 <<test_class_get_hostinginfos>>
 <<test_class_get_integrationstatuss>>
 
+
 <<test_class_get_lab_by_id>>
 <<test_class_get_experiment_by_id>>
 <<test_class_get_institute_by_id>>
@@ -3660,6 +4092,9 @@ if __name__ == '__main__':
 <<test_class_update_hostinginfo>>
 
 <<test_class_get_lab_by_labid>>
+<<test_class_get_labs_by_institute>>
+<<test_class_get_labs_by_lab_name>>
+
 <<test_class_update_developer>>
 <<test_class_get_names>>
 <<test_class_get_emails>>
@@ -3670,6 +4105,10 @@ if __name__ == '__main__':
 <<test_class_get_exp_by_expid>>
 <<test_class_get_institute_by_instituteid>>
 <<test_class_get_discipline_by_disid>>
+<<test_class_add_asset>>
+#<<test_class_update_asset>>
+<<test_class_delete_asset>>
+<<test_class_get_assets>>
 <<run_test_cases>>
 
 #+end_src
