@@ -505,7 +505,7 @@ def get_lab():
                 current_app.logger.error("%s" %(error_message))
                 return render_template('error.html', 
                                        data=error_message)
-         elif 'asset_type' in request.args:
+        elif 'asset_type' in request.args:
             asset_type  = request.args['asset_type']
             try:
                 labs = SystemInterface.get_labs_by_asset(asset_type)
@@ -953,6 +953,7 @@ class TestGetLabsbyAsset(TestCase):
 
 #+END_SRC
 
+
 ** Add Lab 
 *** API Designs 
 **** Add Lab
@@ -974,7 +975,8 @@ class TestGetLabsbyAsset(TestCase):
   "overview": "overview",
   "key": "<key>",
   "inst_id": "iiith",
-  "dis_id": "cse"
+  "dis_id": "cse",
+  "path": "vlabs.ac.in/images/static/logo.png"
 }
 #+END_EXAMPLE	       
 
@@ -986,6 +988,11 @@ class TestGetLabsbyAsset(TestCase):
   "discipline": {
     "dis_id": "cse", 
     "dis_name": "Computer Science", 
+    "id": 1
+  }, 
+  "asset": {
+    "path": "vlabs.ac.in/images/static/logo.png", 
+    "asset_type": "Image", 
     "id": 1
   }, 
   "experiments": [
@@ -1117,6 +1124,15 @@ class TestAddLab(TestCase):
         response = self.client.post("/disciplines", data=json.dumps(payload),
                                  headers=headers)
 
+        payload = {'asset_type': 'Image',
+                   'path': 'vlabs.ac.in/images/static/logo.png',
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/assets", data=json.dumps(payload),
+                                 headers=headers)
+
         payload = {'exp_name': 'arrays',
                    'exp_id': 'exp1',
                    'overview' : 'overview',
@@ -1133,6 +1149,7 @@ class TestAddLab(TestCase):
                    'key': KEY,
                    'inst_id': 'IITK',
                    'dis_id': 'CSE',
+                   'path': 'vlabs.ac.in/images/static/logo.png'
                    'overview' : 'overview',
                    'experiments': ['exp1']
                   }
@@ -3471,6 +3488,11 @@ class TestAddDeveloper(TestCase):
     "dis_name": "Computer Science", 
     "id": 1
   }, 
+  "asset": {
+    "path": "vlabs.ac.in/images/static/logo.png", 
+    "asset_type": "Image", 
+    "id": 1
+  }, 
   "experiments": [
     {
       "exp_id": "exp9", 
@@ -3581,6 +3603,15 @@ class TestUpdateLab(TestCase):
         response = self.client.post("/disciplines", data=json.dumps(payload),
                                  headers=headers)
 
+        payload = {'asset_type': 'Image',
+                   'path': 'vlabs.ac.in/images/static/logo.png',
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/assets", data=json.dumps(payload),
+                                 headers=headers)
+
         payload = {'exp_name': 'arrays',
                    'exp_id': 'exp1',
                    'overview' : 'overview',
@@ -3597,6 +3628,7 @@ class TestUpdateLab(TestCase):
                    'overview' : 'overview',
                    'inst_id': 'IITK',
                    'dis_id': 'CSE',
+                   'path': 'vlabs.ac.in/images/static/logo.png',
                    'experiments':['exp1'],
                    'key': KEY}
 
@@ -3723,12 +3755,22 @@ class TestDeleteLab(TestCase):
         response = self.client.post("/disciplines", data=json.dumps(payload),
                                  headers=headers)
 
+        payload = {'asset_type': 'Image',
+                   'path': 'vlabs.ac.in/images/static/logo.png',
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/assets", data=json.dumps(payload),
+                                 headers=headers)
+
         payload = {'lab_name': 'Data structures',
                    'lab_id': 'cse02',
                    'key': KEY,
                    'overview' : 'overview',
                    'inst_id': 'IITK',
                    'dis_id': 'CSE',
+                   'path': 'vlabs.ac.in/images/static/logo.png'
                    'experiments': ['exp1']
                   }
 
