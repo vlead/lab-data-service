@@ -203,6 +203,7 @@ Lab.add_attributes(lab_name=is_str,
                     overview=is_str,
                     institute=is_institute,
                     discipline=is_discipline,
+                    asset=is_asset,
                     experiments=are_experiments)
 
 Lab.__eq__ = lambda self, other: \
@@ -212,6 +213,7 @@ Lab.__eq__ = lambda self, other: \
                   self.get("overview") == other.get("overview") and \
                   self.get("institute") == other.get("institute") and \
                   self.get("discipline") == other.get("discipline") and \
+                  self.get("asset") == other.get("asset") and \
                   self.get("experiments") == other.get("experiments")
 
 #+end_src
@@ -235,6 +237,10 @@ class TestLab(TestCase):
         dis_id = "IITK"
         discipline = Discipline(dis_name=dis_name, dis_id=dis_id)
 
+        asset_type = "Image"
+        path = "vlabs.ac.in/images/static/logo.png"
+        asset = Asset(asset_type=asset_type, path=path)
+
         experiment = Experiment(exp_name=exp_name, exp_id=exp_id, \
                                     overview=overview, sections=[])
 
@@ -243,7 +249,7 @@ class TestLab(TestCase):
         overview = "This is data structures lab which deals about array,stack"
         "and ques..etc"
         lab = Lab(lab_name=lab_name, lab_id=lab_id, overview=overview,
-                      institute=inst, discipline=discipline,
+                      institute=inst, discipline=discipline, asset=asset,
                       experiments=[experiment])
 
         self.assertEqual(lab.get("lab_name"), lab_name)
@@ -251,6 +257,8 @@ class TestLab(TestCase):
         self.assertEqual(lab.get("overview"), overview)
         self.assertEqual(lab.get("institute").get("inst_name"), 
                              inst.get("inst_name"))
+        self.assertEqual(lab.get("asset").get("asset_type"), 
+                             inst.get("asset_type"))
         self.assertEqual(lab.get("experiments")[0].get("exp_name"), 
                              experiment.get("exp_name"))
 
