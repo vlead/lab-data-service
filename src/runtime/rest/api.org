@@ -3739,6 +3739,284 @@ class TestDeleteIntegrationStatus(TestCase):
  #+END_SRC
    
 
+** Get Assets and Get Asset
+*** API Design
+**** Get all Assets
+  :PROPERTIES:
+  :CUSTOM_ID: api_get_all_assets
+  :END:    
+  - URL :: /assets
+
+  - Method :: GET
+
+  - URL Params ::  None
+
+  - Payload :: 
+
+  - Success Response
+    + Status_Code: 200
+      + Contents :
+
+#+BEGIN_EXAMPLE
+[{"asset_type": "Image", "id": 1, "path": "vlabs.ac.in/images/static/logo.png"}]
+#+END_EXAMPLE	       
+
+    
+  - Error Response:
+    + Contents :
+                {"status" : "error"}
+    
+  - Example:
+#+BEGIN_EXAMPLE
+http://localhost:5000/assets
+#+END_EXAMPLE
+
+**** Get Asset by path
+  :PROPERTIES:
+  :CUSTOM_ID: api_get_asset_by_path
+  :END:    
+  - URL :: /assets?path=<path>
+
+  - Method :: GET
+
+  - URL Params ::  None
+
+  - Payload :: 
+
+  - Success Response
+    + Status_Code: 200
+      + Contents :
+
+#+BEGIN_EXAMPLE
+{"asset_type": "Image", "id": 1, "path": "vlabs.ac.in/images/static/logo.png"}
+#+END_EXAMPLE	       
+
+    
+  - Error Response:
+    + Contents :
+                {"status" : "error"}
+    
+  - Example:
+#+BEGIN_EXAMPLE
+http://localhost:5000/assets?path=vlabs.ac.in/images/static/logo.png
+#+END_EXAMPLE
+
+*** Implementation
+REST API to get all assets and get asset by path.
+#+NAME: get_asset
+#+BEGIN_SRC python
+@api.route('/assets', methods=['GET'])
+def get_asset():
+    if request.method == 'GET':
+       if 'path' in request.args:
+           path  = request.args['path']
+           try:
+               asset = SystemInterface.get_asset(path)
+               return jsonify(asset)
+
+           except NotAuthorizedError as err:
+               error_message = 'Not Authorized error: %s' % str(err)
+               current_app.logger.error("%s" %(error_message))
+               return render_template('error.html',
+                                       data=error_message)
+           except TypeError as err:
+               error_message = 'Malformed arguments, error: %s' % str(err)
+               current_app.logger.error("%s" %(error_message))
+               return render_template('error.html',
+                                       data=error_message)
+           except Exception as err:
+               error_message = 'error: %s' % str(err)
+               current_app.logger.error("%s" %(error_message))
+               return render_template('error.html',
+                                        data=error_message)
+       else:
+           try:
+               assets = SystemInterface.get_assets()
+               return jsonify_list(assets)
+
+           except TypeError as err:
+               error_message = 'Malformed arguments, error: %s' % str(err)
+
+               return render_template('error.html',
+                                           data=error_message)
+
+           except Exception as err:
+               abort(500, 'error: %s' % str(err))
+            
+#+END_SRC
+
+*** Test Cases
+**** TestGetAsset  
+ #+NAME: test_get_Asset
+ #+BEGIN_SRC python
+class TestGetAsset(TestCase):
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_get_assets(self):
+        print "test_get_assets_in_rest"
+
+        payload = {'asset_type': 'Images',
+                   'path': 'vlabs.ac.in/images/static/logo.png',
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/assets", data=json.dumps(payload),
+                                 headers=headers)
+
+        response = self.client.get("/assets", headers=headers)
+        self.assertEqual(response.status_code, 200)
+
+ #+END_SRC
+   
+**** TestGetAssetbyPath 
+#+NAME: test_get_asset_by_path
+#+BEGIN_SRC python
+class TestGetAsset(TestCase):
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_get_asset_by_path(self):
+        print "test_get_asset_by_path_in_rest"
+
+        payload = {'asset_type': 'Image',
+                   'path': 'vlabs.ac.in/images/static/logo.png',
+                   'key': KEY
+                  }
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/assets", data=json.dumps(payload),
+                                 headers=headers)
+
+        response = self.client.get("/assets?path=vlabs.ac.in/images/static/logo.png", headers=headers)
+        self.assertEqual(response.status_code, 200)
+
+#+END_SRC
+
+
+** Add Asset 
+*** API Design
+**** Add Asset
+  :PROPERTIES:
+  :CUSTOM_ID: api_add_institute
+  :END:    
+  - URL :: /assets
+
+  - Method :: POST
+
+  - URL Params ::  None
+
+  - Payload :: 
+#+BEGIN_EXAMPLE
+{
+"path": "vlabs.ac.in/images/static/logo.png",
+"asset_type": "Image",
+"key": "<key>"
+}
+#+END_EXAMPLE	       
+
+  - Success Response
+    + Status_Code: 200
+    + Content: 
+#+BEGIN_EXAMPLE
+{
+  "id": 1, 
+  "path": "vlabs.ac.in/images/static/logo.png", 
+  "asset_type": "Image"
+}
+
+#+END_EXAMPLE
+
+  - Error Response:
+    + Contents :
+                {"status" : "error"}
+    
+  - Example:
+#+BEGIN_EXAMPLE
+http://localhost:5000/assets
+#+END_EXAMPLE
+    
+*** Implementation
+REST API to add an asset.
+#+NAME: add_asset
+#+BEGIN_SRC python
+@api.route('/assets', methods=['POST'])
+def add_asset():
+    if request.method == 'POST':
+        if request.is_json:
+            data_json = json.dumps(request.get_json())
+            data_dict = yaml.safe_load(data_json)
+        else:
+            abort(500, "the request does not contain data in json")
+
+        try:
+            asset = SystemInterface.add_asset(data_dict)
+            return jsonify(asset)
+
+        except TypeError as err:
+            error_message = 'Malformed arguments, error: %s' % str(err)
+
+            return render_template('error.html', 
+                    data=error_message)
+
+        except Exception as err:
+            abort(500, 'error: %s' % str(err))
+            
+#+END_SRC
+
+*** Test Cases
+**** TestAddAsset  
+ #+NAME: test_add_asset
+ #+BEGIN_SRC python
+class TestAddAsset(TestCase):
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_add_asset(self):
+        print "test_add_asset_in_rest"
+        payload = {'asset_type': 'Image',
+                   'path': 'vlabs.ac.in/images/static/logo.png',
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/assets", data=json.dumps(payload),
+                                 headers=headers)
+
+        self.assertEqual(response.status_code, 200)
+
+ #+END_SRC
+   
+
 * Infra                                                         :boilerplate:
 
 ** sources
@@ -3822,6 +4100,8 @@ if __name__ == '__main__':
 <<get_integrationstatus>>
 <<add_integrationstatus>>
 <<delete_integrationstatus>>
+<<get_asset>>
+<<add_asset>>
 #+END_SRC
 
 
@@ -3872,5 +4152,7 @@ if __name__ == '__main__':
 <<test_get_IntegrationStatus>>
 <<test_add_integrationstatus>>
 <<test_delete_integrationstatus>>
+<<test_get_asset>>
+<<test_add_asset>>
 <<run_test_cases>>
 #+end_src
