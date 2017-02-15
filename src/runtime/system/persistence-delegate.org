@@ -115,6 +115,7 @@ class TestPersistenceDelegate(TestCase):
         lab_name1="Computer Programming"
         lab_id1="CSE01"
         overview1 = "overview"
+
         inst_name = "IIT Kanpur"
         inst_id = "IITK"
         inst = Institute(inst_name=inst_name, inst_id=inst_id)
@@ -133,6 +134,15 @@ class TestPersistenceDelegate(TestCase):
         lab = Lab(lab_name=lab_name1, lab_id=lab_id1, overview=overview1,
                       institute=inst, discipline=discipline,
                       experiments=[], integrationstatus=integrationstatus)
+ 
+        asset_type = "Image"
+        path = "vlabs.ac.in/images/static/logo.png"
+        asset = Asset(asset_type=asset_type, path=path)
+        asset.save()
+
+        lab = Lab(lab_name=lab_name1, lab_id=lab_id1, overview=overview1,
+                      institute=inst, discipline=discipline, asset=asset,
+                      experiments=[], integrationstatus=integrationstatus)
 
         lab1 = self.persistence_delegate.add_lab(lab)
 
@@ -140,8 +150,9 @@ class TestPersistenceDelegate(TestCase):
         lab_id2="CSE02"
         overview2 = "overview"
         lab2 = Lab(lab_name=lab_name2, lab_id=lab_id2, overview=overview2,
-                       institute=inst, discipline=discipline,                  
-                       experiments=[], integrationstatus=integrationstatus)
+                       integrationstatus=integrationstatus, 
+                       institute=inst, discipline=discipline, asset=asset,               
+                       experiments=[])
 
         self.assertEqual(self.persistence_delegate.lab_exists(lab1),
                             True)
@@ -522,21 +533,28 @@ class TestPersistenceDelegate(TestCase):
          discipline = Discipline(dis_name=dis_name, dis_id=dis_id)
          discipline.save()
 
+         asset_type = "Image"
+         path = "vlabs.ac.in/images/static/logo.png"
+         asset = Asset(asset_type=asset_type, path=path)
+         asset.save()
+
          lab_name1="Computer Programming"
          lab_id1="CSE01"
          overview="lab"
          lab1 = Lab(lab_name=lab_name1, lab_id=lab_id1, \
-                        institute=inst, discipline=discipline, \
-                        overview=overview, experiments=[experiment], \ 
+                        institute=inst, discipline=discipline, asset=asset, \
+                        overview=overview, experiments=[experiment], \
                         integrationstatus=integrationstatus)
+
          lab1 = self.persistence_delegate.add_lab(lab1)
         
          lab_name2="Data Structures"
          lab_id2="CSE02"
          overview="lab overview"
-         lab2 = Lab(lab_name=lab_name2, lab_id=lab_id2, overview=overview, \
-                        institute=inst, discipline=discipline, \
-                        experiments=[],integrationstatus=integrationstatus)
+
+         lab2 = Lab(lab_name=lab_name2, lab_id=lab_id2, overview=overview, 
+                        institute=inst, discipline=discipline, asset=asset,
+                        experiments=[], integrationstatus=integrationstatus)
 
          self.assertEqual(self.persistence_delegate.lab_exists(lab1),
                           True)
@@ -909,9 +927,18 @@ class TestPersistenceDelegate(TestCase):
          discipline = Discipline(dis_name=dis_name, dis_id=dis_id)
          discipline.save()
 
+         integration_level = 4
+         integrationstatus = IntegrationStatus(integration_level=integration_level)
+         integrationstatus.save()
+  
+         asset_type = "Image"
+         path = "vlabs.ac.in/images/static/logo.png"
+         asset = Asset(asset_type=asset_type, path=path)
+         asset.save()
+
          lab = Lab(lab_name=lab_name, lab_id=lab_id, overview=overview, 
-                       institute=inst, discipline=discipline,
-                       experiments=experiments)
+                       institute=inst, discipline=discipline, asset=asset, 
+                       experiments=experiments, integrationstatus=integrationstatus)
          
          lab1 = self.persistence_delegate.add_lab(lab)
          lab_name1 = "Computer Programming"
@@ -1199,18 +1226,26 @@ class TestPersistenceDelegate(TestCase):
          dis_id = "IITK"
          discipline = Discipline(dis_name=dis_name, dis_id=dis_id)
          discipline.save()
+ 
+         asset_type = "Image"
+         path = "vlabs.ac.in/images/static/logo.png"
+         asset = Asset(asset_type=asset_type, path=path)
+         asset.save()
 
-         lab = Lab(lab_name=lab_name, lab_id=lab_id, overview=overview, \ 
-                       institute=inst, discipline=discipline, \
+         lab = Lab(lab_name=lab_name, lab_id=lab_id, overview=overview, \
+                       institute=inst, discipline=discipline, asset=asset, \
                        experiments=[], integrationstatus=integrationstatus)
+
          lab1 = self.persistence_delegate.add_lab(lab)
 
          lab_name1 = "Computer Programming"
          lab_id1 = "cse02"
          overview = "overview"
-         lab1 = Lab(lab_name=lab_name1, lab_id=lab_id1, overview=overview, \
-                        institute=inst, discipline=discipline, \
+
+         lab1 = Lab(lab_name=lab_name1, lab_id=lab_id1, overview=overview,
+                        institute=inst, discipline=discipline, asset=asset, 
                         experiments=[], integrationstatus=integrationstatus)
+
          lab2 = self.persistence_delegate.add_lab(lab1)
 
          self.persistence_delegate.delete_lab("cse01")
@@ -1724,6 +1759,77 @@ class TestPersistenceDelegate(TestCase):
 #+END_SRC
 
 
+***  Add assets to a Lab
+    This function adds assets to a given lab.
+#+NAME: persistence_add_assets_to_lab
+#+BEGIN_SRC python
+    def add_assets_to_lab(self, labid, assets):
+        lab = self.get_lab_by_id(labid)
+        asset_list = []
+        for asset in assets:
+            if self.asset_exists(asset):
+                asset = self.get_asset(path=asset.get('path'),
+                                                 asset_type=asset.get('asset_type'))
+            else:
+                asset.save()
+
+            asset_list.append(asset)
+
+        lab.set(assets=asset_list)
+        return lab
+
+#+END_SRC
+
+****  Tests
+#+NAME: test_persistence_add_assets_to_lab
+#+BEGIN_SRC python
+    def test_add_saved_assets_to_lab(self):
+         print "test_add_assets_to_lab_in_persistence_delegate"
+
+         lab_name="Data Structures"
+         lab_id="CSE02"
+         overview = "overview"
+
+         inst_name = "IIT Kanpur"
+         inst_id = "IITK"
+         inst = Institute(inst_name=inst_name, inst_id=inst_id)
+         inst.save()
+
+         dis_name = "IIT Kanpur"
+         dis_id = "IITK"
+         discipline = Discipline(dis_name=dis_name, dis_id=dis_id)
+         discipline.save()
+
+         asset_type = "Image"
+         path = "vlabs.ac.in/images/static/logo.png"
+         asset = Asset(asset_type=asset_type, path=path)
+         asset.save()
+         
+         lab = Lab(lab_name=lab_name, lab_id=lab_id, overview=overview,
+                       institute=inst, discipline=discipline, asset=asset, 
+                       experiments=[], integrationstatus=integrationstatus)
+         lab.save()
+
+         exp_name = "Number Systems"
+         exp_id = "EE99777"
+         overview = "overview"
+         experiment = Experiment(exp_name=exp_name, exp_id=exp_id, \
+                                     overview=overview, sections=[])
+         experiment.save()
+        
+         lab1 = Lab.get_by_id(1)
+
+         lab1 = self.persistence_delegate.add_assets_to_lab(lab1.id, \
+                                                             [asset])
+        
+         self.assertEqual(len(lab1.get("assets")), 1)
+         self.assertEqual(lab1.get("assets")[0].get("path"), path)
+         self.assertEqual(lab1.get("assets")[0].get("asset_type"),\
+                                                      asset_type)
+
+#+END_SRC
+
+
 ***  Add labs to an Institute
     This function adds labs to a given institute.
 #+NAME: persistence_add_labs_to_institute
@@ -1883,12 +1989,17 @@ class TestPersistenceDelegate(TestCase):
          discipline = Discipline(dis_name=dis_name, dis_id=dis_id)
          discipline.save()
 
+         asset_type = "Image"
+         path = "vlabs.ac.in/images/static/logo.png"
+         asset = Asset(asset_type=asset_type, path=path)
+         asset.save()
+
          integration_level = 4
          integrationstatus = IntegrationStatus(integration_level=integration_level)
          integrationstatus.save()
 
          lab = Lab(lab_name=lab_name1, lab_id=lab_id1, overview=overview, \
-                       institute=inst, discipline=discipline, \
+                       institute=inst, discipline=discipline, asset=asset, \
                        experiments=[], integrationstatus=integrationstatus)
          lab.save()
 
@@ -2174,12 +2285,17 @@ class TestPersistenceDelegate(TestCase):
          discipline = Discipline(dis_name=dis_name, dis_id=dis_id)
          discipline.save()
 
+         asset_type = "Image"
+         path = "vlabs.ac.in/images/static/logo.png"
+         asset = Asset(asset_type=asset_type, path=path)
+         asset.save()
+
          integration_level = 4
          integrationstatus = IntegrationStatus(integration_level=integration_level)
          integrationstatus.save()
 
          lab1 = Lab(lab_name=lab_name1, lab_id=lab_id1, overview=overview, \
-                        institute=inst, discipline=discipline, \
+                        institute=inst, discipline=discipline, asset=asset, \
                         experiments=[], integrationstatus=integrationstatus)
          lab1.save()
 
@@ -2187,7 +2303,7 @@ class TestPersistenceDelegate(TestCase):
          lab_id2="CSE02"
 
          lab2 = Lab(lab_name=lab_name2, lab_id=lab_id2, overview=overview, \
-                        institute=inst, discipline=discipline, \
+                        institute=inst, discipline=discipline, asset=asset, \
                         experiments=[], integrationstatus=integrationstatus)
          lab2.save()
 
@@ -2211,13 +2327,18 @@ class TestPersistenceDelegate(TestCase):
          dis_id = "IITK"
          discipline = Discipline(dis_name=dis_name, dis_id=dis_id)
          discipline.save()
+         
+         asset_type = "Image"
+         path = "vlabs.ac.in/images/static/logo.png"
+         asset = Asset(asset_type=asset_type, path=path)
+         asset.save()
 
          integration_level = 4
          integrationstatus = IntegrationStatus(integration_level=integration_level)
          integrationstatus.save()
 
          lab1 = Lab(lab_name=lab_name1, lab_id=lab_id1, overview=overview, \
-                        institute=inst, discipline=discipline, \
+                        institute=inst, discipline=discipline, asset=asset, \
                         experiments=[], integratiostatus=integrationstatus)
          lab1.save()
 
@@ -2225,7 +2346,7 @@ class TestPersistenceDelegate(TestCase):
          lab_id2="CSE02"
 
          lab2 = Lab(lab_name=lab_name2, lab_id=lab_id2, overview=overview, \
-                        institute=inst, discipline=discipline, \
+                        institute=inst, discipline=discipline, asset=asset, \
                         experiments=[], integrationstatus=integrationstatus)
          lab2.save()
 
@@ -2248,12 +2369,17 @@ class TestPersistenceDelegate(TestCase):
          discipline = Discipline(dis_name=dis_name, dis_id=dis_id)
          discipline.save()
 
+         asset_type = "Image"
+         path = "vlabs.ac.in/images/static/logo.png"
+         asset = Asset(asset_type=asset_type, path=path)
+         asset.save()
+
          integration_level = 4
          integrationstatus = IntegrationStatus(integration_level=integration_level)
          integrationstatus.save()
 
          lab1 = Lab(lab_name=lab_name1, lab_id=lab_id1, overview=overview, \
-                        institute=inst, discipline=discipline, \
+                        institute=inst, discipline=discipline, asset=asset, \
                         experiments=[], integrationstatus=integrationstatus)
          lab1.save()
 
@@ -2261,7 +2387,7 @@ class TestPersistenceDelegate(TestCase):
          lab_id2="CSE02"
 
          lab2 = Lab(lab_name=lab_name2, lab_id=lab_id2, overview=overview, \
-                        institute=inst, discipline=discipline, \
+                        institute=inst, discipline=discipline, asset=asset, \
                         experiments=[], integrationstatus=integrationstatus)
          lab2.save()
 
@@ -2285,13 +2411,18 @@ class TestPersistenceDelegate(TestCase):
          dis_id = "IITK"
          discipline = Discipline(dis_name=dis_name, dis_id=dis_id)
          discipline.save()
+    
+         asset_type = "Image"
+         path = "vlabs.ac.in/images/static/logo.png"
+         asset = Asset(asset_type=asset_type, path=path)
+         asset.save()
 
          integration_level = 4
          integrationstatus = IntegrationStatus(integration_level=integration_level)
          integrationstatus.save()
 
          lab1 = Lab(lab_name=lab_name1, lab_id=lab_id1, overview=overview, \
-                        institute=inst, discipline=discipline, \
+                        institute=inst, discipline=discipline, asset=asset, \
                         experiments=[], integrationstatus=integrationstatus)
          lab1.save()
 
@@ -2299,7 +2430,7 @@ class TestPersistenceDelegate(TestCase):
          lab_id2="CSE02"
 
          lab2 = Lab(lab_name=lab_name2, lab_id=lab_id2, overview=overview, \
-                        institute=inst, discipline=discipline, \
+                        institute=inst, discipline=discipline, asset=asset, \
                         experiments=[], integrationstatus=integrationstatus)
          lab2.save()
 
@@ -2495,13 +2626,19 @@ class TestPersistenceDelegate(TestCase):
          discipline = Discipline(dis_name=dis_name, dis_id=dis_id)
          discipline.save()
 
+         asset_type = "Image"
+         path = "vlabs.ac.in/images/static/logo.png"
+         asset = Asset(asset_type=asset_type, path=path)
+         asset.save()
+
          integration_level = 4
          integrationstatus = IntegrationStatus(integration_level=integration_level)
          integrationstatus.save()
 
          lab = Lab(lab_name=lab_name1, lab_id=lab_id1, overview=overview, \
-                       institute=inst, discipline=discipline, \
+                       institute=inst, discipline=discipline, asset=asset, \
                        experiments=[], integrationstatus=integrationstatus)
+
          lab.save()
 
          lab_obj = self.persistence_delegate.get_lab_by_id(1)
@@ -2734,6 +2871,7 @@ if __name__ == '__main__':
 <<persistence_get_asset_by_path>>
 
 <<persistence_add_experiments_to_lab>>
+<<persistence_add_assets_to_lab>>
 <<persistence_add_sections_to_experiment>>
 <<persistence_add_labs_to_institute>>
 
@@ -2816,6 +2954,7 @@ if __name__ == '__main__':
 <<test_persistence_get_asset_by_path>>
 
 <<test_persistence_add_experiments_to_lab>>
+<<test_persistence_add_assets_to_lab>>
 <<test_persistence_add_sections_to_experiment>>
 #<<test_persistence_add_labs_to_institute>>
 
