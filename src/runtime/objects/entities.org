@@ -204,6 +204,7 @@ Lab.add_attributes(lab_name=is_str,
                     institute=is_institute,
                     discipline=is_discipline,
                     asset=is_asset,
+                    integrationstatus=is_integrationstatus,
                     experiments=are_experiments)
 
 Lab.__eq__ = lambda self, other: \
@@ -214,6 +215,7 @@ Lab.__eq__ = lambda self, other: \
                   self.get("institute") == other.get("institute") and \
                   self.get("discipline") == other.get("discipline") and \
                   self.get("asset") == other.get("asset") and \
+                  self.get("integrationstatus") == other.get("integrationstatus") and \
                   self.get("experiments") == other.get("experiments")
 
 #+end_src
@@ -241,6 +243,9 @@ class TestLab(TestCase):
         path = "vlabs.ac.in/images/static/logo.png"
         asset = Asset(asset_type=asset_type, path=path)
 
+        integration_level = 4
+        integrationstatus = IntegrationStatus(integration_level=integration_level)
+
         experiment = Experiment(exp_name=exp_name, exp_id=exp_id, \
                                     overview=overview, sections=[])
 
@@ -250,6 +255,7 @@ class TestLab(TestCase):
         "and ques..etc"
         lab = Lab(lab_name=lab_name, lab_id=lab_id, overview=overview,
                       institute=inst, discipline=discipline, asset=asset,
+                      integrationstatus=integrationstatus,
                       experiments=[experiment])
 
         self.assertEqual(lab.get("lab_name"), lab_name)
@@ -259,6 +265,8 @@ class TestLab(TestCase):
                              inst.get("inst_name"))
         self.assertEqual(lab.get("asset").get("asset_type"), 
                              inst.get("asset_type"))
+        self.assertEqual(lab.get("integrationstatus").get("integration_level"), 
+                             integrationstatus.get("integration_level"))
         self.assertEqual(lab.get("experiments")[0].get("exp_name"), 
                              experiment.get("exp_name"))
 
