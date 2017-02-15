@@ -2250,19 +2250,42 @@ def add_hostinginfo():
             hostinginfo = SystemInterface.add_hostinginfo(data_dict)
             return jsonify(hostinginfo)
 
-        except TypeError as err:
-            error_message = 'Malformed arguments, error: %s' % str(err)
+        except NotAuthorizedError as e:
+            err_str = str(e)
+            msg = {"status": "failure",
+                    "status code": 401,
+                       "msg": err_str}
+            return jsonify(msg)
 
-            return render_template('error.html', 
-                    data=error_message)
+        except TypeError as e:
+            err_str = str(e)
+            msg = {"status": "failure",
+                       "msg": err_str }
+            return jsonify(msg)
 
-        except Exception as err:
-            abort(500, 'error: %s' % str(err))
+        except StateError as e:
+            err_str = str(e)
+            msg = {"status": "failure",
+                       "msg": err_str}
+            return jsonify(msg)
+
+        except NotFoundError as e:
+            err_str = str(e)
+            msg = {"status": "failure",
+                       "status code": 404,
+                       "msg": err_str}
+            return jsonify(msg)
+
+        except Exception as e:
+            err_str = str(e)
+            msg = {"status": "failure",
+                       "msg": err_str}
+            return jsonify(msg)
             
 #+END_SRC
 
 *** Test Cases
-**** TestAddInstitute 
+**** TestAddHostingInfo
  #+NAME: test_add_hostinginfo
  #+BEGIN_SRC python
 class TestAddHostingInfo(TestCase):
@@ -2462,14 +2485,37 @@ def add_integrationstatus():
             integrationstatus = SystemInterface.add_integrationstatus(data_dict)
             return jsonify(integrationstatus)
 
-        except TypeError as err:
-            error_message = 'Malformed arguments, error: %s' % str(err)
+        except NotAuthorizedError as e:
+            err_str = str(e)
+            msg = {"status": "failure",
+                    "status code": 401,
+                       "msg": err_str}
+            return jsonify(msg)
 
-            return render_template('error.html', 
-                    data=error_message)
+        except TypeError as e:
+            err_str = str(e)
+            msg = {"status": "failure",
+                       "msg": err_str }
+            return jsonify(msg)
 
-        except Exception as err:
-            abort(500, 'error: %s' % str(err))
+        except StateError as e:
+            err_str = str(e)
+            msg = {"status": "failure",
+                       "msg": err_str}
+            return jsonify(msg)
+
+        except NotFoundError as e:
+            err_str = str(e)
+            msg = {"status": "failure",
+                       "status code": 404,
+                       "msg": err_str}
+            return jsonify(msg)
+
+        except Exception as e:
+            err_str = str(e)
+            msg = {"status": "failure",
+                       "msg": err_str}
+            return jsonify(msg)
             
 #+END_SRC
 
@@ -2498,6 +2544,709 @@ class TestAddIntegrationStatus(TestCase):
         headers = {'Content-Type': 'application/json'}
 
         response = self.client.post("/integrationstatuss", data=json.dumps(payload),
+                                 headers=headers)
+
+        self.assertEqual(response.status_code, 200)
+
+ #+END_SRC
+   
+
+** Get Emails and Get Email
+*** API Design
+**** Get all Emails
+  :PROPERTIES:
+  :CUSTOM_ID: api_get_all_emails
+  :END:    
+  - URL :: /emails
+
+  - Method :: GET
+
+  - URL Params ::  None
+
+  - Payload :: 
+
+  - Success Response
+    + Status_Code: 200
+      + Contents :
+
+#+BEGIN_EXAMPLE
+[{"email": "dharamraj@gmail.com", "id": 1}]
+#+END_EXAMPLE	       
+
+    
+  - Error Response:
+    + Contents :
+                {"status" : "error"}
+    
+  - Example:
+#+BEGIN_EXAMPLE
+http://localhost:5000/emails
+#+END_EXAMPLE
+
+*** Implementation
+REST API to get all emails.
+#+NAME: get_email
+#+BEGIN_SRC python
+@api.route('/emails', methods=['GET'])
+def get_email():
+    if request.method == 'GET':
+       if 'email' in request.args:
+           email  = request.args['email']
+           try:
+               email = SystemInterface.get_email(email)
+               return jsonify(email)
+
+           except NotAuthorizedError as err:
+               error_message = 'Not Authorized error: %s' % str(err)
+               current_app.logger.error("%s" %(error_message))
+               return render_template('error.html',
+                                       data=error_message)
+           except TypeError as err:
+               error_message = 'Malformed arguments, error: %s' % str(err)
+               current_app.logger.error("%s" %(error_message))
+               return render_template('error.html',
+                                       data=error_message)
+           except Exception as err:
+               error_message = 'error: %s' % str(err)
+               current_app.logger.error("%s" %(error_message))
+               return render_template('error.html',
+                                        data=error_message)
+       else:
+           try:
+               emails = SystemInterface.get_emails()
+               return jsonify_list(emails)
+
+           except TypeError as err:
+               error_message = 'Malformed arguments, error: %s' % str(err)
+
+               return render_template('error.html',
+                                           data=error_message)
+
+           except Exception as err:
+               abort(500, 'error: %s' % str(err))
+            
+#+END_SRC
+
+*** Test Cases
+**** TestGetEmail
+ #+NAME: test_get_Email
+ #+BEGIN_SRC python
+class TestGetEmail(TestCase):
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_get_emails(self):
+        print "test_get_emails_in_rest"
+
+        payload = {'email': 'dharamraj@gmail.com',
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/emails", data=json.dumps(payload),
+                                 headers=headers)
+
+        response = self.client.get("/emails", headers=headers)
+        self.assertEqual(response.status_code, 200)
+
+ #+END_SRC
+   
+
+** Add Email
+*** API Design
+**** Add Email
+  :PROPERTIES:
+  :CUSTOM_ID: api_add_email
+  :END:    
+  - URL :: /emails
+
+  - Method :: POST
+
+  - URL Params ::  None
+
+  - Payload :: 
+#+BEGIN_EXAMPLE
+{
+"email": "dharamraj@gmail.com",
+"key": "<key>"
+}
+#+END_EXAMPLE	       
+
+  - Success Response
+    + Status_Code: 200
+    + Content: 
+#+BEGIN_EXAMPLE
+{
+  "id": 1, 
+  "email": "dharamraj@gmail.com"
+}
+
+#+END_EXAMPLE
+
+  - Error Response:
+    + Contents :
+                {"status" : "error"}
+    
+  - Example:
+#+BEGIN_EXAMPLE
+http://localhost:5000/emails
+#+END_EXAMPLE
+    
+*** Implementation
+REST API to add an email.
+#+NAME: add_email
+#+BEGIN_SRC python
+@api.route('/emails', methods=['POST'])
+def add_email():
+    if request.method == 'POST':
+        if request.is_json:
+            data_json = json.dumps(request.get_json())
+            data_dict = yaml.safe_load(data_json)
+        else:
+            abort(500, "the request does not contain data in json")
+
+        try:
+            email = SystemInterface.add_email(data_dict)
+            return jsonify(email)
+
+        except NotAuthorizedError as e:
+            err_str = str(e)
+            msg = {"status": "failure",
+                    "status code": 401,
+                       "msg": err_str}
+            return jsonify(msg)
+
+        except TypeError as e:
+            err_str = str(e)
+            msg = {"status": "failure",
+                       "msg": err_str }
+            return jsonify(msg)
+
+        except StateError as e:
+            err_str = str(e)
+            msg = {"status": "failure",
+                       "msg": err_str}
+            return jsonify(msg)
+
+        except NotFoundError as e:
+            err_str = str(e)
+            msg = {"status": "failure",
+                       "status code": 404,
+                       "msg": err_str}
+            return jsonify(msg)
+
+        except Exception as e:
+            err_str = str(e)
+            msg = {"status": "failure",
+                       "msg": err_str}
+            return jsonify(msg)
+            
+#+END_SRC
+
+*** Test Cases
+**** TestAddEmail
+ #+NAME: test_add_email
+ #+BEGIN_SRC python
+class TestAddEmail(TestCase):
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_add_email(self):
+        print "test_add_email_in_rest"
+        payload = {'email': 'dharamraj@gmail.com',
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/emails", data=json.dumps(payload),
+                                 headers=headers)
+
+        self.assertEqual(response.status_code, 200)
+
+ #+END_SRC
+   
+
+** Get Names and Get Name
+*** API Design
+**** Get all Names
+  :PROPERTIES:
+  :CUSTOM_ID: api_get_all_names
+  :END:    
+  - URL :: /names
+
+  - Method :: GET
+
+  - URL Params ::  None
+
+  - Payload :: 
+
+  - Success Response
+    + Status_Code: 200
+      + Contents :
+
+#+BEGIN_EXAMPLE
+[{"name": "Prof. Dharamraj", "id": 1}]
+#+END_EXAMPLE	       
+
+    
+  - Error Response:
+    + Contents :
+                {"status" : "error"}
+    
+  - Example:
+#+BEGIN_EXAMPLE
+http://localhost:5000/names
+#+END_EXAMPLE
+
+*** Implementation
+REST API to get all names.
+#+NAME: get_name
+#+BEGIN_SRC python
+@api.route('/names', methods=['GET'])
+def get_name():
+    if request.method == 'GET':
+       if 'name' in request.args:
+           name  = request.args['name']
+           try:
+               name = SystemInterface.get_name(name)
+               return jsonify(name)
+
+           except NotAuthorizedError as err:
+               error_message = 'Not Authorized error: %s' % str(err)
+               current_app.logger.error("%s" %(error_message))
+               return render_template('error.html',
+                                       data=error_message)
+           except TypeError as err:
+               error_message = 'Malformed arguments, error: %s' % str(err)
+               current_app.logger.error("%s" %(error_message))
+               return render_template('error.html',
+                                       data=error_message)
+           except Exception as err:
+               error_message = 'error: %s' % str(err)
+               current_app.logger.error("%s" %(error_message))
+               return render_template('error.html',
+                                        data=error_message)
+       else:
+           try:
+               names = SystemInterface.get_names()
+               return jsonify_list(names)
+
+           except TypeError as err:
+               error_message = 'Malformed arguments, error: %s' % str(err)
+
+               return render_template('error.html',
+                                           data=error_message)
+
+           except Exception as err:
+               abort(500, 'error: %s' % str(err))
+            
+#+END_SRC
+
+*** Test Cases
+**** TestGetName
+ #+NAME: test_get_Name
+ #+BEGIN_SRC python
+class TestGetName(TestCase):
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_get_names(self):
+        print "test_get_names_in_rest"
+
+        payload = {'name': 'Prof. Dharamraj',
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/names", data=json.dumps(payload),
+                                 headers=headers)
+
+        response = self.client.get("/names", headers=headers)
+        self.assertEqual(response.status_code, 200)
+
+ #+END_SRC
+   
+
+** Add Name
+*** API Design
+**** Add Name
+  :PROPERTIES:
+  :CUSTOM_ID: api_add_name
+  :END:    
+  - URL :: /names
+
+  - Method :: POST
+
+  - URL Params ::  None
+
+  - Payload :: 
+#+BEGIN_EXAMPLE
+{
+"name": "Prof. Dharamraj",
+"key": "<key>"
+}
+#+END_EXAMPLE	       
+
+  - Success Response
+    + Status_Code: 200
+    + Content: 
+#+BEGIN_EXAMPLE
+{
+  "id": 1, 
+  "name": "Prof. Dharamraj"
+}
+
+#+END_EXAMPLE
+
+  - Error Response:
+    + Contents :
+                {"status" : "error"}
+    
+  - Example:
+#+BEGIN_EXAMPLE
+http://localhost:5000/names
+#+END_EXAMPLE
+    
+*** Implementation
+REST API to add an name.
+#+NAME: add_name
+#+BEGIN_SRC python
+@api.route('/names', methods=['POST'])
+def add_name():
+    if request.method == 'POST':
+        if request.is_json:
+            data_json = json.dumps(request.get_json())
+            data_dict = yaml.safe_load(data_json)
+        else:
+            abort(500, "the request does not contain data in json")
+
+        try:
+            name = SystemInterface.add_name(data_dict)
+            return jsonify(name)
+
+        except NotAuthorizedError as e:
+            err_str = str(e)
+            msg = {"status": "failure",
+                    "status code": 401,
+                       "msg": err_str}
+            return jsonify(msg)
+
+        except TypeError as e:
+            err_str = str(e)
+            msg = {"status": "failure",
+                       "msg": err_str }
+            return jsonify(msg)
+
+        except StateError as e:
+            err_str = str(e)
+            msg = {"status": "failure",
+                       "msg": err_str}
+            return jsonify(msg)
+
+        except NotFoundError as e:
+            err_str = str(e)
+            msg = {"status": "failure",
+                       "status code": 404,
+                       "msg": err_str}
+            return jsonify(msg)
+
+        except Exception as e:
+            err_str = str(e)
+            msg = {"status": "failure",
+                       "msg": err_str}
+            return jsonify(msg)
+            
+#+END_SRC
+
+*** Test Cases
+**** TestAddName
+ #+NAME: test_add_name
+ #+BEGIN_SRC python
+class TestAddName(TestCase):
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_add_name(self):
+        print "test_add_name_in_rest"
+        payload = {'name': 'Prof. Dharamraj',
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/names", data=json.dumps(payload),
+                                 headers=headers)
+
+        self.assertEqual(response.status_code, 200)
+
+ #+END_SRC
+   
+
+** Get Developers and Get Developer
+*** API Design
+**** Get all Developers
+  :PROPERTIES:
+  :CUSTOM_ID: api_get_all_developers
+  :END:    
+  - URL :: /developers
+
+  - Method :: GET
+
+  - URL Params ::  None
+
+  - Payload ::
+
+  - Success Response
+    + Status_Code: 200
+      + Contents :
+
+#+BEGIN_EXAMPLE
+[{"id": 1, "dev_name": "Prof. Dharamraj", "email_id": "dharamraj@gmail.com"}]
+#+END_EXAMPLE	       
+
+    
+  - Error Response:
+    + Contents :
+                {"status" : "error"}
+    
+  - Example:
+#+BEGIN_EXAMPLE
+http://localhost:5000/developers
+#+END_EXAMPLE
+
+*** Implementation
+REST API to get all developers.
+#+NAME: get_developer
+#+BEGIN_SRC python
+@api.route('/developers', methods=['GET'])
+def get_developer():
+    if request.method == 'GET':
+       if 'email_id' in request.args:
+           email_id  = request.args['email_id']
+           try:
+               developer = SystemInterface.get_developer(email_id)
+               return jsonify(developer)
+
+           except NotAuthorizedError as err:
+               error_message = 'Not Authorized error: %s' % str(err)
+               current_app.logger.error("%s" %(error_message))
+               return render_template('error.html',
+                                       data=error_message)
+           except TypeError as err:
+               error_message = 'Malformed arguments, error: %s' % str(err)
+               current_app.logger.error("%s" %(error_message))
+               return render_template('error.html',
+                                       data=error_message)
+           except Exception as err:
+               error_message = 'error: %s' % str(err)
+               current_app.logger.error("%s" %(error_message))
+               return render_template('error.html',
+                                        data=error_message)
+       else:
+           try:
+               developers = SystemInterface.get_developers()
+               return jsonify_list(developers)
+
+           except TypeError as err:
+               error_message = 'Malformed arguments, error: %s' % str(err)
+
+               return render_template('error.html',
+                                           data=error_message)
+
+           except Exception as err:
+               abort(500, 'error: %s' % str(err))
+            
+#+END_SRC
+
+*** Test Cases
+**** TestGetDeveloper
+ #+NAME: test_get_Developer
+ #+BEGIN_SRC python
+class TestGetDeveloper(TestCase):
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_get_developers(self):
+        print "test_get_developers_in_rest"
+
+        payload = {'dev_name': 'Prof. Dharamraj',
+                   'email_id': 'dharamraj@gmail.com',
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/developers", data=json.dumps(payload),
+                                 headers=headers)
+
+        response = self.client.get("/developers", headers=headers)
+        self.assertEqual(response.status_code, 200)
+
+ #+END_SRC
+   
+
+** Add Developer
+*** API Design
+**** Add Developer
+  :PROPERTIES:
+  :CUSTOM_ID: api_add_developer
+  :END:    
+  - URL :: /developers
+
+  - Method :: POST
+
+  - URL Params ::  None
+
+  - Payload :: 
+#+BEGIN_EXAMPLE
+{
+"dev_name": "Prof. Dharamraj",
+"email_id": "dharamraj@gmail.com",
+"key": "<key>"
+}
+#+END_EXAMPLE	       
+
+  - Success Response
+    + Status_Code: 200
+    + Content: 
+#+BEGIN_EXAMPLE
+{
+  "id": 1,
+  "dev_name": "Prof. Dharamraj",
+  "email_id": "dharamraj@gmail.com"
+}
+
+#+END_EXAMPLE
+
+  - Error Response:
+    + Contents :
+                {"status" : "error"}
+    
+  - Example:
+#+BEGIN_EXAMPLE
+http://localhost:5000/developers
+#+END_EXAMPLE
+    
+*** Implementation
+REST API to add an developer.
+#+NAME: add_developer
+#+BEGIN_SRC python
+@api.route('/developers', methods=['POST'])
+def add_developer():
+    if request.method == 'POST':
+        if request.is_json:
+            data_json = json.dumps(request.get_json())
+            data_dict = yaml.safe_load(data_json)
+        else:
+            abort(500, "the request does not contain data in json")
+
+        try:
+            developer = SystemInterface.add_developer(data_dict)
+            return jsonify(developer)
+
+        except NotAuthorizedError as e:
+            err_str = str(e)
+            msg = {"status": "failure",
+                    "status code": 401,
+                       "msg": err_str}
+            return jsonify(msg)
+
+        except TypeError as e:
+            err_str = str(e)
+            msg = {"status": "failure",
+                       "msg": err_str }
+            return jsonify(msg)
+
+        except StateError as e:
+            err_str = str(e)
+            msg = {"status": "failure",
+                       "msg": err_str}
+            return jsonify(msg)
+
+        except NotFoundError as e:
+            err_str = str(e)
+            msg = {"status": "failure",
+                       "status code": 404,
+                       "msg": err_str}
+            return jsonify(msg)
+
+        except Exception as e:
+            err_str = str(e)
+            msg = {"status": "failure",
+                       "msg": err_str}
+            return jsonify(msg)
+            
+#+END_SRC
+
+*** Test Cases
+**** TestAddDeveloper
+ #+NAME: test_add_developer
+ #+BEGIN_SRC python
+class TestAddDeveloper(TestCase):
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_add_developer(self):
+        print "test_add_developer_in_rest"
+        payload = {'dev_name': 'Prof. Dharamraj',
+                   'email_id': 'dharamraj@gmail.com',
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/developers", data=json.dumps(payload),
                                  headers=headers)
 
         self.assertEqual(response.status_code, 200)
@@ -3768,6 +4517,144 @@ class TestUpdateHostingInfo(TestCase):
  #+END_SRC
    
 
+** Update Developer
+*** API Design
+**** Update developers by email_id
+  :PROPERTIES:
+  :CUSTOM_ID: api_update_developers_by_email_id
+  :END:    
+  - URL :: /developers?email_id=<email_id>
+
+  - Method :: PUT
+
+  - URL Params ::  None
+
+  - Payload :: 
+#+BEGIN_EXAMPLE
+{
+  "dev_name": "Prof. Dharamraj",
+  "email_id": "dharamraj@gmail.com",
+  "key": "<key>"
+}
+
+#+END_EXAMPLE
+  - Success Response
+    + Status_Code: 200
+      + Contents :
+#+BEGIN_EXAMPLE
+{
+  "id": 1, 
+  "dev_name": "Prof. Dharamraj",
+  "email_id": "dharamraj@gmail.com",
+}
+
+#+END_EXAMPLE
+
+    
+  - Error Response:
+    + Contents :
+                {"status" : "error"}
+    
+  - Example:
+#+BEGIN_EXAMPLE
+    http://localhost:5000/developers?email_id=dharamraj@gmail.com
+#+END_EXAMPLE
+
+*** Implementation
+#+NAME: update_developer
+#+BEGIN_SRC python
+@api.route('/developers', methods=['PUT'])
+def update_developer():
+    if request.method == 'PUT':
+        if request.is_json:
+            data_json = json.dumps(request.get_json())
+            data_dict = yaml.safe_load(data_json)
+        else:
+            abort(500, "the request does not contain data in json")
+
+        if 'email' in request.args:
+            data_dict['email']  = request.args['email']
+        else:
+            abort(500, "Please provide the 'email' to update the developer")
+        
+        try:
+            developer = SystemInterface.update_developer(data_dict)
+            return jsonify(developer)
+
+        except NotAuthorizedError as e:
+            err_str = str(e)
+            msg = {"status": "failure",
+                    "status code": 401,
+                       "msg": err_str}
+            return jsonify(msg)
+
+        except TypeError as e:
+            err_str = str(e)
+            msg = {"status": "failure",
+                       "msg": err_str }
+            return jsonify(msg)
+
+        except StateError as e:
+            err_str = str(e)
+            msg = {"status": "failure",
+                       "msg": err_str}
+            return jsonify(msg)
+
+        except NotFoundError as e:
+            err_str = str(e)
+            msg = {"status": "failure",
+                       "status code": 404,
+                       "msg": err_str}
+            return jsonify(msg)
+
+        except Exception as e:
+            err_str = str(e)
+            msg = {"status": "failure",
+                       "msg": err_str}
+            return jsonify(msg)
+
+#+END_SRC
+
+*** Test Cases
+**** TestUpdateDeveloper 
+ #+NAME: test_update_developer
+ #+BEGIN_SRC python
+class TestUpdateDeveloper(TestCase):
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_update_developer(self):
+        print "test_update_developer"
+
+        payload = {'dev_name': 'Prof.Dharamraj',
+                   'email_id': 'dharamraj@gmail.com',
+                   'key': KEY}
+
+        payload1 = {'name': 'Prof.Raj', 'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/developers", data=json.dumps(payload),
+                                 headers=headers)
+
+        response = self.client.put("/developers?email=dharamraj@gmail.com",
+                                       data=json.dumps(payload1),
+                                    headers=headers)
+
+        self.assertEqual(response.status_code, 200)
+
+ #+END_SRC
+   
+
 ** Delete HostingInfo
 *** API Design
 **** Delete hostinginfo by hosted_url
@@ -3956,6 +4843,333 @@ class TestDeleteIntegrationStatus(TestCase):
  #+END_SRC
    
 
+** Delete Email
+*** API Design
+**** Delete email
+  :PROPERTIES:
+  :CUSTOM_ID: delete_email_by_email
+  :END:    
+  - URL :: /emails?<email>&key=<key>
+
+  - Method :: DELETE
+
+  - URL Params ::  None
+
+  - Payload :: 
+
+  - Success Response
+    + Status_Code: 200
+      + Contents :
+#+BEGIN_EXAMPLE
+{
+  "status": "sucess"
+}
+
+#+END_EXAMPLE
+    
+  - Error Response:
+    + Contents :
+                {"status" : "error"}
+    
+  - Example:
+#+BEGIN_EXAMPLE
+    http://localhost:5000/emails?email=dharamraj@gmail.com&key=<key>
+#+END_EXAMPLE
+
+*** Implementation
+#+NAME: delete_email
+#+BEGIN_SRC python
+@api.route('/emails', methods=['DELETE'])
+def delete_email():
+    if request.method == 'DELETE':
+        if 'email' in request.args and 'key' in request.args:
+            email  = request.args['email']
+            key = request.args['key']
+
+            try:
+                email = SystemInterface.delete_email(email, key)
+                return jsonify({"status":"sucess"})
+            except NotAuthorizedError as e:
+                err_str = str(e)
+                msg = {"status": "failure",
+                        "status code": 401,
+                       "msg": err_str}
+                return jsonify(msg)
+
+            except TypeError as e:
+                err_str = str(e)
+                msg = {"status": "failure",
+                       "msg": err_str }
+                return jsonify(msg)
+
+            except StateError as e:
+                err_str = str(e)
+                msg = {"status": "failure",
+                       "msg": err_str}
+                return jsonify(msg)
+
+            except NotFoundError as e:
+                err_str = str(e)
+                msg = {"status": "failure",
+                       "status code": 404,
+                       "msg": err_str}
+                return jsonify(msg)
+
+            except Exception as e:
+                err_str = str(e)
+                msg = {"status": "failure",
+                       "msg": err_str}
+                return jsonify(msg)
+
+#+END_SRC
+
+*** Test Cases
+**** TestDeleteEmail
+ #+NAME: test_delete_email
+ #+BEGIN_SRC python
+class TestDeleteEmail(TestCase):
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_delete_email(self):
+        print "test_delete_email"
+
+        payload = {'email': 'dharamraj@gmail.com',
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/emails", data=json.dumps(payload),
+                                 headers=headers)
+
+        response = self.client.delete("/emails?email=dharamraj@gmail.com&key=defaultkey",
+                                          headers=headers)
+
+        self.assertEqual(response.status_code, 200)
+
+ #+END_SRC
+   
+
+** Delete Name
+*** API Design
+**** Delete name
+  :PROPERTIES:
+  :CUSTOM_ID: delete_name_by_name
+  :END:    
+  - URL :: /names?<name>&key=<key>
+
+  - Method :: DELETE
+
+  - URL Params ::  None
+
+  - Payload :: 
+
+  - Success Response
+    + Status_Code: 200
+      + Contents :
+#+BEGIN_EXAMPLE
+{
+  "status": "sucess"
+}
+
+#+END_EXAMPLE
+    
+  - Error Response:
+    + Contents :
+                {"status" : "error"}
+    
+  - Example:
+#+BEGIN_EXAMPLE
+    http://localhost:5000/names?name=prof.dharamraj&key=<key>
+#+END_EXAMPLE
+
+*** Implementation
+#+NAME: delete_name
+#+BEGIN_SRC python
+@api.route('/names', methods=['DELETE'])
+def delete_name():
+    if request.method == 'DELETE':
+        if 'name' in request.args and 'key' in request.args:
+            name  = request.args['name']
+            key = request.args['key']
+
+            try:
+                name = SystemInterface.delete_name(name, key)
+                return jsonify({"status":"sucess"})
+
+            except TypeError as err:
+                error_message = 'Malformed arguments, error: %s' % str(err)
+
+                return render_template('error.html', data=error_message)
+
+            except Exception as err:
+                abort(500, 'error: %s' % str(err))
+
+#+END_SRC
+
+*** Test Cases
+**** TestDeleteName
+ #+NAME: test_delete_name
+ #+BEGIN_SRC python
+class TestDeleteName(TestCase):
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_delete_name(self):
+        print "test_delete_name"
+
+        payload = {'name': 'prof.dharamraj',
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/names", data=json.dumps(payload),
+                                 headers=headers)
+
+        response = self.client.delete("/names?name=prof.dharamraj&key=defaultkey",
+                                          headers=headers)
+
+        self.assertEqual(response.status_code, 200)
+
+ #+END_SRC
+   
+ 
+** Delete Developer
+*** API Design
+**** Delete developer
+  :PROPERTIES:
+  :CUSTOM_ID: delete_developer_by_email_id
+  :END:    
+  - URL :: /developers?<email_id>&key=<key>
+
+  - Method :: DELETE
+
+  - URL Params ::  None
+
+  - Payload :: 
+
+  - Success Response
+    + Status_Code: 200
+      + Contents :
+#+BEGIN_EXAMPLE
+{
+  "status": "sucess"
+}
+
+#+END_EXAMPLE
+    
+  - Error Response:
+    + Contents :
+                {"status" : "error"}
+    
+  - Example:
+#+BEGIN_EXAMPLE
+    http://localhost:5000/developers?email_id=dharamraj@gmail.com&key=<key>
+#+END_EXAMPLE
+
+*** Implementation
+#+NAME: delete_developer
+#+BEGIN_SRC python
+@api.route('/developers', methods=['DELETE'])
+def delete_developer():
+    if request.method == 'DELETE':
+        if 'email' in request.args and 'key' in request.args:
+            email  = request.args['email']
+            key = request.args['key']
+
+            try:
+                developer = SystemInterface.delete_developer(email, key)
+                return jsonify({"status":"sucess"})
+
+            except NotAuthorizedError as e:
+                err_str = str(e)
+                msg = {"status": "failure",
+                        "status code": 401,
+                       "msg": err_str}
+                return jsonify(msg)
+
+            except TypeError as e:
+                err_str = str(e)
+                msg = {"status": "failure",
+                       "msg": err_str }
+                return jsonify(msg)
+
+            except StateError as e:
+                err_str = str(e)
+                msg = {"status": "failure",
+                       "msg": err_str}
+                return jsonify(msg)
+
+            except NotFoundError as e:
+                err_str = str(e)
+                msg = {"status": "failure",
+                       "status code": 404,
+                       "msg": err_str}
+                return jsonify(msg)
+
+            except Exception as e:
+                err_str = str(e)
+                msg = {"status": "failure",
+                       "msg": err_str}
+                return jsonify(msg)
+
+#+END_SRC
+
+*** Test Cases
+**** TestDeleteDeveloper
+ #+NAME: test_delete_developer
+ #+BEGIN_SRC python
+class TestDeleteDeveloper(TestCase):
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_delete_developer(self):
+        print "test_delete_developer"
+
+        payload = {'dev_name': 'Prof. Dharamraj',
+                   'email_id': 'dharamraj@gmail.com',
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/developers", data=json.dumps(payload),
+                                 headers=headers)
+
+        response = self.client.delete("/emails?email=dharamraj@gmail.com&key=defaultkey",
+                                          headers=headers)
+
+        self.assertEqual(response.status_code, 200)
+
+ #+END_SRC
+   
+
 * Infra                                                         :boilerplate:
 
 ** sources
@@ -4039,6 +5253,17 @@ if __name__ == '__main__':
 <<get_integrationstatus>>
 <<add_integrationstatus>>
 <<delete_integrationstatus>>
+<<delete_email>>
+<<get_email>>
+<<add_email>>
+<<get_name>>
+<<add_name>>
+<<delete_name>>
+<<get_developer>>
+<<add_developer>>
+<<delete_developer>>
+<<update_developer>>
+
 #+END_SRC
 
 
@@ -4090,5 +5315,8 @@ if __name__ == '__main__':
 <<test_get_IntegrationStatus>>
 <<test_add_integrationstatus>>
 <<test_delete_integrationstatus>>
+<<test_get_Developer>>
+<<test_add_developer>>
+<<test_delete_developer>>
 <<run_test_cases>>
 #+end_src
