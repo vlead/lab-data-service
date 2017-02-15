@@ -24,10 +24,7 @@ lab_experiments = db.Table('lab_experiments',
                      
 #+END_SRC
 
-<<<<<<< HEAD
 
-=======
->>>>>>> 172a7026ec84d939c573bfbc294904c7e0a0ad8b
 #+NAME: class_Lab
 #+begin_src python
 args = {"__tablename__": "lab",
@@ -46,8 +43,6 @@ args = {"__tablename__": "lab",
         "discipline_id": db.Column(db.Integer, db.ForeignKey('discipline.id'), 
                                       unique=False, nullable=False),
         "integrationstatus_id": db.Column(db.Integer, db.ForeignKey('integrationstatus.id'),
-                                      unique=False, nullable=False)
-        "asset_id": db.Column(db.Integer, db.ForeignKey('asset.id'),
                                       unique=False, nullable=False)
         }
 
@@ -93,16 +88,9 @@ class TestPersistentLab(TestCase):
         discipline = Discipline(dis_name=dis_name, dis_id=dis_id)
         discipline.save()
 
-<<<<<<< HEAD
         integration_level = 4
         intstatus = IntegrationStatus(integration_level=integration_level)
         intstatus.save()
-=======
-        asset_type = "Image"
-        path = "vlabs.ac.in/images/static/icon.png"
-        asset = Asset(asset_type=asset_type, path=path)
-        asset.save()
->>>>>>> 172a7026ec84d939c573bfbc294904c7e0a0ad8b
 
         lab_name1="Computer Programming"
         lab_id1="CSE01"
@@ -110,11 +98,7 @@ class TestPersistentLab(TestCase):
         " and ques..etc"
         lab1 = Lab(lab_name=lab_name1, lab_id=lab_id1, overview=overview1,
                        experiments=[experiment], institute=inst,
-<<<<<<< HEAD
                        discipline=discipline, integrationstatus=intstatus)
-=======
-                       discipline=discipline, asset=asset)
->>>>>>> 172a7026ec84d939c573bfbc294904c7e0a0ad8b
         lab1.save()
         
         lab_name2="Data Structures"
@@ -122,12 +106,8 @@ class TestPersistentLab(TestCase):
         overview2 = "This is data structures lab which deals about"
         "array,stack and ques..etc"
         lab2 = Lab(lab_name=lab_name2, lab_id=lab_id2, overview=overview2,
-<<<<<<< HEAD
                        experiments=[], institute=inst, discipline=discipline, 
                        integrationstatus=intstatus)
-=======
-                       experiments=[], institute=inst, discipline=discipline, asset=asset)
->>>>>>> 172a7026ec84d939c573bfbc294904c7e0a0ad8b
         lab2.save()
 
         lab1 = Lab.get_by_id(1)
@@ -141,8 +121,6 @@ class TestPersistentLab(TestCase):
                              inst.get("inst_name"))
         self.assertEqual(lab1.get("discipline").get("dis_name"), 
                              discipline.get("dis_name"))
-        self.assertEqual(lab1.get("asset").get("asset_type"), 
-                             asset.get("asset_type"))
 
         self.assertEqual(lab1.get("experiments")[0].get("exp_name"), 
                              experiment.get("exp_name"))
@@ -156,8 +134,6 @@ class TestPersistentLab(TestCase):
                              inst.get("inst_name"))
         self.assertEqual(lab2.get("discipline").get("dis_name"), 
                              discipline.get("dis_name"))
-        self.assertEqual(lab2.get("asset").get("asset_type"), 
-                             asset.get("asset_type"))
         self.assertEqual(lab2.get("experiments"), [])
         self.assertEqual(lab2.get("integrationstatus").get("integration_level"), 
                              intstatus.get("integration_level"))
@@ -593,7 +569,7 @@ args = {"__tablename__": "asset",
         "id": db.Column(db.Integer, primary_key=True),
         "asset_type": db.Column(db.String(255), unique=False, nullable=True),
         "path": db.Column(db.String(255), unique=True, nullable=False)
-        "labs": db.relationship('Lab', backref=db.backref('asset'))
+        
        }
 
 Asset = ClassPersistenceTemplate.mk_persistent(Asset, ['path'], **args)
@@ -700,7 +676,9 @@ import unittest
 from flask_testing import TestCase
 from sqlalchemy.exc import IntegrityError
 from runtime.persistence.entities import *
-#from flask import create_app
+#from flask <
+
+import create_app
 from runtime.rest.app import create_app
 
 config = {
