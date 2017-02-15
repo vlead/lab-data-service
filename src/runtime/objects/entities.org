@@ -203,7 +203,7 @@ Lab.add_attributes(lab_name=is_str,
                     overview=is_str,
                     institute=is_institute,
                     discipline=is_discipline,
-                    asset=is_asset,
+                    assets=are_assets,
                     integrationstatus=is_integrationstatus,
                     experiments=are_experiments)
 
@@ -214,7 +214,7 @@ Lab.__eq__ = lambda self, other: \
                   self.get("overview") == other.get("overview") and \
                   self.get("institute") == other.get("institute") and \
                   self.get("discipline") == other.get("discipline") and \
-                  self.get("asset") == other.get("asset") and \
+                  self.get("assets") == other.get("assets") and \
                   self.get("integrationstatus") == other.get("integrationstatus") and \
                   self.get("experiments") == other.get("experiments")
 
@@ -254,7 +254,7 @@ class TestLab(TestCase):
         overview = "This is data structures lab which deals about array,stack"
         "and ques..etc"
         lab = Lab(lab_name=lab_name, lab_id=lab_id, overview=overview,
-                      institute=inst, discipline=discipline, asset=asset,
+                      institute=inst, discipline=discipline, assets=[asset],
                       integrationstatus=integrationstatus,
                       experiments=[experiment])
 
@@ -263,7 +263,7 @@ class TestLab(TestCase):
         self.assertEqual(lab.get("overview"), overview)
         self.assertEqual(lab.get("institute").get("inst_name"), 
                              inst.get("inst_name"))
-        self.assertEqual(lab.get("asset").get("asset_type"), 
+        self.assertEqual(lab.get("assets")[0].get("asset_type"), 
                              asset.get("asset_type"))
         self.assertEqual(lab.get("integrationstatus").get("integration_level"), 
                              integrationstatus.get("integration_level"))
