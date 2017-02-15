@@ -564,7 +564,7 @@ class TestAddHostingInfo(TestCase):
         name_cls = System.delegate.entities['name']
 
         session = session_cls(key=data_dict['key'])
-        name = name_cls(name=data_dict['name'])
+        name = name_cls(name=str(data_dict['name']))
         try:
             current_app.logger.debug("running operation add_section")
             question = System.do("add_name", name=name, session=session)
@@ -628,7 +628,7 @@ class TestAddName(TestCase):
         email_cls = System.delegate.entities['email']
 
         session = session_cls(key=data_dict['key'])
-        email = email_cls(email=data_dict['email'])
+        email = email_cls(email=str(data_dict['email']))
         try:
             current_app.logger.debug("running operation add_email")
             question = System.do("add_email", email=email, session=session)
@@ -757,12 +757,10 @@ class TestGetEmails(TestCase):
 
         session = session_cls(key=data_dict['key'])
         name = name_cls(name=str(data_dict['name']))
-        name.save()
-#        name=SystemInterface.add_name(data_dict['name'], data_dict['key'])
-        email = email_cls(email=data_dict['email'])
-        email.save()
-#        email=SystemInterface.add_email(data_dict['email'], data_dict['key'])
+        email = email_cls(email=str(data_dict['email']))
+
         developer = developer_cls(name=name, email=email)
+
         try:
             current_app.logger.debug("running operation add_developer")
             developer = System.do("add_developer", developer=developer,
@@ -806,6 +804,7 @@ class TestAddDeveloper(TestCase):
                    }
 
         developer = SystemInterface.add_developer(data_dict)
+
         self.assertEqual(developer.get("name").get("name"),
                              data_dict['name'])
         self.assertEqual(developer.get("email").get("email"),
@@ -1086,6 +1085,107 @@ class TestGetLabsByInstitute(TestCase):
         labs = SystemInterface.get_labs_by_institute("IIT Kanpur")
 
         self.assertEqual(labs[0]['institute']['inst_name'], "IIT Kanpur")
+
+ #+END_SRC
+
+** Get Labs by Discipline
+#+NAME: class_get_labs_by_discipline
+#+begin_src python
+    @staticmethod
+    def get_labs_by_discipline(dis_name):
+        discipline = System.do("get_discipline_by_discipline_name",
+                                  dis_name=str(dis_name))
+        try:
+            current_app.logger.debug("running operation get_labs_by_discipline")
+            labs = System.do("get_labs_by_discipline", discipline=discipline)
+            current_app.logger.debug("completed operation get_labs_by_institute")
+            labs_dict_list = []
+            for lab in labs:
+                lab_x = lab.to_client()
+                labs_dict_list.append(lab_x)
+            current_app.logger.debug("got labs")
+            return  labs_dict_list
+
+        except (ArityError, TypeError, NotAuthorizedError, StateError) as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+
+        except Exception as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+#+end_src
+
+*** TestGetLabsByDiscipline
+ #+NAME: test_class_get_labs_by_discipline
+ #+BEGIN_SRC python
+class TestGetLabsByDiscipline(TestCase):
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_get_labs_by_discipline_in_system_interface(self):
+        print "test_get_labs_by_discipline_in_system_interface"
+
+        data_dict = {
+                    'key' : KEY,
+                    'exp_name': 'arrays',
+                    'exp_id': 'exp123',
+                    'overview' : 'overview', 
+                    'sections' : []
+                   }
+
+        experiment = SystemInterface.add_experiment(data_dict)
+
+        data_dict = {
+                    'key' : KEY,
+                    'inst_name': 'IIT Kanpur',
+                    'inst_id': 'IITK'
+                    }
+
+        institute = SystemInterface.add_institute(data_dict)
+
+        data_dict = {
+                    'key' : KEY,
+                    'dis_name': 'Computer Science',
+                    'dis_id': 'CSE'
+                   }
+
+        discipline = SystemInterface.add_discipline(data_dict)
+
+        data_dict = {
+                    'key' : KEY,
+                    'lab_name': 'Data Structures',
+                    'lab_id': 'cse01',
+                    'overview' : 'overview',
+                    'inst_id': 'IITK',
+                    'dis_id': 'CSE',
+                    'experiments': ['exp123']
+                   }
+
+        data_dict1 = {
+                    'key' : KEY,
+                    'lab_name': 'Computer Programming',
+                    'lab_id': 'cse02',
+                    'overview' : 'overview',
+                    'inst_id': 'IITK',
+                    'dis_id': 'CSE',
+                    'experiments': ['exp123']
+                   }
+
+        lab = SystemInterface.add_lab(data_dict)
+        lab1 = SystemInterface.add_lab(data_dict1)
+
+        labs = SystemInterface.get_labs_by_discipline("Computer Science")
+
+        self.assertEqual(labs[0]['discipline']['dis_name'], "Computer Science")
 
  #+END_SRC
 
@@ -2698,7 +2798,7 @@ class TestUpdateHostingInfo(TestCase):
         email_cls = System.delegate.entities['email']
         developer_cls = System.delegate.entities['developer']
 
-        session = session_cls(key=data_dict['key'])
+        session = session_cls(key=str(data_dict['key']))
         email = email_cls(email=data_dict['email'])
         developer = System.do("get_developer", email=email)
 
@@ -2713,7 +2813,7 @@ class TestUpdateHostingInfo(TestCase):
                                       developer=developer,
                                       session=session)
             current_app.logger.debug("completed operation update_developer")
-            return developer.to_client()
+            return developer
 
         except (ArityError, TypeError, NotAuthorizedError, StateError) as err:
             current_app.logger.error("Exception = %s" % str(err))
@@ -3167,12 +3267,12 @@ class TestDeleteHostingInfo(TestCase):
 #+NAME: class_delete_name
 #+begin_src python
     @staticmethod
-    def delete_name(data_dict):
+    def delete_name(name, key):
         session_cls = System.delegate.entities['session']
         name_cls = System.delegate.entities['name']
 
-        session = session_cls(key=str(data_dict['key']))
-        name = name_cls(name=str(data_dict['name']))
+        session = session_cls(key=str(key))
+        name = name_cls(name=str(name))
         try:
             current_app.logger.debug("running operation delete_name")
             name = System.do("delete_name", name=name, session=session)
@@ -3218,7 +3318,8 @@ class TestDeleteName(TestCase):
 
         name = SystemInterface.add_name(data_dict)
         name1 = SystemInterface.add_name(data_dict1)
-        name_id = SystemInterface.delete_name(data_dict1)
+        name_id = SystemInterface.delete_name(data_dict1['name'],
+                                                  data_dict1['key'])
 
         self.assertEqual(name_id.get("name"), data_dict1["name"])
 
@@ -3290,12 +3391,12 @@ class TestDeleteEmail(TestCase):
 #+NAME: class_delete_developer
 #+begin_src python
     @staticmethod
-    def delete_developer(email_id, key):
+    def delete_developer(email, key):
         session_cls = System.delegate.entities['session']
         email_cls = System.delegate.entities['email']
 
         session = session_cls(key=str(key))
-        email = email_cls(email=email_id)
+        email = email_cls(email=email)
 
         try:
             current_app.logger.debug("running operation delete_developer")
@@ -4002,6 +4103,7 @@ if __name__ == '__main__':
 <<class_get_experiment_by_id>>
 <<class_get_discipline_by_id>>
 
+
 <<class_delete_lab>>
 <<class_delete_discipline>>
 <<class_delete_institute>>
@@ -4031,6 +4133,7 @@ if __name__ == '__main__':
 <<class_get_discipline_by_dis_id>>
 <<class_get_labs_by_institute>>
 <<class_get_labs_by_lab_name>>
+<<class_get_labs_by_discipline>>
 
 <<class_get_sections>>
 <<class_update_developer>>
@@ -4094,6 +4197,7 @@ if __name__ == '__main__':
 <<test_class_get_lab_by_labid>>
 <<test_class_get_labs_by_institute>>
 <<test_class_get_labs_by_lab_name>>
+<<test_class_get_labs_by_discipline>>
 
 <<test_class_update_developer>>
 <<test_class_get_names>>

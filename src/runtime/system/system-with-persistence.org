@@ -1264,8 +1264,8 @@ class TestGetLabByInstitute(TestCase):
         inst = institute_cls(inst_name=inst_name, inst_id=inst_id)
         inst.save()
 
-        dis_name = "IIT Kanpur"
-        dis_id = "IITK"
+        dis_name = "Computer Science"
+        dis_id = "CS"
         discipline = discipline_cls(dis_name=dis_name, dis_id=dis_id)
         discipline.save()
 
@@ -1277,8 +1277,60 @@ class TestGetLabByInstitute(TestCase):
 
         labs = System.do("get_labs_by_institute", institute=inst)
 
-        self.assertEqual(labs[0].get("lab_name"), lab_name1)
-        self.assertEqual(labs[0].get("lab_id"), lab_id1)
+        self.assertEqual(labs[0].get("institute").get("inst_name"), inst_name)
+            
+#+END_SRC
+
+
+
+
+* Test GetLabsByDiscipline
+#+NAME: test_get_labs_by_discipline
+#+BEGIN_SRC python
+class TestGetLabByDiscipline(TestCase):
+    TESTING = True
+
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_get_labs_by_discipline(self):
+
+        print "test_get_labs_by_discipline_in_system_persistence"
+        lab_cls = System.delegate.entities['lab']
+        institute_cls = System.delegate.entities['institute']
+        discipline_cls = System.delegate.entities['discipline']
+
+        lab_name1="Computer Programming"
+        lab_id1="CSE01"
+        overview = "overview"
+
+        inst_name = "IIT Kanpur"
+        inst_id = "IITK"
+        inst = institute_cls(inst_name=inst_name, inst_id=inst_id)
+        inst.save()
+
+        dis_name = "Computer Science"
+        dis_id = "CS"
+        discipline = discipline_cls(dis_name=dis_name, dis_id=dis_id)
+        discipline.save()
+
+        lab = lab_cls(lab_id=lab_id1, lab_name=lab_name1, \
+                          institute=inst, discipline=discipline,
+                          overview=overview, experiments=[])
+
+        lab.save()
+
+        labs = System.do("get_labs_by_discipline", discipline=discipline)
+
+        self.assertEqual(labs[0].get("discipline").get("dis_name"), dis_name)
             
 #+END_SRC
 
@@ -1918,6 +1970,7 @@ if __name__ == '__main__':
 <<test_add_asset>>
 <<test_get_labs_by_institute>>
 <<test_get_labs_by_lab_name>>
+<<test_get_labs_by_discipline>>
 <<run_test_cases>>
 
 #+end_src

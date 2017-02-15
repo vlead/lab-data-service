@@ -1241,6 +1241,31 @@ class GetInstituteByInstituteName():
 
 
 
+
+** =GetDisciplineByDisciplineName=
+#+NAME: class_get_discipline_by_discipline_name
+#+begin_src python
+class GetDisciplineByDisciplineName():
+    arg_types = {"dis_name": is_str}
+    arity_and_type_checks_needed = True
+
+    @staticmethod
+    def auth_check(args):
+        pass
+
+    @staticmethod
+    def state_check(args):
+        pass
+
+    @staticmethod
+    def action(args):
+        dis_name = args["dis_name"]
+        discipline = System.delegate.get_discipline(dis_name=dis_name)
+        return discipline
+
+#+end_src
+
+
 ** =GetDiscipline=
 #+NAME: class_get_discipline
 #+begin_src python
@@ -1342,6 +1367,30 @@ class GetLabsByLabName():
     def action(args):
         lab_name = args['lab_name']
         labs = System.delegate.get_labs(lab_name=lab_name)
+        return labs
+
+#+end_src
+
+
+** =GetLabsByDiscipline=
+#+NAME: class_get_labs_by_discipline
+#+begin_src python
+class GetLabsByDiscipline():
+    arg_types = {"discipline": is_discipline}
+    arity_and_type_checks_needed = True
+
+    @staticmethod
+    def auth_check(args):
+        pass
+
+    @staticmethod
+    def state_check(args):
+        pass
+
+    @staticmethod
+    def action(args):
+        discipline = args['discipline']
+        labs = System.delegate.get_labs(discipline=discipline)
         return labs
 
 #+end_src
@@ -1717,6 +1766,7 @@ ops_table = {'add_lab' : AddLab,
              'delete_lab': DeleteLab,
              'get_lab': GetLab,
              'get_labs_by_institute': GetLabsByInstitute,
+             'get_labs_by_discipline' : GetLabsByDiscipline,
              'get_labs_by_lab_name': GetLabsByLabName, 
              'get_discipline': GetDiscipline,
              'add_experiment' : AddExperiment,
@@ -1727,6 +1777,7 @@ ops_table = {'add_lab' : AddLab,
              'delete_institute': DeleteInstitute,
              'get_institute' : GetInstitute,
              'get_institute_by_institute_name' : GetInstituteByInstituteName,
+             'get_discipline_by_discipline_name' : GetDisciplineByDisciplineName,
              'add_section' : AddSection,
              'update_section' : UpdateSection,
              'delete_section' : DeleteSection,
@@ -1853,6 +1904,7 @@ if __name__ == '__main__':
 <<class_get_institute>>
 <<class_get_discipline>>
 <<class_get_institute_by_institute_name>>
+<<class_get_discipline_by_discipline_name>>
 <<class_add_hostinginfo>>
 <<class_get_hostinginfo>>
 <<class_update_hostinginfo>>
@@ -1862,6 +1914,7 @@ if __name__ == '__main__':
 <<class_delete_integrationstatus>>
 <<class_get_labs_by_institute>>
 <<class_get_labs_by_lab_name>>
+<<class_get_labs_by_discipline>>
 <<class_add_asset>>
 <<class_get_asset>>
 <<class_update_asset>>
