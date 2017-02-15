@@ -24,16 +24,6 @@ lab_experiments = db.Table('lab_experiments',
                      
 #+END_SRC
 
-#+NAME: class_integrationstatus_association_Table
-#+BEGIN_SRC python
-labs_integrationstatus = db.Table('labs_integrationstatus',
-		      db.Column('lab_id', db.Integer, 
-                            db.ForeignKey('lab.id')),
-		      db.Column('integration_level', db.Integer,
-                            db.ForeignKey('integrationstatus.id')))
-
-#+END_SRC
-
 #+NAME: class_Lab
 #+begin_src python
 args = {"__tablename__": "lab",
@@ -52,6 +42,8 @@ args = {"__tablename__": "lab",
         "discipline_id": db.Column(db.Integer, db.ForeignKey('discipline.id'), 
                                       unique=False, nullable=False),
         "integration_level": db.Column(db.Integer, db.ForeignKey('integationstatus.id'),
+                                      unique=False, nullable=False)
+        "asset_id": db.Column(db.Integer, db.ForeignKey('asset.id'),
                                       unique=False, nullable=False)
         }
 
@@ -97,13 +89,18 @@ class TestPersistentLab(TestCase):
         discipline = Discipline(dis_name=dis_name, dis_id=dis_id)
         discipline.save()
 
+        asset_type = "Image"
+        path = "vlabs.ac.in/images/static/icon.png"
+        asset = Asset(asset_type=asset_type, path=path)
+        asset.save()
+
         lab_name1="Computer Programming"
         lab_id1="CSE01"
         overview1 = "This is data structures lab which deals about array,stack"
         " and ques..etc"
         lab1 = Lab(lab_name=lab_name1, lab_id=lab_id1, overview=overview1,
                        experiments=[experiment], institute=inst,
-                       discipline=discipline)
+                       discipline=discipline, asset=asset)
         lab1.save()
         
         lab_name2="Data Structures"
@@ -111,7 +108,7 @@ class TestPersistentLab(TestCase):
         overview2 = "This is data structures lab which deals about"
         "array,stack and ques..etc"
         lab2 = Lab(lab_name=lab_name2, lab_id=lab_id2, overview=overview2,
-                       experiments=[], institute=inst, discipline=discipline)
+                       experiments=[], institute=inst, discipline=discipline, asset=asset)
         lab2.save()
 
         lab1 = Lab.get_by_id(1)
@@ -125,6 +122,8 @@ class TestPersistentLab(TestCase):
                              inst.get("inst_name"))
         self.assertEqual(lab1.get("discipline").get("dis_name"), 
                              discipline.get("dis_name"))
+        self.assertEqual(lab1.get("asset").get("asset_type"), 
+                             asset.get("asset_type"))
 
         self.assertEqual(lab1.get("experiments")[0].get("exp_name"), 
                              experiment.get("exp_name"))
@@ -136,6 +135,8 @@ class TestPersistentLab(TestCase):
                              inst.get("inst_name"))
         self.assertEqual(lab2.get("discipline").get("dis_name"), 
                              discipline.get("dis_name"))
+        self.assertEqual(lab2.get("asset").get("asset_type"), 
+                             asset.get("asset_type"))
         self.assertEqual(lab2.get("experiments"), [])
 
         self.assertEqual(lab3, None)
@@ -569,7 +570,7 @@ args = {"__tablename__": "asset",
         "id": db.Column(db.Integer, primary_key=True),
         "asset_type": db.Column(db.String(255), unique=False, nullable=True),
         "path": db.Column(db.String(255), unique=True, nullable=False)
-        
+        "labs": db.relationship('Lab', backref=db.backref('asset'))
        }
 
 Asset = ClassPersistenceTemplate.mk_persistent(Asset, ['path'], **args)
