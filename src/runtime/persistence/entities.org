@@ -104,7 +104,6 @@ class TestPersistentLab(TestCase):
         " and ques..etc"
         lab1 = Lab(lab_name=lab_name1, lab_id=lab_id1, overview=overview1,
                        experiments=[experiment], institute=inst,
-                       discipline=discipline, integrationstatus=intstatus)
                        discipline=discipline, integrationstatus=intstatus, asset=asset)
 
         lab1.save()
@@ -113,9 +112,6 @@ class TestPersistentLab(TestCase):
         lab_id2="CSE02"
         overview2 = "This is data structures lab which deals about"
         "array,stack and ques..etc"
-        lab2 = Lab(lab_name=lab_name2, lab_id=lab_id2, overview=overview2,
-                       experiments=[], institute=inst, discipline=discipline, 
-                       integrationstatus=intstatus)
         lab2 = Lab(lab_name=lab_name2, lab_id=lab_id2, overview=overview2, 
                        integrationstatus=intstatus, experiments=[], 
                    institute=inst, discipline=discipline, asset=asset)
@@ -579,9 +575,7 @@ class TestPersistenceHostingInfo(TestCase):
 #+begin_src python
 args = {"__tablename__": "asset",
         "id": db.Column(db.Integer, primary_key=True),
-        "asset_type": db.Column(db.String(255), unique=False, nullable=True),
-        "path": db.Column(db.String(255), unique=True, nullable=False)
-        
+        "asset_type": db.Column(db.String(255), unique=False, nullable=True),        
         "path": db.Column(db.String(255), unique=True, nullable=False),
         "labs": db.relationship('Lab', backref=db.backref('asset'))
        }
