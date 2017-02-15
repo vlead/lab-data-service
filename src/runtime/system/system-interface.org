@@ -2497,7 +2497,7 @@ class TestUpdateHostingInfo(TestCase):
         email_cls = System.delegate.entities['email']
         developer_cls = System.delegate.entities['developer']
 
-        session = session_cls(key=data_dict['key'])
+        session = session_cls(key=str(data_dict['key']))
         email = email_cls(email=data_dict['email'])
         developer = System.do("get_developer", email=email)
 
@@ -2512,7 +2512,7 @@ class TestUpdateHostingInfo(TestCase):
                                       developer=developer,
                                       session=session)
             current_app.logger.debug("completed operation update_developer")
-            return developer.to_client()
+            return developer
 
         except (ArityError, TypeError, NotAuthorizedError, StateError) as err:
             current_app.logger.error("Exception = %s" % str(err))
