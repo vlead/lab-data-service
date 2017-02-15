@@ -564,7 +564,7 @@ class TestAddHostingInfo(TestCase):
         name_cls = System.delegate.entities['name']
 
         session = session_cls(key=data_dict['key'])
-        name = name_cls(name=data_dict['name'])
+        name = name_cls(name=str(data_dict['name']))
         try:
             current_app.logger.debug("running operation add_section")
             question = System.do("add_name", name=name, session=session)
@@ -628,7 +628,7 @@ class TestAddName(TestCase):
         email_cls = System.delegate.entities['email']
 
         session = session_cls(key=data_dict['key'])
-        email = email_cls(email=data_dict['email'])
+        email = email_cls(email=str(data_dict['email']))
         try:
             current_app.logger.debug("running operation add_email")
             question = System.do("add_email", email=email, session=session)
@@ -757,12 +757,10 @@ class TestGetEmails(TestCase):
 
         session = session_cls(key=data_dict['key'])
         name = name_cls(name=str(data_dict['name']))
-        name.save()
-#        name=SystemInterface.add_name(data_dict['name'], data_dict['key'])
-        email = email_cls(email=data_dict['email'])
-        email.save()
-#        email=SystemInterface.add_email(data_dict['email'], data_dict['key'])
+        email = email_cls(email=str(data_dict['email']))
+
         developer = developer_cls(name=name, email=email)
+
         try:
             current_app.logger.debug("running operation add_developer")
             developer = System.do("add_developer", developer=developer,
@@ -806,6 +804,7 @@ class TestAddDeveloper(TestCase):
                    }
 
         developer = SystemInterface.add_developer(data_dict)
+
         self.assertEqual(developer.get("name").get("name"),
                              data_dict['name'])
         self.assertEqual(developer.get("email").get("email"),
@@ -2799,7 +2798,7 @@ class TestUpdateHostingInfo(TestCase):
         email_cls = System.delegate.entities['email']
         developer_cls = System.delegate.entities['developer']
 
-        session = session_cls(key=data_dict['key'])
+        session = session_cls(key=str(data_dict['key']))
         email = email_cls(email=data_dict['email'])
         developer = System.do("get_developer", email=email)
 
@@ -2814,7 +2813,7 @@ class TestUpdateHostingInfo(TestCase):
                                       developer=developer,
                                       session=session)
             current_app.logger.debug("completed operation update_developer")
-            return developer.to_client()
+            return developer
 
         except (ArityError, TypeError, NotAuthorizedError, StateError) as err:
             current_app.logger.error("Exception = %s" % str(err))
@@ -3268,12 +3267,12 @@ class TestDeleteHostingInfo(TestCase):
 #+NAME: class_delete_name
 #+begin_src python
     @staticmethod
-    def delete_name(data_dict):
+    def delete_name(name, key):
         session_cls = System.delegate.entities['session']
         name_cls = System.delegate.entities['name']
 
-        session = session_cls(key=str(data_dict['key']))
-        name = name_cls(name=str(data_dict['name']))
+        session = session_cls(key=str(key))
+        name = name_cls(name=str(name))
         try:
             current_app.logger.debug("running operation delete_name")
             name = System.do("delete_name", name=name, session=session)
@@ -3319,7 +3318,8 @@ class TestDeleteName(TestCase):
 
         name = SystemInterface.add_name(data_dict)
         name1 = SystemInterface.add_name(data_dict1)
-        name_id = SystemInterface.delete_name(data_dict1)
+        name_id = SystemInterface.delete_name(data_dict1['name'],
+                                                  data_dict1['key'])
 
         self.assertEqual(name_id.get("name"), data_dict1["name"])
 
@@ -3391,12 +3391,12 @@ class TestDeleteEmail(TestCase):
 #+NAME: class_delete_developer
 #+begin_src python
     @staticmethod
-    def delete_developer(email_id, key):
+    def delete_developer(email, key):
         session_cls = System.delegate.entities['session']
         email_cls = System.delegate.entities['email']
 
         session = session_cls(key=str(key))
-        email = email_cls(email=email_id)
+        email = email_cls(email=email)
 
         try:
             current_app.logger.debug("running operation delete_developer")
@@ -3810,6 +3810,231 @@ class TestGetDisciplineByDisciplineId(TestCase):
 
 
 
+** Add Asset
+#+NAME: class_add_asset
+#+begin_src python
+    @staticmethod
+    def add_asset(data_dict):
+        session_cls = System.delegate.entities['session']       
+        asset_cls = System.delegate.entities['asset']
+
+        session = session_cls(key=data_dict['key'])
+        del(data_dict['key'])
+
+        asset = asset_cls(asset_type=str(data_dict['asset_type']),
+                                  path=str(data_dict['path']))
+
+        try:
+            current_app.logger.debug("running operation add_asset")
+            asset = System.do("add_asset", asset=asset,
+                                    session=session)
+            current_app.logger.debug("completed operation add_asset")
+            return asset.to_client()
+
+        except (ArityError, TypeError, NotAuthorizedError, StateError) as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+
+        except Exception as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+
+#+END_SRC
+
+*** TestAddAsset 
+#+NAME: test_class_add_asset
+#+BEGIN_SRC python
+class TestAddAsset(TestCase):
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_add_asset_in_system_interface(self):
+        print "test_add_asset_in_system_interface"
+
+        data_dict = {
+                    'key' : KEY,
+                    'asset_type': 'Image',
+                    'path': 'vlabs.ac.in/static/images/icon.png'
+                    }
+
+        asset = SystemInterface.add_asset(data_dict)
+        asset_cls = System.delegate.entities['asset']
+        asset = asset_cls.get_all()[0]
+
+        self.assertEqual(asset.get("asset_type"), 
+                             data_dict['asset_type'])
+        self.assertEqual(asset.get("path"), data_dict['path'])
+        
+#+END_SRC
+
+
+
+** Update Asset
+#+NAME: class_update_asset
+#+begin_src python       
+    @staticmethod
+    def update_asset(data_dict):
+        session_cls = System.delegate.entities['session']
+        session = session_cls(key=data_dict['key'])
+
+        path = str(data_dict['path'])
+        asset = System.do("get_asset", path=path)
+
+        if 'asset_type' not in data_dict:
+            asset_type=str(asset.get("asset_type"))
+        else:
+            asset_type=data_dict['asset_type']
+
+        try:
+            current_app.logger.debug("running operation update_asset")
+            asset = System.do("update_asset", asset=asset,
+                                    asset_type=asset_type, 
+                                    session=session)
+            current_app.logger.debug("completed operation update_asset")
+            return asset.to_client()
+        except (ArityError, TypeError, NotAuthorizedError, StateError) as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+
+        except Exception as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+#+end_src
+*** TestUpdateAsset 
+#+NAME: test_class_update_asset
+#+BEGIN_SRC python
+class TestUpdateAsset(TestCase):
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_update_asset_name_in_system_interface(self):
+        print "test_update_asset_name_in_system_interface"
+
+        data_dict = {
+                    'key' : KEY,
+                    'asset_type': 'Image',
+                    'path': 'vlabs.ac.in/static/images/logo.png'
+                    }
+
+        data_dict1 = {
+                    'key' : KEY,
+                    'asset_type': 'Video', 
+                    'path': 'vlabs.ac.in/static/images/icon.png'
+                    }
+
+        asset = SystemInterface.add_asset(data_dict)
+        asset1 = SystemInterface.update_asset(data_dict1)
+        
+        self.assertEqual(asset1.get("asset_type"), data_dict1['asset_type'])
+
+#+END_SRC
+
+
+** Delete Asset
+#+NAME: class_delete_asset
+#+begin_src python
+    @staticmethod
+    def delete_asset(path, key):
+        session_cls = System.delegate.entities['session']
+        session = session_cls(key=str(key))
+
+        try:
+            current_app.logger.debug("running operation delete_asset")
+            asset_path = System.do("delete_asset", path=str(path),
+                                      session=session)
+            current_app.logger.debug("completed operation delete_asset")
+            return asset_path
+        except (ArityError, TypeError, NotAuthorizedError, StateError) as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+
+        except Exception as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+#+end_src
+
+*** TestDeleteAsset 
+#+NAME: test_class_delete_asset
+#+BEGIN_SRC python
+class TestDeleteAsset(TestCase):
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_delete_asset_in_system_interface(self):
+        print "test_delete_asset_in_system_interface"
+
+        data_dict = {
+                    'key' : KEY,
+                    'asset_type': 'Image',
+                    'path': 'vlabs.ac.in/static/images/logo.png'
+                    }
+
+        data_dict1 = {
+                    'key' : KEY,
+                    'asset_type': 'Video',
+                    'path': 'vlabs.ac.in/static/images/icon.png'
+                    }
+
+        asset = SystemInterface.add_asset(data_dict)
+        asset1 = SystemInterface.add_asset(data_dict1)
+        path = SystemInterface.delete_asset("vlabs.ac.in/static/images/icon.png", KEY)
+        
+        self.assertEqual(path, "vlabs.ac.in/static/images/icon.png")
+
+#+END_SRC
+
+** Get Assets
+#+NAME: class_get_assets
+#+begin_src python
+    @staticmethod
+    def get_assets():
+        asset_cls = System.delegate.entities['asset']
+        try:
+            current_app.logger.debug("getting assets")
+            assets = asset_cls.get_all()
+            asset_dict_list = []
+            for asset in assets:
+                asset_x = asset.to_client()
+                asset_dict_list.append(asset_x)
+            current_app.logger.debug("got assets")
+            return  asset_dict_list
+
+        except (ArityError, TypeError, NotAuthorizedError, StateError) as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+
+        except Exception as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+#+end_src
+
+
 * Infra                                                         :boilerplate:
   
 ** sources
@@ -3918,7 +4143,10 @@ if __name__ == '__main__':
 <<class_delete_name>>
 <<class_delete_email>>
 <<class_delete_developer>>
-
+<<class_add_asset>>
+#<<class_update_asset>>
+<<class_delete_asset>>
+<<class_get_assets>>
 #+end_src
 
 
@@ -3981,6 +4209,10 @@ if __name__ == '__main__':
 <<test_class_get_exp_by_expid>>
 <<test_class_get_institute_by_instituteid>>
 <<test_class_get_discipline_by_disid>>
+<<test_class_add_asset>>
+#<<test_class_update_asset>>
+<<test_class_delete_asset>>
+<<test_class_get_assets>>
 <<run_test_cases>>
 
 #+end_src
