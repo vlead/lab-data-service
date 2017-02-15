@@ -125,6 +125,15 @@ class TestPersistenceDelegate(TestCase):
         dis_id = "IITK"
         discipline = Discipline(dis_name=dis_name, dis_id=dis_id)
         discipline.save()
+        
+        integration_level = 4
+        integrationstatus = IntegrationStatus(integration_level=integration_level)
+        integrationstatus.save()
+         
+
+        lab = Lab(lab_name=lab_name1, lab_id=lab_id1, overview=overview1,
+                      institute=inst, discipline=discipline,
+                      experiments=[], integrationstatus=integrationstatus)
  
         asset_type = "Image"
         path = "vlabs.ac.in/images/static/logo.png"
@@ -133,7 +142,7 @@ class TestPersistenceDelegate(TestCase):
 
         lab = Lab(lab_name=lab_name1, lab_id=lab_id1, overview=overview1,
                       institute=inst, discipline=discipline, asset=asset,
-                      experiments=[])
+                      experiments=[], integrationstatus=integrationstatus)
 
         lab1 = self.persistence_delegate.add_lab(lab)
 
@@ -141,6 +150,7 @@ class TestPersistenceDelegate(TestCase):
         lab_id2="CSE02"
         overview2 = "overview"
         lab2 = Lab(lab_name=lab_name2, lab_id=lab_id2, overview=overview2,
+                       integrationstatus=integrationstatus,               
                        institute=inst, discipline=discipline, asset=asset,                
                        experiments=[])
 
@@ -916,6 +926,10 @@ class TestPersistenceDelegate(TestCase):
          dis_id = "IITK"
          discipline = Discipline(dis_name=dis_name, dis_id=dis_id)
          discipline.save()
+
+         integration_level = 4
+         integrationstatus = IntegrationStatus(integration_level=integration_level)
+         integrationstatus.save()
   
          asset_type = "Image"
          path = "vlabs.ac.in/images/static/logo.png"
@@ -924,7 +938,7 @@ class TestPersistenceDelegate(TestCase):
 
          lab = Lab(lab_name=lab_name, lab_id=lab_id, overview=overview, 
                        institute=inst, discipline=discipline, asset=asset, 
-                       experiments=experiments)
+                       experiments=experiments, integrationstatus=integrationstatus)
          
          lab1 = self.persistence_delegate.add_lab(lab)
          lab_name1 = "Computer Programming"
@@ -1797,7 +1811,7 @@ class TestPersistenceDelegate(TestCase):
          
          lab = Lab(lab_name=lab_name, lab_id=lab_id, overview=overview,
                        institute=inst, discipline=discipline, asset=asset, 
-                       experiments=[])
+                       experiments=[], integrationstatus=integrationstatus)
          lab.save()
 
          exp_name = "Number Systems"
