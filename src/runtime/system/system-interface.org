@@ -3739,8 +3739,8 @@ class TestGetDisciplineByDisciplineId(TestCase):
 
 #+END_SRC
 *** TestAddAsset 
- #+NAME: test_class_add_asset
- #+BEGIN_SRC python
+#+NAME: test_class_add_asset
+#+BEGIN_SRC python
 class TestAddAsset(TestCase):
     def create_app(self):
         app = create_app(config)
@@ -3770,9 +3770,7 @@ class TestAddAsset(TestCase):
                              data_dict['asset_type'])
         self.assertEqual(asset.get("path"), data_dict['path'])
         
-
- #+END_SRC
-
+#+END_SRC
 
 ** Update Asset
 #+NAME: class_update_asset
@@ -3785,16 +3783,13 @@ class TestAddAsset(TestCase):
         path = str(data_dict['path'])
         asset = System.do("get_asset", path=path)
 
-        if 'asset_path' not in data_dict:
-            asset_path=str(asset.get("asset_path"))
+        if 'asset_type' not in data_dict:
+            asset_type=str(asset.get("asset_type"))
         else:
-            asset_path=data_dict['asset_path']
-
+            asset_type=data_dict['asset_type']
         try:
             current_app.logger.debug("running operation update_asset")
-            asset = System.do("update_asset", asset=asset,
-                                    inst_name=inst_name, 
-                                    session=session)
+            asset = System.do("update_asset", asset=asset, asset_type=asset_type, session=session)
             current_app.logger.debug("completed operation update_asset")
             return asset.to_client()
         except (ArityError, TypeError, NotAuthorizedError, StateError) as err:
@@ -3840,10 +3835,9 @@ class TestUpdateAsset(TestCase):
         asset = SystemInterface.add_asset(data_dict)
         asset1 = SystemInterface.update_asset(data_dict1)
         
-        self.assertEqual(asset1.get("asset_type"), data_dict1['])
+        self.assertEqual(asset1.get("asset_type"), data_dict1['asset_type'])
 
- #+END_SRC
-
+#+end_src
 
 ** Delete Asset
 #+NAME: class_delete_asset
@@ -3869,8 +3863,8 @@ class TestUpdateAsset(TestCase):
 #+end_src
 
 *** TestDeleteAsset 
- #+NAME: test_class_delete_asset
- #+BEGIN_SRC python
+#+NAME: test_class_delete_asset
+#+BEGIN_SRC python
 class TestDeleteAsset(TestCase):
     TESTING = True
     def create_app(self):
@@ -3906,7 +3900,6 @@ class TestDeleteAsset(TestCase):
         self.assertEqual(path, "vlabs.ac.in/static/images/icon.png")
 
  #+END_SRC
-
 
 ** Get Assets
 #+NAME: class_get_assets
@@ -3975,7 +3968,6 @@ class TestGetAssets(TestCase):
                              data_dict['path'])
 
  #+END_SRC
-
 
 * Infra                                                         :boilerplate:
   
@@ -4083,13 +4075,10 @@ if __name__ == '__main__':
 <<class_delete_name>>
 <<class_delete_email>>
 <<class_delete_developer>>
-<<class_delete_asset>>
 <<class_add_asset>>
-<<class_get_asset>>
-<<class_update_asset>>
-
-#+end_src
-
+#<<class_update_asset>>
+<<class_delete_asset>>
+<<class_get_assets>>
 
 ** tests
 #+BEGIN_SRC python :tangle test_system_interface.py :eval no :noweb yes
@@ -4149,10 +4138,11 @@ if __name__ == '__main__':
 <<test_class_get_exp_by_expid>>
 <<test_class_get_institute_by_instituteid>>
 <<test_class_get_discipline_by_disid>>
-<<test_class_delete_asset>>
-<<test_class_update_asset>>
-<<test_class_get_asset>>
+
 <<test_class_add_asset>>
+#<<test_class_update_asset>>
+<<test_class_delete_asset>>
+<<test_class_get_assets>>
 <<run_test_cases>>
 
 #+end_src
