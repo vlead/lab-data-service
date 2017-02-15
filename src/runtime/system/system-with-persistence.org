@@ -40,6 +40,7 @@ class TestAddLab(TestCase):
         institute_cls = System.delegate.entities['institute']
         discipline_cls = System.delegate.entities['discipline']
         experiment_cls = System.delegate.entities['experiment']
+        integrationstatus_cls = System.delegate.entities['integrationstatus']
 
         exp_name = "arrays"
         exp_id = "cse02"
@@ -47,6 +48,10 @@ class TestAddLab(TestCase):
         experiment = experiment_cls(exp_name=exp_name, exp_id=exp_id,
                                         overview=overview, sections=[])
         experiment.save()
+
+        integration_level = 4
+        integrationstatus = integrationstatus_cls(integration_level=integration_level)
+        integrationstatus.save()
 
         inst_name = "IIT Kanpur"
         inst_id = "IITK"
@@ -65,7 +70,8 @@ class TestAddLab(TestCase):
         session = session_cls(key=key)
         lab = lab_cls(lab_id=lab_id1, lab_name=lab_name1,        
                           institute=inst, discipline=discipline,                  
-                          overview=overview, experiments=[experiment])
+                          overview=overview, experiments=[experiment], 
+                          integrationstatus=integrationstatus)
 
         lab1 = System.do("add_lab", lab=lab, session=session)
         new_lab = lab_cls.get_by_id(1)
@@ -955,6 +961,10 @@ class TestDeleteLab(TestCase):
                                         overview=overview, sections=[])
         experiment.save()
 
+        integration_level = 4
+        integrationstatus = integrationstatus_cls(integration_level=integration_level)
+        integrationstatus.save()
+
         inst_name = "IIT Kanpur"
         inst_id = "IITK"
         inst = institute_cls(inst_name=inst_name, inst_id=inst_id)
@@ -972,7 +982,8 @@ class TestDeleteLab(TestCase):
         session = session_cls(key=key)
         lab = lab_cls(lab_id=lab_id1, lab_name=lab_name1, \
                           institute=inst, discipline=discipline,
-                          overview=overview, experiments=[experiment])
+                          overview=overview, experiments=[experiment], 
+                          integrationstatus=integrationstatus)
         lab.save()
         lab_id = System.do("delete_lab", lab_id = lab_id1,
                                   session=session)
@@ -1209,6 +1220,10 @@ class TestGetLab(TestCase):
         inst = institute_cls(inst_name=inst_name, inst_id=inst_id)
         inst.save()
 
+        integration_level = 4
+        integrationstatus = integrationstatus_cls(integration_level=integration_level)
+        integrationstatus.save()
+
         dis_name = "IIT Kanpur"
         dis_id = "IITK"
         discipline = discipline_cls(dis_name=dis_name, dis_id=dis_id)
@@ -1216,7 +1231,8 @@ class TestGetLab(TestCase):
 
         lab = lab_cls(lab_id=lab_id1, lab_name=lab_name1, \
                           institute=inst, discipline=discipline,
-                          overview=overview, experiments=[])
+                          overview=overview, experiments=[], 
+                          integrationstatus=integrationstatus)
 
         lab.save()
 
@@ -1264,6 +1280,10 @@ class TestGetLabByInstitute(TestCase):
         inst = institute_cls(inst_name=inst_name, inst_id=inst_id)
         inst.save()
 
+        integration_level = 4
+        integrationstatus = integrationstatus_cls(integration_level=integration_level)
+        integrationstatus.save()
+
         dis_name = "Computer Science"
         dis_id = "CS"
         discipline = discipline_cls(dis_name=dis_name, dis_id=dis_id)
@@ -1271,7 +1291,8 @@ class TestGetLabByInstitute(TestCase):
 
         lab = lab_cls(lab_id=lab_id1, lab_name=lab_name1, \
                           institute=inst, discipline=discipline,
-                          overview=overview, experiments=[])
+                          overview=overview, experiments=[], 
+                          integrationstatus=integrationstatus)
 
         lab.save()
 
@@ -1317,6 +1338,10 @@ class TestGetLabByDiscipline(TestCase):
         inst = institute_cls(inst_name=inst_name, inst_id=inst_id)
         inst.save()
 
+        integration_level = 4
+        integrationstatus = integrationstatus_cls(integration_level=integration_level)
+        integrationstatus.save()
+
         dis_name = "Computer Science"
         dis_id = "CS"
         discipline = discipline_cls(dis_name=dis_name, dis_id=dis_id)
@@ -1324,7 +1349,8 @@ class TestGetLabByDiscipline(TestCase):
 
         lab = lab_cls(lab_id=lab_id1, lab_name=lab_name1, \
                           institute=inst, discipline=discipline,
-                          overview=overview, experiments=[])
+                          overview=overview, experiments=[], 
+                          integrationstatus=integrationstatus)
 
         lab.save()
 
@@ -1370,6 +1396,10 @@ class TestGetLabByLabName(TestCase):
         inst = institute_cls(inst_name=inst_name, inst_id=inst_id)
         inst.save()
 
+        integration_level = 4
+        integrationstatus = integrationstatus_cls(integration_level=integration_level)
+        integrationstatus.save()
+
         dis_name = "IIT Kanpur"
         dis_id = "IITK"
         discipline = discipline_cls(dis_name=dis_name, dis_id=dis_id)
@@ -1377,7 +1407,8 @@ class TestGetLabByLabName(TestCase):
 
         lab = lab_cls(lab_id=lab_id1, lab_name=lab_name1, \
                           institute=inst, discipline=discipline,
-                          overview=overview, experiments=[])
+                          overview=overview, experiments=[], 
+                          integrationstatus=integrationstatus)
 
         lab.save()
 
