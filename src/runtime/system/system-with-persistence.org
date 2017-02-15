@@ -39,6 +39,7 @@ class TestAddLab(TestCase):
         lab_cls = System.delegate.entities['lab']
         institute_cls = System.delegate.entities['institute']
         discipline_cls = System.delegate.entities['discipline']
+        asset_cls = System.delegate.entities['asset']
         experiment_cls = System.delegate.entities['experiment']
 
         exp_name = "arrays"
@@ -57,6 +58,11 @@ class TestAddLab(TestCase):
         dis_id = "IITK"
         discipline = discipline_cls(dis_name=dis_name, dis_id=dis_id)
         discipline.save()
+
+        asset_type = "Image"
+        path = "vlabs.ac.in/images/static/logo.png"
+        asset = asset_cls(asset_type=asset_type, path=path)
+        asset.save()
                                 
         lab_name1="Computer Programming"
         lab_id1="CSE01"
@@ -64,7 +70,7 @@ class TestAddLab(TestCase):
         overview = "overview"
         session = session_cls(key=key)
         lab = lab_cls(lab_id=lab_id1, lab_name=lab_name1,        
-                          institute=inst, discipline=discipline,                  
+                          institute=inst, discipline=discipline, asset=asset,                
                           overview=overview, experiments=[experiment])
 
         lab1 = System.do("add_lab", lab=lab, session=session)
@@ -517,6 +523,7 @@ class TestUpdateLab(TestCase):
         lab_cls = System.delegate.entities['lab']
         institute_cls = System.delegate.entities['institute']
         discipline_cls = System.delegate.entities['discipline']
+        asset_cls = System.delegate.entities['asset']
         experiment_cls = System.delegate.entities['experiment']
 
         exp_name = "arrays"
@@ -536,14 +543,19 @@ class TestUpdateLab(TestCase):
         discipline = discipline_cls(dis_name=dis_name, dis_id=dis_id)
         discipline.save()
 
+        asset_type = "Image"
+        path = "vlabs.ac.in/images/static/logo.png"
+        asset = asset_cls(asset_type=asset_type, path=path)
+        asset.save()
+
         lab_name1="Computer Programming"
         lab_id1="CSE01"
         key = KEY
         overview = "overview"
         session = session_cls(key=key)
         lab = lab_cls(lab_id=lab_id1, lab_name=lab_name1, \
-                          institute=inst, discipline=discipline,      
-                          overview=overview, experiments=[experiment])
+                      institute=inst, discipline=discipline, asset=asset,     
+                      overview=overview, experiments=[experiment])
 
         lab.save()
         lab_name2="Computer Programming"
@@ -946,6 +958,7 @@ class TestDeleteLab(TestCase):
         lab_cls = System.delegate.entities['lab']
         institute_cls = System.delegate.entities['institute']
         discipline_cls = System.delegate.entities['discipline']
+        asset_cls = System.delegate.entities['asset']
         experiment_cls = System.delegate.entities['experiment']
 
         exp_name = "arrays"
@@ -964,6 +977,11 @@ class TestDeleteLab(TestCase):
         dis_id = "IITK"
         discipline = discipline_cls(dis_name=dis_name, dis_id=dis_id)
         discipline.save()
+   
+        asset_type = "Image"
+        path = "vlabs.ac.in/images/static/logo.png"
+        asset = asset_cls(asset_type=asset_type, path=path)
+        asset.save()
 
         lab_name1="Computer Programming"
         lab_id1="CSE01"
@@ -971,7 +989,7 @@ class TestDeleteLab(TestCase):
         overview = "overview"
         session = session_cls(key=key)
         lab = lab_cls(lab_id=lab_id1, lab_name=lab_name1, \
-                          institute=inst, discipline=discipline,
+                          institute=inst, discipline=discipline, asset=asset, \
                           overview=overview, experiments=[experiment])
         lab.save()
         lab_id = System.do("delete_lab", lab_id = lab_id1,
@@ -1199,6 +1217,7 @@ class TestGetLab(TestCase):
         lab_cls = System.delegate.entities['lab']
         institute_cls = System.delegate.entities['institute']
         discipline_cls = System.delegate.entities['discipline']
+        asset_cls = System.delegate.entities['asset']
 
         lab_name1="Computer Programming"
         lab_id1="CSE01"
@@ -1214,8 +1233,13 @@ class TestGetLab(TestCase):
         discipline = discipline_cls(dis_name=dis_name, dis_id=dis_id)
         discipline.save()
 
+        asset_type = "Image"
+        path = "vlabs.ac.in/images/static/logo.png"
+        asset = asset_cls(asset_type=asset_type, path=path)
+        asset.save()
+
         lab = lab_cls(lab_id=lab_id1, lab_name=lab_name1, \
-                          institute=inst, discipline=discipline,
+                          institute=inst, discipline=discipline, asset=asset, \
                           overview=overview, experiments=[])
 
         lab.save()
@@ -1227,8 +1251,6 @@ class TestGetLab(TestCase):
         self.assertEqual(lab1.get("lab_id"), lab_id1)
             
 #+END_SRC
-
-
 
 
 * Test GetLabsByInstitute
@@ -1387,6 +1409,63 @@ class TestGetLabByLabName(TestCase):
             
 #+END_SRC
 
+
+
+* Test GetLabsByAsset 
+#+NAME: test_get_labs_by_asset
+#+BEGIN_SRC python
+class TestGetLabByAsset(TestCase):
+    TESTING = True
+
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_get_labs_by_asset(self):
+
+        print "test_get_labs_by_asset_in_system_persistence"
+        lab_cls = System.delegate.entities['lab']
+        institute_cls = System.delegate.entities['institute']
+        discipline_cls = System.delegate.entities['discipline']
+        asset_cls = System.delegate.entities['asset']
+
+        lab_name1="Computer Programming"
+        lab_id1="CSE01"
+        overview = "overview"
+
+        inst_name = "IIT Kanpur"
+        inst_id = "IITK"
+        inst = institute_cls(inst_name=inst_name, inst_id=inst_id)
+        inst.save()
+
+        dis_name = "Computer Science"
+        dis_id = "CS"
+        discipline = discipline_cls(dis_name=dis_name, dis_id=dis_id)
+        discipline.save()
+
+        asset_type = "Image"
+        path = "vlabs.ac.in/images/static/logo.png"
+        asset = asset_cls(asset_type=asset_type, path=path)
+        asset.save()
+
+        lab = lab_cls(lab_id=lab_id1, lab_name=lab_name1, \
+                          institute=inst, discipline=discipline, asset=asset, \
+                          overview=overview, experiments=[])
+
+        lab.save()
+
+        labs = System.do("get_labs_by_asset", asset=asset)
+
+        self.assertEqual(labs[0].get("asset").get("asset_type"), asset_type)
+            
+#+END_SRC
 
 
 * Test GetName
