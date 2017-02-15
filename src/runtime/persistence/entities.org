@@ -21,6 +21,16 @@ lab_experiments = db.Table('lab_experiments',
                             db.ForeignKey('lab.id')),
 		      db.Column('expid', db.Integer,
                             db.ForeignKey('experiment.id')))
+                     
+#+END_SRC
+
+#+NAME: class_integrationstatus_association_Table
+#+BEGIN_SRC python
+labs_integrationstatus = db.Table('labs_integrationstatus',
+		      db.Column('lab_id', db.Integer, 
+                            db.ForeignKey('lab.id')),
+		      db.Column('integration_level', db.Integer,
+                            db.ForeignKey('integrationstatus.id')))
 
 #+END_SRC
 
@@ -40,8 +50,9 @@ args = {"__tablename__": "lab",
         "institute_id": db.Column(db.Integer, db.ForeignKey('institute.id'), 
                                       unique=False, nullable=False),
         "discipline_id": db.Column(db.Integer, db.ForeignKey('discipline.id'), 
+                                      unique=False, nullable=False),
+        "integration_level": db.Column(db.Integer, db.ForeignKey('integationstatus.id'),
                                       unique=False, nullable=False)
-
         }
 
 Lab = ClassPersistenceTemplate.mk_persistent(Lab, ['lab_id'],\
@@ -221,7 +232,6 @@ args = {"__tablename__": "institute",
         "inst_name": db.Column(db.String(255), unique=False, nullable=True),
         "inst_id": db.Column(db.String(255), unique=True, nullable=False),
         "labs": db.relationship('Lab', backref=db.backref('institute'))
-
        }
 
 Institute = ClassPersistenceTemplate.mk_persistent(Institute, ['inst_id'], **args)
