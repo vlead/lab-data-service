@@ -531,6 +531,7 @@ class TestUpdateLab(TestCase):
         discipline_cls = System.delegate.entities['discipline']
         asset_cls = System.delegate.entities['asset']
         experiment_cls = System.delegate.entities['experiment']
+        integrationstatus_cls = System.delegate.entities['integrationstatus']
 
         exp_name = "arrays"
         exp_id = "cse02"
@@ -543,6 +544,10 @@ class TestUpdateLab(TestCase):
         inst_id = "IITK"
         inst = institute_cls(inst_name=inst_name, inst_id=inst_id)
         inst.save()
+
+        integration_level = "4"
+        integrationstatus = integrationstatus_cls(integration_level=integration_level)
+        integrationstatus.save()
 
         dis_name = "IIT Kanpur"
         dis_id = "IITK"
@@ -560,8 +565,9 @@ class TestUpdateLab(TestCase):
         overview = "overview"
         session = session_cls(key=key)
         lab = lab_cls(lab_id=lab_id1, lab_name=lab_name1, \
-                      institute=inst, discipline=discipline, asset=asset,     
-                      overview=overview, experiments=[experiment])
+                      institute=inst, discipline=discipline, asset=asset, \    
+                      overview=overview, integrationstatus=integrationstatus, \
+                      experiments=[experiment])
 
         lab.save()
         lab_name2="Computer Programming"
@@ -966,6 +972,7 @@ class TestDeleteLab(TestCase):
         discipline_cls = System.delegate.entities['discipline']
         asset_cls = System.delegate.entities['asset']
         experiment_cls = System.delegate.entities['experiment']
+        integrationstatus_cls = System.delegate.entities['integrationstatus']
 
         exp_name = "arrays"
         exp_id = "cse02"
@@ -999,9 +1006,9 @@ class TestDeleteLab(TestCase):
         overview = "overview"
         session = session_cls(key=key)
         lab = lab_cls(lab_id=lab_id1, lab_name=lab_name1, \
-                          institute=inst, discipline=discipline, asset=asset, \
-                          overview=overview, integrationstatus=integrationstatus,
-                          experiments=[experiment])
+                      institute=inst, discipline=discipline, asset=asset, \
+                      overview=overview, integrationstatus=integrationstatus, \
+                      experiments=[experiment])
 
         lab.save()
         lab_id = System.do("delete_lab", lab_id = lab_id1,
@@ -1228,6 +1235,7 @@ class TestGetLab(TestCase):
         print "test_get_lab_in_system_persistence"
         lab_cls = System.delegate.entities['lab']
         institute_cls = System.delegate.entities['institute']
+        integrationstatus_cls = System.delegate.entities['integrationstatus']
         discipline_cls = System.delegate.entities['discipline']
         asset_cls = System.delegate.entities['asset']
 
@@ -1255,8 +1263,8 @@ class TestGetLab(TestCase):
         asset.save()
 
         lab = lab_cls(lab_id=lab_id1, lab_name=lab_name1, \
-                          institute=inst, discipline=discipline, asset=asset, \
-                          overview=overview, integrationstatus=integrationstatus, experiments=[])
+                      institute=inst, discipline=discipline, asset=asset, \
+                      overview=overview, integrationstatus=integrationstatus, experiments=[])
 
         lab.save()
 
@@ -1292,6 +1300,8 @@ class TestGetLabByInstitute(TestCase):
         lab_cls = System.delegate.entities['lab']
         institute_cls = System.delegate.entities['institute']
         discipline_cls = System.delegate.entities['discipline']
+        integrationstatus_cls = System.delegate.entities['integrationstatus']
+        asset_cls = System.delegate.entities['asset']
 
         lab_name1="Computer Programming"
         lab_id1="CSE01"
@@ -1311,10 +1321,15 @@ class TestGetLabByInstitute(TestCase):
         discipline = discipline_cls(dis_name=dis_name, dis_id=dis_id)
         discipline.save()
 
+        asset_type = "Image"
+        path = "vlabs.ac.in/images/static/logo.png"
+        asset = asset_cls(asset_type=asset_type, path=path)
+        asset.save()
+
         lab = lab_cls(lab_id=lab_id1, lab_name=lab_name1, \
-                          institute=inst, discipline=discipline,
-                          overview=overview, experiments=[], 
-                          integrationstatus=integrationstatus)
+                      institute=inst, discipline=discipline, asset=asset, \
+                      overview=overview, experiments=[], \
+                      integrationstatus=integrationstatus)
 
         lab.save()
 
@@ -1350,6 +1365,8 @@ class TestGetLabByDiscipline(TestCase):
         lab_cls = System.delegate.entities['lab']
         institute_cls = System.delegate.entities['institute']
         discipline_cls = System.delegate.entities['discipline']
+        integrationstatus_cls = System.delegate.entities['integrationstatus']
+        asset_cls = System.delegate.entities['asset']
 
         lab_name1="Computer Programming"
         lab_id1="CSE01"
@@ -1369,10 +1386,15 @@ class TestGetLabByDiscipline(TestCase):
         discipline = discipline_cls(dis_name=dis_name, dis_id=dis_id)
         discipline.save()
 
+        asset_type = "Image"
+        path = "vlabs.ac.in/images/static/logo.png"
+        asset = asset_cls(asset_type=asset_type, path=path)
+        asset.save()
+
         lab = lab_cls(lab_id=lab_id1, lab_name=lab_name1, \
-                          institute=inst, discipline=discipline,
-                          overview=overview, experiments=[], 
-                          integrationstatus=integrationstatus)
+                      institute=inst, discipline=discipline, asset=asset, \
+                      overview=overview, experiments=[], \
+                      integrationstatus=integrationstatus)
 
         lab.save()
 
@@ -1408,6 +1430,8 @@ class TestGetLabByLabName(TestCase):
         lab_cls = System.delegate.entities['lab']
         institute_cls = System.delegate.entities['institute']
         discipline_cls = System.delegate.entities['discipline']
+        integrationstatus_cls = System.delegate.entities['integrationstatus']
+        asset_cls = System.delegate.entities['asset']
 
         lab_name1="Computer Programming"
         lab_id1="CSE01"
@@ -1427,10 +1451,15 @@ class TestGetLabByLabName(TestCase):
         discipline = discipline_cls(dis_name=dis_name, dis_id=dis_id)
         discipline.save()
 
+        asset_type = "Image"
+        path = "vlabs.ac.in/images/static/logo.png"
+        asset = asset_cls(asset_type=asset_type, path=path)
+        asset.save()
+
         lab = lab_cls(lab_id=lab_id1, lab_name=lab_name1, \
-                          institute=inst, discipline=discipline,
-                          overview=overview, experiments=[], 
-                          integrationstatus=integrationstatus)
+                      institute=inst, discipline=discipline, asset=asset, \
+                      overview=overview, experiments=[], \
+                      integrationstatus=integrationstatus)
 
         lab.save()
 
@@ -1466,6 +1495,7 @@ class TestGetLabByAsset(TestCase):
         institute_cls = System.delegate.entities['institute']
         discipline_cls = System.delegate.entities['discipline']
         asset_cls = System.delegate.entities['asset']
+        integrationstatus_cls = System.delegate.entities['integrationstatus']
 
         lab_name1="Computer Programming"
         lab_id1="CSE01"
@@ -1475,6 +1505,10 @@ class TestGetLabByAsset(TestCase):
         inst_id = "IITK"
         inst = institute_cls(inst_name=inst_name, inst_id=inst_id)
         inst.save()
+
+        integration_level = 4
+        integrationstatus = integrationstatus_cls(integration_level=integration_level)
+        integrationstatus.save()
 
         dis_name = "Computer Science"
         dis_id = "CS"
@@ -1487,8 +1521,8 @@ class TestGetLabByAsset(TestCase):
         asset.save()
 
         lab = lab_cls(lab_id=lab_id1, lab_name=lab_name1, \
-                          institute=inst, discipline=discipline, asset=asset, \
-                          overview=overview, experiments=[])
+                      institute=inst, discipline=discipline, asset=asset, \
+                      overview=overview, experiments=[], integrationstatus=integrationstatus)
 
         lab.save()
 
@@ -1932,7 +1966,7 @@ class TestGetAsset(TestCase):
         db.drop_all()
 
     def test_get_asset(self):
-
+    
         print "test_get_asset_in_system_persistence"
         asset_cls = System.delegate.entities['asset']
         session_cls = System.delegate.entities['session']
@@ -2074,7 +2108,7 @@ if __name__ == '__main__':
 <<test_get_hostinginfo>>
 <<test_get_integrationstatus>>
 <<test_update_asset>>
-#<<test_add_assets_to_lab>>
+<<test_add_assets_to_lab>>
 <<test_get_asset>>
 <<test_delete_asset>>
 <<test_add_asset>>

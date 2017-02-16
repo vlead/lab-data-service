@@ -45,6 +45,7 @@ class SystemInterface ():
         for e_id in experiments:
             experiment = System.do("get_experiment", exp_id=e_id)
             exp_list.append(experiment)
+
         inst_id = data_dict['inst_id']
         institute = System.do("get_institute", inst_id=inst_id)
 
@@ -397,6 +398,7 @@ class TestAddInstitute(TestCase):
         
 
  #+END_SRC
+
 
 ** Add Discipline
 #+NAME: class_add_discipline
@@ -1540,6 +1542,99 @@ class TestGetLabsByAsset(TestCase):
 
  #+END_SRC
 
+*** TestGetLabsByIntegrationstatus 
+ #+NAME: test_class_get_labs_by_integrationstatus
+ #+BEGIN_SRC python
+class TestGetLabsByIntegrationstatus(TestCase):
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_get_labs_by_integrationstatus_in_system_interface(self):
+        print "test_get_labs_by_integrationstatus_in_system_interface"
+
+        data_dict = {
+                    'key': KEY,
+                    'exp_name': 'arrays',
+                    'exp_id': 'exp123',
+                    'overview': 'overview', 
+                    'sections': []
+                   }
+
+        experiment = SystemInterface.add_experiment(data_dict)
+
+        data_dict = {
+                    'key' : KEY,
+                    'integration_level': 4
+                    }
+
+        integrationstatus = SystemInterface.add_integrationstatus(data_dict)
+
+        data_dict = {
+                    'key' : KEY,
+                    'inst_name': 'IIT Kanpur',
+                    'inst_id': 'IITK'
+                    }
+
+        institute = SystemInterface.add_institute(data_dict)
+
+        data_dict = {
+                    'key' : KEY,
+                    'dis_name': 'Computer Science',
+                    'dis_id': 'CSE'
+                   }
+
+        discipline = SystemInterface.add_discipline(data_dict)
+
+        data_dict = {
+                    'key' : KEY,
+                    'asset_type': 'Image',
+                    'path': 'vlabs.ac.in/images/static/logo.png'
+                    }
+
+        asset = SystemInterface.add_asset(data_dict)
+
+        data_dict = {
+                    'key': KEY,
+                    'lab_name': 'Data Structures',
+                    'lab_id': 'cse01',
+                    'overview': 'overview',
+                    'inst_id': 'IITK',
+                    'dis_id': 'CSE',
+                    'path': 'vlabs.ac.in/images/static/logo.png',
+                    'experiments': ['exp123'], 
+                    'integration_level': 4
+                   }
+
+        data_dict1 = {
+                    'key': KEY,
+                    'lab_name': 'Computer Programming',
+                    'lab_id': 'cse02',
+                    'overview': 'overview',
+                    'inst_id': 'IITK',
+                    'dis_id': 'CSE',
+                    'path': 'vlabs.ac.in/images/static/logo.png',
+                    'experiments': ['exp123'], 
+                    'integration_level': 4
+                   }
+
+        lab = SystemInterface.add_lab(data_dict)
+        lab1 = SystemInterface.add_lab(data_dict1)
+
+        labs = SystemInterface.get_labs_by_integrationstatus("4")
+
+        self.assertEqual(labs[0]['integrationstatus']['integration_level'], "4")
+
+ #+END_SRC
+
 ** Get Experiments
 #+NAME: class_get_experiments
 #+begin_src python
@@ -1794,9 +1889,9 @@ class TestGetDisciplines(TestCase):
                    }
 
         data_dict1 = {'dis_name': "Automata",
-            'dis_id': 'DFA',
-            'key' : KEY
-           }
+                      'dis_id': 'DFA',
+                      'key' : KEY
+                     }
 
         dis = SystemInterface.add_discipline(data_dict)
         dis1 = SystemInterface.add_discipline(data_dict1)
@@ -2513,10 +2608,9 @@ class TestGetDisciplineById(TestCase):
                    }
 
         data_dict1 = {'dis_name': "Automata",
-            'dis_id': 'DFA',
-            'key' : KEY
-           }
-
+                      'dis_id': 'DFA',
+                      'key' : KEY
+                     }
 
         dis = SystemInterface.add_discipline(data_dict)
         dis1 = SystemInterface.add_discipline(data_dict1)
@@ -2611,6 +2705,13 @@ class TestUpdateLab(TestCase):
 
         data_dict = {
                     'key' : KEY,
+                    'integration_level': 4
+                    }
+
+        integrationstatus = SystemInterface.add_integrationstatus(data_dict)
+
+        data_dict = {
+                    'key' : KEY,
                     'dis_name': 'computer science',
                     'dis_id': 'CSE'
                    }
@@ -2633,7 +2734,8 @@ class TestUpdateLab(TestCase):
                     'inst_id': 'IITK',
                     'dis_id': 'CSE',
                     'path': 'vlabs.ac.in/images/static/logo.png',
-                    'experiments': ['exp123']
+                    'experiments': ['exp123'],
+                    'integration_level': 4
                    }
 
         data_dict1 = {
@@ -2671,6 +2773,13 @@ class TestUpdateLab(TestCase):
 
         data_dict = {
                     'key' : KEY,
+                    'integration_level': '4'
+                    }
+
+        integrationstatus = SystemInterface.add_integrationstatus(data_dict)
+
+        data_dict = {
+                    'key' : KEY,
                     'dis_name': 'computer science',
                     'dis_id': 'CSE'
                    }
@@ -2690,6 +2799,7 @@ class TestUpdateLab(TestCase):
                     'lab_name': 'Data Structures',
                     'lab_id': 'cse02',
                     'overview': 'overview',
+                    'integration_level': 4 ,
                     'inst_id': 'IITK',
                     'dis_id': 'CSE',
                     'path': 'vlabs.ac.in/images/static/logo.png',
@@ -3887,6 +3997,7 @@ class TestGetInstituteByInstituteId(TestCase):
 
  #+END_SRC
 
+
 ** Get Lab by LabId
 #+NAME: class_get_lab_by_lab_id
 #+begin_src python
@@ -4003,6 +4114,7 @@ class TestGetLabByLabId(TestCase):
         self.assertEqual(lab1.get("lab_id"), data_dict1['lab_id'])
 
  #+END_SRC
+
 ** Get Experiment by ExpId
 #+NAME: class_get_lab_by_exp_id
 #+begin_src python
@@ -4070,6 +4182,7 @@ class TestGetExpByExpId(TestCase):
         self.assertEqual(exp1.get("exp_id"), data_dict1['exp_id'])
 
  #+END_SRC
+
 
 ** Get Discipline by DisId
 #+NAME: class_get_discipline_by_dis_id
