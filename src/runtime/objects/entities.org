@@ -203,7 +203,8 @@ Lab.add_attributes(lab_name=is_str,
                     overview=is_str,
                     institute=is_institute,
                     discipline=is_discipline,
-                    experiments=are_experiments)
+                    experiments=are_experiments,
+                    hostinginfo=is_hostinginfo)
 
 Lab.__eq__ = lambda self, other: \
                   isinstance(other, self.__class__) and \
@@ -212,7 +213,8 @@ Lab.__eq__ = lambda self, other: \
                   self.get("overview") == other.get("overview") and \
                   self.get("institute") == other.get("institute") and \
                   self.get("discipline") == other.get("discipline") and \
-                  self.get("experiments") == other.get("experiments")
+                  self.get("experiments") == other.get("experiments") and \
+                  self.get("hostinginfo") == other.get("hostinginfo")
 
 #+end_src
 
@@ -235,6 +237,11 @@ class TestLab(TestCase):
         dis_id = "IITK"
         discipline = Discipline(dis_name=dis_name, dis_id=dis_id)
 
+        hosting_status = "hosted"
+        hosted_url = "http://cse14-iiith.vlabs.ac.in"
+        hosted_on = "cloud"
+        host = HostingInfo(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
+
         experiment = Experiment(exp_name=exp_name, exp_id=exp_id, \
                                     overview=overview, sections=[])
 
@@ -243,7 +250,7 @@ class TestLab(TestCase):
         overview = "This is data structures lab which deals about array,stack"
         "and ques..etc"
         lab = Lab(lab_name=lab_name, lab_id=lab_id, overview=overview,
-                      institute=inst, discipline=discipline,
+                      institute=inst, discipline=discipline, hostinginfo=host,
                       experiments=[experiment])
 
         self.assertEqual(lab.get("lab_name"), lab_name)
@@ -253,6 +260,8 @@ class TestLab(TestCase):
                              inst.get("inst_name"))
         self.assertEqual(lab.get("experiments")[0].get("exp_name"), 
                              experiment.get("exp_name"))
+        self.assertEqual(lab.get("hostinginfo").get("hosting_status"), 
+                             host.get("hosting_status"))
 
 #+END_SRC
 

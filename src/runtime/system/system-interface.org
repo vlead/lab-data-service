@@ -52,12 +52,16 @@ class SystemInterface ():
         dis_id = data_dict['dis_id']
         discipline = System.do("get_discipline", dis_id=dis_id)
 
+        hosted_url = data_dict['hosted_url']
+        hostinginfo = System.do("get_hostinginfo", hosted_url=hosted_url)
+
         lab = lab_cls(lab_name=data_dict['lab_name'],
                                 lab_id=data_dict['lab_id'],
                                 overview=data_dict['overview'],
                                 institute=institute,
                                 discipline=discipline,
-                                experiments=exp_list)
+                                experiments=exp_list,
+                                hostinginfo=hostinginfo)
         try:
             current_app.logger.debug("running operation add_lab")
             lab = System.do("add_lab", lab=lab, session=session)
@@ -119,13 +123,23 @@ class TestAddLab(TestCase):
 
         discipline = SystemInterface.add_discipline(data_dict)
 
+        data_dict = {
+                    'key' : KEY,
+                    'hosting_status': 'hosted',
+                    'hosted_url': 'http://cse14-iiith.vlabs.ac.in',
+                    'hosted_on': 'cloud'
+                   }
+
+        hostinginfo = SystemInterface.add_hostinginfo(data_dict)
+
         data_dict = {'lab_name': 'data structure',
                     'lab_id': 'cse02',
                     'overview' : 'overview',
                     'key' : KEY,
                     'inst_id': 'IITK',
                     'dis_id': 'CSE',
-                    'experiments': ['exp123']
+                    'experiments': ['exp123'],
+                    'hosted_url': 'http://cse14-iiith.vlabs.ac.in'
                    }
 
         lab = SystemInterface.add_lab(data_dict)
@@ -138,6 +152,8 @@ class TestAddLab(TestCase):
                              data_dict['inst_id'])
         self.assertEqual(lab.get("discipline").get("dis_id"),
                              data_dict['dis_id'])
+        self.assertEqual(lab.get("hostinginfo").get("hosted_url"),
+                             data_dict['hosted_url'])
         self.assertEqual(lab.get("experiments")[0].get("exp_name"), 'arrays')
         self.assertEqual(lab.get("experiments")[0].get("exp_id"), 'exp123')
 
@@ -171,14 +187,24 @@ class TestAddLab(TestCase):
 
         discipline = SystemInterface.add_discipline(data_dict)
 
+        data_dict = {
+                    'key' : KEY,
+                    'hosting_status': 'hosted',
+                    'hosted_url': 'http://cse14-iiith.vlabs.ac.in',
+                    'hosted_on': 'cloud'
+                   }
+
+        hostinginfo = SystemInterface.add_hostinginfo(data_dict)
+
         data_dict = {'lab_name': 'data structure',
                     'lab_id': 123,
                     'overview' : 'overview',
                     'key' : KEY,
                     'inst_id': 'IITK',
                     'dis_id': 'CSE',
-                    'experiments': ['exp123']
-                   }
+                    'experiments': ['exp123'],
+                    'hosted_url': 'http://cse14-iiith.vlabs.ac.in'
+                    }
 
         with self.assertRaises(TypeError):
             SystemInterface.add_lab(data_dict)
@@ -955,13 +981,23 @@ class TestGetLabs(TestCase):
 
         discipline = SystemInterface.add_discipline(data_dict)
 
+        data_dict = {
+                    'key' : KEY,
+                    'hosting_status': 'hosted',
+                    'hosted_url': 'http://cse14-iiith.vlabs.ac.in',
+                    'hosted_on': 'cloud'
+                   }
+
+        hostinginfo = SystemInterface.add_hostinginfo(data_dict)
+
         data_dict = {'lab_name': 'data structure',
                     'lab_id': 'cse01',
                     'key' : KEY,
                     'overview' : 'overview',
                     'inst_id': 'IITK',
                     'dis_id': 'CSE',
-                    'experiments': ['exp123']
+                    'experiments': ['exp123'],
+                    'hosted_url': 'http://cse14-iiith.vlabs.ac.in'
                    }
 
         data_dict1 = {'lab_name': "Automata",
@@ -970,7 +1006,8 @@ class TestGetLabs(TestCase):
             'overview' : 'overview',
             'inst_id': 'IITK',
             'dis_id': 'CSE',
-            'experiments': ['exp123']
+            'experiments': ['exp123'],
+            'hosted_url': 'http://iitkgp.vlab.co.in/'
            }
 
         lab1 = SystemInterface.add_lab(data_dict)
@@ -1061,12 +1098,22 @@ class TestGetLabsByInstitute(TestCase):
 
         data_dict = {
                     'key' : KEY,
+                    'hosting_status': 'hosted',
+                    'hosted_url': 'http://cse14-iiith.vlabs.ac.in',
+                    'hosted_on': 'cloud'
+                   }
+
+        hostinginfo = SystemInterface.add_hostinginfo(data_dict)
+
+        data_dict = {
+                    'key' : KEY,
                     'lab_name': 'Data Structures',
                     'lab_id': 'cse01',
                     'overview' : 'overview',
                     'inst_id': 'IITK',
                     'dis_id': 'CSE',
-                    'experiments': ['exp123']
+                    'experiments': ['exp123'],
+                    'hosted_url': 'http://cse14-iiith.vlabs.ac.in'
                    }
 
         data_dict1 = {
@@ -1076,7 +1123,8 @@ class TestGetLabsByInstitute(TestCase):
                     'overview' : 'overview',
                     'inst_id': 'IITK',
                     'dis_id': 'CSE',
-                    'experiments': ['exp123']
+                    'experiments': ['exp123'],
+                    'hosted_url': 'http://iitkgp.vlab.co.in/'
                    }
 
         lab = SystemInterface.add_lab(data_dict)
@@ -1162,12 +1210,22 @@ class TestGetLabsByDiscipline(TestCase):
 
         data_dict = {
                     'key' : KEY,
+                    'hosting_status': 'hosted',
+                    'hosted_url': 'http://cse14-iiith.vlabs.ac.in',
+                    'hosted_on': 'cloud'
+                   }
+
+        hostinginfo = SystemInterface.add_hostinginfo(data_dict)
+
+        data_dict = {
+                    'key' : KEY,
                     'lab_name': 'Data Structures',
                     'lab_id': 'cse01',
                     'overview' : 'overview',
                     'inst_id': 'IITK',
                     'dis_id': 'CSE',
-                    'experiments': ['exp123']
+                    'experiments': ['exp123'],
+                    'hosted_url': 'http://cse14-iiith.vlabs.ac.in'
                    }
 
         data_dict1 = {
@@ -1177,7 +1235,8 @@ class TestGetLabsByDiscipline(TestCase):
                     'overview' : 'overview',
                     'inst_id': 'IITK',
                     'dis_id': 'CSE',
-                    'experiments': ['exp123']
+                    'experiments': ['exp123'],
+                    'hosted_url': 'http://iitkgp.vlab.co.in/'
                    }
 
         lab = SystemInterface.add_lab(data_dict)
@@ -1262,12 +1321,22 @@ class TestGetLabsByLabName(TestCase):
 
         data_dict = {
                     'key' : KEY,
+                    'hosting_status': 'hosted',
+                    'hosted_url': 'http://cse14-iiith.vlabs.ac.in',
+                    'hosted_on': 'cloud'
+                   }
+
+        hostinginfo = SystemInterface.add_hostinginfo(data_dict)
+
+        data_dict = {
+                    'key' : KEY,
                     'lab_name': 'Data Structures',
                     'lab_id': 'cse01',
                     'overview' : 'overview',
                     'inst_id': 'IITK',
                     'dis_id': 'CSE',
-                    'experiments': ['exp123']
+                    'experiments': ['exp123'],
+                    'hosted_url': 'http://cse14-iiith.vlabs.ac.in'
                    }
 
         data_dict1 = {
@@ -1277,7 +1346,8 @@ class TestGetLabsByLabName(TestCase):
                     'overview' : 'overview',
                     'inst_id': 'IITK',
                     'dis_id': 'CSE',
-                    'experiments': ['exp123']
+                    'experiments': ['exp123'],
+                    'hosted_url': 'http://iitkgp.vlab.co.in/'
                    }
 
         lab = SystemInterface.add_lab(data_dict)
@@ -1956,12 +2026,22 @@ class TestGetLabById(TestCase):
 
         data_dict = {
                     'key' : KEY,
+                    'hosting_status': 'hosted',
+                    'hosted_url': 'http://cse14-iiith.vlabs.ac.in',
+                    'hosted_on': 'cloud'
+                   }
+
+        hostinginfo = SystemInterface.add_hostinginfo(data_dict)
+
+        data_dict = {
+                    'key' : KEY,
                     'lab_name': 'array',
                     'lab_id': 'cse02',
                     'inst_id': 'IITK',
                     'dis_id': 'CSE',
                     'overview' : 'overview',
-                    'experiments': ['exp123']
+                    'experiments': ['exp123'],
+                    'hosted_url': 'http://cse14-iiith.vlabs.ac.in'
                    }
 
         data_dict1 = {
@@ -1971,7 +2051,8 @@ class TestGetLabById(TestCase):
                     'inst_id': 'IITK',
                     'dis_id': 'CSE',
                     'overview' : 'overview',
-                    'experiments': ['exp123']
+                    'experiments': ['exp123'],
+                    'hosted_url': 'http://iitkgp.vlab.co.in/'
                    }
 
         lab1 = SystemInterface.add_lab(data_dict)
@@ -2349,12 +2430,22 @@ class TestUpdateLab(TestCase):
 
         data_dict = {
                     'key' : KEY,
+                    'hosting_status': 'hosted',
+                    'hosted_url': 'http://cse14-iiith.vlabs.ac.in',
+                    'hosted_on': 'cloud'
+                   }
+
+        hostinginfo = SystemInterface.add_hostinginfo(data_dict)
+
+        data_dict = {
+                    'key' : KEY,
                     'lab_name': 'Data Structures',
                     'lab_id': 'cse02',
                     'overview' : 'overview',
                     'inst_id': 'IITK',
                     'dis_id': 'CSE',
-                    'experiments': ['exp123']
+                    'experiments': ['exp123'],
+                    'hosted_url': 'http://cse14-iiith.vlabs.ac.in'
                    }
 
         data_dict1 = {
@@ -2398,6 +2489,14 @@ class TestUpdateLab(TestCase):
 
         discipline = SystemInterface.add_discipline(data_dict)
 
+        data_dict = {
+                    'key' : KEY,
+                    'hosting_status': 'hosted',
+                    'hosted_url': 'http://cse14-iiith.vlabs.ac.in',
+                    'hosted_on': 'cloud'
+                   }
+
+        hostinginfo = SystemInterface.add_hostinginfo(data_dict)
 
         data_dict = {
                     'key' : KEY,
@@ -2406,7 +2505,8 @@ class TestUpdateLab(TestCase):
                     'overview' : 'overview',
                     'inst_id': 'IITK',
                     'dis_id': 'CSE',
-                    'experiments': ['exp123']
+                    'experiments': ['exp123'],
+                    'hosted_url': 'http://cse14-iiith.vlabs.ac.in'
                    }
 
         data_dict1 = {
@@ -2931,12 +3031,22 @@ class TestDeleteLab(TestCase):
 
         data_dict = {
                     'key' : KEY,
+                    'hosting_status': 'hosted',
+                    'hosted_url': 'http://cse14-iiith.vlabs.ac.in',
+                    'hosted_on': 'cloud'
+                   }
+
+        hostinginfo = SystemInterface.add_hostinginfo(data_dict)
+
+        data_dict = {
+                    'key' : KEY,
                     'lab_name': 'Data Structures',
                     'lab_id': 'cse01',
                     'inst_id': 'IITK',
                     'dis_id': 'CSE',
                     'overview' : 'overview',
-                    'experiments': ['exp123']
+                    'experiments': ['exp123'],
+                    'hosted_url': 'http://cse14-iiith.vlabs.ac.in'
                    }
 
         data_dict1 = {
@@ -2946,7 +3056,8 @@ class TestDeleteLab(TestCase):
                     'inst_id': 'IITK',
                     'dis_id': 'CSE',
                     'overview' : 'overview',
-                    'experiments': ['exp123']
+                    'experiments': ['exp123'],
+                    'hosted_url': 'http://iitkgp.vlab.co.in/'
                    }
 
         lab = SystemInterface.add_lab(data_dict)
@@ -3649,12 +3760,22 @@ class TestGetLabByLabId(TestCase):
 
         data_dict = {
                     'key' : KEY,
+                    'hosting_status': 'hosted',
+                    'hosted_url': 'http://cse14-iiith.vlabs.ac.in',
+                    'hosted_on': 'cloud'
+                   }
+
+        hostinginfo = SystemInterface.add_hostinginfo(data_dict)
+
+        data_dict = {
+                    'key' : KEY,
                     'lab_name': 'Data Structures',
                     'lab_id': 'cse01',
                     'overview' : 'overview',
                     'inst_id': 'IITK',
                     'dis_id': 'CSE',
-                    'experiments': ['exp123']
+                    'experiments': ['exp123'],
+                    'hosted_url': 'http://cse14-iiith.vlabs.ac.in'
                    }
 
         data_dict1 = {
@@ -3664,7 +3785,8 @@ class TestGetLabByLabId(TestCase):
                     'overview' : 'overview',
                     'inst_id': 'IITK',
                     'dis_id': 'CSE',
-                    'experiments': ['exp123']
+                    'experiments': ['exp123'],
+                    'hosted_url': 'http://iitkgp.vlab.co.in/'
                    }
 
         lab = SystemInterface.add_lab(data_dict)

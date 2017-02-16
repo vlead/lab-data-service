@@ -40,6 +40,7 @@ class TestAddLab(TestCase):
         institute_cls = System.delegate.entities['institute']
         discipline_cls = System.delegate.entities['discipline']
         experiment_cls = System.delegate.entities['experiment']
+        hostinginfo_cls = System.delegate.entities['hostinginfo']
 
         exp_name = "arrays"
         exp_id = "cse02"
@@ -57,6 +58,12 @@ class TestAddLab(TestCase):
         dis_id = "IITK"
         discipline = discipline_cls(dis_name=dis_name, dis_id=dis_id)
         discipline.save()
+
+        hosting_status = "hosted"
+        hosted_url = "http://cse14-iiith.vlabs.ac.in"
+        hosted_on = "cloud"
+        host = hostinginfo_cls(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
+        host.save()
                                 
         lab_name1="Computer Programming"
         lab_id1="CSE01"
@@ -64,7 +71,7 @@ class TestAddLab(TestCase):
         overview = "overview"
         session = session_cls(key=key)
         lab = lab_cls(lab_id=lab_id1, lab_name=lab_name1,        
-                          institute=inst, discipline=discipline,                  
+                          institute=inst, discipline=discipline, hostinginfo=host,
                           overview=overview, experiments=[experiment])
 
         lab1 = System.do("add_lab", lab=lab, session=session)
@@ -518,6 +525,7 @@ class TestUpdateLab(TestCase):
         institute_cls = System.delegate.entities['institute']
         discipline_cls = System.delegate.entities['discipline']
         experiment_cls = System.delegate.entities['experiment']
+        hostinginfo_cls = System.delegate.entities['hostinginfo']
 
         exp_name = "arrays"
         exp_id = "cse02"
@@ -536,13 +544,19 @@ class TestUpdateLab(TestCase):
         discipline = discipline_cls(dis_name=dis_name, dis_id=dis_id)
         discipline.save()
 
+        hosting_status = "hosted"
+        hosted_url = "http://cse14-iiith.vlabs.ac.in"
+        hosted_on = "cloud"
+        host = hostinginfo_cls(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
+        host.save()
+
         lab_name1="Computer Programming"
         lab_id1="CSE01"
         key = KEY
         overview = "overview"
         session = session_cls(key=key)
         lab = lab_cls(lab_id=lab_id1, lab_name=lab_name1, \
-                          institute=inst, discipline=discipline,      
+                          institute=inst, discipline=discipline, hostinginfo=host,
                           overview=overview, experiments=[experiment])
 
         lab.save()
@@ -947,6 +961,7 @@ class TestDeleteLab(TestCase):
         institute_cls = System.delegate.entities['institute']
         discipline_cls = System.delegate.entities['discipline']
         experiment_cls = System.delegate.entities['experiment']
+        hostinginfo_cls = System.delegate.entities['hostinginfo']
 
         exp_name = "arrays"
         exp_id = "cse02"
@@ -965,13 +980,19 @@ class TestDeleteLab(TestCase):
         discipline = discipline_cls(dis_name=dis_name, dis_id=dis_id)
         discipline.save()
 
+        hosting_status = "hosted"
+        hosted_url = "http://cse14-iiith.vlabs.ac.in"
+        hosted_on = "cloud"
+        host = hostinginfo_cls(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
+        host.save()
+
         lab_name1="Computer Programming"
         lab_id1="CSE01"
         key = KEY
         overview = "overview"
         session = session_cls(key=key)
         lab = lab_cls(lab_id=lab_id1, lab_name=lab_name1, \
-                          institute=inst, discipline=discipline,
+                          institute=inst, discipline=discipline, hostinginfo=host,
                           overview=overview, experiments=[experiment])
         lab.save()
         lab_id = System.do("delete_lab", lab_id = lab_id1,
@@ -1199,6 +1220,7 @@ class TestGetLab(TestCase):
         lab_cls = System.delegate.entities['lab']
         institute_cls = System.delegate.entities['institute']
         discipline_cls = System.delegate.entities['discipline']
+        hostinginfo_cls = System.delegate.entities['hostinginfo']
 
         lab_name1="Computer Programming"
         lab_id1="CSE01"
@@ -1214,8 +1236,14 @@ class TestGetLab(TestCase):
         discipline = discipline_cls(dis_name=dis_name, dis_id=dis_id)
         discipline.save()
 
+        hosting_status = "hosted"
+        hosted_url = "http://cse14-iiith.vlabs.ac.in"
+        hosted_on = "cloud"
+        host = hostinginfo_cls(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
+        host.save()
+
         lab = lab_cls(lab_id=lab_id1, lab_name=lab_name1, \
-                          institute=inst, discipline=discipline,
+                          institute=inst, discipline=discipline, hostinginfo=host,
                           overview=overview, experiments=[])
 
         lab.save()
@@ -1254,6 +1282,7 @@ class TestGetLabByInstitute(TestCase):
         lab_cls = System.delegate.entities['lab']
         institute_cls = System.delegate.entities['institute']
         discipline_cls = System.delegate.entities['discipline']
+        hostinginfo_cls = System.delegate.entities['hostinginfo']
 
         lab_name1="Computer Programming"
         lab_id1="CSE01"
@@ -1269,8 +1298,14 @@ class TestGetLabByInstitute(TestCase):
         discipline = discipline_cls(dis_name=dis_name, dis_id=dis_id)
         discipline.save()
 
+        hosting_status = "hosted"
+        hosted_url = "http://cse14-iiith.vlabs.ac.in"
+        hosted_on = "cloud"
+        host = hostinginfo_cls(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
+        host.save()
+
         lab = lab_cls(lab_id=lab_id1, lab_name=lab_name1, \
-                          institute=inst, discipline=discipline,
+                          institute=inst, discipline=discipline, hostinginfo=host,
                           overview=overview, experiments=[])
 
         lab.save()
@@ -1307,6 +1342,7 @@ class TestGetLabByDiscipline(TestCase):
         lab_cls = System.delegate.entities['lab']
         institute_cls = System.delegate.entities['institute']
         discipline_cls = System.delegate.entities['discipline']
+        hostinginfo_cls = System.delegate.entities['hostinginfo']
 
         lab_name1="Computer Programming"
         lab_id1="CSE01"
@@ -1322,8 +1358,14 @@ class TestGetLabByDiscipline(TestCase):
         discipline = discipline_cls(dis_name=dis_name, dis_id=dis_id)
         discipline.save()
 
+        hosting_status = "hosted"
+        hosted_url = "http://cse14-iiith.vlabs.ac.in"
+        hosted_on = "cloud"
+        host = hostinginfo_cls(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
+        host.save()
+
         lab = lab_cls(lab_id=lab_id1, lab_name=lab_name1, \
-                          institute=inst, discipline=discipline,
+                          institute=inst, discipline=discipline, hostinginfo=host,
                           overview=overview, experiments=[])
 
         lab.save()
@@ -1360,6 +1402,7 @@ class TestGetLabByLabName(TestCase):
         lab_cls = System.delegate.entities['lab']
         institute_cls = System.delegate.entities['institute']
         discipline_cls = System.delegate.entities['discipline']
+        hostinginfo_cls = System.delegate.entities['hostinginfo']
 
         lab_name1="Computer Programming"
         lab_id1="CSE01"
@@ -1375,8 +1418,14 @@ class TestGetLabByLabName(TestCase):
         discipline = discipline_cls(dis_name=dis_name, dis_id=dis_id)
         discipline.save()
 
+        hosting_status = "hosted"
+        hosted_url = "http://cse14-iiith.vlabs.ac.in"
+        hosted_on = "cloud"
+        host = hostinginfo_cls(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
+        host.save()
+
         lab = lab_cls(lab_id=lab_id1, lab_name=lab_name1, \
-                          institute=inst, discipline=discipline,
+                          institute=inst, discipline=discipline, hostinginfo=host,
                           overview=overview, experiments=[])
 
         lab.save()
