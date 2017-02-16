@@ -47,6 +47,12 @@
       "id": 1,
       "inst_id": "iiith"
     },
+    "hostinginfo": {
+      "hosting_status": "hosted",
+      "id": 1,
+      "hosted_url": "http://cse14-iiith.vlabs.ac.in",
+      "hosted_on": "cloud"
+    },
     "overview": "overview",
     "lab_name": "Data Structures",
     "experiments": [
@@ -118,6 +124,12 @@ http://localhost:5000/labs
       "id": 1,
       "inst_id": "iiith"
     },
+    "hostinginfo": {
+      "hosting_status": "hosted",
+      "id": 1,
+      "hosted_url": "http://cse14-iiith.vlabs.ac.in",
+      "hosted_on": "cloud"
+    },
     "overview": "overview",
     "lab_name": "Data Structures",
     "experiments": [
@@ -188,6 +200,12 @@ http://localhost:5000/labs?lab_id=cse09
       "inst_name": "IIIT Hyderabad",
       "id": 1,
       "inst_id": "iiith"
+    },
+    "hostinginfo": {
+      "hosting_status": "hosted",
+      "id": 1,
+      "hosted_url": "http://cse14-iiith.vlabs.ac.in",
+      "hosted_on": "cloud"
     },
     "overview": "overview",
     "lab_name": "Data Structures",
@@ -261,6 +279,12 @@ http://localhost:5000/labs?institute_name=IIIT Hyderabad
       "id": 1,
       "inst_id": "iiith"
     },
+    "hostinginfo": {
+      "hosting_status": "hosted",
+      "id": 1,
+      "hosted_url": "http://cse14-iiith.vlabs.ac.in",
+      "hosted_on": "cloud"
+    },
     "overview": "overview",
     "lab_name": "Data Structures",
     "experiments": [
@@ -332,6 +356,12 @@ http://localhost:5000/labs?discipline_name=Computer Science
       "inst_name": "IIIT Hyderabad",
       "id": 1,
       "inst_id": "iiith"
+    },
+    "hostinginfo": {
+      "hosting_status": "hosted",
+      "id": 1,
+      "hosted_url": "http://cse14-iiith.vlabs.ac.in",
+      "hosted_on": "cloud"
     },
     "overview": "overview",
     "lab_name": "Data Structures",
@@ -446,7 +476,7 @@ def get_lab():
                 error_message = 'error: %s' % str(err)
                 current_app.logger.error("%s" %(error_message))
                 return render_template('error.html', 
-                                       data=error_message)        
+                                       data=error_message)
 
         else:
             try:
@@ -537,6 +567,16 @@ class TestGetLab(TestCase):
         response = self.client.post("/labs", data=json.dumps(payload),
                                  headers=headers)
 
+        payload = {'hosting_status': 'hosted',
+                   'hosted_url': 'http://cse14-iiith.vlabs.ac.in',
+                   'hosted_on': 'cloud',
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/hostinginfos", data=json.dumps(payload),
+                                 headers=headers)
+
         response = self.client.get("/labs", headers=headers)
         self.assertEqual(response.status_code, 200)
 
@@ -589,6 +629,16 @@ class TestGetLabbyLabId(TestCase):
 
         response = self.client.post("/experiments", data=json.dumps(payload),
                                  headers=headers)
+        payload = {'hosting_status': 'hosted',
+                   'hosted_url': 'http://cse14-iiith.vlabs.ac.in',
+                   'hosted_on': 'cloud',
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/hostinginfos", data=json.dumps(payload),
+                                 headers=headers)
+
 
         payload = {'name': 'Prof. Dharamaja',
                    'email': 'abc@gmail.com',
@@ -606,13 +656,15 @@ class TestGetLabbyLabId(TestCase):
                    'dis_id': 'CSE',
                    'key': KEY,
                    'experiments': ['exp1'],
-                   'developers': ['abc@gmail.com']
+                   'developers': ['abc@gmail.com'],
+                   'hosted_url': 'http://cse14-iiith.vlabs.ac.in'
                   }
 
         headers = {'Content-Type': 'application/json'}
 
         response = self.client.post("/labs", data=json.dumps(payload),
                                  headers=headers)
+
 
         response = self.client.get("/labs?lab_id=cse01", headers=headers)
         self.assertEqual(response.status_code, 200)
@@ -651,7 +703,6 @@ class TestGetLabsbyInstitute(TestCase):
                    'dis_id': 'CSE',
                    'key': KEY}
 
-        headers = {'Content-Type': 'application/json'}
 
         response = self.client.post("/disciplines", data=json.dumps(payload),
                                  headers=headers)
@@ -662,9 +713,16 @@ class TestGetLabsbyInstitute(TestCase):
                    'sections': [],
                    'key': KEY}
 
-        headers = {'Content-Type': 'application/json'}
 
         response = self.client.post("/experiments", data=json.dumps(payload),
+                                 headers=headers)
+        payload = {'hosting_status': 'hosted',
+                   'hosted_url': 'http://cse14-iiith.vlabs.ac.in',
+                   'hosted_on': 'cloud',
+                   'key': KEY}
+
+
+        response = self.client.post("/hostinginfos", data=json.dumps(payload),
                                  headers=headers)
 
         payload = {'name': 'Prof. Dharamaja',
@@ -683,13 +741,15 @@ class TestGetLabsbyInstitute(TestCase):
                    'dis_id': 'CSE',
                    'key': KEY,
                    'experiments': ['exp1'],
-                   'developers': ['abc@gmail.com']
+                   'developers': ['abc@gmail.com'],
+                   'hosted_url': 'http://cse14-iiith.vlabs.ac.in',
+                   'experiments': ['exp1']
                   }
 
-        headers = {'Content-Type': 'application/json'}
 
         response = self.client.post("/labs", data=json.dumps(payload),
                                  headers=headers)
+
 
         response = self.client.get("/labs?institute_name=IIT Kanpur", headers=headers)
         self.assertEqual(response.status_code, 200)
@@ -728,8 +788,6 @@ class TestGetLabsbyDiscipline(TestCase):
                    'dis_id': 'CSE',
                    'key': KEY}
 
-        headers = {'Content-Type': 'application/json'}
-
         response = self.client.post("/disciplines", data=json.dumps(payload),
                                  headers=headers)
 
@@ -751,6 +809,14 @@ class TestGetLabsbyDiscipline(TestCase):
         headers = {'Content-Type': 'application/json'}
 
         response = self.client.post("/developers", data=json.dumps(payload),
+
+        payload = {'hosting_status': 'hosted',
+                   'hosted_url': 'http://cse14-iiith.vlabs.ac.in',
+                   'hosted_on': 'cloud',
+                   'key': KEY}
+
+
+        response = self.client.post("/hostinginfos", data=json.dumps(payload),
                                  headers=headers)
 
         payload = {'lab_name': 'Data Structures',
@@ -760,13 +826,14 @@ class TestGetLabsbyDiscipline(TestCase):
                    'dis_id': 'CSE',
                    'key': KEY,
                    'experiments': ['exp1'],
-                   'developers': ['abc@gmail.com']
+                   'developers': ['abc@gmail.com'],
+                   'hosted_url': 'http://cse14-iiith.vlabs.ac.in',
+                   'experiments': ['exp1']
                   }
-
-        headers = {'Content-Type': 'application/json'}
 
         response = self.client.post("/labs", data=json.dumps(payload),
                                  headers=headers)
+
 
         response = self.client.get("/labs?discipline_name=Computer Science",
                                        headers=headers)
@@ -806,7 +873,6 @@ class TestGetLabsbyLabName(TestCase):
                    'dis_id': 'CSE',
                    'key': KEY}
 
-        headers = {'Content-Type': 'application/json'}
 
         response = self.client.post("/disciplines", data=json.dumps(payload),
                                  headers=headers)
@@ -817,7 +883,6 @@ class TestGetLabsbyLabName(TestCase):
                    'sections': [],
                    'key': KEY}
 
-        headers = {'Content-Type': 'application/json'}
 
         response = self.client.post("/experiments", data=json.dumps(payload),
                                  headers=headers)
@@ -829,6 +894,14 @@ class TestGetLabsbyLabName(TestCase):
         headers = {'Content-Type': 'application/json'}
 
         response = self.client.post("/developers", data=json.dumps(payload),
+
+        payload = {'hosting_status': 'hosted',
+                   'hosted_url': 'http://cse14-iiith.vlabs.ac.in',
+                   'hosted_on': 'cloud',
+                   'key': KEY}
+
+
+        response = self.client.post("/hostinginfos", data=json.dumps(payload),
                                  headers=headers)
 
         payload = {'lab_name': 'Data Structures',
@@ -838,13 +911,15 @@ class TestGetLabsbyLabName(TestCase):
                    'dis_id': 'CSE',
                    'key': KEY,
                    'experiments': ['exp1'],
-                   'developers': ['abc@gmail.com']
+                   'developers': ['abc@gmail.com'],
+                   'hosted_url': 'http://cse14-iiith.vlabs.ac.in',
+                   'experiments': ['exp1']
                   }
 
-        headers = {'Content-Type': 'application/json'}
 
         response = self.client.post("/labs", data=json.dumps(payload),
                                  headers=headers)
+
 
         response = self.client.get("/labs?lab_name=Data Structures", headers=headers)
         self.assertEqual(response.status_code, 200)
@@ -874,7 +949,8 @@ class TestGetLabsbyLabName(TestCase):
   "key": "<key>",
   "inst_id": "iiith",
   "dis_id": "cse",
-  "developers": ["abc@gmail.com"]
+  "developers": ["abc@gmail.com"],
+  "hosted_url": "http://cse14-iiith.vlabs.ac.in"
 }
 #+END_EXAMPLE	       
 
@@ -911,7 +987,13 @@ class TestGetLabsbyLabName(TestCase):
     "id": 1, 
     "inst_id": "iiith", 
     "inst_name": "IIIT Hyderabad"
-  }, 
+  },
+  "hostinginfo": {
+      "hosting_status": "hosted",
+      "id": 1,
+      "hosted_url": "http://cse14-iiith.vlabs.ac.in",
+      "hosted_on": "cloud"
+  },
   "lab_id": "cse09", 
   "lab_name": "Data Structures", 
   "overview": "overview",
@@ -1057,6 +1139,16 @@ class TestAddLab(TestCase):
         headers = {'Content-Type': 'application/json'}
 
         response = self.client.post("/labs", data=json.dumps(payload),
+                                 headers=headers)
+
+        payload = {'hosting_status': 'hosted',
+                   'hosted_url': 'http://cse14-iiith.vlabs.ac.in',
+                   'hosted_on': 'cloud',
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/hostinginfos", data=json.dumps(payload),
                                  headers=headers)
 
         self.assertEqual(response.status_code, 200)
@@ -3411,7 +3503,13 @@ class TestAddDeveloper(TestCase):
     "id": 1, 
     "inst_id": "iiith", 
     "inst_name": "IIIT Hyderabad"
-  }, 
+  },
+  "hostinginfo": {
+      "hosting_status": "hosted",
+      "id": 1,
+      "hosted_url": "http://cse14-iiith.vlabs.ac.in",
+      "hosted_on": "cloud"
+  },
   "lab_id": "cse09", 
   "lab_name": "Databases", 
   "overview": "overview of Databases",
@@ -3500,7 +3598,6 @@ class TestUpdateLab(TestCase):
                    'dis_id': 'CSE',
                    'key': KEY}
 
-        headers = {'Content-Type': 'application/json'}
 
         response = self.client.post("/disciplines", data=json.dumps(payload),
                                  headers=headers)
@@ -3511,7 +3608,6 @@ class TestUpdateLab(TestCase):
                    'sections': [],
                    'key': KEY}
 
-        headers = {'Content-Type': 'application/json'}
 
         response = self.client.post("/experiments", data=json.dumps(payload),
                                  headers=headers)
@@ -3523,6 +3619,15 @@ class TestUpdateLab(TestCase):
         headers = {'Content-Type': 'application/json'}
 
         response = self.client.post("/developers", data=json.dumps(payload),
+
+        payload = {'hosting_status': 'hosted',
+                   'hosted_url': 'http://cse14-iiith.vlabs.ac.in',
+                   'hosted_on': 'cloud',
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/hostinginfos", data=json.dumps(payload),
                                  headers=headers)
 
         payload = {'lab_name': 'Data Structures',
@@ -3532,18 +3637,20 @@ class TestUpdateLab(TestCase):
                    'dis_id': 'CSE',
                    'experiments':['exp1'],
                    'key': KEY,
-                   'developers': ['abc@gmail.com']
-                  }
+                   'developers': ['abc@gmail.com'],
+                   'hosted_url': 'http://cse14-iiith.vlabs.ac.in',
+                   'key': KEY
+                   }
 
         payload1 = {'lab_name': 'Computer Programming',
                    'key': KEY,
                    'overview' : 'cp overview'
                    }
 
-        headers = {'Content-Type': 'application/json'}
 
         response = self.client.post("/labs", data=json.dumps(payload),
                                  headers=headers)
+
 
         response = self.client.put("/labs?lab_id=cse01", 
                                        data=json.dumps(payload1),
@@ -3666,6 +3773,16 @@ class TestDeleteLab(TestCase):
 
         response = self.client.post("/developers", data=json.dumps(payload),
                                  headers=headers)
+  
+        payload = {'hosting_status': 'hosted',
+                   'hosted_url': 'http://cse14-iiith.vlabs.ac.in',
+                   'hosted_on': 'cloud',
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/hostinginfos", data=json.dumps(payload),
+                                 headers=headers)
 
         payload = {'lab_name': 'Data structures',
                    'lab_id': 'cse02',
@@ -3674,7 +3791,9 @@ class TestDeleteLab(TestCase):
                    'inst_id': 'IITK',
                    'dis_id': 'CSE',
                    'experiments': ['exp1'],
-                   'developers': ['abc@gmail.com']
+                   'developers': ['abc@gmail.com'],
+                   'hosted_url': 'http://cse14-iiith.vlabs.ac.in',
+                   'experiments': ['exp1']
                   }
 
         headers = {'Content-Type': 'application/json'}

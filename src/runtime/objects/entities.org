@@ -204,7 +204,8 @@ Lab.add_attributes(lab_name=is_str,
                     institute=is_institute,
                     discipline=is_discipline,
                     experiments=are_experiments,
-                    developers=are_developers)
+                    developers=are_developers,
+                    hostinginfo=is_hostinginfo)
 
 Lab.__eq__ = lambda self, other: \
                   isinstance(other, self.__class__) and \
@@ -214,7 +215,8 @@ Lab.__eq__ = lambda self, other: \
                   self.get("institute") == other.get("institute") and \
                   self.get("discipline") == other.get("discipline") and \
                   self.get("experiments") == other.get("experiments") and \
-                  self.get("developers") == other.get("developers")
+                  self.get("developers") == other.get("developers") and \
+                  self.get("hostinginfo") == other.get("hostinginfo")
 
 #+end_src
 
@@ -241,6 +243,11 @@ class TestLab(TestCase):
         email_id = Email(email="mohit.tahiliani@gmail.com")
         dev = Developer(name=dev_name, email=email_id)
 
+        hosting_status = "hosted"
+        hosted_url = "http://cse14-iiith.vlabs.ac.in"
+        hosted_on = "cloud"
+        host = HostingInfo(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
+
         experiment = Experiment(exp_name=exp_name, exp_id=exp_id, \
                                     overview=overview, sections=[])
 
@@ -250,7 +257,7 @@ class TestLab(TestCase):
         "and ques..etc"
         lab = Lab(lab_name=lab_name, lab_id=lab_id, overview=overview,
                       institute=inst, discipline=discipline, developers=[dev],
-                      experiments=[experiment])
+                      hostinginfo=host, experiments=[experiment])
 
         self.assertEqual(lab.get("lab_name"), lab_name)
         self.assertEqual(lab.get("lab_id"), lab_id)
@@ -260,6 +267,8 @@ class TestLab(TestCase):
         self.assertEqual(lab.get("experiments")[0].get("exp_name"), 
                              experiment.get("exp_name"))
         self.assertEqual(lab.get("developers")[0].get("email").get("email"), email_id.get("email"))
+        self.assertEqual(lab.get("hostinginfo").get("hosting_status"), 
+                             host.get("hosting_status"))
 
 #+END_SRC
 

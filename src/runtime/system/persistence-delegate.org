@@ -132,9 +132,15 @@ class TestPersistenceDelegate(TestCase):
         dev = Developer(name=dev_name, email=email_id)
         dev.save()
 
+        hosting_status = "hosted"
+        hosted_url = "http://cse14-iiith.vlabs.ac.in"
+        hosted_on = "cloud"
+        host = HostingInfo(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
+        host.save()
+
         lab = Lab(lab_name=lab_name1, lab_id=lab_id1, overview=overview1,
                       institute=inst, discipline=discipline,
-                      experiments=[], developers=[dev])
+                      experiments=[], developers=[dev], hostinginfo=host)
 
         lab1 = self.persistence_delegate.add_lab(lab)
 
@@ -143,7 +149,7 @@ class TestPersistenceDelegate(TestCase):
         overview2 = "overview"
         lab2 = Lab(lab_name=lab_name2, lab_id=lab_id2, overview=overview2,
                        institute=inst, discipline=discipline,                  
-                       experiments=[], developers=[dev])
+                       experiments=[], developers=[dev], hostinginfo=host)
 
         self.assertEqual(self.persistence_delegate.lab_exists(lab1),
                             True)
@@ -250,7 +256,8 @@ class TestPersistenceDelegate(TestCase):
 
 #+END_SRC
 
-**** Check if =name= already exists
+
+*** Check if =name= already exists
 
     This function checks if a name is already in the name-set of the =System=.
 #+NAME: persistence_name_exists
@@ -283,7 +290,8 @@ class TestPersistenceDelegate(TestCase):
 
 #+END_SRC
 
-**** Check if =email= already exists
+
+*** Check if =email= already exists
     This function checks if an email is already in the email-set of the =System=.
 #+NAME: persistence_email_exists
 #+BEGIN_SRC python
@@ -315,7 +323,7 @@ class TestPersistenceDelegate(TestCase):
 #+END_SRC
 
 
-**** Check if =developer= already exists
+*** Check if =developer= already exists
     This function checks if an developer is already in the developer-set of the =System=.
 #+NAME: persistence_developer_exists
 #+BEGIN_SRC python
@@ -525,12 +533,21 @@ class TestPersistenceDelegate(TestCase):
          dev = Developer(name=dev_name, email=email_id)
          dev.save()
 
+         hosting_status = "hosted"
+         hosted_url = "http://cse14-iiith.vlabs.ac.in"
+         hosted_on = "cloud"
+         host = HostingInfo(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
+         host.save()
+
          lab_name1="Computer Programming"
          lab_id1="CSE01"
          overview="lab"
          lab1 = Lab(lab_name=lab_name1, lab_id=lab_id1, \
                         institute=inst, discipline=discipline,
-                        overview=overview, experiments=[experiment], developers=[dev])
+                        overview=overview, experiments=[experiment], developers=[dev],
+                        hostinginfo=host)
+                        
+
          lab1 = self.persistence_delegate.add_lab(lab1)
         
          lab_name2="Data Structures"
@@ -538,7 +555,7 @@ class TestPersistenceDelegate(TestCase):
          overview="lab overview"
          lab2 = Lab(lab_name=lab_name2, lab_id=lab_id2, overview=overview, 
                         institute=inst, discipline=discipline,
-                        experiments=[], developers=[dev])
+                        experiments=[], developers=[dev], hostinginfo=host)
 
          self.assertEqual(self.persistence_delegate.lab_exists(lab1),
                           True)
@@ -918,9 +935,16 @@ class TestPersistenceDelegate(TestCase):
          dev = Developer(name=dev_name, email=email_id)
          dev.save()
 
+         hosting_status = "hosted"
+         hosted_url = "http://cse14-iiith.vlabs.ac.in"
+         hosted_on = "cloud"
+         host = HostingInfo(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
+         host.save()
+
          lab = Lab(lab_name=lab_name, lab_id=lab_id, overview=overview, 
-                       institute=inst, discipline=discipline,
+                       institute=inst, discipline=discipline, hostinginfo=host,
                        experiments=experiments, developers=[dev])
+
          
          lab1 = self.persistence_delegate.add_lab(lab)
          lab_name1 = "Computer Programming"
@@ -1212,9 +1236,16 @@ class TestPersistenceDelegate(TestCase):
          dev = Developer(name=dev_name, email=email_id)
          dev.save()
 
+         hosting_status = "hosted"
+         hosted_url = "http://cse14-iiith.vlabs.ac.in"
+         hosted_on = "cloud"
+         host = HostingInfo(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
+         host.save()
+
          lab = Lab(lab_name=lab_name, lab_id=lab_id, overview=overview, 
-                       institute=inst, discipline=discipline,
+                       institute=inst, discipline=discipline, hostinginfo=host,
                        experiments=[], developers=[dev])
+
          lab1 = self.persistence_delegate.add_lab(lab)
 
          lab_name1 = "Computer Programming"
@@ -1222,7 +1253,8 @@ class TestPersistenceDelegate(TestCase):
          overview = "overview"
          lab1 = Lab(lab_name=lab_name1, lab_id=lab_id1, overview=overview,
                         institute=inst, discipline=discipline,
-                        experiments=[], developers=[dev])
+                        experiments=[], developers=[dev], hostinginfo=host)
+
          lab2 = self.persistence_delegate.add_lab(lab1)
 
          self.persistence_delegate.delete_lab("cse01")
@@ -1713,9 +1745,16 @@ class TestPersistenceDelegate(TestCase):
          dev = Developer(name=dev_name, email=email_id)
          dev.save()
 
+         hosting_status = "hosted"
+         hosted_url = "http://cse14-iiith.vlabs.ac.in"
+         hosted_on = "cloud"
+         host = HostingInfo(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
+         host.save()
+
          lab = Lab(lab_name=lab_name, lab_id=lab_id, overview=overview,
-                       institute=inst, discipline=discipline,
+                       institute=inst, discipline=discipline, hostinginfo=host,
                        experiments=[], developers=[dev])
+
          lab.save()
 
          exp_name = "Number Systems"
@@ -1790,9 +1829,16 @@ class TestPersistenceDelegate(TestCase):
          dev = Developer(name=dev_name, email=email_id)
          dev.save()
 
+         hosting_status = "hosted"
+         hosted_url = "http://cse14-iiith.vlabs.ac.in"
+         hosted_on = "cloud"
+         host = HostingInfo(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
+         host.save()
+
          lab = Lab(lab_name=lab_name, lab_id=lab_id, overview=overview, 
-                       institute=inst, discipline=discipline,
+                       institute=inst, discipline=discipline, hostinginfo=host,
                        experiments=[], developers=[dev])
+
          lab.save()
          
          institute1 = Lab.get_by_id(1)
@@ -1907,9 +1953,16 @@ class TestPersistenceDelegate(TestCase):
          dev = Developer(name=dev_name, email=email_id)
          dev.save()
 
+         hosting_status = "hosted"
+         hosted_url = "http://cse14-iiith.vlabs.ac.in"
+         hosted_on = "cloud"
+         host = HostingInfo(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
+         host.save()
+
          lab = Lab(lab_name=lab_name1, lab_id=lab_id1, overview=overview,
-                       institute=inst, discipline=discipline,
+                       institute=inst, discipline=discipline, hostinginfo=host,
                        experiments=[], developers=[dev])
+
          lab.save()
 
          lab_obj = self.persistence_delegate.get_lab(lab_name=
@@ -2201,9 +2254,17 @@ class TestPersistenceDelegate(TestCase):
          dev = Developer(name=dev_name, email=email_id)
          dev.save()
 
+
+         hosting_status = "hosted"
+         hosted_url = "http://cse14-iiith.vlabs.ac.in"
+         hosted_on = "cloud"
+         host = HostingInfo(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
+         host.save()
+
          lab1 = Lab(lab_name=lab_name1, lab_id=lab_id1, overview=overview,
-                        institute=inst, discipline=discipline,
+                        institute=inst, discipline=discipline, hostinginfo=host,
                         experiments=[], developers=[dev])
+
          lab1.save()
 
          lab_name2="Data Structures"
@@ -2211,7 +2272,8 @@ class TestPersistenceDelegate(TestCase):
 
          lab2 = Lab(lab_name=lab_name2, lab_id=lab_id2, overview=overview,
                         institute=inst, discipline=discipline,
-                        experiments=[], developers=[dev])
+                        experiments=[], developers=[dev], hostinginfo=host)
+
          lab2.save()
 
          labs_list = self.persistence_delegate.get_labs(overview=overview)
@@ -2242,9 +2304,16 @@ class TestPersistenceDelegate(TestCase):
          dev = Developer(name=dev_name, email=email_id)
          dev.save()
 
+         hosting_status = "hosted"
+         hosted_url = "http://cse14-iiith.vlabs.ac.in"
+         hosted_on = "cloud"
+         host = HostingInfo(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
+         host.save()
+
          lab1 = Lab(lab_name=lab_name1, lab_id=lab_id1, overview=overview,
-                        institute=inst, discipline=discipline,
+                        institute=inst, discipline=discipline, hostinginfo=host,
                         experiments=[], developers=[dev])
+
          lab1.save()
 
          lab_name2="Data Structures"
@@ -2252,7 +2321,8 @@ class TestPersistenceDelegate(TestCase):
 
          lab2 = Lab(lab_name=lab_name2, lab_id=lab_id2, overview=overview,
                         institute=inst, discipline=discipline,
-                        experiments=[], developers=[dev])
+                        experiments=[], developers=[dev],  hostinginfo=host)
+
          lab2.save()
 
          labs_list = self.persistence_delegate.get_labs(lab_id=lab_id1)
@@ -2281,9 +2351,16 @@ class TestPersistenceDelegate(TestCase):
          dev = Developer(name=dev_name, email=email_id)
          dev.save()
 
+         hosting_status = "hosted"
+         hosted_url = "http://cse14-iiith.vlabs.ac.in"
+         hosted_on = "cloud"
+         host = HostingInfo(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
+         host.save()
+
          lab1 = Lab(lab_name=lab_name1, lab_id=lab_id1, overview=overview,
-                        institute=inst, discipline=discipline,
+                        institute=inst, discipline=discipline, hostinginfo=host,
                         experiments=[], developers=[dev])
+
          lab1.save()
 
          lab_name2="Data Structures"
@@ -2291,7 +2368,8 @@ class TestPersistenceDelegate(TestCase):
 
          lab2 = Lab(lab_name=lab_name2, lab_id=lab_id2, overview=overview,
                         institute=inst, discipline=discipline,
-                        experiments=[], developers=[dev])
+                        experiments=[], developers=[dev], hostinginfo=host)
+
          lab2.save()
 
          labs_list = self.persistence_delegate.get_labs(lab_id=lab_id1,
@@ -2322,9 +2400,16 @@ class TestPersistenceDelegate(TestCase):
          dev = Developer(name=dev_name, email=email_id)
          dev.save()
 
+         hosting_status = "hosted"
+         hosted_url = "http://cse14-iiith.vlabs.ac.in"
+         hosted_on = "cloud"
+         host = HostingInfo(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
+         host.save()
+
          lab1 = Lab(lab_name=lab_name1, lab_id=lab_id1, overview=overview,
-                        institute=inst, discipline=discipline,
+                        institute=inst, discipline=discipline, hostinginfo=host,
                         experiments=[], developers=[dev])
+
          lab1.save()
 
          lab_name2="Data Structures"
@@ -2332,7 +2417,8 @@ class TestPersistenceDelegate(TestCase):
 
          lab2 = Lab(lab_name=lab_name2, lab_id=lab_id2, overview=overview,
                         institute=inst, discipline=discipline,
-                        experiments=[], developers=[dev])
+                        experiments=[], developers=[dev], hostinginfo=host)
+
          lab2.save()
 
          labs_list = self.persistence_delegate.get_labs(institute=inst)
@@ -2534,9 +2620,16 @@ class TestPersistenceDelegate(TestCase):
          dev = Developer(name=dev_name, email=email_id)
          dev.save()
 
+         hosting_status = "hosted"
+         hosted_url = "http://cse14-iiith.vlabs.ac.in"
+         hosted_on = "cloud"
+         host = HostingInfo(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
+         host.save()
+
          lab = Lab(lab_name=lab_name1, lab_id=lab_id1, overview=overview, 
-                       institute=inst, discipline=discipline,
+                       institute=inst, discipline=discipline, hostinginfo=host,
                        experiments=[], developers=[dev])
+
          lab.save()
 
          lab_obj = self.persistence_delegate.get_lab_by_id(1)
