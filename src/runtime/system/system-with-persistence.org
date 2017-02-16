@@ -40,6 +40,9 @@ class TestAddLab(TestCase):
         institute_cls = System.delegate.entities['institute']
         discipline_cls = System.delegate.entities['discipline']
         experiment_cls = System.delegate.entities['experiment']
+        name_cls = System.delegate.entities['name']
+        email_cls = System.delegate.entities['email']
+        developer_cls = System.delegate.entities['developer']
 
         exp_name = "arrays"
         exp_id = "cse02"
@@ -47,6 +50,13 @@ class TestAddLab(TestCase):
         experiment = experiment_cls(exp_name=exp_name, exp_id=exp_id,
                                         overview=overview, sections=[])
         experiment.save()
+
+        dev_name = name_cls(name="Mohit Tahiliani")
+        dev_name.save()
+        email_id = email_cls(email="mohit.tahiliani@gmail.com")
+        email_id.save()
+        dev = developer_cls(name=dev_name, email=email_id)
+        dev.save()
 
         inst_name = "IIT Kanpur"
         inst_id = "IITK"
@@ -65,7 +75,7 @@ class TestAddLab(TestCase):
         session = session_cls(key=key)
         lab = lab_cls(lab_id=lab_id1, lab_name=lab_name1,        
                           institute=inst, discipline=discipline,                  
-                          overview=overview, experiments=[experiment])
+                          overview=overview, experiments=[experiment], developers=[dev])
 
         lab1 = System.do("add_lab", lab=lab, session=session)
         new_lab = lab_cls.get_by_id(1)
@@ -518,6 +528,9 @@ class TestUpdateLab(TestCase):
         institute_cls = System.delegate.entities['institute']
         discipline_cls = System.delegate.entities['discipline']
         experiment_cls = System.delegate.entities['experiment']
+        name_cls = System.delegate.entities['name']
+        email_cls = System.delegate.entities['email']
+        developer_cls = System.delegate.entities['developer']
 
         exp_name = "arrays"
         exp_id = "cse02"
@@ -536,6 +549,13 @@ class TestUpdateLab(TestCase):
         discipline = discipline_cls(dis_name=dis_name, dis_id=dis_id)
         discipline.save()
 
+        dev_name = name_cls(name="Mohit Tahiliani")
+        dev_name.save()
+        email_id = email_cls(email="mohit.tahiliani@gmail.com")
+        email_id.save()
+        dev = developer_cls(name=dev_name, email=email_id)
+        dev.save()
+
         lab_name1="Computer Programming"
         lab_id1="CSE01"
         key = KEY
@@ -543,7 +563,7 @@ class TestUpdateLab(TestCase):
         session = session_cls(key=key)
         lab = lab_cls(lab_id=lab_id1, lab_name=lab_name1, \
                           institute=inst, discipline=discipline,      
-                          overview=overview, experiments=[experiment])
+                          overview=overview, experiments=[experiment], developers=[dev])
 
         lab.save()
         lab_name2="Computer Programming"
@@ -947,6 +967,9 @@ class TestDeleteLab(TestCase):
         institute_cls = System.delegate.entities['institute']
         discipline_cls = System.delegate.entities['discipline']
         experiment_cls = System.delegate.entities['experiment']
+        name_cls = System.delegate.entities['name']
+        email_cls = System.delegate.entities['email']
+        developer_cls = System.delegate.entities['developer']
 
         exp_name = "arrays"
         exp_id = "cse02"
@@ -965,6 +988,13 @@ class TestDeleteLab(TestCase):
         discipline = discipline_cls(dis_name=dis_name, dis_id=dis_id)
         discipline.save()
 
+        dev_name = name_cls(name="Mohit Tahiliani")
+        dev_name.save()
+        email_id = email_cls(email="mohit.tahiliani@gmail.com")
+        email_id.save()
+        dev = developer_cls(name=dev_name, email=email_id)
+        dev.save()
+
         lab_name1="Computer Programming"
         lab_id1="CSE01"
         key = KEY
@@ -972,7 +1002,7 @@ class TestDeleteLab(TestCase):
         session = session_cls(key=key)
         lab = lab_cls(lab_id=lab_id1, lab_name=lab_name1, \
                           institute=inst, discipline=discipline,
-                          overview=overview, experiments=[experiment])
+                          overview=overview, experiments=[experiment], developers=[dev])
         lab.save()
         lab_id = System.do("delete_lab", lab_id = lab_id1,
                                   session=session)
@@ -1199,6 +1229,9 @@ class TestGetLab(TestCase):
         lab_cls = System.delegate.entities['lab']
         institute_cls = System.delegate.entities['institute']
         discipline_cls = System.delegate.entities['discipline']
+        name_cls = System.delegate.entities['name']
+        email_cls = System.delegate.entities['email']
+        developer_cls = System.delegate.entities['developer']
 
         lab_name1="Computer Programming"
         lab_id1="CSE01"
@@ -1214,9 +1247,16 @@ class TestGetLab(TestCase):
         discipline = discipline_cls(dis_name=dis_name, dis_id=dis_id)
         discipline.save()
 
+        dev_name = name_cls(name="Mohit Tahiliani")
+        dev_name.save()
+        email_id = email_cls(email="mohit.tahiliani@gmail.com")
+        email_id.save()
+        dev = developer_cls(name=dev_name, email=email_id)
+        dev.save()
+
         lab = lab_cls(lab_id=lab_id1, lab_name=lab_name1, \
                           institute=inst, discipline=discipline,
-                          overview=overview, experiments=[])
+                          overview=overview, experiments=[], developers=[dev])
 
         lab.save()
 
@@ -1254,6 +1294,9 @@ class TestGetLabByInstitute(TestCase):
         lab_cls = System.delegate.entities['lab']
         institute_cls = System.delegate.entities['institute']
         discipline_cls = System.delegate.entities['discipline']
+        name_cls = System.delegate.entities['name']
+        email_cls = System.delegate.entities['email']
+        developer_cls = System.delegate.entities['developer']
 
         lab_name1="Computer Programming"
         lab_id1="CSE01"
@@ -1269,9 +1312,16 @@ class TestGetLabByInstitute(TestCase):
         discipline = discipline_cls(dis_name=dis_name, dis_id=dis_id)
         discipline.save()
 
+        dev_name = name_cls(name="Mohit Tahiliani")
+        dev_name.save()
+        email_id = email_cls(email="mohit.tahiliani@gmail.com")
+        email_id.save()
+        dev = developer_cls(name=dev_name, email=email_id)
+        dev.save()
+
         lab = lab_cls(lab_id=lab_id1, lab_name=lab_name1, \
                           institute=inst, discipline=discipline,
-                          overview=overview, experiments=[])
+                          overview=overview, experiments=[], developers=[dev])
 
         lab.save()
 
@@ -1307,6 +1357,9 @@ class TestGetLabByDiscipline(TestCase):
         lab_cls = System.delegate.entities['lab']
         institute_cls = System.delegate.entities['institute']
         discipline_cls = System.delegate.entities['discipline']
+        name_cls = System.delegate.entities['name']
+        email_cls = System.delegate.entities['email']
+        developer_cls = System.delegate.entities['developer']
 
         lab_name1="Computer Programming"
         lab_id1="CSE01"
@@ -1322,9 +1375,16 @@ class TestGetLabByDiscipline(TestCase):
         discipline = discipline_cls(dis_name=dis_name, dis_id=dis_id)
         discipline.save()
 
+        dev_name = name_cls(name="Mohit Tahiliani")
+        dev_name.save()
+        email_id = email_cls(email="mohit.tahiliani@gmail.com")
+        email_id.save()
+        dev = developer_cls(name=dev_name, email=email_id)
+        dev.save()
+
         lab = lab_cls(lab_id=lab_id1, lab_name=lab_name1, \
                           institute=inst, discipline=discipline,
-                          overview=overview, experiments=[])
+                          overview=overview, experiments=[], developers=[dev])
 
         lab.save()
 
@@ -1360,6 +1420,9 @@ class TestGetLabByLabName(TestCase):
         lab_cls = System.delegate.entities['lab']
         institute_cls = System.delegate.entities['institute']
         discipline_cls = System.delegate.entities['discipline']
+        name_cls = System.delegate.entities['name']
+        email_cls = System.delegate.entities['email']
+        developer_cls = System.delegate.entities['developer']
 
         lab_name1="Computer Programming"
         lab_id1="CSE01"
@@ -1375,9 +1438,16 @@ class TestGetLabByLabName(TestCase):
         discipline = discipline_cls(dis_name=dis_name, dis_id=dis_id)
         discipline.save()
 
+        dev_name = name_cls(name="Mohit Tahiliani")
+        dev_name.save()
+        email_id = email_cls(email="mohit.tahiliani@gmail.com")
+        email_id.save()
+        dev = developer_cls(name=dev_name, email=email_id)
+        dev.save()
+
         lab = lab_cls(lab_id=lab_id1, lab_name=lab_name1, \
                           institute=inst, discipline=discipline,
-                          overview=overview, experiments=[])
+                          overview=overview, experiments=[], developers=[dev])
 
         lab.save()
 

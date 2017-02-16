@@ -36,6 +36,7 @@ class SystemInterface ():
         session_cls = System.delegate.entities['session']
         lab_cls = System.delegate.entities['lab']
         exp_cls = System.delegate.entities['experiment']
+        email_cls = System.delegate.entities['email']
 
         session = session_cls(key=data_dict['key'])
         del(data_dict['key'])
@@ -52,12 +53,20 @@ class SystemInterface ():
         dis_id = data_dict['dis_id']
         discipline = System.do("get_discipline", dis_id=dis_id)
 
+        developers = data_dict['developers']
+        developer_list = []
+        for d_id in developers:
+            email = email_cls(email=d_id)
+            developer = System.do("get_developer", email=email)
+            developer_list.append(developer)
+
         lab = lab_cls(lab_name=data_dict['lab_name'],
                                 lab_id=data_dict['lab_id'],
                                 overview=data_dict['overview'],
                                 institute=institute,
                                 discipline=discipline,
-                                experiments=exp_list)
+                                experiments=exp_list,
+                                developers=developer_list)
         try:
             current_app.logger.debug("running operation add_lab")
             lab = System.do("add_lab", lab=lab, session=session)
@@ -119,13 +128,22 @@ class TestAddLab(TestCase):
 
         discipline = SystemInterface.add_discipline(data_dict)
 
+        data_dict = {
+                    'key' : KEY,
+                    'name': 'Prof. Dharamaja',
+                    'email': 'abc@gmail.com'
+                   }
+
+        developer = SystemInterface.add_developer(data_dict)
+
         data_dict = {'lab_name': 'data structure',
                     'lab_id': 'cse02',
                     'overview' : 'overview',
                     'key' : KEY,
                     'inst_id': 'IITK',
                     'dis_id': 'CSE',
-                    'experiments': ['exp123']
+                    'experiments': ['exp123'],
+                    'developers': ['abc@gmail.com']
                    }
 
         lab = SystemInterface.add_lab(data_dict)
@@ -140,7 +158,7 @@ class TestAddLab(TestCase):
                              data_dict['dis_id'])
         self.assertEqual(lab.get("experiments")[0].get("exp_name"), 'arrays')
         self.assertEqual(lab.get("experiments")[0].get("exp_id"), 'exp123')
-
+        self.assertEqual(lab.get("developers")[0].get("email").get("email"), 'abc@gmail.com')
 
     def test_add_lab_raises_type_error_in_system_interface(self):
         print "test_add_lab_raises_type_error_in_system_interface"
@@ -171,13 +189,22 @@ class TestAddLab(TestCase):
 
         discipline = SystemInterface.add_discipline(data_dict)
 
+        data_dict = {
+                    'key' : KEY,
+                    'name': 'Prof. Dharamaja',
+                    'email': 'abc@gmail.com'
+                   }
+
+        developer = SystemInterface.add_developer(data_dict)
+
         data_dict = {'lab_name': 'data structure',
                     'lab_id': 123,
                     'overview' : 'overview',
                     'key' : KEY,
                     'inst_id': 'IITK',
                     'dis_id': 'CSE',
-                    'experiments': ['exp123']
+                    'experiments': ['exp123'],
+                    'developers': ['abc@gmail.com']
                    }
 
         with self.assertRaises(TypeError):
@@ -955,13 +982,22 @@ class TestGetLabs(TestCase):
 
         discipline = SystemInterface.add_discipline(data_dict)
 
+        data_dict = {
+                    'key' : KEY,
+                    'name': 'Prof. Dharamaja',
+                    'email': 'abc@gmail.com'
+                   }
+
+        developer = SystemInterface.add_developer(data_dict)
+
         data_dict = {'lab_name': 'data structure',
                     'lab_id': 'cse01',
                     'key' : KEY,
                     'overview' : 'overview',
                     'inst_id': 'IITK',
                     'dis_id': 'CSE',
-                    'experiments': ['exp123']
+                    'experiments': ['exp123'],
+                    'developers': ['abc@gmail.com']
                    }
 
         data_dict1 = {'lab_name': "Automata",
@@ -970,7 +1006,8 @@ class TestGetLabs(TestCase):
             'overview' : 'overview',
             'inst_id': 'IITK',
             'dis_id': 'CSE',
-            'experiments': ['exp123']
+            'experiments': ['exp123'],
+            'developers': ['abc@gmail.com']
            }
 
         lab1 = SystemInterface.add_lab(data_dict)
@@ -1061,12 +1098,21 @@ class TestGetLabsByInstitute(TestCase):
 
         data_dict = {
                     'key' : KEY,
+                    'name': 'Prof. Dharamaja',
+                    'email': 'abc@gmail.com'
+                   }
+
+        developer = SystemInterface.add_developer(data_dict)
+
+        data_dict = {
+                    'key' : KEY,
                     'lab_name': 'Data Structures',
                     'lab_id': 'cse01',
                     'overview' : 'overview',
                     'inst_id': 'IITK',
                     'dis_id': 'CSE',
-                    'experiments': ['exp123']
+                    'experiments': ['exp123'],
+                    'developers': ['abc@gmail.com']
                    }
 
         data_dict1 = {
@@ -1076,7 +1122,8 @@ class TestGetLabsByInstitute(TestCase):
                     'overview' : 'overview',
                     'inst_id': 'IITK',
                     'dis_id': 'CSE',
-                    'experiments': ['exp123']
+                    'experiments': ['exp123'],
+                    'developers': ['abc@gmail.com']
                    }
 
         lab = SystemInterface.add_lab(data_dict)
@@ -1162,12 +1209,21 @@ class TestGetLabsByDiscipline(TestCase):
 
         data_dict = {
                     'key' : KEY,
+                    'name': 'Prof. Dharamaja',
+                    'email': 'abc@gmail.com'
+                   }
+
+        developer = SystemInterface.add_developer(data_dict)
+
+        data_dict = {
+                    'key' : KEY,
                     'lab_name': 'Data Structures',
                     'lab_id': 'cse01',
                     'overview' : 'overview',
                     'inst_id': 'IITK',
                     'dis_id': 'CSE',
-                    'experiments': ['exp123']
+                    'experiments': ['exp123'],
+                    'developers': ['abc@gmail.com']
                    }
 
         data_dict1 = {
@@ -1177,7 +1233,8 @@ class TestGetLabsByDiscipline(TestCase):
                     'overview' : 'overview',
                     'inst_id': 'IITK',
                     'dis_id': 'CSE',
-                    'experiments': ['exp123']
+                    'experiments': ['exp123'],
+                    'developers': ['abc@gmail.com']
                    }
 
         lab = SystemInterface.add_lab(data_dict)
@@ -1262,12 +1319,21 @@ class TestGetLabsByLabName(TestCase):
 
         data_dict = {
                     'key' : KEY,
+                    'name': 'Prof. Dharamaja',
+                    'email': 'abc@gmail.com'
+                   }
+
+        developer = SystemInterface.add_developer(data_dict)
+
+        data_dict = {
+                    'key' : KEY,
                     'lab_name': 'Data Structures',
                     'lab_id': 'cse01',
                     'overview' : 'overview',
                     'inst_id': 'IITK',
                     'dis_id': 'CSE',
-                    'experiments': ['exp123']
+                    'experiments': ['exp123'],
+                    'developers': ['abc@gmail.com']
                    }
 
         data_dict1 = {
@@ -1277,7 +1343,8 @@ class TestGetLabsByLabName(TestCase):
                     'overview' : 'overview',
                     'inst_id': 'IITK',
                     'dis_id': 'CSE',
-                    'experiments': ['exp123']
+                    'experiments': ['exp123'],
+                    'developers': ['abc@gmail.com']
                    }
 
         lab = SystemInterface.add_lab(data_dict)
@@ -1956,12 +2023,21 @@ class TestGetLabById(TestCase):
 
         data_dict = {
                     'key' : KEY,
+                    'name': 'Prof. Dharamaja',
+                    'email': 'abc@gmail.com'
+                   }
+
+        developer = SystemInterface.add_developer(data_dict)
+
+        data_dict = {
+                    'key' : KEY,
                     'lab_name': 'array',
                     'lab_id': 'cse02',
                     'inst_id': 'IITK',
                     'dis_id': 'CSE',
                     'overview' : 'overview',
-                    'experiments': ['exp123']
+                    'experiments': ['exp123'],
+                    'developers': ['abc@gmail.com']
                    }
 
         data_dict1 = {
@@ -1971,7 +2047,8 @@ class TestGetLabById(TestCase):
                     'inst_id': 'IITK',
                     'dis_id': 'CSE',
                     'overview' : 'overview',
-                    'experiments': ['exp123']
+                    'experiments': ['exp123'],
+                    'developers': ['abc@gmail.com']
                    }
 
         lab1 = SystemInterface.add_lab(data_dict)
@@ -2349,12 +2426,21 @@ class TestUpdateLab(TestCase):
 
         data_dict = {
                     'key' : KEY,
+                    'name': 'Prof. Dharamaja',
+                    'email': 'abc@gmail.com'
+                   }
+
+        developer = SystemInterface.add_developer(data_dict)
+
+        data_dict = {
+                    'key' : KEY,
                     'lab_name': 'Data Structures',
                     'lab_id': 'cse02',
                     'overview' : 'overview',
                     'inst_id': 'IITK',
                     'dis_id': 'CSE',
-                    'experiments': ['exp123']
+                    'experiments': ['exp123'],
+                    'developers': ['abc@gmail.com']
                    }
 
         data_dict1 = {
@@ -2398,6 +2484,14 @@ class TestUpdateLab(TestCase):
 
         discipline = SystemInterface.add_discipline(data_dict)
 
+        data_dict = {
+                    'key' : KEY,
+                    'name': 'Prof. Dharamaja',
+                    'email': 'abc@gmail.com'
+                   }
+
+        developer = SystemInterface.add_developer(data_dict)
+
 
         data_dict = {
                     'key' : KEY,
@@ -2406,7 +2500,8 @@ class TestUpdateLab(TestCase):
                     'overview' : 'overview',
                     'inst_id': 'IITK',
                     'dis_id': 'CSE',
-                    'experiments': ['exp123']
+                    'experiments': ['exp123'],
+                    'developers': ['abc@gmail.com']
                    }
 
         data_dict1 = {
@@ -2931,12 +3026,21 @@ class TestDeleteLab(TestCase):
 
         data_dict = {
                     'key' : KEY,
+                    'name': 'Prof. Dharamaja',
+                    'email': 'abc@gmail.com'
+                   }
+
+        developer = SystemInterface.add_developer(data_dict)
+
+        data_dict = {
+                    'key' : KEY,
                     'lab_name': 'Data Structures',
                     'lab_id': 'cse01',
                     'inst_id': 'IITK',
                     'dis_id': 'CSE',
                     'overview' : 'overview',
-                    'experiments': ['exp123']
+                    'experiments': ['exp123'],
+                    'developers': ['abc@gmail.com']
                    }
 
         data_dict1 = {
@@ -2946,7 +3050,8 @@ class TestDeleteLab(TestCase):
                     'inst_id': 'IITK',
                     'dis_id': 'CSE',
                     'overview' : 'overview',
-                    'experiments': ['exp123']
+                    'experiments': ['exp123'],
+                    'developers': ['abc@gmail.com']
                    }
 
         lab = SystemInterface.add_lab(data_dict)
@@ -3649,12 +3754,21 @@ class TestGetLabByLabId(TestCase):
 
         data_dict = {
                     'key' : KEY,
+                    'name': 'Prof. Dharamaja',
+                    'email': 'abc@gmail.com'
+                   }
+
+        developer = SystemInterface.add_developer(data_dict)
+
+        data_dict = {
+                    'key' : KEY,
                     'lab_name': 'Data Structures',
                     'lab_id': 'cse01',
                     'overview' : 'overview',
                     'inst_id': 'IITK',
                     'dis_id': 'CSE',
-                    'experiments': ['exp123']
+                    'experiments': ['exp123'],
+                    'developers': ['abc@gmail.com']
                    }
 
         data_dict1 = {
@@ -3664,7 +3778,8 @@ class TestGetLabByLabId(TestCase):
                     'overview' : 'overview',
                     'inst_id': 'IITK',
                     'dis_id': 'CSE',
-                    'experiments': ['exp123']
+                    'experiments': ['exp123'],
+                    'developers': ['abc@gmail.com']
                    }
 
         lab = SystemInterface.add_lab(data_dict)

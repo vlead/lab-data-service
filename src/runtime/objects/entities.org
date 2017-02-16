@@ -104,7 +104,7 @@ def are_sections(sections):
 is_developer = is_inst(Developer)
 check_dev = check_pred(is_developer)
 
-def are_devs(devs):
+def are_developers(devs):
     ret_val = True
     if is_list(devs):
         for dev in devs:
@@ -203,7 +203,8 @@ Lab.add_attributes(lab_name=is_str,
                     overview=is_str,
                     institute=is_institute,
                     discipline=is_discipline,
-                    experiments=are_experiments)
+                    experiments=are_experiments,
+                    developers=are_developers)
 
 Lab.__eq__ = lambda self, other: \
                   isinstance(other, self.__class__) and \
@@ -212,7 +213,8 @@ Lab.__eq__ = lambda self, other: \
                   self.get("overview") == other.get("overview") and \
                   self.get("institute") == other.get("institute") and \
                   self.get("discipline") == other.get("discipline") and \
-                  self.get("experiments") == other.get("experiments")
+                  self.get("experiments") == other.get("experiments") and \
+                  self.get("developers") == other.get("developers")
 
 #+end_src
 
@@ -235,6 +237,10 @@ class TestLab(TestCase):
         dis_id = "IITK"
         discipline = Discipline(dis_name=dis_name, dis_id=dis_id)
 
+        dev_name = Name(name="Mohit Tahiliani")
+        email_id = Email(email="mohit.tahiliani@gmail.com")
+        dev = Developer(name=dev_name, email=email_id)
+
         experiment = Experiment(exp_name=exp_name, exp_id=exp_id, \
                                     overview=overview, sections=[])
 
@@ -243,7 +249,7 @@ class TestLab(TestCase):
         overview = "This is data structures lab which deals about array,stack"
         "and ques..etc"
         lab = Lab(lab_name=lab_name, lab_id=lab_id, overview=overview,
-                      institute=inst, discipline=discipline,
+                      institute=inst, discipline=discipline, developers=[dev],
                       experiments=[experiment])
 
         self.assertEqual(lab.get("lab_name"), lab_name)
@@ -253,6 +259,7 @@ class TestLab(TestCase):
                              inst.get("inst_name"))
         self.assertEqual(lab.get("experiments")[0].get("exp_name"), 
                              experiment.get("exp_name"))
+        self.assertEqual(lab.get("developers")[0].get("email").get("email"), email_id.get("email"))
 
 #+END_SRC
 
