@@ -28,6 +28,12 @@ lab_assets = db.Table('lab_assets',
 		 db.Column('assetid', db.Integer,
                        db.ForeignKey('asset.id')))
                      
+lab_developers = db.Table('lab_developers',
+		      db.Column('labid', db.Integer, 
+                            db.ForeignKey('lab.id')),
+		      db.Column('developer_id', db.Integer,
+                            db.ForeignKey('developer.id')))
+
 #+END_SRC
 
 #+NAME: class_Lab
@@ -42,7 +48,6 @@ args = {"__tablename__": "lab",
         "experiments": db.relationship('Experiment',
                     secondary=lab_experiments, 
                     backref='labs'),
-
         "institute_id": db.Column(db.Integer, db.ForeignKey('institute.id'), 
                                       unique=False, nullable=False),
         "discipline_id": db.Column(db.Integer, db.ForeignKey('discipline.id'), 
@@ -52,7 +57,11 @@ args = {"__tablename__": "lab",
         "assets": db.relationship('Asset',
                     secondary=lab_assets, 
                     backref='labs'),
-        }
+        "developers": db.relationship('Developer',
+                    secondary=lab_developers, 
+                    backref='labs'),
+        "hostinginfo_id": db.Column(db.Integer, db.ForeignKey('hostinginfo.id'), 
+                                      unique=False, nullable=False)
 
 Lab = ClassPersistenceTemplate.mk_persistent(Lab, ['lab_id'],\
                                                  **args)
@@ -105,15 +114,28 @@ class TestPersistentLab(TestCase):
         asset = Asset(asset_type=asset_type, path=path)
         asset.save()
 
+        dev_name = Name(name="Mohit Tahiliani")
+        dev_name.save()
+        email_id = Email(email="mohit.tahiliani@gmail.com")
+        email_id.save()
+        dev = Developer(name=dev_name, email=email_id)
+        dev.save()
+
+        hosting_status = "hosted"
+        hosted_url = "http://cse14-iiith.vlabs.ac.in"
+        hosted_on = "cloud"
+        host = HostingInfo(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
+        host.save()
+
         lab_name1="Computer Programming"
         lab_id1="CSE01"
         overview1 = "This is data structures lab which deals about array,stack"
         " and ques..etc"
         lab1 = Lab(lab_name=lab_name1, lab_id=lab_id1, overview=overview1,
                        experiments=[experiment], institute=inst,
-                       discipline=discipline, integrationstatus=intstatus,
-                       assets=[asset])
-
+                       integrationstatus=intstatus,
+                       assets=[asset], discipline=discipline, 
+                       developers=[dev], hostinginfo=host)
         lab1.save()
 
         lab_name2="Data Structures"
@@ -122,8 +144,9 @@ class TestPersistentLab(TestCase):
         "array,stack and ques..etc"
         lab2 = Lab(lab_name=lab_name2, lab_id=lab_id2, overview=overview2, 
                        integrationstatus=intstatus, experiments=[], 
-                   institute=inst, discipline=discipline, assets=[asset])
-
+                   institute=inst, discipline=discipline, assets=[asset],
+                    developers=[], hostinginfo=host)
+        
         lab2.save()
 
         lab1 = Lab.get_by_id(1)
@@ -144,6 +167,12 @@ class TestPersistentLab(TestCase):
         self.assertEqual(lab1.get("integrationstatus").get("integration_level"), 
                              intstatus.get("integration_level"))
 
+        self.assertEqual(lab1.get("developers")[0].get("email").get("email"), 
+                             email_id.get("email"))
+
+        self.assertEqual(lab1.get("hostinginfo").get("hosting_status"), 
+                             host.get("hosting_status"))
+
         self.assertEqual(lab2.get("lab_name"), lab_name2)
         self.assertEqual(lab2.get("lab_id"), lab_id2)
         self.assertEqual(lab2.get("overview"), overview2)
@@ -151,11 +180,14 @@ class TestPersistentLab(TestCase):
                              inst.get("inst_name"))
         self.assertEqual(lab2.get("discipline").get("dis_name"), 
                              discipline.get("dis_name"))
+        self.assertEqual(lab2.get("hostinginfo").get("hosting_status"), 
+                             host.get("hosting_status"))
         self.assertEqual(lab2.get("experiments"), [])
         self.assertEqual(lab2.get("assets")[0].get("asset_type"), 
                              asset.get("asset_type"))
         self.assertEqual(lab2.get("integrationstatus").get("integration_level"), 
                              intstatus.get("integration_level"))
+        self.assertEqual(lab2.get("developers"), [])
 
         self.assertEqual(lab3, None)
 
@@ -297,7 +329,7 @@ args = {"__tablename__": "discipline",
         "id": db.Column(db.Integer, primary_key=True),
         "dis_name": db.Column(db.String(255), unique=False, nullable=True),
         "dis_id": db.Column(db.String(255), unique=True, nullable=False),
-        "labs": db.relationship('Lab', backref=db.backref('discipline'))       
+        "labs": db.relationship('Lab', backref=db.backref('discipline'))
         }
 
 Discipline = ClassPersistenceTemplate.mk_persistent(Discipline, ['dis_id'], **args)
@@ -538,7 +570,8 @@ args = {"__tablename__": "hostinginfo",
         "id": db.Column(db.Integer, primary_key=True),
         "hosting_status": db.Column(db.String(255), unique=False, nullable=True),
         "hosted_url": db.Column(db.String(255), unique=True, nullable=False),
-        "hosted_on": db.Column(db.String(255), unique=False, nullable=True)
+        "hosted_on": db.Column(db.String(255), unique=False, nullable=True),
+        "labs": db.relationship('Lab', backref=db.backref('hostinginfo'))
        }
 
 HostingInfo = ClassPersistenceTemplate.mk_persistent(HostingInfo, ['hosted_url'], **args)
