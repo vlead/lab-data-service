@@ -2004,18 +2004,52 @@ class TestAddAssetsToLab(TestCase):
 
     def test_add_assets_to_lab(self):
         print "test_add_assets_to_lab_in_system_persistence"
-        session_cls = System.delegate.entities['session']
-        asset_cls = System.delegate.entities['asset']
-        lab_cls = System.delegate.entities['lab']
 
-        lab_name = "data structures"
-        lab_id = "cse02"
+        session_cls = System.delegate.entities['session']
+        lab_cls = System.delegate.entities['lab']
+        institute_cls = System.delegate.entities['institute']
+        discipline_cls = System.delegate.entities['discipline']
+        asset_cls = System.delegate.entities['asset']
+        experiment_cls = System.delegate.entities['experiment']
+        integrationstatus_cls = System.delegate.entities['integrationstatus']
+         
+        exp_name = "arrays"
+        exp_id = "cse02"
         overview = "overview"
-        lab = lab_cls(lab_name=lab_name, lab_id=lab_id, overview=overview)
+        experiment = experiment_cls(exp_name=exp_name, exp_id=exp_id,
+                                        overview=overview, sections=[])
+        experiment.save()
+
+        integration_level = 4
+        integrationstatus = integrationstatus_cls(integration_level=integration_level)
+        integrationstatus.save()
+
+        inst_name = "IIT Kanpur"
+        inst_id = "IITK"
+        inst = institute_cls(inst_name=inst_name, inst_id=inst_id)
+        inst.save()
+
+        dis_name = "IIT Kanpur"
+        dis_id = "IITK"
+        discipline = discipline_cls(dis_name=dis_name, dis_id=dis_id)
+        discipline.save()
+
+        asset_type = "Image"
+        path = "vlabs.ac.in/images/static/logo.png"
+        asset = asset_cls(asset_type=asset_type, path=path)
+        asset.save()
+                                
+        lab_name1="Computer Programming"
+        lab_id1="CSE01"
         key = KEY
+        overview = "overview"
         session = session_cls(key=key)
-        lab = System.do("add_lab", lab=lab, session=session)
-        lab1 = lab_cls.get_by_id(1)
+
+        lab = lab_cls(lab_id=lab_id1, lab_name=lab_name1,        
+                          institute=inst, discipline=discipline, assets=[asset],                
+                          overview=overview,  integrationstatus=integrationstatus, 
+                          experiments=[experiment])
+        lab.save()
 
         asset1 = asset_cls(asset_type="Image", path="vlabs.ac.in/static/images/icon.png")
         asset1.save()
@@ -2023,12 +2057,12 @@ class TestAddAssetsToLab(TestCase):
         asset2 = asset_cls(asset_type="Video", path="vlabs.ac.in/static/images/logo.png")
         asset2.save()
         
-        lab = System.do("add_assets_to_lab", 
-                                labid=lab.id,
+        lab1 = System.do("add_assets_to_lab", 
+                                lab=lab,
                                 assets=[asset1, asset2],
                                 session=session)
 
-        self.assertEqual(lab1.get("lab_name"), lab_name)
+        self.assertEqual(lab1.get("lab_name"), lab_name1)
         self.assertEqual(lab1.get("assets")[0].get("asset_type"), "Image")
         self.assertEqual(lab1.get("assets")[1].get("asset_type"), "Video")            
 
