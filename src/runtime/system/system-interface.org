@@ -55,8 +55,11 @@ class SystemInterface ():
         dis_id = data_dict['dis_id']
         discipline = System.do("get_discipline", dis_id=dis_id)
 
-        path = data_dict['path']
-        asset = System.do("get_asset", path=path)
+        assets = data_dict['assets']
+        asset_list = []
+        for asset in assets:
+            asset = System.do("get_asset", path=asset)
+            asset_list.append(asset)
 
         lab = lab_cls(lab_name=data_dict['lab_name'],
                                 lab_id=data_dict['lab_id'],
@@ -64,7 +67,7 @@ class SystemInterface ():
                                 institute=institute,
                                 integrationstatus=integrationstatus,
                                 discipline=discipline,
-                                asset=asset,
+                                assets=asset_list,
                                 experiments=exp_list)
         try:
             current_app.logger.debug("running operation add_lab")
@@ -148,7 +151,7 @@ class TestAddLab(TestCase):
                     'key': KEY,
                     'inst_id': 'IITK',
                     'dis_id': 'CSE',
-                    'path': 'vlabs.ac.in/images/static/logo.png',
+                    'assets': ['vlabs.ac.in/images/static/logo.png'],
                     'experiments': ['exp123'],
                     'integration_level': 4
                    }
@@ -165,8 +168,8 @@ class TestAddLab(TestCase):
                              data_dict['integration_level'])
         self.assertEqual(lab.get("discipline").get("dis_id"),
                              data_dict['dis_id'])
-        self.assertEqual(lab.get("asset").get("path"),
-                             data_dict['path'])
+        self.assertEqual(lab.get("assets")[0].get("path"), 
+                             'vlabs.ac.in/images/static/logo.png'), 
         self.assertEqual(lab.get("experiments")[0].get("exp_name"), 'arrays')
         self.assertEqual(lab.get("experiments")[0].get("exp_id"), 'exp123')
 
@@ -221,7 +224,7 @@ class TestAddLab(TestCase):
                     'key': KEY,
                     'inst_id': 'IITK',
                     'dis_id': 'CSE',
-                    'path': 'vlabs.ac.in/images/static/logo.png',
+                    'assets': ['vlabs.ac.in/images/static/logo.png'],
                     'experiments': ['exp123'],
                     'integration_level': 4
                    }
@@ -1024,7 +1027,15 @@ class TestGetLabs(TestCase):
                     'path': 'vlabs.ac.in/images/static/logo.png'
                     }
 
-        asset = SystemInterface.add_asset(data_dict)
+        asset1 = SystemInterface.add_asset(data_dict)
+
+        data_dict = {
+                    'key' : KEY,
+                    'asset_type': 'Image',
+                    'path': 'vlabs.ac.in/images/static/icon.png',
+                    }
+
+        asset2 = SystemInterface.add_asset(data_dict)
 
         data_dict = {'lab_name': 'data structure',
                     'lab_id': 'cse01',
@@ -1032,7 +1043,7 @@ class TestGetLabs(TestCase):
                     'overview': 'overview',
                     'inst_id': 'IITK',
                     'dis_id': 'CSE',
-                    'path': 'vlabs.ac.in/images/static/logo.png',
+                    'assets': ['vlabs.ac.in/images/static/logo.png'],
                     'experiments': ['exp123'],
                     'integration_level': 4
                    }
@@ -1043,7 +1054,7 @@ class TestGetLabs(TestCase):
                       'overview': 'overview',
                       'inst_id': 'IITK',
                       'dis_id': 'CSE',
-                      'path': 'vlabs.ac.in/images/static/icon.png',
+                      'assets': ['vlabs.ac.in/images/static/icon.png'],
                       'experiments': ['exp123'], 
                       'integration_level': 4
                       }
@@ -1148,7 +1159,15 @@ class TestGetLabsByInstitute(TestCase):
                     'path': 'vlabs.ac.in/images/static/logo.png'
                    }
 
-        asset = SystemInterface.add_asset(data_dict)
+        asset1 = SystemInterface.add_asset(data_dict)
+
+        data_dict = {
+                    'key' : KEY,
+                    'asset_type': 'Image',
+                    'path': 'vlabs.ac.in/images/static/icon.png',
+                    }
+
+        asset2 = SystemInterface.add_asset(data_dict)
 
         data_dict = {
                     'key': KEY,
@@ -1157,7 +1176,7 @@ class TestGetLabsByInstitute(TestCase):
                     'overview': 'overview',
                     'inst_id': 'IITK',
                     'dis_id': 'CSE',
-                    'path': 'vlabs.ac.in/images/static/logo.png',
+                    'assets': ['vlabs.ac.in/images/static/logo.png'],
                     'experiments': ['exp123'], 
                     'integration_level': 4
                    }
@@ -1169,7 +1188,7 @@ class TestGetLabsByInstitute(TestCase):
                     'overview': 'overview',
                     'inst_id': 'IITK',
                     'dis_id': 'CSE',
-                    'path': 'vlabs.ac.in/images/static/logo.png',
+                    'assets': ['vlabs.ac.in/images/static/icon.png'],
                     'experiments': ['exp123'], 
                     'integration_level': 4
                    }
@@ -1268,7 +1287,15 @@ class TestGetLabsByDiscipline(TestCase):
                     'path': 'vlabs.ac.in/images/static/logo.png'
                    }
 
-        asset = SystemInterface.add_asset(data_dict)
+        asset1 = SystemInterface.add_asset(data_dict)
+
+        data_dict = {
+                    'key' : KEY,
+                    'asset_type': 'Image',
+                    'path': 'vlabs.ac.in/images/static/icon.png'
+                   }
+
+        asset2 = SystemInterface.add_asset(data_dict)
 
         data_dict = {
                     'key': KEY,
@@ -1277,7 +1304,7 @@ class TestGetLabsByDiscipline(TestCase):
                     'overview': 'overview',
                     'inst_id': 'IITK',
                     'dis_id': 'CSE',
-                    'path': 'vlabs.ac.in/images/static/logo.png',
+                    'assets': ['vlabs.ac.in/images/static/logo.png'],
                     'experiments': ['exp123'], 
                     'integration_level': 4
                    }
@@ -1289,7 +1316,7 @@ class TestGetLabsByDiscipline(TestCase):
                     'overview': 'overview',
                     'inst_id': 'IITK',
                     'dis_id': 'CSE',
-                    'path': 'vlabs.ac.in/images/static/logo.png',
+                    'assets': ['vlabs.ac.in/images/static/icon.png'],
                     'experiments': ['exp123'], 
                     'integration_level': 4
                    }
@@ -1396,7 +1423,7 @@ class TestGetLabsByLabName(TestCase):
                     'overview': 'overview',
                     'inst_id': 'IITK',
                     'dis_id': 'CSE',
-                    'path': 'vlabs.ac.in/images/static/logo.png',
+                    'assets': ['vlabs.ac.in/images/static/logo.png'],
                     'experiments': ['exp123'], 
                     'integration_level': 4
                    }
@@ -1408,7 +1435,7 @@ class TestGetLabsByLabName(TestCase):
                     'overview': 'overview',
                     'inst_id': 'IITK',
                     'dis_id': 'CSE',
-                    'path': 'vlabs.ac.in/images/static/logo.png',
+                    'assets': ['vlabs.ac.in/images/static/logo.png'],
                     'experiments': ['exp123'], 
                     'integration_level': 4
                    }
@@ -1422,6 +1449,7 @@ class TestGetLabsByLabName(TestCase):
 
  #+END_SRC
 
+
 ** Get Labs by Asset
 #+NAME: class_get_labs_by_asset
 #+begin_src python
@@ -1431,7 +1459,7 @@ class TestGetLabsByLabName(TestCase):
                                   asset_type=str(asset_type))
         try:
             current_app.logger.debug("running operation get_labs_by_asset")
-            labs = System.do("get_labs_by_asset", asset=asset)
+            labs = System.do("get_labs_by_asset", assets=[asset])
             current_app.logger.debug("completed operation get_labs_by_asset")
             labs_dict_list = []
             for lab in labs:
@@ -1507,8 +1535,16 @@ class TestGetLabsByAsset(TestCase):
                     'path': 'vlabs.ac.in/images/static/logo.png'
                     }
 
-        asset = SystemInterface.add_asset(data_dict)
+        asset1 = SystemInterface.add_asset(data_dict)
 
+
+        data_dict = {
+                    'key' : KEY,
+                    'asset_type': 'Image',
+                    'path': 'vlabs.ac.in/images/static/icon.png',
+                    }
+
+        asset2 = SystemInterface.add_asset(data_dict)
         data_dict = {
                     'key': KEY,
                     'lab_name': 'Data Structures',
@@ -1516,7 +1552,7 @@ class TestGetLabsByAsset(TestCase):
                     'overview': 'overview',
                     'inst_id': 'IITK',
                     'dis_id': 'CSE',
-                    'path': 'vlabs.ac.in/images/static/logo.png',
+                    'assets': ['vlabs.ac.in/images/static/logo.png'],
                     'experiments': ['exp123'], 
                     'integration_level': 4
                    }
@@ -1528,7 +1564,7 @@ class TestGetLabsByAsset(TestCase):
                     'overview': 'overview',
                     'inst_id': 'IITK',
                     'dis_id': 'CSE',
-                    'path': 'vlabs.ac.in/images/static/logo.png',
+                    'assets': ['vlabs.ac.in/images/static/icon.png'],
                     'experiments': ['exp123'], 
                     'integration_level': 4
                    }
@@ -1600,7 +1636,15 @@ class TestGetLabsByIntegrationstatus(TestCase):
                     'path': 'vlabs.ac.in/images/static/logo.png'
                     }
 
-        asset = SystemInterface.add_asset(data_dict)
+        asset1 = SystemInterface.add_asset(data_dict)
+
+        data_dict = {
+                    'key' : KEY,
+                    'asset_type': 'Image',
+                    'path': 'vlabs.ac.in/images/static/icon.png',
+                    }
+
+        asset2 = SystemInterface.add_asset(data_dict)
 
         data_dict = {
                     'key': KEY,
@@ -1609,7 +1653,7 @@ class TestGetLabsByIntegrationstatus(TestCase):
                     'overview': 'overview',
                     'inst_id': 'IITK',
                     'dis_id': 'CSE',
-                    'path': 'vlabs.ac.in/images/static/logo.png',
+                    'assets': ['vlabs.ac.in/images/static/logo.png'],
                     'experiments': ['exp123'], 
                     'integration_level': 4
                    }
@@ -1621,7 +1665,7 @@ class TestGetLabsByIntegrationstatus(TestCase):
                     'overview': 'overview',
                     'inst_id': 'IITK',
                     'dis_id': 'CSE',
-                    'path': 'vlabs.ac.in/images/static/logo.png',
+                    'assets': ['vlabs.ac.in/images/static/icon.png'],
                     'experiments': ['exp123'], 
                     'integration_level': 4
                    }
@@ -1635,6 +1679,7 @@ class TestGetLabsByIntegrationstatus(TestCase):
 
  #+END_SRC
 
+
 ** Get Experiments
 #+NAME: class_get_experiments
 #+begin_src python
@@ -1644,7 +1689,7 @@ class TestGetLabsByIntegrationstatus(TestCase):
         try:
             current_app.logger.debug("getting experiments")
             experiments = experiment_cls.get_all()
-            exp_dict_list = []
+            exp_dict_list = [] 
             for exp in experiments:
                 exp_x = exp.to_client()
                 exp_dict_list.append(exp_x)
@@ -2313,7 +2358,15 @@ class TestGetLabById(TestCase):
                     'path': 'vlabs.ac.in/images/static/logo.png'
                    }
 
-        asset = SystemInterface.add_asset(data_dict)
+        asset1 = SystemInterface.add_asset(data_dict)
+
+        data_dict = {
+                    'key' : KEY,
+                    'asset_type': 'Image',
+                    'path': 'vlabs.ac.in/images/static/icon.png',
+                    }
+
+        asset2 = SystemInterface.add_asset(data_dict)
 
         data_dict = {
                     'key': KEY,
@@ -2321,7 +2374,7 @@ class TestGetLabById(TestCase):
                     'lab_id': 'cse02',
                     'inst_id': 'IITK',
                     'dis_id': 'CSE',
-                    'path': 'vlabs.ac.in/images/static/logo.png',
+                    'assets': ['vlabs.ac.in/images/static/logo.png'],
                     'overview': 'overview',
                     'experiments': ['exp123'], 
                     'integration_level': 4
@@ -2333,7 +2386,7 @@ class TestGetLabById(TestCase):
                     'lab_id': 'cse03',
                     'inst_id': 'IITK',
                     'dis_id': 'CSE',
-                    'path': 'vlabs.ac.in/images/static/logo.png',
+                    'assets': ['vlabs.ac.in/images/static/icon.png'],
                     'overview': 'overview',
                     'experiments': ['exp123'], 
                     'integration_level': 4
@@ -2733,7 +2786,7 @@ class TestUpdateLab(TestCase):
                     'overview': 'overview',
                     'inst_id': 'IITK',
                     'dis_id': 'CSE',
-                    'path': 'vlabs.ac.in/images/static/logo.png',
+                    'assets': ['vlabs.ac.in/images/static/logo.png'],
                     'experiments': ['exp123'],
                     'integration_level': 4
                    }
@@ -2802,7 +2855,7 @@ class TestUpdateLab(TestCase):
                     'integration_level': 4 ,
                     'inst_id': 'IITK',
                     'dis_id': 'CSE',
-                    'path': 'vlabs.ac.in/images/static/logo.png',
+                    'assets': ['vlabs.ac.in/images/static/logo.png'],
                     'experiments': ['exp123']
                    }
 
@@ -3340,7 +3393,15 @@ class TestDeleteLab(TestCase):
                     'path': 'vlabs.ac.in/images/static/logo.png'
                     }
 
-        asset = SystemInterface.add_asset(data_dict)
+        asset1 = SystemInterface.add_asset(data_dict)
+
+        data_dict = {
+                    'key' : KEY,
+                    'asset_type': 'Image',
+                    'path': 'vlabs.ac.in/images/static/icon.png',
+                    }
+
+        asset2 = SystemInterface.add_asset(data_dict)
 
         data_dict = {
                     'key': KEY,
@@ -3348,7 +3409,7 @@ class TestDeleteLab(TestCase):
                     'lab_id': 'cse01',
                     'inst_id': 'IITK',
                     'dis_id': 'CSE',
-                    'path': 'vlabs.ac.in/images/static/logo.png',
+                    'assets': ['vlabs.ac.in/images/static/logo.png'],
                     'overview': 'overview',
                     'experiments': ['exp123'], 
                     'integration_level': 4
@@ -3360,7 +3421,7 @@ class TestDeleteLab(TestCase):
                     'lab_id': 'cse02',
                     'inst_id': 'IITK',
                     'dis_id': 'CSE',
-                    'path': 'vlabs.ac.in/images/static/icon.png',
+                    'assets': ['vlabs.ac.in/images/static/icon.png'],
                     'overview': 'overview',
                     'experiments': ['exp123'], 
                     'integration_level': 4
@@ -4078,7 +4139,15 @@ class TestGetLabByLabId(TestCase):
                     'path': 'vlabs.ac.in/images/static/logo.png'
                    }
 
-        asset = SystemInterface.add_asset(data_dict)
+        asset1 = SystemInterface.add_asset(data_dict)
+
+        data_dict = {
+                    'key' : KEY,
+                    'asset_type': 'Image',
+                    'path': 'vlabs.ac.in/images/static/icon.png',
+                    }
+
+        asset2 = SystemInterface.add_asset(data_dict)
 
         data_dict = {
                     'key' : KEY,
@@ -4087,7 +4156,7 @@ class TestGetLabByLabId(TestCase):
                     'overview': 'overview',
                     'inst_id': 'IITK',
                     'dis_id': 'CSE',
-                    'path': 'vlabs.ac.in/images/static/logo.png',
+                    'assets': ['vlabs.ac.in/images/static/logo.png'],
                     'experiments': ['exp123'], 
                     'integration_level': 4
                    }
@@ -4099,7 +4168,7 @@ class TestGetLabByLabId(TestCase):
                     'overview': 'overview',
                     'inst_id': 'IITK',
                     'dis_id': 'CSE',
-                    'path': 'vlabs.ac.in/images/static/logo.png',
+                    'assets': ['vlabs.ac.in/images/static/icon.png'],
                     'experiments': ['exp123'], 
                     'integration_level': 4
                    }
