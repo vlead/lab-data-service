@@ -42,6 +42,10 @@ class TestAddLab(TestCase):
         asset_cls = System.delegate.entities['asset']
         experiment_cls = System.delegate.entities['experiment']
         integrationstatus_cls = System.delegate.entities['integrationstatus']
+        name_cls = System.delegate.entities['name']
+        email_cls = System.delegate.entities['email']
+        developer_cls = System.delegate.entities['developer']
+        hostinginfo_cls = System.delegate.entities['hostinginfo']
 
         exp_name = "arrays"
         exp_id = "cse02"
@@ -53,6 +57,15 @@ class TestAddLab(TestCase):
         integration_level = 4
         integrationstatus = integrationstatus_cls(integration_level=integration_level)
         integrationstatus.save()
+
+        dev_name = name_cls(name="Mohit Tahiliani")
+        dev_name.save()
+
+        email_id = email_cls(email="mohit.tahiliani@gmail.com")
+        email_id.save()
+
+        dev = developer_cls(name=dev_name, email=email_id)
+        dev.save()
 
         inst_name = "IIT Kanpur"
         inst_id = "IITK"
@@ -68,6 +81,12 @@ class TestAddLab(TestCase):
         path = "vlabs.ac.in/images/static/logo.png"
         asset = asset_cls(asset_type=asset_type, path=path)
         asset.save()
+
+        hosting_status = "hosted"
+        hosted_url = "http://cse14-iiith.vlabs.ac.in"
+        hosted_on = "cloud"
+        host = hostinginfo_cls(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
+        host.save()
                                 
         lab_name1="Computer Programming"
         lab_id1="CSE01"
@@ -77,7 +96,7 @@ class TestAddLab(TestCase):
         lab = lab_cls(lab_id=lab_id1, lab_name=lab_name1,        
                           institute=inst, discipline=discipline, assets=[asset],                
                           overview=overview,  integrationstatus=integrationstatus, 
-                          experiments=[experiment])
+                          experiments=[experiment], developers=[dev], hostinginfo=host)
 
         lab1 = System.do("add_lab", lab=lab, session=session)
         new_lab = lab_cls.get_by_id(1)
@@ -532,6 +551,10 @@ class TestUpdateLab(TestCase):
         asset_cls = System.delegate.entities['asset']
         experiment_cls = System.delegate.entities['experiment']
         integrationstatus_cls = System.delegate.entities['integrationstatus']
+        name_cls = System.delegate.entities['name']
+        email_cls = System.delegate.entities['email']
+        developer_cls = System.delegate.entities['developer']
+        hostinginfo_cls = System.delegate.entities['hostinginfo']
 
         exp_name = "arrays"
         exp_id = "cse02"
@@ -559,15 +582,29 @@ class TestUpdateLab(TestCase):
         asset = asset_cls(asset_type=asset_type, path=path)
         asset.save()
 
+        dev_name = name_cls(name="Mohit Tahiliani")
+        dev_name.save()
+        email_id = email_cls(email="mohit.tahiliani@gmail.com")
+        email_id.save()
+        dev = developer_cls(name=dev_name, email=email_id)
+        dev.save()
+
+        hosting_status = "hosted"
+        hosted_url = "http://cse14-iiith.vlabs.ac.in"
+        hosted_on = "cloud"
+        host = hostinginfo_cls(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
+        host.save()
+
         lab_name1="Computer Programming"
         lab_id1="CSE01"
         key = KEY
         overview = "overview"
         session = session_cls(key=key)
+
         lab = lab_cls(lab_id=lab_id1, lab_name=lab_name1, 
                       institute=inst, discipline=discipline, assets=[asset],     
                       overview=overview, integrationstatus=integrationstatus, 
-                      experiments=[experiment])
+                      experiments=[experiment], developers=[dev],hostinginfo=host)
 
         lab.save()
         lab_name2="Computer Programming"
@@ -973,6 +1010,10 @@ class TestDeleteLab(TestCase):
         asset_cls = System.delegate.entities['asset']
         experiment_cls = System.delegate.entities['experiment']
         integrationstatus_cls = System.delegate.entities['integrationstatus']
+        name_cls = System.delegate.entities['name']
+        email_cls = System.delegate.entities['email']
+        developer_cls = System.delegate.entities['developer']
+        hostinginfo_cls = System.delegate.entities['hostinginfo']
 
         exp_name = "arrays"
         exp_id = "cse02"
@@ -1000,16 +1041,31 @@ class TestDeleteLab(TestCase):
         asset = asset_cls(asset_type=asset_type, path=path)
         asset.save()
 
+        dev_name = name_cls(name="Mohit Tahiliani")
+        dev_name.save()
+        email_id = email_cls(email="mohit.tahiliani@gmail.com")
+        email_id.save()
+        dev = developer_cls(name=dev_name, email=email_id)
+        dev.save()
+
+        hosting_status = "hosted"
+        hosted_url = "http://cse14-iiith.vlabs.ac.in"
+        hosted_on = "cloud"
+        host = hostinginfo_cls(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
+        host.save()
+
+
         lab_name1="Computer Programming"
         lab_id1="CSE01"
         key = KEY
         overview = "overview"
         session = session_cls(key=key)
+
         lab = lab_cls(lab_id=lab_id1, lab_name=lab_name1, 
                       institute=inst, discipline=discipline, assets=[asset],
                       overview=overview, integrationstatus=integrationstatus, 
-                      experiments=[experiment])
-
+                      experiments=[experiment], developers=[dev],
+                      hostinginfo=host)
         lab.save()
         lab_id = System.do("delete_lab", lab_id = lab_id1,
                                   session=session)
@@ -1238,6 +1294,10 @@ class TestGetLab(TestCase):
         integrationstatus_cls = System.delegate.entities['integrationstatus']
         discipline_cls = System.delegate.entities['discipline']
         asset_cls = System.delegate.entities['asset']
+        name_cls = System.delegate.entities['name']
+        email_cls = System.delegate.entities['email']
+        developer_cls = System.delegate.entities['developer']
+        hostinginfo_cls = System.delegate.entities['hostinginfo']
 
         lab_name1="Computer Programming"
         lab_id1="CSE01"
@@ -1265,6 +1325,25 @@ class TestGetLab(TestCase):
         lab = lab_cls(lab_id=lab_id1, lab_name=lab_name1,
                       institute=inst, discipline=discipline, assets=[asset],
                       overview=overview, integrationstatus=integrationstatus, experiments=[])
+
+        dev_name = name_cls(name="Mohit Tahiliani")
+        dev_name.save()
+        email_id = email_cls(email="mohit.tahiliani@gmail.com")
+        email_id.save()
+        dev = developer_cls(name=dev_name, email=email_id)
+        dev.save()
+        hosting_status = "hosted"
+        hosted_url = "http://cse14-iiith.vlabs.ac.in"
+        hosted_on = "cloud"
+        host = hostinginfo_cls(hosting_status=hosting_status,
+                                   hosted_url=hosted_url, hosted_on=hosted_on)
+        host.save()
+
+
+        lab = lab_cls(lab_id=lab_id1, lab_name=lab_name1,
+                          institute=inst, discipline=discipline,
+                          overview=overview, experiments=[], developers=[dev],
+                          hostinginfo=host)
 
         lab.save()
 
@@ -1302,6 +1381,10 @@ class TestGetLabByInstitute(TestCase):
         discipline_cls = System.delegate.entities['discipline']
         integrationstatus_cls = System.delegate.entities['integrationstatus']
         asset_cls = System.delegate.entities['asset']
+        name_cls = System.delegate.entities['name']
+        email_cls = System.delegate.entities['email']
+        developer_cls = System.delegate.entities['developer']
+        hostinginfo_cls = System.delegate.entities['hostinginfo']
 
         lab_name1="Computer Programming"
         lab_id1="CSE01"
@@ -1326,10 +1409,24 @@ class TestGetLabByInstitute(TestCase):
         asset = asset_cls(asset_type=asset_type, path=path)
         asset.save()
 
+
+        dev_name = name_cls(name="Mohit Tahiliani")
+        dev_name.save()
+        email_id = email_cls(email="mohit.tahiliani@gmail.com")
+        email_id.save()
+        dev = developer_cls(name=dev_name, email=email_id)
+        dev.save()
+
+        hosting_status = "hosted"
+        hosted_url = "http://cse14-iiith.vlabs.ac.in"
+        hosted_on = "cloud"
+        host = hostinginfo_cls(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
+        host.save()
+
         lab = lab_cls(lab_id=lab_id1, lab_name=lab_name1,
-                      institute=inst, discipline=discipline, assets=[asset],
-                      overview=overview, experiments=[],
-                      integrationstatus=integrationstatus)
+                          institute=inst, discipline=discipline,
+                          overview=overview, experiments=[], 
+                          hostinginfo=host, developers=[dev])
 
         lab.save()
 
@@ -1367,6 +1464,10 @@ class TestGetLabByDiscipline(TestCase):
         discipline_cls = System.delegate.entities['discipline']
         integrationstatus_cls = System.delegate.entities['integrationstatus']
         asset_cls = System.delegate.entities['asset']
+        name_cls = System.delegate.entities['name']
+        email_cls = System.delegate.entities['email']
+        developer_cls = System.delegate.entities['developer']
+        hostinginfo_cls = System.delegate.entities['hostinginfo']
 
         lab_name1="Computer Programming"
         lab_id1="CSE01"
@@ -1386,6 +1487,7 @@ class TestGetLabByDiscipline(TestCase):
         discipline = discipline_cls(dis_name=dis_name, dis_id=dis_id)
         discipline.save()
 
+
         asset_type = "Image"
         path = "vlabs.ac.in/images/static/logo.png"
         asset = asset_cls(asset_type=asset_type, path=path)
@@ -1395,6 +1497,24 @@ class TestGetLabByDiscipline(TestCase):
                       institute=inst, discipline=discipline, assets=[asset], 
                       overview=overview, experiments=[],
                       integrationstatus=integrationstatus)
+
+        dev_name = name_cls(name="Mohit Tahiliani")
+        dev_name.save()
+        email_id = email_cls(email="mohit.tahiliani@gmail.com")
+        email_id.save()
+        dev = developer_cls(name=dev_name, email=email_id)
+        dev.save()
+
+        hosting_status = "hosted"
+        hosted_url = "http://cse14-iiith.vlabs.ac.in"
+        hosted_on = "cloud"
+        host = hostinginfo_cls(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
+        host.save()
+
+        lab = lab_cls(lab_id=lab_id1, lab_name=lab_name1,
+                          institute=inst, discipline=discipline, hostinginfo=host,
+                          overview=overview, experiments=[],  developers=[dev])
+
 
         lab.save()
 
@@ -1432,6 +1552,10 @@ class TestGetLabByLabName(TestCase):
         discipline_cls = System.delegate.entities['discipline']
         integrationstatus_cls = System.delegate.entities['integrationstatus']
         asset_cls = System.delegate.entities['asset']
+        name_cls = System.delegate.entities['name']
+        email_cls = System.delegate.entities['email']
+        developer_cls = System.delegate.entities['developer']
+        hostinginfo_cls = System.delegate.entities['hostinginfo']
 
         lab_name1="Computer Programming"
         lab_id1="CSE01"
@@ -1456,10 +1580,24 @@ class TestGetLabByLabName(TestCase):
         asset = asset_cls(asset_type=asset_type, path=path)
         asset.save()
 
-        lab = lab_cls(lab_id=lab_id1, lab_name=lab_name1, 
-                      institute=inst, discipline=discipline, assets=[asset],
-                      overview=overview, experiments=[],
-                      integrationstatus=integrationstatus)
+        dev_name = name_cls(name="Mohit Tahiliani")
+        dev_name.save()
+        email_id = email_cls(email="mohit.tahiliani@gmail.com")
+        email_id.save()
+        dev = developer_cls(name=dev_name, email=email_id)
+        dev.save()
+
+        hosting_status = "hosted"
+        hosted_url = "http://cse14-iiith.vlabs.ac.in"
+        hosted_on = "cloud"
+        host = hostinginfo_cls(hosting_status=hosting_status,
+                                   hosted_url=hosted_url, hosted_on=hosted_on)
+        host.save()
+
+
+        lab = lab_cls(lab_id=lab_id1, lab_name=lab_name1,
+                          institute=inst, discipline=discipline, hostinginfo=host,
+                          overview=overview, experiments=[],  developers=[dev])
 
         lab.save()
 
