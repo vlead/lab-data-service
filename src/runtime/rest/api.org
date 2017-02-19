@@ -4206,18 +4206,7 @@ class TestDeleteLab(TestCase):
     def test_delete_lab(self):
         print "test_delete_lab"
 
-        payload = {'exp_name': 'arrays',
-                   'exp_id': 'exp1',
-                   'overview' : 'overview',
-                   'sections': [],
-                   'key': KEY}
-
-        headers = {'Content-Type': 'application/json'}
-
-        response = self.client.post("/experiments", data=json.dumps(payload),
-                                 headers=headers)
-
-        payload = {'inst_name': 'IIT Kharagpur',
+        payload = {'inst_name': 'IIT Kanpur',
                    'inst_id': 'IITK',
                    'key': KEY}
 
@@ -4238,20 +4227,33 @@ class TestDeleteLab(TestCase):
                    'dis_id': 'CSE',
                    'key': KEY}
 
-        headers = {'Content-Type': 'application/json'}
 
         response = self.client.post("/disciplines", data=json.dumps(payload),
                                  headers=headers)
 
         payload = {'asset_type': 'Image',
                    'path': 'vlabs.ac.in/images/static/logo.png',
-        }
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
         response = self.client.post("/assets", data=json.dumps(payload),
+                                 headers=headers)
+
+        payload = {'exp_name': 'arrays',
+                   'exp_id': 'exp1',
+                   'overview' : 'overview',
+                   'sections': [],
+                   'key': KEY}
+
+
+        response = self.client.post("/experiments", data=json.dumps(payload),
                                  headers=headers)
 
         payload = {'name': 'Prof. Dharamaja',
                    'email': 'abc@gmail.com',
                    'key': KEY}
+
         headers = {'Content-Type': 'application/json'}
 
         response = self.client.post("/developers", data=json.dumps(payload),
@@ -4264,28 +4266,28 @@ class TestDeleteLab(TestCase):
 
         headers = {'Content-Type': 'application/json'}
 
+
         response = self.client.post("/hostinginfos", data=json.dumps(payload),
                                  headers=headers)
 
-        payload = {'lab_name': 'Data structures',
-                   'lab_id': 'cse02',
-                   'key': KEY,
+        payload = {'lab_name': 'Data Structures',
+                   'lab_id': 'cse01',
                    'overview' : 'overview',
                    'inst_id': 'IITK',
                    'integration_level': 4,
                    'dis_id': 'CSE',
                    'assets': ['vlabs.ac.in/images/static/logo.png'],
-                   'experiments': ['exp1'],
+                   'experiments':['exp1'],
+                   'key': KEY,
                    'developers': ['abc@gmail.com'],
-                   'hosted_url': 'http://cse14-iiith.vlabs.ac.in'
-                  }
-
-        headers = {'Content-Type': 'application/json'}
+                   'hosted_url': 'http://cse14-iiith.vlabs.ac.in',
+                   'key': KEY
+                   }
 
         response = self.client.post("/labs", data=json.dumps(payload),
                                  headers=headers)
 
-        response = self.client.delete("/labs?lab_id=cse02&key=defaultkey",
+        response = self.client.delete("/labs?lab_id=cse01&key=defaultkey",
                                           headers=headers)
 
         self.assertEqual(response.status_code, 200)
