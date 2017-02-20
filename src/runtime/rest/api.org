@@ -14,52 +14,1435 @@
 
   
 * REST
-** Get Labs, Add Lab and Get Lab
-#+NAME: get_and_add_lab
+
+** Get Labs, Get Lab, Get Labs by institute, lab_name, discipline and asset
+*** API Designs 
+**** Get all labs
+  :PROPERTIES:
+  :CUSTOM_ID: api_get_all_labs
+  :END:    
+  - URL :: /labs
+
+  - Method :: GET
+
+  - URL Params ::  None
+
+  - Payload :: 
+
+  - Success Response
+    + Status_Code: 200
+      + Contents :
+
+#+BEGIN_EXAMPLE
+[
+  {
+    "discipline": {
+      "dis_id": "cse",
+      "id": 1,
+      "dis_name": "Computer Science"
+    },
+    "asset": {
+      "path": "vlabs.ac.in/images/static/logo.png",
+      "id": 1,
+      "asset_type": "Images"
+    },
+    "lab_id": "cse09",
+    "institute": {
+      "inst_name": "IIIT Hyderabad",
+      "id": 1,
+      "inst_id": "iiith"
+    },
+    "integrationstatus": {
+      "integration_level": 4,
+      "key": "<key>"
+    },
+    "hostinginfo": {
+      "hosting_status": "hosted",
+      "id": 1,
+      "hosted_url": "http://cse14-iiith.vlabs.ac.in",
+      "hosted_on": "cloud"
+    },
+    "overview": "overview",
+    "lab_name": "Data Structures",
+    "experiments": [
+      {
+        "overview": "overview",
+        "exp_name": "arrays",
+        "sections": [
+          {
+            "name": "Procedure",
+            "id": 2
+          },
+          {
+            "name": "Theory",
+            "id": 1
+          }
+        ],
+        "id": 1,
+        "exp_id": "exp9"
+      }
+    ],
+    "id": 1,
+    "developers": [
+      {
+        "name": "Prof. Dharamaja",
+        "id": 1,
+        "email": "abc@gmail.com"
+      }
+    ]
+  }
+]
+#+END_EXAMPLE	       
+
+    
+  - Error Response:
+    + Contents :
+                {"status" : "error"} 
+  - Example:
+#+BEGIN_EXAMPLE
+http://localhost:5000/labs
+#+END_EXAMPLE  
+
+**** Get lab by lab_id
+  :PROPERTIES:
+  :CUSTOM_ID: api_get_lab_by_lab_id
+  :END:    
+  - URL :: /labs?lab_id=<lab_id>
+
+  - Method :: GET
+
+  - URL Params ::  None
+
+  - Payload :: 
+
+  - Success Response
+    + Status_Code: 200
+      + Contents :
+
+#+BEGIN_EXAMPLE
+  {
+    "discipline": {
+      "dis_id": "cse",
+      "id": 1,
+      "dis_name": "Computer Science"
+    },
+     "assets": [{
+      "path": "vlabs.ac.in/images/static/logo.png",
+      "id": 1,
+      "asset_type": "Images"
+    }],
+    "lab_id": "cse09",
+    "institute": {
+      "inst_name": "IIIT Hyderabad",
+      "id": 1,
+      "inst_id": "iiith"
+    },
+    "integrationstatus": {
+      "integration_level": 4,
+      "key": "<key>"
+     },
+    "hostinginfos": [{
+      "hosting_status": "hosted",
+      "id": 1,
+      "hosted_url": "http://cse14-iiith.vlabs.ac.in",
+      "hosted_on": "cloud"
+    }],
+    "overview": "overview",
+    "lab_name": "Data Structures",
+    "experiments": [
+      {
+        "overview": "overview",
+        "exp_name": "arrays",
+        "sections": [
+          {
+            "name": "Procedure",
+            "id": 2
+          },
+          {
+            "name": "Theory",
+            "id": 1
+          }
+        ],
+        "id": 1,
+        "exp_id": "exp9"
+      }
+    ],
+    "id": 1,
+    "developers": [
+      {
+        "name": "Prof. Dharamaja",
+        "id": 1,
+        "email": "abc@gmail.com"
+      }
+    ]
+  }
+#+END_EXAMPLE	       
+
+    
+  - Error Response:
+    + Contents :
+                {"status" : "error"}
+    
+  - Example:
+#+BEGIN_EXAMPLE
+http://localhost:5000/labs?lab_id=cse09
+#+END_EXAMPLE  
+
+**** Get labs by institute
+  :PROPERTIES:
+  :CUSTOM_ID: api_get_lab_by_lab_id
+  :END:    
+  - URL :: /labs?institute_name=<inst_name>
+
+  - Method :: GET
+
+  - URL Params ::  None
+
+  - Payload :: 
+
+  - Success Response
+    + Status_Code: 200
+      + Contents :
+
+#+BEGIN_EXAMPLE
+[ 
+ {
+    "discipline": {
+      "dis_id": "cse",
+      "id": 1,
+      "dis_name": "Computer Science"
+    },
+     "asset": {
+      "path": "vlabs.ac.in/images/static/logo.png",
+      "id": 1,
+      "asset_type": "Images"
+    },
+    "lab_id": "cse09",
+    "institute": {
+      "inst_name": "IIIT Hyderabad",
+      "id": 1,
+      "inst_id": "iiith"
+    },
+    "integrationstatus": {
+      "integration_level": 4,
+      "key": "<key>"
+      },
+    "hostinginfos": [{
+      "hosting_status": "hosted",
+      "id": 1,
+      "hosted_url": "http://cse14-iiith.vlabs.ac.in",
+      "hosted_on": "cloud"
+    }],
+    "overview": "overview",
+    "lab_name": "Data Structures",
+    "experiments": [
+      {
+        "overview": "overview",
+        "exp_name": "arrays",
+        "sections": [
+          {
+            "name": "Procedure",
+            "id": 2
+          },
+          {
+            "name": "Theory",
+            "id": 1
+          }
+        ],
+        "id": 1,
+        "exp_id": "exp9"
+      }
+    ],
+    "id": 1,
+    "developers": [
+      {
+        "name": "Prof. Dharamaja",
+        "id": 1,
+        "email": "abc@gmail.com"
+      }
+    ]
+  }
+]
+#+END_EXAMPLE	       
+
+    
+  - Error Response:
+    + Contents :
+                {"status" : "error"}
+    
+  - Example:
+#+BEGIN_EXAMPLE
+http://localhost:5000/labs?institute_name=IIIT Hyderabad
+#+END_EXAMPLE  
+
+**** Get labs by discipline
+  :PROPERTIES:
+  :CUSTOM_ID: api_get_lab_by_lab_id
+  :END:    
+  - URL :: /labs?discipline_name=<discipline_name>
+
+  - Method :: GET
+
+  - URL Params ::  None
+
+  - Payload :: 
+
+  - Success Response
+    + Status_Code: 200
+      + Contents :
+
+#+BEGIN_EXAMPLE
+[ 
+ {
+    "discipline": {
+      "dis_id": "cse",
+      "id": 1,
+      "dis_name": "Computer Science"
+    },
+     "asset": {
+      "path": "vlabs.ac.in/images/static/logo.png",
+      "id": 1,
+      "asset_type": "Images"
+    },
+    "lab_id": "cse09",
+    "institute": {
+      "inst_name": "IIIT Hyderabad",
+      "id": 1,
+      "inst_id": "iiith"
+    },
+    "integrationstatus": {
+      "integration_level": 4,
+      "key": "<key>"
+      },
+    "hostinginfos": [{
+      "hosting_status": "hosted",
+      "id": 1,
+      "hosted_url": "http://cse14-iiith.vlabs.ac.in",
+      "hosted_on": "cloud"
+    }],
+    "overview": "overview",
+    "lab_name": "Data Structures",
+    "experiments": [
+      {
+        "overview": "overview",
+        "exp_name": "arrays",
+        "sections": [
+          {
+            "name": "Procedure",
+            "id": 2
+          },
+          {
+            "name": "Theory",
+            "id": 1
+          }
+        ],
+        "id": 1,
+        "exp_id": "exp9"
+      }
+    ],
+    "id": 1,
+    "developers": [
+      {
+        "name": "Prof. Dharamaja",
+        "id": 1,
+        "email": "abc@gmail.com"
+      }
+    ]
+  }
+]
+#+END_EXAMPLE	       
+
+    
+  - Error Response:
+    + Contents :
+                {"status" : "error"}
+    
+  - Example:
+#+BEGIN_EXAMPLE
+http://localhost:5000/labs?discipline_name=Computer Science
+#+END_EXAMPLE  
+
+**** Get labs by lab_name
+  :PROPERTIES:
+  :CUSTOM_ID: api_get_lab_by_lab_id
+  :END:    
+  - URL :: /labs?lab_name=<lab_name>
+
+  - Method :: GET
+
+  - URL Params ::  None
+
+  - Payload :: 
+
+  - Success Response
+    + Status_Code: 200
+      + Contents :
+
+#+BEGIN_EXAMPLE
+[
+  {
+    "discipline": {
+      "dis_id": "cse",
+      "id": 1,
+      "dis_name": "Computer Science"
+    },
+     "assets": [{
+      "path": "vlabs.ac.in/images/static/logo.png",
+      "id": 1,
+      "asset_type": "Images"
+    }],
+    "lab_id": "cse09",
+    "institute": {
+      "inst_name": "IIIT Hyderabad",
+      "id": 1,
+      "inst_id": "iiith"
+    },
+    "integrationstatus": {
+      "integration_level": 4,
+      "key": "<key>"
+    "hostinginfos": [{
+      "hosting_status": "hosted",
+      "id": 1,
+      "hosted_url": "http://cse14-iiith.vlabs.ac.in",
+      "hosted_on": "cloud"
+    }],
+    "overview": "overview",
+    "lab_name": "Data Structures",
+    "experiments": [
+      {
+        "overview": "overview",
+        "exp_name": "arrays",
+        "sections": [
+          {
+            "name": "Procedure",
+            "id": 2
+          },
+          {
+            "name": "Theory",
+            "id": 1
+          }
+        ],
+        "id": 1,
+        "exp_id": "exp9"
+      }
+    ],
+    "id": 1,
+    "developers": [
+      {
+        "name": "Prof. Dharamaja",
+        "id": 1,
+        "email": "abc@gmail.com"
+      }
+    ]
+  }
+]
+#+END_EXAMPLE	       
+
+    
+  - Error Response:
+    + Contents :
+                {"status" : "error"}
+    
+  - Example:
+#+BEGIN_EXAMPLE
+http://localhost:5000/labs?lab_name=Data Structures
+#+END_EXAMPLE  
+
+**** Get labs by asset
+  :PROPERTIES:
+  :CUSTOM_ID: api_get_lab_by_lab_id
+  :END:    
+  - URL :: /labs?asset_type=<asset_type>
+
+  - Method :: GET
+
+  - URL Params ::  None
+
+  - Payload :: 
+
+  - Success Response
+    + Status_Code: 200
+      + Contents :
+
+#+BEGIN_EXAMPLE
+[ 
+ {
+    "discipline": {
+      "dis_id": "cse",
+      "id": 1,
+      "dis_name": "Computer Science"
+    },
+     "asset": {
+      "path": "vlabs.ac.in/images/static/logo.png",
+      "id": 1,
+      "asset_type": "Images"
+    },
+    "lab_id": "cse09",
+    "institute": {
+      "inst_name": "IIIT Hyderabad",
+      "id": 1,
+      "inst_id": "iiith"
+    },
+    "integrationstatus": {
+      "integration_level": 4,
+      "key": "<key>"
+    },
+    "overview": "overview",
+    "lab_name": "Data Structures",
+    "experiments": [
+      {
+        "overview": "overview",
+        "exp_name": "arrays",
+        "sections": [
+          {
+            "name": "Procedure",
+            "id": 2
+          },
+          {
+            "name": "Theory",
+            "id": 1
+          }
+        ],
+        "id": 1,
+        "exp_id": "exp9"
+      }
+    ],
+    "id": 1
+  }
+]
+#+END_EXAMPLE	       
+
+    
+  - Error Response:
+    + Contents :
+                {"status" : "error"}
+    
+  - Example:
+#+BEGIN_EXAMPLE
+http://localhost:5000/labs?asset_type=image
+#+END_EXAMPLE  
+*** Implementation
+#+NAME: get_lab
 #+BEGIN_SRC python
-@api.route('/labs', methods=['GET', 'POST'])
-def get_and_add_lab():
+@api.route('/labs', methods=['GET'])
+def get_lab():
     if request.method == 'GET':
         if 'lab_id' in request.args:
             lab_id  = request.args['lab_id']
             try:
                 lab = SystemInterface.get_lab(lab_id)
                 return jsonify(lab)
+
+            except TypeError as e:
+                err_str = str(e)
+                msg = {"status": "failure",
+                       "msg": err_str }
+                return jsonify(msg)
+
+            except StateError as e:
+                err_str = str(e)
+                msg = {"status": "failure",
+                       "msg": err_str}
+                return jsonify(msg)
+
+            except NotFoundError as e:
+                err_str = str(e)
+                msg = {"status": "failure",
+                       "status code": 404,
+                       "msg": err_str}
+                return jsonify(msg)
+
+            except Exception as e:
+                err_str = str(e)
+                msg = {"status": "failure",
+                       "msg": err_str}
+                return jsonify(msg)
                 
-            except NotAuthorizedError as err:
-                error_message =  'Not Authorized error: %s' % str(err)
-                """
-                if request.headers['Content-Type'] == "application/json":
-                    abort(401, error_message)
-                else:
-                """
-                current_app.logger.error("%s" %(error_message))
-                return render_template('error.html', 
-                                       data=error_message)
-            except TypeError as err:
-                error_message = 'Malformed arguments, error: %s' % str(err)
-                current_app.logger.error("%s" %(error_message))
-                return render_template('error.html', 
-                                       data=error_message)
-            except Exception as err:
-                error_message = 'error: %s' % str(err)
-                current_app.logger.error("%s" %(error_message))
-                return render_template('error.html', 
-                                       data=error_message)        
+        elif 'lab_name' in request.args:
+            lab_name  = request.args['lab_name']
+            try:
+                labs = SystemInterface.get_labs_by_lab_name(lab_name)
+                return jsonify(labs)
+                
+            except TypeError as e:
+                err_str = str(e)
+                msg = {"status": "failure",
+                       "msg": err_str }
+                return jsonify(msg)
+
+            except StateError as e:
+                err_str = str(e)
+                msg = {"status": "failure",
+                       "msg": err_str}
+                return jsonify(msg)
+
+            except NotFoundError as e:
+                err_str = str(e)
+                msg = {"status": "failure",
+                       "status code": 404,
+                       "msg": err_str}
+                return jsonify(msg)
+
+            except Exception as e:
+                err_str = str(e)
+                msg = {"status": "failure",
+                       "msg": err_str}
+                return jsonify(msg)
+
+        elif 'institute_name' in request.args:
+            institute_name  = request.args['institute_name']
+            try:
+                labs = SystemInterface.get_labs_by_institute(institute_name)
+                return jsonify_list(labs)
+                
+            except TypeError as e:
+                err_str = str(e)
+                msg = {"status": "failure",
+                       "msg": err_str }
+                return jsonify(msg)
+
+            except StateError as e:
+                err_str = str(e)
+                msg = {"status": "failure",
+                       "msg": err_str}
+                return jsonify(msg)
+
+            except NotFoundError as e:
+                err_str = str(e)
+                msg = {"status": "failure",
+                       "status code": 404,
+                       "msg": err_str}
+                return jsonify(msg)
+
+            except Exception as e:
+                err_str = str(e)
+                msg = {"status": "failure",
+                       "msg": err_str}
+                return jsonify(msg)
+
+        elif 'discipline_name' in request.args:
+            discipline_name  = request.args['discipline_name']
+            try:
+                labs = SystemInterface.get_labs_by_discipline(discipline_name)
+                return jsonify_list(labs)
+                
+            except TypeError as e:
+                err_str = str(e)
+                msg = {"status": "failure",
+                       "msg": err_str }
+                return jsonify(msg)
+
+            except StateError as e:
+                err_str = str(e)
+                msg = {"status": "failure",
+                       "msg": err_str}
+                return jsonify(msg)
+
+            except NotFoundError as e:
+                err_str = str(e)
+                msg = {"status": "failure",
+                       "status code": 404,
+                       "msg": err_str}
+                return jsonify(msg)
+
+            except Exception as e:
+                err_str = str(e)
+                msg = {"status": "failure",
+                       "msg": err_str}
+                return jsonify(msg)
+
+        elif 'asset_type' in request.args:
+            asset_type  = request.args['asset_type']
+            try:
+                labs = SystemInterface.get_labs_by_asset(asset_type)
+                return jsonify_list(labs)
+            except TypeError as e:
+                err_str = str(e)
+                msg = {"status": "failure",
+                       "msg": err_str }
+                return jsonify(msg)
+
+            except StateError as e:
+                err_str = str(e)
+                msg = {"status": "failure",
+                       "msg": err_str}
+                return jsonify(msg)
+
+            except NotFoundError as e:
+                err_str = str(e)
+                msg = {"status": "failure",
+                       "status code": 404,
+                       "msg": err_str}
+                return jsonify(msg)
+
+            except Exception as e:
+                err_str = str(e)
+                msg = {"status": "failure",
+                       "msg": err_str}
+                return jsonify(msg)
         else:
             try:
                 labs = SystemInterface.get_labs()
                 return jsonify_list(labs)
+            except TypeError as e:
+                err_str = str(e)
+                msg = {"status": "failure",
+                       "msg": err_str }
+                return jsonify(msg)
+
+            except StateError as e:
+                err_str = str(e)
+                msg = {"status": "failure",
+                       "msg": err_str}
+                return jsonify(msg)
+
+            except NotFoundError as e:
+                err_str = str(e)
+                msg = {"status": "failure",
+                       "status code": 404,
+                       "msg": err_str}
+                return jsonify(msg)
+
+            except Exception as e:
+                err_str = str(e)
+                msg = {"status": "failure",
+                       "msg": err_str}
+                return jsonify(msg)
          
-            except TypeError as err:
-                error_message = 'Malformed arguments, error: %s' % str(err)
 
-                return render_template('error.html',
-                            data=error_message)
+#+END_SRC
 
-            except Exception as err:
-                abort(500, 'error: %s' % str(err))
+*** Test Cases
+**** TestGetLab
+#+NAME: test_get_labs
+#+BEGIN_SRC python
+class TestGetLab(TestCase):
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
 
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_get_labs(self):
+        print "test_get_labs_in_rest"
+
+        payload = {'inst_name': 'IIT Kanpur',
+                   'inst_id': 'IITK',
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/institutes", data=json.dumps(payload),
+                                 headers=headers)
+
+        payload = {'integration_level': 4,
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/integrationstatuss", data=json.dumps(payload),
+                                 headers=headers)
+
+        payload = {'dis_name': 'Computer Science',
+                   'dis_id': 'CSE',
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/disciplines", data=json.dumps(payload),
+                                 headers=headers)
+
+        payload = {'asset_type': 'Image',
+                   'path': 'vlabs.ac.in/images/static/logo.png',
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/assets", data=json.dumps(payload),
+                                 headers=headers)
+
+        payload = {'exp_name': 'arrays',
+                   'exp_id': 'exp1',
+                   'overview' : 'overview',
+                   'sections': [],
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/experiments", data=json.dumps(payload),
+                                 headers=headers)
+
+        payload = {'name': 'Prof. Dharamaja',
+                   'email': 'abc@gmail.com',
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/developers", data=json.dumps(payload),
+                                 headers=headers)
+
+        payload = {'lab_name': 'Data Structures',
+                   'lab_id': 'cse01',
+                   'overview' : 'overview',
+                   'inst_id': 'IITK',
+                   'integration_level': 4,
+                   'dis_id': 'CSE',
+                   'assets': ['vlabs.ac.in/images/static/logo.png'],
+                   'key': KEY,
+                   'experiments': ['exp1'],
+                   'developers': ['abc@gmail.com']
+                  }
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/labs", data=json.dumps(payload),
+                                 headers=headers)
+
+        payload = {'hosting_status': 'hosted',
+                   'hosted_url': 'http://cse14-iiith.vlabs.ac.in',
+                   'hosted_on': 'cloud',
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/hostinginfos", data=json.dumps(payload),
+                                 headers=headers)
+
+        response = self.client.get("/labs", headers=headers)
+        self.assertEqual(response.status_code, 200)
+
+ #+END_SRC
+   
+**** TestGetLabbyLabId
+#+NAME: test_get_lab_by_labid
+#+BEGIN_SRC python
+class TestGetLabbyLabId(TestCase):
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_get_lab_by_labid(self):
+        print "test_get_lab_by_labid_in_rest"
+
+        payload = {'inst_name': 'IIT Kanpur',
+                   'inst_id': 'IITK',
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/institutes", data=json.dumps(payload),
+                                 headers=headers)
+
+        payload = {'integration_level': 4,
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/integrationstatuss", data=json.dumps(payload),
+                                 headers=headers)
+
+        payload = {'dis_name': 'Computer Science',
+                   'dis_id': 'CSE',
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/disciplines", data=json.dumps(payload),
+                                 headers=headers)
+
+        payload = {'asset_type': 'Image',
+                   'path': 'vlabs.ac.in/images/static/logo.png',
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/assets", data=json.dumps(payload),
+                                 headers=headers)
+
+        payload = {'exp_name': 'arrays',
+                   'exp_id': 'exp1',
+                   'overview' : 'overview',
+                   'sections': [],
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/experiments", data=json.dumps(payload),
+                                 headers=headers)
+
+        payload = {'hosting_status': 'hosted',
+                   'hosted_url': 'http://cse14-iiith.vlabs.ac.in',
+                   'hosted_on': 'cloud',
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/hostinginfos", data=json.dumps(payload),
+                                 headers=headers)
+
+
+        payload = {'name': 'Prof. Dharamaja',
+                   'email': 'abc@gmail.com',
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/developers", data=json.dumps(payload),
+                                 headers=headers)
+
+        payload = {'lab_name': 'Data Structures',
+                   'lab_id': 'cse01',
+                   'overview' : 'overview',
+                   'inst_id': 'IITK',
+                   'integration_level': 4,
+                   'dis_id': 'CSE',
+                   'assets': ['vlabs.ac.in/images/static/logo.png'],
+                   'key': KEY,
+                   'experiments': ['exp1'],
+                   'developers': ['abc@gmail.com'],
+                   'hosted_url': 'http://cse14-iiith.vlabs.ac.in'
+                  }
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/labs", data=json.dumps(payload),
+                                 headers=headers)
+
+
+        response = self.client.get("/labs?lab_id=cse01", headers=headers)
+        self.assertEqual(response.status_code, 200)
+
+#+END_SRC
+
+**** TestGetLabsbyInstitute
+#+NAME: test_get_labs_by_institute
+#+BEGIN_SRC python
+class TestGetLabsbyInstitute(TestCase):
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_get_labs_by_institute(self):
+        print "test_get_labs_by_institute_in_rest"
+
+        payload = {'inst_name': 'IIT Kanpur',
+                   'inst_id': 'IITK',
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/institutes", data=json.dumps(payload),
+                                 headers=headers)
+
+        payload = {'integration_level': 4,
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/integrationstatuss", data=json.dumps(payload),
+                                 headers=headers)
+
+        payload = {'dis_name': 'Computer Science',
+                   'dis_id': 'CSE',
+                   'key': KEY}
+
+
+        response = self.client.post("/disciplines", data=json.dumps(payload),
+                                 headers=headers)
+
+        payload = {'asset_type': 'Image',
+                   'path': 'vlabs.ac.in/images/static/logo.png',
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/assets", data=json.dumps(payload),
+                                 headers=headers)
+
+        payload = {'exp_name': 'arrays',
+                   'exp_id': 'exp1',
+                   'overview' : 'overview',
+                   'sections': [],
+                   'key': KEY}
+
+
+        response = self.client.post("/experiments", data=json.dumps(payload),
+                                 headers=headers)
+        payload = {'hosting_status': 'hosted',
+                   'hosted_url': 'http://cse14-iiith.vlabs.ac.in',
+                   'hosted_on': 'cloud',
+                   'key': KEY}
+
+
+        response = self.client.post("/hostinginfos", data=json.dumps(payload),
+                                 headers=headers)
+
+        payload = {'name': 'Prof. Dharamaja',
+                   'email': 'abc@gmail.com',
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/developers", data=json.dumps(payload),
+                                 headers=headers)
+
+        payload = {'lab_name': 'Data Structures',
+                   'lab_id': 'cse01',
+                   'overview' : 'overview',
+                   'inst_id': 'IITK',
+                   'integration_level': 4,
+                   'dis_id': 'CSE',
+                   'assets': ['vlabs.ac.in/images/static/logo.png'],
+                   'key': KEY,
+                   'experiments': ['exp1'],
+                   'developers': ['abc@gmail.com'],
+                   'hosted_url': 'http://cse14-iiith.vlabs.ac.in'
+                  }
+
+
+        response = self.client.post("/labs", data=json.dumps(payload),
+                                 headers=headers)
+
+
+        response = self.client.get("/labs?institute_name=IIT Kanpur", headers=headers)
+        self.assertEqual(response.status_code, 200)
+
+#+END_SRC
+
+**** TestGetLabsbyDiscipline
+#+NAME: test_get_labs_by_discipline
+#+BEGIN_SRC python
+class TestGetLabsbyDiscipline(TestCase):
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_get_labs_by_discipline(self):
+        print "test_get_labs_by_discipline_in_rest"
+
+        payload = {'inst_name': 'IIT Kanpur',
+                   'inst_id': 'IITK',
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/institutes", data=json.dumps(payload),
+                                 headers=headers)
+
+        payload = {'integration_level': 4,
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/integrationstatuss", data=json.dumps(payload),
+                                 headers=headers)
+
+        payload = {'dis_name': 'Computer Science',
+                   'dis_id': 'CSE',
+                   'key': KEY}
+
+        response = self.client.post("/disciplines", data=json.dumps(payload),
+                                 headers=headers)
+
+        payload = {'asset_type': 'Image',
+                   'path': 'vlabs.ac.in/images/static/logo.png',
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/assets", data=json.dumps(payload),
+                                 headers=headers)
+
+        payload = {'exp_name': 'arrays',
+                   'exp_id': 'exp1',
+                   'overview' : 'overview',
+                   'sections': [],
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/experiments", data=json.dumps(payload),
+                                 headers=headers)
+
+        payload = {'name': 'Prof. Dharamaja',
+                   'email': 'abc@gmail.com',
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/developers", data=json.dumps(payload),
+                                 headers=headers)
+
+        payload = {'hosting_status': 'hosted',
+                   'hosted_url': 'http://cse14-iiith.vlabs.ac.in',
+                   'hosted_on': 'cloud',
+                   'key': KEY}
+
+
+        response = self.client.post("/hostinginfos", data=json.dumps(payload),
+                                 headers=headers)
+
+        payload = {'lab_name': 'Data Structures',
+                   'lab_id': 'cse01',
+                   'overview' : 'overview',
+                   'inst_id': 'IITK',
+                   'integration_level': 4,
+                   'dis_id': 'CSE',
+                   'assets': ['vlabs.ac.in/images/static/logo.png'],
+                   'key': KEY,
+                   'experiments': ['exp1'],
+                   'developers': ['abc@gmail.com'],
+                   'hosted_url': 'http://cse14-iiith.vlabs.ac.in'
+                  }
+
+        response = self.client.post("/labs", data=json.dumps(payload),
+                                 headers=headers)
+
+
+        response = self.client.get("/labs?discipline_name=Computer Science",
+                                       headers=headers)
+        self.assertEqual(response.status_code, 200)
+
+#+END_SRC
+
+**** TestGetLabsbyLabName
+#+NAME: test_get_labs_by_lab_name
+#+BEGIN_SRC python
+class TestGetLabsbyLabName(TestCase):
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_get_labs_by_lab_name(self):
+        print "test_get_labs_by_lab_name_in_rest"
+
+        payload = {'inst_name': 'IIT Kanpur',
+                   'inst_id': 'IITK',
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/institutes", data=json.dumps(payload),
+                                 headers=headers)
+
+        payload = {'integration_level': 4,
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/integrationstatuss", data=json.dumps(payload),
+                                 headers=headers)
+
+        payload = {'dis_name': 'Computer Science',
+                   'dis_id': 'CSE',
+                   'key': KEY}
+
+
+        response = self.client.post("/disciplines", data=json.dumps(payload),
+                                 headers=headers)
+
+        payload = {'asset_type': 'Image',
+                   'path': 'vlabs.ac.in/images/static/logo.png',
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/assets", data=json.dumps(payload),
+                                 headers=headers)
+
+        payload = {'exp_name': 'arrays',
+                   'exp_id': 'exp1',
+                   'overview' : 'overview',
+                   'sections': [],
+                   'key': KEY}
+
+
+        response = self.client.post("/experiments", data=json.dumps(payload),
+                                 headers=headers)
+
+        payload = {'name': 'Prof. Dharamaja',
+                   'email': 'abc@gmail.com',
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/developers", data=json.dumps(payload),
+                                 headers=headers)
+
+        payload = {'hosting_status': 'hosted',
+                   'hosted_url': 'http://cse14-iiith.vlabs.ac.in',
+                   'hosted_on': 'cloud',
+                   'key': KEY}
+
+
+        response = self.client.post("/hostinginfos", data=json.dumps(payload),
+                                 headers=headers)
+
+        payload = {'lab_name': 'Data Structures',
+                   'lab_id': 'cse01',
+                   'overview' : 'overview',
+                   'inst_id': 'IITK',
+                   'integration_level': 4,
+                   'dis_id': 'CSE',
+                   'assets': ['vlabs.ac.in/images/static/logo.png'],
+                   'key': KEY,
+                   'experiments': ['exp1'],
+                   'developers': ['abc@gmail.com'],
+                   'hosted_url': 'http://cse14-iiith.vlabs.ac.in'
+                  }
+
+
+        response = self.client.post("/labs", data=json.dumps(payload),
+                                 headers=headers)
+
+
+        response = self.client.get("/labs?lab_name=Data Structures", headers=headers)
+        self.assertEqual(response.status_code, 200)
+
+#+END_SRC
+
+**** TestGetLabsbyAsset
+#+NAME: test_get_labs_by_asset
+#+BEGIN_SRC python
+class TestGetLabsbyAsset(TestCase):
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_get_labs_by_discipline(self):
+        print "test_get_labs_by_discipline_in_rest"
+
+        payload = {'inst_name': 'IIT Kanpur',
+                   'inst_id': 'IITK',
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/institutes", data=json.dumps(payload),
+                                 headers=headers)
+
+        payload = {'integration_level': 4,
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/integrationstatuss", data=json.dumps(payload),
+                                 headers=headers
+
+        payload = {'dis_name': 'Computer Science',
+                   'dis_id': 'CSE',
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/disciplines", data=json.dumps(payload),
+                                 headers=headers)
+ 
+        payload = {'asset_type': 'Image',
+                   'path': 'vlabs.ac.in/images/static/logo.png',
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/assets", data=json.dumps(payload),
+                                 headers=headers)
+
+        payload = {'asset_type': 'Image',
+                   'path': 'vlabs.ac.in/images/static/logo.png',
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/assets", data=json.dumps(payload),
+                                 headers=headers)
+
+        payload = {'exp_name': 'arrays',
+                   'exp_id': 'exp1',
+                   'overview': 'overview',
+                   'sections': [],
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/experiments", data=json.dumps(payload),
+                                 headers=headers)
+
+        payload = {'lab_name': 'Data Structures',
+                   'lab_id': 'cse01',
+                   'overview' : 'overview',
+                   'inst_id': 'IITK',
+                   'integration_level': 4,
+                   'dis_id': 'CSE',
+                   'assets': ['vlabs.ac.in/images/static/logo.png'],
+                   'key': KEY,
+                   'experiments': ['exp1']
+                  }
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/labs", data=json.dumps(payload),
+                                 headers=headers)
+
+        response = self.client.get("/labs?discipline_name=Computer Science",
+                                       headers=headers)
+        self.assertEqual(response.status_code, 200)
+
+#+END_SRC
+
+
+** Add Lab 
+*** API Designs 
+**** Add Lab
+  :PROPERTIES:
+  :CUSTOM_ID: api_add_lab
+  :END:    
+  - URL :: /labs
+
+  - Method :: POST
+
+  - URL Params ::  None
+
+  - Payload :: 
+#+BEGIN_EXAMPLE
+{
+  "experiments": ["exp9"], 
+  "lab_id": "cse09", 
+  "lab_name": "Data Structures", 
+  "overview": "overview",
+  "key": "<key>",
+  "inst_id": "iiith",
+  "integration_level": 4,
+  "dis_id": "cse",
+  "path": "vlabs.ac.in/images/static/logo.png"
+  "dis_id": "cse",
+  "developers": ["abc@gmail.com"],
+  "hosted_url": "http://cse14-iiith.vlabs.ac.in"
+}
+#+END_EXAMPLE	       
+
+  - Success Response
+    + Status_Code: 200
+    + Content: 
+#+BEGIN_EXAMPLE
+{
+  "discipline": {
+    "dis_id": "cse", 
+    "dis_name": "Computer Science", 
+    "id": 1
+  }, 
+  "assets": [{
+    "path": "vlabs.ac.in/images/static/logo.png", 
+    "asset_type": "Image", 
+    "id": 1
+  }], 
+  "experiments": [
+    {
+      "exp_id": "exp9", 
+      "exp_name": "arrays", 
+      "id": 1, 
+      "overview": "overview", 
+      "sections": [
+        {
+          "id": 2, 
+          "name": "Procedure"
+        }, 
+        {
+          "id": 1, 
+          "name": "Theory"
+        }
+      ]
+    }
+  ], 
+  "id": 1, 
+  "institute": {
+    "id": 1, 
+    "inst_id": "iiith", 
+    "inst_name": "IIIT Hyderabad"
+  }, 
+  "integrationstatus": {
+    "integration_level": 4,
+    "key": "<key>"
+  },
+  "hostinginfos": [{
+      "hosting_status": "hosted",
+      "id": 1,
+      "hosted_url": "http://cse14-iiith.vlabs.ac.in",
+      "hosted_on": "cloud"
+  }],
+  "lab_id": "cse09", 
+  "lab_name": "Data Structures", 
+  "overview": "overview",
+  "developers": [
+    {
+      "name": "Prof. Dharamaja",
+      "id": 1,
+      "email": "abc@gmail.com"
+    }
+  ]
+}
+
+#+END_EXAMPLE
+
+  - Error Response:
+    + Contents :
+                {"status" : "error"}
+    
+  - Example:
+#+BEGIN_EXAMPLE
+http://localhost:5000/labs
+#+END_EXAMPLE 
+
+*** Implementation
+#+NAME: add_lab
+#+BEGIN_SRC python
+@api.route('/labs', methods=['POST'])
+def add_lab():
     if request.method == 'POST':
         if request.is_json:
             data_json = json.dumps(request.get_json())
@@ -71,19 +1454,42 @@ def get_and_add_lab():
             lab = SystemInterface.add_lab(data_dict)
             return jsonify(lab)
 
-        except TypeError as err:
-            error_message = 'Malformed arguments, error: %s' % str(err)
+        except NotAuthorizedError as e:
+            err_str = str(e)
+            msg = {"status": "failure",
+                    "status code": 401,
+                       "msg": err_str}
+            return jsonify(msg)
 
-            return render_template('error.html', 
-                    data=error_message)
+        except TypeError as e:
+            err_str = str(e)
+            msg = {"status": "failure",
+                       "msg": err_str }
+            return jsonify(msg)
 
-        except Exception as err:
-            abort(500, 'error: %s' % str(err))
-            
+        except StateError as e:
+            err_str = str(e)
+            msg = {"status": "failure",
+                       "msg": err_str}
+            return jsonify(msg)
+
+        except NotFoundError as e:
+            err_str = str(e)
+            msg = {"status": "failure",
+                       "status code": 404,
+                       "msg": err_str}
+            return jsonify(msg)
+
+        except Exception as e:
+            err_str = str(e)
+            msg = {"status": "failure",
+                       "msg": err_str}
+            return jsonify(msg)
+
 #+END_SRC
 
-
-*** TestAddLab
+*** Test Cases
+**** TestAddLab
 
 #+NAME: test_add_lab
 #+BEGIN_SRC python
@@ -103,53 +1509,40 @@ class TestAddLab(TestCase):
     def test_add_lab(self):
         print "test_add_lab_in_rest"
 
-        payload = {'exp_name': 'arrays',
-                   'exp_id': 'exp1',
-                   'overview' : 'overview',
-                   'sections': [],
+        payload = {'inst_name': 'IIT Kanpur',
+                   'inst_id': 'IITK',
                    'key': KEY}
 
         headers = {'Content-Type': 'application/json'}
 
-        response = self.client.post("/experiments", data=json.dumps(payload),
+        response = self.client.post("/institutes", data=json.dumps(payload),
                                  headers=headers)
 
-        payload = {'lab_name': 'Data Structures',
-                   'lab_id': 'cse01',
-                   'key': KEY,
-                   'inst_id': 'IITK',
-                   'dis_id': 'CSE',
-                   'overview' : 'overview',
-                   'experiments': ['exp1']
-                  }
+        payload = {'integration_level': 4,
+                   'key': KEY}
 
         headers = {'Content-Type': 'application/json'}
 
-        response = self.client.post("/labs", data=json.dumps(payload),
+        response = self.client.post("/integrationstatuss", data=json.dumps(payload),
                                  headers=headers)
 
-        self.assertEqual(response.status_code, 200)
+        payload = {'dis_name': 'Computer Science',
+                   'dis_id': 'CSE',
+                   'key': KEY}
 
- #+END_SRC
-   
-*** TestGetLab
-#+NAME: test_get_labs
-#+BEGIN_SRC python
-class TestGetLab(TestCase):
-    TESTING = True
-    def create_app(self):
-        app = create_app(config)
-        return app
+        headers = {'Content-Type': 'application/json'}
 
-    def setUp(self):
-        db.create_all()
+        response = self.client.post("/disciplines", data=json.dumps(payload),
+                                 headers=headers)
 
-    def tearDown(self):
-        db.session.remove()
-        db.drop_all()
+        payload = {'asset_type': 'Image',
+                   'path': 'vlabs.ac.in/images/static/logo.png',
+                   'key': KEY}
 
-    def test_get_labs(self):
-        print "test_get_labs_in_rest"
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/assets", data=json.dumps(payload),
+                                 headers=headers)
 
         payload = {'exp_name': 'arrays',
                    'exp_id': 'exp1',
@@ -162,62 +1555,25 @@ class TestGetLab(TestCase):
         response = self.client.post("/experiments", data=json.dumps(payload),
                                  headers=headers)
 
-        payload = {'lab_name': 'Data Structures',
-                   'lab_id': 'cse01',
-                   'overview' : 'overview',
-                   'inst_id': 'IITK',
-                   'dis_id': 'CSE',
-                   'key': KEY,
-                   'experiments': ['exp1']
-                  }
-
-        headers = {'Content-Type': 'application/json'}
-
-        response = self.client.post("/labs", data=json.dumps(payload),
-                                 headers=headers)
-
-        response = self.client.get("/labs", headers=headers)
-        self.assertEqual(response.status_code, 200)
-
- #+END_SRC
-   
-*** TestGetLabbyLabId
-#+NAME: test_get_lab_by_labid
-#+BEGIN_SRC python
-class TestGetLabbyLabId(TestCase):
-    TESTING = True
-    def create_app(self):
-        app = create_app(config)
-        return app
-
-    def setUp(self):
-        db.create_all()
-
-    def tearDown(self):
-        db.session.remove()
-        db.drop_all()
-
-    def test_get_lab_by_labid(self):
-        print "test_get_lab_by_labid_in_rest"
-
-        payload = {'exp_name': 'arrays',
-                   'exp_id': 'exp1',
-                   'overview' : 'overview',
-                   'sections': [],
+        payload = {'name': 'Prof. Dharamaja',
+                   'email': 'abc@gmail.com',
                    'key': KEY}
 
         headers = {'Content-Type': 'application/json'}
 
-        response = self.client.post("/experiments", data=json.dumps(payload),
+        response = self.client.post("/developers", data=json.dumps(payload),
                                  headers=headers)
 
         payload = {'lab_name': 'Data Structures',
                    'lab_id': 'cse01',
-                   'overview' : 'overview',
-                   'inst_id': 'IITK',
-                   'dis_id': 'CSE',
                    'key': KEY,
+                   'inst_id': 'IITK',
+                   'integration_level': 4,
+                   'dis_id': 'CSE',
+                   'assets': ['vlabs.ac.in/images/static/logo.png'],
+                   'overview' : 'overview',
                    'experiments': ['exp1'],
+                   'developers': ['abc@gmail.com']
                   }
 
         headers = {'Content-Type': 'application/json'}
@@ -225,16 +1581,90 @@ class TestGetLabbyLabId(TestCase):
         response = self.client.post("/labs", data=json.dumps(payload),
                                  headers=headers)
 
-        response = self.client.get("/labs?lab_id=cse01", headers=headers)
+        payload = {'hosting_status': 'hosted',
+                   'hosted_url': 'http://cse14-iiith.vlabs.ac.in',
+                   'hosted_on': 'cloud',
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/hostinginfos", data=json.dumps(payload),
+                                 headers=headers)
+
         self.assertEqual(response.status_code, 200)
 
-#+END_SRC
-** Get Institutes, Add Institute and Get Institute
-REST API to get and add institute.
-#+NAME: get_and_add_institute
+
+ #+END_SRC
+   
+
+** Get Institutes and Get Institute
+*** API Design
+**** Get all Institutes
+  :PROPERTIES:
+  :CUSTOM_ID: api_get_all_institutes
+  :END:    
+  - URL :: /institutes
+
+  - Method :: GET
+
+  - URL Params ::  None
+
+  - Payload :: 
+
+  - Success Response
+    + Status_Code: 200
+      + Contents :
+
+#+BEGIN_EXAMPLE
+[{"inst_name": "IIIT Hyderabad", "id": 1, "inst_id": "iiith"}]
+#+END_EXAMPLE	       
+
+    
+  - Error Response:
+    + Contents :
+                {"status" : "error"}
+    
+  - Example:
+#+BEGIN_EXAMPLE
+http://localhost:5000/institutes
+#+END_EXAMPLE
+
+**** Get Institute by Inst id
+  :PROPERTIES:
+  :CUSTOM_ID: api_get_institute_by_inst_id
+  :END:    
+  - URL :: /institutes?inst_id=<inst_id>
+
+  - Method :: GET
+
+  - URL Params ::  None
+
+  - Payload :: 
+
+  - Success Response
+    + Status_Code: 200
+      + Contents :
+
+#+BEGIN_EXAMPLE
+{"inst_name": "IIIT Hyderabad", "id": 1, "inst_id": "iiith"}
+#+END_EXAMPLE	       
+
+    
+  - Error Response:
+    + Contents :
+                {"status" : "error"}
+    
+  - Example:
+#+BEGIN_EXAMPLE
+http://localhost:5000/institutes?inst_id=iiith
+#+END_EXAMPLE
+
+*** Implementation
+REST API to get all institutes and get institute by inst id.
+#+NAME: get_institute
 #+BEGIN_SRC python
-@api.route('/institutes', methods=['GET', 'POST'])
-def add_institute():
+@api.route('/institutes', methods=['GET'])
+def get_institute():
     if request.method == 'GET':
        if 'inst_id' in request.args:
            inst_id  = request.args['inst_id']
@@ -270,61 +1700,11 @@ def add_institute():
 
            except Exception as err:
                abort(500, 'error: %s' % str(err))
-       
-    if request.method == 'POST':
-        if request.is_json:
-            data_json = json.dumps(request.get_json())
-            data_dict = yaml.safe_load(data_json)
-        else:
-            abort(500, "the request does not contain data in json")
-
-        try:
-            institute = SystemInterface.add_institute(data_dict)
-            return jsonify(institute)
-
-        except TypeError as err:
-            error_message = 'Malformed arguments, error: %s' % str(err)
-
-            return render_template('error.html', 
-                    data=error_message)
-
-        except Exception as err:
-            abort(500, 'error: %s' % str(err))
             
 #+END_SRC
 
-*** TestAddInstitute 
- #+NAME: test_add_institute
- #+BEGIN_SRC python
-class TestAddInstitute(TestCase):
-    TESTING = True
-    def create_app(self):
-        app = create_app(config)
-        return app
-
-    def setUp(self):
-        db.create_all()
-
-    def tearDown(self):
-        db.session.remove()
-        db.drop_all()
-
-    def test_add_institute(self):
-        print "test_add_institute_in_rest"
-        payload = {'inst_name': 'IIT Kanpur',
-                   'inst_id': 'IITK',
-                   'key': KEY}
-
-        headers = {'Content-Type': 'application/json'}
-
-        response = self.client.post("/institutes", data=json.dumps(payload),
-                                 headers=headers)
-
-        self.assertEqual(response.status_code, 200)
-
- #+END_SRC
-   
-*** TestGetInstitute 
+*** Test Cases
+**** TestGetInstitute 
  #+NAME: test_get_Institute
  #+BEGIN_SRC python
 class TestGetInstitute(TestCase):
@@ -357,7 +1737,7 @@ class TestGetInstitute(TestCase):
 
  #+END_SRC
    
-*** TestGetInstitutebyInstituteid
+**** TestGetInstitutebyInstituteid
 #+NAME: test_get_institute_by_instituteid
 #+BEGIN_SRC python
 class TestGetInstitute(TestCase):
@@ -389,13 +1769,189 @@ class TestGetInstitute(TestCase):
         response = self.client.get("/institutes?inst_id=IITK", headers=headers)
         self.assertEqual(response.status_code, 200)
 #+END_SRC
-** Get Disciplines, Add Discipline and Get Discipline
-   REST API to get and add question.
 
-#+NAME: get_and_add_discipline
+
+** Add Institute 
+*** API Design
+**** Add Institute
+  :PROPERTIES:
+  :CUSTOM_ID: api_add_institute
+  :END:    
+  - URL :: /institutes
+
+  - Method :: POST
+
+  - URL Params ::  None
+
+  - Payload :: 
+#+BEGIN_EXAMPLE
+{
+"inst_id": "iiith",
+"inst_name": "IIIT Hyderabad",
+"key": "<key>"
+}
+#+END_EXAMPLE	       
+
+  - Success Response
+    + Status_Code: 200
+    + Content: 
+#+BEGIN_EXAMPLE
+{
+  "id": 1, 
+  "inst_id": "iiith", 
+  "inst_name": "IIIT Hyderabad"
+}
+
+#+END_EXAMPLE
+
+  - Error Response:
+    + Contents :
+                {"status" : "error"}
+    
+  - Example:
+#+BEGIN_EXAMPLE
+http://localhost:5000/disciplines
+#+END_EXAMPLE
+    
+*** Implementation
+REST API to add an institute.
+#+NAME: add_institute
 #+BEGIN_SRC python
-@api.route('/disciplines', methods=['GET', 'POST'])
-def add_discipline():
+@api.route('/institutes', methods=['POST'])
+def add_institute():
+    if request.method == 'POST':
+        if request.is_json:
+            data_json = json.dumps(request.get_json())
+            data_dict = yaml.safe_load(data_json)
+        else:
+            abort(500, "the request does not contain data in json")
+
+        try:
+            institute = SystemInterface.add_institute(data_dict)
+            return jsonify(institute)
+
+        except TypeError as err:
+            error_message = 'Malformed arguments, error: %s' % str(err)
+
+            return render_template('error.html', 
+                    data=error_message)
+
+        except Exception as err:
+            abort(500, 'error: %s' % str(err))
+            
+#+END_SRC
+
+*** Test Cases
+**** TestAddInstitute 
+ #+NAME: test_add_institute
+ #+BEGIN_SRC python
+class TestAddInstitute(TestCase):
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_add_institute(self):
+        print "test_add_institute_in_rest"
+        payload = {'inst_name': 'IIT Kanpur',
+                   'inst_id': 'IITK',
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/institutes", data=json.dumps(payload),
+                                 headers=headers)
+
+        self.assertEqual(response.status_code, 200)
+
+ #+END_SRC
+   
+
+** Get Disciplines and Get Discipline
+*** API Design
+**** Get all Disciplines
+  :PROPERTIES:
+  :CUSTOM_ID: api_get_all_disciplines
+  :END:    
+  - URL :: /disciplines
+
+  - Method :: GET
+
+  - URL Params ::  None
+
+  - Payload :: 
+
+  - Success Response
+    + Status_Code: 200
+      + Contents :
+
+#+BEGIN_EXAMPLE
+[
+{
+  "dis_id": "cse", 
+  "dis_name": "Computer Science and Engineering", 
+  "id": 1
+}
+]
+#+END_EXAMPLE	       
+
+    
+  - Error Response:
+    + Contents :
+                {"status" : "error"}
+    
+  - Example:
+#+BEGIN_EXAMPLE
+http://localhost:5000/disciplines
+#+END_EXAMPLE
+
+**** Get Discipline by dis_id
+  :PROPERTIES:
+  :CUSTOM_ID: api_get_all_disciplines
+  :END:    
+  - URL :: /disciplines?dis_id=<dis_id>
+
+  - Method :: GET
+
+  - URL Params ::  None
+
+  - Payload :: 
+
+  - Success Response
+    + Status_Code: 200
+      + Contents :
+
+#+BEGIN_EXAMPLE
+{
+  "dis_id": "cse", 
+  "dis_name": "Computer Science and Engineering", 
+  "id": 1
+}
+#+END_EXAMPLE	       
+
+    
+  - Error Response:
+    + Contents :
+                {"status" : "error"}
+    
+  - Example:
+#+BEGIN_EXAMPLE
+http://localhost:5000/disciplines?dis_id=cse
+#+END_EXAMPLE
+
+*** Implementation  
+    REST API to get discipline.
+#+NAME: get_disciplines
+#+BEGIN_SRC python
+@api.route('/disciplines', methods=['GET'])
+def get_discipline():
     if request.method == 'GET':
         if 'dis_id' in request.args:
             dis_id  = request.args['dis_id']
@@ -438,61 +1994,10 @@ def add_discipline():
             except Exception as err:
                 abort(500, 'error: %s' % str(err))
        
-    if request.method == 'POST':
-        if request.is_json:
-            data_json = json.dumps(request.get_json())
-            data_dict = yaml.safe_load(data_json)
-        else:
-            abort(500, "the request does not contain data in json")
-
-        try:
-            dis = SystemInterface.add_discipline(data_dict)
-            return jsonify(dis)
-
-        except TypeError as err:
-            error_message = 'Malformed arguments, error: %s' % str(err)
-
-            return render_template('error.html', 
-                    data=error_message)
-
-        except Exception as err:
-            abort(500, 'error: %s' % str(err))
-            
 #+END_SRC
 
-
-*** TestAddDiscipline
- #+NAME: test_add_discipline
- #+BEGIN_SRC python
-class TestAddDiscipline(TestCase):
-    TESTING = True
-    def create_app(self):
-        app = create_app(config)
-        return app
-
-    def setUp(self):
-        db.create_all()
-
-    def tearDown(self):
-        db.session.remove()
-        db.drop_all()
-
-    def test_add_discipline(self):
-        print "test_add_discipline_in_rest"
-        payload = {'dis_name': 'IIT Delhi',
-                   'dis_id': 'EEE10',
-                   'key': KEY}
-
-        headers = {'Content-Type': 'application/json'}
-
-        response = self.client.post("/disciplines", data=json.dumps(payload),
-                                 headers=headers)
-
-        self.assertEqual(response.status_code, 200)
-
- #+END_SRC
-   
-*** TestGetDiscipline
+*** Test Cases
+**** TestGetDiscipline
  #+NAME: test_get_discipline
  #+BEGIN_SRC python
 class TestGetDiscipline(TestCase):
@@ -525,12 +2030,245 @@ class TestGetDiscipline(TestCase):
 
  #+END_SRC
    
-** Get Experiments, Add Experiment and Get Experiment
-   REST API to get single experiment by exp_id and get all experiments and add experiment.
-#+NAME: get_and_add_experiment
+**** TestGetDisciplinebyDisId
+ #+NAME: test_get_discipline_by_disid
+ #+BEGIN_SRC python
+class TestGetDisciplineByDisId(TestCase):
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_get_discipline_by_disid(self):
+        print "test_get_discipline_by_disid_in_rest"
+
+        payload = {'dis_name': 'IIT Delhi',
+                   'dis_id': 'EEE10',
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/disciplines", data=json.dumps(payload),
+                                 headers=headers)
+
+        response = self.client.get("/disciplines?dis_id=EEE10",
+                                       headers=headers)
+        self.assertEqual(response.status_code, 200)
+
+ #+END_SRC
+   
+
+** Add Discipline
+*** API Design
+**** Add Discipline
+  :PROPERTIES:
+  :CUSTOM_ID: api_add_discipline
+  :END:    
+  - URL :: /disciplines
+
+  - Method :: POST
+
+  - URL Params ::  None
+
+  - Payload :: 
+#+BEGIN_EXAMPLE
+{
+"dis_id": "cse",
+"dis_name": "Computer Science",
+  "key": "<key>"
+}
+#+END_EXAMPLE	       
+
+  - Success Response
+    + Status_Code: 200
+    + Content: 
+#+BEGIN_EXAMPLE
+{
+  "dis_id": "cse", 
+  "dis_name": "Computer Science", 
+  "id": 1
+}
+
+#+END_EXAMPLE
+
+  - Error Response:
+    + Contents :
+                {"status" : "error"}
+    
+  - Example:
+#+BEGIN_EXAMPLE
+http://localhost:5000/discipline
+#+END_EXAMPLE
+
+*** Implementation  
+    REST API to add discipline.
+#+NAME: add_discipline
 #+BEGIN_SRC python
-@api.route('/experiments', methods=['GET', 'POST'])
-def get_and_add_experiment():
+@api.route('/disciplines', methods=['POST'])
+def add_discipline():
+    if request.method == 'POST':
+        if request.is_json:
+            data_json = json.dumps(request.get_json())
+            data_dict = yaml.safe_load(data_json)
+        else:
+            abort(500, "the request does not contain data in json")
+
+        try:
+            dis = SystemInterface.add_discipline(data_dict)
+            return jsonify(dis)
+
+        except TypeError as err:
+            error_message = 'Malformed arguments, error: %s' % str(err)
+
+            return render_template('error.html', 
+                    data=error_message)
+
+        except Exception as err:
+            abort(500, 'error: %s' % str(err))
+            
+#+END_SRC
+
+*** Test Cases
+**** TestAddDiscipline
+ #+NAME: test_add_discipline
+ #+BEGIN_SRC python
+class TestAddDiscipline(TestCase):
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_add_discipline(self):
+        print "test_add_discipline_in_rest"
+        payload = {'dis_name': 'IIT Delhi',
+                   'dis_id': 'EEE10',
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/disciplines", data=json.dumps(payload),
+                                 headers=headers)
+
+        self.assertEqual(response.status_code, 200)
+
+ #+END_SRC
+   
+
+** Get Experiments and Get Experiment
+*** API Designs
+**** Get all experiments
+  :PROPERTIES:
+  :CUSTOM_ID: api_get_all_experiments
+  :END:    
+  - URL :: /experiments
+
+  - Method :: GET
+
+  - URL Params ::  None
+
+  - Payload :: 
+
+  - Success Response
+    + Status_Code: 200
+      + Contents :
+
+#+BEGIN_EXAMPLE
+
+[
+  {
+    "overview": "overview",
+    "exp_name": "arrays",
+    "sections": [
+      {
+        "name": "Procedure",
+        "id": 2
+      },
+      {
+        "name": "Theory",
+        "id": 1
+      }
+    ],
+    "id": 1,
+    "exp_id": "exp9"
+  }
+]
+#+END_EXAMPLE	       
+
+    
+  - Error Response:
+    + Contents :
+                {"status" : "error"}
+    
+  - Example:
+#+BEGIN_EXAMPLE
+http://localhost:5000/experiments
+#+END_EXAMPLE
+
+**** Get experiment by exp_id
+  :PROPERTIES:
+  :CUSTOM_ID: api_get_all_experiments
+  :END:    
+  - URL :: /experiments?exp_id=<exp_id>
+
+  - Method :: GET
+
+  - URL Params ::  None
+
+  - Payload :: 
+
+  - Success Response
+    + Status_Code: 200
+      + Contents :
+
+#+BEGIN_EXAMPLE
+  {
+    "overview": "overview",
+    "exp_name": "arrays",
+    "sections": [
+      {
+        "name": "Procedure",
+        "id": 2
+      },
+      {
+        "name": "Theory",
+        "id": 1
+      }
+    ],
+    "id": 1,
+    "exp_id": "exp9"
+  }
+#+END_EXAMPLE	       
+
+    
+  - Error Response:
+    + Contents :
+                {"status" : "error"}
+    
+  - Example:
+#+BEGIN_EXAMPLE
+http://localhost:5000/experiments?exp_id=exp9
+#+END_EXAMPLE
+
+*** Implementation
+ REST API to get single experiment by exp_id and get all experiments.
+#+NAME: get_experiment
+#+BEGIN_SRC python
+@api.route('/experiments', methods=['GET'])
+def get_experiment():
     if request.method == 'GET':
         if 'exp_id' in request.args:
             exp_id  = request.args['exp_id']
@@ -552,11 +2290,6 @@ def get_and_add_experiment():
                                        data=error_message)
             except TypeError as err:
                 error_message = 'Malformed arguments, error: %s' % str(err)
-                """
-                if request.headerscurrent_app.logger.error("%s" %(error_message)))['Content-Type'] == "application/json":
-                abort(400, error_message)
-                else:
-                """
                 current_app.logger.error("%s" %(error_message))
                 return render_template('error.html', 
                                        data=error_message)
@@ -584,63 +2317,10 @@ def get_and_add_experiment():
             except Exception as err:
                 abort(500, 'error: %s' % str(err))
        
-    if request.method == 'POST':
-        if request.is_json:
-            data_json = json.dumps(request.get_json())
-            data_dict = yaml.safe_load(data_json)
-        else:
-            abort(500, "the request does not contain data in json")
-
-        try:
-            exp = SystemInterface.add_experiment(data_dict)
-            return jsonify(exp)
-
-        except TypeError as err:
-            error_message = 'Malformed arguments, error: %s' % str(err)
-
-            return render_template('error.html', 
-                    data=error_message)
-
-        except Exception as err:
-            abort(500, 'error: %s' % str(err))
-            
 #+END_SRC
 
-
-*** TestAddExperiment
- #+NAME: test_add_experiment
- #+BEGIN_SRC python
-class TestAddExperiment(TestCase):
-    TESTING = True
-    def create_app(self):
-        app = create_app(config)
-        return app
-
-    def setUp(self):
-        db.create_all()
-
-    def tearDown(self):
-        db.session.remove()
-        db.drop_all()
-
-    def test_add_experiment(self):
-        print "test_add_experiment_in_rest"
-        payload = {'exp_name': 'arrays',
-                   'exp_id': 'cse01',
-                   'overview' : 'overview',
-                   'sections': [],
-                   'key': KEY}
-
-        headers = {'Content-Type': 'application/json'}
-
-        response = self.client.post("/experiments", data=json.dumps(payload),
-                                 headers=headers)
-
-        self.assertEqual(response.status_code, 200)
-
- #+END_SRC
-   
-*** TestGetExperiment
+*** Test Cases
+**** TestGetExperiment
  #+NAME: test_get_Experiment
  #+BEGIN_SRC python
 class TestGetExperiment(TestCase):
@@ -675,7 +2355,7 @@ class TestGetExperiment(TestCase):
 
  #+END_SRC
    
-*** TestGetExperimentbyExpid
+**** TestGetExperimentbyExpid
 #+NAME: test_get_exp_by_expid
 #+BEGIN_SRC python
 class TestGetExp(TestCase):
@@ -711,12 +2391,180 @@ class TestGetExp(TestCase):
 
 #+END_SRC
 
-** Get and Add Section
-REST API to get and add Section.
-#+NAME: get_and_add_section
+
+** Add Experiment 
+*** API Designs
+**** Add Experiment
+  :PROPERTIES:
+  :CUSTOM_ID: api_add_experiment
+  :END:    
+  - URL :: /experiments
+
+  - Method :: POST
+
+  - URL Params ::  None
+
+  - Payload :: 
+#+BEGIN_EXAMPLE
+{
+  "exp_id": "exp9", 
+  "exp_name": "arrays", 
+  "key":"<key>",
+  "overview": "overview", 
+  "sections": ["Theory", "Procedure"]
+}
+#+END_EXAMPLE	       
+
+  - Success Response
+    + Status_Code: 200
+    + Content: 
+#+BEGIN_EXAMPLE
+{
+  "exp_id": "exp9", 
+  "exp_name": "arrays", 
+  "id": 1, 
+  "overview": "overview", 
+  "sections": [
+    {
+      "id": 1, 
+      "name": "Theory"
+    }, 
+    {
+      "id": 2, 
+      "name": "Procedure"
+    }
+  ]
+}
+
+#+END_EXAMPLE
+
+  - Error Response:
+    + Contents :
+                {"status" : "error"}
+    
+  - Example:
+#+BEGIN_EXAMPLE
+http://localhost:5000/experiments
+#+END_EXAMPLE
+
+*** Implementation
+ REST API to add an experiment.
+#+NAME: add_experiment
 #+BEGIN_SRC python
-@api.route('/sections', methods=['GET', 'POST'])
-def get_and_add_section():
+@api.route('/experiments', methods=['POST'])
+def get_add_experiment():
+    if request.method == 'POST':
+        if request.is_json:
+            data_json = json.dumps(request.get_json())
+            data_dict = yaml.safe_load(data_json)
+        else:
+            abort(500, "the request does not contain data in json")
+
+        try:
+            exp = SystemInterface.add_experiment(data_dict)
+            return jsonify(exp)
+
+        except TypeError as err:
+            error_message = 'Malformed arguments, error: %s' % str(err)
+
+            return render_template('error.html', 
+                    data=error_message)
+
+        except Exception as err:
+            abort(500, 'error: %s' % str(err))
+            
+#+END_SRC
+
+*** Test Cases
+**** TestAddExperiment
+ #+NAME: test_add_experiment
+ #+BEGIN_SRC python
+class TestAddExperiment(TestCase):
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_add_experiment(self):
+        print "test_add_experiment_in_rest"
+        payload = {'exp_name': 'arrays',
+                   'exp_id': 'cse01',
+                   'overview' : 'overview',
+                   'sections': [],
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/experiments", data=json.dumps(payload),
+                                 headers=headers)
+
+        self.assertEqual(response.status_code, 200)
+
+ #+END_SRC
+   
+
+** Get Section
+*** API Design
+**** Get all Sections
+  :PROPERTIES:
+  :CUSTOM_ID: api_get_all_sections
+  :END:    
+  - URL :: /sections
+
+  - Method :: GET
+
+  - URL Params ::  None
+
+  - Payload :: 
+
+  - Success Response
+    + Status_Code: 200
+      + Contents :
+
+#+BEGIN_EXAMPLE
+[
+  {
+    "overview": "overview",
+    "exp_name": "arrays",
+    "sections": [
+      {
+        "name": "Procedure",
+        "id": 2
+      },
+      {
+        "name": "Theory",
+        "id": 1
+      }
+    ],
+    "id": 1,
+    "exp_id": "exp9"
+  }
+]
+#+END_EXAMPLE	       
+
+    
+  - Error Response:
+    + Contents :
+                {"status" : "error"}
+    
+  - Example:
+#+BEGIN_EXAMPLE
+http://localhost:5000/sections
+#+END_EXAMPLE
+    
+*** Implementation 
+REST API to get Section.
+#+NAME: get_section
+#+BEGIN_SRC python
+@api.route('/sections', methods=['GET'])
+def get_section():
     if request.method == 'GET':
         try:
             sections = SystemInterface.get_sections()
@@ -731,62 +2579,11 @@ def get_and_add_section():
 
         except Exception as err:
             abort(500, 'error: %s' % str(err))
-       
-    if request.method == 'POST':
-        if request.is_json:
-            data_json = json.dumps(request.get_json())
-            data_dict = yaml.safe_load(data_json)
-        else:
-            abort(500, "the request does not contain data in json")
-
-        try:
-            section = SystemInterface.add_section(data_dict)
-            return jsonify(section)
-
-        except TypeError as err:
-            error_message = 'Malformed arguments, error: %s' % str(err)
-
-            return render_template('error.html', 
-                    data=error_message)
-
-        except Exception as err:
-            abort(500, 'error: %s' % str(err))
             
 #+END_SRC
 
-
-*** TestAddSection
- #+NAME: test_add_section
- #+BEGIN_SRC python
-class TestAddSection(TestCase):
-    TESTING = True
-    def create_app(self):
-        app = create_app(config)
-        return app
-
-    def setUp(self):
-        db.create_all()
-
-    def tearDown(self):
-        db.session.remove()
-        db.drop_all()
-
-    def test_add_experiment(self):
-        print "test_add_section_in_rest"
-        payload = {'name': 'Quiz',
-                   'key': KEY}
-
-        headers = {'Content-Type': 'application/json'}
-
-        response = self.client.post("/sections", data=json.dumps(payload),
-                                 headers=headers)
-
-        self.assertEqual(response.status_code, 200)
-
- #+END_SRC
-   
-
-*** TestGetSection
+*** Test Cases
+**** TestGetSection
  #+NAME: test_get_Section
  #+BEGIN_SRC python
 class TestGetSection(TestCase):
@@ -818,11 +2615,1375 @@ class TestGetSection(TestCase):
 
  #+END_SRC
    
-** Update and Delete Lab
-#+NAME: update_and_delete_lab
+
+** Add Section
+*** API Design
+**** Add sections
+  :PROPERTIES:
+  :CUSTOM_ID: api_add_sections
+  :END:    
+  - URL :: /sections
+
+  - Method :: POST
+
+  - URL Params ::  None
+
+  - Payload :: 
+#+BEGIN_EXAMPLE
+
+{
+  "key": "<key>",
+  "name" : "Theory"
+}
+
+#+END_EXAMPLE	       
+
+  - Success Response
+    + Status_Code: 200
+    + Content: 
+              {"status" : "successfully added records"}
+
+  - Error Response:
+    + Contents :
+                {"status" : "error"}
+    
+  - Example:
+#+BEGIN_EXAMPLE
+http://localhost:5000/save_lab_spec_data
+#+END_EXAMPLE 
+
+*** Implementation 
+REST API to  add Section.
+#+NAME: add_section
 #+BEGIN_SRC python
-@api.route('/labs', methods=['PUT', 'DELETE'])
-def update_and_delete_lab():
+@api.route('/sections', methods=['POST'])
+def add_section():
+    if request.method == 'POST':
+        if request.is_json:
+            data_json = json.dumps(request.get_json())
+            data_dict = yaml.safe_load(data_json)
+        else:
+            abort(500, "the request does not contain data in json")
+
+        try:
+            section = SystemInterface.add_section(data_dict)
+            return jsonify(section)
+
+        except TypeError as err:
+            error_message = 'Malformed arguments, error: %s' % str(err)
+
+            return render_template('error.html', 
+                    data=error_message)
+
+        except Exception as err:
+            abort(500, 'error: %s' % str(err))
+            
+#+END_SRC
+
+*** Test Cases
+**** TestAddSection
+ #+NAME: test_add_section
+ #+BEGIN_SRC python
+class TestAddSection(TestCase):
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_add_experiment(self):
+        print "test_add_section_in_rest"
+        payload = {'name': 'Quiz',
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/sections", data=json.dumps(payload),
+                                 headers=headers)
+
+        self.assertEqual(response.status_code, 200)
+
+ #+END_SRC
+   
+
+** Get HostingInfos and Get HostingInfo
+*** API Design
+**** Get all HostingInfos
+  :PROPERTIES:
+  :CUSTOM_ID: api_get_all_hostinginfos
+  :END:    
+  - URL :: /hostinginfos
+
+  - Method :: GET
+
+  - URL Params ::  None
+
+  - Payload :: 
+
+  - Success Response
+    + Status_Code: 200
+      + Contents :
+
+#+BEGIN_EXAMPLE
+[{"hosting_status": "hosted", "id": 1, "hosted_url": "http://cse14-iiith.vlabs.ac.in", "hosted_on": "cloud"}]
+#+END_EXAMPLE	       
+
+    
+  - Error Response:
+    + Contents :
+                {"status" : "error"}
+    
+  - Example:
+#+BEGIN_EXAMPLE
+http://localhost:5000/hostinginfos
+#+END_EXAMPLE
+
+*** Implementation
+REST API to get all hostinginfos.
+#+NAME: get_hostinginfo
+#+BEGIN_SRC python
+@api.route('/hostinginfos', methods=['GET'])
+def get_hostinginfo():
+    if request.method == 'GET':
+       if 'hosted_url' in request.args:
+           hosted_url  = request.args['hosted_url']
+           try:
+               hostinginfo = SystemInterface.get_hostinginfo(hosted_url)
+               return jsonify(hostinginfo)
+
+           except NotAuthorizedError as err:
+               error_message = 'Not Authorized error: %s' % str(err)
+               current_app.logger.error("%s" %(error_message))
+               return render_template('error.html',
+                                       data=error_message)
+           except TypeError as err:
+               error_message = 'Malformed arguments, error: %s' % str(err)
+               current_app.logger.error("%s" %(error_message))
+               return render_template('error.html',
+                                       data=error_message)
+           except Exception as err:
+               error_message = 'error: %s' % str(err)
+               current_app.logger.error("%s" %(error_message))
+               return render_template('error.html',
+                                        data=error_message)
+       else:
+           try:
+               hostinginfos = SystemInterface.get_hostinginfos()
+               return jsonify_list(hostinginfos)
+
+           except TypeError as err:
+               error_message = 'Malformed arguments, error: %s' % str(err)
+
+               return render_template('error.html',
+                                           data=error_message)
+
+           except Exception as err:
+               abort(500, 'error: %s' % str(err))
+            
+#+END_SRC
+
+*** Test Cases
+**** TestGetHostingInfo 
+ #+NAME: test_get_HostingInfo
+ #+BEGIN_SRC python
+class TestGetHostingInfo(TestCase):
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_get_hostinginfos(self):
+        print "test_get_hostinginfos_in_rest"
+
+        payload = {'hosting_status': 'hosted',
+                   'hosted_url': 'http://cse14-iiith.vlabs.ac.in',
+                   'hosted_on': 'cloud',
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/hostinginfos", data=json.dumps(payload),
+                                 headers=headers)
+
+        response = self.client.get("/hostinginfos", headers=headers)
+        self.assertEqual(response.status_code, 200)
+
+ #+END_SRC
+   
+
+** Add HostingInfo
+*** API Design
+**** Add HostingInfo
+  :PROPERTIES:
+  :CUSTOM_ID: api_add_hostinginfo
+  :END:    
+  - URL :: /hostinginfos
+
+  - Method :: POST
+
+  - URL Params ::  None
+
+  - Payload :: 
+#+BEGIN_EXAMPLE
+{
+"hosted_url": "http://cse14-iiith.vlabs.ac.in",
+"hosting_status": "hosted",
+"hosted_on": "cloud",
+"key": "<key>"
+}
+#+END_EXAMPLE	       
+
+  - Success Response
+    + Status_Code: 200
+    + Content: 
+#+BEGIN_EXAMPLE
+{
+  "id": 1, 
+  "hosted_url": "http://cse14-iiith.vlabs.ac.in", 
+  "hosting_status": "hosted",
+  "hosted_on": "cloud"
+}
+
+#+END_EXAMPLE
+
+  - Error Response:
+    + Contents :
+                {"status" : "error"}
+    
+  - Example:
+#+BEGIN_EXAMPLE
+http://localhost:5000/hostinginfos
+#+END_EXAMPLE
+    
+*** Implementation
+REST API to add an hostinginfo.
+#+NAME: add_hostinginfo
+#+BEGIN_SRC python
+@api.route('/hostinginfos', methods=['POST'])
+def add_hostinginfo():
+    if request.method == 'POST':
+        if request.is_json:
+            data_json = json.dumps(request.get_json())
+            data_dict = yaml.safe_load(data_json)
+        else:
+            abort(500, "the request does not contain data in json")
+
+        try:
+            hostinginfo = SystemInterface.add_hostinginfo(data_dict)
+            return jsonify(hostinginfo)
+
+        except NotAuthorizedError as e:
+            err_str = str(e)
+            msg = {"status": "failure",
+                    "status code": 401,
+                       "msg": err_str}
+            return jsonify(msg)
+
+        except TypeError as e:
+            err_str = str(e)
+            msg = {"status": "failure",
+                       "msg": err_str }
+            return jsonify(msg)
+
+        except StateError as e:
+            err_str = str(e)
+            msg = {"status": "failure",
+                       "msg": err_str}
+            return jsonify(msg)
+
+        except NotFoundError as e:
+            err_str = str(e)
+            msg = {"status": "failure",
+                       "status code": 404,
+                       "msg": err_str}
+            return jsonify(msg)
+
+        except Exception as e:
+            err_str = str(e)
+            msg = {"status": "failure",
+                       "msg": err_str}
+            return jsonify(msg)
+            
+#+END_SRC
+
+*** Test Cases
+**** TestAddHostingInfo
+ #+NAME: test_add_hostinginfo
+ #+BEGIN_SRC python
+class TestAddHostingInfo(TestCase):
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_add_hostinginfo(self):
+        print "test_add_hostinginfo_in_rest"
+        payload = {'hosting_status': 'hosted',
+                   'hosted_url': 'http://cse14-iiith.vlabs.ac.in',
+                   'hosted_on': 'cloud',
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/hostinginfos", data=json.dumps(payload),
+                                 headers=headers)
+
+        self.assertEqual(response.status_code, 200)
+
+ #+END_SRC
+   
+
+** Get IntegrationStatuss and Get IntegrationStatus
+*** API Design
+**** Get all IntegrationStatuss
+  :PROPERTIES:
+  :CUSTOM_ID: api_get_all_integrationstatuss
+  :END:    
+  - URL :: /integrationstatuss
+
+  - Method :: GET
+
+  - URL Params ::  None
+
+  - Payload :: 
+
+  - Success Response
+    + Status_Code: 200
+      + Contents :
+
+#+BEGIN_EXAMPLE
+[{"integration_level": 4, "id": 1}]
+#+END_EXAMPLE	       
+
+    
+  - Error Response:
+    + Contents :
+                {"status" : "error"}
+    
+  - Example:
+#+BEGIN_EXAMPLE
+http://localhost:5000/integrationstatuss
+#+END_EXAMPLE
+
+*** Implementation
+REST API to get all integrationstatuss.
+#+NAME: get_integrationstatus
+#+BEGIN_SRC python
+@api.route('/integrationstatuss', methods=['GET'])
+def get_integrationstatus():
+    if request.method == 'GET':
+       if 'integration_level' in request.args:
+           integration_level  = request.args['integration_level']
+           try:
+               integrationstatus = SystemInterface.get_integrationstatus(integration_level)
+               return jsonify(integrationstatus)
+
+           except NotAuthorizedError as err:
+               error_message = 'Not Authorized error: %s' % str(err)
+               current_app.logger.error("%s" %(error_message))
+               return render_template('error.html',
+                                       data=error_message)
+           except TypeError as err:
+               error_message = 'Malformed arguments, error: %s' % str(err)
+               current_app.logger.error("%s" %(error_message))
+               return render_template('error.html',
+                                       data=error_message)
+           except Exception as err:
+               error_message = 'error: %s' % str(err)
+               current_app.logger.error("%s" %(error_message))
+               return render_template('error.html',
+                                        data=error_message)
+       else:
+           try:
+               integrationstatuss = SystemInterface.get_integrationstatuss()
+               return jsonify_list(integrationstatuss)
+
+           except TypeError as err:
+               error_message = 'Malformed arguments, error: %s' % str(err)
+
+               return render_template('error.html',
+                                           data=error_message)
+
+           except Exception as err:
+               abort(500, 'error: %s' % str(err))
+            
+#+END_SRC
+
+*** Test Cases
+**** TestGetIntegrationStatus 
+ #+NAME: test_get_IntegrationStatus
+ #+BEGIN_SRC python
+class TestGetIntegrationStatus(TestCase):
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_get_integrationstatuss(self):
+        print "test_get_integrationstatuss_in_rest"
+
+        payload = {'integration_level': 4,
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/integrationstatuss", data=json.dumps(payload),
+                                 headers=headers)
+
+        response = self.client.get("/integrationstatuss", headers=headers)
+        self.assertEqual(response.status_code, 200)
+
+ #+END_SRC
+   
+
+** Add IntegrationStatus 
+*** API Design
+**** Add IntegrationStatus
+  :PROPERTIES:
+  :CUSTOM_ID: api_add_integrationstatus
+  :END:    
+  - URL :: /integrationstatuss
+
+  - Method :: POST
+
+  - URL Params ::  None
+
+  - Payload :: 
+#+BEGIN_EXAMPLE
+{
+"integration_level": 4,
+"key": "<key>"
+}
+#+END_EXAMPLE	       
+
+  - Success Response
+    + Status_Code: 200
+    + Content: 
+#+BEGIN_EXAMPLE
+{
+  "id": 1, 
+  "integration_level": 4
+}
+
+#+END_EXAMPLE
+
+  - Error Response:
+    + Contents :
+                {"status" : "error"}
+    
+  - Example:
+#+BEGIN_EXAMPLE
+http://localhost:5000/integrationstatuss
+#+END_EXAMPLE
+    
+*** Implementation
+REST API to add an integrationstatus.
+#+NAME: add_integrationstatus
+#+BEGIN_SRC python
+@api.route('/integrationstatuss', methods=['POST'])
+def add_integrationstatus():
+    if request.method == 'POST':
+        if request.is_json:
+            data_json = json.dumps(request.get_json())
+            data_dict = yaml.safe_load(data_json)
+        else:
+            abort(500, "the request does not contain data in json")
+
+        try:
+            integrationstatus = SystemInterface.add_integrationstatus(data_dict)
+            return jsonify(integrationstatus)
+
+        except NotAuthorizedError as e:
+            err_str = str(e)
+            msg = {"status": "failure",
+                    "status code": 401,
+                       "msg": err_str}
+            return jsonify(msg)
+
+        except TypeError as e:
+            err_str = str(e)
+            msg = {"status": "failure",
+                       "msg": err_str }
+            return jsonify(msg)
+
+        except StateError as e:
+            err_str = str(e)
+            msg = {"status": "failure",
+                       "msg": err_str}
+            return jsonify(msg)
+
+        except NotFoundError as e:
+            err_str = str(e)
+            msg = {"status": "failure",
+                       "status code": 404,
+                       "msg": err_str}
+            return jsonify(msg)
+
+        except Exception as e:
+            err_str = str(e)
+            msg = {"status": "failure",
+                       "msg": err_str}
+            return jsonify(msg)
+            
+#+END_SRC
+
+*** Test Cases
+**** TestAddIntegrationStatus 
+ #+NAME: test_add_integrationstatus
+ #+BEGIN_SRC python
+class TestAddIntegrationStatus(TestCase):
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_add_integrationstatus(self):
+        print "test_add_integrationstatus_in_rest"
+        payload = {'integration_level': 4,
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/integrationstatuss", data=json.dumps(payload),
+                                 headers=headers)
+
+        self.assertEqual(response.status_code, 200)
+
+ #+END_SRC
+   
+
+** Get Emails and Get Email
+*** API Design
+**** Get all Emails
+  :PROPERTIES:
+  :CUSTOM_ID: api_get_all_emails
+  :END:    
+  - URL :: /emails
+
+  - Method :: GET
+
+  - URL Params ::  None
+
+  - Payload :: 
+
+  - Success Response
+    + Status_Code: 200
+      + Contents :
+
+#+BEGIN_EXAMPLE
+[{"email": "dharamraj@gmail.com", "id": 1}]
+#+END_EXAMPLE	       
+
+    
+  - Error Response:
+    + Contents :
+                {"status" : "error"}
+    
+  - Example:
+#+BEGIN_EXAMPLE
+http://localhost:5000/emails
+#+END_EXAMPLE
+
+*** Implementation
+REST API to get all emails.
+#+NAME: get_email
+#+BEGIN_SRC python
+@api.route('/emails', methods=['GET'])
+def get_email():
+    if request.method == 'GET':
+       if 'email' in request.args:
+           email  = request.args['email']
+           try:
+               email = SystemInterface.get_email(email)
+               return jsonify(email)
+
+           except NotAuthorizedError as err:
+               error_message = 'Not Authorized error: %s' % str(err)
+               current_app.logger.error("%s" %(error_message))
+               return render_template('error.html',
+                                       data=error_message)
+           except TypeError as err:
+               error_message = 'Malformed arguments, error: %s' % str(err)
+               current_app.logger.error("%s" %(error_message))
+               return render_template('error.html',
+                                       data=error_message)
+           except Exception as err:
+               error_message = 'error: %s' % str(err)
+               current_app.logger.error("%s" %(error_message))
+               return render_template('error.html',
+                                        data=error_message)
+       else:
+           try:
+               emails = SystemInterface.get_emails()
+               return jsonify_list(emails)
+
+           except TypeError as err:
+               error_message = 'Malformed arguments, error: %s' % str(err)
+
+               return render_template('error.html',
+                                           data=error_message)
+
+           except Exception as err:
+               abort(500, 'error: %s' % str(err))
+            
+#+END_SRC
+
+*** Test Cases
+**** TestGetEmail
+ #+NAME: test_get_Email
+ #+BEGIN_SRC python
+class TestGetEmail(TestCase):
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_get_emails(self):
+        print "test_get_emails_in_rest"
+
+        payload = {'email': 'dharamraj@gmail.com',
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/emails", data=json.dumps(payload),
+                                 headers=headers)
+
+        response = self.client.get("/emails", headers=headers)
+        self.assertEqual(response.status_code, 200)
+
+ #+END_SRC
+   
+
+** Add Email
+*** API Design
+**** Add Email
+  :PROPERTIES:
+  :CUSTOM_ID: api_add_email
+  :END:    
+  - URL :: /emails
+
+  - Method :: POST
+
+  - URL Params ::  None
+
+  - Payload :: 
+#+BEGIN_EXAMPLE
+{
+"email": "dharamraj@gmail.com",
+"key": "<key>"
+}
+#+END_EXAMPLE	       
+
+  - Success Response
+    + Status_Code: 200
+    + Content: 
+#+BEGIN_EXAMPLE
+{
+  "id": 1, 
+  "email": "dharamraj@gmail.com"
+}
+
+#+END_EXAMPLE
+
+  - Error Response:
+    + Contents :
+                {"status" : "error"}
+    
+  - Example:
+#+BEGIN_EXAMPLE
+http://localhost:5000/emails
+#+END_EXAMPLE
+    
+*** Implementation
+REST API to add an email.
+#+NAME: add_email
+#+BEGIN_SRC python
+@api.route('/emails', methods=['POST'])
+def add_email():
+    if request.method == 'POST':
+        if request.is_json:
+            data_json = json.dumps(request.get_json())
+            data_dict = yaml.safe_load(data_json)
+        else:
+            abort(500, "the request does not contain data in json")
+
+        try:
+            email = SystemInterface.add_email(data_dict)
+            return jsonify(email)
+
+        except NotAuthorizedError as e:
+            err_str = str(e)
+            msg = {"status": "failure",
+                    "status code": 401,
+                       "msg": err_str}
+            return jsonify(msg)
+
+        except TypeError as e:
+            err_str = str(e)
+            msg = {"status": "failure",
+                       "msg": err_str }
+            return jsonify(msg)
+
+        except StateError as e:
+            err_str = str(e)
+            msg = {"status": "failure",
+                       "msg": err_str}
+            return jsonify(msg)
+
+        except NotFoundError as e:
+            err_str = str(e)
+            msg = {"status": "failure",
+                       "status code": 404,
+                       "msg": err_str}
+            return jsonify(msg)
+
+        except Exception as e:
+            err_str = str(e)
+            msg = {"status": "failure",
+                       "msg": err_str}
+            return jsonify(msg)
+            
+#+END_SRC
+
+*** Test Cases
+**** TestAddEmail
+ #+NAME: test_add_email
+ #+BEGIN_SRC python
+class TestAddEmail(TestCase):
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_add_email(self):
+        print "test_add_email_in_rest"
+        payload = {'email': 'dharamraj@gmail.com',
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/emails", data=json.dumps(payload),
+                                 headers=headers)
+
+        self.assertEqual(response.status_code, 200)
+
+ #+END_SRC
+   
+
+** Get Names and Get Name
+*** API Design
+**** Get all Names
+  :PROPERTIES:
+  :CUSTOM_ID: api_get_all_names
+  :END:    
+  - URL :: /names
+
+  - Method :: GET
+
+  - URL Params ::  None
+
+  - Payload :: 
+
+  - Success Response
+    + Status_Code: 200
+      + Contents :
+
+#+BEGIN_EXAMPLE
+[{"name": "Prof. Dharamraj", "id": 1}]
+#+END_EXAMPLE	       
+
+    
+  - Error Response:
+    + Contents :
+                {"status" : "error"}
+    
+  - Example:
+#+BEGIN_EXAMPLE
+http://localhost:5000/names
+#+END_EXAMPLE
+
+*** Implementation
+REST API to get all names.
+#+NAME: get_name
+#+BEGIN_SRC python
+@api.route('/names', methods=['GET'])
+def get_name():
+    if request.method == 'GET':
+       if 'name' in request.args:
+           name  = request.args['name']
+           try:
+               name = SystemInterface.get_name(name)
+               return jsonify(name)
+
+           except NotAuthorizedError as err:
+               error_message = 'Not Authorized error: %s' % str(err)
+               current_app.logger.error("%s" %(error_message))
+               return render_template('error.html',
+                                       data=error_message)
+           except TypeError as err:
+               error_message = 'Malformed arguments, error: %s' % str(err)
+               current_app.logger.error("%s" %(error_message))
+               return render_template('error.html',
+                                       data=error_message)
+           except Exception as err:
+               error_message = 'error: %s' % str(err)
+               current_app.logger.error("%s" %(error_message))
+               return render_template('error.html',
+                                        data=error_message)
+       else:
+           try:
+               names = SystemInterface.get_names()
+               return jsonify_list(names)
+
+           except TypeError as err:
+               error_message = 'Malformed arguments, error: %s' % str(err)
+
+               return render_template('error.html',
+                                           data=error_message)
+
+           except Exception as err:
+               abort(500, 'error: %s' % str(err))
+            
+#+END_SRC
+
+*** Test Cases
+**** TestGetName
+ #+NAME: test_get_Name
+ #+BEGIN_SRC python
+class TestGetName(TestCase):
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_get_names(self):
+        print "test_get_names_in_rest"
+
+        payload = {'name': 'Prof. Dharamraj',
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/names", data=json.dumps(payload),
+                                 headers=headers)
+
+        response = self.client.get("/names", headers=headers)
+        self.assertEqual(response.status_code, 200)
+
+ #+END_SRC
+   
+
+** Add Name
+*** API Design
+**** Add Name
+  :PROPERTIES:
+  :CUSTOM_ID: api_add_name
+  :END:    
+  - URL :: /names
+
+  - Method :: POST
+
+  - URL Params ::  None
+
+  - Payload :: 
+#+BEGIN_EXAMPLE
+{
+"name": "Prof. Dharamraj",
+"key": "<key>"
+}
+#+END_EXAMPLE	       
+
+  - Success Response
+    + Status_Code: 200
+    + Content: 
+#+BEGIN_EXAMPLE
+{
+  "id": 1, 
+  "name": "Prof. Dharamraj"
+}
+
+#+END_EXAMPLE
+
+  - Error Response:
+    + Contents :
+                {"status" : "error"}
+    
+  - Example:
+#+BEGIN_EXAMPLE
+http://localhost:5000/names
+#+END_EXAMPLE
+    
+*** Implementation
+REST API to add an name.
+#+NAME: add_name
+#+BEGIN_SRC python
+@api.route('/names', methods=['POST'])
+def add_name():
+    if request.method == 'POST':
+        if request.is_json:
+            data_json = json.dumps(request.get_json())
+            data_dict = yaml.safe_load(data_json)
+        else:
+            abort(500, "the request does not contain data in json")
+
+        try:
+            name = SystemInterface.add_name(data_dict)
+            return jsonify(name)
+
+        except NotAuthorizedError as e:
+            err_str = str(e)
+            msg = {"status": "failure",
+                    "status code": 401,
+                       "msg": err_str}
+            return jsonify(msg)
+
+        except TypeError as e:
+            err_str = str(e)
+            msg = {"status": "failure",
+                       "msg": err_str }
+            return jsonify(msg)
+
+        except StateError as e:
+            err_str = str(e)
+            msg = {"status": "failure",
+                       "msg": err_str}
+            return jsonify(msg)
+
+        except NotFoundError as e:
+            err_str = str(e)
+            msg = {"status": "failure",
+                       "status code": 404,
+                       "msg": err_str}
+            return jsonify(msg)
+
+        except Exception as e:
+            err_str = str(e)
+            msg = {"status": "failure",
+                       "msg": err_str}
+            return jsonify(msg)
+            
+#+END_SRC
+
+*** Test Cases
+**** TestAddName
+ #+NAME: test_add_name
+ #+BEGIN_SRC python
+class TestAddName(TestCase):
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_add_name(self):
+        print "test_add_name_in_rest"
+        payload = {'name': 'Prof. Dharamraj',
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/names", data=json.dumps(payload),
+                                 headers=headers)
+
+        self.assertEqual(response.status_code, 200)
+
+ #+END_SRC
+   
+
+** Get Developers and Get Developer
+*** API Design
+**** Get all Developers
+  :PROPERTIES:
+  :CUSTOM_ID: api_get_all_developers
+  :END:    
+  - URL :: /developers
+
+  - Method :: GET
+
+  - URL Params ::  None
+
+  - Payload ::
+
+  - Success Response
+    + Status_Code: 200
+      + Contents :
+
+#+BEGIN_EXAMPLE
+[{"id": 1, "dev_name": "Prof. Dharamraj", "email_id": "dharamraj@gmail.com"}]
+#+END_EXAMPLE	       
+
+    
+  - Error Response:
+    + Contents :
+                {"status" : "error"}
+    
+  - Example:
+#+BEGIN_EXAMPLE
+http://localhost:5000/developers
+#+END_EXAMPLE
+
+*** Implementation
+REST API to get all developers.
+#+NAME: get_developer
+#+BEGIN_SRC python
+@api.route('/developers', methods=['GET'])
+def get_developer():
+    if request.method == 'GET':
+       if 'email_id' in request.args:
+           email_id  = request.args['email_id']
+           try:
+               developer = SystemInterface.get_developer(email_id)
+               return jsonify(developer)
+
+           except NotAuthorizedError as err:
+               error_message = 'Not Authorized error: %s' % str(err)
+               current_app.logger.error("%s" %(error_message))
+               return render_template('error.html',
+                                       data=error_message)
+           except TypeError as err:
+               error_message = 'Malformed arguments, error: %s' % str(err)
+               current_app.logger.error("%s" %(error_message))
+               return render_template('error.html',
+                                       data=error_message)
+           except Exception as err:
+               error_message = 'error: %s' % str(err)
+               current_app.logger.error("%s" %(error_message))
+               return render_template('error.html',
+                                        data=error_message)
+       else:
+           try:
+               developers = SystemInterface.get_developers()
+               return jsonify_list(developers)
+
+           except TypeError as err:
+               error_message = 'Malformed arguments, error: %s' % str(err)
+
+               return render_template('error.html',
+                                           data=error_message)
+
+           except Exception as err:
+               abort(500, 'error: %s' % str(err))
+            
+#+END_SRC
+
+*** Test Cases
+**** TestGetDeveloper
+ #+NAME: test_get_Developer
+ #+BEGIN_SRC python
+class TestGetDeveloper(TestCase):
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_get_developers(self):
+        print "test_get_developers_in_rest"
+
+        payload = {'dev_name': 'Prof. Dharamraj',
+                   'email_id': 'dharamraj@gmail.com',
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/developers", data=json.dumps(payload),
+                                 headers=headers)
+
+        response = self.client.get("/developers", headers=headers)
+        self.assertEqual(response.status_code, 200)
+
+ #+END_SRC
+   
+
+** Add Developer
+*** API Design
+**** Add Developer
+  :PROPERTIES:
+  :CUSTOM_ID: api_add_developer
+  :END:    
+  - URL :: /developers
+
+  - Method :: POST
+
+  - URL Params ::  None
+
+  - Payload :: 
+#+BEGIN_EXAMPLE
+{
+"dev_name": "Prof. Dharamraj",
+"email_id": "dharamraj@gmail.com",
+"key": "<key>"
+}
+#+END_EXAMPLE	       
+
+  - Success Response
+    + Status_Code: 200
+    + Content: 
+#+BEGIN_EXAMPLE
+{
+  "id": 1,
+  "dev_name": "Prof. Dharamraj",
+  "email_id": "dharamraj@gmail.com"
+}
+
+#+END_EXAMPLE
+
+  - Error Response:
+    + Contents :
+                {"status" : "error"}
+    
+  - Example:
+#+BEGIN_EXAMPLE
+http://localhost:5000/developers
+#+END_EXAMPLE
+    
+*** Implementation
+REST API to add an developer.
+#+NAME: add_developer
+#+BEGIN_SRC python
+@api.route('/developers', methods=['POST'])
+def add_developer():
+    if request.method == 'POST':
+        if request.is_json:
+            data_json = json.dumps(request.get_json())
+            data_dict = yaml.safe_load(data_json)
+        else:
+            abort(500, "the request does not contain data in json")
+
+        try:
+            developer = SystemInterface.add_developer(data_dict)
+            return jsonify(developer)
+
+        except NotAuthorizedError as e:
+            err_str = str(e)
+            msg = {"status": "failure",
+                    "status code": 401,
+                       "msg": err_str}
+            return jsonify(msg)
+
+        except TypeError as e:
+            err_str = str(e)
+            msg = {"status": "failure",
+                       "msg": err_str }
+            return jsonify(msg)
+
+        except StateError as e:
+            err_str = str(e)
+            msg = {"status": "failure",
+                       "msg": err_str}
+            return jsonify(msg)
+
+        except NotFoundError as e:
+            err_str = str(e)
+            msg = {"status": "failure",
+                       "status code": 404,
+                       "msg": err_str}
+            return jsonify(msg)
+
+        except Exception as e:
+            err_str = str(e)
+            msg = {"status": "failure",
+                       "msg": err_str}
+            return jsonify(msg)
+            
+#+END_SRC
+
+*** Test Cases
+**** TestAddDeveloper
+ #+NAME: test_add_developer
+ #+BEGIN_SRC python
+class TestAddDeveloper(TestCase):
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_add_developer(self):
+        print "test_add_developer_in_rest"
+        payload = {'dev_name': 'Prof. Dharamraj',
+                   'email_id': 'dharamraj@gmail.com',
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/developers", data=json.dumps(payload),
+                                 headers=headers)
+
+        self.assertEqual(response.status_code, 200)
+
+ #+END_SRC
+   
+
+** Update Lab
+   
+*** API Design
+**** Update lab by labid
+  :PROPERTIES:
+  :CUSTOM_ID: api_update_lab_by_labid
+  :END:    
+  - URL :: /labs/<lab_id>
+
+  - Method :: PUT
+
+  - URL Params ::  None
+
+  - Payload :: 
+#+BEGIN_EXAMPLE
+{
+  "lab_name": "Databases", 
+  "overview": "overview of Databases",
+  "key": "<key>"
+}
+#+END_EXAMPLE
+  - Success Response
+    + Status_Code: 200
+      + Contents :
+#+BEGIN_EXAMPLE
+{
+  "discipline": {
+    "dis_id": "cse", 
+    "dis_name": "Computer Science", 
+    "id": 1
+  }, 
+  "asset": {
+    "path": "vlabs.ac.in/images/static/logo.png", 
+    "asset_type": "Image", 
+    "id": 1
+  }, 
+  "experiments": [
+    {
+      "exp_id": "exp9", 
+      "exp_name": "arrays", 
+      "id": 1, 
+      "overview": "overview", 
+      "sections": [
+        {
+          "id": 2, 
+          "name": "Procedure"
+        }, 
+        {
+          "id": 1, 
+          "name": "Theory"
+        }
+      ]
+    }
+  ], 
+  "id": 1, 
+  "institute": {
+    "id": 1, 
+    "inst_id": "iiith", 
+    "inst_name": "IIIT Hyderabad"
+  },
+  "hostinginfo": {
+      "hosting_status": "hosted",
+      "id": 1,
+      "hosted_url": "http://cse14-iiith.vlabs.ac.in",
+      "hosted_on": "cloud"
+  },
+  "lab_id": "cse09", 
+  "lab_name": "Databases", 
+  "overview": "overview of Databases",
+  "developers": [
+    {
+      "name": "Prof. Dharamaja",
+      "id": 1,
+      "email": "abc@gmail.com"
+    }
+  ]
+}
+
+#+END_EXAMPLE
+
+    
+  - Error Response:
+    + Contents :
+                {"status" : "error"}
+    
+  - Example:
+#+BEGIN_EXAMPLE
+ http://localhost:5000/labs?lab_id=cse09
+#+END_EXAMPLE
+   
+*** Implementation
+#+NAME: update_lab
+#+BEGIN_SRC python
+@api.route('/labs', methods=['PUT'])
+def update():
     if request.method == 'PUT':
         if request.is_json:
             data_json = json.dumps(request.get_json())
@@ -848,26 +4009,9 @@ def update_and_delete_lab():
         except Exception as err:
             abort(500, 'error: %s' % str(err))
 
-    if request.method == 'DELETE':
-        if 'lab_id' in request.args and 'key' in request.args:
-            lab_id  = request.args['lab_id']
-            key = request.args['key']
-
-            try:
-                lab = SystemInterface.delete_lab(lab_id, key)
-
-                return jsonify({"status":"sucess"})
-
-            except TypeError as err:
-                error_message = 'Malformed arguments, error: %s' % str(err)
-
-                return render_template('error.html', data=error_message)
-
-            except Exception as err:
-                abort(500, 'error: %s' % str(err))
-
 #+END_SRC
-*** TestUpdateLab
+*** Test Cases
+**** TestUpdateLab
 #+NAME: test_update_lab
 #+BEGIN_SRC python
 class TestUpdateLab(TestCase):
@@ -886,31 +4030,94 @@ class TestUpdateLab(TestCase):
     def test_update_lab(self):
         print "test_update_lab"
 
+        payload = {'inst_name': 'IIT Kanpur',
+                   'inst_id': 'IITK',
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/institutes", data=json.dumps(payload),
+                                 headers=headers)
+
+        payload = {'integration_level': 4,
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/integrationstatuss", data=json.dumps(payload),
+                                 headers=headers)
+
+        payload = {'dis_name': 'Computer Science',
+                   'dis_id': 'CSE',
+                   'key': KEY}
+
+
+        response = self.client.post("/disciplines", data=json.dumps(payload),
+                                 headers=headers)
+
+        payload = {'asset_type': 'Image',
+                   'path': 'vlabs.ac.in/images/static/logo.png',
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/assets", data=json.dumps(payload),
+                                 headers=headers)
+
         payload = {'exp_name': 'arrays',
                    'exp_id': 'exp1',
                    'overview' : 'overview',
                    'sections': [],
                    'key': KEY}
 
-        headers = {'Content-Type': 'application/json'}
 
         response = self.client.post("/experiments", data=json.dumps(payload),
+                                 headers=headers)
+
+        payload = {'name': 'Prof. Dharamaja',
+                   'email': 'abc@gmail.com',
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/developers", data=json.dumps(payload),
+                                 headers=headers)
+  
+        payload = {'hosting_status': 'hosted',
+                   'hosted_url': 'http://cse14-iiith.vlabs.ac.in',
+                   'hosted_on': 'cloud',
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+
+        response = self.client.post("/hostinginfos", data=json.dumps(payload),
                                  headers=headers)
 
         payload = {'lab_name': 'Data Structures',
                    'lab_id': 'cse01',
                    'overview' : 'overview',
                    'inst_id': 'IITK',
+                   'integration_level': 4,
                    'dis_id': 'CSE',
+                   'assets': ['vlabs.ac.in/images/static/logo.png'],
                    'experiments':['exp1'],
-                   'key': KEY}
+                   'key': KEY,
+                   'developers': ['abc@gmail.com'],
+                   'hosted_url': 'http://cse14-iiith.vlabs.ac.in',
+                   'key': KEY
+                   }
 
         payload1 = {'lab_name': 'Computer Programming',
                    'key': KEY,
-                   'overview' : 'cp overview'
+                   'overview' : 'cp overview',
+                   'inst_id': 'IITK',
+                   'integration_level': 4,
+                   'dis_id': 'CSE',
+                   'assets': ['vlabs.ac.in/images/static/logo.png'],
+                   'experiments':['exp1']
                    }
 
-        headers = {'Content-Type': 'application/json'}
 
         response = self.client.post("/labs", data=json.dumps(payload),
                                  headers=headers)
@@ -923,7 +4130,64 @@ class TestUpdateLab(TestCase):
 
  #+END_SRC
    
-*** TestDeleteLab
+
+** Delete Lab
+*** API Design
+**** Delete lab by lab_id
+  :PROPERTIES:
+  :CUSTOM_ID: api_delete_lab_by_lab_id
+  :END:    
+  - URL :: /labs?<lab_id>&key=<key>
+
+  - Method :: DELETE
+
+  - URL Params ::  None
+
+  - Payload :: 
+
+  - Success Response
+    + Status_Code: 200
+      + Contents :
+#+BEGIN_EXAMPLE
+{
+  "status": "sucess"
+}
+
+#+END_EXAMPLE
+    
+  - Error Response:
+    + Contents :
+                {"status" : "error"}
+    
+  - Example:
+#+BEGIN_EXAMPLE
+    http://localhost:5000/labs?lab_id=cse09&key=<key>
+#+END_EXAMPLE
+
+*** Implementation
+#+NAME: delete_lab
+#+BEGIN_SRC python
+@api.route('/labs', methods=['DELETE'])
+def delete_lab():
+    if request.method == 'DELETE':
+        if 'lab_id' in request.args and 'key' in request.args:
+            lab_id  = request.args['lab_id']
+            key = request.args['key']
+            try:
+                lab = SystemInterface.delete_lab(lab_id, key)
+                return jsonify({"status":"sucess"})
+
+            except TypeError as err:
+                error_message = 'Malformed arguments, error: %s' % str(err)
+
+                return render_template('error.html', data=error_message)
+
+            except Exception as err:
+                abort(500, 'error: %s' % str(err))
+
+#+END_SRC
+*** Test Cases
+**** TestDeleteLab
  #+NAME: test_delete_lab
  #+BEGIN_SRC python
 class TestDeleteLab(TestCase):
@@ -942,18 +4206,7 @@ class TestDeleteLab(TestCase):
     def test_delete_lab(self):
         print "test_delete_lab"
 
-        payload = {'exp_name': 'arrays',
-                   'exp_id': 'exp1',
-                   'overview' : 'overview',
-                   'sections': [],
-                   'key': KEY}
-
-        headers = {'Content-Type': 'application/json'}
-
-        response = self.client.post("/experiments", data=json.dumps(payload),
-                                 headers=headers)
-
-        payload = {'inst_name': 'IIT Kharagpur',
+        payload = {'inst_name': 'IIT Kanpur',
                    'inst_id': 'IITK',
                    'key': KEY}
 
@@ -962,41 +4215,145 @@ class TestDeleteLab(TestCase):
         response = self.client.post("/institutes", data=json.dumps(payload),
                                  headers=headers)
 
-        payload = {'dis_name': 'Computer Science',
-                   'dis_id': 'CSE',
+        payload = {'integration_level': 4,
                    'key': KEY}
 
         headers = {'Content-Type': 'application/json'}
 
+        response = self.client.post("/integrationstatuss", data=json.dumps(payload),
+                                 headers=headers)
+
+        payload = {'dis_name': 'Computer Science',
+                   'dis_id': 'CSE',
+                   'key': KEY}
+
+
         response = self.client.post("/disciplines", data=json.dumps(payload),
                                  headers=headers)
 
-        payload = {'lab_name': 'Data structures',
-                   'lab_id': 'cse02',
-                   'key': KEY,
-                   'overview' : 'overview',
-                   'inst_id': 'IITK',
-                   'dis_id': 'CSE',
-                   'experiments': ['exp1']
-                  }
+        payload = {'asset_type': 'Image',
+                   'path': 'vlabs.ac.in/images/static/logo.png',
+                   'key': KEY}
 
         headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/assets", data=json.dumps(payload),
+                                 headers=headers)
+
+        payload = {'exp_name': 'arrays',
+                   'exp_id': 'exp1',
+                   'overview' : 'overview',
+                   'sections': [],
+                   'key': KEY}
+
+
+        response = self.client.post("/experiments", data=json.dumps(payload),
+                                 headers=headers)
+
+        payload = {'name': 'Prof. Dharamaja',
+                   'email': 'abc@gmail.com',
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/developers", data=json.dumps(payload),
+                                 headers=headers)
+  
+        payload = {'hosting_status': 'hosted',
+                   'hosted_url': 'http://cse14-iiith.vlabs.ac.in',
+                   'hosted_on': 'cloud',
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+
+        response = self.client.post("/hostinginfos", data=json.dumps(payload),
+                                 headers=headers)
+
+        payload = {'lab_name': 'Data Structures',
+                   'lab_id': 'cse01',
+                   'overview' : 'overview',
+                   'inst_id': 'IITK',
+                   'integration_level': 4,
+                   'dis_id': 'CSE',
+                   'assets': ['vlabs.ac.in/images/static/logo.png'],
+                   'experiments':['exp1'],
+                   'key': KEY,
+                   'developers': ['abc@gmail.com'],
+                   'hosted_url': 'http://cse14-iiith.vlabs.ac.in',
+                   'key': KEY
+                   }
 
         response = self.client.post("/labs", data=json.dumps(payload),
                                  headers=headers)
 
-        response = self.client.delete("/labs?lab_id=cse02&key=defaultkey",
+        response = self.client.delete("/labs?lab_id=cse01&key=defaultkey",
                                           headers=headers)
 
         self.assertEqual(response.status_code, 200)
 
  #+END_SRC
    
-** Update and Delete Experiment
-#+NAME: update_and_delete_experiment
+
+** Update Experiment
+*** API Design
+**** Update experiment by expid
+  :PROPERTIES:
+  :CUSTOM_ID: api_update_experiment_by_expid
+  :END:    
+  - URL :: /experiments/<exp_id>
+
+  - Method :: PUT
+
+  - URL Params ::  None
+
+  - Payload :: 
+#+BEGIN_EXAMPLE
+{
+  "exp_name": "2D arrays", 
+  "key":"<key>",
+  "overview": "2D Arrays overview"
+}
+
+#+END_EXAMPLE	       
+
+  - Success Response
+    + Status_Code: 200
+      + Contents :
+#+BEGIN_EXAMPLE
+{
+  "exp_id": "exp9", 
+  "exp_name": "2D arrays", 
+  "id": 1, 
+  "overview": "2D Arrays overview", 
+  "sections": [
+    {
+      "id": 2, 
+      "name": "Procedure"
+    }, 
+    {
+      "id": 1, 
+      "name": "Theory"
+    }
+  ]
+}
+
+#+END_EXAMPLE
+    
+  - Error Response:
+    + Contents :
+                {"status" : "error"}
+    
+  - Example:
+#+BEGIN_EXAMPLE
+    http://localhost:5000/experiments?exp_id=exp9
+#+END_EXAMPLE
+
+*** Implementation
+#+NAME: update_experiment
 #+BEGIN_SRC python
-@api.route('/experiments', methods=['PUT', 'DELETE'])
-def update_and_delete_experiment():
+@api.route('/experiments', methods=['PUT'])
+def update_experiment():
     if request.method == 'PUT':
         if request.is_json:
             data_json = json.dumps(request.get_json())
@@ -1022,28 +4379,9 @@ def update_and_delete_experiment():
         except Exception as err:
             abort(500, 'error: %s' % str(err))
 
-    if request.method == 'DELETE':
-        print "inside delete"
-        if 'exp_id' in request.args and 'key' in request.args:
-            print "inside request"
-            exp_id  = request.args['exp_id']
-            key = request.args['key']
-            print exp_id
-            print key
-            try:
-                exp_id = SystemInterface.delete_exp(exp_id, key)
-                return jsonify({"status":"sucess"})
-
-            except TypeError as err:
-                error_message = 'Malformed arguments, error: %s' % str(err)
-
-                return render_template('error.html', data=error_message)
-
-            except Exception as err:
-                abort(500, 'error: %s' % str(err))
-
 #+END_SRC
-*** TestUpdateExperiment
+*** Test Cases
+**** TestUpdateExperiment
  #+NAME: test_update_experiment
  #+BEGIN_SRC python
 class TestUpdateExperiment(TestCase):
@@ -1076,7 +4414,7 @@ class TestUpdateExperiment(TestCase):
         response = self.client.post("/experiments", data=json.dumps(payload),
                                  headers=headers)
 
-        response = self.client.put("/experiments/exp123",
+        response = self.client.put("/experiments?exp_id=exp123",
                                        data=json.dumps(payload1),
                                        headers=headers)
 
@@ -1084,7 +4422,64 @@ class TestUpdateExperiment(TestCase):
 
  #+END_SRC
    
-*** TestDeleteExperiment
+
+** Delete Experiment
+*** API Design
+**** Delete experiment by exp_id
+  :PROPERTIES:
+  :CUSTOM_ID: api_delete_experiment_by_exp_id
+  :END:    
+  - URL :: /experiments?<exp_id>&key=<key>
+
+  - Method :: DELETE
+
+  - URL Params ::  None
+
+  - Payload :: 
+
+  - Success Response
+    + Status_Code: 200
+      + Contents :
+#+BEGIN_EXAMPLE
+{
+  "status": "sucess"
+}
+
+#+END_EXAMPLE
+    
+  - Error Response:
+    + Contents :
+                {"status" : "error"}
+    
+  - Example:
+#+BEGIN_EXAMPLE
+http://localhost:5000/experiments/2
+#+END_EXAMPLE
+
+*** Implementation
+#+NAME: delete_experiment
+#+BEGIN_SRC python
+@api.route('/experiments', methods=['DELETE'])
+def delete_experiment():
+    if request.method == 'DELETE':
+        if 'exp_id' in request.args and 'key' in request.args:
+            exp_id  = request.args['exp_id']
+            key = request.args['key']
+            try:
+                exp_id = SystemInterface.delete_experiment(exp_id, key)
+                return jsonify({"status":"sucess"})
+
+            except TypeError as err:
+                error_message = 'Malformed arguments, error: %s' % str(err)
+
+                return render_template('error.html', data=error_message)
+
+            except Exception as err:
+                abort(500, 'error: %s' % str(err))
+
+#+END_SRC
+*** Test Cases
+**** TestDeleteExperiment
  #+NAME: test_delete_experiment
  #+BEGIN_SRC python
 class TestDeleteExperiment(TestCase):
@@ -1116,14 +4511,84 @@ class TestDeleteExperiment(TestCase):
         response = self.client.post("/experiments", data=json.dumps(payload),
                                  headers=headers)
 
-        response = self.client.delete("/experiments/exp_id=exp123&key=defaultkey",
+        response = self.client.delete("/experiments?exp_id=exp123&key=defaultkey",
                                           headers=headers)
 
         self.assertEqual(response.status_code, 200)
 
  #+END_SRC
    
+
 ** Update and Delete Section
+*** API Design
+**** Update section by id
+  :PROPERTIES:
+  :CUSTOM_ID: update_section_by_id
+  :END:    
+  - URL :: /sections/<id>
+
+  - Method :: PUT
+
+  - URL Params ::  None
+
+  - Payload :: 
+#+BEGIN_EXAMPLE
+
+{
+  "key" : "<key",
+  "name" : "Quiz"
+}
+
+
+#+END_EXAMPLE	       
+
+  - Success Response
+    + Status_Code: 200
+      + Contents :
+#+BEGIN_EXAMPLE
+{
+  "id": 1, 
+  "name": "Quiz"
+}
+#+END_EXAMPLE
+    
+  - Error Response:
+    + Contents :
+                {"status" : "error"}
+    
+  - Example:
+#+BEGIN_EXAMPLE
+http://localhost:5000/sections/1
+#+END_EXAMPLE
+
+
+**** Delete section by id
+  :PROPERTIES:
+  :CUSTOM_ID: delete_section_by_id
+  :END:    
+  - URL :: /sections/<id>
+
+  - Method :: DELETE
+
+  - URL Params ::  None
+
+  - Payload :: 
+
+  - Success Response
+    + Status_Code: 200
+      + Contents :
+                 { "status" : "success" }
+    
+  - Error Response:
+    + Contents :
+                {"status" : "error"}
+    
+  - Example:
+#+BEGIN_EXAMPLE
+http://localhost:5000/experiments/2
+#+END_EXAMPLE
+
+*** Implementation
 #+NAME: update_and_delete_section
 #+BEGIN_SRC python
 @api.route('/sections/<id>', methods=['GET', 'PUT', 'DELETE'])
@@ -1185,7 +4650,8 @@ def update_and_delete_section(id):
             abort(500, 'error: %s' % str(err))
 
 #+END_SRC
-*** TestUpdateSection
+*** Test Cases
+**** TestUpdateSection
  #+NAME: test_update_section
  #+BEGIN_SRC python
 class TestUpdateSection(TestCase):
@@ -1221,7 +4687,7 @@ class TestUpdateSection(TestCase):
 
  #+END_SRC
    
-*** TestDeleteSection
+**** TestDeleteSection
  #+NAME: test_delete_section
  #+BEGIN_SRC python
 class TestDeleteSection(TestCase):
@@ -1255,11 +4721,54 @@ class TestDeleteSection(TestCase):
 
  #+END_SRC
    
-** Update and Delete Institute
-#+NAME: update_and_delete_institute
+
+** Update Institute
+*** API Design
+**** Update institutes by instid
+  :PROPERTIES:
+  :CUSTOM_ID: api_update_institutes_by_instid
+  :END:    
+  - URL :: /institutes/<inst_id>
+
+  - Method :: PUT
+
+  - URL Params ::  None
+
+  - Payload :: 
+#+BEGIN_EXAMPLE
+{
+"inst_name": "IIIT H",
+  "key": "<key>"
+}
+
+#+END_EXAMPLE
+  - Success Response
+    + Status_Code: 200
+      + Contents :
+#+BEGIN_EXAMPLE
+{
+  "id": 1, 
+  "inst_id": "iiith", 
+  "inst_name": "IIIT H"
+}
+
+#+END_EXAMPLE
+
+    
+  - Error Response:
+    + Contents :
+                {"status" : "error"}
+    
+  - Example:
+#+BEGIN_EXAMPLE
+    http://localhost:5000/institutes?inst_id=iiith
+#+END_EXAMPLE
+
+*** Implementation
+#+NAME: update_institute
 #+BEGIN_SRC python
-@api.route('/institutes', methods=['PUT', 'DELETE'])
-def update_and_delete_institute():
+@api.route('/institutes', methods=['PUT'])
+def update_institute():
     if request.method == 'PUT':
         if request.is_json:
             data_json = json.dumps(request.get_json())
@@ -1285,27 +4794,10 @@ def update_and_delete_institute():
         except Exception as err:
             abort(500, 'error: %s' % str(err))
 
-    if request.method == 'DELETE':
-        if 'inst_id' in request.args and 'key' in request.args:
-            inst_id  = request.args['inst_id']
-            key = request.args['key']
-
-            try:
-                institute = SystemInterface.delete_institute(inst_id, key)
-
-                return jsonify({"status":"sucess"})
-
-            except TypeError as err:
-                error_message = 'Malformed arguments, error: %s' % str(err)
-
-                return render_template('error.html', data=error_message)
-
-            except Exception as err:
-                abort(500, 'error: %s' % str(err))
-
 #+END_SRC
 
-*** TestUpdateInstitute 
+*** Test Cases
+**** TestUpdateInstitute 
  #+NAME: test_update_institute
  #+BEGIN_SRC python
 class TestUpdateInstitute(TestCase):
@@ -1343,7 +4835,66 @@ class TestUpdateInstitute(TestCase):
 
  #+END_SRC
    
-*** TestDeleteInstitute 
+
+** Delete Institute
+*** API Design
+**** Delete institute by inst_id
+  :PROPERTIES:
+  :CUSTOM_ID: api_delete_institute_by_inst_id
+  :END:    
+  - URL :: /institutes?<inst_id>&key=<key>
+
+  - Method :: DELETE
+
+  - URL Params ::  None
+
+  - Payload :: 
+
+  - Success Response
+    + Status_Code: 200
+      + Contents :
+#+BEGIN_EXAMPLE
+{
+  "status": "sucess"
+}
+
+#+END_EXAMPLE
+    
+  - Error Response:
+    + Contents :
+                {"status" : "error"}
+    
+  - Example:
+#+BEGIN_EXAMPLE
+    http://localhost:5000/disciplines?dis_id=cse&key=<key>
+#+END_EXAMPLE
+
+*** Implementation
+#+NAME: delete_institute
+#+BEGIN_SRC python
+@api.route('/institutes', methods=['DELETE'])
+def delete_institute():
+    if request.method == 'DELETE':
+        if 'inst_id' in request.args and 'key' in request.args:
+            inst_id  = request.args['inst_id']
+            key = request.args['key']
+
+            try:
+                institute = SystemInterface.delete_institute(inst_id, key)
+                return jsonify({"status":"sucess"})
+
+            except TypeError as err:
+                error_message = 'Malformed arguments, error: %s' % str(err)
+
+                return render_template('error.html', data=error_message)
+
+            except Exception as err:
+                abort(500, 'error: %s' % str(err))
+
+#+END_SRC
+
+*** Test Cases
+**** TestDeleteInstitute 
  #+NAME: test_delete_institute
  #+BEGIN_SRC python
 class TestDeleteInstitute(TestCase):
@@ -1371,17 +4922,60 @@ class TestDeleteInstitute(TestCase):
         response = self.client.post("/institutes", data=json.dumps(payload),
                                  headers=headers)
 
-        response = self.client.delete("/institutes?inst_id=IITKgp&key=defaultkey", headers=headers)
+        response = self.client.delete("/institutes?inst_id=IITKgp&key=defaultkey",
+                                          headers=headers)
 
         self.assertEqual(response.status_code, 200)
 
  #+END_SRC
    
-** Update and Delete Discipline
-#+NAME: update_and_delete_discipline
+
+** Update Discipline
+*** API Design
+**** Update disciplines by disid
+  :PROPERTIES:
+  :CUSTOM_ID: api_update_disciplines_by_disid
+  :END:    
+  - URL :: /disciplines/<dis_id>
+
+  - Method :: PUT
+
+  - URL Params ::  None
+
+  - Payload :: 
+#+BEGIN_EXAMPLE
+{
+"dis_name": "Computer Science and Engineering",
+  "key": "<key>"
+}
+#+END_EXAMPLE
+  - Success Response
+    + Status_Code: 200
+      + Contents :
+#+BEGIN_EXAMPLE
+ {
+  "dis_id": "cse", 
+  "dis_name": "Computer Science and Engineering", 
+  "id": 1
+}
+
+#+END_EXAMPLE
+
+    
+  - Error Response:
+    + Contents :
+                {"status" : "error"}
+    
+  - Example:
+#+BEGIN_EXAMPLE
+    http://localhost:5000/disciplines?dis_id=cse
+#+END_EXAMPLE
+
+*** Implementation
+#+NAME: update_discipline
 #+BEGIN_SRC python
-@api.route('/disciplines', methods=['PUT', 'DELETE'])
-def update_and_delete_discipline():
+@api.route('/disciplines', methods=['PUT'])
+def update_discipline():
     if request.method == 'PUT':
         if request.is_json:
             data_json = json.dumps(request.get_json())
@@ -1407,26 +5001,10 @@ def update_and_delete_discipline():
         except Exception as err:
             abort(500, 'error: %s' % str(err))
 
-    if request.method == 'DELETE':
-        if 'dis_id' in request.args and 'key' in request.args:
-            dis_id  = request.args['dis_id']
-            key = request.args['key']
-
-            try:
-                discipline = SystemInterface.delete_discipline(dis_id, key)
-                return jsonify({"status":"sucess"})
-
-            except TypeError as err:
-                error_message = 'Malformed arguments, error: %s' % str(err)
-
-                return render_template('error.html', data=error_message)
-
-            except Exception as err:
-                abort(500, 'error: %s' % str(err))
-
 #+END_SRC
 
-*** TestUpdateDiscipline
+*** Test Cases
+**** TestUpdateDiscipline
  #+NAME: test_update_discipline
  #+BEGIN_SRC python
 class TestUpdateDiscipline(TestCase):
@@ -1464,7 +5042,66 @@ class TestUpdateDiscipline(TestCase):
 
  #+END_SRC
    
-*** TestDeleteDiscipline
+
+** Delete Discipline
+*** API Design
+**** Delete discipline by dis_id
+  :PROPERTIES:
+  :CUSTOM_ID: delete_discipline_by_dis_id
+  :END:    
+  - URL :: /disciplines?<dis_id>&key=<key>
+
+  - Method :: DELETE
+
+  - URL Params ::  None
+
+  - Payload :: 
+
+  - Success Response
+    + Status_Code: 200
+      + Contents :
+#+BEGIN_EXAMPLE
+{
+  "status": "sucess"
+}
+
+#+END_EXAMPLE
+    
+  - Error Response:
+    + Contents :
+                {"status" : "error"}
+    
+  - Example:
+#+BEGIN_EXAMPLE
+    http://localhost:5000/disciplines?dis_id=cse&key=<key>
+#+END_EXAMPLE
+
+*** Implementation
+#+NAME: delete_discipline
+#+BEGIN_SRC python
+@api.route('/disciplines', methods=['PUT', 'DELETE'])
+def delete_discipline():
+    if request.method == 'DELETE':
+        if 'dis_id' in request.args and 'key' in request.args:
+            dis_id  = request.args['dis_id']
+            key = request.args['key']
+
+            try:
+                discipline = SystemInterface.delete_discipline(dis_id, key)
+                return jsonify({"status":"sucess"})
+
+            except TypeError as err:
+                error_message = 'Malformed arguments, error: %s' % str(err)
+
+                return render_template('error.html', data=error_message)
+
+            except Exception as err:
+                abort(500, 'error: %s' % str(err))
+
+#+END_SRC
+
+*** Test Cases
+**** TestDeleteDiscipline
  #+NAME: test_delete_discipline
  #+BEGIN_SRC python
 class TestDeleteDiscipline(TestCase):
@@ -1492,812 +5129,1269 @@ class TestDeleteDiscipline(TestCase):
         response = self.client.post("/disciplines", data=json.dumps(payload),
                                  headers=headers)
 
-        response = self.client.delete("/disciplines?dis_id=CSE&key=defaultkey", headers=headers)
+        response = self.client.delete("/disciplines?dis_id=CSE&key=defaultkey", 
+                                          headers=headers)
 
         self.assertEqual(response.status_code, 200)
 
  #+END_SRC
    
 
-* WebApp
+** Update HostingInfo
+*** API Design
+**** Update hostinginfos by hosted_url
+  :PROPERTIES:
+  :CUSTOM_ID: update_hostinginfos_by_hosted_url
+  :END:    
+  - URL :: /hostinginfos/<hosted_url>
 
-** Index HTML
-#+BEGIN_SRC html :tangle ./templates/index.html :eval no :noweb yes
-  
-  <!DOCTYPE html>
-  <html>
-    <head>
-      <title>Feedback Portal</title>
-      <!-- Latest compiled and minified CSS -->
-      <link rel = "stylesheet" href = "https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity = "sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
-      <link rel = "stylesheet" href = "/static/css/main.css">
-    </head>
-    
-    <body onload="renderFeedbackform();">
-      <div id="header">
-        {% include 'header.html' %}        
-      <div class="row">
-        <hr style="background:#ff6600 !important;  height: 8px; margin-top: 0px;">
-      </div>
-      <div class="container">
-        <h1> Virtual Labs Feedback Form </h1>
-              
-        <form class="form" id="feedback-form" onsubmit="submitFeedback(event)">
-          <div class="form-group">
-            <label class="" id="lab_name_label"></label>
-            <label class="" id="lab_mandatory"></label>
-            <input class="form-control" id="lab_name_value" disabled="true">
-          </div>
-          
-          <div class="form-group">
-            <label class="" id="exp_name_label"></label>
-            <label class="" id="exp_mandatory"></label>
-            <input class="form-control" id="exp_name_value" disabled="true">
-          </div>
-          <div class="form-group" id="questions_list"></div>
-          <button class="btn btn-primary" >Submit</button>
-        </form>
-        <div align="right">
-	  <span id="version"></span>
-	</div>
-      </div>
-      <div id="footer">
-        {% include 'footer.html' %}
-<!--<div class="container">
-    <p class="text-muted credit" style="color:#A29E9E; margin-left: 71% ">Version v1.0.0</p>-->
-        </div>
-      </div>
-    </body>
-    
-    <!-- Jquery and Scipts Link -->
-    <script> var data = {{ questions_data|tojson }};</script> 
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
-    <script type="text/javascript" src="/static/js/main.js"></script>
-  </html>
-  
-#+END_SRC
+  - Method :: PUT
 
+  - URL Params ::  None
 
-** Error Page Template
-#+BEGIN_SRC html :tangle ./templates/error.html :eval no :noweb yes
-
-<html>
-<head>
-   <title>Error</title>
-</head>
-<body bgcolor="lightgrey">
-  <p><b>Error : </b>{{ data }}<p>
-</body>
-</html>
-
-#+END_SRC
-
-
-** Success Page Template
-  #+BEGIN_SRC html :tangle ./templates/success.html :eval no :noweb yes
-  <!DOCTYPE html>
-  <html>
-    <head>
-      <title>Feedback Portal</title>
-      <!-- Latest compiled and minified CSS -->
-      <link rel = "stylesheet" href = "https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity = "sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
-      <link rel = "stylesheet" href = "/static/css/main.css">
-    </head>
-    <body onload="renderFeedbackform();">
-      <div id="header">
-        {% include 'header.html' %}        
-      <div class="row">
-        <hr style="background:#ff6600 !important;  height: 8px; margin-top: 0px;">
-      </div>
-      <br><br><br><br><br>
-      <h2 align="center"><font color="green">Thank you for the feedback</font></h2>
-      <br>
-      <h5 align="center"><font color="green">You may close this window</font></h5>
-    </body>
-    
-    <!-- Jquery and Scipts Link -->
-
-  </html>
-
-#+END_SRC
-  
-
-** Header HTML
-#+BEGIN_SRC html :tangle ./templates/header.html :eval no :noweb yes
-      <header>
-        <!-- Navigation -->
-        <link rel="shortcut icon" href="http://vlabs.ac.in/images/favicon.ico">
-        <nav class="navbar navbar-default " style="background-color: white !important; margin-bottom: 0px !important;">
-          <div class="container-fluid">
-            <!-- Brand and toggle get grouped for better mobile display -->
-            <div class="navbar-header page-scroll">
-              <button aria-controls="bs-navbar" aria-expanded="true"  type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-navbar #bs-example-navbar-collapse-1">
-                <span class="sr-only">Toggle navigation</span>
-                <span class="icon-bar" style="background-color: #77BB41"></span>
-                <span class="icon-bar" style="background-color: #77BB41"></span>
-                <span class="icon-bar" style="background-color: #77BB41"></span>
-              </button>
-              <a class="navbar-brand main-logo-a" href="https://open-edx.vlabs.ac.in"><img src="http://vlabs.ac.in/images/logo-new.png" class="img-responsive main-logo" /></a>
-            </div>                  
-            <!-- Collect the nav links, forms, and other content for toggling -->
-            <div class="collapse navbar-collapse menu-div" id="bs-example-navbar-collapse-1" style="border: 0px;">
-              <ul class="nav navbar-nav navbar-right menu-ul search-ul" style="position: relative; top: -5px;">
-                <li></li>
-              </ul>
-              <ul class="nav navbar-nav navbar-right menu-ul">
-                <li class="page-scroll menu-li " >
-                  <a href="https://open-edx.vlabs.ac.in" class="menu-a" >HOME</a>
-                </li>
-                <li class="page-scroll menu-li">
-                  <a href="https://open-edx.vlabs.ac.in/courses"  class="menu-a " >ALL LABS</a>
-                </li>
-                <li class="page-scroll menu-li" >
-                  <a href="https://open-edx.vlabs.ac.in/#partner" class="menu-a" >PARTNERS</a>
-                </li><li class="page-scroll menu-li " >
-                  <a href="https://open-edx.vlabs.ac.in/#partner" class="menu-a" >CONTACT</a>
-                </li>
-              </ul>
-            </div>
-          </div>
-        </nav>
-      </header>
-
-#+END_SRC
-
-
-** Footer HTML
-#+BEGIN_SRC html :tangle ./templates/footer.html :eval no :noweb yes
-<head>
-  <link rel="stylesheet" type="text/css" href="static/css/main.css">
-</head>
-
-<footer>
-  <div class="container-fluid footer-div" style="background: #404040; margin-top: 40px;  padding: 20px;">
-    <div class="col-md-4 border-right-green-dotted" >
-      <h2 class="text-h2-lightblue-small" style="font-weight: bold;margin-top: 0px;">Updates</h2>
-      <a href="http://community.virtual-labs.ac.in/w/index.php/Download" class="text-normal-gray-small nounderline" style="color: white" > Lab Integration Kit Releases</a><br>
-      <a href="http://community.virtual-labs.ac.in/w/index.php/First_Integration_workshop"
-	 class="text-normal-gray-small nounderline"
-	 style="color: white" >First Integration Workshop at IIIT Hyderabad</a><br>
-      <a href="http://community.virtual-labs.ac.in/w/index.php/Summer_Sprint_Integration_workshop" class="text-normal-gray-small nounderline" style="color: white" > Summer Integration Workshop at IIT Guwahati</a><br>
-      <a href="http://community.virtual-labs.ac.in/w/index.php/QA/Integration_workshop"
-	 class="text-normal-gray-small nounderline"
-	 style="color: white" > QA Integration
-	Workshop at IIIT Hyderabad</a><br>
-      <a href="http://community.virtual-labs.ac.in/w/index.php/A_new_set_of_25_Virtual_Labs_on_Portable_Media" class="text-normal-gray-small nounderline" style="color: white" > A new set of 25 Virtual Labs on Portable Media</a><br>
-    </div>
-    
-    <div class="col-md-2 border-right-green-dotted" >
-
-<!--      <a href="./faq.html" class="text-a-lightgreen" style="text-decoration: underline;" > FAQ</a><br>-->
-      <a href="http://community.virtual-labs.ac.in/w/index.php/Main_Page" class="text-a-lightgreen" style="text-decoration: underline;" >Community</a><br>
-      
-      <a href="http://outreach.vlabs.ac.in/ncentres"
-	 class="text-a-lightgreen"
-	 style="text-decoration: underline;" > Nodal Centers</a><br>
-      
-      
-      <a href="http://www.sakshat.ac.in/" class="text-a-lightgreen" style="text-decoration: underline;" > Sakshat Portal</a><br>
-
-      <a href="http://outreach.vlabs.ac.in/" class="text-a-lightgreen" style="text-decoration: underline;" > Outreach Portal</a><br>
-      <a href="http://118.102.191.38/vlabiitece/"
-	 class="text-a-lightgreen"
-	 style="text-decoration: underline;" > Labs
-	Developed by Nodal Centers</a><br>
-      
-    </div>
-    
-    <div class="col-md-3 border-right-green-dotted" id="contact" >
-      <h2 class="text-h2-lightblue-small" style="font-weight: bold;margin-top: 0px;"> Contact us</h2>
-      <a href="http://feedback.vlabs.ac.in/" class="text-a-lightgreen" style="text-decoration: underline;" > Feedback</a><br>
-      
-      <a class="text-a-lightgreen"style="text-decoration: underline;" href="mailto:support@vlabs.ac.in">support@vlabs.ac.in</a><br>
-      <a href="http://118.102.191.38/labassessment/assessmentform.html"
-	 class="text-a-lightgreen"
-	 style="text-decoration: underline;" > Lab
-	Assessment Form</a><br>
-
-    </div>
-    
-                        
-    <div class="col-md-2 border-right-green-dotted" >
-      <h2 class="text-h2-lightblue-small" style="font-weight: bold;margin-top: 0px;"> Follow us</h2>
-      <a href="https://www.facebook.com/pages/Virtual-Labs-IIT-Delhi/301510159983871" class="text-a-lightgreen nounderline"   target="_blank"> <img src="http://vlabs.ac.in/images/social/fb.png"  style="border-radius: 50%;"/> </a><br>
-      <a href="https://twitter.com/TheVirtualLabs" class="text-a-lightgreen nounderline"   target="_blank"> <img src="http://vlabs.ac.in/images/social/twitter.png"  style="border-radius: 50%;"/></a><br>
-      <a href="http://linkedin.com" class="text-a-lightgreen nounderline"  target="_blank" > <img src="http://vlabs.ac.in/images/social/linkedin.png" style="border-radius: 50%;" /></a><br>
-      <a href="https://www.youtube.com/watch?v=mVBYNXLaDdg"
-	 class="text-a-lightgreen nounderline"
-	 target="_blank" >
-	<img src="http://vlabs.ac.in/images/social/youtube.png"
-	     style="border-radius: 50%; width: 38px;
-		    height: 38px" /></a><br>
-      
-    </div>
-    
-  </div>
-</footer>
-
-
-#+END_SRC
-
-
-** JS
-#+BEGIN_SRC javascript :tangle ./static/js/main.js :eval no :noweb yes
-
-
-var feedbackForm = window.data;
-var labelQues, formGroup;
-console.log(feedbackForm);
-document.getElementById("version").innerHTML = "version : "+feedbackForm.version;
-function renderQuesLabel() {
-    formGroup = document.createElement("div");
-    formGroup.className = "form-group"
-    newline = document.createElement('p');
-    formGroup.appendChild(newline);
-    labelQues1 = document.createElement('label');
-    formGroup.appendChild(labelQues1);
-    labelQues = document.createElement('label');
-    $("#questions_list").append(formGroup);
-    formGroup.appendChild(labelQues);
-    labelQues2 = document.createElement('label');
-    formGroup.appendChild(labelQues2);
-
+  - Payload :: 
+#+BEGIN_EXAMPLE
+{
+"hosting_status": "hosted",
+"hosted_on": "cloud",
+"key": "<key>"
 }
 
-function renderFeedbackform() {
-    if(feedbackForm.lab_name){
-	$("#lab_name_label").html("Lab Name");
-	$("#lab_name_value").val(feedbackForm.lab_name)
-    }
-    else if(feedbackForm.version == "generic-lab-feedback-v2.0" || feedbackForm.version == "generic-exp-feedback-v2.0"){
-	$("#lab_name_label").html("Lab Name");
-	document.getElementById("lab_name_value").disabled = false;
-	document.getElementById("lab_name_value").required = true;
-	document.getElementById("lab_name_value").placeholder = "Enter Lab Name";
-	document.getElementById("lab_mandatory").innerHTML = "&nbsp;<font color='maroon'>*</font>";
-    }
-    else{
-	var elem = document.getElementById("lab_name_label");
-	elem.parentNode.removeChild(elem);
-	var elem1 = document.getElementById("lab_name_value");
-	elem1.parentNode.removeChild(elem1);
-
-    }
-    if(feedbackForm.exp_name){
-
-	$("#exp_name_label").html("Experiment Name");
-	$("#exp_name_value").val(feedbackForm.exp_name);
-    }
-    else if(feedbackForm.version == "generic-exp-feedback-v2.0"){
-	$("#exp_name_label").html("Experiment Name");
-	document.getElementById("exp_name_value").disabled = false;
-	document.getElementById("exp_name_value").required = true;
-	document.getElementById("exp_name_value").placeholder = "Enter Experiment Name";
-	document.getElementById("exp_mandatory").innerHTML = "&nbsp;<font color='maroon'>*</font>";
-    }
-    else
-	{
-	    var elem = document.getElementById("exp_name_label");
-	    elem.parentNode.removeChild(elem);
-	    var elem1 = document.getElementById("exp_name_value");
-	    elem1.parentNode.removeChild(elem1);
-	}
-
-    var quesArray = feedbackForm.questions.length;
-    for (var i = 0; i < quesArray; i++) {
-	if (feedbackForm.questions[i].type === "checkbox") {
-	    renderQuesLabel();
-	    labelQues.innerHTML = feedbackForm.questions[i].name;
-	    var optionsDiv = document.createElement("div");
-	    optionsDiv.id = feedbackForm.questions[i].name;
-	    var optionsLength = feedbackForm.questions[i].options.length;
-
-	    for (var j = 0; j < optionsLength; j++) {
-		checkOption = document.createElement('input');
-		checkOption.type = "checkbox";
-		checkOption.value = feedbackForm.questions[i].options[j];
-
-		ansLabel = document.createElement('label');
-		ansLabel.className = "checkbox-inline"
-		ansLabel.innerHTML = feedbackForm.questions[i].options[j];
-
-		optionsDiv.appendChild(ansLabel);
-		ansLabel.insertBefore(checkOption, ansLabel.firstChild);
-		formGroup.appendChild(optionsDiv);
-		questions_list.appendChild(formGroup);
-	    }
-	}
-
-	else if(feedbackForm.questions[i].type === "radio") {
-	    renderQuesLabel();
-	    labelQues1.innerHTML = feedbackForm.questions[i].id+".&nbsp;&nbsp;";
-	    labelQues.innerHTML = feedbackForm.questions[i].name;
-	    if(feedbackForm.questions[i].mandatory == "Yes"){
-		labelQues2.innerHTML = "&nbsp;<font color='maroon'>*</font>";
-	    }
-
-	    var optionsDiv1 = document.createElement("div");
-	    optionsDiv1.id = feedbackForm.questions[i].id;
-	    var optionsLength = feedbackForm.questions[i].options.length;
-	    function GenerateTable(arg1, arg2, arg3, table_id) {
-		var customers = new Array();
-		customers.push([arg1, arg2, arg3]);
-
-		//Create a HTML Table element.
-		var table = document.createElement("TABLE");
-		table.border = "0";
-
-		//Get the count of columns.
-		var columnCount = customers[0].length;
-
-		//Add the header row.
-		var row = table.insertRow(-1);
-		for (var i = 0; i < columnCount; i++) {
-		    var headerCell = document.createElement("Td");
-		    headerCell.innerHTML = customers[0][i];
-		    row.appendChild(headerCell);
-		}
-		var dvTable = document.getElementById(table_id);
-		dvTable.innerHTML = "";
-		dvTable.appendChild(table);
-	    }
-	    if(i == 4 && (feedbackForm.version == "open-edx-virtual-labs-v2.0_for_experiment" || feedbackForm.version == "generic-exp-feedback-v2.0") || i == 1 && (feedbackForm.version == "open-edx-virtual-labs-v2.0_for_lab" || feedbackForm.version == "generic-lab-feedback-v2.0" )){
-	      //  renderQuesLabel();
-		labelQues = document.createElement('div');
-		labelQues.id="dvTable";
-		formGroup.appendChild(labelQues);
-		GenerateTable("Not at all", "To some extent", "Very well", "dvTable");
-	    }
-	    else if(i == 6 && (feedbackForm.version == "open-edx-virtual-labs-v2.0_for_experiment" || feedbackForm.version == "generic-exp-feedback-v2.0") || i == 4 && (feedbackForm.version == "open-edx-virtual-labs-v2.0_for_lab" || feedbackForm.version == "generic-lab-feedback-v2.0")){
-
-	      //renderQuesLabel();
-		labelQues = document.createElement('div');
-		labelQues.id="dvTable1";
-		formGroup.appendChild(labelQues);
-		GenerateTable("Not at all", "To some extent", "Very well","dvTable1");
-	    }
-
-	    else if(i == 7 && (feedbackForm.version == "open-edx-virtual-labs-v2.0_for_experiment" || feedbackForm.version == "generic-exp-feedback-v2.0") || i == 5 && (feedbackForm.version == "open-edx-virtual-labs-v2.0_for_lab" || feedbackForm.version == "generic-lab-feedback-v2.0")){
-
-	      //  renderQuesLabel();
-		labelQues = document.createElement('div');
-		labelQues.id="dvTable2";
-		formGroup.appendChild(labelQues);
-		GenerateTable("Not at all", "May Recommend", "Will definitely","dvTable2");
-	    }
-	    function answer(flag, question_id){
-		if(flag == "No"){
-		    var element = document.getElementById("answer");
-		    if(element != null){
-			element.outerHTML = "";
-			delete element;
-		    }
-		}
-		else{
-		    if(document.getElementById("answer") == null){
-			var div = document.getElementById(question_id);
-			var answer = document.createElement('div');
-			answer.id = "answer";
-			div.appendChild(answer);
-			labelQues = document.createElement('br');
-			var answer_id = document.getElementById("answer");
-			answer_id.appendChild(labelQues);
-
-			ansTextArea = document.createElement("textarea");
-			ansTextArea.className = "form-control";
-			ansTextArea.style.width = "35em";
-			ansTextArea.style.height = "7em";
-			ansTextArea.id = "bug-answer";
-			ansTextArea.placeholder = "Please specify the bug details here";
-			ansTextArea.maxLength = "160";
-			answer_id.appendChild(ansTextArea);
-
-		    }
-		}
-
-	    }
-	    function driver(questions, value, flag){
-		for(var i=0; i<questions.length;i++){
-		    var questionElement = document.getElementById(questions[i]);
-		    var children = questionElement.querySelectorAll('input');
-		    for(var j = 0; j < children.length; j++) {
-			var child = children[j];
-
-			if(flag == "false"){
-			    child.checked = false;
-
-			}
-			else if(flag == "true" && child.value == value){
-			    child.checked = true;
-			}
-
-		    }
-
-		}
-	    }
-
-	    for (var k = 0; k < optionsLength; k++) {
-
-		radioOption = document.createElement('input');
-		radioOption.type = "radio";
-		radioOption.className = "";
-		
-		if(i == 0 && k == 0){
-		    radioOption.checked = true;
-		}
-		if(i == 1 && k == 0 && feedbackForm.questions[i].driver.length!=0){
-		    var questions = feedbackForm.questions[i].driver;
-		    radioOption.onclick = function(){driver(questions, 'Not applicable', 'false'); };
-		}
-		if(i == 1 && k == 1  && feedbackForm.questions[i].driver.length!=0){
-		    var questions = feedbackForm.questions[i].driver;
-		    radioOption.onclick = function(){ driver(questions, 'Not applicable', 'true'); };
-		}
-		if(feedbackForm.questions[i].linked_answer == "Yes" && k == 0){
-		    var id = feedbackForm.questions[i].id;
-		    radioOption.onclick = function(){ answer("Yes", id); };
-		}
-		if(feedbackForm.questions[i].linked_answer == "Yes" && k == 1){
-		    var id = feedbackForm.questions[i].id;
-		    radioOption.onclick = function(){ answer("No", id); };
-		}
-		if(feedbackForm.questions[i].linked_answer == "Yes" && k == 2){
-		    var id = feedbackForm.questions[i].id;
-		    radioOption.onclick = function(){ answer("No", id); };
-		}
-		radioOption.name = feedbackForm.questions[i].name;
-		radioOption.value = feedbackForm.questions[i].options[k];
-		radioLabel = document.createElement('label');
-		radioLabel.className = "radio-inline";
-		radioLabel.innerHTML = feedbackForm.questions[i].options[k];
-
-		optionsDiv1.appendChild(radioLabel);
-		radioLabel.insertBefore(radioOption, radioLabel.firstChild);
-		formGroup.appendChild(optionsDiv1);
-		questions_list.appendChild(formGroup);
-	    }
-
-	}
-	else if (feedbackForm.questions[i].type === "textarea") {
-	    var ansTextArea;
-	    renderQuesLabel();
-	    labelQues.innerHTML = feedbackForm.questions[i].name;
-	    labelQues1.innerHTML = feedbackForm.questions[i].id+".&nbsp;&nbsp;";
-	    if(feedbackForm.questions[i].mandatory == "Yes"){
-		labelQues2.innerHTML = "&nbsp;<font color='maroon'>*</font>";
-	    }
-	    ansTextArea = document.createElement("textarea");
-	    ansTextArea.className = "form-control";
-	    ansTextArea.id = feedbackForm.questions[i].id;
-	    ansTextArea.style.width = "38em";
-	    ansTextArea.style.height = "6em";
-	    ansTextArea.maxLength = "160";
-
-	    formGroup.appendChild(ansTextArea);
-	    
-	}
-	else if(feedbackForm.questions[i].type === "text") {
-	    var ansTextBox;
-	    renderQuesLabel();
-	    labelQues.innerHTML = feedbackForm.questions[i].name;
-	    labelQues1.innerHTML = feedbackForm.questions[i].id+".&nbsp;&nbsp;";
-	    if(feedbackForm.questions[i].mandatory == "Yes"){
-		labelQues2.innerHTML = "&nbsp;<font color='maroon'>*</font>";
-	    }
-	    ansTextBox = document.createElement("input");
-	    ansTextBox.className = "form-control"
-	    ansTextBox.placeholder = feedbackForm.questions[i].placeholder;
-	    ansTextBox.style.width = "25em";
-	    ansTextBox.id = feedbackForm.questions[i].id;
-	    formGroup.appendChild(ansTextBox);
-	}
-
-    }
+#+END_EXAMPLE
+  - Success Response
+    + Status_Code: 200
+      + Contents :
+#+BEGIN_EXAMPLE
+{
+  "id": 1, 
+  "hosted_url": "http://cse14-iiith.vlabs.ac.in",
+  "hosting_status": "hosted",
+  "hosted_on": "cloud"
 }
 
-function submitFeedback(event) {
+#+END_EXAMPLE
 
-    event.preventDefault();
-    var feedback = {}; // the final feedback object
-    if(feedbackForm.lab_name){
-	feedback.lab_name = feedbackForm.lab_name;
-    }
-    if(feedbackForm.exp_name){
-	feedback.exp_name = feedbackForm.exp_name;
-    }
-    if(feedbackForm.user_id){
-    feedback.user_id = feedbackForm.user_id;
-    }
-    feedback.version = feedbackForm.version;
-    if(feedbackForm.key){
-	feedback.key = feedbackForm.key;
-    }
-    if(document.getElementById("lab_name_value")){
-	feedback.lab_name = document.getElementById("lab_name_value").value;
-    }
-    if(document.getElementById("exp_name_value")){
-	feedback.lab_name = document.getElementById("exp_name_value").value;
-    }
-    feedback.responses = []; // the list of questions and user answers
-    var quesArray = feedbackForm.questions.length;
-    // loop over the questions
-    for (var i = 0; i < quesArray; i++) {
-	var questionElement = document.getElementById(feedbackForm.questions[i].id);
-	var answer = null;
-	if(feedbackForm.questions[i].type === 'radio') {
-	    answer = []
-	    var children = questionElement.querySelectorAll('input');
-	    for(var j = 0; j < children.length; j++) {
-		var child = children[j];
-		// console.log('child', child, child.type, child.checked);
-		if(child.type === 'radio' && child.checked === true) {
-
-		    if(children.length == 10){
-			var ans = child.value + "/"+ String(Number(children.length))
-			answer.push(ans);
-		    }
-		    else if(children.length == 11){
-                        var ans = child.value;
-			if(ans != "Not applicable"){
-			    var ans = child.value + "/"+ String(Number(children.length)-1)
-			    answer.push(ans);
-			}
-			else{
-			    answer.push(ans);
-			}
-		    }
-
-		    else{
-			if(i == 2 ){
-			    if(document.getElementById("bug-answer") != null){
-				var text = document.getElementById("bug-answer").value;
-				console.log(text);
-				answer.push(text);
-			    }
-			}
-			answer.push(child.value);
-		    }
-
-		}
-	    }
-	}
-	else if(feedbackForm.questions[i].type === 'checkbox') {
-	    answer = [];
-	    var children = questionElement.querySelectorAll('input');
-	    for(var j = 0; j < children.length; j++) {
-		var child = children[j];
-		if(child.checked === true) {
-		    // console.log('selected', child.value);
-		    answer.push(child.value);
-		}
-	    }
-	}
-	else if(feedbackForm.questions[i].type === 'textarea') {
-	    answer = [];
-	    var input = questionElement;
-	    answer.push(input.value);
-	}
-	else if(feedbackForm.questions[i].type === 'text') {
-	    answer = [];
-	    var input = questionElement;
-	    //console.log(input);
-	    answer.push(input.value);
-	}
-	// create an object to insert the current question data
-	var question = {};
-	question.name = feedbackForm.questions[i].name;
-	//question.type = feedbackForm.questions[i].type;
-	question.answers = answer;
-	feedback.responses.push(question);
-    }
-    // Posting json data to /feedback api
-
-    console.log(feedback);
-    function add_feedback(){
-	$.ajax({
-	    url: '/feedback',
-	    type: 'POST',
-	    data: JSON.stringify(feedback),
-	    contentType: 'application/json',
-	    success: function (data) {
-		window.location.href="/success";
-		console.log(data);
-	    },
-
-	    error: function(data){
-		//alert("error");
-		console.log("Error in submitted feedback");
-		console.log(data); 
-	    }
-
-	});  
-    }
-    function add_generic_feedback(){
-	$.ajax({
-	    url: '/',
-	    type: 'POST',
-	    data: JSON.stringify(feedback),
-	    contentType: 'application/json',
-	    success: function (data) {
-		window.location.href="/success";
-		console.log(data);
-	    },
-
-	    error: function(data){
-		//alert("error");
-		console.log("Error in submitted feedback");
-		console.log(data); 
-	    }
-
-	});  
-    }
-    var count = 0;
-    var not_answered = []
-    for(var i=0;i<feedback.responses.length;i++){
-	if(feedbackForm.questions[i].mandatory == "Yes" && (feedback.responses[i].answers.length == 0 || feedback.responses[i].answers[0] == "")){
-	    //alert("Some of the questions are not answered");
-	    //alert("Quesion No " + (i+1) +" is not answered");
-	    count++;
-	    not_answered.push(i+1);
-//	      break;
-	}
-    }
-    if(count == 0){
-	if(feedbackForm.version == "generic-feedback-v2.0" || feedbackForm.version == "generic-exp-feedback-v2.0" || feedbackForm.version == "generic-lab-feedback-v2.0"){
-	    add_generic_feedback();
-	    }
-	else{
-	    add_feedback();
-	}
-    }
-    else{
-	alert(not_answered + " Question(s) are not answered");
-    }
-
-
-}
     
+  - Error Response:
+    + Contents :
+                {"status" : "error"}
+    
+  - Example:
+#+BEGIN_EXAMPLE
+    http://localhost:5000/hostinginfos?hosted_url=http://cse14-iiith.vlabs.ac.in
+#+END_EXAMPLE
+
+*** Implementation
+#+NAME: update_hostinginfo
+#+BEGIN_SRC python
+@api.route('/hostinginfos', methods=['PUT'])
+def update_hostinginfo():
+    if request.method == 'PUT':
+        if request.is_json:
+            data_json = json.dumps(request.get_json())
+            data_dict = yaml.safe_load(data_json)
+        else:
+            abort(500, "the request does not contain data in json")
+
+        if 'hosted_url' in request.args:
+            data_dict['hosted_url']  = request.args['hosted_url']
+        else:
+            abort(500, "Please provide the 'hosted_url' to update the hostinginfo")
+        
+        try:
+            hostinginfo = SystemInterface.update_hostinginfo(data_dict)
+            return jsonify(hostinginfo)
+
+        except TypeError as err:
+            error_message = 'Malformed arguments, error: %s' % str(err)
+
+            return render_template('error.html', 
+                    data=error_message)
+
+        except Exception as err:
+            abort(500, 'error: %s' % str(err))
+
 #+END_SRC
+
+*** Test Cases
+**** TestUpdateHostingInfo 
+ #+NAME: test_update_hostinginfo
+ #+BEGIN_SRC python
+class TestUpdateHostingInfo(TestCase):
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_update_hostinginfo(self):
+        print "test_update_hostinginfo"
+
+        payload = {'hosting_status': 'hosted',
+                   'hosted_url': 'http://cse14-iiith.vlabs.ac.in',
+                   'hosted_on': 'cloud',
+                   'key': KEY}
+
+        payload1 = {'hosting_status': 'not hosted', 'hosted_on': 'server', 'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/hostinginfos", data=json.dumps(payload),
+                                 headers=headers)
+
+        response = self.client.put("/hostinginfos?hosted_url=http://cse14-iiith.vlabs.ac.in", data=json.dumps(payload1),
+                                 headers=headers)
+
+        self.assertEqual(response.status_code, 200)
+
+ #+END_SRC
    
 
-** CSS 
-#+BEGIN_SRC css :tangle ./static/css/main.css :eval no :noweb yes
-@import url(https://fonts.googleapis.com/css?family=Raleway:400,300,700,500,600);
-body {
-    font-family:  sans-serif;
-    font-size: 14px;
-    color: #767676;
-}
+** Update Developer
+*** API Design
+**** Update developers by email_id
+  :PROPERTIES:
+  :CUSTOM_ID: api_update_developers_by_email_id
+  :END:    
+  - URL :: /developers?email_id=<email_id>
 
-#feedback-form {
-    width: 80%;
-    margin-top: 30px;
-}
+  - Method :: PUT
 
-.headInfo {
-    margin-left: 0px; 
-    margin-top: 20px;
-}
+  - URL Params ::  None
 
-.values {
-    margin-left: 0px;
-    text-align: left;
-}
-
-.rowCol {
-    border: 1px solid #ccc
-}
-
-.mainrow {
-    margin-top: 4px;
-}
-
-.navbar-default, .navbar-inverse {
-    border: 0;
-}
-
-.footer-div
+  - Payload :: 
+#+BEGIN_EXAMPLE
 {
-    margin-top:120px;
+  "dev_name": "Prof. Dharamraj",
+  "email_id": "dharamraj@gmail.com",
+  "key": "<key>"
 }
 
-.main-logo-a {
-    height: auto;
-    overflow: visible;
-    margin-left: 0px !important;
-    padding-bottom: 10px !important;
-    padding-top: 10px !important;
-}
-
-.menu-a {
-    font-size: 14px !important;
-    font-family: 'Raleway' !important;
-    color: #2C99CD !important;
-    padding-left: 10px !important;
-    padding-bottom: 5px !important;
-    padding-top: 5px !important;
-    padding-right: 10px !important;
-}
-
-.menu-a-active {
-    color: white !important;
-}
-
-.menu-li {
-    border-radius: 10px;
-    margin-left: 20px;
-    margin-right: 20px;
-}
-
-.menu-li:HOVER {
-    background-color: #77BB41 !important;
-}
-
-.menu-a:HOVER {
-    color: white !important;
-}
-
-.menu-li-active {
-    background-color: #77BB41;
-}
-
-.menu-ul {
-    margin-top: 45px;
-}
-
-.text-h2-lightblue-small
+#+END_EXAMPLE
+  - Success Response
+    + Status_Code: 200
+      + Contents :
+#+BEGIN_EXAMPLE
 {
-	color: #2C99CE;
-	font-size: 1.5em;
-}
-.text-a-lightgreen
-{
-	color: #72AB44;
-	font-size: 1.3em;
-	text-decoration: underline;
+  "id": 1, 
+  "dev_name": "Prof. Dharamraj",
+  "email_id": "dharamraj@gmail.com",
 }
 
-.text-a-lightgreen:HOVER
-{
-	color: #72AB44 !important;
-}
+#+END_EXAMPLE
 
-.text-normal-gray-small
-{
-	color: #888;
-	font-size: 16px;
-}
+    
+  - Error Response:
+    + Contents :
+                {"status" : "error"}
+    
+  - Example:
+#+BEGIN_EXAMPLE
+    http://localhost:5000/developers?email_id=dharamraj@gmail.com
+#+END_EXAMPLE
 
-.border-right-green-dotted
-{
-	border-right: 2px dotted;
-	 margin-top: 30px;
-	 border-right-color: #678f48;
-	 min-height: 115px;
-}
-.footer-div
-{
-margin-top:120px;
-}
-table {
-    font-family: arial, sans-serif;
-    border-collapse: collapse;
-    width: 32em;
-}
+*** Implementation
+#+NAME: update_developer
+#+BEGIN_SRC python
+@api.route('/developers', methods=['PUT'])
+def update_developer():
+    if request.method == 'PUT':
+        if request.is_json:
+            data_json = json.dumps(request.get_json())
+            data_dict = yaml.safe_load(data_json)
+        else:
+            abort(500, "the request does not contain data in json")
 
-td {
-    border: 0px solid #dddddd;
-    text-align: left;
-    padding: 8px;
-}
+        if 'email' in request.args:
+            data_dict['email']  = request.args['email']
+        else:
+            abort(500, "Please provide the 'email' to update the developer")
+        
+        try:
+            developer = SystemInterface.update_developer(data_dict)
+            return jsonify(developer)
 
-tr:nth-child(even) {
-    background-color: #dddddd;
-}
+        except NotAuthorizedError as e:
+            err_str = str(e)
+            msg = {"status": "failure",
+                    "status code": 401,
+                       "msg": err_str}
+            return jsonify(msg)
 
+        except TypeError as e:
+            err_str = str(e)
+            msg = {"status": "failure",
+                       "msg": err_str }
+            return jsonify(msg)
+
+        except StateError as e:
+            err_str = str(e)
+            msg = {"status": "failure",
+                       "msg": err_str}
+            return jsonify(msg)
+
+        except NotFoundError as e:
+            err_str = str(e)
+            msg = {"status": "failure",
+                       "status code": 404,
+                       "msg": err_str}
+            return jsonify(msg)
+
+        except Exception as e:
+            err_str = str(e)
+            msg = {"status": "failure",
+                       "msg": err_str}
+            return jsonify(msg)
 
 #+END_SRC
+
+*** Test Cases
+**** TestUpdateDeveloper 
+ #+NAME: test_update_developer
+ #+BEGIN_SRC python
+class TestUpdateDeveloper(TestCase):
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_update_developer(self):
+        print "test_update_developer"
+
+        payload = {'dev_name': 'Prof.Dharamraj',
+                   'email_id': 'dharamraj@gmail.com',
+                   'key': KEY}
+
+        payload1 = {'name': 'Prof.Raj', 'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/developers", data=json.dumps(payload),
+                                 headers=headers)
+
+        response = self.client.put("/developers?email=dharamraj@gmail.com",
+                                       data=json.dumps(payload1),
+                                    headers=headers)
+
+        self.assertEqual(response.status_code, 200)
+
+ #+END_SRC
    
+
+** Delete HostingInfo
+*** API Design
+**** Delete hostinginfo by hosted_url
+  :PROPERTIES:
+  :CUSTOM_ID: delete_hostinginfo_by_hosted_url
+  :END:    
+  - URL :: /hostinginfos?<hosted_url>&key=<key>
+
+  - Method :: DELETE
+
+  - URL Params ::  None
+
+  - Payload :: 
+
+  - Success Response
+    + Status_Code: 200
+      + Contents :
+#+BEGIN_EXAMPLE
+{
+  "status": "sucess"
+}
+
+#+END_EXAMPLE
+    
+  - Error Response:
+    + Contents :
+                {"status" : "error"}
+    
+  - Example:
+#+BEGIN_EXAMPLE
+    http://localhost:5000/hostinginfos?hosted_url=http://cse14-iiith.vlabs.ac.in&key=<key>
+#+END_EXAMPLE
+
+*** Implementation
+#+NAME: delete_hostinginfo
+#+BEGIN_SRC python
+@api.route('/hostinginfos', methods=['DELETE'])
+def delete_hostinginfo():
+    if request.method == 'DELETE':
+        if 'hosted_url' in request.args and 'key' in request.args:
+            hosted_url  = request.args['hosted_url']
+            key = request.args['key']
+
+            try:
+                hostinginfo = SystemInterface.delete_hostinginfo(hosted_url, key)
+                return jsonify({"status":"sucess"})
+
+            except TypeError as err:
+                error_message = 'Malformed arguments, error: %s' % str(err)
+
+                return render_template('error.html', data=error_message)
+
+            except Exception as err:
+                abort(500, 'error: %s' % str(err))
+
+#+END_SRC
+
+*** Test Cases
+**** TestDeleteHostingInfo
+ #+NAME: test_delete_hostinginfo
+ #+BEGIN_SRC python
+class TestDeleteHostingInfo(TestCase):
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_delete_hostinginfo(self):
+        print "test_delete_hostinginfo"
+
+        payload = {'hosting_status': 'hosted',
+                   'hosted_url': 'http://cse14-iiith.vlabs.ac.in',
+                   'hosted_on': 'cloud',
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/hostinginfos", data=json.dumps(payload),
+                                 headers=headers)
+
+        response = self.client.delete("/hostinginfos?hosted_url=http://cse14-iiith.vlabs.ac.in&key=defaultkey",
+                                          headers=headers)
+
+        self.assertEqual(response.status_code, 200)
+
+ #+END_SRC
+   
+
+** Delete IntegrationStatus
+*** API Design
+**** Delete integrationstatus by integration_level
+  :PROPERTIES:
+  :CUSTOM_ID: api_delete_integrationstatus_by_integration_level
+  :END:    
+  - URL :: /integrationstatuss?<integration_level>&key=<key>
+
+  - Method :: DELETE
+
+  - URL Params ::  None
+
+  - Payload :: 
+
+  - Success Response
+    + Status_Code: 200
+      + Contents :
+#+BEGIN_EXAMPLE
+{
+  "status": "sucess"
+}
+
+#+END_EXAMPLE
+    
+  - Error Response:
+    + Contents :
+                {"status" : "error"}
+    
+  - Example:
+#+BEGIN_EXAMPLE
+    http://localhost:5000/integrationstatuss?integration_level=4&key=<key>
+#+END_EXAMPLE
+
+*** Implementation
+#+NAME: delete_integrationstatus
+#+BEGIN_SRC python
+@api.route('/integrationstatuss', methods=['DELETE'])
+def delete_integrationstatus():
+    if request.method == 'DELETE':
+        if 'integration_level' in request.args and 'key' in request.args:
+            integration_level  = request.args['integration_level']
+            key = request.args['key']
+
+            try:
+                integrationstatus = SystemInterface.delete_integrationstatus(integration_level, key)
+                return jsonify({"status":"sucess"})
+
+            except TypeError as err:
+                error_message = 'Malformed arguments, error: %s' % str(err)
+
+                return render_template('error.html', data=error_message)
+
+            except Exception as err:
+                abort(500, 'error: %s' % str(err))
+
+#+END_SRC
+
+*** Test Cases
+**** TestDeleteIntegrationStatus
+ #+NAME: test_delete_integrationstatus
+ #+BEGIN_SRC python
+class TestDeleteIntegrationStatus(TestCase):
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_delete_integrationstatus(self):
+        print "test_delete_integrationstatus"
+
+        payload = {'integration_level': 4,
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/integrationstatuss", data=json.dumps(payload),
+                                 headers=headers)
+
+        response = self.client.delete("/integrationstatuss?integration_level=4&key=defaultkey",
+                                          headers=headers)
+
+        self.assertEqual(response.status_code, 200)
+
+ #+END_SRC
+   
+
+** Delete Email
+*** API Design
+**** Delete email
+  :PROPERTIES:
+  :CUSTOM_ID: delete_email_by_email
+  :END:    
+  - URL :: /emails?<email>&key=<key>
+
+  - Method :: DELETE
+
+  - URL Params ::  None
+
+  - Payload :: 
+
+  - Success Response
+    + Status_Code: 200
+      + Contents :
+#+BEGIN_EXAMPLE
+{
+  "status": "sucess"
+}
+
+#+END_EXAMPLE
+    
+  - Error Response:
+    + Contents :
+                {"status" : "error"}
+    
+  - Example:
+#+BEGIN_EXAMPLE
+    http://localhost:5000/emails?email=dharamraj@gmail.com&key=<key>
+#+END_EXAMPLE
+
+*** Implementation
+#+NAME: delete_email
+#+BEGIN_SRC python
+@api.route('/emails', methods=['DELETE'])
+def delete_email():
+    if request.method == 'DELETE':
+        if 'email' in request.args and 'key' in request.args:
+            email  = request.args['email']
+            key = request.args['key']
+
+            try:
+                email = SystemInterface.delete_email(email, key)
+                return jsonify({"status":"sucess"})
+            except NotAuthorizedError as e:
+                err_str = str(e)
+                msg = {"status": "failure",
+                        "status code": 401,
+                       "msg": err_str}
+                return jsonify(msg)
+
+            except TypeError as e:
+                err_str = str(e)
+                msg = {"status": "failure",
+                       "msg": err_str }
+                return jsonify(msg)
+
+            except StateError as e:
+                err_str = str(e)
+                msg = {"status": "failure",
+                       "msg": err_str}
+                return jsonify(msg)
+
+            except NotFoundError as e:
+                err_str = str(e)
+                msg = {"status": "failure",
+                       "status code": 404,
+                       "msg": err_str}
+                return jsonify(msg)
+
+            except Exception as e:
+                err_str = str(e)
+                msg = {"status": "failure",
+                       "msg": err_str}
+                return jsonify(msg)
+
+#+END_SRC
+
+*** Test Cases
+**** TestDeleteEmail
+ #+NAME: test_delete_email
+ #+BEGIN_SRC python
+class TestDeleteEmail(TestCase):
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_delete_email(self):
+        print "test_delete_email"
+
+        payload = {'email': 'dharamraj@gmail.com',
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/emails", data=json.dumps(payload),
+                                 headers=headers)
+
+        response = self.client.delete("/emails?email=dharamraj@gmail.com&key=defaultkey",
+                                          headers=headers)
+
+        self.assertEqual(response.status_code, 200)
+
+ #+END_SRC
+   
+
+** Delete Name
+*** API Design
+**** Delete name
+  :PROPERTIES:
+  :CUSTOM_ID: delete_name_by_name
+  :END:    
+  - URL :: /names?<name>&key=<key>
+
+  - Method :: DELETE
+
+  - URL Params ::  None
+
+  - Payload :: 
+
+  - Success Response
+    + Status_Code: 200
+      + Contents :
+#+BEGIN_EXAMPLE
+{
+  "status": "sucess"
+}
+
+#+END_EXAMPLE
+    
+  - Error Response:
+    + Contents :
+                {"status" : "error"}
+    
+  - Example:
+#+BEGIN_EXAMPLE
+    http://localhost:5000/names?name=prof.dharamraj&key=<key>
+#+END_EXAMPLE
+
+*** Implementation
+#+NAME: delete_name
+#+BEGIN_SRC python
+@api.route('/names', methods=['DELETE'])
+def delete_name():
+    if request.method == 'DELETE':
+        if 'name' in request.args and 'key' in request.args:
+            name  = request.args['name']
+            key = request.args['key']
+
+            try:
+                name = SystemInterface.delete_name(name, key)
+                return jsonify({"status":"sucess"})
+
+            except TypeError as err:
+                error_message = 'Malformed arguments, error: %s' % str(err)
+
+                return render_template('error.html', data=error_message)
+
+            except Exception as err:
+                abort(500, 'error: %s' % str(err))
+
+#+END_SRC
+
+*** Test Cases
+**** TestDeleteName
+ #+NAME: test_delete_name
+ #+BEGIN_SRC python
+class TestDeleteName(TestCase):
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_delete_name(self):
+        print "test_delete_name"
+
+        payload = {'name': 'prof.dharamraj',
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/names", data=json.dumps(payload),
+                                 headers=headers)
+
+        response = self.client.delete("/names?name=prof.dharamraj&key=defaultkey",
+                                          headers=headers)
+
+        self.assertEqual(response.status_code, 200)
+
+ #+END_SRC
+   
+ 
+** Delete Developer
+*** API Design
+**** Delete developer
+  :PROPERTIES:
+  :CUSTOM_ID: delete_developer_by_email_id
+  :END:    
+  - URL :: /developers?<email_id>&key=<key>
+
+  - Method :: DELETE
+
+  - URL Params ::  None
+
+  - Payload :: 
+
+  - Success Response
+    + Status_Code: 200
+      + Contents :
+#+BEGIN_EXAMPLE
+{
+  "status": "sucess"
+}
+
+#+END_EXAMPLE
+    
+  - Error Response:
+    + Contents :
+                {"status" : "error"}
+    
+  - Example:
+#+BEGIN_EXAMPLE
+    http://localhost:5000/developers?email_id=dharamraj@gmail.com&key=<key>
+#+END_EXAMPLE
+
+*** Implementation
+#+NAME: delete_developer
+#+BEGIN_SRC python
+@api.route('/developers', methods=['DELETE'])
+def delete_developer():
+    if request.method == 'DELETE':
+        if 'email' in request.args and 'key' in request.args:
+            email  = request.args['email']
+            key = request.args['key']
+
+            try:
+                developer = SystemInterface.delete_developer(email, key)
+                return jsonify({"status":"sucess"})
+
+            except NotAuthorizedError as e:
+                err_str = str(e)
+                msg = {"status": "failure",
+                        "status code": 401,
+                       "msg": err_str}
+                return jsonify(msg)
+
+            except TypeError as e:
+                err_str = str(e)
+                msg = {"status": "failure",
+                       "msg": err_str }
+                return jsonify(msg)
+
+            except StateError as e:
+                err_str = str(e)
+                msg = {"status": "failure",
+                       "msg": err_str}
+                return jsonify(msg)
+
+            except NotFoundError as e:
+                err_str = str(e)
+                msg = {"status": "failure",
+                       "status code": 404,
+                       "msg": err_str}
+                return jsonify(msg)
+
+            except Exception as e:
+                err_str = str(e)
+                msg = {"status": "failure",
+                       "msg": err_str}
+                return jsonify(msg)
+
+#+END_SRC
+
+*** Test Cases
+**** TestDeleteDeveloper
+ #+NAME: test_delete_developer
+ #+BEGIN_SRC python
+class TestDeleteDeveloper(TestCase):
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_delete_developer(self):
+        print "test_delete_developer"
+
+        payload = {'dev_name': 'Prof. Dharamraj',
+                   'email_id': 'dharamraj@gmail.com',
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/developers", data=json.dumps(payload),
+                                 headers=headers)
+
+        response = self.client.delete("/emails?email=dharamraj@gmail.com&key=defaultkey",
+                                          headers=headers)
+
+        self.assertEqual(response.status_code, 200)
+
+ #+END_SRC
+   
+
+** Get Assets and Get Asset
+*** API Design
+**** Get all Assets
+  :PROPERTIES:
+  :CUSTOM_ID: api_get_all_assets
+  :END:    
+  - URL :: /assets
+
+  - Method :: GET
+
+  - URL Params ::  None
+
+  - Payload :: 
+
+  - Success Response
+    + Status_Code: 200
+      + Contents :
+
+#+BEGIN_EXAMPLE
+[{"asset_type": "Image", "id": 1, "path": "vlabs.ac.in/images/static/logo.png"}]
+#+END_EXAMPLE	       
+
+    
+  - Error Response:
+    + Contents :
+                {"status" : "error"}
+    
+  - Example:
+#+BEGIN_EXAMPLE
+http://localhost:5000/assets
+#+END_EXAMPLE
+
+**** Get Asset by path
+  :PROPERTIES:
+  :CUSTOM_ID: api_get_asset_by_path
+  :END:    
+  - URL :: /assets?path=<path>
+
+  - Method :: GET
+
+  - URL Params ::  None
+
+  - Payload :: 
+
+  - Success Response
+    + Status_Code: 200
+      + Contents :
+
+#+BEGIN_EXAMPLE
+{"asset_type": "Image", "id": 1, "path": "vlabs.ac.in/images/static/logo.png"}
+#+END_EXAMPLE	       
+
+    
+  - Error Response:
+    + Contents :
+                {"status" : "error"}
+    
+  - Example:
+#+BEGIN_EXAMPLE
+http://localhost:5000/assets?path=vlabs.ac.in/images/static/logo.png
+#+END_EXAMPLE
+
+*** Implementation
+REST API to get all assets and get asset by path.
+#+NAME: get_asset
+#+BEGIN_SRC python
+@api.route('/assets', methods=['GET'])
+def get_asset():
+    if request.method == 'GET':
+       if 'path' in request.args:
+           path  = request.args['path']
+           try:
+               asset = SystemInterface.get_asset(path)
+               return jsonify(asset)
+
+           except NotAuthorizedError as err:
+               error_message = 'Not Authorized error: %s' % str(err)
+               current_app.logger.error("%s" %(error_message))
+               return render_template('error.html',
+                                       data=error_message)
+           except TypeError as err:
+               error_message = 'Malformed arguments, error: %s' % str(err)
+               current_app.logger.error("%s" %(error_message))
+               return render_template('error.html',
+                                       data=error_message)
+           except Exception as err:
+               error_message = 'error: %s' % str(err)
+               current_app.logger.error("%s" %(error_message))
+               return render_template('error.html',
+                                        data=error_message)
+       else:
+           try:
+               assets = SystemInterface.get_assets()
+               return jsonify_list(assets)
+
+           except TypeError as err:
+               error_message = 'Malformed arguments, error: %s' % str(err)
+
+               return render_template('error.html',
+                                           data=error_message)
+
+           except Exception as err:
+               abort(500, 'error: %s' % str(err))
+            
+#+END_SRC
+
+*** Test Cases
+**** TestGetAsset  
+ #+NAME: test_get_Asset
+ #+BEGIN_SRC python
+class TestGetAsset(TestCase):
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_get_assets(self):
+        print "test_get_assets_in_rest"
+
+        payload = {'asset_type': 'Images',
+                   'path': 'vlabs.ac.in/images/static/logo.png',
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/assets", data=json.dumps(payload),
+                                 headers=headers)
+
+        response = self.client.get("/assets", headers=headers)
+        self.assertEqual(response.status_code, 200)
+
+ #+END_SRC
+   
+**** TestGetAssetbyPath 
+#+NAME: test_get_asset_by_path
+#+BEGIN_SRC python
+class TestGetAsset(TestCase):
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_get_asset_by_path(self):
+        print "test_get_asset_by_path_in_rest"
+
+        payload = {'asset_type': 'Image',
+                   'path': 'vlabs.ac.in/images/static/logo.png',
+                   'key': KEY
+                  }
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/assets", data=json.dumps(payload),
+                                 headers=headers)
+
+        response = self.client.get("/assets?path=vlabs.ac.in/images/static/logo.png", headers=headers)
+        self.assertEqual(response.status_code, 200)
+
+#+END_SRC
+
+
+** Add Asset 
+*** API Design
+**** Add Asset
+  :PROPERTIES:
+  :CUSTOM_ID: api_add_institute
+  :END:    
+  - URL :: /assets
+
+  - Method :: POST
+
+  - URL Params ::  None
+
+  - Payload :: 
+#+BEGIN_EXAMPLE
+{
+"path": "vlabs.ac.in/images/static/logo.png",
+"asset_type": "Image",
+"key": "<key>"
+}
+#+END_EXAMPLE	       
+
+  - Success Response
+    + Status_Code: 200
+    + Content: 
+#+BEGIN_EXAMPLE
+{
+  "id": 1, 
+  "path": "vlabs.ac.in/images/static/logo.png", 
+  "asset_type": "Image"
+}
+
+#+END_EXAMPLE
+
+  - Error Response:
+    + Contents :
+                {"status" : "error"}
+    
+  - Example:
+#+BEGIN_EXAMPLE
+http://localhost:5000/assets
+#+END_EXAMPLE
+    
+*** Implementation
+REST API to add an asset.
+#+NAME: add_asset
+#+BEGIN_SRC python
+@api.route('/assets', methods=['POST'])
+def add_asset():
+    if request.method == 'POST':
+        if request.is_json:
+            data_json = json.dumps(request.get_json())
+            data_dict = yaml.safe_load(data_json)
+        else:
+            abort(500, "the request does not contain data in json")
+
+        try:
+            asset = SystemInterface.add_asset(data_dict)
+            return jsonify(asset)
+
+        except TypeError as err:
+            error_message = 'Malformed arguments, error: %s' % str(err)
+
+            return render_template('error.html', 
+                    data=error_message)
+
+        except Exception as err:
+            abort(500, 'error: %s' % str(err))
+            
+#+END_SRC
+
+*** Test Cases
+**** TestAddAsset  
+ #+NAME: test_add_asset
+ #+BEGIN_SRC python
+class TestAddAsset(TestCase):
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_add_asset(self):
+        print "test_add_asset_in_rest"
+        payload = {'asset_type': 'Image',
+                   'path': 'vlabs.ac.in/images/static/logo.png',
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/assets", data=json.dumps(payload),
+                                 headers=headers)
+
+        self.assertEqual(response.status_code, 200)
+
+ #+END_SRC
+   
+
+** Update Asset
+*** API Design
+**** Update assets by path
+  :PROPERTIES:
+  :CUSTOM_ID: api_update_institutes_by_instid
+  :END:    
+  - URL :: /assets/<path>
+
+  - Method :: PUT
+
+  - URL Params ::  None
+
+  - Payload :: 
+#+BEGIN_EXAMPLE
+{
+"asset_type": "Image",
+  "key": "<key>"
+}
+
+#+END_EXAMPLE
+  - Success Response
+    + Status_Code: 200
+      + Contents :
+#+BEGIN_EXAMPLE
+{
+  "id": 1, 
+  "path": "vlabs.ac.in/images/static/logo.png", 
+  "asset_type": "Image"
+}
+
+#+END_EXAMPLE
+
+    
+  - Error Response:
+    + Contents :
+                {"status" : "error"}
+    
+  - Example:
+#+BEGIN_EXAMPLE
+    http://localhost:5000/assets?path=vlabs.ac.in/images/static/logo.png
+#+END_EXAMPLE
+
+*** Implementation
+#+NAME: update_asset
+#+BEGIN_SRC python
+@api.route('/assets', methods=['PUT'])
+def update_asset():
+    if request.method == 'PUT':
+        if request.is_json:
+            data_json = json.dumps(request.get_json())
+            data_dict = yaml.safe_load(data_json)
+        else:
+            abort(500, "the request does not contain data in json")
+
+        if 'path' in request.args:
+            data_dict['path']  = request.args['path']
+        else:
+            abort(500, "Please provide the 'path' to update the asset")
+        
+        try:
+            asset = SystemInterface.update_asset(data_dict)
+            return jsonify(asset)
+
+        except TypeError as err:
+            error_message = 'Malformed arguments, error: %s' % str(err)
+
+            return render_template('error.html', 
+                    data=error_message)
+
+        except Exception as err:
+            abort(500, 'error: %s' % str(err))
+
+#+END_SRC
+
+*** Test Cases
+**** TestUpdateAsset  
+ #+NAME: test_update_asset
+ #+BEGIN_SRC python
+class TestUpdateAsset(TestCase):
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_update_asset(self):
+        print "test_update_asset"
+
+        payload = {'asset_type': 'Image',
+                   'path': 'vlabs.ac.in/images/static/logo.png',
+                   'key': KEY}
+
+        payload1 = {'asset_type': 'Video',
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/assets", data=json.dumps(payload),
+                                 headers=headers)
+
+        response = self.client.put("/assets?path=vlabs.ac.in/images/static/logo.png", data=json.dumps(payload1),
+                                 headers=headers)
+
+        self.assertEqual(response.status_code, 200)
+
+ #+END_SRC
+   
+
+** Delete Asset
+*** API Design
+**** Delete asset by path
+  :PROPERTIES:
+  :CUSTOM_ID: api_delete_institute_by_inst_id
+  :END:    
+  - URL :: /assets?<path>&key=<key>
+
+  - Method :: DELETE
+
+  - URL Params ::  None
+
+  - Payload :: 
+
+  - Success Response
+    + Status_Code: 200
+      + Contents :
+#+BEGIN_EXAMPLE
+{
+  "status": "sucess"
+}
+
+#+END_EXAMPLE
+    
+  - Error Response:
+    + Contents :
+                {"status" : "error"}
+    
+  - Example:
+#+BEGIN_EXAMPLE
+    http://localhost:5000/assets?path=vlabs.ac.in/images&key=<key>
+#+END_EXAMPLE
+
+*** Implementation
+#+NAME: delete_asset
+#+BEGIN_SRC python
+@api.route('/assets', methods=['DELETE'])
+def delete_asset():
+    if request.method == 'DELETE':
+        if 'path' in request.args and 'key' in request.args:
+            path  = request.args['path']
+            key = request.args['key']
+
+            try:
+                asset = SystemInterface.delete_asset(path, key)
+                return jsonify({"status":"sucess"})
+
+            except TypeError as err:
+                error_message = 'Malformed arguments, error: %s' % str(err)
+
+                return render_template('error.html', data=error_message)
+
+            except Exception as err:
+                abort(500, 'error: %s' % str(err))
+
+#+END_SRC
+
+*** Test Cases
+**** TestDeleteAsset  
+ #+NAME: test_delete_asset
+ #+BEGIN_SRC python
+class TestDeleteAsset(TestCase):
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_delete_asset(self):
+        print "test_delete_asset"
+
+        payload = {'asset_type': 'Image',
+                   'path': 'vlabs.ac.in/images/static/logo.png',
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/assets", data=json.dumps(payload),
+                                 headers=headers)
+
+        response = self.client.delete("/assets?path=vlabs.ac.in/images/static/logo.png&key=defaultkey",
+                                          headers=headers)
+
+        self.assertEqual(response.status_code, 200)
+
+ #+END_SRC
+   
+
 
 * Infra                                                         :boilerplate:
 
@@ -2356,16 +6450,47 @@ if __name__ == '__main__':
 ** sources
 #+BEGIN_SRC python :tangle api.py :eval no :noweb yes
 <<imports_for_sources>>
-<<get_and_add_lab>>
-<<update_and_delete_lab>>
-<<get_and_add_experiment>>
-<<get_and_add_discipline>>
-<<update_and_delete_experiment>>
+<<get_lab>>
+<<add_lab>>
+<<update_lab>>
+<<delete_lab>>
+<<get_experiment>>
+<<add_experiment>>
+<<get_disciplines>>
+<<add_discipline>>
+<<update_experiment>>
+<<delete_experiment>>
 <<update_and_delete_section>>
-<<get_and_add_section>>
-<<update_and_delete_institute>>
-<<update_and_delete_discipline>>
-<<get_and_add_institute>>
+<<get_section>>
+<<add_section>>
+<<update_institute>>
+<<delete_institute>>
+<<update_discipline>>
+<<delete_discipline>>
+<<get_institute>>
+<<add_institute>>
+<<get_hostinginfo>>
+<<add_hostinginfo>>
+<<update_hostinginfo>>
+<<delete_hostinginfo>>
+<<get_integrationstatus>>
+<<add_integrationstatus>>
+<<delete_integrationstatus>>
+<<get_asset>>
+<<add_asset>>
+<<update_asset>>
+<<delete_asset>>
+<<delete_email>>
+<<get_email>>
+<<add_email>>
+<<get_name>>
+<<add_name>>
+<<delete_name>>
+<<get_developer>>
+<<add_developer>>
+<<delete_developer>>
+<<update_developer>>
+
 #+END_SRC
 
 
@@ -2377,7 +6502,11 @@ if __name__ == '__main__':
 <<test_delete_lab>>
 <<test_get_labs>>
 <<test_get_lab_by_labid>>
+<<test_get_labs_by_institute>>
+<<test_get_labs_by_lab_name>>
+<<test_get_labs_by_discipline>>
 <<test_get_exp_by_expid>>
+<<test_get_discipline_by_disid>>
 <<test_add_experiment>>
 <<test_add_discipline>>
 <<test_get_discipline>>
@@ -2389,11 +6518,36 @@ if __name__ == '__main__':
 <<test_delete_experiment>>
 <<test_get_Section>>
 <<test_add_section>>
+<<test_get_Name>>
+<<test_add_name>>
+<<test_update_name>>
+<<test_delete_name>>
+<<test_get_Email>>
+<<test_add_email>>
+<<test_update_email>>
+<<test_delete_email>>
+<<test_get_Developer>>
+<<test_add_developer>>
+<<test_update_developer>>
+<<test_delete_developer>>
 <<test_add_institute>>
 <<test_get_institute>>
 <<test_update_institute>>
 <<test_delete_institute>>
 <<test_delete_discipline>>
+<<test_get_HostingInfo>>
+<<test_add_hostinginfo>>
+<<test_update_hostinginfo>>
+<<test_delete_hostinginfo>>
+<<test_get_IntegrationStatus>>
+<<test_add_integrationstatus>>
+<<test_delete_integrationstatus>>
+<<test_get_asset>>
+<<test_add_asset>>
+<<test_update_asset>>
+<<test_delete_asset>>
+<<test_get_Developer>>
+<<test_add_developer>>
+<<test_delete_developer>>
 <<run_test_cases>>
 #+end_src
-

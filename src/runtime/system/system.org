@@ -65,7 +65,7 @@ The class corresponding to each operation has five fields:
        An exception thrown by this function indicates a
        serious failure in the application (e.g., out of
        memory error). 
-
+       
 
 * The =System= class
   There is only one =System= in the application.
@@ -175,7 +175,7 @@ class TestSystemConstructor(TestCase):
             System.type_check(args, arg_types)
 
   #+END_SRC
-
+  
     
 * =do= method 
    The =do= method is the main work-horse of =System= which is constructed as the
@@ -252,6 +252,7 @@ class AddLab():
 #+end_src
 
 
+
 ** =AddExperiment=
 #+NAME: class_add_experiment
 #+begin_src python
@@ -279,6 +280,7 @@ class AddExperiment():
         return experiment
 
 #+end_src
+
 
 
 ** =AddSection=
@@ -310,6 +312,7 @@ class AddSection():
 #+end_src
 
 
+
 ** =AddInstitute=
 #+NAME: class_add_institute
 #+begin_src python
@@ -337,6 +340,7 @@ class AddInstitute():
         return institute
 
 #+end_src
+
 
 
 ** =AddDiscipline=
@@ -368,6 +372,37 @@ class AddDiscipline():
 #+end_src
 
 
+
+** =AddHostingInfo=
+#+NAME: class_add_hostinginfo
+#+begin_src python
+class AddHostingInfo():
+    arg_types = {"hostinginfo": is_hostinginfo, "session": is_session}
+    arity_and_type_checks_needed = True
+
+    @staticmethod
+    def auth_check(args):
+        session = args['session']
+        if not System.is_session_valid(session):
+            raise NotAuthorizedError("Not Authorized to perform this action")
+
+    @staticmethod
+    def state_check(args):
+        hostinginfo = args["hostinginfo"]
+        if System.delegate.hostinginfo_exists(hostinginfo):
+            raise StateError("hostinginfo %s already exists in System"
+                                 % hostinginfo.to_client())
+
+    @staticmethod
+    def action(args):
+        hostinginfo = args["hostinginfo"]
+        hostinginfo = System.delegate.add_hostinginfo(hostinginfo)
+        return hostinginfo
+
+#+end_src
+
+
+
 ** =AddName=
 #+NAME: class_add_name
 #+begin_src python
@@ -395,6 +430,7 @@ class AddName():
         return name
 
 #+end_src
+
 
 
 ** =AddEmail=
@@ -426,11 +462,12 @@ class AddEmail():
 #+end_src
 
 
+
 ** =AddDeveloper=
 #+NAME: class_add_developer
 #+begin_src python
 class AddDeveloper():
-    arg_types = {"developer": is_developer, "name": is_name, "email": is_email, "session": is_session}
+    arg_types = {"developer": is_developer, "session": is_session}
     arity_and_type_checks_needed = True
 
     @staticmethod
@@ -455,6 +492,36 @@ class AddDeveloper():
 #+end_src
 
 
+** =AddIntegrationStatus=
+#+NAME: class_add_integrationstatus
+#+begin_src python
+class AddIntegrationStatus():
+    arg_types = {"integrationstatus": is_integrationstatus, "session": is_session}
+    arity_and_type_checks_needed = True
+
+    @staticmethod
+    def auth_check(args):
+        session = args['session']
+        if not System.is_session_valid(session):
+            raise NotAuthorizedError("Not Authorized to perform this action")
+
+    @staticmethod
+    def state_check(args):
+        integrationstatus = args["integrationstatus"]
+        if System.delegate.integrationstatus_exists(integrationstatus):
+            raise StateError("integrationstatus %s already exists in System"
+                                 % integrationstatus.to_client())
+
+    @staticmethod
+    def action(args):
+        integrationstatus = args["integrationstatus"]
+        integrationstatus = System.delegate.add_integrationstatus(integrationstatus)
+        return integrationstatus
+
+#+end_src
+
+
+
 
 ** =UpdateLab=
 #+NAME: class_update_lab
@@ -472,7 +539,10 @@ class UpdateLab():
 
     @staticmethod
     def state_check(args):
-        pass
+        lab = args["lab"]
+        if not System.delegate.lab_exists(lab):
+            raise StateError("lab %s does not exists in System"
+                                 % lab.to_client())
 
     @staticmethod
     def action(args):
@@ -483,6 +553,7 @@ class UpdateLab():
         return lab
 
 #+end_src
+
 
 
 ** =UpdateExperiment=
@@ -503,8 +574,11 @@ class UpdateExperiment():
 
     @staticmethod
     def state_check(args):
-        pass
-
+        experiment = args['experiment']
+        if not System.delegate.experiment_exists(experiment):
+            raise StateError("experiment %s does not exists in System"
+                                 % experiment.to_client())
+        
     @staticmethod
     def action(args):
         experiment = args["experiment"]
@@ -514,6 +588,7 @@ class UpdateExperiment():
         return exp
 
 #+end_src
+
 
 
 ** =UpdateSection=
@@ -532,8 +607,11 @@ class UpdateSection():
 
     @staticmethod
     def state_check(args):
-        pass
-
+        section = args['section']
+        if not System.delegate.section_exists(section):
+            raise StateError("section %s does not exists in System"
+                                 % section.to_client())
+        
     @staticmethod
     def action(args):
         section = args["section"]
@@ -546,6 +624,7 @@ class UpdateSection():
         return section
 
 #+end_src
+
 
 
 ** =UpdateDiscipline=
@@ -564,8 +643,11 @@ class UpdateDiscipline():
 
     @staticmethod
     def state_check(args):
-        pass
-
+        discipline = args['discipline']
+        if not System.delegate.discipline_exists(discipline):
+            raise StateError("discipline %s does not exists in System"
+                                 % discipline.to_client())
+        
     @staticmethod
     def action(args):
         discipline = args["discipline"]
@@ -574,6 +656,7 @@ class UpdateDiscipline():
         return dis
 
 #+end_src
+
 
 
 ** =UpdateInstitute=
@@ -592,7 +675,11 @@ class UpdateInstitute():
 
     @staticmethod
     def state_check(args):
-        pass
+        institute = args['institute']
+        if not System.delegate.institute_exists(institute):
+            raise StateError("institute %s does not exists in System"
+                                 % institute.to_client())
+
 
     @staticmethod
     def action(args):
@@ -604,11 +691,12 @@ class UpdateInstitute():
 #+end_src
 
 
+
 ** =UpdateName=
 #+NAME: class_update_name
 #+begin_src python
 class UpdateName():
-    arg_types = {"name": is_name}
+    arg_types = {"name": is_name, "session": is_session}
     arity_and_type_checks_needed = True
 
     @staticmethod
@@ -619,7 +707,10 @@ class UpdateName():
 
     @staticmethod
     def state_check(args):
-        pass
+        name = args['name']
+        if not System.delegate.name_exists(name):
+            raise StateError("name %s does not exists in System"
+                                 % name.to_client())
 
     @staticmethod
     def action(args):
@@ -635,11 +726,12 @@ class UpdateName():
 #+end_src
 
 
+
 ** =UpdateEmail=
 #+NAME: class_update_email
 #+begin_src python
 class UpdateEmail():
-    arg_types = {"email": is_email}
+    arg_types = {"email": is_email, "session": is_session}
     arity_and_type_checks_needed = True
 
     @staticmethod
@@ -650,7 +742,10 @@ class UpdateEmail():
 
     @staticmethod
     def state_check(args):
-        pass
+        email = args['email']
+        if not System.delegate.email_exists(email):
+            raise StateError("email %s does not exists in System"
+                                 % email.to_client())
 
     @staticmethod
     def action(args):
@@ -666,12 +761,13 @@ class UpdateEmail():
 #+end_src
 
 
+
 ** =UpdateDeveloper=
 #+NAME: class_update_developer
 #+begin_src python
 class UpdateDeveloper():
     arg_types = {"developer": is_developer, "name": is_name,
-                     "email": is_email}
+                     "session": is_session}
     arity_and_type_checks_needed = True
 
     @staticmethod
@@ -682,7 +778,10 @@ class UpdateDeveloper():
 
     @staticmethod
     def state_check(args):
-        pass
+        developer = args["developer"]
+        if not System.delegate.developer_exists(developer):
+            raise StateError("developer %s does not exists in System"
+                                 % developer.to_client())
 
     @staticmethod
     def action(args):
@@ -696,6 +795,36 @@ class UpdateDeveloper():
         return developer
 
 #+end_src
+
+
+** =UpdateHostingInfo=
+#+NAME: class_update_hostinginfo
+#+begin_src python
+class UpdateHostingInfo():
+    arg_types = {"hostinginfo": is_hostinginfo, "hosting_status": is_str_or_none, "hosted_on": is_str_or_none, "session": is_session}                               
+    arity_and_type_checks_needed = True
+
+    @staticmethod
+    def auth_check(args):
+        session = args['session']
+        if not System.is_session_valid(session):
+            raise NotAuthorizedError("Not Authorized to perform this action")
+
+    @staticmethod
+    def state_check(args):
+        pass
+
+
+    @staticmethod
+    def action(args):
+        hosting_status = args["hosting_status"]
+        hosted_on = args["hosted_on"]
+        hostinginfo = args["hostinginfo"]       
+        hostinginfo = System.delegate.update_hostinginfo(hostinginfo, hosting_status, hosted_on)
+        return hostinginfo
+
+#+end_src
+
 
 
 ** =DeleteLab=
@@ -713,7 +842,11 @@ class DeleteLab():
 
     @staticmethod
     def state_check(args):
-        pass
+        lab_id = args['lab_id']
+        lab = System.delegate.get_lab(lab_id=lab_id)
+        if not System.delegate.lab_exists(lab):
+            raise StateError("lab %s does not exists in System"
+                                 % lab.to_client())
 
     @staticmethod
     def action(args):
@@ -722,6 +855,7 @@ class DeleteLab():
         return lab_id
 
 #+end_src
+
 
 
 ** =DeleteExperiment=
@@ -739,7 +873,11 @@ class DeleteExperiment():
 
     @staticmethod
     def state_check(args):
-        pass
+        exp_id = args['exp_id']
+        experiment = System.delegate.get_experiment(exp_id=exp_id)
+        if not System.delegate.experiment_exists(experiment):
+            raise StateError("experiment %s does not exists in System"
+                                 % experiment.to_client())
 
     @staticmethod
     def action(args):
@@ -765,7 +903,11 @@ class DeleteDiscipline():
 
     @staticmethod
     def state_check(args):
-        pass
+        dis_id = args['dis_id']
+        discipline = System.delegate.get_discipline(dis_id=dis_id)    
+        if not System.delegate.discipline_exists(discipline):
+            raise StateError("discipline %s does not exists in System"
+                                 % discipline.to_client())
 
     @staticmethod
     def action(args):
@@ -774,6 +916,7 @@ class DeleteDiscipline():
         return dis_id
 
 #+end_src
+
 
 
 
@@ -792,7 +935,11 @@ class DeleteInstitute():
 
     @staticmethod
     def state_check(args):
-        pass
+        inst_id = args['inst_id']
+        institute = System.delegate.get_institute(inst_id=inst_id)    
+        if not System.delegate.institute_exists(institute):
+            raise StateError("institute %s does not exists in System"
+                                 % institute.to_client())
 
     @staticmethod
     def action(args):
@@ -801,6 +948,8 @@ class DeleteInstitute():
         return inst_id
         
 #+end_src
+
+
 
 
 ** =DeleteSection=
@@ -829,11 +978,12 @@ class DeleteSection():
 #+end_src
 
 
+
 ** =DeleteName=
 #+NAME: class_delete_name
 #+begin_src python
 class DeleteName():
-    arg_types = {"name_id": is_name}
+    arg_types = {"name": is_name, "session": is_session}
     arity_and_type_checks_needed = True
 
     @staticmethod
@@ -844,22 +994,26 @@ class DeleteName():
 
     @staticmethod
     def state_check(args):
-        pass
+        name = args['name']
+        if not System.delegate.name_exists(name):
+            raise StateError("name %s does not exists in System"
+                                 % name.to_client())
 
     @staticmethod
     def action(args):
-        name_id = args["name_id"]
-        name_id = System.delegate.delete_name(name_id)
-        return name_id
+        name = args["name"]
+        name1 = System.delegate.delete_name(name)
+        return name1
         
 #+end_src
+
 
 
 ** =DeleteEmail=
 #+NAME: class_delete_email
 #+begin_src python
 class DeleteEmail():
-    arg_types = {"email_id": is_email}
+    arg_types = {"email": is_email, "session": is_session}
     arity_and_type_checks_needed = True
 
     @staticmethod
@@ -870,22 +1024,26 @@ class DeleteEmail():
 
     @staticmethod
     def state_check(args):
-        pass
+        email = args['email']
+        if not System.delegate.email_exists(email):
+            raise StateError("email %s does not exists in System"
+                                 % email.to_client())
 
     @staticmethod
     def action(args):
-        email_id = args["email_id"]
-        email_id = System.delegate.delete_email(email_id)
-        return email_id
+        email = args["email"]
+        email = System.delegate.delete_email(email)
+        return email
         
 #+end_src
+
 
 
 ** =DeleteDeveloper=
 #+NAME: class_delete_developer
 #+begin_src python
 class DeleteDeveloper():
-    arg_types = {"developer_id": is_developer, "name": is_name, "email": is_email}
+    arg_types = {"email": is_email, "session": is_session}
     arity_and_type_checks_needed = True
 
     @staticmethod
@@ -900,33 +1058,95 @@ class DeleteDeveloper():
 
     @staticmethod
     def action(args):
-        developer_id = args["developer_id"]
-        developer_id = System.delegate.delete_developer(developer_id)
-        return developer_id
+        email = args["email"]
+        email = System.delegate.delete_developer(email)
+        return email
         
 #+end_src
+
+
+
+** =DeleteHostingInfo=
+#+NAME: class_delete_hostinginfo
+#+begin_src python
+class DeleteHostingInfo():
+    arg_types = {"hosted_url": is_url, "session": is_session}
+    arity_and_type_checks_needed = True
+
+    @staticmethod
+    def auth_check(args):
+        session = args['session']
+        if not System.is_session_valid(session):
+            raise NotAuthorizedError("Not Authorized to perform this action")
+
+    @staticmethod
+    def state_check(args):
+        hosted_url = args['hosted_url']
+        hostinginfo = System.delegate.get_hostinginfo(hosted_url=hosted_url)
+        if not System.delegate.hostinginfo_exists(hostinginfo):
+            raise StateError("hostinginfo %s does not exists in System"
+                                 % hostinginfo.to_client())
+
+    @staticmethod
+    def action(args):
+        hosted_url = args["hosted_url"]
+        hosted_url = System.delegate.delete_hostinginfo(hosted_url)
+        return hosted_url
+        
+#+end_src
+
+
+
+** =DeleteIntegrationStatus=
+#+NAME: class_delete_integrationstatus
+#+begin_src python
+class DeleteIntegrationStatus():
+    arg_types = {"integration_level": is_int, "session": is_session}
+    arity_and_type_checks_needed = True
+
+    @staticmethod
+    def auth_check(args):
+        session = args['session']
+        if not System.is_session_valid(session):
+            raise NotAuthorizedError("Not Authorized to perform this action")
+
+    @staticmethod
+    def state_check(args):
+        integration_level = args['integration_level']
+        integrationstatus = System.delegate.get_integrationstatus(integration_level=integration_level)    
+        if not System.delegate.integrationstatus_exists(integrationstatus):
+            raise StateError("integrationstatus %s does not exists in System"
+                                 % integrationstatus.to_client())
+
+    @staticmethod
+    def action(args):
+        integration_level = args["integration_level"]
+        integration_level = System.delegate.delete_integrationstatus(integration_level)
+        return integration_level
+        
+#+end_src
+
+
 
 
 ** =GetLab=
 #+NAME: class_get_lab
 #+begin_src python
 class GetLab():
-    arg_types = {"lab_id": is_str, "session": is_session}
-
+    arg_types = {"lab_id": is_str}
     arity_and_type_checks_needed = True
 
     @staticmethod
     def auth_check(args):
-        session = args['session']
-        current_app.logger.debug("checking authorization")
-        if not System.is_session_valid(session):
-            current_app.logger.debug("authorization is failed")
-            raise NotAuthorizedError("Not Authorized to perform this action")
-        current_app.logger.debug("authorization check is done")
+        pass
 
     @staticmethod
     def state_check(args):
-        pass
+        lab_id = args['lab_id']
+        lab = System.delegate.get_lab(lab_id=lab_id)
+        if not System.delegate.lab_exists(lab):
+            raise StateError("lab %s does not exists in System"
+                                 % lab.to_client())
 
     @staticmethod
     def action(args):
@@ -937,25 +1157,24 @@ class GetLab():
 #+end_src
 
 
+
 ** =GetExperiment=
 #+NAME: class_get_experiment
 #+begin_src python
 class GetExperiment():
-    arg_types = {"exp_id": is_str, "session": is_session}
+    arg_types = {"exp_id": is_str}
     arity_and_type_checks_needed = True
 
     @staticmethod
     def auth_check(args):
-        session = args['session']
-        current_app.logger.debug("checking authorization")
-        if not System.is_session_valid(session):
-            current_app.logger.debug("authorization is failed")
-            raise NotAuthorizedError("Not Authorized to perform this action")
-        current_app.logger.debug("authorization check is done")
-
+        pass
     @staticmethod
     def state_check(args):
-        pass
+        exp_id = args['exp_id']
+        exp = System.delegate.get_experiment(exp_id=exp_id)
+        if not System.delegate.experiment_exists(exp):
+            raise StateError("experiment %s does not exists in System"
+                                 % experiment.to_client())
 
     @staticmethod
     def action(args):
@@ -966,26 +1185,26 @@ class GetExperiment():
 #+end_src
 
 
+
 ** =GetInstitute=
 #+NAME: class_get_institute
 #+begin_src python
 class GetInstitute():
-    arg_types = {"inst_id": is_str, "session": is_session}
+    arg_types = {"inst_id": is_str}
     arity_and_type_checks_needed = True
 
     @staticmethod
     def auth_check(args):
-        session = args['session']
-        current_app.logger.debug("checking authorization")
-        if not System.is_session_valid(session):
-            current_app.logger.debug("authorization is failed")
-            raise NotAuthorizedError("Not Authorized to perform this action")
-        current_app.logger.debug("authorization check is done")
+        pass
 
     @staticmethod
     def state_check(args):
-        pass
-
+        inst_id = args['inst_id']
+        institute = System.delegate.get_institute(inst_id=inst_id)    
+        if not System.delegate.institute_exists(institute):
+            raise StateError("institute %s does not exists in System"
+                                 % institute.to_client())
+        
     @staticmethod
     def action(args):
         inst_id = args["inst_id"]
@@ -996,26 +1215,76 @@ class GetInstitute():
 
 
 
-** =GetDiscipline=
-#+NAME: class_get_discipline
+
+** =GetInstituteByInstituteName=
+#+NAME: class_get_institute_by_institute_name
 #+begin_src python
-class GetDiscipline():
-    arg_types = {"dis_id": is_str, "session": is_session}
+class GetInstituteByInstituteName():
+    arg_types = {"inst_name": is_str}
     arity_and_type_checks_needed = True
 
     @staticmethod
     def auth_check(args):
-        session = args['session']
-        current_app.logger.debug("checking authorization")
-        if not System.is_session_valid(session):
-            current_app.logger.debug("authorization is failed")
-            raise NotAuthorizedError("Not Authorized to perform this action")
-        current_app.logger.debug("authorization check is done")
+        pass
 
     @staticmethod
     def state_check(args):
         pass
 
+    @staticmethod
+    def action(args):
+        inst_name = args["inst_name"]
+        institute = System.delegate.get_institute(inst_name=inst_name)
+        return institute
+
+#+end_src
+
+
+
+
+** =GetDisciplineByDisciplineName=
+#+NAME: class_get_discipline_by_discipline_name
+#+begin_src python
+class GetDisciplineByDisciplineName():
+    arg_types = {"dis_name": is_str}
+    arity_and_type_checks_needed = True
+
+    @staticmethod
+    def auth_check(args):
+        pass
+
+    @staticmethod
+    def state_check(args):
+        pass
+
+    @staticmethod
+    def action(args):
+        dis_name = args["dis_name"]
+        discipline = System.delegate.get_discipline(dis_name=dis_name)
+        return discipline
+
+#+end_src
+
+
+** =GetDiscipline=
+#+NAME: class_get_discipline
+#+begin_src python
+class GetDiscipline():
+    arg_types = {"dis_id": is_str}
+    arity_and_type_checks_needed = True
+
+    @staticmethod
+    def auth_check(args):
+        pass
+
+    @staticmethod
+    def state_check(args):
+        dis_id = args['dis_id']
+        discipline = System.delegate.get_discipline(dis_id=dis_id)    
+        if not System.delegate.discipline_exists(discipline):
+            raise StateError("discipline %s does not exists in System"
+                                 % discipline.to_client())
+        
     @staticmethod
     def action(args):
         dis_id = args["dis_id"]
@@ -1024,6 +1293,107 @@ class GetDiscipline():
 
 #+end_src
 
+
+
+
+** =GetHostingInfo=
+#+NAME: class_get_hostinginfo
+#+begin_src python
+class GetHostingInfo():
+    arg_types = {"hosted_url": is_url}
+    arity_and_type_checks_needed = True
+
+    @staticmethod
+    def auth_check(args):
+        pass
+
+    @staticmethod
+    def state_check(args):
+        hosted_url = args['hosted_url']
+        hostinginfo = System.delegate.get_hostinginfo(hosted_url=hosted_url)
+        if not System.delegate.hostinginfo_exists(hostinginfo):
+            raise StateError("hostinginfo %s does not exists in System"
+                                 % hostinginfo.to_client())
+        
+    @staticmethod
+    def action(args):
+        hosted_url = args["hosted_url"]
+        hostinginfo = System.delegate.get_hostinginfo(hosted_url=hosted_url)
+        return hostinginfo
+
+#+end_src
+
+
+** =GetLabsByInstitute=
+#+NAME: class_get_labs_by_institute
+#+begin_src python
+class GetLabsByInstitute():
+    arg_types = {"institute": is_institute}
+    arity_and_type_checks_needed = True
+
+    @staticmethod
+    def auth_check(args):
+        pass
+
+    @staticmethod
+    def state_check(args):
+        pass
+
+    @staticmethod
+    def action(args):
+        institute = args['institute']
+        labs = System.delegate.get_labs(institute=institute)
+        return labs
+
+#+end_src
+
+
+** =GetLabsByLabName=
+#+NAME: class_get_labs_by_lab_name
+#+begin_src python
+class GetLabsByLabName():
+    arg_types = {"lab_name": is_str}
+    arity_and_type_checks_needed = True
+
+    @staticmethod
+    def auth_check(args):
+        pass
+
+    @staticmethod
+    def state_check(args):
+        pass
+
+    @staticmethod
+    def action(args):
+        lab_name = args['lab_name']
+        labs = System.delegate.get_labs(lab_name=lab_name)
+        return labs
+
+#+end_src
+
+
+** =GetLabsByDiscipline=
+#+NAME: class_get_labs_by_discipline
+#+begin_src python
+class GetLabsByDiscipline():
+    arg_types = {"discipline": is_discipline}
+    arity_and_type_checks_needed = True
+
+    @staticmethod
+    def auth_check(args):
+        pass
+
+    @staticmethod
+    def state_check(args):
+        pass
+
+    @staticmethod
+    def action(args):
+        discipline = args['discipline']
+        labs = System.delegate.get_labs(discipline=discipline)
+        return labs
+
+#+end_src
 
 
 ** =AddLabsToInstitute=
@@ -1063,9 +1433,6 @@ class AddLabsToInstitute():
             raise err
 
 #+end_src
-
-
->>>>>>> cfbf6b04c78ea3dc5c6b9832b77a32ee35cc8745
 
 
 ** =AddSectionsToExperiment=
@@ -1108,6 +1475,287 @@ class AddSectionsToExperiment():
 
 
 
+
+** =GetName=
+#+NAME: class_get_name
+#+begin_src python
+class GetName():
+    arg_types = {"name": is_name, "session": is_session}
+
+    arity_and_type_checks_needed = True
+
+    @staticmethod
+    def auth_check(args):
+        session = args['session']
+        current_app.logger.debug("checking authorization")
+        if not System.is_session_valid(session):
+            current_app.logger.debug("authorization is failed")
+            raise NotAuthorizedError("Not Authorized to perform this action")
+        current_app.logger.debug("authorization check is done")
+
+    @staticmethod
+    def state_check(args):
+        pass
+
+    @staticmethod
+    def action(args):
+        name = args["name"]
+        name1 = System.delegate.get_name(name=name.get("name"))
+        return name1
+
+#+end_src
+
+
+
+** =GetEmail=
+#+NAME: class_get_email
+#+begin_src python
+class GetEmail():
+    arg_types = {"email": is_email, "session": is_session}
+
+    arity_and_type_checks_needed = True
+
+    @staticmethod
+    def auth_check(args):
+        session = args['session']
+        current_app.logger.debug("checking authorization")
+        if not System.is_session_valid(session):
+            current_app.logger.debug("authorization is failed")
+            raise NotAuthorizedError("Not Authorized to perform this action")
+        current_app.logger.debug("authorization check is done")
+
+    @staticmethod
+    def state_check(args):
+        pass
+
+    @staticmethod
+    def action(args):
+        email = args["email"]
+        email1 = System.delegate.get_email(email=email.get("email"))
+        return email1
+
+#+end_src
+
+
+
+** =GetDeveloper=
+#+NAME: class_get_developer
+#+begin_src python
+class GetDeveloper():
+    arg_types = {"email": is_email}
+
+    arity_and_type_checks_needed = True
+
+    @staticmethod
+    def auth_check(args):
+        pass
+
+    @staticmethod
+    def state_check(args):
+        pass
+
+    @staticmethod
+    def action(args):
+        email = args["email"]
+        email = System.delegate.get_developer(email=email)
+        return email
+
+#+end_src
+
+
+
+** =GetIntegrationStatus=
+#+NAME: class_get_integrationstatus
+#+begin_src python
+class GetIntegrationStatus():
+    arg_types = {"integration_level": is_int}
+    arity_and_type_checks_needed = True
+
+    @staticmethod
+    def auth_check(args):
+        pass
+
+    @staticmethod
+    def state_check(args):
+        integration_level = args['integration_level']
+        integrationstatus = System.delegate.get_integrationstatus(integration_level=integration_level)    
+        if not System.delegate.integrationstatus_exists(integrationstatus):
+            raise StateError("integrationstatus %s does not exists in System"
+                                 % integrationstatus.to_client())
+        
+    @staticmethod
+    def action(args):
+        integration_level = args["integration_level"]
+        integrationstatus = System.delegate.get_integrationstatus(integration_level=integration_level)
+        return integrationstatus
+
+#+end_src
+
+
+
+
+** =AddAsset=
+#+NAME: class_add_asset
+#+begin_src python
+class AddAsset():
+    arg_types = {"asset": is_asset, "session": is_session}
+    arity_and_type_checks_needed = True
+
+    @staticmethod
+    def auth_check(args):
+        session = args['session']
+        if not System.is_session_valid(session):
+            raise NotAuthorizedError("Not Authorized to perform this action")
+
+    @staticmethod
+    def state_check(args):
+        asset = args["asset"]
+        if System.delegate.asset_exists(asset):
+            raise StateError("asset %s already exists in System"
+                                 % asset.to_client())
+
+    @staticmethod
+    def action(args):
+        asset = args["asset"]
+        asset = System.delegate.add_asset(asset)
+        return asset
+
+#+end_src
+
+
+
+** =UpdateAsset=
+#+NAME: class_update_asset
+#+begin_src python
+class UpdateAsset():
+    arg_types = {"asset_type": is_str_or_none,
+                     "asset": is_asset,
+                     "session": is_session}
+    arity_and_type_checks_needed = True
+
+    @staticmethod
+    def auth_check(args):
+        session = args['session']
+        if not System.is_session_valid(session):
+            raise NotAuthorizedError("Not Authorized to perform this action")
+
+    @staticmethod
+    def state_check(args):
+        asset = args['asset']
+        if not System.delegate.asset_exists(asset):
+            raise StateError("asset %s does not exists in System"
+                                 % asset.to_client())
+        
+    @staticmethod
+    def action(args):
+        asset = args["asset"]
+        asset_type=args["asset_type"]
+        asst = System.delegate.update_asset(asset,asset_type)
+        return asst
+
+#+end_src
+
+
+** =DeleteAsset=
+#+NAME: class_delete_asset
+#+begin_src python
+class DeleteAsset():
+    arg_types = {"path": is_str, "session": is_session}
+    arity_and_type_checks_needed = True
+
+    @staticmethod
+    def auth_check(args):
+        session = args['session']
+        if not System.is_session_valid(session):
+            raise NotAuthorizedError("Not Authorized to perform this action")
+
+    @staticmethod
+    def state_check(args):
+        path = args['path']
+        asset = System.delegate.get_asset(path=path)
+        if not System.delegate.asset_exists(asset):
+            raise StateError("asset %s does not exists in System"
+                                 % asset.to_client())
+
+    @staticmethod
+    def action(args):
+        path = args["path"]
+        path = System.delegate.delete_asset(path)
+        return path
+        
+#+end_src
+
+
+
+** =GetAsset=
+#+NAME: class_get_asset
+#+begin_src python
+class GetAsset():
+    arg_types = {"path": is_str}
+    arity_and_type_checks_needed = True
+
+    @staticmethod
+    def auth_check(args):
+        pass
+    @staticmethod
+    def state_check(args):
+        path = args['path']
+        asset = System.delegate.get_asset(path=path)
+        if not System.delegate.asset_exists(asset):
+            raise StateError("asset %s does not exists in System"
+                                 % asset.to_client())
+
+    @staticmethod
+    def action(args):
+        path = args["path"]
+        asset = System.delegate.get_asset(path=path)
+        return asset
+
+#+end_src
+
+
+
+** =AddAssetsToLab=
+#+NAME: class_add_assets_to_lab
+#+begin_src python
+class AddAssetsToLab():
+    arg_types = {"assets": are_assets, "lab": is_lab, 
+                     "session": is_session}
+    arity_and_type_checks_needed = True
+
+    @staticmethod
+    def auth_check(args):
+        session = args['session']
+        if not System.is_session_valid(session):
+            current_app.logger.error("auth error raised, session = %s" % 
+                                        session.to_client())
+            raise NotAuthorizedError("Not Authorized to perform this action")
+
+    @staticmethod
+    def state_check(args):
+        lab = args["lab"]
+        if not System.delegate.lab_exists(lab):
+            current_app.logger.error("lab %s does not exist"
+                                     " in System" % lab)
+            raise StateError("lab %s does not exist in System"
+                                 % lab.to_client())
+
+    @staticmethod
+    def action(args):
+        lab = args["lab"]
+        assets = args["assets"]
+        try:
+            lab = System.delegate.add_assets_to_lab(lab, assets) 
+            return lab
+        except Exception as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+
+#+end_src
+
+
+
+
 ** Operations Table
    Each operation has a corresponding implementation defined as a class.
 
@@ -1117,6 +1765,9 @@ ops_table = {'add_lab' : AddLab,
              'update_lab': UpdateLab,
              'delete_lab': DeleteLab,
              'get_lab': GetLab,
+             'get_labs_by_institute': GetLabsByInstitute,
+             'get_labs_by_discipline' : GetLabsByDiscipline,
+             'get_labs_by_lab_name': GetLabsByLabName, 
              'get_discipline': GetDiscipline,
              'add_experiment' : AddExperiment,
              'update_experiment' : UpdateExperiment,
@@ -1125,14 +1776,14 @@ ops_table = {'add_lab' : AddLab,
              'update_institute': UpdateInstitute,
              'delete_institute': DeleteInstitute,
              'get_institute' : GetInstitute,
+             'get_institute_by_institute_name' : GetInstituteByInstituteName,
+             'get_discipline_by_discipline_name' : GetDisciplineByDisciplineName,
              'add_section' : AddSection,
              'update_section' : UpdateSection,
              'delete_section' : DeleteSection,
              'add_name' : AddName,
              'add_email' : AddEmail,
              'add_developer' : AddDeveloper,
-             'update_name': UpdateName,
-             'update_email': UpdateEmail,
              'update_developer': UpdateDeveloper,
              'delete_name': DeleteName,
              'delete_email': DeleteEmail,
@@ -1141,7 +1792,22 @@ ops_table = {'add_lab' : AddLab,
              'get_experiment' : GetExperiment,
              'add_discipline' : AddDiscipline,
              'update_discipline' : UpdateDiscipline,
-             'delete_discipline' : DeleteDiscipline
+             'delete_discipline' : DeleteDiscipline,
+             'get_name': GetName,
+             'get_email': GetEmail,
+             'get_developer': GetDeveloper,
+             'add_hostinginfo' : AddHostingInfo,
+             'get_hostinginfo': GetHostingInfo,
+             'update_hostinginfo': UpdateHostingInfo,
+             'delete_hostinginfo': DeleteHostingInfo,
+             'add_integrationstatus' : AddIntegrationStatus,
+             'get_integrationstatus': GetIntegrationStatus,
+             'delete_integrationstatus': DeleteIntegrationStatus,
+             'add_asset':AddAsset,
+             'delete_asset': DeleteAsset,
+             'get_asset': GetAsset,
+             'update_asset': UpdateAsset,
+             'add_assets_to_lab': AddAssetsToLab
              }
 
  #+END_SRC   
@@ -1159,7 +1825,8 @@ from runtime.exceptions.custom_exceptions import *
 from runtime.objects.entities import is_str, is_lab, are_labs,\
      is_date, is_session, is_section, is_int, is_experiment,\
      are_experiments, are_sections, is_name, is_email, is_developer,\
-     is_institute, are_institutes, is_discipline, are_disciplines
+     is_institute, are_institutes, is_discipline, are_disciplines,\
+     is_url, is_hostinginfo, is_integrationstatus, is_asset, are_assets
 
 from runtime.utils.type_utils import is_str_or_none
 from runtime.config.system_config import KEY
@@ -1223,8 +1890,6 @@ if __name__ == '__main__':
 <<class_add_name>>
 <<class_add_email>>
 <<class_add_developer>>
-<<class_update_name>>
-<<class_update_email>>
 <<class_update_developer>>
 <<class_delete_name>>
 <<class_delete_email>>
@@ -1232,9 +1897,29 @@ if __name__ == '__main__':
 <<class_add_sections_to_experiment>>
 <<class_add_section>>
 <<class_get_lab>>
+<<class_get_name>>
+<<class_get_email>>
+<<class_get_developer>>
 <<class_get_experiment>>
 <<class_get_institute>>
 <<class_get_discipline>>
+<<class_get_institute_by_institute_name>>
+<<class_get_discipline_by_discipline_name>>
+<<class_add_hostinginfo>>
+<<class_get_hostinginfo>>
+<<class_update_hostinginfo>>
+<<class_delete_hostinginfo>>
+<<class_add_integrationstatus>>
+<<class_get_integrationstatus>>
+<<class_delete_integrationstatus>>
+<<class_get_labs_by_institute>>
+<<class_get_labs_by_lab_name>>
+<<class_get_labs_by_discipline>>
+<<class_add_asset>>
+<<class_get_asset>>
+<<class_update_asset>>
+<<class_delete_asset>>
+<<class_add_assets_to_lab>>
 <<ops_table>>
 
 #+end_src

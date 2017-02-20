@@ -10,7 +10,7 @@
   System Interface is the glue that between the =rest= and =system=.  The world
   of =rest= uses =json= and the world of =system= uses objects.  System
   Interface allows these two worlds to talk to each other. 
-
+  
   
 * The =SystemInterface= class
 ** Constructor
@@ -36,6 +36,7 @@ class SystemInterface ():
         session_cls = System.delegate.entities['session']
         lab_cls = System.delegate.entities['lab']
         exp_cls = System.delegate.entities['experiment']
+        email_cls = System.delegate.entities['email']
 
         session = session_cls(key=data_dict['key'])
         del(data_dict['key'])
@@ -43,29 +44,51 @@ class SystemInterface ():
 
         exp_list = []
         for e_id in experiments:
-            experiment = System.do("get_experiment", exp_id=e_id, 
-                                       session=session)
+            experiment = System.do("get_experiment", exp_id=e_id)
             exp_list.append(experiment)
 
         inst_id = data_dict['inst_id']
-        institute = System.do("get_institute", inst_id=inst_id, 
-                                       session=session)
+        institute = System.do("get_institute", inst_id=inst_id)
+
+        integration_level = data_dict['integration_level']
+        integrationstatus = System.do("get_integrationstatus", integration_level=integration_level)
 
         dis_id = data_dict['dis_id']
-        discipline = System.do("get_discipline", dis_id=dis_id, 
-                                       session=session)
+        discipline = System.do("get_discipline", dis_id=dis_id)
+
+        assets = data_dict['assets']
+        asset_list = []
+        for asset in assets:
+            asset = System.do("get_asset", path=asset)
+            asset_list.append(asset)
+
+        developers = data_dict['developers']
+        developer_list = []
+        for d_id in developers:
+            email = email_cls(email=d_id)
+            developer = System.do("get_developer", email=email)
+            developer_list.append(developer)
+
+        hosted_url = data_dict['hosted_url']
+        hostinginfo = System.do("get_hostinginfo", hosted_url=hosted_url)
 
         lab = lab_cls(lab_name=data_dict['lab_name'],
                                 lab_id=data_dict['lab_id'],
                                 overview=data_dict['overview'],
                                 institute=institute,
+                                integrationstatus=integrationstatus,
                                 discipline=discipline,
-                                experiments=exp_list)
+                                assets=asset_list,
+                                experiments=exp_list,
+                                developers=developer_list,
+                                hostinginfo=hostinginfo)
+
         try:
             current_app.logger.debug("running operation add_lab")
             lab = System.do("add_lab", lab=lab, session=session)
             current_app.logger.debug("completed operation add_lab")
             return lab.to_client()
+
         except (ArityError, TypeError, NotAuthorizedError, StateError) as err:
             current_app.logger.error("Exception = %s" % str(err))
             raise err
@@ -96,14 +119,21 @@ class TestAddLab(TestCase):
         print "test_add_lab_in_system_interface"
 
         data_dict = {
-                    'key' : KEY,
+                    'key': KEY,
                     'exp_name': 'arrays',
                     'exp_id': 'exp123',
-                    'overview' : 'overview', 
-                    'sections' : []
+                    'overview': 'overview', 
+                    'sections': []
                    }
 
         experiment = SystemInterface.add_experiment(data_dict)
+
+        data_dict = {
+                    'key' : KEY,
+                    'integration_level': 4
+                    }
+
+        integrationstatus = SystemInterface.add_integrationstatus(data_dict)
 
         data_dict = {
                     'key' : KEY,
@@ -121,13 +151,42 @@ class TestAddLab(TestCase):
 
         discipline = SystemInterface.add_discipline(data_dict)
 
+        data_dict = {
+                    'key' : KEY,
+                    'asset_type': 'Image',
+                    'path': 'vlabs.ac.in/images/static/logo.png'
+                   }
+
+        asset = SystemInterface.add_asset(data_dict)
+
+        data_dict = {
+                    'key' : KEY,
+                    'name': 'Prof. Dharamaja',
+                    'email': 'abc@gmail.com'
+                   }
+
+        developer = SystemInterface.add_developer(data_dict)
+        
+        data_dict = {
+                    'key' : KEY,
+                    'hosting_status': 'hosted',
+                    'hosted_url': 'http://cse14-iiith.vlabs.ac.in',
+                    'hosted_on': 'cloud'
+                   }
+
+        hostinginfo = SystemInterface.add_hostinginfo(data_dict)
+
         data_dict = {'lab_name': 'data structure',
                     'lab_id': 'cse02',
-                    'overview' : 'overview',
-                    'key' : KEY,
+                    'overview': 'overview',
+                    'key': KEY,
                     'inst_id': 'IITK',
                     'dis_id': 'CSE',
-                    'experiments': ['exp123']
+                    'assets': ['vlabs.ac.in/images/static/logo.png'],
+                    'integration_level': 4,
+                    'experiments': ['exp123'],
+                    'developers': ['abc@gmail.com'],
+                    'hosted_url': 'http://cse14-iiith.vlabs.ac.in'
                    }
 
         lab = SystemInterface.add_lab(data_dict)
@@ -138,24 +197,37 @@ class TestAddLab(TestCase):
         self.assertEqual(lab.get("lab_id"), data_dict['lab_id'])
         self.assertEqual(lab.get("institute").get("inst_id"),
                              data_dict['inst_id'])
+        self.assertEqual(lab.get("integrationstatus").get("integration_level"),
+                             data_dict['integration_level'])
         self.assertEqual(lab.get("discipline").get("dis_id"),
                              data_dict['dis_id'])
+        self.assertEqual(lab.get("assets")[0].get("path"), 
+                             'vlabs.ac.in/images/static/logo.png'), 
+        self.assertEqual(lab.get("hostinginfo").get("hosted_url"),
+                             data_dict['hosted_url'])
         self.assertEqual(lab.get("experiments")[0].get("exp_name"), 'arrays')
         self.assertEqual(lab.get("experiments")[0].get("exp_id"), 'exp123')
-
+        self.assertEqual(lab.get("developers")[0].get("email").get("email"), 'abc@gmail.com')
 
     def test_add_lab_raises_type_error_in_system_interface(self):
         print "test_add_lab_raises_type_error_in_system_interface"
 
         data_dict = {
-                    'key' : KEY,
+                    'key': KEY,
                     'exp_name': 'arrays',
                     'exp_id': 'exp123',
-                    'overview' : 'overview', 
-                    'sections' : []
+                    'overview': 'overview', 
+                    'sections': []
                    }
 
         experiment = SystemInterface.add_experiment(data_dict)
+
+        data_dict = {
+                    'key' : KEY,
+                    'integration_level': 4
+                    }
+
+        integrationstatus = SystemInterface.add_integrationstatus(data_dict)
 
         data_dict = {
                     'key' : KEY,
@@ -173,19 +245,49 @@ class TestAddLab(TestCase):
 
         discipline = SystemInterface.add_discipline(data_dict)
 
+        data_dict = {
+                    'key' : KEY,
+                    'asset_type': 'Image',
+                    'path': 'vlabs.ac.in/images/static/logo.png'
+                   }
+
+        asset = SystemInterface.add_asset(data_dict)
+
+        data_dict = {
+                    'key' : KEY,
+                    'name': 'Prof. Dharamaja',
+                    'email': 'abc@gmail.com'
+                   }
+
+        developer = SystemInterface.add_developer(data_dict)
+
+        data_dict = {
+                    'hosting_status': 'hosted',
+                    'hosted_url': 'http://cse14-iiith.vlabs.ac.in',
+                    'hosted_on': 'cloud',
+                    'key' : KEY
+                   }
+
+        hostinginfo = SystemInterface.add_hostinginfo(data_dict)
+
         data_dict = {'lab_name': 'data structure',
                     'lab_id': 123,
-                    'overview' : 'overview',
-                    'key' : KEY,
+                    'overview': 'overview',
+                    'key': KEY,
                     'inst_id': 'IITK',
                     'dis_id': 'CSE',
-                    'experiments': ['exp123']
-                   }
+                    'assets': ['vlabs.ac.in/images/static/logo.png'],
+                    'experiments': ['exp123'],
+                    'integration_level': 4,
+                    'developers': ['abc@gmail.com'],
+                    'hosted_url': 'http://cse14-iiith.vlabs.ac.in'
+                    }
 
         with self.assertRaises(TypeError):
             SystemInterface.add_lab(data_dict)
 
  #+END_SRC
+
 
 ** Add Experiment
 #+NAME: class_add_experiment
@@ -264,8 +366,8 @@ class TestAddExperiment(TestCase):
                     'key' : KEY,
                     'exp_name': 'array',
                     'exp_id': 'cse02',
-                    'overview' : 'overview', 
-                    'sections' : ["Introduction", "Quize"]
+                    'overview': 'overview', 
+                    'sections': ["Introduction", "Quize"]
                    }
 
         experiment = SystemInterface.add_experiment(data_dict)
@@ -278,15 +380,16 @@ class TestAddExperiment(TestCase):
         print "test_add_experiment_raises_type_error_in_system_interface"
 
         data_dict = {
-                    'key' : KEY,
+                    'key': KEY,
                     'exp_name': 'cse02',
-                    'overview' : 'overview',
+                    'overview': 'overview',
                     'exp_id': 123,
                     'sections': ["Theory", "Procedure"]
 		    }
         with self.assertRaises(TypeError):
             SystemInterface.add_experiment(data_dict)
  #+END_SRC
+
 
 ** Add Institute
 #+NAME: class_add_institute
@@ -352,6 +455,8 @@ class TestAddInstitute(TestCase):
         
 
  #+END_SRC
+
+
 ** Add Discipline
 #+NAME: class_add_discipline
 #+begin_src python
@@ -425,6 +530,7 @@ class TestAddDiscipline(TestCase):
 
  #+END_SRC
 
+
 ** Add Section
 #+NAME: class_add_section
 #+begin_src python
@@ -491,6 +597,407 @@ class TestAddSection(TestCase):
  #+END_SRC
 
 
+** Add HostingInfo
+#+NAME: class_add_hostinginfo
+#+begin_src python
+    @staticmethod
+    def add_hostinginfo(data_dict):
+        session_cls = System.delegate.entities['session']       
+        hostinginfo_cls = System.delegate.entities['hostinginfo']
+
+        session = session_cls(key=data_dict['key'])
+        del(data_dict['key'])
+
+        hostinginfo = hostinginfo_cls(hosting_status=str(data_dict['hosting_status']),
+                                  hosted_url=str(data_dict['hosted_url']),
+                                  hosted_on=str(data_dict['hosted_on']))
+
+        try:
+            current_app.logger.debug("running operation add_hostinginfo")
+            hostinginfo = System.do("add_hostinginfo", hostinginfo=hostinginfo,
+                                    session=session)
+            current_app.logger.debug("completed operation add_hostinginfo")
+            return hostinginfo.to_client()
+
+        except (ArityError, TypeError, NotAuthorizedError, StateError) as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+
+        except Exception as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+
+#+END_SRC
+*** TestAddHostingInfo
+ #+NAME: test_class_add_hostinginfo
+ #+BEGIN_SRC python
+class TestAddHostingInfo(TestCase):
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_add_hostinginfo_in_system_interface(self):
+        print "test_add_hostinginfo_in_system_interface"
+
+        data_dict = {
+                    'key' : KEY,
+                    'hosting_status': 'hosted',
+                    'hosted_url': 'http://cse14-iiith.vlabs.ac.in',
+                    'hosted_on': 'cloud'
+                    }
+
+        hostinginfo = SystemInterface.add_hostinginfo(data_dict)
+        hostinginfo_cls = System.delegate.entities['hostinginfo']
+        hostinginfo = hostinginfo_cls.get_all()[0]
+
+        self.assertEqual(hostinginfo.get("hosting_status"),
+                             data_dict['hosting_status'])
+        self.assertEqual(hostinginfo.get("hosted_url"), data_dict['hosted_url'])
+        self.assertEqual(hostinginfo.get("hosted_on"), data_dict['hosted_on'])
+
+ #+END_SRC
+
+
+** Add Name
+#+NAME: class_add_name
+#+begin_src python
+    @staticmethod
+    def add_name(data_dict):
+        session_cls = System.delegate.entities['session']
+        name_cls = System.delegate.entities['name']
+
+        session = session_cls(key=data_dict['key'])
+        name = name_cls(name=str(data_dict['name']))
+        try:
+            current_app.logger.debug("running operation add_section")
+            question = System.do("add_name", name=name, session=session)
+            current_app.logger.debug("completed operation add_name")
+            return name.to_client()
+        except (ArityError, TypeError, NotAuthorizedError, StateError) as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+
+        except Exception as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+
+#+end_src
+
+*** TestAddName
+ #+NAME: test_class_add_name
+ #+BEGIN_SRC python
+class TestAddName(TestCase):
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_add_name_in_system_interface(self):
+        print "test_add_name_in_system_interface"
+
+        data_dict = {
+                    'key': KEY,
+                    'name' : 'Prof. S. Dharmaraja'
+                   }
+
+        name = SystemInterface.add_name(data_dict)
+
+        self.assertEqual(name.get("name"), 
+                             data_dict['name'])
+        
+    def test_add_name_raises_type_error_in_system_interface(self):
+        print "test_add_name_raises_type_error_in_system_interface"
+
+        data_dict = {
+                    'key': KEY,
+                    'name' : 123
+		    }
+        with self.assertRaises(TypeError):
+            SystemInterface.add_name(data_dict)
+ #+END_SRC
+ 
+
+** Add Email
+#+NAME: class_add_email
+#+begin_src python
+    @staticmethod
+    def add_email(data_dict):
+        session_cls = System.delegate.entities['session']
+        email_cls = System.delegate.entities['email']
+
+        session = session_cls(key=data_dict['key'])
+        email = email_cls(email=str(data_dict['email']))
+        try:
+            current_app.logger.debug("running operation add_email")
+            question = System.do("add_email", email=email, session=session)
+            current_app.logger.debug("completed operation add_email")
+            return email.to_client()
+        except (ArityError, TypeError, NotAuthorizedError, StateError) as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+
+        except Exception as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+
+#+end_src
+
+*** TestAddEmail
+ #+NAME: test_class_add_email
+ #+BEGIN_SRC python
+class TestAddEmail(TestCase):
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_add_email_in_system_interface(self):
+        print "test_add_email_in_system_interface"
+
+        data_dict = {
+                    'key': KEY,
+                    'email' : 'dharmar@maths.iitd.ac.in'
+                   }
+
+        email = SystemInterface.add_email(data_dict)
+
+        self.assertEqual(email.get("email"), 
+                             data_dict['email'])
+        
+    def test_add_email_raises_type_error_in_system_interface(self):
+        print "test_add_email_raises_type_error_in_system_interface"
+
+        data_dict = {
+                    'key': KEY,
+                    'email' : 123
+		    }
+        with self.assertRaises(TypeError):
+            SystemInterface.add_email(data_dict)
+ #+END_SRC
+
+#** Get Emails
+#+NAME: class_get_emails
+#+begin_src python
+    @staticmethod
+    def get_emails():
+        email_cls = System.delegate.entities['email']
+        try:
+            current_app.logger.debug("getting emails")
+            emails = email_cls.get_all()
+            email_dict_list = []
+            for email in emails:
+                email_x = email.to_client()
+                email_dict_list.append(email_x)
+            current_app.logger.debug("got emails")
+            return  email_dict_list
+
+        except (ArityError, TypeError, NotAuthorizedError, StateError) as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+
+        except Exception as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+#+end_src
+
+#*** TestGetEmails
+ #+NAME: test_class_get_emails
+ #+BEGIN_SRC python
+class TestGetEmails(TestCase):
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_get_emails_in_system_interface(self):
+        print "test_get_emails_in_system_interface"
+
+        data_dict = {'email': 'dharamaraj@gmail.com',
+                     'key': KEY
+                    }
+
+        data_dict1 = {'email': 'raja@gmail.com',
+                      'key': KEY
+                     }
+
+        email1 = SystemInterface.add_email(data_dict)
+        email2 = SystemInterface.add_email(data_dict1)
+
+        emails_list = SystemInterface.get_emails()
+        
+        self.assertEqual(emails_list[0].get("email"), data_dict['email'])
+        self.assertEqual(emails_list[1].get("email"), data_dict1['email'])
+
+ #+END_SRC
+
+
+** Add Developer
+#+NAME: class_add_developer
+#+begin_src python
+    @staticmethod
+    def add_developer(data_dict):
+        session_cls = System.delegate.entities['session']
+        name_cls = System.delegate.entities['name']
+        email_cls = System.delegate.entities['email']
+        developer_cls = System.delegate.entities['developer']
+
+        session = session_cls(key=data_dict['key'])
+        name = name_cls(name=str(data_dict['name']))
+        email = email_cls(email=str(data_dict['email']))
+
+        developer = developer_cls(name=name, email=email)
+
+        try:
+            current_app.logger.debug("running operation add_developer")
+            developer = System.do("add_developer", developer=developer,
+                                    session=session)
+            current_app.logger.debug("completed operation add_developer")
+
+            return developer
+        except (ArityError, TypeError, NotAuthorizedError, StateError) as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+
+        except Exception as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+
+#+end_src
+  
+
+*** TestAddDeveloper
+ #+NAME: test_class_add_developer
+ #+BEGIN_SRC python
+class TestAddDeveloper(TestCase):
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_add_developer_in_system_interface(self):
+        print "test_add_developer_in_system_interface"
+
+        data_dict = {
+                    'key': KEY,
+                    'name': 'Prof. S. Dharmaraja',
+                    'email': 'dharmar@maths.iitd.ac.in'
+                   }
+
+        developer = SystemInterface.add_developer(data_dict)
+
+        self.assertEqual(developer.get("name").get("name"),
+                             data_dict['name'])
+        self.assertEqual(developer.get("email").get("email"),
+                             data_dict['email'])
+
+    def test_add_developer_raises_type_error_in_system_interface(self):
+        print "test_add_developer_raises_type_error_in_system_interface"
+
+        data_dict = {
+                    'key': KEY,
+                    'name': 'Prof. S. Dharmaraja',
+                    'email': 123456
+		    }
+
+        with self.assertRaises(TypeError):
+            SystemInterface.add_developer(data_dict)
+ #+END_SRC
+
+
+** Add IntegrationStatus
+#+NAME: class_add_integrationstatus
+#+begin_src python
+    @staticmethod
+    def add_integrationstatus(data_dict):
+        session_cls = System.delegate.entities['session']       
+        integrationstatus_cls = System.delegate.entities['integrationstatus']
+
+        session = session_cls(key=data_dict['key'])
+        del(data_dict['key'])
+
+        integrationstatus = integrationstatus_cls(integration_level=data_dict['integration_level'])
+
+        try:
+            current_app.logger.debug("running operation add_integrationstatus")
+            integrationstatus = System.do("add_integrationstatus", integrationstatus=integrationstatus,
+                                    session=session)
+            current_app.logger.debug("completed operation add_integrationstatus")
+            return integrationstatus.to_client()
+
+        except (ArityError, TypeError, NotAuthorizedError, StateError) as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+
+        except Exception as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+
+#+END_SRC
+*** TestAddIntegrationStatus
+ #+NAME: test_class_add_integrationstatus
+ #+BEGIN_SRC python
+class TestAddIntegrationStatus(TestCase):
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_add_integrationstatus_in_system_interface(self):
+        print "test_add_integrationstatus_in_system_interface"
+
+        data_dict = {
+                    'key' : KEY,
+                    'integration_level': 4
+                    }
+
+        integrationstatus = SystemInterface.add_integrationstatus(data_dict)
+        integrationstatus_cls = System.delegate.entities['integrationstatus']
+        integrationstatus = integrationstatus_cls.get_all()[0]
+
+        self.assertEqual(integrationstatus.get("integration_level"), 
+                             data_dict['integration_level'])
+
+ #+END_SRC
+
+
 ** Get Labs
 #+NAME: class_get_labs
 #+begin_src python
@@ -536,14 +1043,21 @@ class TestGetLabs(TestCase):
         print "test_get_labs_in_system_interface"
 
         data_dict = {
-                    'key' : KEY,
+                    'key': KEY,
                     'exp_name': 'arrays',
                     'exp_id': 'exp123',
-                    'overview' : 'overview', 
-                    'sections' : []
+                    'overview': 'overview', 
+                    'sections': []
                    }
 
         experiment = SystemInterface.add_experiment(data_dict)
+
+        data_dict = {
+                    'key' : KEY,
+                    'integration_level': 4
+                    }
+
+        integrationstatus = SystemInterface.add_integrationstatus(data_dict)
 
         data_dict = {
                     'key' : KEY,
@@ -561,23 +1075,65 @@ class TestGetLabs(TestCase):
 
         discipline = SystemInterface.add_discipline(data_dict)
 
+        data_dict = {
+                    'key' : KEY,
+                    'asset_type': 'Image',
+                    'path': 'vlabs.ac.in/images/static/logo.png'
+                    }
+
+        asset1 = SystemInterface.add_asset(data_dict)
+
+        data_dict = {
+                    'key' : KEY,
+                    'asset_type': 'Image',
+                    'path': 'vlabs.ac.in/images/static/icon.png',
+                    }
+
+        asset2 = SystemInterface.add_asset(data_dict)
+
+        data_dict = {
+                    'key' : KEY,
+                    'name': 'Prof. Dharamaja',
+                    'email': 'abc@gmail.com'
+                   }
+
+        developer = SystemInterface.add_developer(data_dict)
+
+        data_dict = {
+                    'key' : KEY,
+                    'hosting_status': 'hosted',
+                    'hosted_url': 'http://cse14-iiith.vlabs.ac.in',
+                    'hosted_on': 'cloud'
+                   }
+
+        hostinginfo = SystemInterface.add_hostinginfo(data_dict)
+
         data_dict = {'lab_name': 'data structure',
                     'lab_id': 'cse01',
-                    'key' : KEY,
-                    'overview' : 'overview',
+                    'key': KEY,
+                    'overview': 'overview',
                     'inst_id': 'IITK',
                     'dis_id': 'CSE',
-                    'experiments': ['exp123']
+                    'assets': ['vlabs.ac.in/images/static/logo.png'],
+                    'experiments': ['exp123'],
+                    'integration_level': 4,
+                    'developers': ['abc@gmail.com'],
+                    'hosted_url': 'http://cse14-iiith.vlabs.ac.in'
                    }
 
         data_dict1 = {'lab_name': "Automata",
-            'lab_id': 'DFA',
-            'key' : KEY,
-            'overview' : 'overview',
-            'inst_id': 'IITK',
-            'dis_id': 'CSE',
-            'experiments': ['exp123']
-           }
+                      'lab_id': 'DFA',
+                      'key': KEY,
+                      'overview': 'overview',
+                      'inst_id': 'IITK',
+                      'dis_id': 'CSE',
+                      'assets': ['vlabs.ac.in/images/static/icon.png'],
+                      'experiments': ['exp123'], 
+                      'integration_level': 4,
+                      'developers': ['abc@gmail.com'],
+                      'hosted_url': 'http://cse14-iiith.vlabs.ac.in'
+                      }
+
 
         lab1 = SystemInterface.add_lab(data_dict)
         lab2 = SystemInterface.add_lab(data_dict1)
@@ -593,6 +1149,674 @@ class TestGetLabs(TestCase):
 
  #+END_SRC
 
+
+** Get Labs by Institute
+#+NAME: class_get_labs_by_institute
+#+begin_src python
+    @staticmethod
+    def get_labs_by_institute(inst_name):
+        institute = System.do("get_institute_by_institute_name",
+                                  inst_name=str(inst_name))
+        try:
+            current_app.logger.debug("running operation get_labs_by_institute")
+            labs = System.do("get_labs_by_institute", institute=institute)
+            current_app.logger.debug("completed operation get_labs_by_institute")
+            labs_dict_list = []
+            for lab in labs:
+                lab_x = lab.to_client()
+                labs_dict_list.append(lab_x)
+            current_app.logger.debug("got labs")
+            return  labs_dict_list
+
+        except (ArityError, TypeError, NotAuthorizedError, StateError) as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+
+        except Exception as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+#+end_src
+
+*** TestGetLabsByInstitute
+ #+NAME: test_class_get_labs_by_institute
+ #+BEGIN_SRC python
+class TestGetLabsByInstitute(TestCase):
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_get_labs_by_institute_in_system_interface(self):
+        print "test_get_labs_by_institute_in_system_interface"
+
+        data_dict = {
+                    'key': KEY,
+                    'exp_name': 'arrays',
+                    'exp_id': 'exp123',
+                    'overview': 'overview', 
+                    'sections': []
+                   }
+
+        experiment = SystemInterface.add_experiment(data_dict)
+
+        data_dict = {
+                    'key' : KEY,
+                    'integration_level': 4
+                    }
+
+        integrationstatus = SystemInterface.add_integrationstatus(data_dict)
+
+        data_dict = {
+                    'key' : KEY,
+                    'inst_name': 'IIT Kanpur',
+                    'inst_id': 'IITK'
+                    }
+
+        institute = SystemInterface.add_institute(data_dict)
+
+        data_dict = {
+                    'key' : KEY,
+                    'dis_name': 'computer science',
+                    'dis_id': 'CSE'
+                   }
+
+        discipline = SystemInterface.add_discipline(data_dict)
+
+        data_dict = {
+                    'key' : KEY,
+                    'asset_type': 'Image',
+                    'path': 'vlabs.ac.in/images/static/logo.png'
+                   }
+
+        asset1 = SystemInterface.add_asset(data_dict)
+
+        data_dict = {
+                    'key' : KEY,
+                    'asset_type': 'Image',
+                    'path': 'vlabs.ac.in/images/static/icon.png',
+                    }
+
+        asset2 = SystemInterface.add_asset(data_dict)
+
+        data_dict = {
+                    'key': KEY,
+                    'name': 'Prof. Dharamaja',
+                    'email': 'abc@gmail.com'
+                   }
+
+        developer = SystemInterface.add_developer(data_dict)
+
+        data_dict = {
+                    'key' : KEY,
+                    'hosting_status': 'hosted',
+                    'hosted_url': 'http://cse14-iiith.vlabs.ac.in',
+                    'hosted_on': 'cloud'
+                   }
+
+        hostinginfo = SystemInterface.add_hostinginfo(data_dict)
+
+        data_dict = {
+                    'key' : KEY,
+                    'lab_name': 'Data Structures',
+                    'lab_id': 'cse01',
+                    'overview': 'overview',
+                    'inst_id': 'IITK',
+                    'dis_id': 'CSE',
+                    'assets': ['vlabs.ac.in/images/static/logo.png'],
+                    'experiments': ['exp123'], 
+                    'integration_level': 4,
+                    'developers': ['abc@gmail.com'],
+                    'hosted_url': 'http://cse14-iiith.vlabs.ac.in'
+                   }
+
+        data_dict1 = {
+                    'key': KEY,
+                    'lab_name': 'Computer Programming',
+                    'lab_id': 'cse02',
+                    'overview': 'overview',
+                    'inst_id': 'IITK',
+                    'dis_id': 'CSE',
+                    'assets': ['vlabs.ac.in/images/static/icon.png'],
+                    'experiments': ['exp123'], 
+                    'integration_level': 4,
+                    'developers': ['abc@gmail.com'],
+                    'hosted_url': 'http://cse14-iiith.vlabs.ac.in'
+                   }
+
+        lab = SystemInterface.add_lab(data_dict)
+        lab1 = SystemInterface.add_lab(data_dict1)
+
+        labs = SystemInterface.get_labs_by_institute("IIT Kanpur")
+
+        self.assertEqual(labs[0]['institute']['inst_name'], "IIT Kanpur")
+
+ #+END_SRC
+
+** Get Labs by Discipline
+#+NAME: class_get_labs_by_discipline
+#+begin_src python
+    @staticmethod
+    def get_labs_by_discipline(dis_name):
+        discipline = System.do("get_discipline_by_discipline_name",
+                                  dis_name=str(dis_name))
+        try:
+            current_app.logger.debug("running operation get_labs_by_discipline")
+            labs = System.do("get_labs_by_discipline", discipline=discipline)
+            current_app.logger.debug("completed operation get_labs_by_institute")
+            labs_dict_list = []
+            for lab in labs:
+                lab_x = lab.to_client()
+                labs_dict_list.append(lab_x)
+            current_app.logger.debug("got labs")
+            return  labs_dict_list
+
+        except (ArityError, TypeError, NotAuthorizedError, StateError) as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+
+        except Exception as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+#+end_src
+
+*** TestGetLabsByDiscipline
+ #+NAME: test_class_get_labs_by_discipline
+ #+BEGIN_SRC python
+class TestGetLabsByDiscipline(TestCase):
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_get_labs_by_discipline_in_system_interface(self):
+        print "test_get_labs_by_discipline_in_system_interface"
+
+        data_dict = {
+                    'key' : KEY,
+                    'exp_name': 'arrays',
+                    'exp_id': 'exp123',
+                    'overview': 'overview', 
+                    'sections' : []
+                   }
+
+        experiment = SystemInterface.add_experiment(data_dict)
+
+        data_dict = {
+                    'key' : KEY,
+                    'integration_level': 4
+                    }
+
+        integrationstatus = SystemInterface.add_integrationstatus(data_dict)
+
+        data_dict = {
+                    'key' : KEY,
+                    'inst_name': 'IIT Kanpur',
+                    'inst_id': 'IITK'
+                    }
+
+        institute = SystemInterface.add_institute(data_dict)
+
+        data_dict = {
+                    'key' : KEY,
+                    'dis_name': 'Computer Science',
+                    'dis_id': 'CSE'
+                   }
+
+        discipline = SystemInterface.add_discipline(data_dict)
+
+        data_dict = {
+                    'key' : KEY,
+                    'asset_type': 'Image',
+                    'path': 'vlabs.ac.in/images/static/logo.png'
+                   }
+
+        asset1 = SystemInterface.add_asset(data_dict)
+
+        data_dict = {
+                    'key' : KEY,
+                    'asset_type': 'Image',
+                    'path': 'vlabs.ac.in/images/static/icon.png'
+                   }
+
+        asset2 = SystemInterface.add_asset(data_dict)
+
+        data_dict = {
+                    'key': KEY,
+                    'name': 'Prof. Dharamaja',
+                    'email': 'abc@gmail.com'
+                   }
+
+        developer = SystemInterface.add_developer(data_dict)
+        data_dict = {
+                    'key' : KEY,
+                    'hosting_status': 'hosted',
+                    'hosted_url': 'http://cse14-iiith.vlabs.ac.in',
+                    'hosted_on': 'cloud'
+                   }
+
+        hostinginfo = SystemInterface.add_hostinginfo(data_dict)
+
+        data_dict = {
+                    'key' : KEY,
+                    'lab_name': 'Data Structures',
+                    'lab_id': 'cse01',
+                    'overview': 'overview',
+                    'inst_id': 'IITK',
+                    'dis_id': 'CSE',
+                    'assets': ['vlabs.ac.in/images/static/logo.png'],
+                    'experiments': ['exp123'], 
+                    'integration_level': 4,
+                    'developers': ['abc@gmail.com'],
+                    'hosted_url': 'http://cse14-iiith.vlabs.ac.in'
+                   }
+
+        data_dict1 = {
+                    'key': KEY,
+                    'lab_name': 'Computer Programming',
+                    'lab_id': 'cse02',
+                    'overview': 'overview',
+                    'inst_id': 'IITK',
+                    'dis_id': 'CSE',
+                    'assets': ['vlabs.ac.in/images/static/icon.png'],
+                    'experiments': ['exp123'], 
+                    'integration_level': 4,
+                    'developers': ['abc@gmail.com'],
+                    'hosted_url': 'http://cse14-iiith.vlabs.ac.in'
+                   }
+
+        lab = SystemInterface.add_lab(data_dict)
+        lab1 = SystemInterface.add_lab(data_dict1)
+
+        labs = SystemInterface.get_labs_by_discipline("Computer Science")
+
+        self.assertEqual(labs[0]['discipline']['dis_name'], "Computer Science")
+
+ #+END_SRC
+
+** Get Labs by LabName
+#+NAME: class_get_labs_by_lab_name
+#+begin_src python
+    @staticmethod
+    def get_labs_by_lab_name(lab_name):
+
+        try:
+            current_app.logger.debug("running operation get_labs_by_lab_name")
+            labs = System.do("get_labs_by_lab_name", lab_name=str(lab_name))
+            current_app.logger.debug("completed operation get_labs_by_lab_name")
+            labs_dict_list = []
+            for lab in labs:
+                lab_x = lab.to_client()
+                labs_dict_list.append(lab_x)
+            current_app.logger.debug("got labs")
+            return  labs_dict_list
+
+        except (ArityError, TypeError, NotAuthorizedError, StateError) as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+
+        except Exception as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+#+end_src
+
+*** TestGetLabsByLabName
+ #+NAME: test_class_get_labs_by_lab_name
+ #+BEGIN_SRC python
+class TestGetLabsByLabName(TestCase):
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_get_labs_by_lab_name_in_system_interface(self):
+        print "test_get_labs_by_lab_name_in_system_interface"
+
+        data_dict = {
+                    'key': KEY,
+                    'exp_name': 'arrays',
+                    'exp_id': 'exp123',
+                    'overview': 'overview', 
+                    'sections': []
+                   }
+
+        experiment = SystemInterface.add_experiment(data_dict)
+
+        data_dict = {
+                    'key' : KEY,
+                    'integration_level': 4
+                    }
+
+        integrationstatus = SystemInterface.add_integrationstatus(data_dict)
+
+        data_dict = {
+                    'key' : KEY,
+                    'inst_name': 'IIT Kanpur',
+                    'inst_id': 'IITK'
+                    }
+
+        institute = SystemInterface.add_institute(data_dict)
+
+        data_dict = {
+                    'key' : KEY,
+                    'dis_name': 'computer science',
+                    'dis_id': 'CSE'
+                   }
+
+        discipline = SystemInterface.add_discipline(data_dict)
+
+        data_dict = {
+                    'key' : KEY,
+                    'asset_type': 'Image',
+                    'path': 'vlabs.ac.in/images/static/logo.png'
+                   }
+
+        asset = SystemInterface.add_asset(data_dict)
+
+        data_dict = {
+                    'key': KEY,
+                    'name': 'Prof. Dharamaja',
+                    'email': 'abc@gmail.com'
+                   }
+
+        developer = SystemInterface.add_developer(data_dict)
+        data_dict = {
+                    'hosting_status': 'hosted',
+                    'hosted_url': 'http://cse14-iiith.vlabs.ac.in',
+                    'hosted_on': 'cloud',
+                    'key' : KEY
+                   }
+
+        hostinginfo = SystemInterface.add_hostinginfo(data_dict)
+
+        data_dict = {
+                    'key' : KEY,
+                    'lab_name': 'Data Structures',
+                    'lab_id': 'cse01',
+                    'overview': 'overview',
+                    'inst_id': 'IITK',
+                    'dis_id': 'CSE',
+                    'assets': ['vlabs.ac.in/images/static/logo.png'],
+                    'experiments': ['exp123'], 
+                    'integration_level': 4,
+                    'developers': ['abc@gmail.com'],
+                    'hosted_url': 'http://cse14-iiith.vlabs.ac.in'
+                   }
+
+        data_dict1 = {
+                    'key': KEY,
+                    'lab_name': 'Computer Programming',
+                    'lab_id': 'cse02',
+                    'overview': 'overview',
+                    'inst_id': 'IITK',
+                    'dis_id': 'CSE',
+                    'assets': ['vlabs.ac.in/images/static/logo.png'],
+                    'experiments': ['exp123'], 
+                    'integration_level': 4,
+                    'developers': ['abc@gmail.com'],
+                    'hosted_url': 'http://cse14-iiith.vlabs.ac.in'
+                   }
+
+        lab = SystemInterface.add_lab(data_dict)
+        lab1 = SystemInterface.add_lab(data_dict1)
+
+        labs = SystemInterface.get_labs_by_lab_name(data_dict['lab_name'])
+
+        self.assertEqual(labs[0]['lab_name'], data_dict['lab_name'])
+
+ #+END_SRC
+
+
+** Get Labs by Asset
+#+NAME: class_get_labs_by_asset
+#+begin_src python
+    @staticmethod
+    def get_labs_by_asset(dis_name):
+        asset = System.do("get_asset_by_asset_type",
+                                  asset_type=str(asset_type))
+        try:
+            current_app.logger.debug("running operation get_labs_by_asset")
+            labs = System.do("get_labs_by_asset", assets=[asset])
+            current_app.logger.debug("completed operation get_labs_by_asset")
+            labs_dict_list = []
+            for lab in labs:
+                lab_x = lab.to_client()
+                labs_dict_list.append(lab_x)
+            current_app.logger.debug("got labs")
+            return  labs_dict_list
+
+        except (ArityError, TypeError, NotAuthorizedError, StateError) as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+
+        except Exception as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+#+end_src
+
+*** TestGetLabsByAsset 
+ #+NAME: test_class_get_labs_by_asset
+ #+BEGIN_SRC python
+class TestGetLabsByAsset(TestCase):
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_get_labs_by_asset_in_system_interface(self):
+        print "test_get_labs_by_asset_in_system_interface"
+
+        data_dict = {
+                    'key': KEY,
+                    'exp_name': 'arrays',
+                    'exp_id': 'exp123',
+                    'overview': 'overview', 
+                    'sections': []
+                   }
+
+        experiment = SystemInterface.add_experiment(data_dict)
+
+        data_dict = {
+                    'key' : KEY,
+                    'integration_level': 4
+                    }
+
+        integrationstatus = SystemInterface.add_integrationstatus(data_dict)
+
+        data_dict = {
+                    'key' : KEY,
+                    'inst_name': 'IIT Kanpur',
+                    'inst_id': 'IITK'
+                    }
+
+        institute = SystemInterface.add_institute(data_dict)
+
+        data_dict = {
+                    'key' : KEY,
+                    'dis_name': 'Computer Science',
+                    'dis_id': 'CSE'
+                   }
+
+        discipline = SystemInterface.add_discipline(data_dict)
+
+        data_dict = {
+                    'key' : KEY,
+                    'asset_type': 'Image',
+                    'path': 'vlabs.ac.in/images/static/logo.png'
+                    }
+
+        asset1 = SystemInterface.add_asset(data_dict)
+
+
+        data_dict = {
+                    'key' : KEY,
+                    'asset_type': 'Image',
+                    'path': 'vlabs.ac.in/images/static/icon.png',
+                    }
+
+        asset2 = SystemInterface.add_asset(data_dict)
+        data_dict = {
+                    'key': KEY,
+                    'lab_name': 'Data Structures',
+                    'lab_id': 'cse01',
+                    'overview': 'overview',
+                    'inst_id': 'IITK',
+                    'dis_id': 'CSE',
+                    'assets': ['vlabs.ac.in/images/static/logo.png'],
+                    'experiments': ['exp123'], 
+                    'integration_level': 4
+                   }
+
+        data_dict1 = {
+                    'key': KEY,
+                    'lab_name': 'Computer Programming',
+                    'lab_id': 'cse02',
+                    'overview': 'overview',
+                    'inst_id': 'IITK',
+                    'dis_id': 'CSE',
+                    'assets': ['vlabs.ac.in/images/static/icon.png'],
+                    'experiments': ['exp123'], 
+                    'integration_level': 4
+                   }
+
+        lab = SystemInterface.add_lab(data_dict)
+        lab1 = SystemInterface.add_lab(data_dict1)
+
+        labs = SystemInterface.get_labs_by_asset("Image")
+
+        self.assertEqual(labs[0]['asset']['asset_type'], "Image")
+
+ #+END_SRC
+
+*** TestGetLabsByIntegrationstatus 
+ #+NAME: test_class_get_labs_by_integrationstatus
+ #+BEGIN_SRC python
+class TestGetLabsByIntegrationstatus(TestCase):
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_get_labs_by_integrationstatus_in_system_interface(self):
+        print "test_get_labs_by_integrationstatus_in_system_interface"
+
+        data_dict = {
+                    'key': KEY,
+                    'exp_name': 'arrays',
+                    'exp_id': 'exp123',
+                    'overview': 'overview', 
+                    'sections': []
+                   }
+
+        experiment = SystemInterface.add_experiment(data_dict)
+
+        data_dict = {
+                    'key' : KEY,
+                    'integration_level': 4
+                    }
+
+        integrationstatus = SystemInterface.add_integrationstatus(data_dict)
+
+        data_dict = {
+                    'key' : KEY,
+                    'inst_name': 'IIT Kanpur',
+                    'inst_id': 'IITK'
+                    }
+
+        institute = SystemInterface.add_institute(data_dict)
+
+        data_dict = {
+                    'key' : KEY,
+                    'dis_name': 'Computer Science',
+                    'dis_id': 'CSE'
+                   }
+
+        discipline = SystemInterface.add_discipline(data_dict)
+
+        data_dict = {
+                    'key' : KEY,
+                    'asset_type': 'Image',
+                    'path': 'vlabs.ac.in/images/static/logo.png'
+                    }
+
+        asset1 = SystemInterface.add_asset(data_dict)
+
+        data_dict = {
+                    'key' : KEY,
+                    'asset_type': 'Image',
+                    'path': 'vlabs.ac.in/images/static/icon.png',
+                    }
+
+        asset2 = SystemInterface.add_asset(data_dict)
+
+        data_dict = {
+                    'key': KEY,
+                    'lab_name': 'Data Structures',
+                    'lab_id': 'cse01',
+                    'overview': 'overview',
+                    'inst_id': 'IITK',
+                    'dis_id': 'CSE',
+                    'assets': ['vlabs.ac.in/images/static/logo.png'],
+                    'experiments': ['exp123'], 
+                    'integration_level': 4
+                   }
+
+        data_dict1 = {
+                    'key': KEY,
+                    'lab_name': 'Computer Programming',
+                    'lab_id': 'cse02',
+                    'overview': 'overview',
+                    'inst_id': 'IITK',
+                    'dis_id': 'CSE',
+                    'assets': ['vlabs.ac.in/images/static/icon.png'],
+                    'experiments': ['exp123'], 
+                    'integration_level': 4
+                   }
+
+        lab = SystemInterface.add_lab(data_dict)
+        lab1 = SystemInterface.add_lab(data_dict1)
+
+        labs = SystemInterface.get_labs_by_integrationstatus("4")
+
+        self.assertEqual(labs[0]['integrationstatus']['integration_level'], "4")
+
+ #+END_SRC
+
+
 ** Get Experiments
 #+NAME: class_get_experiments
 #+begin_src python
@@ -602,7 +1826,7 @@ class TestGetLabs(TestCase):
         try:
             current_app.logger.debug("getting experiments")
             experiments = experiment_cls.get_all()
-            exp_dict_list = []
+            exp_dict_list = [] 
             for exp in experiments:
                 exp_x = exp.to_client()
                 exp_dict_list.append(exp_x)
@@ -639,16 +1863,16 @@ class TestGetExperiments(TestCase):
 
         data_dict = {'exp_name': 'stack',
                     'exp_id': 'cse01',
-                    'overview' : 'overview',
+                    'overview': 'overview',
                     'sections': [],
-                    'key' : KEY
+                    'key': KEY
                    }
 
         data_dict1 = {'exp_name': "arrays",
-            'exp_id': 'cse02',
-            'overview' : 'overview',
-            'sections':[],
-            'key' : KEY
+                      'exp_id': 'cse02',
+                      'overview': 'overview',
+                      'sections':[],
+                      'key': KEY
            }
 
         exp1 = SystemInterface.add_experiment(data_dict)
@@ -847,9 +2071,9 @@ class TestGetDisciplines(TestCase):
                    }
 
         data_dict1 = {'dis_name': "Automata",
-            'dis_id': 'DFA',
-            'key' : KEY
-           }
+                      'dis_id': 'DFA',
+                      'key' : KEY
+                     }
 
         dis = SystemInterface.add_discipline(data_dict)
         dis1 = SystemInterface.add_discipline(data_dict1)
@@ -864,7 +2088,331 @@ class TestGetDisciplines(TestCase):
                              data_dict1["dis_id"])
 
  #+END_SRC
+ 
+** Get HostingInfos
+#+NAME: class_get_hostinginfos
+#+begin_src python
+    @staticmethod
+    def get_hostinginfos():
+        hostinginfo_cls = System.delegate.entities['hostinginfo']
+        try:
+            current_app.logger.debug("getting hostinginfos")
+            hostinginfos = hostinginfo_cls.get_all()
+            host_dict_list = []
+            for host in hostinginfos:
+                host_x = host.to_client()
+                host_dict_list.append(host_x)
+            current_app.logger.debug("got hostinginfos")
+            return  host_dict_list
 
+        except (ArityError, TypeError, NotAuthorizedError, StateError) as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+
+        except Exception as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+#+end_src
+
+*** TestGetHostingInfos
+ #+NAME: test_class_get_hostinginfos
+ #+BEGIN_SRC python
+class TestGetHostingInfos(TestCase):
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_get_hostinginfos_in_system_interface(self):
+        print "test_get_hostinginfos_in_system_interface"
+
+        data_dict = {'hosting_status': 'hosted',
+                     'hosted_url': 'http://cse14-iiith.vlabs.ac.in',
+                     'hosted_on': 'cloud',
+                     'key' : KEY
+                    }
+
+        data_dict1 = {'hosting_status': 'not hosted',
+                      'hosted_url': 'http://cse12-iiith.vlabs.ac.in',
+                      'hosted_on': 'server',
+                      'key' : KEY
+                     }
+
+        host1 = SystemInterface.add_hostinginfo(data_dict)
+        host2 = SystemInterface.add_hostinginfo(data_dict1)
+
+        host_list = SystemInterface.get_hostinginfos()
+        
+        self.assertEqual(host_list[0].get("hosting_status"), data_dict['hosting_status'])
+        self.assertEqual(host_list[1].get("hosting_status"), data_dict1['hosting_status'])
+        self.assertEqual(host_list[0].get("hosted_url"), data_dict['hosted_url'])
+        self.assertEqual(host_list[1].get("hosted_url"), data_dict1['hosted_url'])
+        self.assertEqual(host_list[0].get("hosted_on"), data_dict['hosted_on'])
+        self.assertEqual(host_list[1].get("hosted_on"), data_dict1['hosted_on'])
+
+ #+END_SRC
+
+** Get Names
+
+#+NAME: class_get_names
+#+begin_src python
+    @staticmethod
+    def get_names():
+        name_cls = System.delegate.entities['name']
+        try:
+            current_app.logger.debug("getting names")
+            names = name_cls.get_all()
+            name_dict_list = []
+            for name in names:
+                name_x = name.to_client()
+                name_dict_list.append(name_x)
+            current_app.logger.debug("got names")
+            return  name_dict_list
+
+        except (ArityError, TypeError, NotAuthorizedError, StateError) as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+
+        except Exception as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+#+end_src
+
+*** TestGetNames
+ #+NAME: test_class_get_names
+ #+BEGIN_SRC python
+class TestGetNames(TestCase):
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_get_name_in_system_interface(self):
+        print "test_get_name_in_system_interface"
+
+        data_dict = {'name': 'Prof. Dharamaraj',
+                    'key': KEY
+                   }
+
+        data_dict1 = {'name': 'Prof. Yamaraja',
+                     'key': KEY
+                     }
+
+        name1 = SystemInterface.add_name(data_dict)
+        name2 = SystemInterface.add_name(data_dict1)
+
+        name_list = SystemInterface.get_names()
+        
+        self.assertEqual(name_list[0].get("name"), data_dict['name'])
+        self.assertEqual(name_list[1].get("name"), data_dict1['name'])
+
+ #+END_SRC
+
+** Get Emails
+
+#+NAME: class_get_emails
+#+begin_src python
+    @staticmethod
+    def get_emails():
+        email_cls = System.delegate.entities['email']
+        try:
+            current_app.logger.debug("getting emails")
+            emails = email_cls.get_all()
+            email_dict_list = []
+            for email in emails:
+                email_x = email.to_client()
+                email_dict_list.append(email_x)
+            current_app.logger.debug("got emails")
+            return  email_dict_list
+
+        except (ArityError, TypeError, NotAuthorizedError, StateError) as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+
+        except Exception as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+#+end_src
+
+*** TestGetEmails
+ #+NAME: test_class_get_emails
+ #+BEGIN_SRC python
+class TestGetEmails(TestCase):
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_get_email_in_system_interface(self):
+        print "test_get_email_in_system_interface"
+
+        data_dict = {'email': 'abc@gmail.com',
+                    'key': KEY
+                   }
+
+        data_dict1 = {'email': 'xyz@gmail.com',
+                     'key': KEY
+                     }
+
+        email1 = SystemInterface.add_email(data_dict)
+        email2 = SystemInterface.add_email(data_dict1)
+
+        email_list = SystemInterface.get_emails()
+        
+        self.assertEqual(email_list[0].get("email"), data_dict['email'])
+        self.assertEqual(email_list[1].get("email"), data_dict1['email'])
+
+ #+END_SRC
+
+** Get Developers
+
+#+NAME: class_get_developers
+#+begin_src python
+    @staticmethod
+    def get_developers():
+        developer_cls = System.delegate.entities['developer']
+        try:
+            current_app.logger.debug("getting developes")
+            developers = developer_cls.get_all()
+            developer_dict_list = []
+            for developer in developers:
+                developer_x = developer.to_client()
+                developer_dict_list.append(developer_x)
+            current_app.logger.debug("got developers")
+            return  developer_dict_list
+
+        except (ArityError, TypeError, NotAuthorizedError, StateError) as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+
+        except Exception as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+#+end_src
+
+*** TestGetDevelopers
+ #+NAME: test_class_get_developers
+ #+BEGIN_SRC python
+class TestGetDevelopers(TestCase):
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_get_developer_in_system_interface(self):
+        print "test_get_developer_in_system_interface"
+
+        data_dict = {'name': 'Prof. Dharamaja',
+                     'email': 'abc@gmail.com',
+                     'key': KEY
+                   }
+
+        data_dict1 = {'name': 'Prof. Yamraja',
+                      'email': 'xyz@gmail.com',
+                      'key': KEY
+                     }
+
+        developer1 = SystemInterface.add_developer(data_dict)
+        developer2 = SystemInterface.add_developer(data_dict1)
+
+        developer_list = SystemInterface.get_developers()
+        
+        self.assertEqual(developer_list[0].get("name").get("name"),
+                             data_dict['name'])
+        self.assertEqual(developer_list[1].get("name").get("name"),
+                             data_dict1['name'])
+
+ #+END_SRC
+
+** Get IntegrationStatuss
+#+NAME: class_get_integrationstatuss
+#+begin_src python
+    @staticmethod
+    def get_integrationstatuss():
+        integrationstatus_cls = System.delegate.entities['integrationstatus']
+        try:
+            current_app.logger.debug("getting integrationstatuss")
+            integrationstatuss = integrationstatus_cls.get_all()
+            intstatus_dict_list = []
+            for intstatus in integrationstatuss:
+                intstatus_x = intstatus.to_client()
+                intstatus_dict_list.append(intstatus_x)
+            current_app.logger.debug("got integrationstatuss")
+            return  intstatus_dict_list
+
+        except (ArityError, TypeError, NotAuthorizedError, StateError) as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+
+        except Exception as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+#+end_src
+
+*** TestGetIntigrationStatuss
+ #+NAME: test_class_get_integrationstatuss
+ #+BEGIN_SRC python
+class TestGetIntegrationStatuss(TestCase):
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_get_integrationstatuss_in_system_interface(self):
+        print "test_get_integrationstatuss_in_system_interface"
+
+        data_dict = {'integration_level': 4,
+                    'key' : KEY
+                    }
+
+        data_dict1 = {'integration_level': 2,
+                     'key' : KEY
+                     }
+
+        intstatus1 = SystemInterface.add_integrationstatus(data_dict)
+        intstatus2 = SystemInterface.add_integrationstatus(data_dict1)
+
+        intstatus_list = SystemInterface.get_integrationstatuss()
+        
+        self.assertEqual(intstatus_list[0].get("integration_level"), data_dict['integration_level'])
+        self.assertEqual(intstatus_list[1].get("integration_level"), data_dict1['integration_level'])
+
+ #+END_SRC
 
 ** Get Lab By Id
 #+NAME: class_get_lab_by_id
@@ -909,14 +2457,21 @@ class TestGetLabById(TestCase):
         print "test_get_lab_by_id_in_system_interface"
 
         data_dict = {
-                    'key' : KEY,
+                    'key': KEY,
                     'exp_name': 'arrays',
                     'exp_id': 'exp123',
-                    'overview' : 'overview', 
-                    'sections' : []
+                    'overview': 'overview', 
+                    'sections': []
                    }
 
         experiment = SystemInterface.add_experiment(data_dict)
+
+        data_dict = {
+                    'key' : KEY,
+                    'integration_level': 4
+                    }
+
+        integrationstatus = SystemInterface.add_integrationstatus(data_dict)
 
         data_dict = {
                     'key' : KEY,
@@ -936,22 +2491,63 @@ class TestGetLabById(TestCase):
 
         data_dict = {
                     'key' : KEY,
+                    'asset_type': 'Image',
+                    'path': 'vlabs.ac.in/images/static/logo.png'
+                   }
+
+        asset1 = SystemInterface.add_asset(data_dict)
+
+        data_dict = {
+                    'key' : KEY,
+                    'asset_type': 'Image',
+                    'path': 'vlabs.ac.in/images/static/icon.png',
+                    }
+
+        asset2 = SystemInterface.add_asset(data_dict)
+
+        data_dict = {
+                    'key': KEY,
+                    'name': 'Prof. Dharamaja',
+                    'email': 'abc@gmail.com'
+                   }
+
+        developer = SystemInterface.add_developer(data_dict)
+
+        data_dict = {
+                    'hosting_status': 'hosted',
+                    'hosted_url': 'http://cse14-iiith.vlabs.ac.in',
+                    'hosted_on': 'cloud',
+                    'key' : KEY
+                   }
+
+        hostinginfo = SystemInterface.add_hostinginfo(data_dict)
+
+        data_dict = {
+                    'key' : KEY,
                     'lab_name': 'array',
                     'lab_id': 'cse02',
                     'inst_id': 'IITK',
                     'dis_id': 'CSE',
-                    'overview' : 'overview',
-                    'experiments': ['exp123']
+                    'assets': ['vlabs.ac.in/images/static/logo.png'],
+                    'overview': 'overview',
+                    'experiments': ['exp123'], 
+                    'integration_level': 4,
+                    'developers': ['abc@gmail.com'],
+                    'hosted_url': 'http://cse14-iiith.vlabs.ac.in'
                    }
 
         data_dict1 = {
-                    'key' : KEY,
+                    'key': KEY,
                     'lab_name': 'stack',
                     'lab_id': 'cse03',
                     'inst_id': 'IITK',
                     'dis_id': 'CSE',
-                    'overview' : 'overview',
-                    'experiments': ['exp123']
+                    'assets': ['vlabs.ac.in/images/static/icon.png'],
+                    'overview': 'overview',
+                    'experiments': ['exp123'], 
+                    'integration_level': 4,
+                    'developers': ['abc@gmail.com'],
+                    'hosted_url': 'http://cse14-iiith.vlabs.ac.in'
                    }
 
         lab1 = SystemInterface.add_lab(data_dict)
@@ -1076,17 +2672,17 @@ class TestGetExperimentById(TestCase):
         print "test_get_experiment_by_id_in_system_interface"
 
         data_dict = {
-                    'key' : KEY,
+                    'key': KEY,
                     'exp_name': 'array',
-                    'overview' : 'overview',
+                    'overview': 'overview',
                     'exp_id': 'cse02',
                     'sections': []
                    }
 
         data_dict1 = {
-                    'key' : KEY,
+                    'key': KEY,
                     'exp_name': 'stack',
-                    'overview' : 'overview',
+                    'overview': 'overview',
                     'exp_id': 'cse03',
                     'sections': []
                    }
@@ -1223,10 +2819,9 @@ class TestGetDisciplineById(TestCase):
                    }
 
         data_dict1 = {'dis_name': "Automata",
-            'dis_id': 'DFA',
-            'key' : KEY
-           }
-
+                      'dis_id': 'DFA',
+                      'key' : KEY
+                     }
 
         dis = SystemInterface.add_discipline(data_dict)
         dis1 = SystemInterface.add_discipline(data_dict1)
@@ -1253,7 +2848,7 @@ class TestGetDisciplineById(TestCase):
         session = session_cls(key=data_dict['key'])
 
         lab_id = str(data_dict['lab_id'])
-        lab = System.do("get_lab", lab_id=lab_id, session=session)
+        lab = System.do("get_lab", lab_id=lab_id)
 
         if 'lab_name' not in data_dict:
             lab_name=str(lab.get("lab_name"))
@@ -1302,22 +2897,29 @@ class TestUpdateLab(TestCase):
         print "test_update_lab_name_in_system_interface"
 
         data_dict = {
-                    'key' : KEY,
+                    'key': KEY,
                     'exp_name': 'arrays',
                     'exp_id': 'exp123',
-                    'overview' : 'overview', 
+                    'overview': 'overview', 
                     'sections' : []
                    }
 
         experiment = SystemInterface.add_experiment(data_dict)
 
         data_dict = {
-                    'key' : KEY,
+                    'key': KEY,
                     'inst_name': 'IIT Kanpur',
                     'inst_id': 'IITK'
                     }
 
         institute = SystemInterface.add_institute(data_dict)
+
+        data_dict = {
+                    'key' : KEY,
+                    'integration_level': 4
+                    }
+
+        integrationstatus = SystemInterface.add_integrationstatus(data_dict)
 
         data_dict = {
                     'key' : KEY,
@@ -1329,12 +2931,40 @@ class TestUpdateLab(TestCase):
 
         data_dict = {
                     'key' : KEY,
+                    'asset_type': 'Image',
+                    'path': 'vlabs.ac.in/images/static/logo.png'
+                    }
+
+        asset = SystemInterface.add_asset(data_dict)
+
+        data_dict = {
+                    'key': KEY,
+                    'name': 'Prof. Dharamaja',
+                    'email': 'abc@gmail.com'
+                   }
+
+        developer = SystemInterface.add_developer(data_dict)
+        data_dict = {
+                    'hosting_status': 'hosted',
+                    'hosted_url': 'http://cse14-iiith.vlabs.ac.in',
+                    'hosted_on': 'cloud',
+                    'key' : KEY
+                   }
+
+        hostinginfo = SystemInterface.add_hostinginfo(data_dict)
+
+        data_dict = {
+                    'key' : KEY,
                     'lab_name': 'Data Structures',
                     'lab_id': 'cse02',
-                    'overview' : 'overview',
+                    'overview': 'overview',
                     'inst_id': 'IITK',
                     'dis_id': 'CSE',
-                    'experiments': ['exp123']
+                    'assets': ['vlabs.ac.in/images/static/logo.png'],
+                    'experiments': ['exp123'],
+                    'integration_level': 4,
+                    'developers': ['abc@gmail.com'],
+                    'hosted_url': 'http://cse14-iiith.vlabs.ac.in'
                    }
 
         data_dict1 = {
@@ -1354,11 +2984,11 @@ class TestUpdateLab(TestCase):
         print "test_update_lab_name_in_system_interface"
 
         data_dict = {
-                    'key' : KEY,
+                    'key': KEY,
                     'exp_name': 'arrays',
                     'exp_id': 'exp123',
-                    'overview' : 'overview', 
-                    'sections' : []
+                    'overview': 'overview', 
+                    'sections': []
                    }
 
         experiment = SystemInterface.add_experiment(data_dict)
@@ -1372,21 +3002,56 @@ class TestUpdateLab(TestCase):
 
         data_dict = {
                     'key' : KEY,
+                    'integration_level': 4
+                    }
+
+        integrationstatus = SystemInterface.add_integrationstatus(data_dict)
+
+        data_dict = {
+                    'key' : KEY,
                     'dis_name': 'computer science',
                     'dis_id': 'CSE'
                    }
 
         discipline = SystemInterface.add_discipline(data_dict)
 
+        data_dict = {
+                    'key' : KEY,
+                    'name': 'Prof. Dharamaja',
+                    'email': 'abc@gmail.com'
+                   }
+
+        developer = SystemInterface.add_developer(data_dict)
+
+        data_dict = {
+                    'hosting_status': 'hosted',
+                    'hosted_url': 'http://cse14-iiith.vlabs.ac.in',
+                    'hosted_on': 'cloud',
+                    'key' : KEY
+                   }
+
+        hostinginfo = SystemInterface.add_hostinginfo(data_dict)
 
         data_dict = {
                     'key' : KEY,
+                    'asset_type': 'Image',
+                    'path': 'vlabs.ac.in/images/static/logo.png'
+                    }
+
+        asset = SystemInterface.add_asset(data_dict)
+
+        data_dict = {
+                    'key': KEY,
                     'lab_name': 'Data Structures',
                     'lab_id': 'cse02',
-                    'overview' : 'overview',
+                    'overview': 'overview',
+                    'integration_level': 4 ,
                     'inst_id': 'IITK',
                     'dis_id': 'CSE',
-                    'experiments': ['exp123']
+                    'assets': ['vlabs.ac.in/images/static/logo.png'],
+                    'experiments': ['exp123'],
+                    'developers': ['abc@gmail.com'],
+                    'hosted_url': 'http://cse14-iiith.vlabs.ac.in'
                    }
 
         data_dict1 = {
@@ -1414,7 +3079,7 @@ class TestUpdateLab(TestCase):
 
         session = session_cls(key=str(data_dict['key']))
         exp_id = str(data_dict['exp_id'])
-        experiment = System.do("get_experiment", exp_id=exp_id, session=session)
+        experiment = System.do("get_experiment", exp_id=exp_id)
         if 'exp_name' not in data_dict:
             exp_name=str(experiment.get("exp_name"))
         else:
@@ -1464,9 +3129,9 @@ class TestUpdateExperiment(TestCase):
         print "test_update_experiment_name_in_system_interface"
 
         data_dict = {
-                    'key' : KEY,
+                    'key': KEY,
                     'exp_name': 'Data Structures',
-                    'overview' : 'overview',
+                    'overview': 'overview',
                     'sections': [],
                     'exp_id': 'cse02'
                    }
@@ -1493,7 +3158,7 @@ class TestUpdateExperiment(TestCase):
         session = session_cls(key=data_dict['key'])
 
         inst_id = str(data_dict['inst_id'])
-        institute = System.do("get_institute", inst_id=inst_id, session=session)
+        institute = System.do("get_institute", inst_id=inst_id)
 
         if 'inst_name' not in data_dict:
             inst_name=str(inst.get("inst_name"))
@@ -1632,7 +3297,7 @@ class TestUpdateSection(TestCase):
         session = session_cls(key=data_dict['key'])
 
         dis_id = str(data_dict['dis_id'])
-        discipline = System.do("get_discipline", dis_id=dis_id, session=session)
+        discipline = System.do("get_discipline", dis_id=dis_id)
 
         if "dis_name" not in data_dict:
             dis_name=str(discipline.get("dis_name"))
@@ -1690,7 +3355,160 @@ class TestUpdateDiscipline(TestCase):
 
  #+END_SRC
 
+** Update HostingInfo
+#+NAME: class_update_hostinginfo
+#+begin_src python       
+    @staticmethod
+    def update_hostinginfo(data_dict):
+        session_cls = System.delegate.entities['session']
+        session = session_cls(key=data_dict['key'])
 
+        hosted_url = str(data_dict['hosted_url'])
+        hostinginfo = System.do("get_hostinginfo", hosted_url=hosted_url)
+
+        if 'hosting_status' not in data_dict:
+            hosting_status=str(hostinginfo.get("hosting_status"))
+        else:
+            hosting_status=data_dict['hosting_status']
+
+        if 'hosted_on' not in data_dict:
+            hosted_on=str(hostinginfo.get("hosted_on"))
+        else:
+            hosted_on=data_dict['hosted_on']
+
+        try:
+            current_app.logger.debug("running operation update_hostinginfo")
+            hostinginfo = System.do("update_hostinginfo", hostinginfo=hostinginfo,
+                                    hosting_status=hosting_status, hosted_on=hosted_on,
+                                    session=session)
+            current_app.logger.debug("completed operation update_hostinginfo")
+            return hostinginfo.to_client()
+        except (ArityError, TypeError, NotAuthorizedError, StateError) as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+
+        except Exception as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+#+end_src
+
+*** TestUpateHostingInfo
+ #+NAME: test_class_update_hostinginfo
+ #+BEGIN_SRC python
+class TestUpdateHostingInfo(TestCase):
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_update_hostinginfo_in_system_interface(self):
+        print "test_update_hostinginfo_in_system_interface"
+
+        data_dict = {
+                    'key' : KEY,
+                    'hosting_status': 'hosted',
+                    'hosted_url': 'http://cse14-iiith.vlabs.ac.in',
+                    'hosted_on': 'cloud'
+                    }
+
+        data_dict1 = {
+                    'key' : KEY,
+                    'hosting_status': 'not hosted',
+                    'hosted_url': 'http://cse14-iiith.vlabs.ac.in',
+                    'hosted_on': 'server'
+                   }
+
+        hostinginfo = SystemInterface.add_hostinginfo(data_dict)
+        hostinginfo1 = SystemInterface.update_hostinginfo(data_dict1)
+        
+        self.assertEqual(hostinginfo1.get("hosting_status"), data_dict1['hosting_status'])
+        self.assertEqual(hostinginfo1.get("hosted_on"), data_dict1['hosted_on'])
+
+ #+END_SRC
+
+** Update Developer
+#+NAME: class_update_developer
+#+begin_src python
+    @staticmethod
+    def update_developer(data_dict):
+        session_cls = System.delegate.entities['session']
+        name_cls = System.delegate.entities['name']
+        email_cls = System.delegate.entities['email']
+        developer_cls = System.delegate.entities['developer']
+
+        session = session_cls(key=str(data_dict['key']))
+        email = email_cls(email=data_dict['email'])
+        developer = System.do("get_developer", email=email)
+
+        if 'name' not in data_dict:
+            name=str(developer.get("name"))
+        else:
+            name=name_cls(name=str(data_dict['name']))
+
+        try:
+            current_app.logger.debug("running operation update_developer")
+            developer = System.do("update_developer", name=name,
+                                      developer=developer,
+                                      session=session)
+            current_app.logger.debug("completed operation update_developer")
+            return developer
+
+        except (ArityError, TypeError, NotAuthorizedError, StateError) as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+
+        except Exception as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+#+end_src
+
+*** TestUpateDeveloper
+ #+NAME: test_class_update_Developer
+ #+BEGIN_SRC python
+class TestUpdateDeveloper(TestCase):
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_update_developer_name_in_system_interface(self):
+        print "test_update_developer_name_in_system_interface"
+
+        data_dict = {
+                    'key': KEY,
+                    'name': 'Prof. Dharamaraja',
+                    'email': 'dharamaraj@gmail.com'
+                   }
+
+        data_dict1 = {
+                    'key': KEY,
+                    'email': 'dharamaraj@gmail.com',
+                    'name': 'Prof. Raja'
+                   }
+
+        developer = SystemInterface.add_developer(data_dict)
+        developer1 = SystemInterface.update_developer(data_dict1)
+
+        self.assertEqual(developer1.get("name").get("name"),
+                             data_dict1['name'])
+
+ #+END_SRC
+
+ 
 ** Delete Lab
 #+NAME: class_delete_lab
 #+begin_src python
@@ -1732,14 +3550,22 @@ class TestDeleteLab(TestCase):
         print "test_delete_lab_in_system_interface"
 
         data_dict = {
-                    'key' : KEY,
+                    'key': KEY,
                     'exp_name': 'arrays',
                     'exp_id': 'exp123',
-                    'overview' : 'overview', 
-                    'sections' : []
+                    'overview': 'overview', 
+                    'sections': []
                    }
 
         experiment = SystemInterface.add_experiment(data_dict)
+
+        data_dict = {
+                    'key' : KEY,
+                    'integration_level': 4
+                    }
+
+        integrationstatus = SystemInterface.add_integrationstatus(data_dict)
+
         data_dict = {
                     'key' : KEY,
                     'inst_name': 'IIT Kanpur',
@@ -1758,12 +3584,49 @@ class TestDeleteLab(TestCase):
 
         data_dict = {
                     'key' : KEY,
+                    'asset_type': 'Image',
+                    'path': 'vlabs.ac.in/images/static/logo.png'
+                    }
+
+        asset1 = SystemInterface.add_asset(data_dict)
+
+        data_dict = {
+                    'key' : KEY,
+                    'asset_type': 'Image',
+                    'path': 'vlabs.ac.in/images/static/icon.png',
+                    }
+
+        asset2 = SystemInterface.add_asset(data_dict)
+
+        data_dict = {
+                    'key': KEY,
+                    'name': 'Prof. Dharamaja',
+                    'email': 'abc@gmail.com'
+                   }
+
+        developer = SystemInterface.add_developer(data_dict)
+
+        data_dict = {
+                    'hosting_status': 'hosted',
+                    'hosted_url': 'http://cse14-iiith.vlabs.ac.in',
+                    'hosted_on': 'cloud',
+                    'key' : KEY
+                   }
+
+        hostinginfo = SystemInterface.add_hostinginfo(data_dict)
+
+        data_dict = {
+                    'key' : KEY,
                     'lab_name': 'Data Structures',
                     'lab_id': 'cse01',
                     'inst_id': 'IITK',
                     'dis_id': 'CSE',
-                    'overview' : 'overview',
-                    'experiments': ['exp123']
+                    'assets': ['vlabs.ac.in/images/static/logo.png'],
+                    'overview': 'overview',
+                    'experiments': ['exp123'], 
+                    'integration_level': 4,
+                    'developers': ['abc@gmail.com'],
+                    'hosted_url': 'http://cse14-iiith.vlabs.ac.in'
                    }
 
         data_dict1 = {
@@ -1772,8 +3635,12 @@ class TestDeleteLab(TestCase):
                     'lab_id': 'cse02',
                     'inst_id': 'IITK',
                     'dis_id': 'CSE',
-                    'overview' : 'overview',
-                    'experiments': ['exp123']
+                    'assets': ['vlabs.ac.in/images/static/icon.png'],
+                    'overview': 'overview',
+                    'experiments': ['exp123'], 
+                    'integration_level': 4,
+                    'developers': ['abc@gmail.com'],
+                    'hosted_url': 'http://cse14-iiith.vlabs.ac.in'
                    }
 
         lab = SystemInterface.add_lab(data_dict)
@@ -1807,7 +3674,6 @@ class TestDeleteLab(TestCase):
             raise err
 #+end_src
 
-<<<<<<< HEAD
 *** TestDeleteExperiment 
  #+NAME: test_class_delete_experiment
  #+BEGIN_SRC python
@@ -1830,15 +3696,15 @@ class TestDeleteExperiment(TestCase):
         data_dict = {
                     'key' : KEY,
                     'exp_name': 'Data Structures',
-                    'overview' : 'overview',
+                    'overview': 'overview',
                     'exp_id': 'cse01',
                     'sections': []
                    }
 
         data_dict1 = {
-                    'key' : KEY,
+                    'key': KEY,
                     'exp_name': 'Computer Programming',
-                    'overview' : 'overview',
+                    'overview': 'overview',
                     'exp_id': 'cse02',
                     'sections':[]
                    }
@@ -1917,10 +3783,10 @@ class TestDeleteInstitute(TestCase):
 #+NAME: class_delete_section
 #+begin_src python
     @staticmethod
-    def delete_section(s_id, key):
+    def delete_section(s_id):
         session_cls = System.delegate.entities['session']
 
-        session = session_cls(key=str(key))
+        session = session_cls(key=KEY)
         try:
             current_app.logger.debug("running operation delete_section")
             section = System.do("delete_section", s_id=int(s_id),
@@ -1967,7 +3833,7 @@ class TestDeleteSection(TestCase):
 
         exp = SystemInterface.add_section(data_dict)
         exp1 = SystemInterface.add_section(data_dict1)
-        s_id = SystemInterface.delete_section(1, KEY)
+        s_id = SystemInterface.delete_section(1)
         
         self.assertEqual(s_id, 1)
 
@@ -2027,6 +3893,321 @@ class TestDeleteDiscipline(TestCase):
 
  #+END_SRC
 
+** Delete HostingInfo
+#+NAME: class_delete_hostinginfo
+#+begin_src python
+    @staticmethod
+    def delete_hostinginfo(hosted_url, key):
+        session_cls = System.delegate.entities['session']
+        session = session_cls(key=str(key))
+
+        try:
+            current_app.logger.debug("running operation delete_hostinginfo")
+            hostinginfo_id = System.do("delete_hostinginfo", hosted_url=str(hosted_url),
+                                      session=session)
+            current_app.logger.debug("completed operation delete_hostinginfo")
+            return hostinginfo_id
+        except (ArityError, TypeError, NotAuthorizedError, StateError) as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+
+        except Exception as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+#+end_src
+
+*** TestDeleteHostedInfo
+ #+NAME: test_class_delete_hostinginfo
+ #+BEGIN_SRC python
+class TestDeleteHostingInfo(TestCase):
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_delete_hostinginfo_in_system_interface(self):
+        print "test_delete_hostinginfo_in_system_interface"
+
+        data_dict = {
+                    'key' : KEY,
+                    'hosting_status': 'hosted',
+                    'hosted_url': 'http://cse14-iiith.vlabs.ac.in',
+                    'hosted_on': 'cloud'
+                    }
+
+        data_dict1 = {
+                    'key' : KEY,
+                    'hosting_status': 'not hosted',
+                    'hosted_url': 'http://cse12-iiith.vlabs.ac.in',
+                    'hosted_on': 'server'
+                     }
+
+        hostinginfo = SystemInterface.add_hostinginfo(data_dict)
+        hostinginfo1 = SystemInterface.add_hostinginfo(data_dict1)
+        hosted_url = SystemInterface.delete_hostinginfo("http://cse14-iiith.vlabs.ac.in", KEY)
+        
+        self.assertEqual(hosted_url, "http://cse14-iiith.vlabs.ac.in")
+
+ #+END_SRC
+
+** Delete Name
+#+NAME: class_delete_name
+#+begin_src python
+    @staticmethod
+    def delete_name(name, key):
+        session_cls = System.delegate.entities['session']
+        name_cls = System.delegate.entities['name']
+
+        session = session_cls(key=str(key))
+        name = name_cls(name=str(name))
+        try:
+            current_app.logger.debug("running operation delete_name")
+            name = System.do("delete_name", name=name, session=session)
+            current_app.logger.debug("completed operation delete_name")
+            return name
+        except (ArityError, TypeError, NotAuthorizedError, StateError) as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+
+        except Exception as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+#+end_src
+
+*** TestDeleteName
+ #+NAME: test_class_delete_name
+ #+BEGIN_SRC python
+class TestDeleteName(TestCase):
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_delete_name_in_system_interface(self):
+        print "test_delete_name_in_system_interface"
+
+        data_dict = {
+                    'key': KEY,
+                    'name': 'Prof. Dharamaraja'
+                   }
+
+        data_dict1 = {
+                    'key': KEY,
+                    'name' : 'Prof. Raja'
+                   }
+
+        name = SystemInterface.add_name(data_dict)
+        name1 = SystemInterface.add_name(data_dict1)
+        name_id = SystemInterface.delete_name(data_dict1['name'],
+                                                  data_dict1['key'])
+
+        self.assertEqual(name_id.get("name"), data_dict1["name"])
+
+ #+END_SRC
+
+** Delete Email
+#+NAME: class_delete_email
+#+begin_src python
+    @staticmethod
+    def delete_email(data_dict):
+        session_cls = System.delegate.entities['session']
+        email_cls = System.delegate.entities['email']
+
+        session = session_cls(key=data_dict['key'])
+        email = email_cls(email=data_dict['email'])
+        try:
+            current_app.logger.debug("running operation delete_email")
+            email = System.do("delete_email", email=email,
+                                    session=session)
+            current_app.logger.debug("completed operation delete_email")
+            return email
+        except (ArityError, TypeError, NotAuthorizedError, StateError) as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+
+        except Exception as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+#+end_src
+
+*** TestDeleteEmail
+ #+NAME: test_class_delete_email
+ #+BEGIN_SRC python
+class TestDeleteEmail(TestCase):
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_delete_email_in_system_interface(self):
+        print "test_delete_email_in_system_interface"
+
+        data_dict = {
+                    'key': KEY,
+                    'email': 'abc@gmail.com'
+                   }
+
+        data_dict1 = {
+                    'key': KEY,
+                    'email' : 'xyz@gmail.com'
+                   }
+
+        email = SystemInterface.add_email(data_dict)
+        email1 = SystemInterface.add_email(data_dict1)
+        email_id = SystemInterface.delete_email(data_dict1)
+
+        self.assertEqual(email_id.get("email"), data_dict1["email"])
+
+ #+END_SRC
+
+** Delete Developer
+#+NAME: class_delete_developer
+#+begin_src python
+    @staticmethod
+    def delete_developer(email, key):
+        session_cls = System.delegate.entities['session']
+        email_cls = System.delegate.entities['email']
+
+        session = session_cls(key=str(key))
+        email = email_cls(email=email)
+
+        try:
+            current_app.logger.debug("running operation delete_developer")
+            developer = System.do("delete_developer", email=email,
+                                    session=session)
+            current_app.logger.debug("completed operation delete_developer")
+            return developer
+
+        except (ArityError, TypeError, NotAuthorizedError, StateError) as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+
+        except Exception as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+#+end_src
+
+*** TestDeleteDeveloper
+ #+NAME: test_class_delete_developer
+ #+BEGIN_SRC python
+class TestDeleteDeveloper(TestCase):
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_delete_developer_in_system_interface(self):
+        print "test_delete_developer_in_system_interface"
+
+        data_dict = {
+                    'key': KEY,
+                    'name': 'Prof. Dharmaraj',
+                    'email': 'abc@gmail.com'
+                   }
+
+        data_dict1 = {
+                    'key': KEY,
+                    'name' : 'Prof. Raja',
+                    'email': 'xyz@gmail.com'
+                   }
+
+        developer = SystemInterface.add_developer(data_dict)
+        developer1 = SystemInterface.add_developer(data_dict1)
+        dev = SystemInterface.delete_developer(data_dict['email'],
+                                                      data_dict['key'])
+        
+        self.assertEqual(dev.get("email"), data_dict['email'])
+
+ #+END_SRC
+
+** Delete IntegrationStatus
+#+NAME: class_delete_integrationstatus
+#+begin_src python
+    @staticmethod
+    def delete_integrationstatus(integration_level, key):
+        session_cls = System.delegate.entities['session']
+        session = session_cls(key=str(key))
+
+        try:
+            current_app.logger.debug("running operation delete_integrationstatus")
+            integrationstatus_id = System.do("delete_integrationstatus", integration_level=int(integration_level),
+                                      session=session)
+            current_app.logger.debug("completed operation delete_integrationstatus")
+            return integrationstatus_id
+        except (ArityError, TypeError, NotAuthorizedError, StateError) as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+
+        except Exception as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+#+end_src
+
+*** TestDeleteIntegrationStatus
+ #+NAME: test_class_delete_integrationstatus
+ #+BEGIN_SRC python
+class TestDeleteIntegrationStatus(TestCase):
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_delete_integrationstatus_in_system_interface(self):
+        print "test_delete_integrationstatus_in_system_interface"
+
+        data_dict = {
+                    'key' : KEY,
+                    'integration_level': 4
+                    }
+
+        data_dict1 = {
+                    'key' : KEY,
+                    'integration_level': 2
+                     }
+
+        integrationstatus = SystemInterface.add_integrationstatus(data_dict)
+        integrationstatus1 = SystemInterface.add_integrationstatus(data_dict1)
+        integration_level = SystemInterface.delete_integrationstatus(2, KEY)
+        
+        self.assertEqual(integration_level, 2)
+
+ #+END_SRC
+
 
 ** Get Institute by InstituteId
 #+NAME: class_get_institute_by_inst_id
@@ -2034,10 +4215,9 @@ class TestDeleteDiscipline(TestCase):
     @staticmethod
     def get_institute(inst_id):
         session_cls = System.delegate.entities['session']
-        session = session_cls(key=KEY)
         try:
             current_app.logger.debug("running operation get_institute_by_inst_id")
-            institute = System.do("get_institute", inst_id=str(inst_id), session=session)
+            institute = System.do("get_institute", inst_id=str(inst_id))
             current_app.logger.debug("completed operation get_institute_by_inst_id")
             if not institute:
                 return ("No institute found with instituteid: %s" % (inst_id))
@@ -2094,16 +4274,15 @@ class TestGetInstituteByInstituteId(TestCase):
 
  #+END_SRC
 
+
 ** Get Lab by LabId
 #+NAME: class_get_lab_by_lab_id
 #+begin_src python
     @staticmethod
     def get_lab(lab_id):
-        session_cls = System.delegate.entities['session']
-        session = session_cls(key=KEY)
         try:
             current_app.logger.debug("running operation get_lab_by_lab_id")
-            lab = System.do("get_lab", lab_id=str(lab_id), session=session)
+            lab = System.do("get_lab", lab_id=str(lab_id))
             current_app.logger.debug("completed operation get_lab_by_lab_id")
             if not lab:
                 return ("No lab found with labid: %s" % (lab_id))
@@ -2138,14 +4317,21 @@ class TestGetLabByLabId(TestCase):
         print "test_get_lab_by_labid_in_system_interface"
 
         data_dict = {
-                    'key' : KEY,
+                    'key': KEY,
                     'exp_name': 'arrays',
                     'exp_id': 'exp123',
-                    'overview' : 'overview', 
-                    'sections' : []
+                    'overview': 'overview', 
+                    'sections': []
                    }
 
         experiment = SystemInterface.add_experiment(data_dict)
+
+        data_dict = {
+                    'key' : KEY,
+                    'integration_level': 4
+                    }
+
+        integrationstatus = SystemInterface.add_integrationstatus(data_dict)
 
         data_dict = {
                     'key' : KEY,
@@ -2165,22 +4351,63 @@ class TestGetLabByLabId(TestCase):
 
         data_dict = {
                     'key' : KEY,
+                    'asset_type': 'Image',
+                    'path': 'vlabs.ac.in/images/static/logo.png'
+                   }
+
+        asset1 = SystemInterface.add_asset(data_dict)
+
+        data_dict = {
+                    'key' : KEY,
+                    'asset_type': 'Image',
+                    'path': 'vlabs.ac.in/images/static/icon.png',
+                    }
+
+        asset2 = SystemInterface.add_asset(data_dict)
+
+        data_dict = {
+                    'key' : KEY,
+                    'name': 'Prof. Dharamaja',
+                    'email': 'abc@gmail.com'
+                   }
+
+        developer = SystemInterface.add_developer(data_dict)
+
+        data_dict = {
+                    'hosting_status': 'hosted',
+                    'hosted_url': 'http://cse14-iiith.vlabs.ac.in',
+                    'hosted_on': 'cloud',
+                    'key' : KEY
+                   }
+
+        hostinginfo = SystemInterface.add_hostinginfo(data_dict)
+
+        data_dict = {
+                    'key' : KEY,
                     'lab_name': 'Data Structures',
                     'lab_id': 'cse01',
-                    'overview' : 'overview',
+                    'overview': 'overview',
                     'inst_id': 'IITK',
                     'dis_id': 'CSE',
-                    'experiments': ['exp123']
+                    'assets': ['vlabs.ac.in/images/static/logo.png'],
+                    'experiments': ['exp123'], 
+                    'integration_level': 4,
+                    'developers': ['abc@gmail.com'],
+                    'hosted_url': 'http://cse14-iiith.vlabs.ac.in'
                    }
 
         data_dict1 = {
                     'key' : KEY,
                     'lab_name': 'Computer Programming',
                     'lab_id': 'cse02',
-                    'overview' : 'overview',
+                    'overview': 'overview',
                     'inst_id': 'IITK',
                     'dis_id': 'CSE',
-                    'experiments': ['exp123']
+                    'assets': ['vlabs.ac.in/images/static/icon.png'],
+                    'experiments': ['exp123'], 
+                    'integration_level': 4,
+                    'developers': ['abc@gmail.com'],
+                    'hosted_url': 'http://cse14-iiith.vlabs.ac.in'
                    }
 
         lab = SystemInterface.add_lab(data_dict)
@@ -2194,17 +4421,15 @@ class TestGetLabByLabId(TestCase):
 
  #+END_SRC
 
+
 ** Get Experiment by ExpId
 #+NAME: class_get_lab_by_exp_id
 #+begin_src python
     @staticmethod
     def get_experiment(exp_id):
-        session_cls = System.delegate.entities['session']
-        session = session_cls(key=KEY)
         try:
             current_app.logger.debug("running operation get_lab_by_exp_id")
-            exp = System.do("get_experiment", exp_id=str(exp_id),
-                                session=session)
+            exp = System.do("get_experiment", exp_id=str(exp_id))
             current_app.logger.debug("completed operation get_lab_by_exp_id")
             if not exp:
                 return ("No exp found with expid: %s" % (exp_id))
@@ -2265,16 +4490,15 @@ class TestGetExpByExpId(TestCase):
 
  #+END_SRC
 
+
 ** Get Discipline by DisId
 #+NAME: class_get_discipline_by_dis_id
 #+begin_src python
     @staticmethod
     def get_discipline(dis_id):
-        session_cls = System.delegate.entities['session']
-        session = session_cls(key=KEY)
         try:
             current_app.logger.debug("running operation get_discipline_by_dis_id")
-            dis = System.do("get_discipline", dis_id=str(dis_id), session=session)
+            dis = System.do("get_discipline", dis_id=str(dis_id))
             current_app.logger.debug("completed operation get_institute_by_inst_id")
             if not dis:
                 return ("No discipline found with disid: %s" % (dis_id))
@@ -2328,6 +4552,233 @@ class TestGetDisciplineByDisciplineId(TestCase):
         self.assertEqual(dis1.get("dis_id"), data_dict1['dis_id'])
 
  #+END_SRC
+
+
+
+
+** Add Asset
+#+NAME: class_add_asset
+#+begin_src python
+    @staticmethod
+    def add_asset(data_dict):
+        session_cls = System.delegate.entities['session']       
+        asset_cls = System.delegate.entities['asset']
+
+        session = session_cls(key=data_dict['key'])
+        del(data_dict['key'])
+
+        asset = asset_cls(asset_type=str(data_dict['asset_type']),
+                                  path=str(data_dict['path']))
+
+        try:
+            current_app.logger.debug("running operation add_asset")
+            asset = System.do("add_asset", asset=asset,
+                                    session=session)
+            current_app.logger.debug("completed operation add_asset")
+            return asset.to_client()
+
+        except (ArityError, TypeError, NotAuthorizedError, StateError) as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+
+        except Exception as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+
+#+end_src
+
+*** TestAddAsset 
+#+NAME: test_class_add_asset
+#+BEGIN_SRC python
+class TestAddAsset(TestCase):
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_add_asset_in_system_interface(self):
+        print "test_add_asset_in_system_interface"
+
+        data_dict = {
+                    'key' : KEY,
+                    'asset_type': 'Image',
+                    'path': 'vlabs.ac.in/static/images/icon.png'
+                    }
+
+        asset = SystemInterface.add_asset(data_dict)
+        asset_cls = System.delegate.entities['asset']
+        asset = asset_cls.get_all()[0]
+
+        self.assertEqual(asset.get("asset_type"), 
+                             data_dict['asset_type'])
+        self.assertEqual(asset.get("path"), data_dict['path'])
+        
+#+END_SRC
+
+
+** Update Asset
+#+NAME: class_update_asset
+#+begin_src python       
+    @staticmethod
+    def update_asset(data_dict):
+        session_cls = System.delegate.entities['session']
+        session = session_cls(key=data_dict['key'])
+
+        path = str(data_dict['path'])
+        asset = System.do("get_asset", path=path)
+
+        if 'asset_type' not in data_dict:
+            asset_type=str(asset.get("asset_type"))
+        else:
+            asset_type=data_dict['asset_type']
+
+        try:
+            current_app.logger.debug("running operation update_asset")
+            asset = System.do("update_asset", asset=asset,
+                                    asset_type=asset_type, 
+                                    session=session)
+            current_app.logger.debug("completed operation update_asset")
+            return asset.to_client()
+        except (ArityError, TypeError, NotAuthorizedError, StateError) as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+
+        except Exception as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+#+end_src
+*** TestUpdateAsset 
+#+NAME: test_class_update_asset
+#+BEGIN_SRC python
+class TestUpdateAsset(TestCase):
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_update_asset_name_in_system_interfaceinterface(self):
+        print "test_update_asset_name_in_system_interface"
+
+        data_dict = {
+                    'key' : KEY,
+                    'asset_type': 'Image',
+                    'path': 'vlabs.ac.in/static/images/logo.png'
+                    }
+
+        data_dict1 = {
+                    'key' : KEY,
+                    'asset_type': 'Video', 
+                    'path': 'vlabs.ac.in/static/images/logo.png'
+                    }
+
+        asset = SystemInterface.add_asset(data_dict)
+        asset1 = SystemInterface.update_asset(data_dict1)
+        
+        self.assertEqual(asset1.get("asset_type"), data_dict1['asset_type'])
+
+#+END_SRC
+
+
+** Delete Asset
+#+NAME: class_delete_asset
+#+begin_src python
+    @staticmethod
+    def delete_asset(path, key):
+        session_cls = System.delegate.entities['session']
+        session = session_cls(key=str(key))
+
+        try:
+            current_app.logger.debug("running operation delete_asset")
+            asset_path = System.do("delete_asset", path=str(path),
+                                      session=session)
+            current_app.logger.debug("completed operation delete_asset")
+            return asset_path
+        except (ArityError, TypeError, NotAuthorizedError, StateError) as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+
+        except Exception as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+#+end_src
+
+*** TestDeleteAsset 
+#+NAME: test_class_delete_asset
+#+BEGIN_SRC python
+class TestDeleteAsset(TestCase):
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_delete_asset_in_system_interface(self):
+        print "test_delete_asset_in_system_interface"
+
+        data_dict = {
+                    'key' : KEY,
+                    'asset_type': 'Image',
+                    'path': 'vlabs.ac.in/static/images/logo.png'
+                    }
+
+        data_dict1 = {
+                    'key' : KEY,
+                    'asset_type': 'Video',
+                    'path': 'vlabs.ac.in/static/images/icon.png'
+                    }
+
+        asset = SystemInterface.add_asset(data_dict)
+        asset1 = SystemInterface.add_asset(data_dict1)
+        path = SystemInterface.delete_asset("vlabs.ac.in/static/images/icon.png", KEY)
+        
+        self.assertEqual(path, "vlabs.ac.in/static/images/icon.png")
+
+#+END_SRC
+
+
+** Get Assets
+#+NAME: class_get_assets
+#+begin_src python
+    @staticmethod
+    def get_assets():
+        asset_cls = System.delegate.entities['asset']
+        try:
+            current_app.logger.debug("getting assets")
+            assets = asset_cls.get_all()
+            asset_dict_list = []
+            for asset in assets:
+                asset_x = asset.to_client()
+                asset_dict_list.append(asset_x)
+            current_app.logger.debug("got assets")
+            return  asset_dict_list
+
+        except (ArityError, TypeError, NotAuthorizedError, StateError) as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+
+        except Exception as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+#+end_src
 
 
 * Infra                                                         :boilerplate:
@@ -2385,6 +4836,12 @@ if __name__ == '__main__':
 <<class_add_experiment>>
 <<class_add_institute>>
 <<class_add_discipline>>
+<<class_add_name>>
+<<class_add_email>>
+<<class_add_developer>>
+<<class_get_labs>>
+<<class_add_hostinginfo>>
+<<class_add_integrationstatus>>
 
 <<class_get_lab_by_id>>
 <<class_get_section_by_id>>
@@ -2398,25 +4855,44 @@ if __name__ == '__main__':
 <<class_delete_experiment>>
 <<class_delete_section>>
 <<class_delete_discipline>>
+<<class_delete_hostinginfo>>
+<<class_delete_integrationstatus>>
 
 <<class_update_lab>>
 <<class_update_institute>>
 <<class_update_Section>>
 <<class_update_experiment>>
 <<class_update_discipline>>
+<<class_update_hostinginfo>>
+<<class_update_asset>>
 
 <<class_get_labs>>
 <<class_get_experiments>>
 <<class_get_institutes>>
 <<class_get_disciplines>>
+<<class_get_hostinginfos>>
+<<class_get_integrationstatuss>>
 
 <<class_get_lab_by_lab_id>>
 <<class_get_lab_by_exp_id>>
 <<class_get_institute_by_inst_id>>
 <<class_get_discipline_by_dis_id>>
+<<class_get_labs_by_institute>>
+<<class_get_labs_by_lab_name>>
+<<class_get_labs_by_discipline>>
 
 <<class_get_sections>>
-
+<<class_update_developer>>
+<<class_get_names>>
+<<class_get_emails>>
+<<class_get_developers>>
+<<class_delete_name>>
+<<class_delete_email>>
+<<class_delete_developer>>
+<<class_add_asset>>
+<<class_update_asset>>
+<<class_delete_asset>>
+<<class_get_assets>>
 #+end_src
 
 
@@ -2429,18 +4905,28 @@ if __name__ == '__main__':
 <<test_class_add_institute>>
 <<test_class_add_discipline>>
 <<test_class_add_section>>
+<<test_class_add_name>>
+<<test_class_add_email>>
+<<test_class_add_developer>>
+<<test_class_add_hostinginfo>>
+<<test_class_add_integrationstatus>>
 
 <<test_class_delete_lab>>
 <<test_class_delete_experiment>>
 <<test_class_delete_institute>>
 <<test_class_delete_section>>
 <<test_class_delete_Discipline>>
+<<test_class_delete_hostinginfo>>
+<<test_class_delete_integrationstatus>>
 
 <<test_class_get_labs>>
 <<test_class_get_sections>>
 <<test_class_get_experiments>>
 <<test_class_get_institutes>>
 <<test_class_get_disciplines>>
+<<test_class_get_hostinginfos>>
+<<test_class_get_integrationstatuss>>
+
 
 <<test_class_get_lab_by_id>>
 <<test_class_get_experiment_by_id>>
@@ -2452,11 +4938,27 @@ if __name__ == '__main__':
 <<test_class_update_institute>>
 <<test_class_update_Section>>
 <<test_class_update_Discipline>>
+<<test_class_update_hostinginfo>>
 
 <<test_class_get_lab_by_labid>>
+<<test_class_get_labs_by_institute>>
+<<test_class_get_labs_by_lab_name>>
+<<test_class_get_labs_by_discipline>>
+
+<<test_class_update_developer>>
+<<test_class_get_names>>
+<<test_class_get_emails>>
+<<test_class_get_developers>>
+<<test_class_delete_name>>
+<<test_class_delete_email>>
+<<test_class_delete_developer>>
 <<test_class_get_exp_by_expid>>
 <<test_class_get_institute_by_instituteid>>
 <<test_class_get_discipline_by_disid>>
+<<test_class_add_asset>>
+<<test_class_update_asset>>
+<<test_class_delete_asset>>
+<<test_class_get_assets>>
 <<run_test_cases>>
 
 #+end_src
