@@ -1672,34 +1672,61 @@ def get_institute():
                institute = SystemInterface.get_institute(inst_id)
                return jsonify(institute)
 
-           except NotAuthorizedError as err:
-               error_message = 'Not Authorized error: %s' % str(err)
-               current_app.logger.error("%s" %(error_message))
-               return render_template('error.html',
-                                       data=error_message)
-           except TypeError as err:
-               error_message = 'Malformed arguments, error: %s' % str(err)
-               current_app.logger.error("%s" %(error_message))
-               return render_template('error.html',
-                                       data=error_message)
-           except Exception as err:
-               error_message = 'error: %s' % str(err)
-               current_app.logger.error("%s" %(error_message))
-               return render_template('error.html',
-                                        data=error_message)
+           except TypeError as e:
+               err_str = str(e)
+               msg = {"status": "failure",
+                       "msg": err_str }
+               return jsonify(msg)
+
+           except StateError as e:
+               err_str = str(e)
+               msg = {"status": "failure",
+                       "msg": err_str}
+               return jsonify(msg)
+
+           except NotFoundError as e:
+               err_str = str(e)
+               msg = {"status": "failure",
+                       "status code": 404,
+                       "msg": err_str}
+               return jsonify(msg)
+
+           except Exception as e:
+               err_str = str(e)
+               msg = {"status": "failure",
+                       "msg": err_str}
+               return jsonify(msg)
+               
+
        else:
            try:
                institutes = SystemInterface.get_institutes()
                return jsonify_list(institutes)
 
-           except TypeError as err:
-               error_message = 'Malformed arguments, error: %s' % str(err)
+           except TypeError as e:
+               err_str = str(e)
+               msg = {"status": "failure",
+                       "msg": err_str }
+               return jsonify(msg)
 
-               return render_template('error.html',
-                                           data=error_message)
+           except StateError as e:
+               err_str = str(e)
+               msg = {"status": "failure",
+                       "msg": err_str}
+               return jsonify(msg)
 
-           except Exception as err:
-               abort(500, 'error: %s' % str(err))
+           except NotFoundError as e:
+               err_str = str(e)
+               msg = {"status": "failure",
+                       "status code": 404,
+                       "msg": err_str}
+               return jsonify(msg)
+
+           except Exception as e:
+               err_str = str(e)
+               msg = {"status": "failure",
+                       "msg": err_str}
+               return jsonify(msg)
             
 #+END_SRC
 
@@ -1830,14 +1857,37 @@ def add_institute():
             institute = SystemInterface.add_institute(data_dict)
             return jsonify(institute)
 
-        except TypeError as err:
-            error_message = 'Malformed arguments, error: %s' % str(err)
+        except NotAuthorizedError as e:
+            err_str = str(e)
+            msg = {"status": "failure",
+                    "status code": 401,
+                       "msg": err_str}
+            return jsonify(msg)
 
-            return render_template('error.html', 
-                    data=error_message)
+        except TypeError as e:
+            err_str = str(e)
+            msg = {"status": "failure",
+                       "msg": err_str }
+            return jsonify(msg)
 
-        except Exception as err:
-            abort(500, 'error: %s' % str(err))
+        except StateError as e:
+            err_str = str(e)
+            msg = {"status": "failure",
+                       "msg": err_str}
+            return jsonify(msg)
+
+        except NotFoundError as e:
+            err_str = str(e)
+            msg = {"status": "failure",
+                       "status code": 404,
+                       "msg": err_str}
+            return jsonify(msg)
+
+        except Exception as e:
+            err_str = str(e)
+            msg = {"status": "failure",
+                       "msg": err_str}
+            return jsonify(msg)
             
 #+END_SRC
 
@@ -1958,42 +2008,63 @@ def get_discipline():
             try:
                 discipline = SystemInterface.get_discipline(dis_id)
                 return jsonify(discipline)
+            
+            except TypeError as e:
+                err_str = str(e)
+                msg = {"status": "failure",
+                       "msg": err_str }
+                return jsonify(msg)
+
+            except StateError as e:
+                err_str = str(e)
+                msg = {"status": "failure",
+                       "msg": err_str}
+                return jsonify(msg)
+
+            except NotFoundError as e:
+                err_str = str(e)
+                msg = {"status": "failure",
+                       "status code": 404,
+                        "msg": err_str}
+                return jsonify(msg)
+
+            except Exception as e:
+                err_str = str(e)
+                msg = {"status": "failure",
+                       "msg": err_str}
+                return jsonify(msg)
                 
-            except NotAuthorizedError as err:
-                error_message =  'Not Authorized error: %s' % str(err)
-                """
-                if request.headers['Content-Type'] == "application/json":
-                    abort(401, error_message)
-                else:
-                """
-                current_app.logger.error("%s" %(error_message))
-                return render_template('error.html', 
-                                       data=error_message)
-            except TypeError as err:
-                error_message = 'Malformed arguments, error: %s' % str(err)
-                current_app.logger.error("%s" %(error_message))
-                return render_template('error.html', 
-                                       data=error_message)
-            except Exception as err:
-                error_message = 'error: %s' % str(err)
-                current_app.logger.error("%s" %(error_message))
-                return render_template('error.html', 
-                                       data=error_message)        
+        
         else:
 
             try:
                 disciplines = SystemInterface.get_disciplines()
                 return jsonify_list(disciplines)
+            
+            except TypeError as e:
+                err_str = str(e)
+                msg = {"status": "failure",
+                       "msg": err_str }
+                return jsonify(msg)
 
-            except TypeError as err:
-                error_message = 'Malformed arguments, error: %s' % str(err)
+            except StateError as e:
+                err_str = str(e)
+                msg = {"status": "failure",
+                       "msg": err_str}
+                return jsonify(msg)
 
-                return render_template('error.html', 
-                        data=error_message)
+            except NotFoundError as e:
+                err_str = str(e)
+                msg = {"status": "failure",
+                       "status code": 404,
+                       "msg": err_str}
+                return jsonify(msg)
 
-            except Exception as err:
-                abort(500, 'error: %s' % str(err))
-       
+            except Exception as e:
+                err_str = str(e)
+                msg = {"status": "failure",
+                       "msg": err_str}
+                return jsonify(msg)
 #+END_SRC
 
 *** Test Cases
@@ -2124,14 +2195,37 @@ def add_discipline():
             dis = SystemInterface.add_discipline(data_dict)
             return jsonify(dis)
 
-        except TypeError as err:
-            error_message = 'Malformed arguments, error: %s' % str(err)
+        except NotAuthorizedError as e:
+            err_str = str(e)
+            msg = {"status": "failure",
+                    "status code": 401,
+                       "msg": err_str}
+            return jsonify(msg)
 
-            return render_template('error.html', 
-                    data=error_message)
+        except TypeError as e:
+            err_str = str(e)
+            msg = {"status": "failure",
+                       "msg": err_str }
+            return jsonify(msg)
 
-        except Exception as err:
-            abort(500, 'error: %s' % str(err))
+        except StateError as e:
+            err_str = str(e)
+            msg = {"status": "failure",
+                       "msg": err_str}
+            return jsonify(msg)
+
+        except NotFoundError as e:
+            err_str = str(e)
+            msg = {"status": "failure",
+                       "status code": 404,
+                       "msg": err_str}
+            return jsonify(msg)
+
+        except Exception as e:
+            err_str = str(e)
+            msg = {"status": "failure",
+                       "msg": err_str}
+            return jsonify(msg)
             
 #+END_SRC
 
@@ -2277,46 +2371,68 @@ def get_experiment():
                 exp = SystemInterface.get_experiment(exp_id)
                 current_app.logger.debug("executed get_exp_by_expid")
                 return jsonify(exp)
+
+            except TypeError as e:
+                err_str = str(e)
+                msg = {"status": "failure",
+                       "msg": err_str }
+                return jsonify(msg)
+
+            except StateError as e:
+                err_str = str(e)
+                msg = {"status": "failure",
+                       "msg": err_str}
+                return jsonify(msg)
+
+            except NotFoundError as e:
+                err_str = str(e)
+                msg = {"status": "failure",
+                       "status code": 404,
+                       "msg": err_str}
+                return jsonify(msg)
+
+            except Exception as e:
+                err_str = str(e)
+                msg = {"status": "failure",
+                       "msg": err_str}
+                return jsonify(msg)
+            else:
+                try:
+                    experiments = SystemInterface.get_experiments()
+                    return jsonify_list(experiments)
+
+                except NotAuthorizedError as e:
+                    err_str = str(e)
+                    msg = {"status": "failure",
+                        "status code": 401,
+                        "msg": err_str}
+                    return jsonify(msg)
                 
-            except NotAuthorizedError as err:
-                error_message =  'Not Authorized error: %s' % str(err)
-                """
-                if request.headers['Content-Type'] == "application/json":
-                    abort(401, error_message)
-                else:
-                """
-                current_app.logger.error("%s" %(error_message))
-                return render_template('error.html', 
-                                       data=error_message)
-            except TypeError as err:
-                error_message = 'Malformed arguments, error: %s' % str(err)
-                current_app.logger.error("%s" %(error_message))
-                return render_template('error.html', 
-                                       data=error_message)
-            except Exception as err:
-                error_message = 'error: %s' % str(err)
-                """
-                if request.headers['Content-Type'] == "application/json":
-                abort(400, error_message)
-                else:
-                """
-                current_app.logger.error("%s" %(error_message))
-                return render_template('error.html', 
-                                       data=error_message)
-        else:
-            try:
-                experiments = SystemInterface.get_experiments()
-
-                return jsonify_list(experiments)
-
-            except TypeError as err:
-                error_message = 'Malformed arguments, error: %s' % str(err)
-
-                return render_template('error.html', data=error_message)
-
-            except Exception as err:
-                abort(500, 'error: %s' % str(err))
-       
+                except TypeError as e:
+                    err_str = str(e)
+                    msg = {"status": "failure",
+                        "msg": err_str }
+                    return jsonify(msg)
+                
+                except StateError as e:
+                    err_str = str(e)
+                    msg = {"status": "failure",
+                        "msg": err_str}
+                    return jsonify(msg)
+                
+                except NotFoundError as e:
+                    err_str = str(e)
+                    msg = {"status": "failure",
+                        "status code": 404,
+                        "msg": err_str}
+                    return jsonify(msg)
+                
+                except Exception as e:
+                    err_str = str(e)
+                    msg = {"status": "failure",
+                        "msg": err_str}
+                    return jsonify(msg)
+                
 #+END_SRC
 
 *** Test Cases
@@ -2464,14 +2580,37 @@ def get_add_experiment():
             exp = SystemInterface.add_experiment(data_dict)
             return jsonify(exp)
 
-        except TypeError as err:
-            error_message = 'Malformed arguments, error: %s' % str(err)
+        except NotAuthorizedError as e:
+            err_str = str(e)
+            msg = {"status": "failure",
+                    "status code": 401,
+                       "msg": err_str}
+            return jsonify(msg)
 
-            return render_template('error.html', 
-                    data=error_message)
+        except TypeError as e:
+            err_str = str(e)
+            msg = {"status": "failure",
+                       "msg": err_str }
+            return jsonify(msg)
 
-        except Exception as err:
-            abort(500, 'error: %s' % str(err))
+        except StateError as e:
+            err_str = str(e)
+            msg = {"status": "failure",
+                       "msg": err_str}
+            return jsonify(msg)
+
+        except NotFoundError as e:
+            err_str = str(e)
+            msg = {"status": "failure",
+                       "status code": 404,
+                       "msg": err_str}
+            return jsonify(msg)
+
+        except Exception as e:
+            err_str = str(e)
+            msg = {"status": "failure",
+                       "msg": err_str}
+            return jsonify(msg)
             
 #+END_SRC
 
@@ -2551,14 +2690,30 @@ def get_section():
 
             return jsonify_list(sections)
 
-        except TypeError as err:
-            error_message = 'Malformed arguments, error: %s' % str(err)
+        except TypeError as e:
+            err_str = str(e)
+            msg = {"status": "failure",
+                       "msg": err_str }
+            return jsonify(msg)
 
-            return render_template('error.html', 
-                    data=error_message)
+        except StateError as e:
+            err_str = str(e)
+            msg = {"status": "failure",
+                       "msg": err_str}
+            return jsonify(msg)
 
-        except Exception as err:
-            abort(500, 'error: %s' % str(err))
+        except NotFoundError as e:
+            err_str = str(e)
+            msg = {"status": "failure",
+                       "status code": 404,
+                       "msg": err_str}
+            return jsonify(msg)
+
+        except Exception as e:
+            err_str = str(e)
+            msg = {"status": "failure",
+                       "msg": err_str}
+            return jsonify(msg)
             
 #+END_SRC
 
@@ -2654,14 +2809,37 @@ def add_section():
             section = SystemInterface.add_section(data_dict)
             return jsonify(section)
 
-        except TypeError as err:
-            error_message = 'Malformed arguments, error: %s' % str(err)
+        except NotAuthorizedError as e:
+            err_str = str(e)
+            msg = {"status": "failure",
+                    "status code": 401,
+                       "msg": err_str}
+            return jsonify(msg)
 
-            return render_template('error.html', 
-                    data=error_message)
+        except TypeError as e:
+            err_str = str(e)
+            msg = {"status": "failure",
+                       "msg": err_str }
+            return jsonify(msg)
 
-        except Exception as err:
-            abort(500, 'error: %s' % str(err))
+        except StateError as e:
+            err_str = str(e)
+            msg = {"status": "failure",
+                       "msg": err_str}
+            return jsonify(msg)
+
+        except NotFoundError as e:
+            err_str = str(e)
+            msg = {"status": "failure",
+                       "status code": 404,
+                       "msg": err_str}
+            return jsonify(msg)
+
+        except Exception as e:
+            err_str = str(e)
+            msg = {"status": "failure",
+                       "msg": err_str}
+            return jsonify(msg)
             
 #+END_SRC
 
@@ -2742,35 +2920,73 @@ def get_hostinginfo():
                hostinginfo = SystemInterface.get_hostinginfo(hosted_url)
                return jsonify(hostinginfo)
 
-           except NotAuthorizedError as err:
-               error_message = 'Not Authorized error: %s' % str(err)
-               current_app.logger.error("%s" %(error_message))
-               return render_template('error.html',
-                                       data=error_message)
-           except TypeError as err:
-               error_message = 'Malformed arguments, error: %s' % str(err)
-               current_app.logger.error("%s" %(error_message))
-               return render_template('error.html',
-                                       data=error_message)
-           except Exception as err:
-               error_message = 'error: %s' % str(err)
-               current_app.logger.error("%s" %(error_message))
-               return render_template('error.html',
-                                        data=error_message)
-       else:
+           except NotAuthorizedError as e:
+               err_str = str(e)
+               msg = {"status": "failure",
+                    "status code": 401,
+                       "msg": err_str}
+               return jsonify(msg)
+
+           except TypeError as e:
+               err_str = str(e)
+               msg = {"status": "failure",
+                       "msg": err_str }
+               return jsonify(msg)
+
+           except StateError as e:
+               err_str = str(e)
+               msg = {"status": "failure",
+                       "msg": err_str}
+               return jsonify(msg)
+
+           except NotFoundError as e:
+               err_str = str(e)
+               msg = {"status": "failure",
+                       "status code": 404,
+                       "msg": err_str}
+               return jsonify(msg)
+
+           except Exception as e:
+               err_str = str(e)
+               msg = {"status": "failure",
+                       "msg": err_str}
+               return jsonify(msg)
+    else:
            try:
                hostinginfos = SystemInterface.get_hostinginfos()
                return jsonify_list(hostinginfos)
 
-           except TypeError as err:
-               error_message = 'Malformed arguments, error: %s' % str(err)
+           except NotAuthorizedError as e:
+               err_str = str(e)
+               msg = {"status": "failure",
+                    "status code": 401,
+                       "msg": err_str}
+               return jsonify(msg)
 
-               return render_template('error.html',
-                                           data=error_message)
+           except TypeError as e:
+               err_str = str(e)
+               msg = {"status": "failure",
+                       "msg": err_str }
+               return jsonify(msg)
 
-           except Exception as err:
-               abort(500, 'error: %s' % str(err))
-            
+           except StateError as e:
+               err_str = str(e)
+               msg = {"status": "failure",
+                       "msg": err_str}
+               return jsonify(msg)
+
+           except NotFoundError as e:
+               err_str = str(e)
+               msg = {"status": "failure",
+                       "status code": 404,
+                       "msg": err_str}
+               return jsonify(msg)
+
+           except Exception as e:
+               err_str = str(e)
+               msg = {"status": "failure",
+                       "msg": err_str}
+               return jsonify(msg)
 #+END_SRC
 
 *** Test Cases
@@ -2983,35 +3199,74 @@ def get_integrationstatus():
                integrationstatus = SystemInterface.get_integrationstatus(integration_level)
                return jsonify(integrationstatus)
 
-           except NotAuthorizedError as err:
-               error_message = 'Not Authorized error: %s' % str(err)
-               current_app.logger.error("%s" %(error_message))
-               return render_template('error.html',
-                                       data=error_message)
-           except TypeError as err:
-               error_message = 'Malformed arguments, error: %s' % str(err)
-               current_app.logger.error("%s" %(error_message))
-               return render_template('error.html',
-                                       data=error_message)
-           except Exception as err:
-               error_message = 'error: %s' % str(err)
-               current_app.logger.error("%s" %(error_message))
-               return render_template('error.html',
-                                        data=error_message)
+           except NotAuthorizedError as e:
+               err_str = str(e)
+               msg = {"status": "failure",
+                    "status code": 401,
+                       "msg": err_str}
+               return jsonify(msg)
+
+           except TypeError as e:
+               err_str = str(e)
+               msg = {"status": "failure",
+                       "msg": err_str }
+               return jsonify(msg)
+
+           except StateError as e:
+               err_str = str(e)
+               msg = {"status": "failure",
+                       "msg": err_str}
+               return jsonify(msg)
+
+           except NotFoundError as e:
+               err_str = str(e)
+               msg = {"status": "failure",
+                       "status code": 404,
+                        "msg": err_str}
+               return jsonify(msg)
+
+           except Exception as e:
+               err_str = str(e)
+               msg = {"status": "failure",
+                       "msg": err_str}
+               return jsonify(msg)
+
        else:
            try:
                integrationstatuss = SystemInterface.get_integrationstatuss()
                return jsonify_list(integrationstatuss)
 
-           except TypeError as err:
-               error_message = 'Malformed arguments, error: %s' % str(err)
+           except NotAuthorizedError as e:
+               err_str = str(e)
+               msg = {"status": "failure",
+                    "status code": 401,
+                       "msg": err_str}
+               return jsonify(msg)
 
-               return render_template('error.html',
-                                           data=error_message)
+           except TypeError as e:
+               err_str = str(e)
+               msg = {"status": "failure",
+                       "msg": err_str }
+               return jsonify(msg)
 
-           except Exception as err:
-               abort(500, 'error: %s' % str(err))
-            
+           except StateError as e:
+               err_str = str(e)
+               msg = {"status": "failure",
+                       "msg": err_str}
+               return jsonify(msg)
+
+           except NotFoundError as e:
+               err_str = str(e)
+               msg = {"status": "failure",
+                       "status code": 404,
+                       "msg": err_str}
+               return jsonify(msg)
+
+           except Exception as e:
+               err_str = str(e)
+               msg = {"status": "failure",
+                       "msg": err_str}
+               return jsonify(msg)
 #+END_SRC
 
 *** Test Cases
@@ -3216,35 +3471,60 @@ def get_email():
                email = SystemInterface.get_email(email)
                return jsonify(email)
 
-           except NotAuthorizedError as err:
-               error_message = 'Not Authorized error: %s' % str(err)
-               current_app.logger.error("%s" %(error_message))
-               return render_template('error.html',
-                                       data=error_message)
-           except TypeError as err:
-               error_message = 'Malformed arguments, error: %s' % str(err)
-               current_app.logger.error("%s" %(error_message))
-               return render_template('error.html',
-                                       data=error_message)
-           except Exception as err:
-               error_message = 'error: %s' % str(err)
-               current_app.logger.error("%s" %(error_message))
-               return render_template('error.html',
-                                        data=error_message)
+           except TypeError as e:
+               err_str = str(e)
+               msg = {"status": "failure",
+                       "msg": err_str }
+               return jsonify(msg)
+
+           except StateError as e:
+               err_str = str(e)
+               msg = {"status": "failure",
+                        "msg": err_str}
+               return jsonify(msg)
+
+           except NotFoundError as e:
+               err_str = str(e)
+               msg = {"status": "failure",
+                       "status code": 404,
+                       "msg": err_str}
+               return jsonify(msg)
+
+           except Exception as e:
+               err_str = str(e)
+               msg = {"status": "failure",
+                       "msg": err_str}
+               return jsonify(msg)
+
        else:
            try:
                emails = SystemInterface.get_emails()
                return jsonify_list(emails)
 
-           except TypeError as err:
-               error_message = 'Malformed arguments, error: %s' % str(err)
+           except TypeError as e:
+               err_str = str(e)
+               msg = {"status": "failure",
+                       "msg": err_str }
+               return jsonify(msg)
 
-               return render_template('error.html',
-                                           data=error_message)
+           except StateError as e:
+               err_str = str(e)
+               msg = {"status": "failure",
+                       "msg": err_str}
+               return jsonify(msg)
 
-           except Exception as err:
-               abort(500, 'error: %s' % str(err))
-            
+           except NotFoundError as e:
+               err_str = str(e)
+               msg = {"status": "failure",
+                       "status code": 404,
+                       "msg": err_str}
+               return jsonify(msg)
+
+           except Exception as e:
+               err_str = str(e)
+               msg = {"status": "failure",
+                       "msg": err_str}
+               return jsonify(msg)
 #+END_SRC
 
 *** Test Cases
@@ -3449,35 +3729,60 @@ def get_name():
                name = SystemInterface.get_name(name)
                return jsonify(name)
 
-           except NotAuthorizedError as err:
-               error_message = 'Not Authorized error: %s' % str(err)
-               current_app.logger.error("%s" %(error_message))
-               return render_template('error.html',
-                                       data=error_message)
-           except TypeError as err:
-               error_message = 'Malformed arguments, error: %s' % str(err)
-               current_app.logger.error("%s" %(error_message))
-               return render_template('error.html',
-                                       data=error_message)
-           except Exception as err:
-               error_message = 'error: %s' % str(err)
-               current_app.logger.error("%s" %(error_message))
-               return render_template('error.html',
-                                        data=error_message)
+           except TypeError as e:
+               err_str = str(e)
+               msg = {"status": "failure",
+                       "msg": err_str }
+               return jsonify(msg)
+
+           except StateError as e:
+               err_str = str(e)
+               msg = {"status": "failure",
+                       "msg": err_str}
+               return jsonify(msg)
+
+           except NotFoundError as e:
+               err_str = str(e)
+               msg = {"status": "failure",
+                        "status code": 404,
+                        "msg": err_str}
+               return jsonify(msg)
+
+           except Exception as e:
+               err_str = str(e)
+               msg = {"status": "failure",
+                        "msg": err_str}
+               return jsonify(msg)
+           
        else:
            try:
                names = SystemInterface.get_names()
                return jsonify_list(names)
 
-           except TypeError as err:
-               error_message = 'Malformed arguments, error: %s' % str(err)
+           except TypeError as e:
+               err_str = str(e)
+               msg = {"status": "failure",
+                       "msg": err_str }
+               return jsonify(msg)
 
-               return render_template('error.html',
-                                           data=error_message)
+           except StateError as e:
+               err_str = selftr(e)
+               msg = {"status": "failure",
+                        "msg": err_str}
+               return jsonify(msg)
 
-           except Exception as err:
-               abort(500, 'error: %s' % str(err))
-            
+           except NotFoundError as e:
+               err_str = str(e)
+               msg = {"status": "failure",
+                        "status code": 404,
+                        "msg": err_str}
+               return jsonify(msg)
+
+           except Exception as e:
+               err_str = str(e)
+               msg = {"status": "failure",
+                        "msg": err_str}
+               return jsonify(msg)
 #+END_SRC
 
 *** Test Cases
@@ -3681,36 +3986,61 @@ def get_developer():
            try:
                developer = SystemInterface.get_developer(email)
                return jsonify(developer)
+           
+           except TypeError as e:
+               err_str = str(e)
+               msg = {"status": "failure",
+                        "msg": err_str }
+               return jsonify(msg)
 
-           except NotAuthorizedError as err:
-               error_message = 'Not Authorized error: %s' % str(err)
-               current_app.logger.error("%s" %(error_message))
-               return render_template('error.html',
-                                       data=error_message)
-           except TypeError as err:
-               error_message = 'Malformed arguments, error: %s' % str(err)
-               current_app.logger.error("%s" %(error_message))
-               return render_template('error.html',
-                                       data=error_message)
-           except Exception as err:
-               error_message = 'error: %s' % str(err)
-               current_app.logger.error("%s" %(error_message))
-               return render_template('error.html',
-                                        data=error_message)
+           except StateError as e:
+               err_str = str(e)
+               msg = {"status": "failure",
+                        "msg": err_str}
+               return jsonify(msg)
+           
+           except NotFoundError as e:
+               err_str = str(e)
+               msg = {"status": "failure",
+                        "status code": 404,
+                        "msg": err_str}
+               return jsonify(msg)
+           
+           except Exception as e:
+               err_str = str(e)
+               msg = {"status": "failure",
+                        "msg": err_str}
+               return jsonify(msg)
+           
        else:
            try:
                developers = SystemInterface.get_developers()
                return jsonify_list(developers)
 
-           except TypeError as err:
-               error_message = 'Malformed arguments, error: %s' % str(err)
-
-               return render_template('error.html',
-                                           data=error_message)
-
-           except Exception as err:
-               abort(500, 'error: %s' % str(err))
-            
+           except TypeError as e:
+               err_str = str(e)
+               msg = {"status": "failure",
+                        "msg": err_str }
+               return jsonify(msg)
+           
+           except StateError as e:
+               err_str = str(e)
+               msg = {"status": "failure",
+                        "msg": err_str}
+               return jsonify(msg)
+           
+           except NotFoundError as e:
+               err_str = str(e)
+               msg = {"status": "failure",
+                        "status code": 404,
+                        "msg": err_str}
+               return jsonify(msg)
+           
+           except Exception as e:
+               err_str = str(e)
+               msg = {"status": "failure",
+                        "msg": err_str}
+               return jsonify(msg)
 #+END_SRC
 
 *** Test Cases
@@ -3985,14 +4315,37 @@ def update():
             lab = SystemInterface.update_lab(data_dict)
             return jsonify(lab)
 
-        except TypeError as err:
-            error_message = 'Malformed arguments, error: %s' % str(err)
+        except NotAuthorizedError as e:
+            err_str = str(e)
+            msg = {"status": "failure",
+                    "status code": 401,
+                       "msg": err_str}
+            return jsonify(msg)
 
-            return render_template('error.html', 
-                    data=error_message)
+        except TypeError as e:
+            err_str = str(e)
+            msg = {"status": "failure",
+                       "msg": err_str }
+            return jsonify(msg)
 
-        except Exception as err:
-            abort(500, 'error: %s' % str(err))
+        except StateError as e:
+            err_str = str(e)
+            msg = {"status": "failure",
+                       "msg": err_str}
+            return jsonify(msg)
+
+        except NotFoundError as e:
+            err_str = str(e)
+            msg = {"status": "failure",
+                       "status code": 404,
+                       "msg": err_str}
+            return jsonify(msg)
+
+        except Exception as e:
+            err_str = str(e)
+            msg = {"status": "failure",
+                       "msg": err_str}
+            return jsonify(msg)
 
 #+END_SRC
 *** Test Cases
@@ -4161,15 +4514,39 @@ def delete_lab():
             try:
                 lab = SystemInterface.delete_lab(lab_id, key)
                 return jsonify({"status":"sucess"})
+            except NotAuthorizedError as e:
+                err_str = str(e)
+                msg = {"status": "failure",
+                        "status code": 401,
+                       "msg": err_str}
+                return jsonify(msg)
 
-            except TypeError as err:
-                error_message = 'Malformed arguments, error: %s' % str(err)
-
-                return render_template('error.html', data=error_message)
-
-            except Exception as err:
-                abort(500, 'error: %s' % str(err))
-
+            except TypeError as e:
+                err_str = str(e)
+                msg = {"status": "failure",
+                        "msg": err_str }
+                return jsonify(msg)
+            
+            except StateError as e:
+                err_str = str(e)
+                msg = {"status": "failure",
+                           "msg": err_str}
+                return jsonify(msg)
+            
+            except NotFoundError as e:
+                err_str = str(e)
+                msg = {"status": "failure",
+                        "status code": 404,
+                        "msg": err_str}
+                return jsonify(msg)
+            
+            except Exception as e:
+                err_str = str(e)
+                msg = {"status": "failure",
+                        "msg": err_str}
+                return jsonify(msg)
+            
+            
 #+END_SRC
 *** Test Cases
 **** TestDeleteLab
@@ -4355,14 +4732,37 @@ def update_experiment():
             exp = SystemInterface.update_experiment(data_dict)
             return jsonify(exp)
 
-        except TypeError as err:
-            error_message = 'Malformed arguments, error: %s' % str(err)
+        except NotAuthorizedError as e:
+            err_str = str(e)
+            msg = {"status": "failure",
+                    "status code": 401,
+                       "msg": err_str}
+            return jsonify(msg)
 
-            return render_template('error.html', 
-                    data=error_message)
+        except TypeError as e:
+            err_str = str(e)
+            msg = {"status": "failure",
+                       "msg": err_str }
+            return jsonify(msg)
 
-        except Exception as err:
-            abort(500, 'error: %s' % str(err))
+        except StateError as e:
+            err_str = str(e)
+            msg = {"status": "failure",
+                       "msg": err_str}
+            return jsonify(msg)
+
+        except NotFoundError as e:
+            err_str = str(e)
+            msg = {"status": "failure",
+                       "status code": 404,
+                       "msg": err_str}
+            return jsonify(msg)
+
+        except Exception as e:
+            err_str = str(e)
+            msg = {"status": "failure",
+                       "msg": err_str}
+            return jsonify(msg)
 
 #+END_SRC
 *** Test Cases
@@ -4453,15 +4853,40 @@ def delete_experiment():
             try:
                 exp_id = SystemInterface.delete_experiment(exp_id, key)
                 return jsonify({"status":"sucess"})
-
-            except TypeError as err:
-                error_message = 'Malformed arguments, error: %s' % str(err)
-
-                return render_template('error.html', data=error_message)
-
-            except Exception as err:
-                abort(500, 'error: %s' % str(err))
-
+            
+            except NotAuthorizedError as e:
+                err_str = str(e)
+                msg = {"status": "failure",
+                        "status code": 401,
+                        "msg": err_str}
+                return jsonify(msg)
+            
+            except TypeError as e:
+                err_str = str(e)
+                msg = {"status": "failure",
+                        "msg": err_str }
+                return jsonify(msg)
+            
+            except StateError as e:
+                err_str = str(e)
+                msg = {"status": "failure",
+                        "msg": err_str}
+                return jsonify(msg)
+            
+            except NotFoundError as e:
+                err_str = str(e)
+                msg = {"status": "failure",
+                        "status code": 404,
+                       "msg": err_str}
+                return jsonify(msg)
+            
+            except Exception as e:
+                err_str = str(e)
+                msg = {"status": "failure",
+                        "msg": err_str}
+                return jsonify(msg)
+            
+            
 #+END_SRC
 *** Test Cases
 **** TestDeleteExperiment
@@ -4584,20 +5009,37 @@ def update_and_delete_section(id):
             section = SystemInterface.get_section_by_id(id)
             return jsonify(section)
 
-        except NotFoundError as err:
-            error_message = "No section found with id: %s found." % id
+        except NotAuthorizedError as e:
+            err_str = str(e)
+            msg = {"status": "failure",
+                    "status code": 401,
+                       "msg": err_str}
+            return jsonify(msg)
 
-            return render_template('error.html',
-                    data=error_message)
+        except TypeError as e:
+            err_str = str(e)
+            msg = {"status": "failure",
+                       "msg": err_str }
+            return jsonify(msg)
 
-        except TypeError as err:
-            error_message = 'Malformed arguments, error: %s' % str(err)
+        except StateError as e:
+            err_str = str(e)
+            msg = {"status": "failure",
+                       "msg": err_str}
+            return jsonify(msg)
 
-            return render_template('error.html', 
-                    data=error_message)
+        except NotFoundError as e:
+            err_str = str(e)
+            msg = {"status": "failure",
+                       "status code": 404,
+                       "msg": err_str}
+            return jsonify(msg)
 
-        except Exception as err:
-            abort(500, 'error: %s' % str(err))
+        except Exception as e:
+            err_str = str(e)
+            msg = {"status": "failure",
+                       "msg": err_str}
+            return jsonify(msg)
     
     if request.method == 'PUT':
         if request.is_json:
@@ -4611,30 +5053,75 @@ def update_and_delete_section(id):
             section = SystemInterface.update_section(data_dict)
             return jsonify(section)
 
-        except TypeError as err:
-            error_message = 'Malformed arguments, error: %s' % str(err)
+        except NotAuthorizedError as e:
+            err_str = str(e)
+            msg = {"status": "failure",
+                    "status code": 401,
+                       "msg": err_str}
+            return jsonify(msg)
 
-            return render_template('error.html', 
-                    data=error_message)
+        except TypeError as e:
+            err_str = str(e)
+            msg = {"status": "failure",
+                       "msg": err_str }
+            return jsonify(msg)
 
-        except Exception as err:
-            abort(500, 'error: %s' % str(err))
+        except StateError as e:
+            err_str = str(e)
+            msg = {"status": "failure",
+                       "msg": err_str}
+            return jsonify(msg)
 
+        except NotFoundError as e:
+            err_str = str(e)
+            msg = {"status": "failure",
+                       "status code": 404,
+                       "msg": err_str}
+            return jsonify(msg)
+
+        except Exception as e:
+            err_str = str(e)
+            msg = {"status": "failure",
+                       "msg": err_str}
+            return jsonify(msg)
+        
     if request.method == 'DELETE':
 
         try:
             section = SystemInterface.delete_section(id)
             return jsonify({"status":"sucess"})
 
-        except TypeError as err:
-            error_message = 'Malformed arguments, error: %s' % str(err)
+        except NotAuthorizedError as e:
+            err_str = str(e)
+            msg = {"status": "failure",
+                    "status code": 401,
+                       "msg": err_str}
+            return jsonify(msg)
 
-            return render_template('error.html', 
-                    data=error_message)
+        except TypeError as e:
+            err_str = str(e)
+            msg = {"status": "failure",
+                       "msg": err_str }
+            return jsonify(msg)
 
-        except Exception as err:
-            abort(500, 'error: %s' % str(err))
+        except StateError as e:
+            err_str = str(e)
+            msg = {"status": "failure",
+                       "msg": err_str}
+            return jsonify(msg)
 
+        except NotFoundError as e:
+            err_str = str(e)
+            msg = {"status": "failure",
+                       "status code": 404,
+                       "msg": err_str}
+            return jsonify(msg)
+
+        except Exception as e:
+            err_str = str(e)
+            msg = {"status": "failure",
+                       "msg": err_str}
+            return jsonify(msg)
 #+END_SRC
 *** Test Cases
 **** TestUpdateSection
@@ -4771,14 +5258,37 @@ def update_institute():
             institute = SystemInterface.update_institute(data_dict)
             return jsonify(institute)
 
-        except TypeError as err:
-            error_message = 'Malformed arguments, error: %s' % str(err)
+        except NotAuthorizedError as e:
+            err_str = str(e)
+            msg = {"status": "failure",
+                    "status code": 401,
+                       "msg": err_str}
+            return jsonify(msg)
 
-            return render_template('error.html', 
-                    data=error_message)
+        except TypeError as e:
+            err_str = str(e)
+            msg = {"status": "failure",
+                       "msg": err_str }
+            return jsonify(msg)
 
-        except Exception as err:
-            abort(500, 'error: %s' % str(err))
+        except StateError as e:
+            err_str = str(e)
+            msg = {"status": "failure",
+                       "msg": err_str}
+            return jsonify(msg)
+
+        except NotFoundError as e:
+            err_str = str(e)
+            msg = {"status": "failure",
+                       "status code": 404,
+                       "msg": err_str}
+            return jsonify(msg)
+
+        except Exception as e:
+            err_str = str(e)
+            msg = {"status": "failure",
+                       "msg": err_str}
+            return jsonify(msg)
 
 #+END_SRC
 
@@ -4869,14 +5379,38 @@ def delete_institute():
                 institute = SystemInterface.delete_institute(inst_id, key)
                 return jsonify({"status":"sucess"})
 
-            except TypeError as err:
-                error_message = 'Malformed arguments, error: %s' % str(err)
-
-                return render_template('error.html', data=error_message)
-
-            except Exception as err:
-                abort(500, 'error: %s' % str(err))
-
+            except NotAuthorizedError as e:
+                err_str = str(e)
+                msg = {"status": "failure",
+                        "status code": 401,
+                        "msg": err_str}
+                return jsonify(msg)
+            
+            except TypeError as e:
+                err_str = str(e)
+                msg = {"status": "failure",
+                        "msg": err_str }
+                return jsonify(msg)
+            
+            except StateError as e:
+                err_str = str(e)
+                msg = {"status": "failure",
+                        "msg": err_str}
+                return jsonify(msg)
+            
+            except NotFoundError as e:
+                err_str = str(e)
+                msg = {"status": "failure",
+                        "status code": 404,
+                       "msg": err_str}
+                return jsonify(msg)
+            
+            except Exception as e:
+                err_str = str(e)
+                msg = {"status": "failure",
+                        "msg": err_str}
+                return jsonify(msg)
+            
 #+END_SRC
 
 *** Test Cases
@@ -4977,15 +5511,38 @@ def update_discipline():
         try:
             discipline = SystemInterface.update_discipline(data_dict)
             return jsonify(discipline)
+        
+        except NotAuthorizedError as e:
+            err_str = str(e)
+            msg = {"status": "failure",
+                    "status code": 401,
+                       "msg": err_str}
+            return jsonify(msg)
 
-        except TypeError as err:
-            error_message = 'Malformed arguments, error: %s' % str(err)
+        except TypeError as e:
+            err_str = str(e)
+            msg = {"status": "failure",
+                       "msg": err_str }
+            return jsonify(msg)
 
-            return render_template('error.html', 
-                    data=error_message)
+        except StateError as e:
+            err_str = str(e)
+            msg = {"status": "failure",
+                       "msg": err_str}
+            return jsonify(msg)
 
-        except Exception as err:
-            abort(500, 'error: %s' % str(err))
+        except NotFoundError as e:
+            err_str = str(e)
+            msg = {"status": "failure",
+                       "status code": 404,
+                       "msg": err_str}
+            return jsonify(msg)
+
+        except Exception as e:
+            err_str = str(e)
+            msg = {"status": "failure",
+                       "msg": err_str}
+            return jsonify(msg)
 
 #+END_SRC
 
@@ -5075,15 +5632,40 @@ def delete_discipline():
             try:
                 discipline = SystemInterface.delete_discipline(dis_id, key)
                 return jsonify({"status":"sucess"})
+            
+            except NotAuthorizedError as e:
+                err_str = str(e)
+                msg = {"status": "failure",
+                        "status code": 401,
+                        "msg": err_str}
+                return jsonify(msg)
 
-            except TypeError as err:
-                error_message = 'Malformed arguments, error: %s' % str(err)
+            except TypeError as e:
+                err_str = str(e)
+                msg = {"status": "failure",
+                        "msg": err_str }
+                return jsonify(msg)
+            
+            except StateError as e:
+                err_str = str(e)
+                msg = {"status": "failure",
+                        "msg": err_str}
+                return jsonify(msg)
+            
+            except NotFoundError as e:
+                err_str = str(e)
+                msg = {"status": "failure",
+                        "status code": 404,
+                        "msg": err_str}
+                return jsonify(msg)
 
-                return render_template('error.html', data=error_message)
-
-            except Exception as err:
-                abort(500, 'error: %s' % str(err))
-
+            except Exception as e:
+                err_str = str(e)
+                msg = {"status": "failure",
+                        "msg": err_str}
+                return jsonify(msg)            
+            
+            
 #+END_SRC
 
 *** Test Cases
@@ -5188,14 +5770,37 @@ def update_hostinginfo():
             hostinginfo = SystemInterface.update_hostinginfo(data_dict)
             return jsonify(hostinginfo)
 
-        except TypeError as err:
-            error_message = 'Malformed arguments, error: %s' % str(err)
+        except NotAuthorizedError as e:
+            err_str = str(e)
+            msg = {"status": "failure",
+                    "status code": 401,
+                       "msg": err_str}
+            return jsonify(msg)
 
-            return render_template('error.html', 
-                    data=error_message)
+        except TypeError as e:
+            err_str = str(e)
+            msg = {"status": "failure",
+                       "msg": err_str }
+            return jsonify(msg)
 
-        except Exception as err:
-            abort(500, 'error: %s' % str(err))
+        except StateError as e:
+            err_str = str(e)
+            msg = {"status": "failure",
+                       "msg": err_str}
+            return jsonify(msg)
+
+        except NotFoundError as e:
+            err_str = str(e)
+            msg = {"status": "failure",
+                       "status code": 404,
+                       "msg": err_str}
+            return jsonify(msg)
+
+        except Exception as e:
+            err_str = str(e)
+            msg = {"status": "failure",
+                       "msg": err_str}
+            return jsonify(msg)
 
 #+END_SRC
 
@@ -5422,16 +6027,41 @@ def delete_hostinginfo():
 
             try:
                 hostinginfo = SystemInterface.delete_hostinginfo(hosted_url, key)
-                return jsonify({"status":"sucess"})
+                return jsonify({"status":"sucess"})(data_dict)
 
-            except TypeError as err:
-                error_message = 'Malformed arguments, error: %s' % str(err)
-
-                return render_template('error.html', data=error_message)
-
-            except Exception as err:
-                abort(500, 'error: %s' % str(err))
-
+            except NotAuthorizedError as e:
+                err_str = str(e)
+                msg = {"status": "failure",
+                        "status code": 401,
+                        "msg": err_str}
+                return jsonify(msg)
+            
+            except TypeError as e:
+                err_str = str(e)
+                msg = {"status": "failure",
+                        "msg": err_str }
+                return jsonify(msg)
+            
+            except StateError as e:
+                err_str = str(e)
+                msg = {"status": "failure",
+                        "msg": err_str}
+                return jsonify(msg)
+            
+            except NotFoundError as e:
+                err_str = str(e)
+                msg = {"status": "failure",
+                        "status code": 404,
+                       "msg": err_str}
+                return jsonify(msg)
+            
+            except Exception as e:
+                err_str = str(e)
+                msg = {"status": "failure",
+                        "msg": err_str}
+                return jsonify(msg)
+            
+            
 #+END_SRC
 
 *** Test Cases
@@ -5519,14 +6149,39 @@ def delete_integrationstatus():
                 integrationstatus = SystemInterface.delete_integrationstatus(integration_level, key)
                 return jsonify({"status":"sucess"})
 
-            except TypeError as err:
-                error_message = 'Malformed arguments, error: %s' % str(err)
+            except NotAuthorizedError as e:
+                err_str = str(e)
+                msg = {"status": "failure",
+                        "status code": 401,
+                        "msg": err_str}
+                return jsonify(msg)
 
-                return render_template('error.html', data=error_message)
-
-            except Exception as err:
-                abort(500, 'error: %s' % str(err))
-
+            except TypeError as e:
+                err_str = str(e)
+                msg = {"status": "failure",
+                        "msg": err_str }
+                return jsonify(msg)
+            
+            except StateError as e:
+                err_str = str(e)
+                msg = {"status": "failure",
+                        "msg": err_str}
+                return jsonify(msg)
+            
+            except NotFoundError as e:
+                err_str = str(e)
+                msg = {"status": "failure",
+                        "status code": 404,
+                       "msg": err_str}
+                return jsonify(msg)
+            
+            except Exception as e:
+                err_str = str(e)
+                msg = {"status": "failure",
+                        "msg": err_str}
+                return jsonify(msg)
+            
+            
 #+END_SRC
 
 *** Test Cases
@@ -5728,14 +6383,39 @@ def delete_name():
                 name = SystemInterface.delete_name(name, key)
                 return jsonify({"status":"sucess"})
 
-            except TypeError as err:
-                error_message = 'Malformed arguments, error: %s' % str(err)
-
-                return render_template('error.html', data=error_message)
-
-            except Exception as err:
-                abort(500, 'error: %s' % str(err))
-
+            except NotAuthorizedError as e:
+                err_str = str(e)
+                msg = {"status": "failure",
+                        "status code": 401,
+                       "msg": err_str}
+                return jsonify(msg)
+            
+            except TypeError as e:
+                err_str = str(e)
+                msg = {"status": "failure",
+                        "msg": err_str }
+                return jsonify(msg)
+            
+            except StateError as e:
+                err_str = str(e)
+                msg = {"status": "failure",
+                        "msg": err_str}
+                return jsonify(msg)
+            
+            except NotFoundError as e:
+                err_str = str(e)
+                msg = {"status": "failure",
+                        "status code": 404,
+                        "msg": err_str}
+                return jsonify(msg)
+            
+            except Exception as e:
+                err_str = str(e)
+                msg = {"status": "failure",
+                        "msg": err_str}
+                return jsonify(msg)
+            
+            
 #+END_SRC
 
 *** Test Cases
@@ -5967,35 +6647,59 @@ def get_asset():
                asset = SystemInterface.get_asset(path)
                return jsonify(asset)
 
-           except NotAuthorizedError as err:
-               error_message = 'Not Authorized error: %s' % str(err)
-               current_app.logger.error("%s" %(error_message))
-               return render_template('error.html',
-                                       data=error_message)
-           except TypeError as err:
-               error_message = 'Malformed arguments, error: %s' % str(err)
-               current_app.logger.error("%s" %(error_message))
-               return render_template('error.html',
-                                       data=error_message)
-           except Exception as err:
-               error_message = 'error: %s' % str(err)
-               current_app.logger.error("%s" %(error_message))
-               return render_template('error.html',
-                                        data=error_message)
+           except TypeError as e:
+               err_str = str(e)
+               msg = {"status": "failure",
+                        "msg": err_str }
+               return jsonify(msg)
+           
+           except StateError as e:
+               err_str = str(e)
+               msg = {"status": "failure",
+                        "msg": err_str}
+               return jsonify(msg)
+           
+           except NotFoundError as e:
+               err_str = str(e)
+               msg = {"status": "failure",
+                        "status code": 404,
+                        "msg": err_str}
+               return jsonify(msg)
+           
+           except Exception as e:
+               err_str = str(e)
+               msg = {"status": "failure",
+                        "msg": err_str}
+               return jsonify(msg)
        else:
            try:
                assets = SystemInterface.get_assets()
                return jsonify_list(assets)
-
-           except TypeError as err:
-               error_message = 'Malformed arguments, error: %s' % str(err)
-
-               return render_template('error.html',
-                                           data=error_message)
-
-           except Exception as err:
-               abort(500, 'error: %s' % str(err))
-            
+        
+           except TypeError as e:
+               err_str = str(e)
+               msg = {"status": "failure",
+                        "msg": err_str }
+               return jsonify(msg)
+           
+           except StateError as e:
+               err_str = str(e)
+               msg = {"status": "failure",
+                        "msg": err_str}
+               return jsonify(msg)
+           
+           except NotFoundError as e:
+               err_str = str(e)
+               msg = {"status": "failure",
+                        "status code": 404,
+                        "msg": err_str}
+               return jsonify(msg)
+           
+           except Exception as e:
+               err_str = str(e)
+               msg = {"status": "failure",
+                        "msg": err_str}
+               return jsonify(msg)
 #+END_SRC
 
 *** Test Cases
@@ -6126,14 +6830,37 @@ def add_asset():
             asset = SystemInterface.add_asset(data_dict)
             return jsonify(asset)
 
-        except TypeError as err:
-            error_message = 'Malformed arguments, error: %s' % str(err)
+        except NotAuthorizedError as e:
+            err_str = str(e)
+            msg = {"status": "failure",
+                    "status code": 401,
+                       "msg": err_str}
+            return jsonify(msg)
 
-            return render_template('error.html', 
-                    data=error_message)
+        except TypeError as e:
+            err_str = str(e)
+            msg = {"status": "failure",
+                       "msg": err_str }
+            return jsonify(msg)
 
-        except Exception as err:
-            abort(500, 'error: %s' % str(err))
+        except StateError as e:
+            err_str = str(e)
+            msg = {"status": "failure",
+                       "msg": err_str}
+            return jsonify(msg)
+
+        except NotFoundError as e:
+            err_str = str(e)
+            msg = {"status": "failure",
+                       "status code": 404,
+                       "msg": err_str}
+            return jsonify(msg)
+
+        except Exception as e:
+            err_str = str(e)
+            msg = {"status": "failure",
+                       "msg": err_str}
+            return jsonify(msg)
             
 #+END_SRC
 
@@ -6232,15 +6959,38 @@ def update_asset():
         try:
             asset = SystemInterface.update_asset(data_dict)
             return jsonify(asset)
+        
+        except NotAuthorizedError as e:
+            err_str = str(e)
+            msg = {"status": "failure",
+                    "status code": 401,
+                       "msg": err_str}
+            return jsonify(msg)
 
-        except TypeError as err:
-            error_message = 'Malformed arguments, error: %s' % str(err)
+        except TypeError as e:
+            err_str = str(e)
+            msg = {"status": "failure",
+                       "msg": err_str }
+            return jsonify(msg)
 
-            return render_template('error.html', 
-                    data=error_message)
+        except StateError as e:
+            err_str = str(e)
+            msg = {"status": "failure",
+                       "msg": err_str}
+            return jsonify(msg)
 
-        except Exception as err:
-            abort(500, 'error: %s' % str(err))
+        except NotFoundError as e:
+            err_str = str(e)
+            msg = {"status": "failure",
+                       "status code": 404,
+                       "msg": err_str}
+            return jsonify(msg)
+
+        except Exception as e:
+            err_str = str(e)
+            msg = {"status": "failure",
+                       "msg": err_str}
+            return jsonify(msg)
 
 #+END_SRC
 
@@ -6330,15 +7080,40 @@ def delete_asset():
             try:
                 asset = SystemInterface.delete_asset(path, key)
                 return jsonify({"status":"sucess"})
+            
+            except NotAuthorizedError as e:
+                err_str = str(e)
+                msg = {"status": "failure",
+                        "status code": 401,
+                        "msg": err_str}
+                return jsonify(msg)
+            
+            except TypeError as e:
+                err_str = str(e)
+                msg = {"status": "failure",
+                        "msg": err_str }
+                return jsonify(msg)
 
-            except TypeError as err:
-                error_message = 'Malformed arguments, error: %s' % str(err)
+            except StateError as e:
+                err_str = str(e)
+                msg = {"status": "failure",
+                        "msg": err_str}
+                return jsonify(msg)
 
-                return render_template('error.html', data=error_message)
-
-            except Exception as err:
-                abort(500, 'error: %s' % str(err))
-
+            except NotFoundError as e:
+                err_str = str(e)
+                msg = {"status": "failure",
+                        "status code": 404,
+                        "msg": err_str}
+                return jsonify(msg)
+            
+            except Exception as e:
+                err_str = str(e)
+                msg = {"status": "failure",
+                        "msg": err_str}
+                return jsonify(msg)
+            
+            
 #+END_SRC
 
 *** Test Cases
