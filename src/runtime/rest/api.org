@@ -1359,7 +1359,7 @@ class TestGetLabsbyAsset(TestCase):
   "inst_id": "iiith",
   "integration_level": 4,
   "dis_id": "cse",
-  "path": "vlabs.ac.in/images/static/logo.png"
+  "path": "vlabs.ac.in/images/static/logo.png",
   "dis_id": "cse",
   "developers": ["abc@gmail.com"],
   "hosted_url": "http://cse14-iiith.vlabs.ac.in"
@@ -2527,29 +2527,9 @@ class TestAddExperiment(TestCase):
   - Success Response
     + Status_Code: 200
       + Contents :
-
 #+BEGIN_EXAMPLE
-[
-  {
-    "overview": "overview",
-    "exp_name": "arrays",
-    "sections": [
-      {
-        "name": "Procedure",
-        "id": 2
-      },
-      {
-        "name": "Theory",
-        "id": 1
-      }
-    ],
-    "id": 1,
-    "exp_id": "exp9"
-  }
-]
-#+END_EXAMPLE	       
-
-    
+[{"name": "Theory", "id": 1}]
+#+END_EXAMPLE    
   - Error Response:
     + Contents :
                 {"status" : "error"}
@@ -2641,7 +2621,12 @@ class TestGetSection(TestCase):
   - Success Response
     + Status_Code: 200
     + Content: 
-              {"status" : "successfully added records"}
+#+BEGIN_EXAMPLE
+{
+  "id": 1, 
+  "name": "Theory"
+}
+#+END_EXAMPLE
 
   - Error Response:
     + Contents :
@@ -2731,7 +2716,7 @@ class TestAddSection(TestCase):
       + Contents :
 
 #+BEGIN_EXAMPLE
-[{"hosting_status": "hosted", "id": 1, "hosted_url": "http://cse14-iiith.vlabs.ac.in", "hosted_on": "cloud"}]
+[{"hosting_status": "hosted", "hosted_url": "http://cse14-iiith.vlabs.ac.in", "hosted_on": "cloud", "id": 1}]
 #+END_EXAMPLE	       
 
     
@@ -3078,7 +3063,7 @@ class TestGetIntegrationStatus(TestCase):
   - Payload :: 
 #+BEGIN_EXAMPLE
 {
-"integration_level": 4,
+"integration_level": ,
 "key": "<key>"
 }
 #+END_EXAMPLE	       
@@ -4555,6 +4540,7 @@ class TestDeleteExperiment(TestCase):
   - Error Response:
     + Contents :
                 {"status" : "error"}
+
     
   - Example:
 #+BEGIN_EXAMPLE
@@ -4567,7 +4553,7 @@ http://localhost:5000/sections/1
   :CUSTOM_ID: delete_section_by_id
   :END:    
   - URL :: /sections/<id>
-
+           
   - Method :: DELETE
 
   - URL Params ::  None
@@ -4866,7 +4852,7 @@ class TestUpdateInstitute(TestCase):
     
   - Example:
 #+BEGIN_EXAMPLE
-    http://localhost:5000/disciplines?dis_id=cse&key=<key>
+http://localhost:5000/institutes?inst_id=iiith&key=defaultkey
 #+END_EXAMPLE
 
 *** Implementation
