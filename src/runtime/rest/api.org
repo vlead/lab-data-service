@@ -3763,8 +3763,8 @@ class TestGetDeveloper(TestCase):
   - Payload :: 
 #+BEGIN_EXAMPLE
 {
-"dev_name": "Prof. Dharamraj",
-"email_id": "dharamraj@gmail.com",
+"name": "Prof. Dharamraj",
+"email": "dharamraj@gmail.com",
 "key": "<key>"
 }
 #+END_EXAMPLE	       
@@ -3775,8 +3775,8 @@ class TestGetDeveloper(TestCase):
 #+BEGIN_EXAMPLE
 {
   "id": 1,
-  "dev_name": "Prof. Dharamraj",
-  "email_id": "dharamraj@gmail.com"
+  "name": "Prof. Dharamraj",
+  "email": "dharamraj@gmail.com"
 }
 
 #+END_EXAMPLE
@@ -3805,7 +3805,7 @@ def add_developer():
 
         try:
             developer = SystemInterface.add_developer(data_dict)
-            return jsonify(developer)
+            return jsonify(developer.to_client())
 
         except NotAuthorizedError as e:
             err_str = str(e)
@@ -3860,8 +3860,8 @@ class TestAddDeveloper(TestCase):
 
     def test_add_developer(self):
         print "test_add_developer_in_rest"
-        payload = {'dev_name': 'Prof. Dharamraj',
-                   'email_id': 'dharamraj@gmail.com',
+        payload = {'name': 'Prof. Dharamraj',
+                   'email': 'dharamraj@gmail.com',
                    'key': KEY}
 
         headers = {'Content-Type': 'application/json'}
@@ -6533,7 +6533,6 @@ if __name__ == '__main__':
 <<test_update_asset>>
 <<test_delete_asset>>
 <<test_get_Developer>>
-<<test_add_developer>>
 <<test_delete_developer>>
 <<run_test_cases>>
 #+end_src
