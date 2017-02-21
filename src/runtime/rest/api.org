@@ -3676,10 +3676,10 @@ REST API to get all developers.
 @api.route('/developers', methods=['GET'])
 def get_developer():
     if request.method == 'GET':
-       if 'email_id' in request.args:
-           email_id  = request.args['email_id']
+       if 'email' in request.args:
+           email  = request.args['email']
            try:
-               developer = SystemInterface.get_developer(email_id)
+               developer = SystemInterface.get_developer(email)
                return jsonify(developer)
 
            except NotAuthorizedError as err:
@@ -5245,7 +5245,7 @@ class TestUpdateHostingInfo(TestCase):
   :PROPERTIES:
   :CUSTOM_ID: api_update_developers_by_email_id
   :END:    
-  - URL :: /developers?email_id=<email_id>
+  - URL :: /developers?email=<email_id>
 
   - Method :: PUT
 
@@ -5357,8 +5357,8 @@ class TestUpdateDeveloper(TestCase):
     def test_update_developer(self):
         print "test_update_developer"
 
-        payload = {'dev_name': 'Prof.Dharamraj',
-                   'email_id': 'dharamraj@gmail.com',
+        payload = {'name': 'Prof.Dharamraj',
+                   'email': 'dharamraj@gmail.com',
                    'key': KEY}
 
         payload1 = {'name': 'Prof.Raj', 'key': KEY}

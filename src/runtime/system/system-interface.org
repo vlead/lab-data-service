@@ -1586,7 +1586,6 @@ class TestGetLabsByLabName(TestCase):
 
  #+END_SRC
 
-
 ** Get Labs by Asset
 #+NAME: class_get_labs_by_asset
 #+begin_src python
@@ -4274,7 +4273,6 @@ class TestGetInstituteByInstituteId(TestCase):
 
  #+END_SRC
 
-
 ** Get Lab by LabId
 #+NAME: class_get_lab_by_lab_id
 #+begin_src python
@@ -4421,7 +4419,6 @@ class TestGetLabByLabId(TestCase):
 
  #+END_SRC
 
-
 ** Get Experiment by ExpId
 #+NAME: class_get_lab_by_exp_id
 #+begin_src python
@@ -4490,7 +4487,6 @@ class TestGetExpByExpId(TestCase):
 
  #+END_SRC
 
-
 ** Get Discipline by DisId
 #+NAME: class_get_discipline_by_dis_id
 #+begin_src python
@@ -4554,6 +4550,64 @@ class TestGetDisciplineByDisciplineId(TestCase):
  #+END_SRC
 
 
+
+** Get Developer by email
+#+NAME: class_get_developer_by_email
+#+begin_src python
+    @staticmethod
+    def get_developer(email_id):
+        try:
+            email_cls = System.delegate.entities['email']
+            email = email_cls(email=str(email_id))
+
+            current_app.logger.debug("running operation get_lab_by_lab_id")
+            developer = System.do("get_developer", email=email)
+            current_app.logger.debug("completed operation get_lab_by_lab_id")
+            if not developer:
+                return ("No Developer found with email: %s" % (email_id))
+            return developer.to_client()
+
+        except (ArityError, TypeError, NotAuthorizedError, StateError) as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+
+        except Exception as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+#+end_src
+
+*** TestGetDeveloperByEmail
+ #+NAME: test_class_get_developer_by_email
+ #+BEGIN_SRC python
+class TestGetDeveloperByEmail(TestCase):
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_get_developer_by_email_in_system_interface(self):
+        print "test_get_developer_by_email_in_system_interface"
+
+        data_dict = {
+                    'key' : KEY,
+                    'name': 'Prof. Dharamaja',
+                    'email': 'abc@gmail.com'
+                   }
+
+        developer = SystemInterface.add_developer(data_dict)
+
+        developer = SystemInterface.get_developer(data_dict['email'])
+        
+        self.assertEqual(developer.get("email").get("email"), 
+                             data_dict['email'])
+ #+END_SRC
 
 
 ** Add Asset
@@ -4848,7 +4902,7 @@ if __name__ == '__main__':
 <<class_get_institute_by_id>>
 <<class_get_experiment_by_id>>
 <<class_get_discipline_by_id>>
-
+<<class_get_developer_by_email>>
 <<class_delete_lab>>
 <<class_delete_discipline>>
 <<class_delete_institute>>
@@ -4955,6 +5009,7 @@ if __name__ == '__main__':
 <<test_class_get_exp_by_expid>>
 <<test_class_get_institute_by_instituteid>>
 <<test_class_get_discipline_by_disid>>
+<<test_class_get_developer_by_email>>
 <<test_class_add_asset>>
 <<test_class_update_asset>>
 <<test_class_delete_asset>>
