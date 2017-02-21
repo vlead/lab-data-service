@@ -260,7 +260,9 @@ class TestLab(TestCase):
         host = HostingInfo(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
 
         experiment = Experiment(exp_name=exp_name, exp_id=exp_id, \
-                                    overview=overview, sections=[])
+                                    overview=overview, 
+                                    integrationstatus=integrationstatus, 
+                                    sections=[])
 
         lab_name = "Computer Programming"
         lab_id = "CSE01"
@@ -323,13 +325,17 @@ class TestInstitute(TestCase):
    =Experiment= is an entity that has a field =exp_name= and =exp_id= which are string
 #+NAME: class_Experiment
 #+begin_src python
-Experiment.add_attributes(exp_name=is_str, exp_id=is_str, overview=is_str, \
-                              sections=are_sections)
+Experiment.add_attributes(exp_name=is_str, 
+                          exp_id=is_str,
+                          overview=is_str, \
+                          integrationstatus=is_integrationstatus,
+                          sections=are_sections)
 Experiment.__eq__ = lambda self, other: \
                   isinstance(other, self.__class__) and \
                   self.get("exp_name") == other.get("exp_name") and \
                   self.get("exp_id") == other.get("exp_id") and \
                   self.get("overview") == other.get("overview") and\
+                  self.get("integrationstatus") == other.get("integrationstatus") and \
                   self.get("sections") == other.get("sections")
 
 #+end_src
@@ -345,10 +351,18 @@ class TestExperiment(TestCase):
         exp_name = "Number Systems"
         exp_id = "EE99777"
         overview = "This is linked list experiment"
+
+        integration_level = 4
+        integrationstatus = IntegrationStatus(integration_level=integration_level)
+
         experiment = Experiment(exp_name=exp_name, exp_id=exp_id,
-                                    overview=overview, sections=[])
+                                    overview=overview,
+                                    integrationstatus=integrationstatus, 
+                                    sections=[])
         self.assertEqual(experiment.get("exp_name"), exp_name)
         self.assertEqual(experiment.get("overview"), overview)
+        self.assertEqual(experiment.get("integrationstatus").get("integration_level"), 
+                             integrationstatus.get("integration_level"))
         self.assertEqual(experiment.get("exp_id"), exp_id)
         self.assertEqual(experiment.get("sections"), [])
 

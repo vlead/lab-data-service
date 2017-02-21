@@ -90,13 +90,6 @@ class TestPersistentLab(TestCase):
     def test_create_lab(self):
         print "test_persistent_lab"
 
-        exp_name = "Number Systems"
-        exp_id = "EE99777"
-        overview = "This is linked list experiment"
-        experiment = Experiment(exp_name=exp_name, exp_id=exp_id,
-                                    overview=overview, sections=[])
-        experiment.save()
-
         inst_name = "IIT Kanpur"
         inst_id = "IITK"
         inst = Institute(inst_name=inst_name, inst_id=inst_id)
@@ -110,6 +103,15 @@ class TestPersistentLab(TestCase):
         integration_level = 4
         intstatus = IntegrationStatus(integration_level=integration_level)
         intstatus.save()
+
+        exp_name = "Number Systems"
+        exp_id = "EE99777"
+        overview = "This is linked list experiment"
+        experiment = Experiment(exp_name=exp_name, exp_id=exp_id,
+                                    overview=overview,
+                                    integrationstatus=intstatus, 
+                                    sections=[])
+        experiment.save()
 
         asset_type = "Image"
         path = "vlabs.ac.in/images/static/icon.png"
@@ -218,6 +220,8 @@ args = {"__tablename__": "experiment",
         "exp_name": db.Column(db.String(255), unique=False, nullable=True),
         "exp_id": db.Column(db.String(255), unique=True, nullable=False),
         "overview": db.Column(db.String(1000), unique=False, nullable=True),
+        "intstatus_id": db.Column(db.Integer, db.ForeignKey('integrationstatus.id'),
+                                      unique=False, nullable=False),
         "lb_id": db.Column(db.Integer, 
                                 db.ForeignKey('lab.id'), 
                                 unique=False),
@@ -254,13 +258,21 @@ class TestPersistenceExperiment(TestCase):
         exp_name = "Number Systems"
         exp_id = "EE99777"
         overview = "This is linked list experiment"
-        exp = Experiment(exp_name=exp_name, exp_id=exp_id, overview=overview, sections=[])
+
+        integration_level = 4
+        intstatus = IntegrationStatus(integration_level=integration_level)
+        intstatus.save()
+
+        exp = Experiment(exp_name=exp_name, exp_id=exp_id, overview=overview,
+                          integrationstatus=intstatus, sections=[])
         exp.save()
         experiment = Experiment.get_by_id(1)
         experiment1 = Experiment.get_by_id(2)
         self.assertEqual(experiment.get("exp_name"), exp_name)
         self.assertEqual(experiment.get("exp_id"), exp_id)
         self.assertEqual(experiment.get("overview"), overview)
+        self.assertEqual(experiment.get("integrationstatus").get("integration_level"), 
+                             intstatus.get("integration_level"))
         self.assertEqual(experiment1,None)
 
 #+END_SRC
@@ -672,7 +684,8 @@ class TestPersistenceAsset(TestCase):
 args = {"__tablename__": "integrationstatus",
         "id": db.Column(db.Integer, primary_key=True),
         "integration_level": db.Column(db.Integer, unique=True, nullable=False),
-        "labs": db.relationship('Lab', backref=db.backref('integrationstatus'))
+        "labs": db.relationship('Lab', backref=db.backref('integrationstatus')), 
+        "experiments": db.relationship('Experiment', backref=db.backref('integrationstatus'))
        }
 
 IntegrationStatus = ClassPersistenceTemplate.mk_persistent(IntegrationStatus, ['integration_level'], **args)

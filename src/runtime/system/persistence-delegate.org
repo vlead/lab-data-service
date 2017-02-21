@@ -191,15 +191,24 @@ class TestPersistenceDelegate(TestCase):
         exp_name1 = "Number Systems"
         exp_id1 = "EE99777"
         overview1 = "overview"
+
+        integration_level = 4
+        integrationstatus = IntegrationStatus(integration_level=integration_level)
+        integrationstatus.save()
+
         experiment1 = Experiment(exp_name=exp_name1, exp_id=exp_id1,
-                                     overview=overview1, sections=[])
+                                     overview=overview1, 
+                                     integrationstatus=integrationstatus, 
+                                     sections=[])
         exp1 = self.persistence_delegate.add_experiment(experiment1)
 
         exp_name2 = "Transformations"
         exp_id2 = "EE98747"
         overview2 = "overview"
         experiment2 = Experiment(exp_name=exp_name2, exp_id=exp_id2, \
-                                     overview=overview2, sections=[])
+                                     overview=overview2,
+                                     integrationstatus=integrationstatus, 
+                                     sections=[])
 
         self.assertEqual(self.persistence_delegate.experiment_exists\
                              (experiment1), True)
@@ -522,13 +531,7 @@ class TestPersistenceDelegate(TestCase):
 #+BEGIN_SRC python
     def test_add_lab(self):
          print "test_add_lab"
-         exp_name = "Number Systems"
-         exp_id = "EE99777"
-         overview = "exp"
-         experiment = Experiment(exp_name=exp_name, exp_id=exp_id, \
-                                     overview=overview, sections=[])
-         experiment.save()
-         
+                  
          integration_level = 4
          integrationstatus = IntegrationStatus(integration_level=integration_level)
          integrationstatus.save()
@@ -547,6 +550,15 @@ class TestPersistenceDelegate(TestCase):
          path = "vlabs.ac.in/images/static/logo.png"
          asset = Asset(asset_type=asset_type, path=path)
          asset.save()
+
+         exp_name = "Number Systems"
+         exp_id = "EE99777"
+         overview = "exp"
+         experiment = Experiment(exp_name=exp_name, exp_id=exp_id, \
+                                     overview=overview, 
+                                     integrationstatus=integrationstatus, 
+                                     sections=[])
+         experiment.save()
 
          dev_name = Name(name="Mohit Tahiliani")
          dev_name.save()
@@ -608,15 +620,24 @@ class TestPersistenceDelegate(TestCase):
          exp_name1 = "Number Systems"
          exp_id1 = "EE99777"
          overview1 = "overview"
+         
+         integration_level = 4
+         integrationstatus = IntegrationStatus(integration_level=integration_level)
+         integrationstatus.save()
+
          experiment1 = Experiment(exp_name=exp_name1, exp_id=exp_id1, 
-                                      overview=overview1, sections=[])
+                                      overview=overview1, 
+                                      integrationstatus=integrationstatus, 
+                                      sections=[])
          experiment1 = self.persistence_delegate.add_experiment(experiment1)
          
          exp_name2="Transformations"
          exp_id2="EE99870"
          overview2="overview"
          experiment2 = Experiment(exp_name=exp_name2, exp_id=exp_id2,
-                                      overview=overview2, sections=[])
+                                      overview=overview2, 
+                                      integrationstatus=integrationstatus, 
+                                      sections=[])
          
          experiment = Experiment.get_by_id(1)
 
@@ -1013,8 +1034,15 @@ class TestPersistenceDelegate(TestCase):
          exp_name = "Data Structures"
          exp_id = "cse01"
          overview = "overview"
+
+         integration_level = 4
+         integrationstatus = IntegrationStatus(integration_level=integration_level)
+         integrationstatus.save()
+
          exp = Experiment(exp_name=exp_name, exp_id=exp_id, \
-                              overview=overview, sections=[])
+                              overview=overview, 
+                              integrationstatus=integrationstatus, 
+                              sections=[])
          exp1 = self.persistence_delegate.add_experiment(exp)
          exp_name1 = "Computer Programming"
          overview1 = "overveiw exp"
@@ -1338,16 +1366,25 @@ class TestPersistenceDelegate(TestCase):
          print "test_delete_experiment"
          exp_name = "arrays"
          exp_id = "cse01"
+         
+         integration_level = 4
+         integrationstatus = IntegrationStatus(integration_level=integration_level)
+         integrationstatus.save()
+
          overview = "overview"
          exp = Experiment(exp_name=exp_name, exp_id=exp_id, \
-                              overview=overview, sections=[])
+                              overview=overview,
+                              integrationstatus=integrationstatus, 
+                              sections=[])
          exp1 = self.persistence_delegate.add_experiment(exp)
 
          exp_name1 = "linked list"
          exp_id1 = "cse02"
          overview = "overview"
          exp1 = Experiment(exp_name=exp_name1, exp_id=exp_id1, \
-                               overview=overview, sections=[])
+                               overview=overview,
+                               integrationstatus=integrationstatus, 
+                               sections=[])
          exp2 = self.persistence_delegate.add_experiment(exp1)
 
          self.persistence_delegate.delete_experiment(exp_id)
@@ -1816,7 +1853,9 @@ class TestPersistenceDelegate(TestCase):
          exp_id = "EE99777"
          overview = "overview"
          experiment = Experiment(exp_name=exp_name, exp_id=exp_id, \
-                                     overview=overview, sections=[])
+                                     overview=overview, 
+                                     integrationstatus=integrationstatus, 
+                                     sections=[])
          experiment.save()
         
          lab1 = Lab.get_by_id(1)
@@ -2015,8 +2054,15 @@ class TestPersistenceDelegate(TestCase):
          exp_name = "Number Systems"
          exp_id = "EE99777"
          overview = "overview"
+
+         integration_level = 4
+         integrationstatus = IntegrationStatus(integration_level=integration_level)
+         integrationstatus.save()
+
          exp = Experiment(exp_name=exp_name, exp_id=exp_id, \
-                                     overview=overview, sections=[])
+                                     overview=overview, 
+                                     integrationstatus=integrationstatus, 
+                                     sections=[])
          exp.save()
         
          section1 = Section(name='Theory')
@@ -2248,8 +2294,15 @@ class TestPersistenceDelegate(TestCase):
          exp_name = "Number Systems"
          exp_id = "EE99777"
          overview = "overview"
+
+         integration_level = 4
+         integrationstatus = IntegrationStatus(integration_level=integration_level)
+         integrationstatus.save()
+
          exp = Experiment(exp_name=exp_name, exp_id=exp_id,
-                              overview=overview, sections=[])
+                              overview=overview, 
+                              integrationstatus=integrationstatus, 
+                              sections=[])
          exp.save()
          exp_obj = self.persistence_delegate.get_experiment(exp_name=
                                                 exp.get("exp_name"))
@@ -2854,8 +2907,15 @@ class TestPersistenceDelegate(TestCase):
          exp_name = "Number Systems"
          exp_id = "EE99777"
          overview = "overview"
+
+         integration_level = 4
+         integrationstatus = IntegrationStatus(integration_level=integration_level)
+         integrationstatus.save()
+
          exp = Experiment(exp_name=exp_name, exp_id=exp_id,
-                              overview=overview, sections=[])
+                              overview=overview, 
+                              integrationstatus=integrationstatus, 
+                              sections=[])
          exp.save()
 
          exp_obj = self.persistence_delegate.get_experiment_by_id(1)
