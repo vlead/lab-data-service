@@ -2396,42 +2396,42 @@ def get_experiment():
                 msg = {"status": "failure",
                        "msg": err_str}
                 return jsonify(msg)
-            else:
-                try:
-                    experiments = SystemInterface.get_experiments()
-                    return jsonify_list(experiments)
+        else:
+            try:
+                experiments = SystemInterface.get_experiments()
+                return jsonify_list(experiments)
 
-                except NotAuthorizedError as e:
-                    err_str = str(e)
-                    msg = {"status": "failure",
-                        "status code": 401,
+            except NotAuthorizedError as e:
+                err_str = str(e)
+                msg = {"status": "failure",
+                           "status code": 401,
+                           "msg": err_str}
+                return jsonify(msg)
+                
+            except TypeError as e:
+                err_str = str(e)
+                msg = {"status": "failure",
+                           "msg": err_str }
+                return jsonify(msg)
+                
+            except StateError as e:
+                err_str = str(e)
+                msg = {"status": "failure",
                         "msg": err_str}
-                    return jsonify(msg)
+                return jsonify(msg)
                 
-                except TypeError as e:
-                    err_str = str(e)
-                    msg = {"status": "failure",
-                        "msg": err_str }
-                    return jsonify(msg)
-                
-                except StateError as e:
-                    err_str = str(e)
-                    msg = {"status": "failure",
-                        "msg": err_str}
-                    return jsonify(msg)
-                
-                except NotFoundError as e:
-                    err_str = str(e)
-                    msg = {"status": "failure",
+            except NotFoundError as e:
+                err_str = str(e)
+                msg = {"status": "failure",
                         "status code": 404,
                         "msg": err_str}
-                    return jsonify(msg)
+                return jsonify(msg)
                 
-                except Exception as e:
-                    err_str = str(e)
-                    msg = {"status": "failure",
+            except Exception as e:
+                err_str = str(e)
+                msg = {"status": "failure",
                         "msg": err_str}
-                    return jsonify(msg)
+                return jsonify(msg)
                 
 #+END_SRC
 
@@ -2951,7 +2951,7 @@ def get_hostinginfo():
                msg = {"status": "failure",
                        "msg": err_str}
                return jsonify(msg)
-    else:
+       else:
            try:
                hostinginfos = SystemInterface.get_hostinginfos()
                return jsonify_list(hostinginfos)
