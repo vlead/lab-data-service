@@ -262,7 +262,7 @@ class TestLab(TestCase):
         experiment = Experiment(exp_name=exp_name, exp_id=exp_id, \
                                     overview=overview, 
                                     integrationstatus=integrationstatus, 
-                                    sections=[])
+                                    assets=[asset], sections=[])
 
         lab_name = "Computer Programming"
         lab_id = "CSE01"
@@ -329,6 +329,7 @@ Experiment.add_attributes(exp_name=is_str,
                           exp_id=is_str,
                           overview=is_str, \
                           integrationstatus=is_integrationstatus,
+                          assets=are_assets, 
                           sections=are_sections)
 Experiment.__eq__ = lambda self, other: \
                   isinstance(other, self.__class__) and \
@@ -336,6 +337,7 @@ Experiment.__eq__ = lambda self, other: \
                   self.get("exp_id") == other.get("exp_id") and \
                   self.get("overview") == other.get("overview") and\
                   self.get("integrationstatus") == other.get("integrationstatus") and \
+                  self.get("assets") == other.get("assets") and \
                   self.get("sections") == other.get("sections")
 
 #+end_src
@@ -355,14 +357,20 @@ class TestExperiment(TestCase):
         integration_level = 4
         integrationstatus = IntegrationStatus(integration_level=integration_level)
 
+        asset_type = "Image"
+        path = "vlabs.ac.in/images/static/logo.png"
+        asset = Asset(asset_type=asset_type, path=path)
+
         experiment = Experiment(exp_name=exp_name, exp_id=exp_id,
                                     overview=overview,
                                     integrationstatus=integrationstatus, 
-                                    sections=[])
+                                    sections=[], assets=[asset])
         self.assertEqual(experiment.get("exp_name"), exp_name)
         self.assertEqual(experiment.get("overview"), overview)
         self.assertEqual(experiment.get("integrationstatus").get("integration_level"), 
                              integrationstatus.get("integration_level"))
+        self.assertEqual(experiment.get("assets")[0].get("asset_type"), 
+                             asset.get("asset_type"))       
         self.assertEqual(experiment.get("exp_id"), exp_id)
         self.assertEqual(experiment.get("sections"), [])
 

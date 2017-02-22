@@ -104,19 +104,19 @@ class TestPersistentLab(TestCase):
         intstatus = IntegrationStatus(integration_level=integration_level)
         intstatus.save()
 
+        asset_type = "Image"
+        path = "vlabs.ac.in/images/static/icon.png"
+        asset = Asset(asset_type=asset_type, path=path)
+        asset.save()
+
         exp_name = "Number Systems"
         exp_id = "EE99777"
         overview = "This is linked list experiment"
         experiment = Experiment(exp_name=exp_name, exp_id=exp_id,
                                     overview=overview,
                                     integrationstatus=intstatus, 
-                                    sections=[])
+                                    assets=[asset], sections=[])
         experiment.save()
-
-        asset_type = "Image"
-        path = "vlabs.ac.in/images/static/icon.png"
-        asset = Asset(asset_type=asset_type, path=path)
-        asset.save()
 
         dev_name = Name(name="Mohit Tahiliani")
         dev_name.save()
@@ -211,6 +211,12 @@ experiments_sections = db.Table('experiments_sections',
 		      db.Column('section_id', db.Integer,
                             db.ForeignKey('section.id')))
 
+experiments_assets = db.Table('experiments_assets',
+                 db.Column('experimentid', db.Integer, 
+                       db.ForeignKey('experiment.id')),
+		 db.Column('assetid', db.Integer,
+                       db.ForeignKey('asset.id')))
+
 #+END_SRC
 
 #+NAME: class_Experiment
@@ -222,6 +228,9 @@ args = {"__tablename__": "experiment",
         "overview": db.Column(db.String(1000), unique=False, nullable=True),
         "intstatus_id": db.Column(db.Integer, db.ForeignKey('integrationstatus.id'),
                                       unique=False, nullable=False),
+        "assets": db.relationship('Asset',
+                    secondary=experiments_assets, 
+                    backref='experiments'),
         "lb_id": db.Column(db.Integer, 
                                 db.ForeignKey('lab.id'), 
                                 unique=False),
@@ -263,8 +272,13 @@ class TestPersistenceExperiment(TestCase):
         intstatus = IntegrationStatus(integration_level=integration_level)
         intstatus.save()
 
+        asset_type = "Image"
+        path = "vlabs.ac.in/images/static/icon.png"
+        asset = Asset(asset_type=asset_type, path=path)
+        asset.save()
+
         exp = Experiment(exp_name=exp_name, exp_id=exp_id, overview=overview,
-                          integrationstatus=intstatus, sections=[])
+                          integrationstatus=intstatus, sections=[], assets=[asset])
         exp.save()
         experiment = Experiment.get_by_id(1)
         experiment1 = Experiment.get_by_id(2)
@@ -273,6 +287,8 @@ class TestPersistenceExperiment(TestCase):
         self.assertEqual(experiment.get("overview"), overview)
         self.assertEqual(experiment.get("integrationstatus").get("integration_level"), 
                              intstatus.get("integration_level"))
+        self.assertEqual(experiment.get("assets")[0].get("asset_type"), 
+                             asset.get("asset_type"))
         self.assertEqual(experiment1,None)
 
 #+END_SRC
@@ -666,6 +682,7 @@ class TestPersistenceAsset(TestCase):
         asset_type = "Image"
         asset = Asset(path=path, asset_type=asset_type)
         asset.save()
+
         asset = asset.get_by_id(1)
         asset1 = asset.get_by_id(2)
         self.assertEqual(asset.get("path"), path)
