@@ -119,21 +119,22 @@ class TestAddLab(TestCase):
         print "test_add_lab_in_system_interface"
 
         data_dict = {
-                    'key': KEY,
-                    'exp_name': 'arrays',
-                    'exp_id': 'exp123',
-                    'overview': 'overview', 
-                    'sections': []
-                   }
-
-        experiment = SystemInterface.add_experiment(data_dict)
-
-        data_dict = {
                     'key' : KEY,
                     'integration_level': 4
                     }
 
         integrationstatus = SystemInterface.add_integrationstatus(data_dict)
+
+        data_dict = {
+                    'key': KEY,
+                    'exp_name': 'arrays',
+                    'exp_id': 'exp123',
+                    'overview': 'overview',
+                    'integration_level': 4,
+                    'sections': []
+                   }
+
+        experiment = SystemInterface.add_experiment(data_dict)
 
         data_dict = {
                     'key' : KEY,
@@ -213,21 +214,22 @@ class TestAddLab(TestCase):
         print "test_add_lab_raises_type_error_in_system_interface"
 
         data_dict = {
-                    'key': KEY,
-                    'exp_name': 'arrays',
-                    'exp_id': 'exp123',
-                    'overview': 'overview', 
-                    'sections': []
-                   }
-
-        experiment = SystemInterface.add_experiment(data_dict)
-
-        data_dict = {
                     'key' : KEY,
                     'integration_level': 4
                     }
 
         integrationstatus = SystemInterface.add_integrationstatus(data_dict)
+
+        data_dict = {
+                    'key': KEY,
+                    'exp_name': 'arrays',
+                    'exp_id': 'exp123',
+                    'overview': 'overview',
+                    'integration_level': 4,
+                    'sections': []
+                   }
+
+        experiment = SystemInterface.add_experiment(data_dict)
 
         data_dict = {
                     'key' : KEY,
@@ -304,9 +306,13 @@ class TestAddLab(TestCase):
         sections = data_dict['sections']
         data_dict['sections'] = []
 
+        integration_level = data_dict['integration_level']
+        integrationstatus = System.do("get_integrationstatus", integration_level=integration_level)
+
         experiment = experiment_cls(exp_name=data_dict['exp_name'],
                                 exp_id=data_dict['exp_id'],
                                 overview=data_dict['overview'],
+                                integrationstatus=integrationstatus, 
                                 sections=data_dict['sections'])
         try:
             current_app.logger.debug("running operation add_experiment")
@@ -364,25 +370,43 @@ class TestAddExperiment(TestCase):
 
         data_dict = {
                     'key' : KEY,
+                    'integration_level': 4
+                    }
+
+        integrationstatus = SystemInterface.add_integrationstatus(data_dict)
+
+        data_dict = {
+                    'key' : KEY,
                     'exp_name': 'array',
                     'exp_id': 'cse02',
-                    'overview': 'overview', 
+                    'overview': 'overview',
+                    'integration_level': 4,
                     'sections': ["Introduction", "Quize"]
-                   }
+                    }
 
         experiment = SystemInterface.add_experiment(data_dict)
 
         self.assertEqual(experiment.get("exp_name"), 
                              data_dict['exp_name'])
         self.assertEqual(experiment.get("exp_id"), data_dict['exp_id'])
+        self.assertEqual(experiment.get("integrationstatus").get("integration_level"),
+                             data_dict['integration_level'])
         
     def test_add_experiment_raises_type_error_in_system_interface(self):
         print "test_add_experiment_raises_type_error_in_system_interface"
 
         data_dict = {
+                    'key' : KEY,
+                    'integration_level': 4
+                    }
+
+        integrationstatus = SystemInterface.add_integrationstatus(data_dict)
+
+        data_dict = {
                     'key': KEY,
                     'exp_name': 'cse02',
                     'overview': 'overview',
+                    'integration_level': 4,
                     'exp_id': 123,
                     'sections': ["Theory", "Procedure"]
 		    }
@@ -1043,21 +1067,22 @@ class TestGetLabs(TestCase):
         print "test_get_labs_in_system_interface"
 
         data_dict = {
-                    'key': KEY,
-                    'exp_name': 'arrays',
-                    'exp_id': 'exp123',
-                    'overview': 'overview', 
-                    'sections': []
-                   }
-
-        experiment = SystemInterface.add_experiment(data_dict)
-
-        data_dict = {
                     'key' : KEY,
                     'integration_level': 4
                     }
 
         integrationstatus = SystemInterface.add_integrationstatus(data_dict)
+
+        data_dict = {
+                    'key': KEY,
+                    'exp_name': 'arrays',
+                    'exp_id': 'exp123',
+                    'overview': 'overview', 
+                    'integration_level': 4,
+                    'sections': []
+                   }
+
+        experiment = SystemInterface.add_experiment(data_dict)
 
         data_dict = {
                     'key' : KEY,
@@ -1197,21 +1222,22 @@ class TestGetLabsByInstitute(TestCase):
         print "test_get_labs_by_institute_in_system_interface"
 
         data_dict = {
-                    'key': KEY,
-                    'exp_name': 'arrays',
-                    'exp_id': 'exp123',
-                    'overview': 'overview', 
-                    'sections': []
-                   }
-
-        experiment = SystemInterface.add_experiment(data_dict)
-
-        data_dict = {
                     'key' : KEY,
                     'integration_level': 4
                     }
 
         integrationstatus = SystemInterface.add_integrationstatus(data_dict)
+
+        data_dict = {
+                    'key': KEY,
+                    'exp_name': 'arrays',
+                    'exp_id': 'exp123',
+                    'overview': 'overview',
+                    'integration_level': 4,
+                    'sections': []
+                   }
+
+        experiment = SystemInterface.add_experiment(data_dict)
 
         data_dict = {
                     'key' : KEY,
@@ -1347,20 +1373,21 @@ class TestGetLabsByDiscipline(TestCase):
 
         data_dict = {
                     'key' : KEY,
-                    'exp_name': 'arrays',
-                    'exp_id': 'exp123',
-                    'overview': 'overview', 
-                    'sections' : []
-                   }
-
-        experiment = SystemInterface.add_experiment(data_dict)
-
-        data_dict = {
-                    'key' : KEY,
                     'integration_level': 4
                     }
 
         integrationstatus = SystemInterface.add_integrationstatus(data_dict)
+
+        data_dict = {
+                    'key' : KEY,
+                    'exp_name': 'arrays',
+                    'exp_id': 'exp123',
+                    'overview': 'overview',
+                    'integration_level': 4,
+                    'sections' : []
+                   }
+
+        experiment = SystemInterface.add_experiment(data_dict)
 
         data_dict = {
                     'key' : KEY,
@@ -1493,21 +1520,22 @@ class TestGetLabsByLabName(TestCase):
         print "test_get_labs_by_lab_name_in_system_interface"
 
         data_dict = {
-                    'key': KEY,
-                    'exp_name': 'arrays',
-                    'exp_id': 'exp123',
-                    'overview': 'overview', 
-                    'sections': []
-                   }
-
-        experiment = SystemInterface.add_experiment(data_dict)
-
-        data_dict = {
                     'key' : KEY,
                     'integration_level': 4
                     }
 
         integrationstatus = SystemInterface.add_integrationstatus(data_dict)
+
+        data_dict = {
+                    'key': KEY,
+                    'exp_name': 'arrays',
+                    'exp_id': 'exp123',
+                    'overview': 'overview',
+                    'integration_level': 4,
+                    'sections': []
+                   }
+
+        experiment = SystemInterface.add_experiment(data_dict)
 
         data_dict = {
                     'key' : KEY,
@@ -1860,9 +1888,17 @@ class TestGetExperiments(TestCase):
     def test_get_experiments_in_system_interface(self):
         print "test_get_experiments_in_system_interface"
 
+        data_dict = {
+                    'key' : KEY,
+                    'integration_level': 4
+                    }
+
+        integrationstatus = SystemInterface.add_integrationstatus(data_dict)
+
         data_dict = {'exp_name': 'stack',
                     'exp_id': 'cse01',
                     'overview': 'overview',
+                    'integration_level': 4,
                     'sections': [],
                     'key': KEY
                    }
@@ -1870,6 +1906,7 @@ class TestGetExperiments(TestCase):
         data_dict1 = {'exp_name': "arrays",
                       'exp_id': 'cse02',
                       'overview': 'overview',
+                      'integration_level': 4,
                       'sections':[],
                       'key': KEY
            }
@@ -2456,21 +2493,22 @@ class TestGetLabById(TestCase):
         print "test_get_lab_by_id_in_system_interface"
 
         data_dict = {
-                    'key': KEY,
-                    'exp_name': 'arrays',
-                    'exp_id': 'exp123',
-                    'overview': 'overview', 
-                    'sections': []
-                   }
-
-        experiment = SystemInterface.add_experiment(data_dict)
-
-        data_dict = {
                     'key' : KEY,
                     'integration_level': 4
                     }
 
         integrationstatus = SystemInterface.add_integrationstatus(data_dict)
+
+        data_dict = {
+                    'key': KEY,
+                    'exp_name': 'arrays',
+                    'exp_id': 'exp123',
+                    'overview': 'overview',
+                    'integration_level': 4,
+                    'sections': []
+                   }
+
+        experiment = SystemInterface.add_experiment(data_dict)
 
         data_dict = {
                     'key' : KEY,
@@ -2671,9 +2709,17 @@ class TestGetExperimentById(TestCase):
         print "test_get_experiment_by_id_in_system_interface"
 
         data_dict = {
+                    'key' : KEY,
+                    'integration_level': 4
+                    }
+
+        integrationstatus = SystemInterface.add_integrationstatus(data_dict)
+
+        data_dict = {
                     'key': KEY,
                     'exp_name': 'array',
                     'overview': 'overview',
+                    'integration_level': 4,
                     'exp_id': 'cse02',
                     'sections': []
                    }
@@ -2682,6 +2728,7 @@ class TestGetExperimentById(TestCase):
                     'key': KEY,
                     'exp_name': 'stack',
                     'overview': 'overview',
+                    'integration_level': 4,
                     'exp_id': 'cse03',
                     'sections': []
                    }
@@ -2897,16 +2944,6 @@ class TestUpdateLab(TestCase):
 
         data_dict = {
                     'key': KEY,
-                    'exp_name': 'arrays',
-                    'exp_id': 'exp123',
-                    'overview': 'overview', 
-                    'sections' : []
-                   }
-
-        experiment = SystemInterface.add_experiment(data_dict)
-
-        data_dict = {
-                    'key': KEY,
                     'inst_name': 'IIT Kanpur',
                     'inst_id': 'IITK'
                     }
@@ -2919,6 +2956,17 @@ class TestUpdateLab(TestCase):
                     }
 
         integrationstatus = SystemInterface.add_integrationstatus(data_dict)
+
+        data_dict = {
+                    'key': KEY,
+                    'exp_name': 'arrays',
+                    'exp_id': 'exp123',
+                    'overview': 'overview',
+                    'integration_level': 4,
+                    'sections' : []
+                   }
+
+        experiment = SystemInterface.add_experiment(data_dict)
 
         data_dict = {
                     'key' : KEY,
@@ -2983,15 +3031,6 @@ class TestUpdateLab(TestCase):
         print "test_update_lab_name_in_system_interface"
 
         data_dict = {
-                    'key': KEY,
-                    'exp_name': 'arrays',
-                    'exp_id': 'exp123',
-                    'overview': 'overview', 
-                    'sections': []
-                   }
-
-        experiment = SystemInterface.add_experiment(data_dict)
-        data_dict = {
                     'key' : KEY,
                     'inst_name': 'IIT Kanpur',
                     'inst_id': 'IITK'
@@ -3005,6 +3044,17 @@ class TestUpdateLab(TestCase):
                     }
 
         integrationstatus = SystemInterface.add_integrationstatus(data_dict)
+
+        data_dict = {
+                    'key': KEY,
+                    'exp_name': 'arrays',
+                    'exp_id': 'exp123',
+                    'overview': 'overview', 
+                    'integration_level': 4,
+                    'sections': []
+                   }
+
+        experiment = SystemInterface.add_experiment(data_dict)
 
         data_dict = {
                     'key' : KEY,
@@ -3127,10 +3177,19 @@ class TestUpdateExperiment(TestCase):
     def test_update_experiment_name_in_system_interface(self):
         print "test_update_experiment_name_in_system_interface"
 
+
+        data_dict = {
+                    'key' : KEY,
+                    'integration_level': 4
+                    }
+
+        integrationstatus = SystemInterface.add_integrationstatus(data_dict)
+
         data_dict = {
                     'key': KEY,
                     'exp_name': 'Data Structures',
                     'overview': 'overview',
+                    'integration_level': 4,
                     'sections': [],
                     'exp_id': 'cse02'
                    }
@@ -3549,21 +3608,23 @@ class TestDeleteLab(TestCase):
         print "test_delete_lab_in_system_interface"
 
         data_dict = {
-                    'key': KEY,
-                    'exp_name': 'arrays',
-                    'exp_id': 'exp123',
-                    'overview': 'overview', 
-                    'sections': []
-                   }
-
-        experiment = SystemInterface.add_experiment(data_dict)
-
-        data_dict = {
                     'key' : KEY,
                     'integration_level': 4
                     }
 
         integrationstatus = SystemInterface.add_integrationstatus(data_dict)
+
+
+        data_dict = {
+                    'key': KEY,
+                    'exp_name': 'arrays',
+                    'exp_id': 'exp123',
+                    'overview': 'overview',
+                    'integration_level': 4,
+                    'sections': []
+                   }
+
+        experiment = SystemInterface.add_experiment(data_dict)
 
         data_dict = {
                     'key' : KEY,
@@ -3694,8 +3755,16 @@ class TestDeleteExperiment(TestCase):
 
         data_dict = {
                     'key' : KEY,
+                    'integration_level': 4
+                    }
+
+        integrationstatus = SystemInterface.add_integrationstatus(data_dict)
+
+        data_dict = {
+                    'key' : KEY,
                     'exp_name': 'Data Structures',
                     'overview': 'overview',
+                    'integration_level': 4,
                     'exp_id': 'cse01',
                     'sections': []
                    }
@@ -3704,6 +3773,7 @@ class TestDeleteExperiment(TestCase):
                     'key': KEY,
                     'exp_name': 'Computer Programming',
                     'overview': 'overview',
+                    'integration_level': 4,
                     'exp_id': 'cse02',
                     'sections':[]
                    }
@@ -4315,21 +4385,22 @@ class TestGetLabByLabId(TestCase):
         print "test_get_lab_by_labid_in_system_interface"
 
         data_dict = {
-                    'key': KEY,
-                    'exp_name': 'arrays',
-                    'exp_id': 'exp123',
-                    'overview': 'overview', 
-                    'sections': []
-                   }
-
-        experiment = SystemInterface.add_experiment(data_dict)
-
-        data_dict = {
                     'key' : KEY,
                     'integration_level': 4
                     }
 
         integrationstatus = SystemInterface.add_integrationstatus(data_dict)
+
+        data_dict = {
+                    'key': KEY,
+                    'exp_name': 'arrays',
+                    'exp_id': 'exp123',
+                    'overview': 'overview', 
+                    'integration_level': 4,
+                    'sections': []
+                   }
+
+        experiment = SystemInterface.add_experiment(data_dict)
 
         data_dict = {
                     'key' : KEY,
@@ -4461,9 +4532,17 @@ class TestGetExpByExpId(TestCase):
         print "test_get_exp_by_expid_in_system_interface"
 
         data_dict = {
+                    'key' : KEY,
+                    'integration_level': 4
+                    }
+
+        integrationstatus = SystemInterface.add_integrationstatus(data_dict)
+
+        data_dict = {
                     'exp_name': 'Number Systems',
                     'exp_id': 'EE99777',
                     'overview': 'This is linked list experiment',
+                    'integration_level': 4,
                     'sections': [],
                     'key': KEY
                    }
@@ -4472,6 +4551,7 @@ class TestGetExpByExpId(TestCase):
                     'exp_name': 'Binary Systems',
                     'exp_id': 'EE99778',
                     'overview': 'This is linked list experiment',
+                    'integration_level': 4,
                     'sections': [],
                     'key': KEY
                    }
