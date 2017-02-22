@@ -126,11 +126,20 @@ class TestAddLab(TestCase):
         integrationstatus = SystemInterface.add_integrationstatus(data_dict)
 
         data_dict = {
+                    'key' : KEY,
+                    'asset_type': 'Image',
+                    'path': 'vlabs.ac.in/images/static/logo.png'
+                   }
+
+        asset = SystemInterface.add_asset(data_dict)
+
+        data_dict = {
                     'key': KEY,
                     'exp_name': 'arrays',
                     'exp_id': 'exp123',
                     'overview': 'overview',
                     'integration_level': 4,
+                    'assets': ['vlabs.ac.in/images/static/logo.png'],
                     'sections': []
                    }
 
@@ -151,14 +160,6 @@ class TestAddLab(TestCase):
                    }
 
         discipline = SystemInterface.add_discipline(data_dict)
-
-        data_dict = {
-                    'key' : KEY,
-                    'asset_type': 'Image',
-                    'path': 'vlabs.ac.in/images/static/logo.png'
-                   }
-
-        asset = SystemInterface.add_asset(data_dict)
 
         data_dict = {
                     'key' : KEY,
@@ -221,10 +222,19 @@ class TestAddLab(TestCase):
         integrationstatus = SystemInterface.add_integrationstatus(data_dict)
 
         data_dict = {
+                    'key' : KEY,
+                    'asset_type': 'Image',
+                    'path': 'vlabs.ac.in/images/static/logo.png'
+                   }
+
+        asset = SystemInterface.add_asset(data_dict)
+
+        data_dict = {
                     'key': KEY,
                     'exp_name': 'arrays',
                     'exp_id': 'exp123',
                     'overview': 'overview',
+                    'assets': ['vlabs.ac.in/images/static/logo.png'], 
                     'integration_level': 4,
                     'sections': []
                    }
@@ -246,14 +256,6 @@ class TestAddLab(TestCase):
                    }
 
         discipline = SystemInterface.add_discipline(data_dict)
-
-        data_dict = {
-                    'key' : KEY,
-                    'asset_type': 'Image',
-                    'path': 'vlabs.ac.in/images/static/logo.png'
-                   }
-
-        asset = SystemInterface.add_asset(data_dict)
 
         data_dict = {
                     'key' : KEY,
@@ -309,9 +311,16 @@ class TestAddLab(TestCase):
         integration_level = data_dict['integration_level']
         integrationstatus = System.do("get_integrationstatus", integration_level=integration_level)
 
+        assets = data_dict['assets']
+        asset_list = []
+        for asset in assets:
+            asset = System.do("get_asset", path=asset)
+            asset_list.append(asset)
+
         experiment = experiment_cls(exp_name=data_dict['exp_name'],
                                 exp_id=data_dict['exp_id'],
                                 overview=data_dict['overview'],
+                                assets=asset_list,
                                 integrationstatus=integrationstatus, 
                                 sections=data_dict['sections'])
         try:
@@ -377,9 +386,18 @@ class TestAddExperiment(TestCase):
 
         data_dict = {
                     'key' : KEY,
+                    'asset_type': 'Image',
+                    'path': 'vlabs.ac.in/images/static/logo.png'
+                   }
+
+        asset = SystemInterface.add_asset(data_dict)
+
+        data_dict = {
+                    'key' : KEY,
                     'exp_name': 'array',
                     'exp_id': 'cse02',
                     'overview': 'overview',
+                    'assets': ['vlabs.ac.in/images/static/logo.png'], 
                     'integration_level': 4,
                     'sections': ["Introduction", "Quize"]
                     }
@@ -391,6 +409,8 @@ class TestAddExperiment(TestCase):
         self.assertEqual(experiment.get("exp_id"), data_dict['exp_id'])
         self.assertEqual(experiment.get("integrationstatus").get("integration_level"),
                              data_dict['integration_level'])
+        self.assertEqual(experiment.get("assets")[0].get("path"), 
+                             'vlabs.ac.in/images/static/logo.png'),
         
     def test_add_experiment_raises_type_error_in_system_interface(self):
         print "test_add_experiment_raises_type_error_in_system_interface"
@@ -403,10 +423,19 @@ class TestAddExperiment(TestCase):
         integrationstatus = SystemInterface.add_integrationstatus(data_dict)
 
         data_dict = {
+                    'key' : KEY,
+                    'asset_type': 'Image',
+                    'path': 'vlabs.ac.in/images/static/logo.png'
+                   }
+
+        asset = SystemInterface.add_asset(data_dict)
+
+        data_dict = {
                     'key': KEY,
                     'exp_name': 'cse02',
                     'overview': 'overview',
                     'integration_level': 4,
+                    'assets': ['vlabs.ac.in/images/static/logo.png'], 
                     'exp_id': 123,
                     'sections': ["Theory", "Procedure"]
 		    }
@@ -1074,17 +1103,6 @@ class TestGetLabs(TestCase):
         integrationstatus = SystemInterface.add_integrationstatus(data_dict)
 
         data_dict = {
-                    'key': KEY,
-                    'exp_name': 'arrays',
-                    'exp_id': 'exp123',
-                    'overview': 'overview', 
-                    'integration_level': 4,
-                    'sections': []
-                   }
-
-        experiment = SystemInterface.add_experiment(data_dict)
-
-        data_dict = {
                     'key' : KEY,
                     'inst_name': 'IIT Kanpur',
                     'inst_id': 'IITK'
@@ -1115,6 +1133,19 @@ class TestGetLabs(TestCase):
                     }
 
         asset2 = SystemInterface.add_asset(data_dict)
+
+
+        data_dict = {
+                    'key': KEY,
+                    'exp_name': 'arrays',
+                    'exp_id': 'exp123',
+                    'overview': 'overview', 
+                    'integration_level': 4,
+                    'assets': ['vlabs.ac.in/images/static/logo.png'],
+                    'sections': []
+                   }
+
+        experiment = SystemInterface.add_experiment(data_dict)
 
         data_dict = {
                     'key' : KEY,
@@ -1227,18 +1258,6 @@ class TestGetLabsByInstitute(TestCase):
                     }
 
         integrationstatus = SystemInterface.add_integrationstatus(data_dict)
-
-        data_dict = {
-                    'key': KEY,
-                    'exp_name': 'arrays',
-                    'exp_id': 'exp123',
-                    'overview': 'overview',
-                    'integration_level': 4,
-                    'sections': []
-                   }
-
-        experiment = SystemInterface.add_experiment(data_dict)
-
         data_dict = {
                     'key' : KEY,
                     'inst_name': 'IIT Kanpur',
@@ -1287,6 +1306,19 @@ class TestGetLabsByInstitute(TestCase):
                    }
 
         hostinginfo = SystemInterface.add_hostinginfo(data_dict)
+
+
+        data_dict = {
+                    'key': KEY,
+                    'exp_name': 'arrays',
+                    'exp_id': 'exp123',
+                    'overview': 'overview',
+                    'assets': ['vlabs.ac.in/images/static/logo.png'], 
+                    'integration_level': 4,
+                    'sections': []
+                   }
+
+        experiment = SystemInterface.add_experiment(data_dict)
 
         data_dict = {
                     'key' : KEY,
@@ -1380,17 +1412,6 @@ class TestGetLabsByDiscipline(TestCase):
 
         data_dict = {
                     'key' : KEY,
-                    'exp_name': 'arrays',
-                    'exp_id': 'exp123',
-                    'overview': 'overview',
-                    'integration_level': 4,
-                    'sections' : []
-                   }
-
-        experiment = SystemInterface.add_experiment(data_dict)
-
-        data_dict = {
-                    'key' : KEY,
                     'inst_name': 'IIT Kanpur',
                     'inst_id': 'IITK'
                     }
@@ -1436,6 +1457,18 @@ class TestGetLabsByDiscipline(TestCase):
                    }
 
         hostinginfo = SystemInterface.add_hostinginfo(data_dict)
+
+        data_dict = {
+                    'key' : KEY,
+                    'exp_name': 'arrays',
+                    'exp_id': 'exp123',
+                    'overview': 'overview',
+                    'assets': ['vlabs.ac.in/images/static/logo.png'], 
+                    'integration_level': 4,
+                    'sections' : []
+                   }
+
+        experiment = SystemInterface.add_experiment(data_dict)
 
         data_dict = {
                     'key' : KEY,
@@ -1527,17 +1560,6 @@ class TestGetLabsByLabName(TestCase):
         integrationstatus = SystemInterface.add_integrationstatus(data_dict)
 
         data_dict = {
-                    'key': KEY,
-                    'exp_name': 'arrays',
-                    'exp_id': 'exp123',
-                    'overview': 'overview',
-                    'integration_level': 4,
-                    'sections': []
-                   }
-
-        experiment = SystemInterface.add_experiment(data_dict)
-
-        data_dict = {
                     'key' : KEY,
                     'inst_name': 'IIT Kanpur',
                     'inst_id': 'IITK'
@@ -1576,6 +1598,18 @@ class TestGetLabsByLabName(TestCase):
                    }
 
         hostinginfo = SystemInterface.add_hostinginfo(data_dict)
+
+        data_dict = {
+                    'key': KEY,
+                    'exp_name': 'arrays',
+                    'exp_id': 'exp123',
+                    'overview': 'overview',
+                    'assets': ['vlabs.ac.in/images/static/logo.png'], 
+                    'integration_level': 4,
+                    'sections': []
+                   }
+
+        experiment = SystemInterface.add_experiment(data_dict)
 
         data_dict = {
                     'key' : KEY,
@@ -1660,15 +1694,6 @@ class TestGetLabsByAsset(TestCase):
     def test_get_labs_by_asset_in_system_interface(self):
         print "test_get_labs_by_asset_in_system_interface"
 
-        data_dict = {
-                    'key': KEY,
-                    'exp_name': 'arrays',
-                    'exp_id': 'exp123',
-                    'overview': 'overview', 
-                    'sections': []
-                   }
-
-        experiment = SystemInterface.add_experiment(data_dict)
 
         data_dict = {
                     'key' : KEY,
@@ -1709,6 +1734,20 @@ class TestGetLabsByAsset(TestCase):
                     }
 
         asset2 = SystemInterface.add_asset(data_dict)
+
+
+        data_dict = {
+                    'key': KEY,
+                    'exp_name': 'arrays',
+                    'exp_id': 'exp123',
+                    'overview': 'overview',
+                    'assets': ['vlabs.ac.in/images/static/logo.png'], 
+                    'integration_level': 4, 
+                    'sections': []
+                   }
+
+        experiment = SystemInterface.add_experiment(data_dict
+
         data_dict = {
                     'key': KEY,
                     'lab_name': 'Data Structures',
@@ -1760,17 +1799,6 @@ class TestGetLabsByIntegrationstatus(TestCase):
 
     def test_get_labs_by_integrationstatus_in_system_interface(self):
         print "test_get_labs_by_integrationstatus_in_system_interface"
-
-        data_dict = {
-                    'key': KEY,
-                    'exp_name': 'arrays',
-                    'exp_id': 'exp123',
-                    'overview': 'overview', 
-                    'sections': []
-                   }
-
-        experiment = SystemInterface.add_experiment(data_dict)
-
         data_dict = {
                     'key' : KEY,
                     'integration_level': 4
@@ -1810,6 +1838,19 @@ class TestGetLabsByIntegrationstatus(TestCase):
 
         asset2 = SystemInterface.add_asset(data_dict)
 
+
+        data_dict = {
+                    'key': KEY,
+                    'exp_name': 'arrays',
+                    'exp_id': 'exp123',
+                    'overview': 'overview',
+                    'assets': ['vlabs.ac.in/images/static/logo.png'], 
+                    'integration_level': 4
+                    'sections': []
+                   }
+
+        experiment = SystemInterface.add_experiment(data_dict)
+
         data_dict = {
                     'key': KEY,
                     'lab_name': 'Data Structures',
@@ -1843,7 +1884,7 @@ class TestGetLabsByIntegrationstatus(TestCase):
 
  #+END_SRC
 
-
+ 
 ** Get Experiments
 #+NAME: class_get_experiments
 #+begin_src python
@@ -1895,9 +1936,18 @@ class TestGetExperiments(TestCase):
 
         integrationstatus = SystemInterface.add_integrationstatus(data_dict)
 
+        data_dict = {
+                    'key' : KEY,
+                    'asset_type': 'Image',
+                    'path': 'vlabs.ac.in/images/static/logo.png'
+                   }
+
+        asset = SystemInterface.add_asset(data_dict)
+
         data_dict = {'exp_name': 'stack',
                     'exp_id': 'cse01',
                     'overview': 'overview',
+                    'assets': ['vlabs.ac.in/images/static/logo.png'],
                     'integration_level': 4,
                     'sections': [],
                     'key': KEY
@@ -1906,6 +1956,7 @@ class TestGetExperiments(TestCase):
         data_dict1 = {'exp_name': "arrays",
                       'exp_id': 'cse02',
                       'overview': 'overview',
+                      'assets': ['vlabs.ac.in/images/static/logo.png'],
                       'integration_level': 4,
                       'sections':[],
                       'key': KEY
@@ -1993,6 +2044,7 @@ class TestGetInstitutes(TestCase):
 
  #+END_SRC
 
+
 ** Get Sections
 
 #+NAME: class_get_sections
@@ -2055,6 +2107,7 @@ class TestGetSections(TestCase):
         self.assertEqual(section_list[1].get("name"), data_dict1['name'])
 
  #+END_SRC
+
 
 ** Get Disciplines
 
@@ -2125,6 +2178,7 @@ class TestGetDisciplines(TestCase):
 
  #+END_SRC
  
+
 ** Get HostingInfos
 #+NAME: class_get_hostinginfos
 #+begin_src python
@@ -2195,6 +2249,7 @@ class TestGetHostingInfos(TestCase):
 
  #+END_SRC
 
+
 ** Get Names
 
 #+NAME: class_get_names
@@ -2258,6 +2313,7 @@ class TestGetNames(TestCase):
 
  #+END_SRC
 
+
 ** Get Emails
 
 #+NAME: class_get_emails
@@ -2320,6 +2376,7 @@ class TestGetEmails(TestCase):
         self.assertEqual(email_list[1].get("email"), data_dict1['email'])
 
  #+END_SRC
+
 
 ** Get Developers
 
@@ -2388,6 +2445,7 @@ class TestGetDevelopers(TestCase):
 
  #+END_SRC
 
+
 ** Get IntegrationStatuss
 #+NAME: class_get_integrationstatuss
 #+begin_src python
@@ -2450,6 +2508,7 @@ class TestGetIntegrationStatuss(TestCase):
 
  #+END_SRC
 
+
 ** Get Lab By Id
 #+NAME: class_get_lab_by_id
 #+begin_src python
@@ -2498,17 +2557,6 @@ class TestGetLabById(TestCase):
                     }
 
         integrationstatus = SystemInterface.add_integrationstatus(data_dict)
-
-        data_dict = {
-                    'key': KEY,
-                    'exp_name': 'arrays',
-                    'exp_id': 'exp123',
-                    'overview': 'overview',
-                    'integration_level': 4,
-                    'sections': []
-                   }
-
-        experiment = SystemInterface.add_experiment(data_dict)
 
         data_dict = {
                     'key' : KEY,
@@ -2560,6 +2608,18 @@ class TestGetLabById(TestCase):
         hostinginfo = SystemInterface.add_hostinginfo(data_dict)
 
         data_dict = {
+                    'key': KEY,
+                    'exp_name': 'arrays',
+                    'exp_id': 'exp123',
+                    'overview': 'overview',
+                    'assets': ['vlabs.ac.in/images/static/logo.png'], 
+                    'integration_level': 4,
+                    'sections': []
+                   }
+
+        experiment = SystemInterface.add_experiment(data_dict)
+
+        data_dict = {
                     'key' : KEY,
                     'lab_name': 'array',
                     'lab_id': 'cse02',
@@ -2601,6 +2661,7 @@ class TestGetLabById(TestCase):
                              data_dict1['lab_id'])
 
  #+END_SRC
+
 
 ** Get Section By Id
 
@@ -2666,6 +2727,7 @@ class TestGetSectionById(TestCase):
 
  #+END_SRC
 
+
 ** Get Experiment By Id
 #+NAME: class_get_experiment_by_id
 #+begin_src python
@@ -2716,9 +2778,18 @@ class TestGetExperimentById(TestCase):
         integrationstatus = SystemInterface.add_integrationstatus(data_dict)
 
         data_dict = {
+                    'key' : KEY,
+                    'asset_type': 'Image',
+                    'path': 'vlabs.ac.in/images/static/logo.png'
+                   }
+
+        asset = SystemInterface.add_asset(data_dict)
+
+        data_dict = {
                     'key': KEY,
                     'exp_name': 'array',
                     'overview': 'overview',
+                    'assets': ['vlabs.ac.in/images/static/logo.png'], 
                     'integration_level': 4,
                     'exp_id': 'cse02',
                     'sections': []
@@ -2728,6 +2799,7 @@ class TestGetExperimentById(TestCase):
                     'key': KEY,
                     'exp_name': 'stack',
                     'overview': 'overview',
+                    'assets': ['vlabs.ac.in/images/static/logo.png'], 
                     'integration_level': 4,
                     'exp_id': 'cse03',
                     'sections': []
@@ -2747,6 +2819,7 @@ class TestGetExperimentById(TestCase):
                              data_dict1['exp_id'])
 
  #+END_SRC
+
 
 ** Get Institute By Id
 #+NAME: class_get_institute_by_id
@@ -2816,6 +2889,7 @@ class TestGetInstituteById(TestCase):
                              data_dict1['inst_id'])
 
  #+END_SRC
+
 
 ** Get Discipline By Id
 #+NAME: class_get_discipline_by_id
@@ -2958,10 +3032,19 @@ class TestUpdateLab(TestCase):
         integrationstatus = SystemInterface.add_integrationstatus(data_dict)
 
         data_dict = {
+                    'key' : KEY,
+                    'asset_type': 'Image',
+                    'path': 'vlabs.ac.in/images/static/logo.png'
+                    }
+
+        asset = SystemInterface.add_asset(data_dict)
+
+        data_dict = {
                     'key': KEY,
                     'exp_name': 'arrays',
                     'exp_id': 'exp123',
                     'overview': 'overview',
+                    'assets': ['vlabs.ac.in/images/static/logo.png'], 
                     'integration_level': 4,
                     'sections' : []
                    }
@@ -2975,14 +3058,6 @@ class TestUpdateLab(TestCase):
                    }
 
         discipline = SystemInterface.add_discipline(data_dict)
-
-        data_dict = {
-                    'key' : KEY,
-                    'asset_type': 'Image',
-                    'path': 'vlabs.ac.in/images/static/logo.png'
-                    }
-
-        asset = SystemInterface.add_asset(data_dict)
 
         data_dict = {
                     'key': KEY,
@@ -3046,10 +3121,19 @@ class TestUpdateLab(TestCase):
         integrationstatus = SystemInterface.add_integrationstatus(data_dict)
 
         data_dict = {
+                    'key' : KEY,
+                    'asset_type': 'Image',
+                    'path': 'vlabs.ac.in/images/static/logo.png'
+                    }
+
+        asset = SystemInterface.add_asset(data_dict)
+
+        data_dict = {
                     'key': KEY,
                     'exp_name': 'arrays',
                     'exp_id': 'exp123',
-                    'overview': 'overview', 
+                    'overview': 'overview',
+                    'assets': ['vlabs.ac.in/images/static/logo.png'], 
                     'integration_level': 4,
                     'sections': []
                    }
@@ -3082,14 +3166,6 @@ class TestUpdateLab(TestCase):
         hostinginfo = SystemInterface.add_hostinginfo(data_dict)
 
         data_dict = {
-                    'key' : KEY,
-                    'asset_type': 'Image',
-                    'path': 'vlabs.ac.in/images/static/logo.png'
-                    }
-
-        asset = SystemInterface.add_asset(data_dict)
-
-        data_dict = {
                     'key': KEY,
                     'lab_name': 'Data Structures',
                     'lab_id': 'cse02',
@@ -3117,6 +3193,7 @@ class TestUpdateLab(TestCase):
         self.assertEqual(lab1.get("overview"), data_dict1['overview'])
 
  #+END_SRC
+
 
 ** Update Experiment
 #+NAME: class_update_experiment
@@ -3186,9 +3263,18 @@ class TestUpdateExperiment(TestCase):
         integrationstatus = SystemInterface.add_integrationstatus(data_dict)
 
         data_dict = {
+                    'key' : KEY,
+                    'asset_type': 'Image',
+                    'path': 'vlabs.ac.in/images/static/logo.png'
+                   }
+
+        asset = SystemInterface.add_asset(data_dict)
+
+        data_dict = {
                     'key': KEY,
                     'exp_name': 'Data Structures',
                     'overview': 'overview',
+                    'assets': ['vlabs.ac.in/images/static/logo.png'], 
                     'integration_level': 4,
                     'sections': [],
                     'exp_id': 'cse02'
@@ -3206,6 +3292,7 @@ class TestUpdateExperiment(TestCase):
         self.assertEqual(exp1.get("exp_name"), data_dict1['exp_name'])
 
  #+END_SRC
+
 
 ** Update Institute
 #+NAME: class_update_institute
@@ -3278,6 +3365,7 @@ class TestUpdateInstitute(TestCase):
 
  #+END_SRC
 
+
 ** Update Section
 #+NAME: class_update_section
 #+begin_src python
@@ -3346,6 +3434,7 @@ class TestUpdateSection(TestCase):
 
  #+END_SRC
 
+
 ** Update Discipline
 #+NAME: class_update_discipline
 #+begin_src python       
@@ -3412,6 +3501,7 @@ class TestUpdateDiscipline(TestCase):
         self.assertEqual(dis.get("dis_name"), data_dict1['dis_name'])
 
  #+END_SRC
+
 
 ** Update HostingInfo
 #+NAME: class_update_hostinginfo
@@ -3490,6 +3580,7 @@ class TestUpdateHostingInfo(TestCase):
         self.assertEqual(hostinginfo1.get("hosted_on"), data_dict1['hosted_on'])
 
  #+END_SRC
+
 
 ** Update Developer
 #+NAME: class_update_developer
@@ -3614,12 +3705,21 @@ class TestDeleteLab(TestCase):
 
         integrationstatus = SystemInterface.add_integrationstatus(data_dict)
 
+        data_dict = {
+                    'key' : KEY,
+                    'asset_type': 'Image',
+                    'path': 'vlabs.ac.in/images/static/logo.png'
+                    }
+
+        asset1 = SystemInterface.add_asset(data_dict)
+
 
         data_dict = {
                     'key': KEY,
                     'exp_name': 'arrays',
                     'exp_id': 'exp123',
                     'overview': 'overview',
+                    'assets': ['vlabs.ac.in/images/static/logo.png'], 
                     'integration_level': 4,
                     'sections': []
                    }
@@ -3641,14 +3741,6 @@ class TestDeleteLab(TestCase):
                    }
 
         discipline = SystemInterface.add_discipline(data_dict)
-
-        data_dict = {
-                    'key' : KEY,
-                    'asset_type': 'Image',
-                    'path': 'vlabs.ac.in/images/static/logo.png'
-                    }
-
-        asset1 = SystemInterface.add_asset(data_dict)
 
         data_dict = {
                     'key' : KEY,
@@ -3711,6 +3803,7 @@ class TestDeleteLab(TestCase):
 
  #+END_SRC
 
+
 ** Delete Experiment
 #+NAME: class_delete_experiment
 #+begin_src python
@@ -3762,8 +3855,17 @@ class TestDeleteExperiment(TestCase):
 
         data_dict = {
                     'key' : KEY,
+                    'asset_type': 'Image',
+                    'path': 'vlabs.ac.in/images/static/logo.png'
+                   }
+
+        asset = SystemInterface.add_asset(data_dict)
+
+        data_dict = {
+                    'key' : KEY,
                     'exp_name': 'Data Structures',
                     'overview': 'overview',
+                    'assets': ['vlabs.ac.in/images/static/logo.png'], 
                     'integration_level': 4,
                     'exp_id': 'cse01',
                     'sections': []
@@ -3773,6 +3875,7 @@ class TestDeleteExperiment(TestCase):
                     'key': KEY,
                     'exp_name': 'Computer Programming',
                     'overview': 'overview',
+                    'assets': ['vlabs.ac.in/images/static/logo.png'], 
                     'integration_level': 4,
                     'exp_id': 'cse02',
                     'sections':[]
@@ -3785,6 +3888,7 @@ class TestDeleteExperiment(TestCase):
         self.assertEqual(exp_id, 'cse02')
 
  #+END_SRC
+
 
 ** Delete Institute
 #+NAME: class_delete_institute
@@ -3848,6 +3952,7 @@ class TestDeleteInstitute(TestCase):
 
  #+END_SRC
 
+
 ** Delete Section
 #+NAME: class_delete_section
 #+begin_src python
@@ -3908,6 +4013,7 @@ class TestDeleteSection(TestCase):
 
  #+END_SRC
 
+
 ** Delete Discipline
 #+NAME: class_delete_discipline
 #+begin_src python       
@@ -3961,6 +4067,7 @@ class TestDeleteDiscipline(TestCase):
         self.assertEqual(dis_id, data_dict['dis_id'])
 
  #+END_SRC
+
 
 ** Delete HostingInfo
 #+NAME: class_delete_hostinginfo
@@ -4026,6 +4133,8 @@ class TestDeleteHostingInfo(TestCase):
 
  #+END_SRC
 
+
+
 ** Delete Name
 #+NAME: class_delete_name
 #+begin_src python
@@ -4088,6 +4197,7 @@ class TestDeleteName(TestCase):
 
  #+END_SRC
 
+
 ** Delete Email
 #+NAME: class_delete_email
 #+begin_src python
@@ -4149,6 +4259,7 @@ class TestDeleteEmail(TestCase):
         self.assertEqual(email_id.get("email"), data_dict1["email"])
 
  #+END_SRC
+
 
 ** Delete Developer
 #+NAME: class_delete_developer
@@ -4216,6 +4327,7 @@ class TestDeleteDeveloper(TestCase):
         self.assertEqual(dev.get("email"), data_dict['email'])
 
  #+END_SRC
+
 
 ** Delete IntegrationStatus
 #+NAME: class_delete_integrationstatus
@@ -4343,6 +4455,7 @@ class TestGetInstituteByInstituteId(TestCase):
 
  #+END_SRC
 
+
 ** Get Lab by LabId
 #+NAME: class_get_lab_by_lab_id
 #+begin_src python
@@ -4392,10 +4505,27 @@ class TestGetLabByLabId(TestCase):
         integrationstatus = SystemInterface.add_integrationstatus(data_dict)
 
         data_dict = {
+                    'key' : KEY,
+                    'asset_type': 'Image',
+                    'path': 'vlabs.ac.in/images/static/logo.png'
+                   }
+
+        asset1 = SystemInterface.add_asset(data_dict)
+
+        data_dict = {
+                    'key' : KEY,
+                    'asset_type': 'Image',
+                    'path': 'vlabs.ac.in/images/static/icon.png',
+                    }
+
+        asset2 = SystemInterface.add_asset(data_dict)
+
+        data_dict = {
                     'key': KEY,
                     'exp_name': 'arrays',
                     'exp_id': 'exp123',
-                    'overview': 'overview', 
+                    'overview': 'overview',
+                    'assets': ['vlabs.ac.in/images/static/logo.png'], 
                     'integration_level': 4,
                     'sections': []
                    }
@@ -4417,22 +4547,6 @@ class TestGetLabByLabId(TestCase):
                    }
 
         discipline = SystemInterface.add_discipline(data_dict)
-
-        data_dict = {
-                    'key' : KEY,
-                    'asset_type': 'Image',
-                    'path': 'vlabs.ac.in/images/static/logo.png'
-                   }
-
-        asset1 = SystemInterface.add_asset(data_dict)
-
-        data_dict = {
-                    'key' : KEY,
-                    'asset_type': 'Image',
-                    'path': 'vlabs.ac.in/images/static/icon.png',
-                    }
-
-        asset2 = SystemInterface.add_asset(data_dict)
 
         data_dict = {
                     'key' : KEY,
@@ -4490,6 +4604,7 @@ class TestGetLabByLabId(TestCase):
 
  #+END_SRC
 
+
 ** Get Experiment by ExpId
 #+NAME: class_get_lab_by_exp_id
 #+begin_src python
@@ -4539,9 +4654,18 @@ class TestGetExpByExpId(TestCase):
         integrationstatus = SystemInterface.add_integrationstatus(data_dict)
 
         data_dict = {
+                    'key' : KEY,
+                    'asset_type': 'Image',
+                    'path': 'vlabs.ac.in/images/static/logo.png'
+                   }
+
+        asset = SystemInterface.add_asset(data_dict)
+
+        data_dict = {
                     'exp_name': 'Number Systems',
                     'exp_id': 'EE99777',
                     'overview': 'This is linked list experiment',
+                    'assets': ['vlabs.ac.in/images/static/logo.png'], 
                     'integration_level': 4,
                     'sections': [],
                     'key': KEY
@@ -4551,6 +4675,7 @@ class TestGetExpByExpId(TestCase):
                     'exp_name': 'Binary Systems',
                     'exp_id': 'EE99778',
                     'overview': 'This is linked list experiment',
+                    'assets': ['vlabs.ac.in/images/static/logo.png'], 
                     'integration_level': 4,
                     'sections': [],
                     'key': KEY
@@ -4566,6 +4691,7 @@ class TestGetExpByExpId(TestCase):
         self.assertEqual(exp1.get("exp_id"), data_dict1['exp_id'])
 
  #+END_SRC
+
 
 ** Get Discipline by DisId
 #+NAME: class_get_discipline_by_dis_id
