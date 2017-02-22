@@ -770,6 +770,7 @@ class TestGetLab(TestCase):
         payload = {'exp_name': 'arrays',
                    'exp_id': 'exp1',
                    'overview' : 'overview',
+                   'assets': ['vlabs.ac.in/images/static/logo.png'],
                    'sections': [],
                    'integration_level': 4,
                    'key': KEY}
@@ -877,6 +878,7 @@ class TestGetLabbyLabId(TestCase):
         payload = {'exp_name': 'arrays',
                    'exp_id': 'exp1',
                    'overview' : 'overview',
+                   'assets': ['vlabs.ac.in/images/static/logo.png'],
                    'integration_level': 4,
                    'sections': [],
                    'key': KEY}
@@ -986,6 +988,7 @@ class TestGetLabsbyInstitute(TestCase):
         payload = {'exp_name': 'arrays',
                    'exp_id': 'exp1',
                    'overview' : 'overview',
+                   'assets': ['vlabs.ac.in/images/static/logo.png'],
                    'integration_level': 4,
                    'sections': [],
                    'key': KEY}
@@ -1089,6 +1092,7 @@ class TestGetLabsbyDiscipline(TestCase):
         payload = {'exp_name': 'arrays',
                    'exp_id': 'exp1',
                    'overview' : 'overview',
+                   'assets': ['vlabs.ac.in/images/static/logo.png'],
                    'integration_level': 4,
                    'sections': [],
                    'key': KEY}
@@ -1195,6 +1199,7 @@ class TestGetLabsbyLabName(TestCase):
         payload = {'exp_name': 'arrays',
                    'exp_id': 'exp1',
                    'overview' : 'overview',
+                   'assets': ['vlabs.ac.in/images/static/logo.png'],
                    'integration_level': 4,
                    'sections': [],
                    'key': KEY}
@@ -1310,7 +1315,9 @@ class TestGetLabsbyAsset(TestCase):
         payload = {'exp_name': 'arrays',
                    'exp_id': 'exp1',
                    'overview': 'overview',
+                   'assets': ['vlabs.ac.in/images/static/logo.png'],
                    'sections': [],
+                   'integration_level': 4, 
                    'key': KEY}
 
         headers = {'Content-Type': 'application/json'}
@@ -1552,6 +1559,7 @@ class TestAddLab(TestCase):
         payload = {'exp_name': 'arrays',
                    'exp_id': 'exp1',
                    'overview' : 'overview',
+                   'assets': ['vlabs.ac.in/images/static/logo.png'],
                    'integration_level': 4,
                    'sections': [],
                    'key': KEY}
@@ -2345,16 +2353,27 @@ class TestGetExperiment(TestCase):
     def test_get_experiments(self):
         print "test_get_experiments_in_rest"
 
-        data_dict = {
-                    'key' : KEY,
-                    'integration_level': 4
-                    }
+        payload = {'integration_level': 4,
+                   'key': KEY}
 
-        integrationstatus = SystemInterface.add_integrationstatus(data_dict)
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/integrationstatuss", data=json.dumps(payload),
+                                 headers=headers)
+
+        payload = {'asset_type': 'Image',
+                   'path': 'vlabs.ac.in/images/static/logo.png',
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/assets", data=json.dumps(payload),
+                                 headers=headers)
 
         payload = {'exp_name': 'stack',
                    'exp_id': 'cse01',
                    'overview' : 'overview',
+                   'assets': ['vlabs.ac.in/images/static/logo.png'],
                    'sections' : [],
                    'integration_level': 4,
                    'key': KEY}
@@ -2396,9 +2415,19 @@ class TestGetExp(TestCase):
         response = self.client.post("/integrationstatuss", data=json.dumps(payload),
                                  headers=headers)
 
+        payload = {'asset_type': 'Image',
+                   'path': 'vlabs.ac.in/images/static/logo.png',
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/assets", data=json.dumps(payload),
+                                 headers=headers)
+
         payload = {'exp_name': 'stack',
                    'exp_id': 'cse01',
                    'overview' : 'overview',
+                   'assets': ['vlabs.ac.in/images/static/logo.png'],
                    'sections' : [],
                    'integration_level': 4,
                    'key': KEY}
@@ -2525,9 +2554,20 @@ class TestAddExperiment(TestCase):
 
         response = self.client.post("/integrationstatuss", data=json.dumps(payload),
                                  headers=headers)
+
+        payload = {'asset_type': 'Image',
+                   'path': 'vlabs.ac.in/images/static/logo.png',
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/assets", data=json.dumps(payload),
+                                 headers=headers)
+
         payload = {'exp_name': 'arrays',
                    'exp_id': 'cse01',
                    'overview' : 'overview',
+                   'assets': ['vlabs.ac.in/images/static/logo.png'],
                    'integration_level': 4,
                    'sections': [],
                    'key': KEY}
@@ -4084,6 +4124,7 @@ class TestUpdateLab(TestCase):
         payload = {'exp_name': 'arrays',
                    'exp_id': 'exp1',
                    'overview' : 'overview',
+                   'assets': ['vlabs.ac.in/images/static/logo.png'],
                    'integration_level': 4,
                    'sections': [],
                    'key': KEY}
@@ -4261,6 +4302,7 @@ class TestDeleteLab(TestCase):
         payload = {'exp_name': 'arrays',
                    'exp_id': 'exp1',
                    'overview' : 'overview',
+                   'assets': ['vlabs.ac.in/images/static/logo.png'],
                    'integration_level': 4,
                    'sections': [],
                    'key': KEY}
@@ -4427,9 +4469,19 @@ class TestUpdateExperiment(TestCase):
         response = self.client.post("/integrationstatuss", data=json.dumps(payload),
                                  headers=headers)
 
+        payload = {'asset_type': 'Image',
+                   'path': 'vlabs.ac.in/images/static/logo.png',
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/assets", data=json.dumps(payload),
+                                 headers=headers)
+
         payload = {'exp_name': 'Theory',
                    'exp_id': 'exp123',
                    'overview': 'overview',
+                   'assets': ['vlabs.ac.in/images/static/logo.png'],
                    'integration_level': 4,
                    'sections': [],
                    'key': KEY}
@@ -4535,9 +4587,19 @@ class TestDeleteExperiment(TestCase):
         response = self.client.post("/integrationstatuss", data=json.dumps(payload),
                                  headers=headers)
 
+        payload = {'asset_type': 'Image',
+                   'path': 'vlabs.ac.in/images/static/logo.png',
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/assets", data=json.dumps(payload),
+                                 headers=headers)
+
         payload = {'exp_name': 'Theory',
                    'exp_id': 'exp123',
                    'overview': 'overview',
+                   'assets': ['vlabs.ac.in/images/static/logo.png'],
                    'integration_level': 4,
                    'sections': [],
                    'key': KEY
