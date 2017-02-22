@@ -702,10 +702,14 @@ args = {"__tablename__": "integrationstatus",
         "id": db.Column(db.Integer, primary_key=True),
         "integration_level": db.Column(db.Integer, unique=True, nullable=False),
         "labs": db.relationship('Lab', backref=db.backref('integrationstatus')), 
-        "experiments": db.relationship('Experiment', backref=db.backref('integrationstatus'))
+        "experiments": db.relationship('Experiment', backref=db.backref('integrationstatus')), 
+        "integration_level": db.Column(db.Integer, unique=True,
+                                           nullable=False),
+        "labs": db.relationship('Lab', backref=db.backref('integrationstatus'))
        }
 
-IntegrationStatus = ClassPersistenceTemplate.mk_persistent(IntegrationStatus, ['integration_level'], **args)
+IntegrationStatus = ClassPersistenceTemplate.mk_persistent(IntegrationStatus,
+                                                ['integration_level'], **args)
 
 #+end_src
 
