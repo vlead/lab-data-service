@@ -134,13 +134,32 @@ class TestAddLab(TestCase):
         asset = SystemInterface.add_asset(data_dict)
 
         data_dict = {
+                    'key' : KEY,
+                    'name': 'Prof. Dharamaja',
+                    'email': 'abc@gmail.com'
+                   }
+
+        developer = SystemInterface.add_developer(data_dict)
+        
+        data_dict = {
+                    'key' : KEY,
+                    'hosting_status': 'hosted',
+                    'hosted_url': 'http://cse14-iiith.vlabs.ac.in',
+                    'hosted_on': 'cloud'
+                   }
+
+        hostinginfo = SystemInterface.add_hostinginfo(data_dict)
+
+        data_dict = {
                     'key': KEY,
                     'exp_name': 'arrays',
                     'exp_id': 'exp123',
                     'overview': 'overview',
                     'integration_level': 4,
                     'assets': ['vlabs.ac.in/images/static/logo.png'],
-                    'sections': []
+                    'sections': [], 
+                    'developers': ['abc@gmail.com'],
+                    'hosted_url': 'http://cse14-iiith.vlabs.ac.in'
                    }
 
         experiment = SystemInterface.add_experiment(data_dict)
@@ -161,22 +180,6 @@ class TestAddLab(TestCase):
 
         discipline = SystemInterface.add_discipline(data_dict)
 
-        data_dict = {
-                    'key' : KEY,
-                    'name': 'Prof. Dharamaja',
-                    'email': 'abc@gmail.com'
-                   }
-
-        developer = SystemInterface.add_developer(data_dict)
-        
-        data_dict = {
-                    'key' : KEY,
-                    'hosting_status': 'hosted',
-                    'hosted_url': 'http://cse14-iiith.vlabs.ac.in',
-                    'hosted_on': 'cloud'
-                   }
-
-        hostinginfo = SystemInterface.add_hostinginfo(data_dict)
 
         data_dict = {'lab_name': 'data structure',
                     'lab_id': 'cse02',
@@ -230,13 +233,31 @@ class TestAddLab(TestCase):
         asset = SystemInterface.add_asset(data_dict)
 
         data_dict = {
+                    'key' : KEY,
+                    'name': 'Prof. Dharamaja',
+                    'email': 'abc@gmail.com'
+                   }
+        developer = SystemInterface.add_developer(data_dict)
+
+        data_dict = {
+                    'hosting_status': 'hosted',
+                    'hosted_url': 'http://cse14-iiith.vlabs.ac.in',
+                    'hosted_on': 'cloud',
+                    'key' : KEY
+                   }
+
+        hostinginfo = SystemInterface.add_hostinginfo(data_dict)
+
+        data_dict = {
                     'key': KEY,
                     'exp_name': 'arrays',
                     'exp_id': 'exp123',
                     'overview': 'overview',
                     'assets': ['vlabs.ac.in/images/static/logo.png'], 
                     'integration_level': 4,
-                    'sections': []
+                    'sections': [], 
+                    'developers': ['abc@gmail.com'],
+                    'hosted_url': 'http://cse14-iiith.vlabs.ac.in'
                    }
 
         experiment = SystemInterface.add_experiment(data_dict)
@@ -256,23 +277,6 @@ class TestAddLab(TestCase):
                    }
 
         discipline = SystemInterface.add_discipline(data_dict)
-
-        data_dict = {
-                    'key' : KEY,
-                    'name': 'Prof. Dharamaja',
-                    'email': 'abc@gmail.com'
-                   }
-
-        developer = SystemInterface.add_developer(data_dict)
-
-        data_dict = {
-                    'hosting_status': 'hosted',
-                    'hosted_url': 'http://cse14-iiith.vlabs.ac.in',
-                    'hosted_on': 'cloud',
-                    'key' : KEY
-                   }
-
-        hostinginfo = SystemInterface.add_hostinginfo(data_dict)
 
         data_dict = {'lab_name': 'data structure',
                     'lab_id': 123,
@@ -301,6 +305,7 @@ class TestAddLab(TestCase):
         session_cls = System.delegate.entities['session']
         section_cls = System.delegate.entities['section']
         experiment_cls = System.delegate.entities['experiment']
+        email_cls = System.delegate.entities['email']
 
         session = session_cls(key=data_dict['key'])
         del(data_dict['key'])
@@ -316,13 +321,24 @@ class TestAddLab(TestCase):
         for asset in assets:
             asset = System.do("get_asset", path=asset)
             asset_list.append(asset)
+        developers = data_dict['developers']
+        developer_list = []
+        for d_id in developers:
+            email = email_cls(email=d_id)
+            developer = System.do("get_developer", email=email)
+            developer_list.append(developer)
+
+        hosted_url = data_dict['hosted_url']
+        hostinginfo = System.do("get_hostinginfo", hosted_url=hosted_url)
 
         experiment = experiment_cls(exp_name=data_dict['exp_name'],
                                 exp_id=data_dict['exp_id'],
                                 overview=data_dict['overview'],
                                 assets=asset_list,
-                                integrationstatus=integrationstatus, 
-                                sections=data_dict['sections'])
+                                integrationstatus=integrationstatus,
+                                sections=data_dict['sections'],
+                                developers=developer_list,
+                                hostinginfo=hostinginfo)
         try:
             current_app.logger.debug("running operation add_experiment")
             question = System.do("add_experiment", experiment=experiment, 
@@ -394,13 +410,31 @@ class TestAddExperiment(TestCase):
 
         data_dict = {
                     'key' : KEY,
+                    'name': 'Prof. Dharamaja',
+                    'email': 'abc@gmail.com'
+                   }
+        developer = SystemInterface.add_developer(data_dict)
+        
+        data_dict = {
+                    'key' : KEY,
+                    'hosting_status': 'hosted',
+                    'hosted_url': 'http://cse14-iiith.vlabs.ac.in',
+                    'hosted_on': 'cloud'
+                   }
+
+        hostinginfo = SystemInterface.add_hostinginfo(data_dict)
+
+        data_dict = {
+                    'key' : KEY,
                     'exp_name': 'array',
                     'exp_id': 'cse02',
                     'overview': 'overview',
                     'assets': ['vlabs.ac.in/images/static/logo.png'], 
                     'integration_level': 4,
-                    'sections': ["Introduction", "Quize"]
-                    }
+                    'sections': ["Introduction", "Quize"],
+                    'developers': ['abc@gmail.com'],
+                    'hosted_url': 'http://cse14-iiith.vlabs.ac.in'
+                   }
 
         experiment = SystemInterface.add_experiment(data_dict)
 
@@ -411,6 +445,9 @@ class TestAddExperiment(TestCase):
                              data_dict['integration_level'])
         self.assertEqual(experiment.get("assets")[0].get("path"), 
                              'vlabs.ac.in/images/static/logo.png'),
+        self.assertEqual(experiment.get("hostinginfo").get("hosted_url"),
+                             data_dict['hosted_url'])
+        self.assertEqual(experiment.get("developers")[0].get("email").get("email"), 'abc@gmail.com')
         
     def test_add_experiment_raises_type_error_in_system_interface(self):
         print "test_add_experiment_raises_type_error_in_system_interface"
@@ -431,13 +468,31 @@ class TestAddExperiment(TestCase):
         asset = SystemInterface.add_asset(data_dict)
 
         data_dict = {
+                    'key' : KEY,
+                    'name': 'Prof. Dharamaja',
+                    'email': 'abc@gmail.com'
+                   }
+        developer = SystemInterface.add_developer(data_dict)
+
+        data_dict = {
+                    'hosting_status': 'hosted',
+                    'hosted_url': 'http://cse14-iiith.vlabs.ac.in',
+                    'hosted_on': 'cloud',
+                    'key' : KEY
+                   }
+
+        hostinginfo = SystemInterface.add_hostinginfo(data_dict)
+
+        data_dict = {
                     'key': KEY,
                     'exp_name': 'cse02',
                     'overview': 'overview',
                     'integration_level': 4,
                     'assets': ['vlabs.ac.in/images/static/logo.png'], 
                     'exp_id': 123,
-                    'sections': ["Theory", "Procedure"]
+                    'sections': ["Theory", "Procedure"],
+                    'developers': ['abc@gmail.com'],
+                    'hosted_url': 'http://cse14-iiith.vlabs.ac.in'
 		    }
         with self.assertRaises(TypeError):
             SystemInterface.add_experiment(data_dict)
@@ -1097,6 +1152,23 @@ class TestGetLabs(TestCase):
 
         data_dict = {
                     'key' : KEY,
+                    'name': 'Prof. Dharamaja',
+                    'email': 'abc@gmail.com'
+                   }
+
+        developer = SystemInterface.add_developer(data_dict)
+
+        data_dict = {
+                    'key' : KEY,
+                    'hosting_status': 'hosted',
+                    'hosted_url': 'http://cse14-iiith.vlabs.ac.in',
+                    'hosted_on': 'cloud'
+                   }
+
+        hostinginfo = SystemInterface.add_hostinginfo(data_dict)
+
+        data_dict = {
+                    'key' : KEY,
                     'integration_level': 4
                     }
 
@@ -1134,7 +1206,6 @@ class TestGetLabs(TestCase):
 
         asset2 = SystemInterface.add_asset(data_dict)
 
-
         data_dict = {
                     'key': KEY,
                     'exp_name': 'arrays',
@@ -1142,27 +1213,12 @@ class TestGetLabs(TestCase):
                     'overview': 'overview', 
                     'integration_level': 4,
                     'assets': ['vlabs.ac.in/images/static/logo.png'],
-                    'sections': []
+                    'sections': [],
+                    'developers': ['abc@gmail.com'],
+                    'hosted_url': 'http://cse14-iiith.vlabs.ac.in'
                    }
 
         experiment = SystemInterface.add_experiment(data_dict)
-
-        data_dict = {
-                    'key' : KEY,
-                    'name': 'Prof. Dharamaja',
-                    'email': 'abc@gmail.com'
-                   }
-
-        developer = SystemInterface.add_developer(data_dict)
-
-        data_dict = {
-                    'key' : KEY,
-                    'hosting_status': 'hosted',
-                    'hosted_url': 'http://cse14-iiith.vlabs.ac.in',
-                    'hosted_on': 'cloud'
-                   }
-
-        hostinginfo = SystemInterface.add_hostinginfo(data_dict)
 
         data_dict = {'lab_name': 'data structure',
                     'lab_id': 'cse01',
@@ -1253,11 +1309,29 @@ class TestGetLabsByInstitute(TestCase):
         print "test_get_labs_by_institute_in_system_interface"
 
         data_dict = {
+                    'key': KEY,
+                    'name': 'Prof. Dharamaja',
+                    'email': 'abc@gmail.com'
+                   }
+
+        developer = SystemInterface.add_developer(data_dict)
+
+        data_dict = {
+                    'key' : KEY,
+                    'hosting_status': 'hosted',
+                    'hosted_url': 'http://cse14-iiith.vlabs.ac.in',
+                    'hosted_on': 'cloud'
+                   }
+
+        hostinginfo = SystemInterface.add_hostinginfo(data_dict)
+
+        data_dict = {
                     'key' : KEY,
                     'integration_level': 4
                     }
 
         integrationstatus = SystemInterface.add_integrationstatus(data_dict)
+
         data_dict = {
                     'key' : KEY,
                     'inst_name': 'IIT Kanpur',
@@ -1292,30 +1366,14 @@ class TestGetLabsByInstitute(TestCase):
 
         data_dict = {
                     'key': KEY,
-                    'name': 'Prof. Dharamaja',
-                    'email': 'abc@gmail.com'
-                   }
-
-        developer = SystemInterface.add_developer(data_dict)
-
-        data_dict = {
-                    'key' : KEY,
-                    'hosting_status': 'hosted',
-                    'hosted_url': 'http://cse14-iiith.vlabs.ac.in',
-                    'hosted_on': 'cloud'
-                   }
-
-        hostinginfo = SystemInterface.add_hostinginfo(data_dict)
-
-
-        data_dict = {
-                    'key': KEY,
                     'exp_name': 'arrays',
                     'exp_id': 'exp123',
                     'overview': 'overview',
                     'assets': ['vlabs.ac.in/images/static/logo.png'], 
                     'integration_level': 4,
-                    'sections': []
+                    'sections': [],
+                    'developers': ['abc@gmail.com'],
+                    'hosted_url': 'http://cse14-iiith.vlabs.ac.in'
                    }
 
         experiment = SystemInterface.add_experiment(data_dict)
@@ -1405,6 +1463,23 @@ class TestGetLabsByDiscipline(TestCase):
         print "test_get_labs_by_discipline_in_system_interface"
 
         data_dict = {
+                    'key': KEY,
+                    'name': 'Prof. Dharamaja',
+                    'email': 'abc@gmail.com'
+                   }
+
+        developer = SystemInterface.add_developer(data_dict)
+
+        data_dict = {
+                    'key' : KEY,
+                    'hosting_status': 'hosted',
+                    'hosted_url': 'http://cse14-iiith.vlabs.ac.in',
+                    'hosted_on': 'cloud'
+                   }
+
+        hostinginfo = SystemInterface.add_hostinginfo(data_dict)
+
+        data_dict = {
                     'key' : KEY,
                     'integration_level': 4
                     }
@@ -1444,29 +1519,15 @@ class TestGetLabsByDiscipline(TestCase):
         asset2 = SystemInterface.add_asset(data_dict)
 
         data_dict = {
-                    'key': KEY,
-                    'name': 'Prof. Dharamaja',
-                    'email': 'abc@gmail.com'
-                   }
-
-        developer = SystemInterface.add_developer(data_dict)
-        data_dict = {
-                    'key' : KEY,
-                    'hosting_status': 'hosted',
-                    'hosted_url': 'http://cse14-iiith.vlabs.ac.in',
-                    'hosted_on': 'cloud'
-                   }
-
-        hostinginfo = SystemInterface.add_hostinginfo(data_dict)
-
-        data_dict = {
                     'key' : KEY,
                     'exp_name': 'arrays',
                     'exp_id': 'exp123',
                     'overview': 'overview',
                     'assets': ['vlabs.ac.in/images/static/logo.png'], 
                     'integration_level': 4,
-                    'sections' : []
+                    'sections' : [],
+                    'developers': ['abc@gmail.com'],
+                    'hosted_url': 'http://cse14-iiith.vlabs.ac.in'
                    }
 
         experiment = SystemInterface.add_experiment(data_dict)
@@ -1555,6 +1616,23 @@ class TestGetLabsByLabName(TestCase):
         print "test_get_labs_by_lab_name_in_system_interface"
 
         data_dict = {
+                    'key': KEY,
+                    'name': 'Prof. Dharamaja',
+                    'email': 'abc@gmail.com'
+                   }
+
+        developer = SystemInterface.add_developer(data_dict)
+
+        data_dict = {
+                    'hosting_status': 'hosted',
+                    'hosted_url': 'http://cse14-iiith.vlabs.ac.in',
+                    'hosted_on': 'cloud',
+                    'key' : KEY
+                   }
+
+        hostinginfo = SystemInterface.add_hostinginfo(data_dict)
+
+        data_dict = {
                     'key' : KEY,
                     'integration_level': 4
                     }
@@ -1587,28 +1665,14 @@ class TestGetLabsByLabName(TestCase):
 
         data_dict = {
                     'key': KEY,
-                    'name': 'Prof. Dharamaja',
-                    'email': 'abc@gmail.com'
-                   }
-
-        developer = SystemInterface.add_developer(data_dict)
-        data_dict = {
-                    'hosting_status': 'hosted',
-                    'hosted_url': 'http://cse14-iiith.vlabs.ac.in',
-                    'hosted_on': 'cloud',
-                    'key' : KEY
-                   }
-
-        hostinginfo = SystemInterface.add_hostinginfo(data_dict)
-
-        data_dict = {
-                    'key': KEY,
                     'exp_name': 'arrays',
                     'exp_id': 'exp123',
                     'overview': 'overview',
                     'assets': ['vlabs.ac.in/images/static/logo.png'], 
                     'integration_level': 4,
-                    'sections': []
+                    'sections': [],
+                    'developers': ['abc@gmail.com'],
+                    'hosted_url': 'http://cse14-iiith.vlabs.ac.in'
                    }
 
         experiment = SystemInterface.add_experiment(data_dict)
@@ -1697,6 +1761,22 @@ class TestGetLabsByAsset(TestCase):
     def test_get_labs_by_asset_in_system_interface(self):
         print "test_get_labs_by_asset_in_system_interface"
 
+        data_dict = {
+                    'key': KEY,
+                    'name': 'Prof. Dharamaja',
+                    'email': 'abc@gmail.com'
+                   }
+
+        developer = SystemInterface.add_developer(data_dict)
+
+        data_dict = {
+                    'hosting_status': 'hosted',
+                    'hosted_url': 'http://cse14-iiith.vlabs.ac.in',
+                    'hosted_on': 'cloud',
+                    'key' : KEY
+                   }
+
+        hostinginfo = SystemInterface.add_hostinginfo(data_dict)
 
         data_dict = {
                     'key' : KEY,
@@ -1746,7 +1826,9 @@ class TestGetLabsByAsset(TestCase):
                     'overview': 'overview',
                     'assets': ['vlabs.ac.in/images/static/logo.png'], 
                     'integration_level': 4, 
-                    'sections': []
+                    'sections': [],
+                    'developers': ['abc@gmail.com'],
+                    'hosted_url': 'http://cse14-iiith.vlabs.ac.in'
                    }
 
         experiment = SystemInterface.add_experiment(data_dict
@@ -1760,7 +1842,9 @@ class TestGetLabsByAsset(TestCase):
                     'dis_id': 'CSE',
                     'assets': ['vlabs.ac.in/images/static/logo.png'],
                     'experiments': ['exp123'], 
-                    'integration_level': 4
+                    'integration_level': 4,
+                    'developers': ['abc@gmail.com'],
+                    'hosted_url': 'http://cse14-iiith.vlabs.ac.in'
                    }
 
         data_dict1 = {
@@ -1772,7 +1856,9 @@ class TestGetLabsByAsset(TestCase):
                     'dis_id': 'CSE',
                     'assets': ['vlabs.ac.in/images/static/icon.png'],
                     'experiments': ['exp123'], 
-                    'integration_level': 4
+                    'integration_level': 4,
+                    'developers': ['abc@gmail.com'],
+                    'hosted_url': 'http://cse14-iiith.vlabs.ac.in'
                    }
 
         lab = SystemInterface.add_lab(data_dict)
@@ -1808,6 +1894,22 @@ class TestGetLabsByIntegrationstatus(TestCase):
                     }
 
         integrationstatus = SystemInterface.add_integrationstatus(data_dict)
+
+        data_dict = {
+                    'key' : KEY,
+                    'name': 'Prof. Dharamaja',
+                    'email': 'abc@gmail.com'
+                   }
+        developer = SystemInterface.add_developer(data_dict)
+
+        data_dict = {
+                    'hosting_status': 'hosted',
+                    'hosted_url': 'http://cse14-iiith.vlabs.ac.in',
+                    'hosted_on': 'cloud',
+                    'key' : KEY
+                   }
+
+        hostinginfo = SystemInterface.add_hostinginfo(data_dict)
 
         data_dict = {
                     'key' : KEY,
@@ -1848,8 +1950,10 @@ class TestGetLabsByIntegrationstatus(TestCase):
                     'exp_id': 'exp123',
                     'overview': 'overview',
                     'assets': ['vlabs.ac.in/images/static/logo.png'], 
-                    'integration_level': 4
-                    'sections': []
+                    'integration_level': 4, 
+                    'sections': [],
+                    'developers': ['abc@gmail.com'],
+                    'hosted_url': 'http://cse14-iiith.vlabs.ac.in'
                    }
 
         experiment = SystemInterface.add_experiment(data_dict)
@@ -1863,7 +1967,9 @@ class TestGetLabsByIntegrationstatus(TestCase):
                     'dis_id': 'CSE',
                     'assets': ['vlabs.ac.in/images/static/logo.png'],
                     'experiments': ['exp123'], 
-                    'integration_level': 4
+                    'integration_level': 4,
+                    'developers': ['abc@gmail.com'],
+                    'hosted_url': 'http://cse14-iiith.vlabs.ac.in'
                    }
 
         data_dict1 = {
@@ -1875,7 +1981,9 @@ class TestGetLabsByIntegrationstatus(TestCase):
                     'dis_id': 'CSE',
                     'assets': ['vlabs.ac.in/images/static/icon.png'],
                     'experiments': ['exp123'], 
-                    'integration_level': 4
+                    'integration_level': 4,
+                    'developers': ['abc@gmail.com'],
+                    'hosted_url': 'http://cse14-iiith.vlabs.ac.in'
                    }
 
         lab = SystemInterface.add_lab(data_dict)
@@ -1947,13 +2055,31 @@ class TestGetExperiments(TestCase):
 
         asset = SystemInterface.add_asset(data_dict)
 
+        data_dict = {
+                    'key' : KEY,
+                    'name': 'Prof. Dharamaja',
+                    'email': 'abc@gmail.com'
+                   }
+        developer = SystemInterface.add_developer(data_dict)
+
+        data_dict = {
+                    'key' : KEY,
+                    'hosting_status': 'hosted',
+                    'hosted_url': 'http://cse14-iiith.vlabs.ac.in',
+                    'hosted_on': 'cloud'
+                   }
+
+        hostinginfo = SystemInterface.add_hostinginfo(data_dict)
+
         data_dict = {'exp_name': 'stack',
                     'exp_id': 'cse01',
                     'overview': 'overview',
                     'assets': ['vlabs.ac.in/images/static/logo.png'],
                     'integration_level': 4,
                     'sections': [],
-                    'key': KEY
+                    'key': KEY,
+                    'developers': ['abc@gmail.com'],
+                    'hosted_url': 'http://cse14-iiith.vlabs.ac.in'
                    }
 
         data_dict1 = {'exp_name': "arrays",
@@ -1962,7 +2088,9 @@ class TestGetExperiments(TestCase):
                       'assets': ['vlabs.ac.in/images/static/logo.png'],
                       'integration_level': 4,
                       'sections':[],
-                      'key': KEY
+                      'key': KEY,
+                      'developers': ['abc@gmail.com'],
+                      'hosted_url': 'http://cse14-iiith.vlabs.ac.in'
            }
 
         exp1 = SystemInterface.add_experiment(data_dict)
@@ -2556,6 +2684,23 @@ class TestGetLabById(TestCase):
         print "test_get_lab_by_id_in_system_interface"
 
         data_dict = {
+                    'key': KEY,
+                    'name': 'Prof. Dharamaja',
+                    'email': 'abc@gmail.com'
+                   }
+
+        developer = SystemInterface.add_developer(data_dict)
+
+        data_dict = {
+                    'hosting_status': 'hosted',
+                    'hosted_url': 'http://cse14-iiith.vlabs.ac.in',
+                    'hosted_on': 'cloud',
+                    'key' : KEY
+                   }
+
+        hostinginfo = SystemInterface.add_hostinginfo(data_dict)
+       
+        data_dict = {
                     'key' : KEY,
                     'integration_level': 4
                     }
@@ -2596,29 +2741,14 @@ class TestGetLabById(TestCase):
 
         data_dict = {
                     'key': KEY,
-                    'name': 'Prof. Dharamaja',
-                    'email': 'abc@gmail.com'
-                   }
-
-        developer = SystemInterface.add_developer(data_dict)
-
-        data_dict = {
-                    'hosting_status': 'hosted',
-                    'hosted_url': 'http://cse14-iiith.vlabs.ac.in',
-                    'hosted_on': 'cloud',
-                    'key' : KEY
-                   }
-
-        hostinginfo = SystemInterface.add_hostinginfo(data_dict)
-
-        data_dict = {
-                    'key': KEY,
                     'exp_name': 'arrays',
                     'exp_id': 'exp123',
                     'overview': 'overview',
                     'assets': ['vlabs.ac.in/images/static/logo.png'], 
                     'integration_level': 4,
-                    'sections': []
+                    'sections': [],
+                    'developers': ['abc@gmail.com'],
+                    'hosted_url': 'http://cse14-iiith.vlabs.ac.in'
                    }
 
         experiment = SystemInterface.add_experiment(data_dict)
@@ -2791,12 +2921,31 @@ class TestGetExperimentById(TestCase):
 
         data_dict = {
                     'key': KEY,
+                    'name': 'Prof. Dharamaja',
+                    'email': 'abc@gmail.com'
+                   }
+
+        developer = SystemInterface.add_developer(data_dict)
+
+        data_dict = {
+                    'hosting_status': 'hosted',
+                    'hosted_url': 'http://cse14-iiith.vlabs.ac.in',
+                    'hosted_on': 'cloud',
+                    'key' : KEY
+                   }
+
+        hostinginfo = SystemInterface.add_hostinginfo(data_dict)
+
+        data_dict = {
+                    'key': KEY,
                     'exp_name': 'array',
                     'overview': 'overview',
                     'assets': ['vlabs.ac.in/images/static/logo.png'], 
                     'integration_level': 4,
                     'exp_id': 'cse02',
-                    'sections': []
+                    'sections': [],
+                    'developers': ['abc@gmail.com'],
+                    'hosted_url': 'http://cse14-iiith.vlabs.ac.in'
                    }
 
         data_dict1 = {
@@ -2806,7 +2955,9 @@ class TestGetExperimentById(TestCase):
                     'assets': ['vlabs.ac.in/images/static/logo.png'], 
                     'integration_level': 4,
                     'exp_id': 'cse03',
-                    'sections': []
+                    'sections': [],
+                    'developers': ['abc@gmail.com'],
+                    'hosted_url': 'http://cse14-iiith.vlabs.ac.in'
                    }
 
         exp1 = SystemInterface.add_experiment(data_dict)
@@ -3022,6 +3173,23 @@ class TestUpdateLab(TestCase):
 
         data_dict = {
                     'key': KEY,
+                    'name': 'Prof. Dharamaja',
+                    'email': 'abc@gmail.com'
+                   }
+
+        developer = SystemInterface.add_developer(data_dict)
+
+        data_dict = {
+                    'hosting_status': 'hosted',
+                    'hosted_url': 'http://cse14-iiith.vlabs.ac.in',
+                    'hosted_on': 'cloud',
+                    'key' : KEY
+                   }
+
+        hostinginfo = SystemInterface.add_hostinginfo(data_dict)
+
+        data_dict = {
+                    'key': KEY,
                     'inst_name': 'IIT Kanpur',
                     'inst_id': 'IITK'
                     }
@@ -3050,7 +3218,9 @@ class TestUpdateLab(TestCase):
                     'overview': 'overview',
                     'assets': ['vlabs.ac.in/images/static/logo.png'], 
                     'integration_level': 4,
-                    'sections' : []
+                    'sections' : [],
+                    'developers': ['abc@gmail.com'],
+                    'hosted_url': 'http://cse14-iiith.vlabs.ac.in'
                    }
 
         experiment = SystemInterface.add_experiment(data_dict)
@@ -3062,22 +3232,6 @@ class TestUpdateLab(TestCase):
                    }
 
         discipline = SystemInterface.add_discipline(data_dict)
-
-        data_dict = {
-                    'key': KEY,
-                    'name': 'Prof. Dharamaja',
-                    'email': 'abc@gmail.com'
-                   }
-
-        developer = SystemInterface.add_developer(data_dict)
-        data_dict = {
-                    'hosting_status': 'hosted',
-                    'hosted_url': 'http://cse14-iiith.vlabs.ac.in',
-                    'hosted_on': 'cloud',
-                    'key' : KEY
-                   }
-
-        hostinginfo = SystemInterface.add_hostinginfo(data_dict)
 
         data_dict = {
                     'key' : KEY,
@@ -3111,6 +3265,24 @@ class TestUpdateLab(TestCase):
 
         data_dict = {
                     'key' : KEY,
+                    'name': 'Prof. Dharamaja',
+                    'email': 'abc@gmail.com'
+                   }
+
+        developer = SystemInterface.add_developer(data_dict)
+
+        data_dict = {
+                    'hosting_status': 'hosted',
+                    'hosted_url': 'http://cse14-iiith.vlabs.ac.in',
+                    'hosted_on': 'cloud',
+                    'key' : KEY
+                   }
+
+        hostinginfo = SystemInterface.add_hostinginfo(data_dict)
+
+
+        data_dict = {
+                    'key' : KEY,
                     'inst_name': 'IIT Kanpur',
                     'inst_id': 'IITK'
                     }
@@ -3139,7 +3311,9 @@ class TestUpdateLab(TestCase):
                     'overview': 'overview',
                     'assets': ['vlabs.ac.in/images/static/logo.png'], 
                     'integration_level': 4,
-                    'sections': []
+                    'sections': [],
+                    'developers': ['abc@gmail.com'],
+                    'hosted_url': 'http://cse14-iiith.vlabs.ac.in'
                    }
 
         experiment = SystemInterface.add_experiment(data_dict)
@@ -3151,23 +3325,6 @@ class TestUpdateLab(TestCase):
                    }
 
         discipline = SystemInterface.add_discipline(data_dict)
-
-        data_dict = {
-                    'key' : KEY,
-                    'name': 'Prof. Dharamaja',
-                    'email': 'abc@gmail.com'
-                   }
-
-        developer = SystemInterface.add_developer(data_dict)
-
-        data_dict = {
-                    'hosting_status': 'hosted',
-                    'hosted_url': 'http://cse14-iiith.vlabs.ac.in',
-                    'hosted_on': 'cloud',
-                    'key' : KEY
-                   }
-
-        hostinginfo = SystemInterface.add_hostinginfo(data_dict)
 
         data_dict = {
                     'key': KEY,
@@ -3276,12 +3433,31 @@ class TestUpdateExperiment(TestCase):
 
         data_dict = {
                     'key': KEY,
+                    'name': 'Prof. Dharamaja',
+                    'email': 'abc@gmail.com'
+                   }
+
+        developer = SystemInterface.add_developer(data_dict)
+
+        data_dict = {
+                    'hosting_status': 'hosted',
+                    'hosted_url': 'http://cse14-iiith.vlabs.ac.in',
+                    'hosted_on': 'cloud',
+                    'key' : KEY
+                   }
+
+        hostinginfo = SystemInterface.add_hostinginfo(data_dict)
+
+        data_dict = {
+                    'key': KEY,
                     'exp_name': 'Data Structures',
                     'overview': 'overview',
                     'assets': ['vlabs.ac.in/images/static/logo.png'], 
                     'integration_level': 4,
                     'sections': [],
-                    'exp_id': 'cse02'
+                    'exp_id': 'cse02',
+                    'developers': ['abc@gmail.com'],
+                    'hosted_url': 'http://cse14-iiith.vlabs.ac.in'
                    }
 
         data_dict1 = {
@@ -3720,12 +3896,31 @@ class TestDeleteLab(TestCase):
 
         data_dict = {
                     'key': KEY,
+                    'name': 'Prof. Dharamaja',
+                    'email': 'abc@gmail.com'
+                   }
+
+        developer = SystemInterface.add_developer(data_dict)
+
+        data_dict = {
+                    'hosting_status': 'hosted',
+                    'hosted_url': 'http://cse14-iiith.vlabs.ac.in',
+                    'hosted_on': 'cloud',
+                    'key' : KEY
+                   }
+
+        hostinginfo = SystemInterface.add_hostinginfo(data_dict)
+
+        data_dict = {
+                    'key': KEY,
                     'exp_name': 'arrays',
                     'exp_id': 'exp123',
                     'overview': 'overview',
                     'assets': ['vlabs.ac.in/images/static/logo.png'], 
                     'integration_level': 4,
-                    'sections': []
+                    'sections': [],
+                    'developers': ['abc@gmail.com'],
+                    'hosted_url': 'http://cse14-iiith.vlabs.ac.in'
                    }
 
         experiment = SystemInterface.add_experiment(data_dict)
@@ -3753,23 +3948,6 @@ class TestDeleteLab(TestCase):
                     }
 
         asset2 = SystemInterface.add_asset(data_dict)
-
-        data_dict = {
-                    'key': KEY,
-                    'name': 'Prof. Dharamaja',
-                    'email': 'abc@gmail.com'
-                   }
-
-        developer = SystemInterface.add_developer(data_dict)
-
-        data_dict = {
-                    'hosting_status': 'hosted',
-                    'hosted_url': 'http://cse14-iiith.vlabs.ac.in',
-                    'hosted_on': 'cloud',
-                    'key' : KEY
-                   }
-
-        hostinginfo = SystemInterface.add_hostinginfo(data_dict)
 
         data_dict = {
                     'key' : KEY,
@@ -3851,6 +4029,23 @@ class TestDeleteExperiment(TestCase):
         print "test_delete_experiment_in_system_interface"
 
         data_dict = {
+                    'key': KEY,
+                    'name': 'Prof. Dharamaja',
+                    'email': 'abc@gmail.com'
+                   }
+
+        developer = SystemInterface.add_developer(data_dict)
+
+        data_dict = {
+                    'hosting_status': 'hosted',
+                    'hosted_url': 'http://cse14-iiith.vlabs.ac.in',
+                    'hosted_on': 'cloud',
+                    'key' : KEY
+                   }
+
+        hostinginfo = SystemInterface.add_hostinginfo(data_dict)
+
+        data_dict = {
                     'key' : KEY,
                     'integration_level': 4
                     }
@@ -3872,7 +4067,9 @@ class TestDeleteExperiment(TestCase):
                     'assets': ['vlabs.ac.in/images/static/logo.png'], 
                     'integration_level': 4,
                     'exp_id': 'cse01',
-                    'sections': []
+                    'sections': [],
+                    'developers': ['abc@gmail.com'],
+                    'hosted_url': 'http://cse14-iiith.vlabs.ac.in'
                    }
 
         data_dict1 = {
@@ -3882,7 +4079,9 @@ class TestDeleteExperiment(TestCase):
                     'assets': ['vlabs.ac.in/images/static/logo.png'], 
                     'integration_level': 4,
                     'exp_id': 'cse02',
-                    'sections':[]
+                    'sections':[],
+                    'developers': ['abc@gmail.com'],
+                    'hosted_url': 'http://cse14-iiith.vlabs.ac.in'
                    }
 
         exp = SystemInterface.add_experiment(data_dict)
@@ -4515,17 +4714,25 @@ class TestGetLabByLabId(TestCase):
                     'key' : KEY,
                     'asset_type': 'Image',
                     'path': 'vlabs.ac.in/images/static/logo.png'
-                   }
-
+                    }
         asset1 = SystemInterface.add_asset(data_dict)
 
         data_dict = {
-                    'key' : KEY,
-                    'asset_type': 'Image',
-                    'path': 'vlabs.ac.in/images/static/icon.png',
-                    }
+                    'key': KEY,
+                    'name': 'Prof. Dharamaja',
+                    'email': 'abc@gmail.com'
+                   }
 
-        asset2 = SystemInterface.add_asset(data_dict)
+        developer = SystemInterface.add_developer(data_dict)
+
+        data_dict = {
+                    'hosting_status': 'hosted',
+                    'hosted_url': 'http://cse14-iiith.vlabs.ac.in',
+                    'hosted_on': 'cloud',
+                    'key' : KEY
+                   }
+
+        hostinginfo = SystemInterface.add_hostinginfo(data_dict)
 
         data_dict = {
                     'key': KEY,
@@ -4534,7 +4741,9 @@ class TestGetLabByLabId(TestCase):
                     'overview': 'overview',
                     'assets': ['vlabs.ac.in/images/static/logo.png'], 
                     'integration_level': 4,
-                    'sections': []
+                    'sections': [],
+                    'developers': ['abc@gmail.com'],
+                    'hosted_url': 'http://cse14-iiith.vlabs.ac.in'
                    }
 
         experiment = SystemInterface.add_experiment(data_dict)
@@ -4557,20 +4766,11 @@ class TestGetLabByLabId(TestCase):
 
         data_dict = {
                     'key' : KEY,
-                    'name': 'Prof. Dharamaja',
-                    'email': 'abc@gmail.com'
-                   }
+                    'asset_type': 'Image',
+                    'path': 'vlabs.ac.in/images/static/icon.png',
+                    }
 
-        developer = SystemInterface.add_developer(data_dict)
-
-        data_dict = {
-                    'hosting_status': 'hosted',
-                    'hosted_url': 'http://cse14-iiith.vlabs.ac.in',
-                    'hosted_on': 'cloud',
-                    'key' : KEY
-                   }
-
-        hostinginfo = SystemInterface.add_hostinginfo(data_dict)
+        asset2 = SystemInterface.add_asset(data_dict)
 
         data_dict = {
                     'key' : KEY,
@@ -4669,13 +4869,32 @@ class TestGetExpByExpId(TestCase):
         asset = SystemInterface.add_asset(data_dict)
 
         data_dict = {
+                    'key': KEY,
+                    'name': 'Prof. Dharamaja',
+                    'email': 'abc@gmail.com'
+                   }
+
+        developer = SystemInterface.add_developer(data_dict)
+
+        data_dict = {
+                    'hosting_status': 'hosted',
+                    'hosted_url': 'http://cse14-iiith.vlabs.ac.in',
+                    'hosted_on': 'cloud',
+                    'key' : KEY
+                   }
+
+        hostinginfo = SystemInterface.add_hostinginfo(data_dict)
+
+        data_dict = {
                     'exp_name': 'Number Systems',
                     'exp_id': 'EE99777',
                     'overview': 'This is linked list experiment',
                     'assets': ['vlabs.ac.in/images/static/logo.png'], 
                     'integration_level': 4,
                     'sections': [],
-                    'key': KEY
+                    'key': KEY,
+                    'developers': ['abc@gmail.com'],
+                    'hosted_url': 'http://cse14-iiith.vlabs.ac.in'
                    }
 
         data_dict1 = {
@@ -4685,7 +4904,9 @@ class TestGetExpByExpId(TestCase):
                     'assets': ['vlabs.ac.in/images/static/logo.png'], 
                     'integration_level': 4,
                     'sections': [],
-                    'key': KEY
+                    'key': KEY,
+                    'developers': ['abc@gmail.com'],
+                    'hosted_url': 'http://cse14-iiith.vlabs.ac.in'
                    }
 
         exp = SystemInterface.add_experiment(data_dict)

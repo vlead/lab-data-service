@@ -188,6 +188,20 @@ class TestPersistenceDelegate(TestCase):
 #+BEGIN_SRC python
     def test_experiment_exists(self):
         print "test_experiment_exists"
+        dev_name = Name(name="Mohit Tahiliani")
+        dev_name.save()
+        email_id = Email(email="mohit.tahiliani@gmail.com")
+        email_id.save()
+        dev = Developer(name=dev_name, email=email_id)
+        dev.save()
+
+        hosting_status = "hosted"
+        hosted_url = "http://cse14-iiith.vlabs.ac.in"
+        hosted_on = "cloud"
+        host = HostingInfo(hosting_status=hosting_status,
+                               hosted_url=hosted_url, hosted_on=hosted_on)
+        host.save()
+
         exp_name1 = "Number Systems"
         exp_id1 = "EE99777"
         overview1 = "overview"
@@ -204,7 +218,9 @@ class TestPersistenceDelegate(TestCase):
         experiment1 = Experiment(exp_name=exp_name1, exp_id=exp_id1,
                                      overview=overview1, 
                                      integrationstatus=integrationstatus, 
-                                     sections=[], assets=[asset])
+                                     sections=[], assets=[asset],
+                                     developers=[dev],
+                                     hostinginfo=host)
         exp1 = self.persistence_delegate.add_experiment(experiment1)
 
         exp_name2 = "Transformations"
@@ -213,7 +229,8 @@ class TestPersistenceDelegate(TestCase):
         experiment2 = Experiment(exp_name=exp_name2, exp_id=exp_id2, \
                                      overview=overview2,
                                      integrationstatus=integrationstatus, 
-                                     sections=[], assets=[asset])
+                                     sections=[], assets=[asset], 
+                                     developers=[dev], hostinginfo=host)
 
         self.assertEqual(self.persistence_delegate.experiment_exists\
                              (experiment1), True)
@@ -431,7 +448,7 @@ class TestPersistenceDelegate(TestCase):
 #+NAME: persistence_hostinginfo_exists
 #+BEGIN_SRC python
     def hostinginfo_exists(self, hostinginfo):
-        hosted_url = str(hostinginfo.get("hosted_url"))
+        hosted_url = hostinginfo.get("hosted_url")
         return hostinginfo == self.get_hostinginfo(hosted_url=hosted_url)
         
 #+END_SRC
@@ -555,16 +572,6 @@ class TestPersistenceDelegate(TestCase):
          path = "vlabs.ac.in/images/static/logo.png"
          asset = Asset(asset_type=asset_type, path=path)
          asset.save()
-
-         exp_name = "Number Systems"
-         exp_id = "EE99777"
-         overview = "exp"
-         experiment = Experiment(exp_name=exp_name, exp_id=exp_id, \
-                                     overview=overview, 
-                                     integrationstatus=integrationstatus, 
-                                     sections=[], assets=[asset])
-         experiment.save()
-
          dev_name = Name(name="Mohit Tahiliani")
          dev_name.save()
          email_id = Email(email="mohit.tahiliani@gmail.com")
@@ -577,6 +584,16 @@ class TestPersistenceDelegate(TestCase):
          hosted_on = "cloud"
          host = HostingInfo(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
          host.save()
+
+         exp_name = "Number Systems"
+         exp_id = "EE99777"
+         overview = "exp"
+         experiment = Experiment(exp_name=exp_name, exp_id=exp_id, \
+                                     overview=overview, 
+                                     integrationstatus=integrationstatus, 
+                                     sections=[], assets=[asset],
+                                     developers=[dev], hostinginfo=host)
+         experiment.save()
 
          lab_name1="Computer Programming"
          lab_id1="CSE01"
@@ -622,9 +639,18 @@ class TestPersistenceDelegate(TestCase):
 #+BEGIN_SRC python
     def test_add_experiment(self):
          print "test_add_experiment"
-         exp_name1 = "Number Systems"
-         exp_id1 = "EE99777"
-         overview1 = "overview"
+         dev_name = Name(name="Mohit Tahiliani")
+         dev_name.save()
+         email_id = Email(email="mohit.tahiliani@gmail.com")
+         email_id.save()
+         dev = Developer(name=dev_name, email=email_id)
+         dev.save()
+
+         hosting_status = "hosted"
+         hosted_url = "http://cse14-iiith.vlabs.ac.in"
+         hosted_on = "cloud"
+         host = HostingInfo(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
+         host.save()
          
          integration_level = 4
          integrationstatus = IntegrationStatus(integration_level=integration_level)
@@ -634,21 +660,26 @@ class TestPersistenceDelegate(TestCase):
          path = "vlabs.ac.in/images/static/logo.png"
          asset = Asset(asset_type=asset_type, path=path)
          asset.save()
-
+         
+         exp_name1 = "Number Systems"
+         exp_id1 = "EE99777"
+         overview1 = "overview"
          experiment1 = Experiment(exp_name=exp_name1, exp_id=exp_id1, 
                                       overview=overview1, 
                                       integrationstatus=integrationstatus, 
-                                      sections=[], assets=[asset])
+                                      sections=[], assets=[asset],
+                                      developers=[dev], hostinginfo=host)
          experiment1 = self.persistence_delegate.add_experiment(experiment1)
+         experiment1.save()
          
          exp_name2="Transformations"
-         exp_id2="EE99870"
+         exp_id2="EE98747"
          overview2="overview"
          experiment2 = Experiment(exp_name=exp_name2, exp_id=exp_id2,
                                       overview=overview2, 
                                       integrationstatus=integrationstatus, 
-                                      sections=[], assets=[asset])
-         
+                                      sections=[], assets=[asset],
+                                      developers=[dev], hostinginfo=host)    
          experiment = Experiment.get_by_id(1)
 
          self.assertEqual(self.persistence_delegate.experiment_exists(experiment1),
@@ -1041,6 +1072,20 @@ class TestPersistenceDelegate(TestCase):
 #+BEGIN_SRC python
     def test_update_experiment(self):
          print "test_update_experiment"
+
+         dev_name = Name(name="Mohit Tahiliani")
+         dev_name.save()
+         email_id = Email(email="mohit.tahiliani@gmail.com")
+         email_id.save()
+         dev = Developer(name=dev_name, email=email_id)
+         dev.save()
+
+         hosting_status = "hosted"
+         hosted_url = "http://cse14-iiith.vlabs.ac.in"
+         hosted_on = "cloud"
+         host = HostingInfo(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
+         host.save()
+
          exp_name = "Data Structures"
          exp_id = "cse01"
          overview = "overview"
@@ -1057,7 +1102,8 @@ class TestPersistenceDelegate(TestCase):
          exp = Experiment(exp_name=exp_name, exp_id=exp_id, \
                               overview=overview, 
                               integrationstatus=integrationstatus, 
-                              sections=[], assets=[asset])
+                              sections=[], assets=[asset],
+                              developers=[dev], hostinginfo=host)
          exp1 = self.persistence_delegate.add_experiment(exp)
          exp_name1 = "Computer Programming"
          overview1 = "overveiw exp"
@@ -1379,6 +1425,19 @@ class TestPersistenceDelegate(TestCase):
 #+BEGIN_SRC python
     def test_delete_experiment(self):
          print "test_delete_experiment"
+         dev_name = Name(name="Mohit Tahiliani")
+         dev_name.save()
+         email_id = Email(email="mohit.tahiliani@gmail.com")
+         email_id.save()
+         dev = Developer(name=dev_name, email=email_id)
+         dev.save()
+
+         hosting_status = "hosted"
+         hosted_url = "http://cse14-iiith.vlabs.ac.in"
+         hosted_on = "cloud"
+         host = HostingInfo(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
+         host.save()
+
          exp_name = "arrays"
          exp_id = "cse01"
          
@@ -1395,7 +1454,8 @@ class TestPersistenceDelegate(TestCase):
          exp = Experiment(exp_name=exp_name, exp_id=exp_id, \
                               overview=overview,
                               integrationstatus=integrationstatus, 
-                              sections=[], assets=[asset])
+                              sections=[], assets=[asset], 
+                              developers=[dev], hostinginfo=host)
          exp1 = self.persistence_delegate.add_experiment(exp)
 
          exp_name1 = "linked list"
@@ -1404,7 +1464,8 @@ class TestPersistenceDelegate(TestCase):
          exp1 = Experiment(exp_name=exp_name1, exp_id=exp_id1, \
                                overview=overview,
                                integrationstatus=integrationstatus, 
-                               sections=[], assets=[asset])
+                               sections=[], assets=[asset],
+                               developers=[dev], hostinginfo=host)
          exp2 = self.persistence_delegate.add_experiment(exp1)
 
          self.persistence_delegate.delete_experiment(exp_id)
@@ -1875,7 +1936,8 @@ class TestPersistenceDelegate(TestCase):
          experiment = Experiment(exp_name=exp_name, exp_id=exp_id, \
                                      overview=overview, 
                                      integrationstatus=integrationstatus, 
-                                     sections=[], assets=[asset])
+                                     sections=[], assets=[asset],
+                                     developers=[dev], hostinginfo=host)
          experiment.save()
         
          lab1 = Lab.get_by_id(1)
@@ -2028,8 +2090,9 @@ class TestPersistenceDelegate(TestCase):
          host.save()
 
          lab = Lab(lab_name=lab_name, lab_id=lab_id, overview=overview, 
-                       institute=inst, discipline=discipline, hostinginfo=host, assets=[]
-                       experiments=[], developers=[dev], integrationstatus=integrationstatus)
+                       institute=inst, discipline=discipline, hostinginfo=host,
+                       assets=[], experiments=[], developers=[dev], 
+                       integrationstatus=integrationstatus)
 
          lab.save()
          
@@ -2071,6 +2134,19 @@ class TestPersistenceDelegate(TestCase):
     def test_add_saved_sections_to_experiment(self):
          print "test_add_sections_to_experiment_in_persistence_delegate"
 
+         dev_name = Name(name="Mohit Tahiliani")
+         dev_name.save()
+         email_id = Email(email="mohit.tahiliani@gmail.com")
+         email_id.save()
+         dev = Developer(name=dev_name, email=email_id)
+         dev.save()
+
+         hosting_status = "hosted"
+         hosted_url = "http://cse14-iiith.vlabs.ac.in"
+         hosted_on = "cloud"
+         host = HostingInfo(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
+         host.save()
+
          exp_name = "Number Systems"
          exp_id = "EE99777"
          overview = "overview"
@@ -2087,7 +2163,8 @@ class TestPersistenceDelegate(TestCase):
          exp = Experiment(exp_name=exp_name, exp_id=exp_id, \
                                      overview=overview, 
                                      integrationstatus=integrationstatus, 
-                                     sections=[], assets=[asset])
+                                     sections=[], assets=[asset],
+                                     developers=[dev], hostinginfo=host)
          exp.save()
         
          section1 = Section(name='Theory')
@@ -2315,6 +2392,18 @@ class TestPersistenceDelegate(TestCase):
 #+BEGIN_SRC python
     def test_get_experiment(self):
          print "test_get_experiment"
+         dev_name = Name(name="Mohit Tahiliani")
+         dev_name.save()
+         email_id = Email(email="mohit.tahiliani@gmail.com")
+         email_id.save()
+         dev = Developer(name=dev_name, email=email_id)
+         dev.save()
+
+         hosting_status = "hosted"
+         hosted_url = "http://cse14-iiith.vlabs.ac.in"
+         hosted_on = "cloud"
+         host = HostingInfo(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
+         host.save()
 
          exp_name = "Number Systems"
          exp_id = "EE99777"
@@ -2332,7 +2421,8 @@ class TestPersistenceDelegate(TestCase):
          exp = Experiment(exp_name=exp_name, exp_id=exp_id,
                               overview=overview, 
                               integrationstatus=integrationstatus, 
-                              sections=[], assets=[asset])
+                              sections=[], assets=[asset], 
+                              developers=[dev], hostinginfo=host)
          exp.save()
          exp_obj = self.persistence_delegate.get_experiment(exp_name=
                                                 exp.get("exp_name"))
@@ -2933,6 +3023,18 @@ class TestPersistenceDelegate(TestCase):
 #+BEGIN_SRC python
     def test_get_experiment_by_id(self):
          print "test_persistence_get_experiment_by_id"
+         dev_name = Name(name="Mohit Tahiliani")
+         dev_name.save()
+         email_id = Email(email="mohit.tahiliani@gmail.com")
+         email_id.save()
+         dev = Developer(name=dev_name, email=email_id)
+         dev.save()
+
+         hosting_status = "hosted"
+         hosted_url = "http://cse14-iiith.vlabs.ac.in"
+         hosted_on = "cloud"
+         host = HostingInfo(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
+         host.save()
 
          exp_name = "Number Systems"
          exp_id = "EE99777"
@@ -2950,7 +3052,8 @@ class TestPersistenceDelegate(TestCase):
          exp = Experiment(exp_name=exp_name, exp_id=exp_id,
                               overview=overview, 
                               integrationstatus=integrationstatus, 
-                              sections=[], assets=[asset])
+                              sections=[], assets=[asset],
+                              developers=[dev], hostinginfo=host)
          exp.save()
 
          exp_obj = self.persistence_delegate.get_experiment_by_id(1)
