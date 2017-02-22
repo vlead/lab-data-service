@@ -771,6 +771,7 @@ class TestGetLab(TestCase):
                    'exp_id': 'exp1',
                    'overview' : 'overview',
                    'sections': [],
+                   'integration_level': 4,
                    'key': KEY}
 
         headers = {'Content-Type': 'application/json'}
@@ -876,6 +877,7 @@ class TestGetLabbyLabId(TestCase):
         payload = {'exp_name': 'arrays',
                    'exp_id': 'exp1',
                    'overview' : 'overview',
+                   'integration_level': 4,
                    'sections': [],
                    'key': KEY}
 
@@ -984,6 +986,7 @@ class TestGetLabsbyInstitute(TestCase):
         payload = {'exp_name': 'arrays',
                    'exp_id': 'exp1',
                    'overview' : 'overview',
+                   'integration_level': 4,
                    'sections': [],
                    'key': KEY}
 
@@ -1086,6 +1089,7 @@ class TestGetLabsbyDiscipline(TestCase):
         payload = {'exp_name': 'arrays',
                    'exp_id': 'exp1',
                    'overview' : 'overview',
+                   'integration_level': 4,
                    'sections': [],
                    'key': KEY}
 
@@ -1191,6 +1195,7 @@ class TestGetLabsbyLabName(TestCase):
         payload = {'exp_name': 'arrays',
                    'exp_id': 'exp1',
                    'overview' : 'overview',
+                   'integration_level': 4,
                    'sections': [],
                    'key': KEY}
 
@@ -1547,6 +1552,7 @@ class TestAddLab(TestCase):
         payload = {'exp_name': 'arrays',
                    'exp_id': 'exp1',
                    'overview' : 'overview',
+                   'integration_level': 4,
                    'sections': [],
                    'key': KEY}
 
@@ -2339,10 +2345,18 @@ class TestGetExperiment(TestCase):
     def test_get_experiments(self):
         print "test_get_experiments_in_rest"
 
+        data_dict = {
+                    'key' : KEY,
+                    'integration_level': 4
+                    }
+
+        integrationstatus = SystemInterface.add_integrationstatus(data_dict)
+
         payload = {'exp_name': 'stack',
                    'exp_id': 'cse01',
                    'overview' : 'overview',
                    'sections' : [],
+                   'integration_level': 4,
                    'key': KEY}
 
         headers = {'Content-Type': 'application/json'}
@@ -2374,10 +2388,19 @@ class TestGetExp(TestCase):
     def test_get_experiment_by_expid(self):
         print "test_get_experiment_by_expid_in_rest"
 
+        payload = {'integration_level': 4,
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/integrationstatuss", data=json.dumps(payload),
+                                 headers=headers)
+
         payload = {'exp_name': 'stack',
                    'exp_id': 'cse01',
                    'overview' : 'overview',
                    'sections' : [],
+                   'integration_level': 4,
                    'key': KEY}
 
         headers = {'Content-Type': 'application/json'}
@@ -2494,9 +2517,18 @@ class TestAddExperiment(TestCase):
 
     def test_add_experiment(self):
         print "test_add_experiment_in_rest"
+
+        payload = {'integration_level': 4,
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/integrationstatuss", data=json.dumps(payload),
+                                 headers=headers)
         payload = {'exp_name': 'arrays',
                    'exp_id': 'cse01',
                    'overview' : 'overview',
+                   'integration_level': 4,
                    'sections': [],
                    'key': KEY}
 
@@ -4052,6 +4084,7 @@ class TestUpdateLab(TestCase):
         payload = {'exp_name': 'arrays',
                    'exp_id': 'exp1',
                    'overview' : 'overview',
+                   'integration_level': 4,
                    'sections': [],
                    'key': KEY}
 
@@ -4228,6 +4261,7 @@ class TestDeleteLab(TestCase):
         payload = {'exp_name': 'arrays',
                    'exp_id': 'exp1',
                    'overview' : 'overview',
+                   'integration_level': 4,
                    'sections': [],
                    'key': KEY}
 
@@ -4385,14 +4419,24 @@ class TestUpdateExperiment(TestCase):
     def test_update_experiment(self):
         print "test_update_experiment"
 
+        payload = {'integration_level': 4,
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/integrationstatuss", data=json.dumps(payload),
+                                 headers=headers)
+
         payload = {'exp_name': 'Theory',
                    'exp_id': 'exp123',
                    'overview': 'overview',
+                   'integration_level': 4,
                    'sections': [],
                    'key': KEY}
 
         payload1 = {'exp_name': 'Procedure',
-                   'key': KEY}
+                    'integration_level': 4,
+                    'key': KEY}
 
         headers = {'Content-Type': 'application/json'}
 
@@ -4405,7 +4449,7 @@ class TestUpdateExperiment(TestCase):
 
         self.assertEqual(response.status_code, 200)
 
- #+END_SRC
+#+END_SRC
    
 
 ** Delete Experiment
@@ -4483,13 +4527,21 @@ class TestDeleteExperiment(TestCase):
     def test_delete_experiment(self):
         print "test_delete_experiment"
 
+        payload = {'integration_level': 4,
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/integrationstatuss", data=json.dumps(payload),
+                                 headers=headers)
+
         payload = {'exp_name': 'Theory',
                    'exp_id': 'exp123',
                    'overview': 'overview',
+                   'integration_level': 4,
                    'sections': [],
                    'key': KEY
                   }
-
 
         headers = {'Content-Type': 'application/json'}
 
