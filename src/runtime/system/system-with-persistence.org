@@ -1740,6 +1740,44 @@ class TestGetLabByAsset(TestCase):
 #+END_SRC
 
 
+* Test GetIntegrationStatusByIL
+#+NAME:  test_get_integrationstatus_by_IL 
+#+BEGIN_SRC python
+class TestGetIntegrationStatusByIL(TestCase):
+    TESTING = True
+
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_get_integrationstatus_by_IL(self):
+        print "test_get_integrationstatus_by_IL_in_system_persistence"
+        session_cls = System.delegate.entities['session']
+        integrationstatus_cls = System.delegate.entities['integrationstatus']
+        integration_level = 4
+        integrationstatus = integrationstatus_cls(integration_level=integration_level)
+                                       
+        key = KEY
+        session = session_cls(key=key)
+        integrationstatus = System.do("add_integrationstatus", integrationstatus=integrationstatus, \
+                                session=session)
+
+        integrationstatus = System.do("get_integrationstatus_by_IL", 
+                                        integration_level=integration_level)
+
+        self.assertEqual(integrationstatus.get("integration_level"), integration_level)
+            
+#+END_SRC
+
+
+
 * Test GetName
 #+NAME: test_get_name
 #+BEGIN_SRC python
@@ -2374,6 +2412,7 @@ if __name__ == '__main__':
 <<test_get_labs_by_institute>>
 <<test_get_labs_by_lab_name>>
 <<test_get_labs_by_discipline>>
+<<test_get_integrationstatus_by_IL>>
 <<run_test_cases>>
 
 #+end_src
