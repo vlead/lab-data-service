@@ -2226,6 +2226,16 @@ class TestAddDiscipline(TestCase):
 
 [
   {
+    "discipline": {
+    "dis_id": "cse",
+    "id": 1,
+    "dis_name": "Computer Science"
+    },
+    "institute": {
+    "inst_name": "IIIT Hyderabad",
+    "id": 1,
+    "inst_id": "iiith"
+    },
     "overview": "overview",
     "exp_name": "arrays",
     "sections": [
@@ -2272,6 +2282,16 @@ http://localhost:5000/experiments
 
 #+BEGIN_EXAMPLE
   {
+    "discipline": {
+    "dis_id": "cse",
+    "id": 1,
+    "dis_name": "Computer Science"
+    },
+    "institute": {
+    "inst_name": "IIIT Hyderabad",
+    "id": 1,
+    "inst_id": "iiith"
+    },
     "overview": "overview",
     "exp_name": "arrays",
     "sections": [
@@ -2397,10 +2417,30 @@ class TestGetExperiment(TestCase):
     def test_get_experiments(self):
         print "test_get_experiments_in_rest"
 
+        payload = {'inst_name': 'IIT Kanpur',
+                   'inst_id': 'IITK',
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/institutes", data=json.dumps(payload),
+                                 headers=headers)
+
+        payload = {'dis_name': 'Computer Science',
+                   'dis_id': 'CSE',
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/disciplines", data=json.dumps(payload),
+                                 headers=headers)
+
         payload = {'exp_name': 'stack',
                    'exp_id': 'cse01',
                    'overview' : 'overview',
                    'sections' : [],
+                   'inst_id': 'IITK',
+                   'dis_id': 'CSE',         
                    'key': KEY}
 
         headers = {'Content-Type': 'application/json'}
@@ -2432,10 +2472,30 @@ class TestGetExp(TestCase):
     def test_get_experiment_by_expid(self):
         print "test_get_experiment_by_expid_in_rest"
 
+        payload = {'inst_name': 'IIT Kanpur',
+                   'inst_id': 'IITK',
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/institutes", data=json.dumps(payload),
+                                 headers=headers)
+
+        payload = {'dis_name': 'Computer Science',
+                   'dis_id': 'CSE',
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/disciplines", data=json.dumps(payload),
+                                 headers=headers) 
+
         payload = {'exp_name': 'stack',
                    'exp_id': 'cse01',
                    'overview' : 'overview',
                    'sections' : [],
+                   'inst_id': 'IITK',
+                   'dis_id': 'CSE',
                    'key': KEY}
 
         headers = {'Content-Type': 'application/json'}
@@ -2478,6 +2538,16 @@ class TestGetExp(TestCase):
     + Content: 
 #+BEGIN_EXAMPLE
 {
+  "discipline": {
+  "dis_id": "cse",
+  "id": 1,
+  "dis_name": "Computer Science"
+  },
+  "institute": {
+  "inst_name": "IIIT Hyderabad",
+  "id": 1,
+  "inst_id": "iiith"
+  },
   "exp_id": "exp9", 
   "exp_name": "arrays", 
   "id": 1, 
@@ -2575,10 +2645,31 @@ class TestAddExperiment(TestCase):
 
     def test_add_experiment(self):
         print "test_add_experiment_in_rest"
+
+        payload = {'inst_name': 'IIT Kanpur',
+                   'inst_id': 'IITK',
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/institutes", data=json.dumps(payload),
+                                 headers=headers)
+
+        payload = {'dis_name': 'Computer Science',
+                   'dis_id': 'CSE',
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/disciplines", data=json.dumps(payload),
+                                 headers=headers)
+    
         payload = {'exp_name': 'arrays',
                    'exp_id': 'cse01',
                    'overview' : 'overview',
                    'sections': [],
+                   'inst_id': 'IITK',
+                   'dis_id': 'CSE',
                    'key': KEY}
 
         headers = {'Content-Type': 'application/json'}
@@ -4604,7 +4695,9 @@ class TestDeleteLab(TestCase):
 {
   "exp_name": "2D arrays", 
   "key":"<key>",
-  "overview": "2D Arrays overview"
+  "overview": "2D Arrays overview",
+  "inst_id": "IITK",
+  "dis_id": "CSE"
 }
 
 #+END_EXAMPLE	       
@@ -4614,6 +4707,16 @@ class TestDeleteLab(TestCase):
       + Contents :
 #+BEGIN_EXAMPLE
 {
+  "discipline": {
+  "dis_id": "cse",
+  "id": 1,
+  "dis_name": "Computer Science"
+  },
+  "institute": {
+  "inst_name": "IIIT Hyderabad",
+  "id": 1,
+  "inst_id": "iiith"
+  },
   "exp_id": "exp9", 
   "exp_name": "2D arrays", 
   "id": 1, 
@@ -4715,10 +4818,30 @@ class TestUpdateExperiment(TestCase):
     def test_update_experiment(self):
         print "test_update_experiment"
 
+        payload = {'inst_name': 'IIT Kanpur',
+                   'inst_id': 'IITK',
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/institutes", data=json.dumps(payload),
+                                 headers=headers)
+
+        payload = {'dis_name': 'Computer Science',
+                   'dis_id': 'CSE',
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/disciplines", data=json.dumps(payload),
+                                 headers=headers)
+
         payload = {'exp_name': 'Theory',
                    'exp_id': 'exp123',
                    'overview': 'overview',
                    'sections': [],
+                   'inst_id': 'IITK',
+                   'dis_id': 'CSE',
                    'key': KEY}
 
         payload1 = {'exp_name': 'Procedure',
@@ -4838,13 +4961,32 @@ class TestDeleteExperiment(TestCase):
     def test_delete_experiment(self):
         print "test_delete_experiment"
 
+        payload = {'inst_name': 'IIT Kanpur',
+                   'inst_id': 'IITK',
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/institutes", data=json.dumps(payload),
+                                 headers=headers)
+
+        payload = {'dis_name': 'Computer Science',
+                   'dis_id': 'CSE',
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/disciplines", data=json.dumps(payload),
+                                 headers=headers)
+
         payload = {'exp_name': 'Theory',
                    'exp_id': 'exp123',
                    'overview': 'overview',
                    'sections': [],
+                   'inst_id': 'IITK',
+                   'dis_id': 'CSE',
                    'key': KEY
                   }
-
 
         headers = {'Content-Type': 'application/json'}
 
