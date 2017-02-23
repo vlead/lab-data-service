@@ -47,23 +47,14 @@ class TestAddLab(TestCase):
         developer_cls = System.delegate.entities['developer']
         hostinginfo_cls = System.delegate.entities['hostinginfo']
 
-        exp_name = "arrays"
-        exp_id = "cse02"
-        overview = "overview"
-        experiment = experiment_cls(exp_name=exp_name, exp_id=exp_id,
-                                        overview=overview, sections=[])
-        experiment.save()
-
         integration_level = 4
         integrationstatus = integrationstatus_cls(integration_level=integration_level)
         integrationstatus.save()
 
         dev_name = name_cls(name="Mohit Tahiliani")
         dev_name.save()
-
         email_id = email_cls(email="mohit.tahiliani@gmail.com")
         email_id.save()
-
         dev = developer_cls(name=dev_name, email=email_id)
         dev.save()
 
@@ -87,6 +78,14 @@ class TestAddLab(TestCase):
         hosted_on = "cloud"
         host = hostinginfo_cls(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
         host.save()
+
+        exp_name = "arrays"
+        exp_id = "cse02"
+        overview = "overview"
+        experiment = experiment_cls(exp_name=exp_name, exp_id=exp_id,
+                                        overview=overview, sections=[],
+                                        developers=[dev], hostinginfo=host)
+        experiment.save()
                                 
         lab_name1="Computer Programming"
         lab_id1="CSE01"
@@ -127,11 +126,30 @@ class TestAddExperiment(TestCase):
         print "test_add_experiment_in_system_persistence"
         session_cls = System.delegate.entities['session']
         experiment_cls = System.delegate.entities['experiment']
+        name_cls = System.delegate.entities['name']
+        email_cls = System.delegate.entities['email']
+        developer_cls = System.delegate.entities['developer']
+        hostinginfo_cls = System.delegate.entities['hostinginfo']
+
+        dev_name = name_cls(name="Mohit Tahiliani")
+        dev_name.save()
+        email_id = email_cls(email="mohit.tahiliani@gmail.com")
+        email_id.save()
+        dev = developer_cls(name=dev_name, email=email_id)
+        dev.save()
+
+        hosting_status = "hosted"
+        hosted_url = "http://cse14-iiith.vlabs.ac.in"
+        hosted_on = "cloud"
+        host = hostinginfo_cls(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
+        host.save()
+
         exp_name = "arrays"
         exp_id = "cse02"
         overview = "overview"
         experiment = experiment_cls(exp_name=exp_name, exp_id=exp_id,
-                                        overview=overview, sections=[])
+                                        overview=overview, sections=[],
+                                        developers=[dev], hostinginfo=host)
         key = KEY
         session = session_cls(key=key)
         experiment = System.do("add_experiment", experiment=experiment, \
@@ -234,12 +252,30 @@ class TestAddSectionsToExperiment(TestCase):
         session_cls = System.delegate.entities['session']
         section_cls = System.delegate.entities['section']
         experiment_cls = System.delegate.entities['experiment']
+        name_cls = System.delegate.entities['name']
+        email_cls = System.delegate.entities['email']
+        developer_cls = System.delegate.entities['developer']
+        hostinginfo_cls = System.delegate.entities['hostinginfo']
+
+        dev_name = name_cls(name="Mohit Tahiliani")
+        dev_name.save()
+        email_id = email_cls(email="mohit.tahiliani@gmail.com")
+        email_id.save()
+        dev = developer_cls(name=dev_name, email=email_id)
+        dev.save()
+
+        hosting_status = "hosted"
+        hosted_url = "http://cse14-iiith.vlabs.ac.in"
+        hosted_on = "cloud"
+        host = hostinginfo_cls(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
+        host.save()
 
         exp_name = "arrays"
         exp_id = "cse02"
         overview = "overview"
         experiment = experiment_cls(exp_name=exp_name, exp_id=exp_id,
-                                        overview=overview, sections=[])
+                                        overview=overview, sections=[],
+                                        developers=[dev], hostinginfo=host)
         key = KEY
         session = session_cls(key=key)
         experiment = System.do("add_experiment", experiment=experiment, \
@@ -556,13 +592,6 @@ class TestUpdateLab(TestCase):
         developer_cls = System.delegate.entities['developer']
         hostinginfo_cls = System.delegate.entities['hostinginfo']
 
-        exp_name = "arrays"
-        exp_id = "cse02"
-        overview = "overview"
-        experiment = experiment_cls(exp_name=exp_name, exp_id=exp_id,
-                                        overview=overview, sections=[])
-        experiment.save()
-
         inst_name = "IIT Kanpur"
         inst_id = "IITK"
         inst = institute_cls(inst_name=inst_name, inst_id=inst_id)
@@ -594,6 +623,14 @@ class TestUpdateLab(TestCase):
         hosted_on = "cloud"
         host = hostinginfo_cls(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
         host.save()
+
+        exp_name = "arrays"
+        exp_id = "cse02"
+        overview = "overview"
+        experiment = experiment_cls(exp_name=exp_name, exp_id=exp_id,
+                                        overview=overview, sections=[],
+                                        developers=[dev], hostinginfo=host)
+        experiment.save()
 
         lab_name1="Computer Programming"
         lab_id1="CSE01"
@@ -644,13 +681,32 @@ class TestUpdateExperiment(TestCase):
         print "test_update_exp_in_system_persistence"
         session_cls = System.delegate.entities['session']
         exp_cls = System.delegate.entities['experiment']
+        name_cls = System.delegate.entities['name']
+        email_cls = System.delegate.entities['email']
+        developer_cls = System.delegate.entities['developer']
+        hostinginfo_cls = System.delegate.entities['hostinginfo']
 
         session = session_cls(key=KEY)
         exp_name = "arrays"
         exp_id = "cse02"
         overview = "overview"
+
+        dev_name = name_cls(name="Mohit Tahiliani")
+        dev_name.save()
+        email_id = email_cls(email="mohit.tahiliani@gmail.com")
+        email_id.save()
+        dev = developer_cls(name=dev_name, email=email_id)
+        dev.save()
+
+        hosting_status = "hosted"
+        hosted_url = "http://cse14-iiith.vlabs.ac.in"
+        hosted_on = "cloud"
+        host = hostinginfo_cls(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
+        host.save()
+
         experiment = exp_cls(exp_name=exp_name, exp_id=exp_id, 
-                                overview=overview, sections=[])
+                                overview=overview, sections=[],
+                                developers=[dev], hostinginfo=host)
         experiment.save()
 
         exp_name2 = "two dimentional arrays"
@@ -845,13 +901,31 @@ class TestDeleteExperiment(TestCase):
         print "test_delete_exp_in_system_persistence"
         session_cls = System.delegate.entities['session']
         experiment_cls = System.delegate.entities['experiment']
+        name_cls = System.delegate.entities['name']
+        email_cls = System.delegate.entities['email']
+        developer_cls = System.delegate.entities['developer']
+        hostinginfo_cls = System.delegate.entities['hostinginfo']
+
+        dev_name = name_cls(name="Mohit Tahiliani")
+        dev_name.save()
+        email_id = email_cls(email="mohit.tahiliani@gmail.com")
+        email_id.save()
+        dev = developer_cls(name=dev_name, email=email_id)
+        dev.save()
+
+        hosting_status = "hosted"
+        hosted_url = "http://cse14-iiith.vlabs.ac.in"
+        hosted_on = "cloud"
+        host = hostinginfo_cls(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
+        host.save()
 
         exp_name = "arrays"
         exp_id = "cse02"
         overview = "overview"
         key = KEY
         experiment = experiment_cls(exp_name=exp_name, exp_id=exp_id,
-                                        overview=overview, sections=[])
+                                        overview=overview, sections=[],
+                                        developers=[dev], hostinginfo=host)
 
         experiment.save()
         session = session_cls(key=key)
@@ -1015,13 +1089,6 @@ class TestDeleteLab(TestCase):
         developer_cls = System.delegate.entities['developer']
         hostinginfo_cls = System.delegate.entities['hostinginfo']
 
-        exp_name = "arrays"
-        exp_id = "cse02"
-        overview = "overview"
-        experiment = experiment_cls(exp_name=exp_name, exp_id=exp_id,
-                                        overview=overview, sections=[])
-        experiment.save()
-
         integration_level = 4
         integrationstatus = integrationstatus_cls(integration_level=integration_level)
         integrationstatus.save()
@@ -1053,6 +1120,14 @@ class TestDeleteLab(TestCase):
         hosted_on = "cloud"
         host = hostinginfo_cls(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
         host.save()
+
+        exp_name = "arrays"
+        exp_id = "cse02"
+        overview = "overview"
+        experiment = experiment_cls(exp_name=exp_name, exp_id=exp_id,
+                                        overview=overview, sections=[],
+                                        developers=[dev], hostinginfo=host)
+        experiment.save()
 
         lab_name1="Computer Programming"
         lab_id1="CSE01"
@@ -1723,13 +1798,32 @@ class TestGetExp(TestCase):
 
         print "test_get_exp_in_system_persistence"
         exp_cls = System.delegate.entities['experiment']
+        name_cls = System.delegate.entities['name']
+        email_cls = System.delegate.entities['email']
+        developer_cls = System.delegate.entities['developer']
+        hostinginfo_cls = System.delegate.entities['hostinginfo']
 
         experiment_cls = System.delegate.entities['experiment']
         exp_name = "arrays"
         exp_id = "cse02"
         overview = "overview"
+
+        dev_name = name_cls(name="Mohit Tahiliani")
+        dev_name.save()
+        email_id = email_cls(email="mohit.tahiliani@gmail.com")
+        email_id.save()
+        dev = developer_cls(name=dev_name, email=email_id)
+        dev.save()
+
+        hosting_status = "hosted"
+        hosted_url = "http://cse14-iiith.vlabs.ac.in"
+        hosted_on = "cloud"
+        host = hostinginfo_cls(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
+        host.save()
+
         experiment = experiment_cls(exp_name=exp_name, exp_id=exp_id,
-                                        overview=overview, sections=[])
+                                        overview=overview, sections=[],
+                                        developers=[dev], hostinginfo=host)
         experiment.save()
 
         experiment1 = System.do("get_experiment", exp_id=exp_id)

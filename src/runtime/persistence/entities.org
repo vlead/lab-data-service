@@ -63,14 +63,14 @@ args = {"__tablename__": "lab",
                     backref='labs'),
         "hostinginfo_id": db.Column(db.Integer, db.ForeignKey('hostinginfo.id'), 
                                       unique=False, nullable=False)
-        }
+       }
 
 Lab = ClassPersistenceTemplate.mk_persistent(Lab, ['lab_id'],\
                                                  **args)
 
 #+end_src
 
-*** Test Lab
+** Test Lab
 #+NAME: class_TestLab
 #+BEGIN_SRC python
 class TestPersistentLab(TestCase):
@@ -89,13 +89,6 @@ class TestPersistentLab(TestCase):
 
     def test_create_lab(self):
         print "test_persistent_lab"
-
-        exp_name = "Number Systems"
-        exp_id = "EE99777"
-        overview = "This is linked list experiment"
-        experiment = Experiment(exp_name=exp_name, exp_id=exp_id,
-                                    overview=overview, sections=[])
-        experiment.save()
 
         inst_name = "IIT Kanpur"
         inst_id = "IITK"
@@ -128,6 +121,14 @@ class TestPersistentLab(TestCase):
         hosted_on = "cloud"
         host = HostingInfo(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
         host.save()
+
+        exp_name = "Number Systems"
+        exp_id = "EE99777"
+        overview = "This is linked list experiment"
+        experiment = Experiment(exp_name=exp_name, exp_id=exp_id,
+                                    overview=overview, sections=[],
+                                    developers=[dev], hostinginfo=host)
+        experiment.save()
 
         lab_name1="Computer Programming"
         lab_id1="CSE01"
@@ -209,6 +210,12 @@ experiments_sections = db.Table('experiments_sections',
 		      db.Column('section_id', db.Integer,
                             db.ForeignKey('section.id')))
 
+experiments_developers = db.Table('experiments_developers',
+		      db.Column('experiment_id', db.Integer, 
+                            db.ForeignKey('experiment.id')),
+		      db.Column('developer_id', db.Integer,
+                            db.ForeignKey('developer.id')))
+
 #+END_SRC
 
 #+NAME: class_Experiment
@@ -224,8 +231,12 @@ args = {"__tablename__": "experiment",
 
         "sections": db.relationship('Section',
                     secondary=experiments_sections, 
-                    backref='experiments')
-
+                    backref='experiments'),
+        "developers": db.relationship('Developer',
+                    secondary=experiments_developers, 
+                    backref='experiments'),
+        "hostinginfo_id": db.Column(db.Integer, db.ForeignKey('hostinginfo.id'), 
+                                      unique=False, nullable=False)
         }
 
 Experiment = ClassPersistenceTemplate.mk_persistent(Experiment, ['exp_id'], **args)
@@ -251,17 +262,37 @@ class TestPersistenceExperiment(TestCase):
 
     def test_create_experiment(self):
         print "test_persistance_experiment"
+
+        dev_name = Name(name="Mohit Tahiliani")
+        dev_name.save()
+        email_id = Email(email="mohit.tahiliani@gmail.com")
+        email_id.save()
+        dev = Developer(name=dev_name, email=email_id)
+        dev.save()
+
+        hosting_status = "hosted"
+        hosted_url = "http://cse14-iiith.vlabs.ac.in"
+        hosted_on = "cloud"
+        host = HostingInfo(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
+        host.save()
+
         exp_name = "Number Systems"
         exp_id = "EE99777"
         overview = "This is linked list experiment"
-        exp = Experiment(exp_name=exp_name, exp_id=exp_id, overview=overview, sections=[])
+        exp = Experiment(exp_name=exp_name, exp_id=exp_id, overview=overview,
+                         sections=[], developers=[dev], hostinginfo=host)
         exp.save()
+
         experiment = Experiment.get_by_id(1)
         experiment1 = Experiment.get_by_id(2)
         self.assertEqual(experiment.get("exp_name"), exp_name)
         self.assertEqual(experiment.get("exp_id"), exp_id)
         self.assertEqual(experiment.get("overview"), overview)
         self.assertEqual(experiment1,None)
+        self.assertEqual(experiment.get("developers")[0].get("email").get("email"), 
+                             email_id.get("email"))
+        self.assertEqual(experiment.get("hostinginfo").get("hosting_status"), 
+                             host.get("hosting_status"))
 
 #+END_SRC
 
@@ -574,7 +605,8 @@ args = {"__tablename__": "hostinginfo",
         "hosting_status": db.Column(db.String(255), unique=False, nullable=True),
         "hosted_url": db.Column(db.String(255), unique=True, nullable=False),
         "hosted_on": db.Column(db.String(255), unique=False, nullable=True),
-        "labs": db.relationship('Lab', backref=db.backref('hostinginfo'))
+        "labs": db.relationship('Lab', backref=db.backref('hostinginfo')),
+        "experiments": db.relationship('Experiment', backref=db.backref('hostinginfo'))
        }
 
 HostingInfo = ClassPersistenceTemplate.mk_persistent(HostingInfo, ['hosted_url'], **args)
