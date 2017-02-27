@@ -260,8 +260,10 @@ class TestLab(TestCase):
         host = HostingInfo(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
 
         experiment = Experiment(exp_name=exp_name, exp_id=exp_id, \
-                                    overview=overview, sections=[], institute=inst, 
-                                  discipline=discipline)
+                                overview=overview, sections=[], institute=inst, 
+                                  discipline=discipline,                        
+                                  integrationstatus=integrationstatus, assets=[asset],
+                                  developers=[dev], hostinginfo=host)
 
         lab_name = "Computer Programming"
         lab_id = "CSE01"
@@ -330,16 +332,24 @@ Experiment.add_attributes(exp_name=is_str,
                           exp_id=is_str, overview=is_str, \
                           sections=are_sections, 
                           discipline=is_discipline,
-                          institute=is_institute,)
+                          institute=is_institute,
+                          integrationstatus=is_integrationstatus,
+                          assets=are_assets,
+                          developers=are_developers,
+                          hostinginfo=is_hostinginfo)
 
 Experiment.__eq__ = lambda self, other: \
                   isinstance(other, self.__class__) and \
                   self.get("exp_name") == other.get("exp_name") and \
                   self.get("exp_id") == other.get("exp_id") and \
-                  self.get("overview") == other.get("overview") and\
+                  self.get("overview") == other.get("overview") and \
                   self.get("sections") == other.get("sections") and \
                   self.get("discipline") == other.get("discipline") and \
-                  self.get("institute") == other.get("institute")
+                  self.get("institute") == other.get("institute") and \
+                  self.get("integrationstatus") == other.get("integrationstatus") and \
+                  self.get("assets") == other.get("assets") and \
+                  self.get("developers") == other.get("developers") and \
+                  self.get("hostinginfo") == other.get("hostinginfo")
 
 #+end_src
 
@@ -363,18 +373,44 @@ class TestExperiment(TestCase):
         exp_name = "Number Systems"
         exp_id = "EE99777"
         overview = "This is linked list experiment"
-        experiment = Experiment(exp_name=exp_name, exp_id=exp_id,
-                                overview=overview, sections=[],  
-                                institute=inst, discipline=discipline)       
+
+        integration_level = 4
+        integrationstatus = IntegrationStatus(integration_level=integration_level)
+
+        asset_type = "Image"
+        path = "vlabs.ac.in/images/static/logo.png"
+        asset = Asset(asset_type=asset_type, path=path)
+
+        dev_name = Name(name="Mohit Tahiliani")
+        email_id = Email(email="mohit.tahiliani@gmail.com")
+        dev = Developer(name=dev_name, email=email_id)
+
+        hosting_status = "hosted"
+        hosted_url = "http://cse14-iiith.vlabs.ac.in"
+        hosted_on = "cloud"
+        host = HostingInfo(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
+
+        experiment = Experiment(exp_name=exp_name, exp_id=exp_id, 
+                                institute=inst, discipline=discipline,     
+                                overview=overview,
+                                integrationstatus=integrationstatus, 
+                                sections=[], assets=[asset],
+                                developers=[dev], hostinginfo=host)
 
         self.assertEqual(experiment.get("exp_name"), exp_name)
         self.assertEqual(experiment.get("overview"), overview)
+        self.assertEqual(experiment.get("integrationstatus").get("integration_level"), 
+                             integrationstatus.get("integration_level"))
+        self.assertEqual(experiment.get("assets")[0].get("asset_type"), 
+                             asset.get("asset_type"))       
         self.assertEqual(experiment.get("exp_id"), exp_id)
         self.assertEqual(experiment.get("sections"), [])
         self.assertEqual(experiment.get("institute").get("inst_name"), 
                              inst.get("inst_name"))
         self.assertEqual(experiment.get("discipline").get("dis_name"), 
                              discipline.get("dis_name"))
+        self.assertEqual(experiment.get("developers")[0].get("email").get("email"), email_id.get("email"))
+        self.assertEqual(experiment.get("hostinginfo").get("hosting_status"), host.get("hosting_status"))
 
 #+END_SRC
 
