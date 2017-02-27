@@ -139,8 +139,9 @@ class TestPersistentLab(TestCase):
         experiment = Experiment(exp_name=exp_name, exp_id=exp_id,
                                     overview=overview, sections=[],
                                     integrationstatus=intstatus, 
-                                    assets=[asset],
-                                    developers=[dev], hostinginfos=[host])
+                                    hostinginfos=[host], assets=[asset], 
+                                    institute=inst, discipline=discipline, 
+                                    developers=[dev])
         experiment.save()
 
         lab_name1="Computer Programming"
@@ -262,6 +263,12 @@ args = {"__tablename__": "experiment",
         "sections": db.relationship('Section',
                     secondary=experiments_sections, 
                     backref='experiments'),
+
+        "institute_id": db.Column(db.Integer, db.ForeignKey('institute.id'), 
+                                      unique=False, nullable=False),
+        "discipline_id": db.Column(db.Integer, db.ForeignKey('discipline.id'), 
+                                      unique=False, nullable=False),
+
         "developers": db.relationship('Developer',
                     secondary=experiments_developers, 
                     backref='experiments'),
@@ -293,6 +300,16 @@ class TestPersistenceExperiment(TestCase):
 
     def test_create_experiment(self):
         print "test_persistance_experiment"
+        
+        inst_name = "IIT Kanpur"
+        inst_id = "IITK"
+        inst = Institute(inst_name=inst_name, inst_id=inst_id)
+        inst.save()
+
+        dis_name = "IIT Kanpur"
+        dis_id = "IITK"
+        discipline = Discipline(dis_name=dis_name, dis_id=dis_id)
+        discipline.save()      
 
         dev_name = Name(name="Mohit Tahiliani")
         dev_name.save()
@@ -322,7 +339,8 @@ class TestPersistenceExperiment(TestCase):
 
         exp = Experiment(exp_name=exp_name, exp_id=exp_id, overview=overview,
                           integrationstatus=intstatus, assets=[asset], 
-                         sections=[], developers=[dev], hostinginfos=[host])
+                         sections=[], developers=[dev], hostinginfos=[host],  
+                         institute=inst, discipline=discipline)
         exp.save()
 
         experiment = Experiment.get_by_id(1)
@@ -330,6 +348,10 @@ class TestPersistenceExperiment(TestCase):
         self.assertEqual(experiment.get("exp_name"), exp_name)
         self.assertEqual(experiment.get("exp_id"), exp_id)
         self.assertEqual(experiment.get("overview"), overview)
+        self.assertEqual(experiment.get("institute").get("inst_name"), 
+                             inst.get("inst_name"))
+        self.assertEqual(experiment.get("discipline").get("dis_name"), 
+                             discipline.get("dis_name"))
         self.assertEqual(experiment.get("integrationstatus").get("integration_level"), 
                              intstatus.get("integration_level"))
         self.assertEqual(experiment.get("assets")[0].get("asset_type"), 
@@ -362,7 +384,8 @@ args = {"__tablename__": "institute",
         "id": db.Column(db.Integer, primary_key=True),
         "inst_name": db.Column(db.String(255), unique=False, nullable=True),
         "inst_id": db.Column(db.String(255), unique=True, nullable=False),
-        "labs": db.relationship('Lab', backref=db.backref('institute'))
+        "labs": db.relationship('Lab', backref=db.backref('institute')),
+        "experiments": db.relationship('Experiment', backref=db.backref('institute'))
        }
 
 Institute = ClassPersistenceTemplate.mk_persistent(Institute, ['inst_id'], **args)
@@ -409,7 +432,8 @@ args = {"__tablename__": "discipline",
         "id": db.Column(db.Integer, primary_key=True),
         "dis_name": db.Column(db.String(255), unique=False, nullable=True),
         "dis_id": db.Column(db.String(255), unique=True, nullable=False),
-        "labs": db.relationship('Lab', backref=db.backref('discipline'))
+        "labs": db.relationship('Lab', backref=db.backref('discipline')),
+        "experiments": db.relationship('Experiment', backref=db.backref('discipline'))
         }
 
 Discipline = ClassPersistenceTemplate.mk_persistent(Discipline, ['dis_id'], **args)
@@ -553,7 +577,6 @@ args = {"__tablename__": "email",
         "email": db.Column(db.String(255), unique=True, nullable=False),
         "developers": db.relationship('Developer', 
                                         backref=db.backref('email'))
-
         }
 
 Email = ClassPersistenceTemplate.mk_persistent(Email, ['email'], **args)

@@ -736,7 +736,9 @@ class TestGetLab(TestCase):
                    'overview' : 'overview',
                    'assets': ['vlabs.ac.in/images/static/logo.png'],
                    'sections': [],
+                   'inst_id': 'IITK',
                    'integration_level': 4,
+                   'dis_id': 'CSE',
                    'key': KEY,
                    'developers': ['abc@gmail.com'],
                    'hostinginfos': ['http://cse14-iiith.vlabs.ac.in']}
@@ -848,7 +850,9 @@ class TestGetLabbyLabId(TestCase):
                    'overview' : 'overview',
                    'sections': [],
                    'assets': ['vlabs.ac.in/images/static/logo.png'],
+                   'inst_id': 'IITK',
                    'integration_level': 4,
+                   'dis_id': 'CSE',
                    'key': KEY,
                    'developers': ['abc@gmail.com'],
                    'hostinginfos': ['http://cse14-iiith.vlabs.ac.in']}
@@ -958,7 +962,9 @@ class TestGetLabsbyInstitute(TestCase):
                    'overview' : 'overview',
                    'sections': [],
                    'assets': ['vlabs.ac.in/images/static/logo.png'],
+                   'inst_id': 'IITK',
                    'integration_level': 4,
+                   'dis_id': 'CSE',
                    'key': KEY,
                    'developers': ['abc@gmail.com'],
                    'hostinginfos': ['http://cse14-iiith.vlabs.ac.in']}
@@ -1065,7 +1071,9 @@ class TestGetLabsbyDiscipline(TestCase):
                    'overview' : 'overview',
                    'sections': [],
                    'assets': ['vlabs.ac.in/images/static/logo.png'],
+                   'inst_id': 'IITK',
                    'integration_level': 4,
+                   'dis_id': 'CSE',
                    'key': KEY,
                    'developers': ['abc@gmail.com'],
                    'hostinginfos': ['http://cse14-iiith.vlabs.ac.in']}
@@ -1174,7 +1182,9 @@ class TestGetLabsbyLabName(TestCase):
                    'overview' : 'overview',
                    'sections': [],
                    'assets': ['vlabs.ac.in/images/static/logo.png'],
+                   'inst_id': 'IITK',
                    'integration_level': 4,
+                   'dis_id': 'CSE',
                    'key': KEY,
                    'developers': ['abc@gmail.com'],
                    'hostinginfos': ['http://cse14-iiith.vlabs.ac.in']}
@@ -1291,7 +1301,9 @@ class TestGetLabsbyAsset(TestCase):
                    'overview': 'overview',
                    'assets': ['vlabs.ac.in/images/static/logo.png'],
                    'sections': [],
-                   'integration_level': 4, 
+                   'inst_id': 'IITK',
+                   'integration_level': 4,
+                   'dis_id': 'CSE',
                    'key': KEY}
                    'developers': ['abc@gmail.com'],
                    'hostinginfos': ['http://cse14-iiith.vlabs.ac.in']}
@@ -1556,7 +1568,9 @@ class TestAddLab(TestCase):
                    'overview' : 'overview',
                    'sections': [],
                    'assets': ['vlabs.ac.in/images/static/logo.png'],
+                   'inst_id': 'IITK',
                    'integration_level': 4,
+                   'dis_id': 'CSE',
                    'key': KEY,
                    'developers': ['abc@gmail.com'],
                    'hostinginfos': ['http://cse14-iiith.vlabs.ac.in']}
@@ -2277,6 +2291,16 @@ class TestAddDiscipline(TestCase):
 
 [
   {
+    "discipline": {
+    "dis_id": "cse",
+    "id": 1,
+    "dis_name": "Computer Science"
+    },
+    "institute": {
+    "inst_name": "IIIT Hyderabad",
+    "id": 1,
+    "inst_id": "iiith"
+    },
     "overview": "overview",
     "exp_name": "arrays",
     "sections": [
@@ -2336,6 +2360,16 @@ http://localhost:5000/experiments
 
 #+BEGIN_EXAMPLE
   {
+    "discipline": {
+    "dis_id": "cse",
+    "id": 1,
+    "dis_name": "Computer Science"
+    },
+    "institute": {
+    "inst_name": "IIIT Hyderabad",
+    "id": 1,
+    "inst_id": "iiith"
+    },
     "overview": "overview",
     "exp_name": "arrays",
     "sections": [
@@ -2474,6 +2508,24 @@ class TestGetExperiment(TestCase):
     def test_get_experiments(self):
         print "test_get_experiments_in_rest"
 
+        payload = {'inst_name': 'IIT Kanpur',
+                   'inst_id': 'IITK',
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/institutes", data=json.dumps(payload),
+                                 headers=headers)
+
+        payload = {'dis_name': 'Computer Science',
+                   'dis_id': 'CSE',
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/disciplines", data=json.dumps(payload),
+                                     headers=headers)
+
         payload = {'integration_level': 4,
                     'key': KEY
                   }
@@ -2490,7 +2542,6 @@ class TestGetExperiment(TestCase):
         response = self.client.post("/assets", data=json.dumps(payload),
                                  headers=headers)
 
-
         payload = {'name': 'Prof. Dharamaja',
                    'email': 'abc@gmail.com',
                    'key': KEY}
@@ -2504,7 +2555,7 @@ class TestGetExperiment(TestCase):
                    'hosted_on': 'cloud',
                    'key': KEY}
 
-        headers = {'Content-Type': 'application/json'}
+        headers = {'Content-Type': 'application/json'}  
 
         response = self.client.post("/hostinginfos", data=json.dumps(payload),
                                  headers=headers)
@@ -2514,6 +2565,8 @@ class TestGetExperiment(TestCase):
                    'overview' : 'overview',
                    'assets': ['vlabs.ac.in/images/static/logo.png'],
                    'sections' : [],
+                   'inst_id': 'IITK',
+                   'dis_id': 'CSE',         
                    'integration_level': 4,
                    'key': KEY,
                    'developers': ['abc@gmail.com'],
@@ -2582,13 +2635,33 @@ class TestGetExp(TestCase):
         response = self.client.post("/hostinginfos", data=json.dumps(payload),
                                  headers=headers)
 
+        payload = {'inst_name': 'IIT Kanpur',
+                   'inst_id': 'IITK',
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/institutes", data=json.dumps(payload),
+                                 headers=headers)
+
+        payload = {'dis_name': 'Computer Science',
+                   'dis_id': 'CSE',
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/disciplines", data=json.dumps(payload),
+                                 headers=headers) 
+
         payload = {'exp_name': 'stack',
                    'exp_id': 'cse01',
                    'overview' : 'overview',
                    'assets': ['vlabs.ac.in/images/static/logo.png'],
                    'sections' : [],
-                   'integration_level': 4,
+                   'inst_id': 'IITK',
+                   'dis_id': 'CSE',
                    'key': KEY,
+                   'integration_level': 4,
                    'developers': ['abc@gmail.com'],
                    'hostinginfos': ['http://cse14-iiith.vlabs.ac.in']}
 
@@ -2634,6 +2707,16 @@ class TestGetExp(TestCase):
     + Content: 
 #+BEGIN_EXAMPLE
 {
+  "discipline": {
+  "dis_id": "cse",
+  "id": 1,
+  "dis_name": "Computer Science"
+  },
+  "institute": {
+  "inst_name": "IIIT Hyderabad",
+  "id": 1,
+  "inst_id": "iiith"
+  },
   "exp_id": "exp9", 
   "exp_name": "arrays", 
   "id": 1, 
@@ -2745,6 +2828,24 @@ class TestAddExperiment(TestCase):
     def test_add_experiment(self):
         print "test_add_experiment_in_rest"
 
+        payload = {'inst_name': 'IIT Kanpur',
+                   'inst_id': 'IITK',
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/institutes", data=json.dumps(payload),
+                                 headers=headers)
+
+        payload = {'dis_name': 'Computer Science',
+                   'dis_id': 'CSE',
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}   
+
+        response = self.client.post("/disciplines", data=json.dumps(payload),
+                                 headers=headers) 
+
         payload = {'integration_level': 4,
                     'key': KEY
                   }
@@ -2756,11 +2857,11 @@ class TestAddExperiment(TestCase):
         payload = {'asset_type': 'Image',
                    'path': 'vlabs.ac.in/images/static/logo.png',
                    'key': KEY}
+
         headers = {'Content-Type': 'application/json'}
 
         response = self.client.post("/assets", data=json.dumps(payload),
                                        headers=headers)
-
 
         payload = {'name': 'Prof. Dharamaja',
                    'email': 'abc@gmail.com',
@@ -2786,6 +2887,8 @@ class TestAddExperiment(TestCase):
                    'assets': ['vlabs.ac.in/images/static/logo.png'],
                    'sections' : [],
                    'integration_level': 4,
+                   'inst_id': 'IITK',
+                   'dis_id': 'CSE',
                    'key': KEY,
                    'developers': ['abc@gmail.com'],
                    'hostinginfos': ['http://cse14-iiith.vlabs.ac.in']}
@@ -4566,6 +4669,8 @@ class TestUpdateLab(TestCase):
                    'overview' : 'overview',
                    'assets': ['vlabs.ac.in/images/static/logo.png'],
                    'integration_level': 4,
+                   'inst_id': 'IITK',
+                   'dis_id': 'CSE',
                    'sections': [],
                    'key': KEY,
                    'developers': ['abc@gmail.com'],
@@ -4771,6 +4876,8 @@ class TestDeleteLab(TestCase):
                    'overview' : 'overview',
                    'assets': ['vlabs.ac.in/images/static/logo.png'],
                    'integration_level': 4,
+                   'inst_id': 'IITK',
+                   'dis_id': 'CSE',
                    'sections': [],
                    'key': KEY,
                    'developers': ['abc@gmail.com'],
@@ -4824,7 +4931,9 @@ class TestDeleteLab(TestCase):
 {
   "exp_name": "2D arrays", 
   "key":"<key>",
-  "overview": "2D Arrays overview"
+  "overview": "2D Arrays overview",
+  "inst_id": "IITK",
+  "dis_id": "CSE"
 }
 
 #+END_EXAMPLE	       
@@ -4834,6 +4943,16 @@ class TestDeleteLab(TestCase):
       + Contents :
 #+BEGIN_EXAMPLE
 {
+  "discipline": {
+  "dis_id": "cse",
+  "id": 1,
+  "dis_name": "Computer Science"
+  },
+  "institute": {
+  "inst_name": "IIIT Hyderabad",
+  "id": 1,
+  "inst_id": "iiith"
+  },
   "exp_id": "exp9", 
   "exp_name": "2D arrays", 
   "id": 1, 
@@ -4956,6 +5075,24 @@ class TestUpdateExperiment(TestCase):
         response = self.client.post("/integrationstatuss", data=json.dumps(payload),
                                  headers=headers)
 
+        payload = {'inst_name': 'IIT Kanpur',
+                   'inst_id': 'IITK',
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/institutes", data=json.dumps(payload),
+                                 headers=headers)
+
+        payload = {'dis_name': 'Computer Science',
+                   'dis_id': 'CSE',
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/disciplines", data=json.dumps(payload),
+                                 headers=headers)
+
         payload = {'asset_type': 'Image',
                    'path': 'vlabs.ac.in/images/static/logo.png',
                    'key': KEY}
@@ -4988,6 +5125,8 @@ class TestUpdateExperiment(TestCase):
                    'assets': ['vlabs.ac.in/images/static/logo.png'],
                    'sections' : [],
                    'integration_level': 4,
+                   'inst_id': 'IITK',
+                   'dis_id': 'CSE',
                    'key': KEY,
                    'developers': ['abc@gmail.com'],
                    'hostinginfos': ['http://cse14-iiith.vlabs.ac.in']}
@@ -5103,6 +5242,25 @@ class TestDeleteExperiment(TestCase):
 
     def test_delete_experiment(self):
         print "test_delete_experiment"
+
+        payload = {'inst_name': 'IIT Kanpur',
+                   'inst_id': 'IITK',
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/institutes", data=json.dumps(payload),
+                                 headers=headers)
+
+        payload = {'dis_name': 'Computer Science',
+                   'dis_id': 'CSE',
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/disciplines", data=json.dumps(payload),
+                                 headers=headers)
+
         payload = {'integration_level': 4,
                     'key': KEY
                   }
@@ -5114,11 +5272,11 @@ class TestDeleteExperiment(TestCase):
         payload = {'asset_type': 'Image',
                    'path': 'vlabs.ac.in/images/static/logo.png',
                    'key': KEY}
+
         headers = {'Content-Type': 'application/json'}
 
         response = self.client.post("/assets", data=json.dumps(payload),
                                  headers=headers)
-
 
         payload = {'name': 'Prof. Dharamaja',
                    'email': 'abc@gmail.com',
@@ -5144,6 +5302,8 @@ class TestDeleteExperiment(TestCase):
                    'assets': ['vlabs.ac.in/images/static/logo.png'],
                    'sections' : [],
                    'integration_level': 4,
+                   'inst_id': 'IITK',
+                   'dis_id': 'CSE',
                    'key': KEY,
                    'developers': ['abc@gmail.com'],
                    'hostinginfos': ['http://cse14-iiith.vlabs.ac.in']}

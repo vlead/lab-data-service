@@ -84,9 +84,10 @@ class TestAddLab(TestCase):
         exp_id = "cse02"
         overview = "overview"
         experiment = experiment_cls(exp_name=exp_name, exp_id=exp_id,
-                                        overview=overview,
+                                    overview=overview, sections=[],
+                                    institute=inst, discipline=discipline,
                                         integrationstatus=integrationstatus, 
-                                        sections=[], assets=[asset], 
+                                        assets=[asset], 
                                         developers=[dev], hostinginfos=[host])
         experiment.save()
                                 
@@ -129,12 +130,24 @@ class TestAddExperiment(TestCase):
         print "test_add_experiment_in_system_persistence"
         session_cls = System.delegate.entities['session']
         experiment_cls = System.delegate.entities['experiment']
+        institute_cls = System.delegate.entities['institute']
+        discipline_cls = System.delegate.entities['discipline']
         integrationstatus_cls = System.delegate.entities['integrationstatus']
         asset_cls = System.delegate.entities['asset']
         name_cls = System.delegate.entities['name']
         email_cls = System.delegate.entities['email']
         developer_cls = System.delegate.entities['developer']
         hostinginfo_cls = System.delegate.entities['hostinginfo']
+
+        inst_name = "IIT Kanpur"
+        inst_id = "IITK"
+        inst = institute_cls(inst_name=inst_name, inst_id=inst_id)
+        inst.save()
+
+        dis_name = "IIT Kanpur"
+        dis_id = "IITK"
+        discipline = discipline_cls(dis_name=dis_name, dis_id=dis_id)
+        discipline.save()
 
         dev_name = name_cls(name="Mohit Tahiliani")
         dev_name.save()
@@ -163,10 +176,12 @@ class TestAddExperiment(TestCase):
         asset.save()
 
         experiment = experiment_cls(exp_name=exp_name, exp_id=exp_id,
-                                        overview=overview, 
-                                        integrationstatus=integrationstatus, 
-                                        sections=[], assets=[asset],
+                                        overview=overview, sections=[],
+                                        institute=inst, discipline=discipline,
+                                        integrationstatus=integrationstatus,
+                                        assets=[asset],
                                         developers=[dev], hostinginfos=[host])
+
         key = KEY
         session = session_cls(key=key)
         experiment = System.do("add_experiment", experiment=experiment, \
@@ -200,6 +215,7 @@ class TestAddInstitute(TestCase):
         print "test_add_institute_in_system_persistence"
         session_cls = System.delegate.entities['session']
         institute_cls = System.delegate.entities['institute']
+
         inst_name = "IIT Kanpur"
         inst_id = "IITK"
         institute = institute_cls(inst_name=inst_name, inst_id=inst_id)
@@ -235,9 +251,11 @@ class TestAddDiscipline(TestCase):
         print "test_add_discipline_in_system_persistence"
         session_cls = System.delegate.entities['session']
         discipline_cls = System.delegate.entities['discipline']
+
         dis_name = "arrays"
         dis_id = "cse02"
         discipline = discipline_cls(dis_name=dis_name, dis_id=dis_id)
+
         key = KEY
         session = session_cls(key=key)
         discipline = System.do("add_discipline", discipline=discipline, session=session)
@@ -269,9 +287,10 @@ class TestAddSectionsToExperiment(TestCase):
         session_cls = System.delegate.entities['session']
         section_cls = System.delegate.entities['section']
         experiment_cls = System.delegate.entities['experiment']
+        institute_cls = System.delegate.entities['institute']
+        discipline_cls = System.delegate.entities['discipline']
         integrationstatus_cls = System.delegate.entities['integrationstatus']
         asset_cls = System.delegate.entities['asset']
-
         name_cls = System.delegate.entities['name']
         email_cls = System.delegate.entities['email']
         developer_cls = System.delegate.entities['developer']
@@ -290,10 +309,16 @@ class TestAddSectionsToExperiment(TestCase):
         host = hostinginfo_cls(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
         host.save()
 
-        exp_name = "arrays"
-        exp_id = "cse02"
-        overview = "overview"
-        
+        inst_name = "IIT Kanpur"
+        inst_id = "IITK"
+        inst = institute_cls(inst_name=inst_name, inst_id=inst_id)
+        inst.save()
+
+        dis_name = "computer science"
+        dis_id = "cse"
+        discipline = discipline_cls(dis_name=dis_name, dis_id=dis_id)
+        discipline.save()
+                       
         integration_level = 4
         integrationstatus = integrationstatus_cls(integration_level=integration_level)
         integrationstatus.save()
@@ -302,11 +327,15 @@ class TestAddSectionsToExperiment(TestCase):
         path = "vlabs.ac.in/images/static/logo.png"
         asset = asset_cls(asset_type=asset_type, path=path)
         asset.save()
-
+     
+        exp_name = "arrays"
+        exp_id = "cse02"
+        overview = "overview"
         experiment = experiment_cls(exp_name=exp_name, exp_id=exp_id,
-                                        overview=overview,
+                                    overview=overview, sections=[],
+                                    institute=inst, discipline=discipline,
                                         integrationstatus=integrationstatus, 
-                                        sections=[], assets=[asset],
+                                        assets=[asset],
                                         developers=[dev], hostinginfos=[host])
         key = KEY
         session = session_cls(key=key)
@@ -625,7 +654,6 @@ class TestUpdateExperiment(TestCase):
         discipline_cls = System.delegate.entities['discipline']
         lab_cls = System.delegate.entities['lab']
 
-
         session = session_cls(key=KEY)
 
         inst_name = "IIT Kanpur"
@@ -664,40 +692,28 @@ class TestUpdateExperiment(TestCase):
         exp_id = "cse02"
         overview = "overview"
         experiment = experiment_cls(exp_name=exp_name, exp_id=exp_id,
-                                        overview=overview,
+                                     overview=overview, sections=[],
+                                    institute=inst, discipline=discipline,
                                         integrationstatus=integrationstatus, 
-                                        sections=[], assets=[asset],
+                                        assets=[asset],
                                         developers=[dev], hostinginfos=[host])
         experiment.save()
 
-        lab_name1="Computer Programming"
-        lab_id1="CSE01"
-        key = KEY
-        overview = "overview"
-        session = session_cls(key=key)
+        exp_name2 = "two dimentional arrays"
+        overview2 = "exp overview"
 
-        lab = lab_cls(lab_id=lab_id1, lab_name=lab_name1, 
-                      institute=inst, discipline=discipline, assets=[asset],     
-                      overview=overview, integrationstatus=integrationstatus, 
-                      experiments=[experiment], developers=[dev], hostinginfos=[host]) 
+        exp1 = System.do("update_experiment", exp_name=exp_name2,
+                             experiment=experiment, overview=overview2,
+                             session=session)
 
-        lab.save()
-        lab_name2="Computer Programming"
-        overview2="CSE01 overview"
+        new_exp = exp_cls.get_by_id(1)
 
-        lab1 = System.do("update_lab", lab_name=lab_name2, 
-                                  lab=lab, overview=overview2,
-                                  session=session)
-
-        new_lab = lab_cls.get_by_id(1)
-
-        self.assertEqual(new_lab.get("lab_name"), lab_name2)
-        self.assertEqual(new_lab.get("overview"), overview2)
+        self.assertEqual(new_exp.get("exp_name"), exp_name2)
+        self.assertEqual(new_exp.get("overview"), overview2)
+        self.assertEqual(new_exp.get("exp_id"), exp_id)
             
 #+END_SRC
-
-
-
+      
 * Test UpdateInstitute 
 #+NAME: test_update_institute
 #+BEGIN_SRC python
@@ -874,6 +890,8 @@ class TestDeleteExperiment(TestCase):
         print "test_delete_exp_in_system_persistence"
         session_cls = System.delegate.entities['session']
         experiment_cls = System.delegate.entities['experiment']
+        institute_cls = System.delegate.entities['institute']
+        discipline_cls = System.delegate.entities['discipline']
         integrationstatus_cls = System.delegate.entities['integrationstatus']
         asset_cls = System.delegate.entities['asset']
         name_cls = System.delegate.entities['name']
@@ -894,9 +912,15 @@ class TestDeleteExperiment(TestCase):
         host = hostinginfo_cls(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
         host.save()
 
-        exp_name = "arrays"
-        exp_id = "cse02"
-        overview = "overview"
+        inst_name = "IIT Kanpur"
+        inst_id = "IITK"
+        inst = institute_cls(inst_name=inst_name, inst_id=inst_id)
+        inst.save()
+
+        dis_name = "computer science"
+        dis_id = "cse"
+        discipline = discipline_cls(dis_name=dis_name, dis_id=dis_id)
+        discipline.save()
 
         integration_level = 4
         integrationstatus = integrationstatus_cls(integration_level=integration_level)
@@ -907,13 +931,16 @@ class TestDeleteExperiment(TestCase):
         asset = asset_cls(asset_type=asset_type, path=path)
         asset.save()
 
+        exp_name = "arrays"
+        exp_id = "cse02"
+        overview = "overview"
         key = KEY
         experiment = experiment_cls(exp_name=exp_name, exp_id=exp_id,
-                                        overview=overview, 
+                                        overview=overview, sections=[],
+                                    institute=inst, discipline=discipline,
                                         integrationstatus=integrationstatus,
-                                        sections=[], assets=[asset],
+                                        assets=[asset],
                                         developers=[dev], hostinginfos=[host])
-
         experiment.save()
         session = session_cls(key=key)
         exp_id1 = System.do("delete_experiment", exp_id = exp_id,
@@ -1113,7 +1140,8 @@ class TestDeleteLab(TestCase):
         overview = "overview"
         experiment = experiment_cls(exp_name=exp_name, exp_id=exp_id,
                                         overview=overview, sections=[],
-                                        integrationstatus=integrationstatus,
+                                    institute=inst, discipline=discipline,
+                                    integrationstatus=integrationstatus,
                                         assets=[asset], 
                                         developers=[dev], hostinginfos=[host])
         experiment.save()
@@ -1841,18 +1869,25 @@ class TestGetExp(TestCase):
 
         print "test_get_exp_in_system_persistence"
         exp_cls = System.delegate.entities['experiment']
+        institute_cls = System.delegate.entities['institute']
+        discipline_cls = System.delegate.entities['discipline']
         name_cls = System.delegate.entities['name']
         email_cls = System.delegate.entities['email']
         developer_cls = System.delegate.entities['developer']
         hostinginfo_cls = System.delegate.entities['hostinginfo']
-
         experiment_cls = System.delegate.entities['experiment']
         integrationstatus_cls = System.delegate.entities['integrationstatus']
         asset_cls = System.delegate.entities['asset']
 
-        exp_name = "arrays"
-        exp_id = "cse02"
-        overview = "overview"
+        inst_name = "IIT Kanpur"
+        inst_id = "IITK"
+        inst = institute_cls(inst_name=inst_name, inst_id=inst_id)
+        inst.save()
+
+        dis_name = "IIT Kanpur"
+        dis_id = "IITK"
+        discipline = discipline_cls(dis_name=dis_name, dis_id=dis_id)
+        discipline.save()
 
         integration_level = 4
         integrationstatus = integrationstatus_cls(integration_level=integration_level)
@@ -1876,10 +1911,14 @@ class TestGetExp(TestCase):
         host = hostinginfo_cls(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
         host.save()
 
+        exp_name = "arrays"
+        exp_id = "cse02"
+        overview = "overview"
         experiment = experiment_cls(exp_name=exp_name, exp_id=exp_id,
-                                        overview=overview, 
+                                    overview=overview, sections=[],
+                                    institute=inst, discipline=discipline,
                                         integrationstatus=integrationstatus, 
-                                        sections=[], assets=[asset],
+                                        assets=[asset],
                                         developers=[dev], hostinginfos=[host])
         experiment.save()
 
@@ -2294,14 +2333,7 @@ class TestAddAssetsToLab(TestCase):
         asset_cls = System.delegate.entities['asset']
         experiment_cls = System.delegate.entities['experiment']
         integrationstatus_cls = System.delegate.entities['integrationstatus']
-         
-        exp_name = "arrays"
-        exp_id = "cse02"
-        overview = "overview"
-        experiment = experiment_cls(exp_name=exp_name, exp_id=exp_id,
-                                        overview=overview, sections=[])
-        experiment.save()
-
+               
         integration_level = 4
         integrationstatus = integrationstatus_cls(integration_level=integration_level)
         integrationstatus.save()
@@ -2320,6 +2352,14 @@ class TestAddAssetsToLab(TestCase):
         path = "vlabs.ac.in/images/static/logo.png"
         asset = asset_cls(asset_type=asset_type, path=path)
         asset.save()
+
+        exp_name = "arrays"
+        exp_id = "cse02"
+        overview = "overview"
+        experiment = experiment_cls(exp_name=exp_name, exp_id=exp_id,
+                                        overview=overview, sections=[],
+                                    institute=inst, discipline=discipline)
+        experiment.save()
                                 
         lab_name1="Computer Programming"
         lab_id1="CSE01"
@@ -2329,7 +2369,7 @@ class TestAddAssetsToLab(TestCase):
 
         lab = lab_cls(lab_id=lab_id1, lab_name=lab_name1,        
                           institute=inst, discipline=discipline, assets=[asset],                
-                          overview=overview,  integrationstatus=integrationstatus, 
+                          overview=overview, integrationstatus=integrationstatus, 
                           experiments=[experiment])
         lab.save()
 
