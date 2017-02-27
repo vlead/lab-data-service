@@ -15,7 +15,7 @@
   
 * REST
 
-** Get Labs, Get Lab, Get Labs by institute, lab_name, discipline and asset
+** Get Labs, Get Lab, Get Labs by institute, lab_name, discipline and asset and Get labs by passing lab_name as keyword
 *** API Designs 
 **** Get all labs
   :PROPERTIES:
@@ -465,6 +465,91 @@ http://localhost:5000/labs?lab_name=Data Structures
 #+BEGIN_EXAMPLE
 http://localhost:5000/labs?asset_type=image
 #+END_EXAMPLE  
+**** Get labs by lab_name keywords
+  :PROPERTIES:
+  :CUSTOM_ID: api_get_lab_by_lab_id
+  :END:    
+  - URL :: /labs?keyword_lab_name=<keyword>
+
+  - Method :: GET
+
+  - URL Params ::  None
+
+  - Payload :: 
+
+  - Success Response
+    + Status_Code: 200
+      + Contents :
+
+#+BEGIN_EXAMPLE
+{
+  "assets": [
+    {
+      "asset_type": "Image", 
+      "id": 1, 
+      "path": "vlabs.ac.in/images/static/logo.png"
+    }
+  ], 
+  "developers": [
+    {
+      "email": {
+        "email": "dharamrajuu@gmail.com", 
+        "id": 3
+      }, 
+      "id": 3, 
+      "name": {
+        "id": 3, 
+        "name": "Prof. Dharamrajuu"
+      }
+    }
+  ], 
+  "discipline": {
+    "dis_id": "cse", 
+    "dis_name": "Computer Science", 
+    "id": 1
+  }, 
+  "experiments": [
+    {
+      "exp_id": "cse01", 
+      "exp_name": "arrays", 
+      "id": 1, 
+      "overview": "overview", 
+      "sections": []
+    }
+  ], 
+  "hostinginfo": {
+    "hosted_on": "cloud", 
+    "hosted_url": "http://cse14-iiith.vlabs.ac.in", 
+    "hosting_status": "hosted", 
+    "id": 1
+  }, 
+  "id": 6, 
+  "institute": {
+    "id": 1, 
+    "inst_id": "iiith", 
+    "inst_name": "IIIT Hyderabad"
+  }, 
+  "integrationstatus": {
+    "id": 2, 
+    "integration_level": 4
+  }, 
+  "lab_id": "cse04", 
+  "lab_name": "Data Structures", 
+  "overview": "overview"
+}
+
+#+END_EXAMPLE	       
+
+    
+  - Error Response:
+    + Contents :
+                {"status" : "error"}
+    
+  - Example:
+#+BEGIN_EXAMPLE
+http://localhost:5000/labs?keyword_lab_name=data
+#+END_EXAMPLE  
+
 *** Implementation
 #+NAME: get_lab
 #+BEGIN_SRC python
