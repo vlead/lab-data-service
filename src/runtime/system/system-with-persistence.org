@@ -87,7 +87,7 @@ class TestAddLab(TestCase):
                                         overview=overview,
                                         integrationstatus=integrationstatus, 
                                         sections=[], assets=[asset], 
-                                        developers=[dev], hostinginfo=host)
+                                        developers=[dev], hostinginfos=[host])
         experiment.save()
                                 
         lab_name1="Computer Programming"
@@ -98,7 +98,7 @@ class TestAddLab(TestCase):
         lab = lab_cls(lab_id=lab_id1, lab_name=lab_name1,        
                           institute=inst, discipline=discipline, assets=[asset],                
                           overview=overview,  integrationstatus=integrationstatus, 
-                          experiments=[experiment], developers=[dev], hostinginfo=host)
+                          experiments=[experiment], developers=[dev], hostinginfos=[host])
 
         lab1 = System.do("add_lab", lab=lab, session=session)
         new_lab = lab_cls.get_by_id(1)
@@ -166,7 +166,7 @@ class TestAddExperiment(TestCase):
                                         overview=overview, 
                                         integrationstatus=integrationstatus, 
                                         sections=[], assets=[asset],
-                                        developers=[dev], hostinginfo=host)
+                                        developers=[dev], hostinginfos=[host])
         key = KEY
         session = session_cls(key=key)
         experiment = System.do("add_experiment", experiment=experiment, \
@@ -307,7 +307,7 @@ class TestAddSectionsToExperiment(TestCase):
                                         overview=overview,
                                         integrationstatus=integrationstatus, 
                                         sections=[], assets=[asset],
-                                        developers=[dev], hostinginfo=host)
+                                        developers=[dev], hostinginfos=[host])
         key = KEY
         session = session_cls(key=key)
         experiment = System.do("add_experiment", experiment=experiment, \
@@ -667,7 +667,7 @@ class TestUpdateExperiment(TestCase):
                                         overview=overview,
                                         integrationstatus=integrationstatus, 
                                         sections=[], assets=[asset],
-                                        developers=[dev], hostinginfo=host)
+                                        developers=[dev], hostinginfos=[host])
         experiment.save()
 
         lab_name1="Computer Programming"
@@ -679,7 +679,7 @@ class TestUpdateExperiment(TestCase):
         lab = lab_cls(lab_id=lab_id1, lab_name=lab_name1, 
                       institute=inst, discipline=discipline, assets=[asset],     
                       overview=overview, integrationstatus=integrationstatus, 
-                      experiments=[experiment], developers=[dev], hostinginfo=host) 
+                      experiments=[experiment], developers=[dev], hostinginfos=[host]) 
 
         lab.save()
         lab_name2="Computer Programming"
@@ -912,7 +912,7 @@ class TestDeleteExperiment(TestCase):
                                         overview=overview, 
                                         integrationstatus=integrationstatus,
                                         sections=[], assets=[asset],
-                                        developers=[dev], hostinginfo=host)
+                                        developers=[dev], hostinginfos=[host])
 
         experiment.save()
         session = session_cls(key=key)
@@ -1115,7 +1115,7 @@ class TestDeleteLab(TestCase):
                                         overview=overview, sections=[],
                                         integrationstatus=integrationstatus,
                                         assets=[asset], 
-                                        developers=[dev], hostinginfo=host)
+                                        developers=[dev], hostinginfos=[host])
         experiment.save()
 
         lab_name1="Computer Programming"
@@ -1128,7 +1128,7 @@ class TestDeleteLab(TestCase):
                       institute=inst, discipline=discipline, assets=[asset],
                       overview=overview, integrationstatus=integrationstatus, 
                       experiments=[experiment], developers=[dev],
-                      hostinginfo=host)
+                      hostinginfos=[host])
         lab.save()
         lab_id = System.do("delete_lab", lab_id = lab_id1,
                                   session=session)
@@ -1403,7 +1403,7 @@ class TestGetLab(TestCase):
         lab = lab_cls(lab_id=lab_id1, lab_name=lab_name1,
                           institute=inst, discipline=discipline, assets=[asset],
                           overview=overview, experiments=[], developers=[dev], 
-                          hostinginfo=host, integrationstatus=integrationstatus)
+                          hostinginfos=[host], integrationstatus=integrationstatus)
 
         lab.save()
 
@@ -1485,7 +1485,7 @@ class TestGetLabByInstitute(TestCase):
         lab = lab_cls(lab_id=lab_id1, lab_name=lab_name1,
                           institute=inst, discipline=discipline, assets=[asset],
                           overview=overview, experiments=[], integrationstatus=integrationstatus, 
-                          hostinginfo=host, developers=[dev])
+                          hostinginfos=[host], developers=[dev])
 
         lab.save()
 
@@ -1566,7 +1566,7 @@ class TestGetLabByDiscipline(TestCase):
 
         lab = lab_cls(lab_id=lab_id1, lab_name=lab_name1,
                           institute=inst, discipline=discipline, 
-                          hostinginfo=host, assets=[asset],
+                          hostinginfos=[host], assets=[asset],
                           overview=overview, experiments=[], developers=[dev], 
                           integrationstatus=integrationstatus)
 
@@ -1652,7 +1652,7 @@ class TestGetLabByLabName(TestCase):
         lab = lab_cls(lab_id=lab_id1, lab_name=lab_name1, 
                           integrationstatus=integrationstatus,
                           institute=inst, discipline=discipline, 
-                          hostinginfo=host, assets=[asset],
+                          hostinginfos=[host], assets=[asset],
                           overview=overview, experiments=[], developers=[dev])
 
 
@@ -1715,10 +1715,26 @@ class TestGetLabByAsset(TestCase):
         asset = asset_cls(asset_type=asset_type, path=path)
         asset.save()
 
+        dev_name = name_cls(name="Mohit Tahiliani")
+        dev_name.save()
+        email_id = email_cls(email="mohit.tahiliani@gmail.com")
+        email_id.save()
+        dev = developer_cls(name=dev_name, email=email_id)
+        dev.save()
+
+        hosting_status = "hosted"
+        hosted_url = "http://cse14-iiith.vlabs.ac.in"
+        hosted_on = "cloud"
+        host = hostinginfo_cls(hosting_status=hosting_status,
+                                   hosted_url=hosted_url, hosted_on=hosted_on)
+        host.save()
+
         lab = lab_cls(lab_id=lab_id1, lab_name=lab_name1, 
-                      institute=inst, discipline=discipline, assets=[asset], 
-                      overview=overview, experiments=[],
-                      integrationstatus=integrationstatus)
+                          integrationstatus=integrationstatus,
+                          institute=inst, discipline=discipline, 
+                          hostinginfos=[host], assets=[asset],
+                          overview=overview, experiments=[], developers=[dev])
+
 
         lab.save()
 
@@ -1864,7 +1880,7 @@ class TestGetExp(TestCase):
                                         overview=overview, 
                                         integrationstatus=integrationstatus, 
                                         sections=[], assets=[asset],
-                                        developers=[dev], hostinginfo=host)
+                                        developers=[dev], hostinginfos=[host])
         experiment.save()
 
         experiment1 = System.do("get_experiment", exp_id=exp_id)
