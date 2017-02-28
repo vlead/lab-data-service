@@ -263,7 +263,8 @@ class TestLab(TestCase):
 
         dev_name = Name(name="Mohit Tahiliani")
         email_id = Email(email="mohit.tahiliani@gmail.com")
-        dev = Developer(name=dev_name, email=email_id)
+        dev = Developer(name=dev_name, email=email_id,
+                        institute=inst, discipline=discipline)
 
         hosting_status = "hosted"
         hosted_url = "http://cse14-iiith.vlabs.ac.in"
@@ -394,7 +395,8 @@ class TestExperiment(TestCase):
 
         dev_name = Name(name="Mohit Tahiliani")
         email_id = Email(email="mohit.tahiliani@gmail.com")
-        dev = Developer(name=dev_name, email=email_id)
+        dev = Developer(name=dev_name, email=email_id,
+                        institute=inst, discipline=discipline)
 
         hosting_status = "hosted"
         hosted_url = "http://cse14-iiith.vlabs.ac.in"
@@ -579,12 +581,17 @@ class TestDiscipline(TestCase):
 #+NAME: class_Developer
 #+begin_src python
 
-Developer.add_attributes(name=is_name, email=is_email)
+Developer.add_attributes(name=is_name,
+                         email=is_email,
+                         discipline=is_discipline,
+                         institute=is_institute)
 
 Developer.__eq__ = lambda self, other: \
                   isinstance(other, self.__class__) and \
                   self.get("name") == other.get("name") and\
-                  self.get("email") == other.get("email")
+                  self.get("email") == other.get("email") and \
+                  self.get("discipline") == other.get("discipline") and \
+                  self.get("institute") == other.get("institute")
 #+end_src
 
 *** Test Developer
@@ -594,11 +601,26 @@ class TestDev(TestCase):
     TESTING = True
     def test_object_dev(self):
         print "test_object_dev"
+
+        inst_name = "IIIT Hyderabad"
+        inst_id = "IIIT-H"
+        inst = Institute(inst_name=inst_name, inst_id=inst_id)
+
+        dis_name = "IIT Kanpur"
+        dis_id = "IITK"
+        discipline = Discipline(dis_name=dis_name, dis_id=dis_id)  
+
         dev_name = Name(name="Mohit Tahiliani")
         email_id = Email(email="mohit.tahiliani@gmail.com")
-        dev = Developer(name=dev_name, email=email_id)
+        dev = Developer(name=dev_name, email=email_id,
+                        institute=inst, discipline=discipline)
+
         self.assertEqual(dev.get("name").get("name"), dev_name.get("name"))
         self.assertEqual(dev.get("email").get("email"), email_id.get("email"))
+        self.assertEqual(dev.get("institute").get("inst_name"), 
+                             inst.get("inst_name"))
+        self.assertEqual(dev.get("discipline").get("dis_name"), 
+                             discipline.get("dis_name"))
 #+END_SRC
 
 
