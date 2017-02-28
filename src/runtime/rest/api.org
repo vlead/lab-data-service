@@ -16,7 +16,7 @@
 
 * REST
 
-** Get Labs, Get Lab, Get Labs by institute, lab_name, discipline and asset
+** Get Labs, Get Lab, Get Labs by institute, lab_name, discipline and asset and Get labs by passing lab_name as keyword
 *** API Designs 
 **** Get all labs
   :PROPERTIES:
@@ -466,6 +466,91 @@ http://localhost:5000/labs?lab_name=Data Structures
 #+BEGIN_EXAMPLE
 http://localhost:5000/labs?asset_type=image
 #+END_EXAMPLE  
+**** Get labs by lab_name keywords
+  :PROPERTIES:
+  :CUSTOM_ID: api_get_lab_by_lab_name_keyword
+  :END:    
+  - URL :: /labs?keyword_lab_name=<keyword>
+
+  - Method :: GET
+
+  - URL Params ::  None
+
+  - Payload :: 
+
+  - Success Response
+    + Status_Code: 200
+      + Contents :
+
+#+BEGIN_EXAMPLE
+{
+  "assets": [
+    {
+      "asset_type": "Image", 
+      "id": 1, 
+      "path": "vlabs.ac.in/images/static/logo.png"
+    }
+  ], 
+  "developers": [
+    {
+      "email": {
+        "email": "dharamrajuu@gmail.com", 
+        "id": 3
+      }, 
+      "id": 3, 
+      "name": {
+        "id": 3, 
+        "name": "Prof. Dharamrajuu"
+      }
+    }
+  ], 
+  "discipline": {
+    "dis_id": "cse", 
+    "dis_name": "Computer Science", 
+    "id": 1
+  }, 
+  "experiments": [
+    {
+      "exp_id": "cse01", 
+      "exp_name": "arrays", 
+      "id": 1, 
+      "overview": "overview", 
+      "sections": []
+    }
+  ], 
+  "hostinginfo": {
+    "hosted_on": "cloud", 
+    "hosted_url": "http://cse14-iiith.vlabs.ac.in", 
+    "hosting_status": "hosted", 
+    "id": 1
+  }, 
+  "id": 6, 
+  "institute": {
+    "id": 1, 
+    "inst_id": "iiith", 
+    "inst_name": "IIIT Hyderabad"
+  }, 
+  "integrationstatus": {
+    "id": 2, 
+    "integration_level": 4
+  }, 
+  "lab_id": "cse04", 
+  "lab_name": "Data Structures", 
+  "overview": "overview"
+}
+
+#+END_EXAMPLE	       
+
+    
+  - Error Response:
+    + Contents :
+                {"status" : "error"}
+    
+  - Example:
+#+BEGIN_EXAMPLE
+http://localhost:5000/labs?keyword_lab_name=data
+#+END_EXAMPLE  
+
 *** Implementation
 #+NAME: get_lab
 #+BEGIN_SRC python
@@ -625,6 +710,37 @@ def get_lab():
                 msg = {"status": "failure",
                        "msg": err_str}
                 return jsonify(msg)
+
+        elif 'keyword_lab_name' in request.args:
+            keyword  = request.args['keyword_lab_name']
+            try:
+                labs = SystemInterface.get_labs_by_keyword_lab_name(keyword)
+                return jsonify_list(labs)
+            except TypeError as e:
+                err_str = str(e)
+                msg = {"status": "failure",
+                       "msg": err_str }
+                return jsonify(msg)
+
+            except StateError as e:
+                err_str = str(e)
+                msg = {"status": "failure",
+                       "msg": err_str}
+                return jsonify(msg)
+
+            except NotFoundError as e:
+                err_str = str(e)
+                msg = {"status": "failure",
+                       "status code": 404,
+                       "msg": err_str}
+                return jsonify(msg)
+
+            except Exception as e:
+                err_str = str(e)
+                msg = {"status": "failure",
+                       "msg": err_str}
+                return jsonify(msg)
+
         else:
             try:
                 labs = SystemInterface.get_labs()
@@ -711,16 +827,6 @@ class TestGetLab(TestCase):
 
         response = self.client.post("/assets", data=json.dumps(payload),
                                  headers=headers)
-        
-        payload = {'name': 'Prof. Dharamaja',
-                   'email': 'abc@gmail.com',
-                   'key': KEY
-                   }
-
-        headers = {'Content-Type': 'application/json'}
-
-        response = self.client.post("/developers", data=json.dumps(payload),
-                                 headers=headers)
 
         payload = {'hosting_status': 'hosted',
                    'hosted_url': 'http://cse14-iiith.vlabs.ac.in',
@@ -732,11 +838,21 @@ class TestGetLab(TestCase):
         response = self.client.post("/hosting_info", data=json.dumps(payload),
                                  headers=headers)
 
+
+        payload = {'name': 'Prof. Dharamaja',
+                   'email': 'abc@gmail.com',
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/developers", data=json.dumps(payload),
+                                 headers=headers)
+
         payload = {'exp_name': 'arrays',
                    'exp_id': 'exp1',
                    'overview' : 'overview',
-                   'assets': ['vlabs.ac.in/images/static/logo.png'],
                    'sections': [],
+                   'assets': ['vlabs.ac.in/images/static/logo.png'],
                    'inst_id': 'IITK',
                    'integration_level': 4,
                    'dis_id': 'CSE',
@@ -1334,6 +1450,115 @@ class TestGetLabsbyAsset(TestCase):
 
         response = self.client.get("/labs?discipline_name=Computer Science",
                                        headers=headers)
+        self.assertEqual(response.status_code, 200)
+
+#+END_SRC
+
+**** TestGetLabbyLabNameKeyword
+#+NAME: test_get_lab_by_labname_keyword
+#+BEGIN_SRC python
+class TestGetLabbyLabNameKeyWord(TestCase):
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_get_lab_by_labname_keyword(self):
+        print "test_get_lab_by_labname_keyword_in_rest"
+
+        payload = {'inst_name': 'IIT Kanpur',
+                   'inst_id': 'IITK',
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/institutes", data=json.dumps(payload),
+                                 headers=headers)
+
+        payload = {'integration_level': 4,
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/integrationstatuss", data=json.dumps(payload),
+                                 headers=headers)
+
+        payload = {'dis_name': 'Computer Science',
+                   'dis_id': 'CSE',
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/disciplines", data=json.dumps(payload),
+                                 headers=headers)
+
+        payload = {'asset_type': 'Image',
+                   'path': 'vlabs.ac.in/images/static/logo.png',
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/assets", data=json.dumps(payload),
+                                 headers=headers)
+
+        payload = {'exp_name': 'arrays',
+                   'exp_id': 'exp1',
+                   'overview' : 'overview',
+                   'sections': [],
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/experiments", data=json.dumps(payload),
+                                 headers=headers)
+
+        payload = {'hosting_status': 'hosted',
+                   'hosted_url': 'http://cse14-iiith.vlabs.ac.in',
+                   'hosted_on': 'cloud',
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/hostinginfos", data=json.dumps(payload),
+                                 headers=headers)
+
+
+        payload = {'name': 'Prof. Dharamaja',
+                   'email': 'abc@gmail.com',
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/developers", data=json.dumps(payload),
+                                 headers=headers)
+
+        payload = {'lab_name': 'Data Structures',
+                   'lab_id': 'cse01',
+                   'overview' : 'overview',
+                   'inst_id': 'IITK',
+                   'integration_level': 4,
+                   'dis_id': 'CSE',
+                   'assets': ['vlabs.ac.in/images/static/logo.png'],
+                   'key': KEY,
+                   'experiments': ['exp1'],
+                   'developers': ['abc@gmail.com'],
+                   'hosted_url': 'http://cse14-iiith.vlabs.ac.in'
+                  }
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/labs", data=json.dumps(payload),
+                                 headers=headers)
+
+
+        response = self.client.get("/labs?keyword_lab_name=data", headers=headers)
         self.assertEqual(response.status_code, 200)
 
 #+END_SRC
@@ -7693,6 +7918,7 @@ if __name__ == '__main__':
 <<test_get_labs_by_institute>>
 <<test_get_labs_by_lab_name>>
 <<test_get_labs_by_discipline>>
+<<test_get_lab_by_labname_keyword>>
 <<test_get_exp_by_expid>>
 <<test_get_discipline_by_disid>>
 <<test_add_experiment>>
