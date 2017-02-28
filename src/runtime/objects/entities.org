@@ -191,10 +191,10 @@ def are_assets(assets):
 
     return ret_val
 
-def are_hostinginfos(hostinginfos):
+def are_hosting_info(hosting_info):
     ret_val = True
-    if is_list(hostinginfos):
-        for hostinginfo in hostinginfos:
+    if is_list(hosting_info):
+        for hostinginfo in hosting_info:
             if not is_hostinginfo(hostinginfo):
                 ret_val = False
     else:
@@ -218,7 +218,7 @@ Lab.add_attributes(lab_name=is_str,
                     integrationstatus=is_integrationstatus,
                     experiments=are_experiments,
                     developers=are_developers,
-                    hostinginfos=are_hostinginfos)
+                    hosting_info=are_hosting_info)
 
 Lab.__eq__ = lambda self, other: \
                   isinstance(other, self.__class__) and \
@@ -231,7 +231,7 @@ Lab.__eq__ = lambda self, other: \
                   self.get("integrationstatus") == other.get("integrationstatus") and \
                   self.get("experiments") == other.get("experiments") and \
                   self.get("developers") == other.get("developers") and \
-                  self.get("hostinginfos") == other.get("hostinginfos")
+                  self.get("hosting_info") == other.get("hosting_info")
 
 #+end_src
 
@@ -274,7 +274,7 @@ class TestLab(TestCase):
                                 overview=overview, sections=[], institute=inst, 
                                   discipline=discipline,                        
                                   integrationstatus=integrationstatus, assets=[asset],
-                                  developers=[dev], hostinginfos=[host])
+                                  developers=[dev], hosting_info=[host])
 
         lab_name = "Computer Programming"
         lab_id = "CSE01"
@@ -283,7 +283,7 @@ class TestLab(TestCase):
         lab = Lab(lab_name=lab_name, lab_id=lab_id, overview=overview,
                       institute=inst, discipline=discipline, assets=[asset],
                       integrationstatus=integrationstatus, developers=[dev],
-                      hostinginfos=[host], experiments=[experiment])
+                      hosting_info=[host], experiments=[experiment])
 
         self.assertEqual(lab.get("lab_name"), lab_name)
         self.assertEqual(lab.get("lab_id"), lab_id)
@@ -299,7 +299,7 @@ class TestLab(TestCase):
         self.assertEqual(lab.get("experiments")[0].get("exp_name"), 
                              experiment.get("exp_name"))
         self.assertEqual(lab.get("developers")[0].get("email").get("email"), email_id.get("email"))
-        self.assertEqual(lab.get("hostinginfos")[0].get("hosting_status"), 
+        self.assertEqual(lab.get("hosting_info")[0].get("hosting_status"), 
                              host.get("hosting_status"))
 
 #+END_SRC
@@ -347,7 +347,7 @@ Experiment.add_attributes(exp_name=is_str,
                           integrationstatus=is_integrationstatus,
                           assets=are_assets,
                           developers=are_developers,
-                          hostinginfos=are_hostinginfos)
+                          hosting_info=are_hosting_info)
 
 Experiment.__eq__ = lambda self, other: \
                   isinstance(other, self.__class__) and \
@@ -360,7 +360,7 @@ Experiment.__eq__ = lambda self, other: \
                   self.get("integrationstatus") == other.get("integrationstatus") and \
                   self.get("assets") == other.get("assets") and \
                   self.get("developers") == other.get("developers") and \
-                  self.get("hostinginfos") == other.get("hostinginfos")
+                  self.get("hosting_info") == other.get("hosting_info")
 
 #+end_src
 
@@ -406,7 +406,7 @@ class TestExperiment(TestCase):
                                 overview=overview,
                                 integrationstatus=integrationstatus, 
                                 sections=[], assets=[asset],
-                                developers=[dev], hostinginfos=[host])
+                                developers=[dev], hosting_info=[host])
 
         self.assertEqual(experiment.get("exp_name"), exp_name)
         self.assertEqual(experiment.get("overview"), overview)
@@ -421,7 +421,7 @@ class TestExperiment(TestCase):
         self.assertEqual(experiment.get("discipline").get("dis_name"), 
                              discipline.get("dis_name"))
         self.assertEqual(experiment.get("developers")[0].get("email").get("email"), email_id.get("email"))
-        self.assertEqual(experiment.get("hostinginfos")[0].get("hosting_status"), host.get("hosting_status"))
+        self.assertEqual(experiment.get("hosting_info")[0].get("hosting_status"), host.get("hosting_status"))
 
 #+END_SRC
 

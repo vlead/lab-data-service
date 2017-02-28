@@ -34,7 +34,7 @@ lab_developers = db.Table('lab_developers',
 		      db.Column('developer_id', db.Integer,
                             db.ForeignKey('developer.id')))
 
-lab_hostinginfos = db.Table('lab_hostinginfos',
+lab_hosting_info = db.Table('lab_hosting_info',
                  db.Column('labid', db.Integer, 
                        db.ForeignKey('lab.id')),
 		 db.Column('hostinginfoid', db.Integer,
@@ -67,8 +67,8 @@ args = {"__tablename__": "lab",
         "developers": db.relationship('Developer',
                     secondary=lab_developers, 
                     backref='labs'),
-        "hostinginfos": db.relationship('HostingInfo',
-                    secondary=lab_hostinginfos, 
+        "hosting_info": db.relationship('HostingInfo',
+                    secondary=lab_hosting_info, 
                     backref='labs')
        }
 
@@ -139,7 +139,7 @@ class TestPersistentLab(TestCase):
         experiment = Experiment(exp_name=exp_name, exp_id=exp_id,
                                     overview=overview, sections=[],
                                     integrationstatus=intstatus, 
-                                    hostinginfos=[host], assets=[asset], 
+                                    hosting_info=[host], assets=[asset], 
                                     institute=inst, discipline=discipline, 
                                     developers=[dev])
         experiment.save()
@@ -152,7 +152,7 @@ class TestPersistentLab(TestCase):
                        experiments=[experiment], institute=inst,
                        integrationstatus=intstatus,
                        assets=[asset], discipline=discipline, 
-                       developers=[dev], hostinginfos=[host])
+                       developers=[dev], hosting_info=[host])
         lab1.save()
 
         lab_name2="Data Structures"
@@ -162,7 +162,7 @@ class TestPersistentLab(TestCase):
 
         lab2 = Lab(lab_name=lab_name2, lab_id=lab_id2, overview=overview2,
                        experiments=[], institute=inst, discipline=discipline, 
-                       developers=[], hostinginfos=[host], assets=[asset], 
+                       developers=[], hosting_info=[host], assets=[asset], 
                        integrationstatus=intstatus)
         lab2.save()
 
@@ -187,7 +187,7 @@ class TestPersistentLab(TestCase):
         self.assertEqual(lab1.get("developers")[0].get("email").get("email"), 
                              email_id.get("email"))
 
-        self.assertEqual(lab1.get("hostinginfos")[0].get("hosting_status"), 
+        self.assertEqual(lab1.get("hosting_info")[0].get("hosting_status"), 
                              host.get("hosting_status"))
 
         self.assertEqual(lab2.get("lab_name"), lab_name2)
@@ -197,7 +197,7 @@ class TestPersistentLab(TestCase):
                              inst.get("inst_name"))
         self.assertEqual(lab2.get("discipline").get("dis_name"), 
                              discipline.get("dis_name"))
-        self.assertEqual(lab2.get("hostinginfos")[0].get("hosting_status"), 
+        self.assertEqual(lab2.get("hosting_info")[0].get("hosting_status"), 
                              host.get("hosting_status"))
         self.assertEqual(lab2.get("experiments"), [])
 
@@ -236,7 +236,7 @@ experiments_developers = db.Table('experiments_developers',
 		      db.Column('developer_id', db.Integer,
                             db.ForeignKey('developer.id')))
 
-experiments_hostinginfos = db.Table('experiments_hostinginfos',
+experiments_hosting_info = db.Table('experiments_hosting_info',
                  db.Column('experimentid', db.Integer, 
                        db.ForeignKey('experiment.id')),
 		 db.Column('hostinginfoid', db.Integer,
@@ -272,8 +272,8 @@ args = {"__tablename__": "experiment",
         "developers": db.relationship('Developer',
                     secondary=experiments_developers, 
                     backref='experiments'),
-        "hostinginfos": db.relationship('HostingInfo',
-                    secondary=experiments_hostinginfos, 
+        "hosting_info": db.relationship('HostingInfo',
+                    secondary=experiments_hosting_info, 
                     backref='experiments')
         }
 
@@ -339,7 +339,7 @@ class TestPersistenceExperiment(TestCase):
 
         exp = Experiment(exp_name=exp_name, exp_id=exp_id, overview=overview,
                           integrationstatus=intstatus, assets=[asset], 
-                         sections=[], developers=[dev], hostinginfos=[host],  
+                         sections=[], developers=[dev], hosting_info=[host],  
                          institute=inst, discipline=discipline)
         exp.save()
 
@@ -359,7 +359,7 @@ class TestPersistenceExperiment(TestCase):
         self.assertEqual(experiment1,None)
         self.assertEqual(experiment.get("developers")[0].get("email").get("email"), 
                              email_id.get("email"))
-        self.assertEqual(experiment.get("hostinginfos")[0].get("hosting_status"), 
+        self.assertEqual(experiment.get("hosting_info")[0].get("hosting_status"), 
                              host.get("hosting_status"))
 
 #+END_SRC
