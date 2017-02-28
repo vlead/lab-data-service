@@ -203,23 +203,30 @@ TYPE IntegrationStatus
 
 ;;; Relations with cardinality constraints
 
-[developer, lab]          : Developer +  > Lab +
-[discipline, lab]         : Discipline +  > Lab +
-[institute, lab]          : Institute !  > Lab +
-[experiment, lab]         : Experiment +  > Lab !
-[experiment, section]     : Experiment > Section
-[lab, name]               : Lab + > Name !
-[experiment name]         : Experiment + > Name !
-[institute, name]         : Institute ! > Name !
-[discipline, name]        : Discipline ! > Name !
-[developer, name]         : Developer + > Name !
-[developer, email]        : Developer ! > Email !
-[hostinginfo, lab]        : HostingInfo + > Lab !
-[asset, lab]              : Asset + > Lab !
-[asset, discipline]       : Asset + > Discipline +
-[asset, experiment]       : Asset + > Experiment !
-[asset, institute]        : Asset + > Institute !
-[integrationstatus, lab]  : IntegrationStatus ! > Lab *
+[developer, lab]                 : Developer +  > Lab +
+[discipline, lab]                : Discipline +  > Lab +
+[institute, lab]                 : Institute !  > Lab +
+[experiment, lab]                : Experiment +  > Lab !
+[hostinginfo, lab]               : HostingInfo + > Lab !
+[asset, lab]                     : Asset + > Lab !
+[integrationstatus, lab]         : IntegrationStatus ! > Lab *
+
+[discipline, experiment]         : Discipline + > Experiment +
+[institute, experiment]          : Institute ! > Experiment +
+[experiment, section]            : Experiment ! > Section +
+[experiment, developer]          : Experiment + > Developer +
+[experiment, hostinginfo]        : Experiment ! > HostingInfo +
+[asset, experiment]              : Asset + > Experiment !
+[experiment, integrationstatus]  : Experiment *  > IntegrationStatus !
+
+[developer, name]                : Developer + > Name !
+[developer, email]               : Developer ! > Email !
+[developer, discipline]          : Developer + > Discipline +
+[developer, institute]           : Developer + > Institute !
+
+[asset, discipline]              : Asset + > Discipline +
+[asset, institute]               : Asset + > Institute !
+
 
 #+END_SRC
 
@@ -260,7 +267,6 @@ is a relation =r: A? > K!=.
 
 
 * Assumptions
-
 
 * System state
   :PROPERTIES:
