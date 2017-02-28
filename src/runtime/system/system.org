@@ -373,11 +373,11 @@ class AddDiscipline():
 
 
 
-** =AddHostingInfo=
-#+NAME: class_add_hostinginfo
+** =AddHosting_Info=
+#+NAME: class_add_hosting_info
 #+begin_src python
-class AddHostingInfo():
-    arg_types = {"hostinginfo": is_hostinginfo, "session": is_session}
+class AddHosting_Info():
+    arg_types = {"hosting_info": is_hosting_info, "session": is_session}
     arity_and_type_checks_needed = True
 
     @staticmethod
@@ -388,16 +388,16 @@ class AddHostingInfo():
 
     @staticmethod
     def state_check(args):
-        hostinginfo = args["hostinginfo"]
-        if System.delegate.hostinginfo_exists(hostinginfo):
-            raise StateError("hostinginfo %s already exists in System"
-                                 % hostinginfo.to_client())
+        hosting_info = args["hosting_info"]
+        if System.delegate.hosting_info_exists(hosting_info):
+            raise StateError("hosting_info %s already exists in System"
+                                 % hosting_info.to_client())
 
     @staticmethod
     def action(args):
-        hostinginfo = args["hostinginfo"]
-        hostinginfo = System.delegate.add_hostinginfo(hostinginfo)
-        return hostinginfo
+        hosting_info = args["hosting_info"]
+        hosting_info = System.delegate.add_hosting_info(hosting_info)
+        return hosting_info
 
 #+end_src
 
@@ -492,11 +492,11 @@ class AddDeveloper():
 #+end_src
 
 
-** =AddIntegrationStatus=
-#+NAME: class_add_integrationstatus
+** =AddIntegration_Status=
+#+NAME: class_add_integration_status
 #+begin_src python
-class AddIntegrationStatus():
-    arg_types = {"integrationstatus": is_integrationstatus, "session": is_session}
+class AddIntegration_Status():
+    arg_types = {"integration_status": is_integration_status, "session": is_session}
     arity_and_type_checks_needed = True
 
     @staticmethod
@@ -507,16 +507,16 @@ class AddIntegrationStatus():
 
     @staticmethod
     def state_check(args):
-        integrationstatus = args["integrationstatus"]
-        if System.delegate.integrationstatus_exists(integrationstatus):
-            raise StateError("integrationstatus %s already exists in System"
-                                 % integrationstatus.to_client())
+        integration_status = args["integration_status"]
+        if System.delegate.integration_status_exists(integration_status):
+            raise StateError("integration_status %s already exists in System"
+                                 % integration_status.to_client())
 
     @staticmethod
     def action(args):
-        integrationstatus = args["integrationstatus"]
-        integrationstatus = System.delegate.add_integrationstatus(integrationstatus)
-        return integrationstatus
+        integration_status = args["integration_status"]
+        integration_status = System.delegate.add_integration_status(integration_status)
+        return integration_status
 
 #+end_src
 
@@ -797,11 +797,11 @@ class UpdateDeveloper():
 #+end_src
 
 
-** =UpdateHostingInfo=
-#+NAME: class_update_hostinginfo
+** =UpdateHosting_Info=
+#+NAME: class_update_hosting_info
 #+begin_src python
-class UpdateHostingInfo():
-    arg_types = {"hostinginfo": is_hostinginfo, "hosting_status": is_str_or_none, "hosted_on": is_str_or_none, "session": is_session}                               
+class UpdateHosting_Info():
+    arg_types = {"hosting_info": is_hosting_info, "hosting_status": is_str_or_none, "hosted_on": is_str_or_none, "session": is_session}                               
     arity_and_type_checks_needed = True
 
     @staticmethod
@@ -819,9 +819,9 @@ class UpdateHostingInfo():
     def action(args):
         hosting_status = args["hosting_status"]
         hosted_on = args["hosted_on"]
-        hostinginfo = args["hostinginfo"]       
-        hostinginfo = System.delegate.update_hostinginfo(hostinginfo, hosting_status, hosted_on)
-        return hostinginfo
+        hosting_info = args["hosting_info"]       
+        hosting_info = System.delegate.update_hosting_info(hosting_info, hosting_status, hosted_on)
+        return hosting_info
 
 #+end_src
 
@@ -1066,10 +1066,10 @@ class DeleteDeveloper():
 
 
 
-** =DeleteHostingInfo=
-#+NAME: class_delete_hostinginfo
+** =DeleteHosting_Info=
+#+NAME: class_delete_hosting_info
 #+begin_src python
-class DeleteHostingInfo():
+class DeleteHosting_Info():
     arg_types = {"hosted_url": is_url, "session": is_session}
     arity_and_type_checks_needed = True
 
@@ -1082,25 +1082,25 @@ class DeleteHostingInfo():
     @staticmethod
     def state_check(args):
         hosted_url = args['hosted_url']
-        hostinginfo = System.delegate.get_hostinginfo(hosted_url=hosted_url)
-        if not System.delegate.hostinginfo_exists(hostinginfo):
-            raise StateError("hostinginfo %s does not exists in System"
-                                 % hostinginfo.to_client())
+        hosting_info = System.delegate.get_hosting_info(hosted_url=hosted_url)
+        if not System.delegate.hosting_info_exists(hosting_info):
+            raise StateError("hosting_info %s does not exists in System"
+                                 % hosting_info.to_client())
 
     @staticmethod
     def action(args):
         hosted_url = args["hosted_url"]
-        hosted_url = System.delegate.delete_hostinginfo(hosted_url)
+        hosted_url = System.delegate.delete_hosting_info(hosted_url)
         return hosted_url
         
 #+end_src
 
 
 
-** =DeleteIntegrationStatus=
-#+NAME: class_delete_integrationstatus
+** =DeleteIntegration_Status=
+#+NAME: class_delete_integration_status
 #+begin_src python
-class DeleteIntegrationStatus():
+class DeleteIntegration_Status():
     arg_types = {"integration_level": is_int, "session": is_session}
     arity_and_type_checks_needed = True
 
@@ -1113,15 +1113,15 @@ class DeleteIntegrationStatus():
     @staticmethod
     def state_check(args):
         integration_level = args['integration_level']
-        integrationstatus = System.delegate.get_integrationstatus(integration_level=integration_level)    
-        if not System.delegate.integrationstatus_exists(integrationstatus):
-            raise StateError("integrationstatus %s does not exists in System"
-                                 % integrationstatus.to_client())
+        integration_status = System.delegate.get_integration_status(integration_level=integration_level)    
+        if not System.delegate.integration_status_exists(integration_status):
+            raise StateError("integration_status %s does not exists in System"
+                                 % integration_status.to_client())
 
     @staticmethod
     def action(args):
         integration_level = args["integration_level"]
-        integration_level = System.delegate.delete_integrationstatus(integration_level)
+        integration_level = System.delegate.delete_integration_status(integration_level)
         return integration_level
         
 #+end_src
@@ -1296,10 +1296,10 @@ class GetDiscipline():
 
 
 
-** =GetHostingInfo=
-#+NAME: class_get_hostinginfo
+** =GetHosting_Info=
+#+NAME: class_get_hosting_info
 #+begin_src python
-class GetHostingInfo():
+class GetHosting_Info():
     arg_types = {"hosted_url": is_url}
     arity_and_type_checks_needed = True
 
@@ -1310,16 +1310,16 @@ class GetHostingInfo():
     @staticmethod
     def state_check(args):
         hosted_url = args['hosted_url']
-        hostinginfo = System.delegate.get_hostinginfo(hosted_url=hosted_url)
-        if not System.delegate.hostinginfo_exists(hostinginfo):
-            raise StateError("hostinginfo %s does not exists in System"
-                                 % hostinginfo.to_client())
+        hosting_info = System.delegate.get_hosting_info(hosted_url=hosted_url)
+        if not System.delegate.hosting_info_exists(hosting_info):
+            raise StateError("hosting_info %s does not exists in System"
+                                 % hosting_info.to_client())
         
     @staticmethod
     def action(args):
         hosted_url = args["hosted_url"]
-        hostinginfo = System.delegate.get_hostinginfo(hosted_url=hosted_url)
-        return hostinginfo
+        hosting_info = System.delegate.get_hosting_info(hosted_url=hosted_url)
+        return hosting_info
 
 #+end_src
 
@@ -1396,10 +1396,10 @@ class GetLabsByDiscipline():
 #+end_src
 
 
-** =GetIntegrationStatusByIL=
-#+NAME: class_get_integrationstatus_by_IL
+** =GetIntegration_StatusByIL=
+#+NAME: class_get_integration_status_by_IL
 #+begin_src python
-class GetIntegrationStatusby_IL():
+class GetIntegration_Statusby_IL():
     arg_types = {"integration_level": is_int}
     arity_and_type_checks_needed = True
 
@@ -1414,7 +1414,7 @@ class GetIntegrationStatusby_IL():
     @staticmethod
     def action(args):
         integration_level = args["integration_level"]
-        integration_level = System.delegate.get_integrationstatus\
+        integration_level = System.delegate.get_integration_status\
           (integration_level=integration_level)
         return integration_level
         
@@ -1591,10 +1591,10 @@ class GetDeveloper():
 
 
 
-** =GetIntegrationStatus=
-#+NAME: class_get_integrationstatus
+** =GetIntegration_Status=
+#+NAME: class_get_integration_status
 #+begin_src python
-class GetIntegrationStatus():
+class GetIntegration_Status():
     arg_types = {"integration_level": is_int}
     arity_and_type_checks_needed = True
 
@@ -1609,8 +1609,8 @@ class GetIntegrationStatus():
     @staticmethod
     def action(args):
         integration_level = args["integration_level"]
-        integrationstatus = System.delegate.get_integrationstatus(integration_level=integration_level)
-        return integrationstatus
+        integration_status = System.delegate.get_integration_status(integration_level=integration_level)
+        return integration_status
 
 #+end_src
 
@@ -1801,7 +1801,7 @@ ops_table = {'add_lab' : AddLab,
              'get_institute' : GetInstitute,
              'get_institute_by_institute_name' : GetInstituteByInstituteName,
              'get_discipline_by_discipline_name' : GetDisciplineByDisciplineName,
-             'get_integrationstatus_by_IL': GetIntegrationStatusby_IL,
+             'get_integration_status_by_IL': GetIntegration_Statusby_IL,
              'add_section' : AddSection,
              'update_section' : UpdateSection,
              'delete_section' : DeleteSection,
@@ -1820,13 +1820,13 @@ ops_table = {'add_lab' : AddLab,
              'get_name': GetName,
              'get_email': GetEmail,
              'get_developer': GetDeveloper,
-             'add_hostinginfo' : AddHostingInfo,
-             'get_hostinginfo': GetHostingInfo,
-             'update_hostinginfo': UpdateHostingInfo,
-             'delete_hostinginfo': DeleteHostingInfo,
-             'add_integrationstatus' : AddIntegrationStatus,
-             'get_integrationstatus': GetIntegrationStatus,
-             'delete_integrationstatus': DeleteIntegrationStatus,
+             'add_hosting_info' : AddHosting_Info,
+             'get_hosting_info': GetHosting_Info,
+             'update_hosting_info': UpdateHosting_Info,
+             'delete_hosting_info': DeleteHosting_Info,
+             'add_integration_status' : AddIntegration_Status,
+             'get_integration_status': GetIntegration_Status,
+             'delete_integration_status': DeleteIntegration_Status,
              'add_asset':AddAsset,
              'delete_asset': DeleteAsset,
              'get_asset': GetAsset,
@@ -1850,7 +1850,7 @@ from runtime.objects.entities import is_str, is_lab, are_labs,\
      is_date, is_session, is_section, is_int, is_experiment,\
      are_experiments, are_sections, is_name, is_email, is_developer,\
      is_institute, are_institutes, is_discipline, are_disciplines,\
-     is_url, is_hostinginfo, is_integrationstatus, is_asset, are_assets
+     is_url, is_hosting_info, is_integration_status, is_asset, are_assets
 
 from runtime.utils.type_utils import is_str_or_none
 from runtime.config.system_config import KEY
@@ -1929,14 +1929,14 @@ if __name__ == '__main__':
 <<class_get_discipline>>
 <<class_get_institute_by_institute_name>>
 <<class_get_discipline_by_discipline_name>>
-<<class_get_integrationstatus_by_IL>>
-<<class_add_hostinginfo>>
-<<class_get_hostinginfo>>
-<<class_update_hostinginfo>>
-<<class_delete_hostinginfo>>
-<<class_add_integrationstatus>>
-<<class_get_integrationstatus>>
-<<class_delete_integrationstatus>>
+<<class_get_integration_status_by_IL>>
+<<class_add_hosting_info>>
+<<class_get_hosting_info>>
+<<class_update_hosting_info>>
+<<class_delete_hosting_info>>
+<<class_add_integration_status>>
+<<class_get_integration_status>>
+<<class_delete_integration_status>>
 <<class_get_labs_by_institute>>
 <<class_get_labs_by_lab_name>>
 <<class_get_labs_by_discipline>>

@@ -51,7 +51,7 @@ class SystemInterface ():
         institute = System.do("get_institute", inst_id=inst_id)
 
         integration_level = data_dict['integration_level']
-        integrationstatus = System.do("get_integrationstatus", integration_level=integration_level)
+        integration_status = System.do("get_integration_status", integration_level=integration_level)
 
         dis_id = data_dict['dis_id']
         discipline = System.do("get_discipline", dis_id=dis_id)
@@ -70,21 +70,21 @@ class SystemInterface ():
             developer_list.append(developer)
 
         hosting_info = data_dict['hosting_info']
-        hostinginfo_list = []
-        for hostinginfo in hosting_info:
-            hostinginfo = System.do("get_hostinginfo", hosted_url=hostinginfo)
-            hostinginfo_list.append(hostinginfo)
+        hosting_info_list = []
+        for hosting_info in hosting_info:
+            hosting_info = System.do("get_hosting_info", hosted_url=hosting_info)
+            hosting_info_list.append(hosting_info)
 
         lab = lab_cls(lab_name=data_dict['lab_name'],
                                 lab_id=data_dict['lab_id'],
                                 overview=data_dict['overview'],
                                 institute=institute,
-                                integrationstatus=integrationstatus,
+                                integration_status=integration_status,
                                 discipline=discipline,
                                 assets=asset_list,
                                 experiments=exp_list,
                                 developers=developer_list,
-                                hosting_info=hostinginfo_list)
+                                hosting_info=hosting_info_list)
 
         try:
             current_app.logger.debug("running operation add_lab")
@@ -126,7 +126,7 @@ class TestAddLab(TestCase):
                     'integration_level': 4
                     }
 
-        integrationstatus = SystemInterface.add_integrationstatus(data_dict)
+        integration_status = SystemInterface.add_integration_status(data_dict)
 
         data_dict = {
                     'key' : KEY,
@@ -151,7 +151,7 @@ class TestAddLab(TestCase):
                     'hosted_on': 'cloud'
                    }
 
-        hostinginfo = SystemInterface.add_hostinginfo(data_dict)
+        hosting_info = SystemInterface.add_hosting_info(data_dict)
 
         data_dict = {
                     'key' : KEY,
@@ -206,7 +206,7 @@ class TestAddLab(TestCase):
         self.assertEqual(lab.get("lab_id"), data_dict['lab_id'])
         self.assertEqual(lab.get("institute").get("inst_id"),
                              data_dict['inst_id'])
-        self.assertEqual(lab.get("integrationstatus").get("integration_level"),
+        self.assertEqual(lab.get("integration_status").get("integration_level"),
                              data_dict['integration_level'])
         self.assertEqual(lab.get("discipline").get("dis_id"),
                              data_dict['dis_id'])
@@ -226,7 +226,7 @@ class TestAddLab(TestCase):
                     'integration_level': 4
                     }
 
-        integrationstatus = SystemInterface.add_integrationstatus(data_dict)
+        integration_status = SystemInterface.add_integration_status(data_dict)
 
         data_dict = {
                     'key' : KEY,
@@ -250,7 +250,7 @@ class TestAddLab(TestCase):
                     'key' : KEY
                    }
 
-        hostinginfo = SystemInterface.add_hostinginfo(data_dict)
+        hosting_info = SystemInterface.add_hosting_info(data_dict)
 
         data_dict = {
                     'key' : KEY,
@@ -327,7 +327,7 @@ class TestAddLab(TestCase):
         discipline = System.do("get_discipline", dis_id=dis_id)
 
         integration_level = data_dict['integration_level']
-        integrationstatus = System.do("get_integrationstatus", integration_level=integration_level)
+        integration_status = System.do("get_integration_status", integration_level=integration_level)
 
         assets = data_dict['assets']
         asset_list = []
@@ -342,10 +342,10 @@ class TestAddLab(TestCase):
             developer_list.append(developer)
 
         hosting_info = data_dict['hosting_info']
-        hostinginfo_list = []
-        for hostinginfo in hosting_info:
-            hostinginfo = System.do("get_hostinginfo", hosted_url=hostinginfo)
-            hostinginfo_list.append(hostinginfo)
+        hosting_info_list = []
+        for hosting_info in hosting_info:
+            hosting_info = System.do("get_hosting_info", hosted_url=hosting_info)
+            hosting_info_list.append(hosting_info)
 
         experiment = experiment_cls(exp_name=data_dict['exp_name'],
                                 exp_id=data_dict['exp_id'],
@@ -354,9 +354,9 @@ class TestAddLab(TestCase):
                                 institute=institute,
                                 discipline=discipline,
                                 assets=asset_list,
-                                integrationstatus=integrationstatus,
+                                integration_status=integration_status,
                                 developers=developer_list,
-                                hosting_info=hostinginfo_list)
+                                hosting_info=hosting_info_list)
         try:
             current_app.logger.debug("running operation add_experiment")
             question = System.do("add_experiment", experiment=experiment, 
@@ -432,7 +432,7 @@ class TestAddExperiment(TestCase):
                     'integration_level': 4
                     }
 
-        integrationstatus = SystemInterface.add_integrationstatus(data_dict)
+        integration_status = SystemInterface.add_integration_status(data_dict)
 
         data_dict = {
                     'key' : KEY,
@@ -456,7 +456,7 @@ class TestAddExperiment(TestCase):
                     'hosted_on': 'cloud'
                    }
 
-        hostinginfo = SystemInterface.add_hostinginfo(data_dict)
+        hosting_info = SystemInterface.add_hosting_info(data_dict)
 
         data_dict = {
                     'key' : KEY,
@@ -481,7 +481,7 @@ class TestAddExperiment(TestCase):
                              data_dict['inst_id'])
         self.assertEqual(experiment.get("discipline").get("dis_id"),
                              data_dict['dis_id'])
-        self.assertEqual(experiment.get("integrationstatus").get("integration_level"),
+        self.assertEqual(experiment.get("integration_status").get("integration_level"),
                              data_dict['integration_level'])
         self.assertEqual(experiment.get("assets")[0].get("path"), 
                              'vlabs.ac.in/images/static/logo.png')
@@ -512,7 +512,7 @@ class TestAddExperiment(TestCase):
                     'integration_level': 4
                     }
 
-        integrationstatus = SystemInterface.add_integrationstatus(data_dict)
+        integration_status = SystemInterface.add_integration_status(data_dict)
 
         data_dict = {
                     'key' : KEY,
@@ -536,7 +536,7 @@ class TestAddExperiment(TestCase):
                     'key' : KEY
                    }
 
-        hostinginfo = SystemInterface.add_hostinginfo(data_dict)
+        hosting_info = SystemInterface.add_hosting_info(data_dict)
 
         data_dict = {
                     'key': KEY,
@@ -762,27 +762,27 @@ class TestAddSection(TestCase):
  #+END_SRC
 
 
-** Add HostingInfo
-#+NAME: class_add_hostinginfo
+** Add Hosting_Info
+#+NAME: class_add_hosting_info
 #+begin_src python
     @staticmethod
-    def add_hostinginfo(data_dict):
+    def add_hosting_info(data_dict):
         session_cls = System.delegate.entities['session']       
-        hostinginfo_cls = System.delegate.entities['hostinginfo']
+        hosting_info_cls = System.delegate.entities['hosting_info']
 
         session = session_cls(key=data_dict['key'])
         del(data_dict['key'])
 
-        hostinginfo = hostinginfo_cls(hosting_status=str(data_dict['hosting_status']),
+        hosting_info = hosting_info_cls(hosting_status=str(data_dict['hosting_status']),
                                   hosted_url=str(data_dict['hosted_url']),
                                   hosted_on=str(data_dict['hosted_on']))
 
         try:
-            current_app.logger.debug("running operation add_hostinginfo")
-            hostinginfo = System.do("add_hostinginfo", hostinginfo=hostinginfo,
+            current_app.logger.debug("running operation add_hosting_info")
+            hosting_info = System.do("add_hosting_info", hosting_info=hosting_info,
                                     session=session)
-            current_app.logger.debug("completed operation add_hostinginfo")
-            return hostinginfo.to_client()
+            current_app.logger.debug("completed operation add_hosting_info")
+            return hosting_info.to_client()
 
         except (ArityError, TypeError, NotAuthorizedError, StateError) as err:
             current_app.logger.error("Exception = %s" % str(err))
@@ -793,10 +793,10 @@ class TestAddSection(TestCase):
             raise err
 
 #+END_SRC
-*** TestAddHostingInfo
- #+NAME: test_class_add_hostinginfo
+*** TestAddHosting_Info
+ #+NAME: test_class_add_hosting_info
  #+BEGIN_SRC python
-class TestAddHostingInfo(TestCase):
+class TestAddHosting_Info(TestCase):
     def create_app(self):
         app = create_app(config)
         return app
@@ -808,8 +808,8 @@ class TestAddHostingInfo(TestCase):
         db.session.remove()
         db.drop_all()
 
-    def test_add_hostinginfo_in_system_interface(self):
-        print "test_add_hostinginfo_in_system_interface"
+    def test_add_hosting_info_in_system_interface(self):
+        print "test_add_hosting_info_in_system_interface"
 
         data_dict = {
                     'key' : KEY,
@@ -818,14 +818,14 @@ class TestAddHostingInfo(TestCase):
                     'hosted_on': 'cloud'
                     }
 
-        hostinginfo = SystemInterface.add_hostinginfo(data_dict)
-        hostinginfo_cls = System.delegate.entities['hostinginfo']
-        hostinginfo = hostinginfo_cls.get_all()[0]
+        hosting_info = SystemInterface.add_hosting_info(data_dict)
+        hosting_info_cls = System.delegate.entities['hosting_info']
+        hosting_info = hosting_info_cls.get_all()[0]
 
-        self.assertEqual(hostinginfo.get("hosting_status"),
+        self.assertEqual(hosting_info.get("hosting_status"),
                              data_dict['hosting_status'])
-        self.assertEqual(hostinginfo.get("hosted_url"), data_dict['hosted_url'])
-        self.assertEqual(hostinginfo.get("hosted_on"), data_dict['hosted_on'])
+        self.assertEqual(hosting_info.get("hosted_url"), data_dict['hosted_url'])
+        self.assertEqual(hosting_info.get("hosted_on"), data_dict['hosted_on'])
 
  #+END_SRC
 
@@ -1101,25 +1101,25 @@ class TestAddDeveloper(TestCase):
  #+END_SRC
 
 
-** Add IntegrationStatus
-#+NAME: class_add_integrationstatus
+** Add Integration_Status
+#+NAME: class_add_integration_status
 #+begin_src python
     @staticmethod
-    def add_integrationstatus(data_dict):
+    def add_integration_status(data_dict):
         session_cls = System.delegate.entities['session']       
-        integrationstatus_cls = System.delegate.entities['integrationstatus']
+        integration_status_cls = System.delegate.entities['integration_status']
 
         session = session_cls(key=data_dict['key'])
         del(data_dict['key'])
 
-        integrationstatus = integrationstatus_cls(integration_level=data_dict['integration_level'])
+        integration_status = integration_status_cls(integration_level=data_dict['integration_level'])
 
         try:
-            current_app.logger.debug("running operation add_integrationstatus")
-            integrationstatus = System.do("add_integrationstatus", integrationstatus=integrationstatus,
+            current_app.logger.debug("running operation add_integration_status")
+            integration_status = System.do("add_integration_status", integration_status=integration_status,
                                     session=session)
-            current_app.logger.debug("completed operation add_integrationstatus")
-            return integrationstatus.to_client()
+            current_app.logger.debug("completed operation add_integration_status")
+            return integration_status.to_client()
 
         except (ArityError, TypeError, NotAuthorizedError, StateError) as err:
             current_app.logger.error("Exception = %s" % str(err))
@@ -1130,10 +1130,10 @@ class TestAddDeveloper(TestCase):
             raise err
 
 #+END_SRC
-*** TestAddIntegrationStatus
- #+NAME: test_class_add_integrationstatus
+*** TestAddIntegration_Status
+ #+NAME: test_class_add_integration_status
  #+BEGIN_SRC python
-class TestAddIntegrationStatus(TestCase):
+class TestAddIntegration_Status(TestCase):
     def create_app(self):
         app = create_app(config)
         return app
@@ -1145,19 +1145,19 @@ class TestAddIntegrationStatus(TestCase):
         db.session.remove()
         db.drop_all()
 
-    def test_add_integrationstatus_in_system_interface(self):
-        print "test_add_integrationstatus_in_system_interface"
+    def test_add_integration_status_in_system_interface(self):
+        print "test_add_integration_status_in_system_interface"
 
         data_dict = {
                     'key' : KEY,
                     'integration_level': 4
                     }
 
-        integrationstatus = SystemInterface.add_integrationstatus(data_dict)
-        integrationstatus_cls = System.delegate.entities['integrationstatus']
-        integrationstatus = integrationstatus_cls.get_all()[0]
+        integration_status = SystemInterface.add_integration_status(data_dict)
+        integration_status_cls = System.delegate.entities['integration_status']
+        integration_status = integration_status_cls.get_all()[0]
 
-        self.assertEqual(integrationstatus.get("integration_level"), 
+        self.assertEqual(integration_status.get("integration_level"), 
                              data_dict['integration_level'])
 
  #+END_SRC
@@ -1222,14 +1222,14 @@ class TestGetLabs(TestCase):
                     'hosted_on': 'cloud'
                    }
 
-        hostinginfo = SystemInterface.add_hostinginfo(data_dict)
+        hosting_info = SystemInterface.add_hosting_info(data_dict)
 
         data_dict = {
                     'key' : KEY,
                     'integration_level': 4
                     }
 
-        integrationstatus = SystemInterface.add_integrationstatus(data_dict)
+        integration_status = SystemInterface.add_integration_status(data_dict)
 
         data_dict = {
                     'key' : KEY,
@@ -1382,14 +1382,14 @@ class TestGetLabsByInstitute(TestCase):
                     'hosted_on': 'cloud'
                    }
 
-        hostinginfo = SystemInterface.add_hostinginfo(data_dict)
+        hosting_info = SystemInterface.add_hosting_info(data_dict)
 
         data_dict = {
                     'key' : KEY,
                     'integration_level': 4
                     }
 
-        integrationstatus = SystemInterface.add_integrationstatus(data_dict)
+        integration_status = SystemInterface.add_integration_status(data_dict)
 
         data_dict = {
                     'key' : KEY,
@@ -1538,14 +1538,14 @@ class TestGetLabsByDiscipline(TestCase):
                     'hosted_on': 'cloud'
                    }
 
-        hostinginfo = SystemInterface.add_hostinginfo(data_dict)
+        hosting_info = SystemInterface.add_hosting_info(data_dict)
 
         data_dict = {
                     'key' : KEY,
                     'integration_level': 4
                     }
 
-        integrationstatus = SystemInterface.add_integrationstatus(data_dict)
+        integration_status = SystemInterface.add_integration_status(data_dict)
 
         data_dict = {
                     'key' : KEY,
@@ -1693,14 +1693,14 @@ class TestGetLabsByLabName(TestCase):
                     'key' : KEY
                    }
 
-        hostinginfo = SystemInterface.add_hostinginfo(data_dict)
+        hosting_info = SystemInterface.add_hosting_info(data_dict)
 
         data_dict = {
                     'key' : KEY,
                     'integration_level': 4
                     }
 
-        integrationstatus = SystemInterface.add_integrationstatus(data_dict)
+        integration_status = SystemInterface.add_integration_status(data_dict)
 
         data_dict = {
                     'key' : KEY,
@@ -1841,14 +1841,14 @@ class TestGetLabsByAsset(TestCase):
                     'key' : KEY
                    }
 
-        hostinginfo = SystemInterface.add_hostinginfo(data_dict)
+        hosting_info = SystemInterface.add_hosting_info(data_dict)
 
         data_dict = {
                     'key' : KEY,
                     'integration_level': 4
                     }
 
-        integrationstatus = SystemInterface.add_integrationstatus(data_dict)
+        integration_status = SystemInterface.add_integration_status(data_dict)
 
         data_dict = {
                     'key' : KEY,
@@ -1935,10 +1935,10 @@ class TestGetLabsByAsset(TestCase):
 
  #+END_SRC
 
-*** TestGetLabsByIntegrationstatus 
- #+NAME: test_class_get_labs_by_integrationstatus
+*** TestGetLabsByIntegration_Status 
+ #+NAME: test_class_get_labs_by_integration_status
  #+BEGIN_SRC python
-class TestGetLabsByIntegrationstatus(TestCase):
+class TestGetLabsByIntegration_Status(TestCase):
     TESTING = True
     def create_app(self):
         app = create_app(config)
@@ -1951,14 +1951,14 @@ class TestGetLabsByIntegrationstatus(TestCase):
         db.session.remove()
         db.drop_all()
 
-    def test_get_labs_by_integrationstatus_in_system_interface(self):
-        print "test_get_labs_by_integrationstatus_in_system_interface"
+    def test_get_labs_by_integration_status_in_system_interface(self):
+        print "test_get_labs_by_integration_status_in_system_interface"
         data_dict = {
                     'key' : KEY,
                     'integration_level': 4
                     }
 
-        integrationstatus = SystemInterface.add_integrationstatus(data_dict)
+        integration_status = SystemInterface.add_integration_status(data_dict)
 
         data_dict = {
                     'key' : KEY,
@@ -1974,7 +1974,7 @@ class TestGetLabsByIntegrationstatus(TestCase):
                     'key' : KEY
                    }
 
-        hostinginfo = SystemInterface.add_hostinginfo(data_dict)
+        hosting_info = SystemInterface.add_hosting_info(data_dict)
 
         data_dict = {
                     'key' : KEY,
@@ -2054,9 +2054,9 @@ class TestGetLabsByIntegrationstatus(TestCase):
         lab = SystemInterface.add_lab(data_dict)
         lab1 = SystemInterface.add_lab(data_dict1)
 
-        labs = SystemInterface.get_labs_by_integrationstatus("4")
+        labs = SystemInterface.get_labs_by_integration_status("4")
 
-        self.assertEqual(labs[0]['integrationstatus']['integration_level'], "4")
+        self.assertEqual(labs[0]['integration_status']['integration_level'], "4")
 
  #+END_SRC
 
@@ -2126,7 +2126,7 @@ class TestGetExperiments(TestCase):
                     'integration_level': 4
                     }
 
-        integrationstatus = SystemInterface.add_integrationstatus(data_dict)
+        integration_status = SystemInterface.add_integration_status(data_dict)
 
         data_dict = {
                     'key' : KEY,
@@ -2150,7 +2150,7 @@ class TestGetExperiments(TestCase):
                     'hosted_on': 'cloud'
                    }
 
-        hostinginfo = SystemInterface.add_hostinginfo(data_dict)
+        hosting_info = SystemInterface.add_hosting_info(data_dict)
 
         data_dict = {'exp_name': 'stack',
                     'exp_id': 'cse01',
@@ -2417,10 +2417,10 @@ class TestGetDisciplines(TestCase):
 #+begin_src python
     @staticmethod
     def get_hosting_info():
-        hostinginfo_cls = System.delegate.entities['hostinginfo']
+        hosting_info_cls = System.delegate.entities['hosting_info']
         try:
             current_app.logger.debug("getting hosting_info")
-            hosting_info = hostinginfo_cls.get_all()
+            hosting_info = hosting_info_cls.get_all()
             host_dict_list = []
             for host in hosting_info:
                 host_x = host.to_client()
@@ -2468,8 +2468,8 @@ class TestGetHosting_Info(TestCase):
                       'key' : KEY
                      }
 
-        host1 = SystemInterface.add_hostinginfo(data_dict)
-        host2 = SystemInterface.add_hostinginfo(data_dict1)
+        host1 = SystemInterface.add_hosting_info(data_dict)
+        host2 = SystemInterface.add_hosting_info(data_dict1)
 
         host_list = SystemInterface.get_hosting_info()
         
@@ -2679,20 +2679,20 @@ class TestGetDevelopers(TestCase):
  #+END_SRC
 
 
-** Get IntegrationStatuss
-#+NAME: class_get_integrationstatuss
+** Get Integration_Status
+#+NAME: class_get_integration_status
 #+begin_src python
     @staticmethod
-    def get_integrationstatuss():
-        integrationstatus_cls = System.delegate.entities['integrationstatus']
+    def get_integration_status():
+        integration_status_cls = System.delegate.entities['integration_status']
         try:
-            current_app.logger.debug("getting integrationstatuss")
-            integrationstatuss = integrationstatus_cls.get_all()
+            current_app.logger.debug("getting integration_status")
+            integration_status = integration_status_cls.get_all()
             intstatus_dict_list = []
-            for intstatus in integrationstatuss:
+            for intstatus in integration_status:
                 intstatus_x = intstatus.to_client()
                 intstatus_dict_list.append(intstatus_x)
-            current_app.logger.debug("got integrationstatuss")
+            current_app.logger.debug("got integration_status")
             return  intstatus_dict_list
 
         except (ArityError, TypeError, NotAuthorizedError, StateError) as err:
@@ -2705,9 +2705,9 @@ class TestGetDevelopers(TestCase):
 #+end_src
 
 *** TestGetIntigrationStatuss
- #+NAME: test_class_get_integrationstatuss
+ #+NAME: test_class_get_integration_status
  #+BEGIN_SRC python
-class TestGetIntegrationStatuss(TestCase):
+class TestGetIntegration_Status(TestCase):
     TESTING = True
     def create_app(self):
         app = create_app(config)
@@ -2720,8 +2720,8 @@ class TestGetIntegrationStatuss(TestCase):
         db.session.remove()
         db.drop_all()
 
-    def test_get_integrationstatuss_in_system_interface(self):
-        print "test_get_integrationstatuss_in_system_interface"
+    def test_get_integration_status_in_system_interface(self):
+        print "test_get_integration_status_in_system_interface"
 
         data_dict = {'integration_level': 4,
                     'key' : KEY
@@ -2731,10 +2731,10 @@ class TestGetIntegrationStatuss(TestCase):
                      'key' : KEY
                      }
 
-        intstatus1 = SystemInterface.add_integrationstatus(data_dict)
-        intstatus2 = SystemInterface.add_integrationstatus(data_dict1)
+        intstatus1 = SystemInterface.add_integration_status(data_dict)
+        intstatus2 = SystemInterface.add_integration_status(data_dict1)
 
-        intstatus_list = SystemInterface.get_integrationstatuss()
+        intstatus_list = SystemInterface.get_integration_status()
         
         self.assertEqual(intstatus_list[0].get("integration_level"), data_dict['integration_level'])
         self.assertEqual(intstatus_list[1].get("integration_level"), data_dict1['integration_level'])
@@ -2799,14 +2799,14 @@ class TestGetLabById(TestCase):
                     'key' : KEY
                    }
 
-        hostinginfo = SystemInterface.add_hostinginfo(data_dict)
+        hosting_info = SystemInterface.add_hosting_info(data_dict)
        
         data_dict = {
                     'key' : KEY,
                     'integration_level': 4
                     }
 
-        integrationstatus = SystemInterface.add_integrationstatus(data_dict)
+        integration_status = SystemInterface.add_integration_status(data_dict)
 
         data_dict = {
                     'key' : KEY,
@@ -3044,7 +3044,7 @@ class TestGetExperimentById(TestCase):
                     'integration_level': 4
                     }
 
-        integrationstatus = SystemInterface.add_integrationstatus(data_dict)
+        integration_status = SystemInterface.add_integration_status(data_dict)
 
         data_dict = {
                     'key' : KEY,
@@ -3069,7 +3069,7 @@ class TestGetExperimentById(TestCase):
                     'key' : KEY
                    }
 
-        hostinginfo = SystemInterface.add_hostinginfo(data_dict)
+        hosting_info = SystemInterface.add_hosting_info(data_dict)
 
         data_dict = {
                     'key': KEY,
@@ -3323,7 +3323,7 @@ class TestUpdateLab(TestCase):
                     'key' : KEY
                    }
 
-        hostinginfo = SystemInterface.add_hostinginfo(data_dict)
+        hosting_info = SystemInterface.add_hosting_info(data_dict)
 
         data_dict = {
                     'key': KEY,
@@ -3338,7 +3338,7 @@ class TestUpdateLab(TestCase):
                     'integration_level': 4
                     }
 
-        integrationstatus = SystemInterface.add_integrationstatus(data_dict)
+        integration_status = SystemInterface.add_integration_status(data_dict)
 
         data_dict = {
                     'key' : KEY,
@@ -3417,7 +3417,7 @@ class TestUpdateLab(TestCase):
                     'key' : KEY
                    }
 
-        hostinginfo = SystemInterface.add_hostinginfo(data_dict)
+        hosting_info = SystemInterface.add_hosting_info(data_dict)
 
         data_dict = {
                     'key' : KEY,
@@ -3432,7 +3432,7 @@ class TestUpdateLab(TestCase):
                     'integration_level': 4
                     }
 
-        integrationstatus = SystemInterface.add_integrationstatus(data_dict)
+        integration_status = SystemInterface.add_integration_status(data_dict)
 
         data_dict = {
                     'key' : KEY,
@@ -3563,7 +3563,7 @@ class TestUpdateExperiment(TestCase):
                     'integration_level': 4
                     }
 
-        integrationstatus = SystemInterface.add_integrationstatus(data_dict)
+        integration_status = SystemInterface.add_integration_status(data_dict)
 
         data_dict = {
                     'key' : KEY,
@@ -3588,7 +3588,7 @@ class TestUpdateExperiment(TestCase):
                     'key' : KEY
                    }
 
-        hostinginfo = SystemInterface.add_hostinginfo(data_dict)
+        hosting_info = SystemInterface.add_hosting_info(data_dict)
 
         data_dict = {
                     'key' : KEY,
@@ -3844,34 +3844,34 @@ class TestUpdateDiscipline(TestCase):
  #+END_SRC
 
 
-** Update HostingInfo
-#+NAME: class_update_hostinginfo
+** Update Hosting_Info
+#+NAME: class_update_hosting_info
 #+begin_src python       
     @staticmethod
-    def update_hostinginfo(data_dict):
+    def update_hosting_info(data_dict):
         session_cls = System.delegate.entities['session']
         session = session_cls(key=data_dict['key'])
 
         hosted_url = str(data_dict['hosted_url'])
-        hostinginfo = System.do("get_hostinginfo", hosted_url=hosted_url)
+        hosting_info = System.do("get_hosting_info", hosted_url=hosted_url)
 
         if 'hosting_status' not in data_dict:
-            hosting_status=str(hostinginfo.get("hosting_status"))
+            hosting_status=str(hosting_info.get("hosting_status"))
         else:
             hosting_status=data_dict['hosting_status']
 
         if 'hosted_on' not in data_dict:
-            hosted_on=str(hostinginfo.get("hosted_on"))
+            hosted_on=str(hosting_info.get("hosted_on"))
         else:
             hosted_on=data_dict['hosted_on']
 
         try:
-            current_app.logger.debug("running operation update_hostinginfo")
-            hostinginfo = System.do("update_hostinginfo", hostinginfo=hostinginfo,
+            current_app.logger.debug("running operation update_hosting_info")
+            hosting_info = System.do("update_hosting_info", hosting_info=hosting_info,
                                     hosting_status=hosting_status, hosted_on=hosted_on,
                                     session=session)
-            current_app.logger.debug("completed operation update_hostinginfo")
-            return hostinginfo.to_client()
+            current_app.logger.debug("completed operation update_hosting_info")
+            return hosting_info.to_client()
         except (ArityError, TypeError, NotAuthorizedError, StateError) as err:
             current_app.logger.error("Exception = %s" % str(err))
             raise err
@@ -3881,10 +3881,10 @@ class TestUpdateDiscipline(TestCase):
             raise err
 #+end_src
 
-*** TestUpateHostingInfo
- #+NAME: test_class_update_hostinginfo
+*** TestUpateHosting_Info
+ #+NAME: test_class_update_hosting_info
  #+BEGIN_SRC python
-class TestUpdateHostingInfo(TestCase):
+class TestUpdateHosting_Info(TestCase):
     TESTING = True
     def create_app(self):
         app = create_app(config)
@@ -3897,8 +3897,8 @@ class TestUpdateHostingInfo(TestCase):
         db.session.remove()
         db.drop_all()
 
-    def test_update_hostinginfo_in_system_interface(self):
-        print "test_update_hostinginfo_in_system_interface"
+    def test_update_hosting_info_in_system_interface(self):
+        print "test_update_hosting_info_in_system_interface"
 
         data_dict = {
                     'key' : KEY,
@@ -3914,11 +3914,11 @@ class TestUpdateHostingInfo(TestCase):
                     'hosted_on': 'server'
                    }
 
-        hostinginfo = SystemInterface.add_hostinginfo(data_dict)
-        hostinginfo1 = SystemInterface.update_hostinginfo(data_dict1)
+        hosting_info = SystemInterface.add_hosting_info(data_dict)
+        hosting_info1 = SystemInterface.update_hosting_info(data_dict1)
         
-        self.assertEqual(hostinginfo1.get("hosting_status"), data_dict1['hosting_status'])
-        self.assertEqual(hostinginfo1.get("hosted_on"), data_dict1['hosted_on'])
+        self.assertEqual(hosting_info1.get("hosting_status"), data_dict1['hosting_status'])
+        self.assertEqual(hosting_info1.get("hosted_on"), data_dict1['hosted_on'])
 
  #+END_SRC
 
@@ -4044,7 +4044,7 @@ class TestDeleteLab(TestCase):
                     'integration_level': 4
                     }
 
-        integrationstatus = SystemInterface.add_integrationstatus(data_dict)
+        integration_status = SystemInterface.add_integration_status(data_dict)
 
         data_dict = {
                     'key' : KEY,
@@ -4070,7 +4070,7 @@ class TestDeleteLab(TestCase):
                     'key' : KEY
                    }
 
-        hostinginfo = SystemInterface.add_hostinginfo(data_dict)
+        hosting_info = SystemInterface.add_hosting_info(data_dict)
 
         data_dict = {
                     'key' : KEY,
@@ -4206,14 +4206,14 @@ class TestDeleteExperiment(TestCase):
                     'key' : KEY
                    }
 
-        hostinginfo = SystemInterface.add_hostinginfo(data_dict)
+        hosting_info = SystemInterface.add_hosting_info(data_dict)
 
         data_dict = {
                     'key' : KEY,
                     'integration_level': 4
                     }
 
-        integrationstatus = SystemInterface.add_integrationstatus(data_dict)
+        integration_status = SystemInterface.add_integration_status(data_dict)
 
         data_dict = {
                     'key' : KEY,
@@ -4455,20 +4455,20 @@ class TestDeleteDiscipline(TestCase):
  #+END_SRC
 
 
-** Delete HostingInfo
-#+NAME: class_delete_hostinginfo
+** Delete Hosting_Info
+#+NAME: class_delete_hosting_info
 #+begin_src python
     @staticmethod
-    def delete_hostinginfo(hosted_url, key):
+    def delete_hosting_info(hosted_url, key):
         session_cls = System.delegate.entities['session']
         session = session_cls(key=str(key))
 
         try:
-            current_app.logger.debug("running operation delete_hostinginfo")
-            hostinginfo_id = System.do("delete_hostinginfo", hosted_url=str(hosted_url),
+            current_app.logger.debug("running operation delete_hosting_info")
+            hosting_info_id = System.do("delete_hosting_info", hosted_url=str(hosted_url),
                                       session=session)
-            current_app.logger.debug("completed operation delete_hostinginfo")
-            return hostinginfo_id
+            current_app.logger.debug("completed operation delete_hosting_info")
+            return hosting_info_id
         except (ArityError, TypeError, NotAuthorizedError, StateError) as err:
             current_app.logger.error("Exception = %s" % str(err))
             raise err
@@ -4479,9 +4479,9 @@ class TestDeleteDiscipline(TestCase):
 #+end_src
 
 *** TestDeleteHostedInfo
- #+NAME: test_class_delete_hostinginfo
+ #+NAME: test_class_delete_hosting_info
  #+BEGIN_SRC python
-class TestDeleteHostingInfo(TestCase):
+class TestDeleteHosting_Info(TestCase):
     TESTING = True
     def create_app(self):
         app = create_app(config)
@@ -4494,8 +4494,8 @@ class TestDeleteHostingInfo(TestCase):
         db.session.remove()
         db.drop_all()
 
-    def test_delete_hostinginfo_in_system_interface(self):
-        print "test_delete_hostinginfo_in_system_interface"
+    def test_delete_hosting_info_in_system_interface(self):
+        print "test_delete_hosting_info_in_system_interface"
 
         data_dict = {
                     'key' : KEY,
@@ -4511,9 +4511,9 @@ class TestDeleteHostingInfo(TestCase):
                     'hosted_on': 'server'
                      }
 
-        hostinginfo = SystemInterface.add_hostinginfo(data_dict)
-        hostinginfo1 = SystemInterface.add_hostinginfo(data_dict1)
-        hosted_url = SystemInterface.delete_hostinginfo("http://cse14-iiith.vlabs.ac.in", KEY)
+        hosting_info = SystemInterface.add_hosting_info(data_dict)
+        hosting_info1 = SystemInterface.add_hosting_info(data_dict1)
+        hosted_url = SystemInterface.delete_hosting_info("http://cse14-iiith.vlabs.ac.in", KEY)
         
         self.assertEqual(hosted_url, "http://cse14-iiith.vlabs.ac.in")
 
@@ -4716,21 +4716,21 @@ class TestDeleteDeveloper(TestCase):
  #+END_SRC
 
 
-** Delete IntegrationStatus
-#+NAME: class_delete_integrationstatus
+** Delete Integration_Status
+#+NAME: class_delete_integration_status
 #+begin_src python
     @staticmethod
-    def delete_integrationstatus(integration_level, key):
+    def delete_integration_status(integration_level, key):
         session_cls = System.delegate.entities['session']
         session = session_cls(key=str(key))
 
         try:
-            current_app.logger.debug("running operation delete_integrationstatus")
-            integrationstatus_id = System.do("delete_integrationstatus", 
+            current_app.logger.debug("running operation delete_integration_status")
+            integration_status_id = System.do("delete_integration_status", 
                                       integration_level=int(integration_level),
                                       session=session)
-            current_app.logger.debug("completed operation delete_integrationstatus")
-            return integrationstatus_id
+            current_app.logger.debug("completed operation delete_integration_status")
+            return integration_status_id
 
         except (ArityError, TypeError, NotAuthorizedError, StateError) as err:
             current_app.logger.error("Exception = %s" % str(err))
@@ -4741,10 +4741,10 @@ class TestDeleteDeveloper(TestCase):
             raise err
 #+end_src
 
-*** TestDeleteIntegrationStatus
- #+NAME: test_class_delete_integrationstatus
+*** TestDeleteIntegration_Status
+ #+NAME: test_class_delete_integration_status
  #+BEGIN_SRC python
-class TestDeleteIntegrationStatus(TestCase):
+class TestDeleteIntegration_Status(TestCase):
     TESTING = True
     def create_app(self):
         app = create_app(config)
@@ -4757,8 +4757,8 @@ class TestDeleteIntegrationStatus(TestCase):
         db.session.remove()
         db.drop_all()
 
-    def test_delete_integrationstatus_in_system_interface(self):
-        print "test_delete_integrationstatus_in_system_interface"
+    def test_delete_integration_status_in_system_interface(self):
+        print "test_delete_integration_status_in_system_interface"
 
         data_dict = {
                     'key' : KEY,
@@ -4770,9 +4770,9 @@ class TestDeleteIntegrationStatus(TestCase):
                     'integration_level': 2
                      }
 
-        integrationstatus = SystemInterface.add_integrationstatus(data_dict)
-        integrationstatus1 = SystemInterface.add_integrationstatus(data_dict1)
-        integration_level = SystemInterface.delete_integrationstatus(2, KEY)
+        integration_status = SystemInterface.add_integration_status(data_dict)
+        integration_status1 = SystemInterface.add_integration_status(data_dict1)
+        integration_level = SystemInterface.delete_integration_status(2, KEY)
         
         self.assertEqual(integration_level, 2)
 
@@ -4891,7 +4891,7 @@ class TestGetLabByLabId(TestCase):
                     'integration_level': 4
                     }
 
-        integrationstatus = SystemInterface.add_integrationstatus(data_dict)
+        integration_status = SystemInterface.add_integration_status(data_dict)
 
         data_dict = {
                     'key' : KEY,
@@ -4915,7 +4915,7 @@ class TestGetLabByLabId(TestCase):
                     'key' : KEY
                    }
 
-        hostinginfo = SystemInterface.add_hostinginfo(data_dict)
+        hosting_info = SystemInterface.add_hosting_info(data_dict)
 
         data_dict = {
                     'key' : KEY,
@@ -5059,7 +5059,7 @@ class TestGetExpByExpId(TestCase):
                     'integration_level': 4
                     }
 
-        integrationstatus = SystemInterface.add_integrationstatus(data_dict)
+        integration_status = SystemInterface.add_integration_status(data_dict)
 
         data_dict = {
                     'key' : KEY,
@@ -5084,7 +5084,7 @@ class TestGetExpByExpId(TestCase):
                     'key' : KEY
                    }
 
-        hostinginfo = SystemInterface.add_hostinginfo(data_dict)
+        hosting_info = SystemInterface.add_hosting_info(data_dict)
 
         data_dict = {
                     'exp_name': 'Number Systems',
@@ -5248,17 +5248,17 @@ class TestGetDeveloperByEmail(TestCase):
  #+END_SRC
 
 
-** Get IntegrationStatus by IL
-#+NAME: class_get_integrationstatus_by_IL
+** Get Integration_Status by IL
+#+NAME: class_get_integration_status_by_IL
 #+begin_src python
     @staticmethod
-    def get_integrationstatus_by_IL(integration_level):
+    def get_integration_status_by_IL(integration_level):
         try:
-            current_app.logger.debug("running operation get_integrationstatus_by_integration_level")
-            integrationstatus_id = System.do("get_integrationstatus_by_IL", 
+            current_app.logger.debug("running operation get_integration_status_by_integration_level")
+            integration_status_id = System.do("get_integration_status_by_IL", 
                                       integration_level=int(integration_level))
-            current_app.logger.debug("completed operation get_integrationstatus_by_integration_level")
-            return integrationstatus_id
+            current_app.logger.debug("completed operation get_integration_status_by_integration_level")
+            return integration_status_id
 
         except (ArityError, TypeError, NotAuthorizedError, StateError) as err:
             current_app.logger.error("Exception = %s" % str(err))
@@ -5269,10 +5269,10 @@ class TestGetDeveloperByEmail(TestCase):
             raise err
 #+end_src
 
-*** TestGetIntegrationStatusByIL
- #+NAME: test_class_get_integrationstatus_by_IL
+*** TestGetIntegration_StatusByIL
+ #+NAME: test_class_get_integration_status_by_IL
  #+BEGIN_SRC python
-class TestGetIntegrationStatusByIL(TestCase):
+class TestGetIntegration_StatusByIL(TestCase):
     TESTING = True
     def create_app(self):
         app = create_app(config)
@@ -5285,8 +5285,8 @@ class TestGetIntegrationStatusByIL(TestCase):
         db.session.remove()
         db.drop_all()
 
-    def test_get_integrationstatus_by_IL_in_system_interface(self):
-        print "test_get_integrationstatus_by_IL_in_system_interface"
+    def test_get_integration_status_by_IL_in_system_interface(self):
+        print "test_get_integration_status_by_IL_in_system_interface"
 
         data_dict = {
                     'key' : KEY,
@@ -5298,9 +5298,9 @@ class TestGetIntegrationStatusByIL(TestCase):
                     'integration_level': 2
                      }
 
-        integrationstatus = SystemInterface.add_integrationstatus(data_dict)
-        integrationstatus1 = SystemInterface.add_integrationstatus(data_dict1)
-        integration_status = SystemInterface.get_integrationstatus_by_IL(2)
+        integration_status = SystemInterface.add_integration_status(data_dict)
+        integration_status1 = SystemInterface.add_integration_status(data_dict1)
+        integration_status = SystemInterface.get_integration_status_by_IL(2)
         
         self.assertEqual(integration_status.get("integration_level"), 2)
 
@@ -5591,8 +5591,8 @@ if __name__ == '__main__':
 <<class_add_email>>
 <<class_add_developer>>
 <<class_get_labs>>
-<<class_add_hostinginfo>>
-<<class_add_integrationstatus>>
+<<class_add_hosting_info>>
+<<class_add_integration_status>>
 
 <<class_get_lab_by_id>>
 <<class_get_section_by_id>>
@@ -5600,22 +5600,22 @@ if __name__ == '__main__':
 <<class_get_experiment_by_id>>
 <<class_get_discipline_by_id>>
 <<class_get_developer_by_email>>
-<<class_get_integrationstatus_by_IL>>
+<<class_get_integration_status_by_IL>>
 <<class_delete_lab>>
 <<class_delete_discipline>>
 <<class_delete_institute>>
 <<class_delete_experiment>>
 <<class_delete_section>>
 <<class_delete_discipline>>
-<<class_delete_hostinginfo>>
-<<class_delete_integrationstatus>>
+<<class_delete_hosting_info>>
+<<class_delete_integration_status>>
 
 <<class_update_lab>>
 <<class_update_institute>>
 <<class_update_Section>>
 <<class_update_experiment>>
 <<class_update_discipline>>
-<<class_update_hostinginfo>>
+<<class_update_hosting_info>>
 <<class_update_asset>>
 
 <<class_get_labs>>
@@ -5623,7 +5623,7 @@ if __name__ == '__main__':
 <<class_get_institutes>>
 <<class_get_disciplines>>
 <<class_get_hosting_info>>
-<<class_get_integrationstatuss>>
+<<class_get_integration_status>>
 
 <<class_get_lab_by_lab_id>>
 <<class_get_lab_by_exp_id>>
@@ -5660,16 +5660,16 @@ if __name__ == '__main__':
 <<test_class_add_name>>
 <<test_class_add_email>>
 <<test_class_add_developer>>
-<<test_class_add_hostinginfo>>
-<<test_class_add_integrationstatus>>
+<<test_class_add_hosting_info>>
+<<test_class_add_integration_status>>
 
 <<test_class_delete_lab>>
 <<test_class_delete_experiment>>
 <<test_class_delete_institute>>
 <<test_class_delete_section>>
 <<test_class_delete_Discipline>>
-<<test_class_delete_hostinginfo>>
-<<test_class_delete_integrationstatus>>
+<<test_class_delete_hosting_info>>
+<<test_class_delete_integration_status>>
 
 <<test_class_get_labs>>
 <<test_class_get_sections>>
@@ -5677,7 +5677,7 @@ if __name__ == '__main__':
 <<test_class_get_institutes>>
 <<test_class_get_disciplines>>
 <<test_class_get_hosting_info>>
-<<test_class_get_integrationstatuss>>
+<<test_class_get_integration_statuss>>
 
 
 <<test_class_get_lab_by_id>>
@@ -5690,7 +5690,7 @@ if __name__ == '__main__':
 <<test_class_update_institute>>
 <<test_class_update_Section>>
 <<test_class_update_Discipline>>
-<<test_class_update_hostinginfo>>
+<<test_class_update_hosting_info>>
 
 <<test_class_get_lab_by_labid>>
 <<test_class_get_labs_by_institute>>
@@ -5708,7 +5708,7 @@ if __name__ == '__main__':
 <<test_class_get_institute_by_instituteid>>
 <<test_class_get_discipline_by_disid>>
 <<test_class_get_developer_by_email>>
-<<test_class_get_integrationstatus_by_IL>>
+<<test_class_get_integration_status_by_IL>>
 <<test_class_add_asset>>
 <<test_class_update_asset>>
 <<test_class_delete_asset>>
