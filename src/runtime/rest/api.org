@@ -12,7 +12,8 @@
   :END: 
   This document illustrates building of the REST API.
 
-  
+
+
 * REST
 
 ** Get Labs, Get Lab, Get Labs by institute, lab_name, discipline and asset
@@ -1360,7 +1361,7 @@ class TestGetLabsbyAsset(TestCase):
                    "overview" : "overview",
                   "experiments":["cse01"],
                   "developers":["dharamrajuu@gmail.com"],
-                  "hosted_url":"http://cse14-iiith.vlabs.ac.in",
+                  "hostinginfos":["http://cse14-iiith.vlabs.ac.in"],
                   "integration_level": 4,
                    "key": "defaultkey"
                   }
@@ -2691,15 +2692,18 @@ class TestGetExp(TestCase):
 
   - Payload :: 
 #+BEGIN_EXAMPLE
-{
-  "exp_id": "exp9", 
-  "exp_name": "arrays", 
-  "key":"<key>",
-  "overview": "overview", 
-  "sections": ["Theory", "Procedure"],
-  "developers": ["abc@gmail.com"],
-  "hosted_url": "http://cse14-iiith.vlabs.ac.in"
-}
+{"exp_name": "stack", 
+"exp_id": "cse01",
+"inst_id": "iiith",
+"dis_id": "cse",
+"assets": ["vlabs.ac.in/images/static/logo.png"], 
+"overview" : "overview",
+"developers": ["dharamraj@gmail.com"],
+"hostinginfos": ["http://cse14-iiith.vlabs.ac.in"],
+"sections": ["Theory", "Procedure"],
+"integration_level": 4,
+"key": "<key>"
+}               
 #+END_EXAMPLE	       
 
   - Success Response
@@ -2707,43 +2711,62 @@ class TestGetExp(TestCase):
     + Content: 
 #+BEGIN_EXAMPLE
 {
-  "discipline": {
-  "dis_id": "cse",
-  "id": 1,
-  "dis_name": "Computer Science"
-  },
-  "institute": {
-  "inst_name": "IIIT Hyderabad",
-  "id": 1,
-  "inst_id": "iiith"
-  },
-  "exp_id": "exp9", 
-  "exp_name": "arrays", 
-  "id": 1, 
-  "overview": "overview", 
-  "sections": [
-    {
-      "id": 1, 
-      "name": "Theory"
-    }, 
-    {
-      "id": 2, 
-      "name": "Procedure"
-    }
-  ],
-  "hostinginfos": [{
-      "hosting_status": "hosted",
-      "id": 1,
-      "hosted_url": "http://cse14-iiith.vlabs.ac.in",
-      "hosted_on": "cloud"
-  }],
-  "developers": [
-    {
-      "name": "Prof. Dharamaja",
-      "id": 1,
-      "email": "abc@gmail.com"
-    }
-  ]
+    "assets": [
+        {
+            "asset_type": "Image",
+            "id": 1,
+            "path": "vlabs.ac.in/images/static/logo.png"
+        }
+    ],
+    "developers": [
+        {
+            "email": {
+                "email": "dharamraj@gmail.com",
+                "id": 4
+            },
+            "id": 1,
+            "name": {
+                "id": 4,
+                "name": "Prof. Dharamraj"
+            }
+        }
+    ],
+    "discipline": {
+        "dis_id": "cse",
+        "dis_name": "Computer Science",
+        "id": 1
+    },
+    "exp_id": "cse03",
+    "exp_name": "stack",
+    "hostinginfos": [
+        {
+            "hosted_on": "cloud",
+            "hosted_url": "http://cse14-iiith.vlabs.ac.in",
+            "hosting_status": "hosted",
+            "id": 1
+        }
+    ],
+    "id": 6,
+    "institute": {
+        "id": 1,
+        "inst_id": "iiith",
+        "inst_name": "IIIT Hyderabad"
+    },
+    "integrationstatus": {
+        "id": 1,
+        "integration_level": 4
+    },
+    "overview": "overview",
+    "sections": [
+        {
+            "id": 1,
+            "name": "Theory"
+        },
+        {
+            "id": 2,
+            "name": "Procedure"
+        }
+    ]
 }
 
 #+END_EXAMPLE
@@ -3307,10 +3330,10 @@ class TestGetHostingInfo(TestCase):
     + Content: 
 #+BEGIN_EXAMPLE
 {
-  "id": 1, 
+  "hosted_on": "cloud", 
   "hosted_url": "http://cse14-iiith.vlabs.ac.in", 
-  "hosting_status": "hosted",
-  "hosted_on": "cloud"
+  "hosting_status": "hosted", 
+  "id": 1
 }
 
 #+END_EXAMPLE
@@ -3841,8 +3864,8 @@ class TestGetEmail(TestCase):
     + Content: 
 #+BEGIN_EXAMPLE
 {
-  "id": 1, 
-  "email": "dharamraj@gmail.com"
+  "email": "dharamraj@gmail.com", 
+  "id": 1
 }
 
 #+END_EXAMPLE
@@ -4928,12 +4951,8 @@ class TestDeleteLab(TestCase):
 
   - Payload :: 
 #+BEGIN_EXAMPLE
-{
-  "exp_name": "2D arrays", 
-  "key":"<key>",
-  "overview": "2D Arrays overview",
-  "inst_id": "IITK",
-  "dis_id": "CSE"
+{ "exp_name": "2D arrays", 
+"key":"defaultkey"
 }
 
 #+END_EXAMPLE	       
@@ -4943,45 +4962,63 @@ class TestDeleteLab(TestCase):
       + Contents :
 #+BEGIN_EXAMPLE
 {
-  "discipline": {
-  "dis_id": "cse",
-  "id": 1,
-  "dis_name": "Computer Science"
-  },
-  "institute": {
-  "inst_name": "IIIT Hyderabad",
-  "id": 1,
-  "inst_id": "iiith"
-  },
-  "exp_id": "exp9", 
-  "exp_name": "2D arrays", 
-  "id": 1, 
-  "overview": "2D Arrays overview", 
-  "sections": [
-    {
-      "id": 2, 
-      "name": "Procedure"
-    }, 
-    {
-      "id": 1, 
-      "name": "Theory"
-    }
-  ],
-  "hostinginfo": {
-      "hosting_status": "hosted",
-      "id": 1,
-      "hosted_url": "http://cse14-iiith.vlabs.ac.in",
-      "hosted_on": "cloud"
-  },
-  "developers": [
-    {
-      "name": "Prof. Dharamaja",
-      "id": 1,
-      "email": "abc@gmail.com"
-    }
-  ]
+    "assets": [
+        {
+            "asset_type": "Image",
+            "id": 1,
+            "path": "vlabs.ac.in/images/static/logo.png"
+        }
+    ],
+    "developers": [
+        {
+            "email": {
+                "email": "dharamraj@gmail.com",
+                "id": 4
+            },
+            "id": 1,
+            "name": {
+                "id": 4,
+                "name": "Prof. Dharamraj"
+            }
+        }
+    ],
+    "discipline": {
+        "dis_id": "cse",
+        "dis_name": "Computer Science",
+        "id": 1
+    },
+    "exp_id": "cse01",
+    "exp_name": "2D arrays",
+    "hostinginfos": [
+        {
+            "hosted_on": "cloud",
+            "hosted_url": "http://cse14-iiith.vlabs.ac.in",
+            "hosting_status": "hosted",
+            "id": 1
+        }
+    ],
+    "id": 1,
+    "institute": {
+        "id": 1,
+        "inst_id": "iiith",
+        "inst_name": "IIIT Hyderabad"
+    },
+    "integrationstatus": {
+        "id": 1,
+        "integration_level": 4
+    },
+    "overview": "overview",
+    "sections": [
+        {
+            "id": 2,
+            "name": "Procedure"
+        },
+        {
+            "id": 1,
+            "name": "Theory"
+        }
+    ]
 }
-
 #+END_EXAMPLE
     
   - Error Response:
@@ -5149,7 +5186,7 @@ class TestUpdateExperiment(TestCase):
   :PROPERTIES:
   :CUSTOM_ID: api_delete_experiment_by_exp_id
   :END:    
-  - URL :: /experiments?<exp_id>&key=<key>
+  - URL :: /experiments?exp_id=<exp_id>&key=<key>
 
   - Method :: DELETE
 
