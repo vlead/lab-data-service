@@ -486,6 +486,114 @@ entity-set.   The operation may take additional parameters.
 #+END_SRC
 
 
+** Add Section
+  :PROPERTIES:
+  :CUSTOM_ID: add_section
+  :END: 
+*** Parameters
+  :PROPERTIES:
+  :CUSTOM_ID: parameters
+  :END: 
+#+BEGIN_SRC spec :tangle spec.txt
+    sec: Section, s: Session
+#+END_SRC   
+*** Actor credentials
+  :PROPERTIES:
+  :CUSTOM_ID: actor_credentials
+  :END: 
+#+BEGIN_SRC spec :tangle spec.txt
+    s.key == system configured key
+#+END_SRC   
+*** Referential Integrity
+  :PROPERTIES:
+  :CUSTOM_ID: referential_integrity
+  :END: 
+#+BEGIN_SRC spec :tangle spec.txt
+    sec: ~section-set
+#+END_SRC   
+*** Effect
+  :PROPERTIES:
+  :CUSTOM_ID: effect
+  :END: 
+#+BEGIN_SRC spec :tangle spec.txt
+    sec = new section
+    section-set = section-set U {sec}
+#+END_SRC   
+
+
+
+** Add Name
+  :PROPERTIES:
+  :CUSTOM_ID: add_name
+  :END: 
+*** Parameters
+  :PROPERTIES:
+  :CUSTOM_ID: parameters
+  :END: 
+#+BEGIN_SRC spec :tangle spec.txt
+    n: Name, s: Session
+#+END_SRC   
+*** Actor credentials
+  :PROPERTIES:
+  :CUSTOM_ID: actor_credentials
+  :END: 
+#+BEGIN_SRC spec :tangle spec.txt
+    s.key == system configured key
+#+END_SRC   
+*** Referential Integrity
+  :PROPERTIES:
+  :CUSTOM_ID: referential_integrity
+  :END: 
+#+BEGIN_SRC spec :tangle spec.txt
+    l: ~lab-set
+#+END_SRC   
+*** Effect
+  :PROPERTIES:
+  :CUSTOM_ID: effect
+  :END: 
+#+BEGIN_SRC spec :tangle spec.txt
+    n = new name
+    name-set = name-set U {n}
+#+END_SRC   
+
+
+
+** Add Email
+  :PROPERTIES:
+  :CUSTOM_ID: add_email
+  :END: 
+*** Parameters
+  :PROPERTIES:
+  :CUSTOM_ID: parameters
+  :END: 
+#+BEGIN_SRC spec :tangle spec.txt
+    e: Email, s: Session
+#+END_SRC   
+*** Actor credentials
+  :PROPERTIES:
+  :CUSTOM_ID: actor_credentials
+  :END: 
+#+BEGIN_SRC spec :tangle spec.txt
+    s.key == system configured key
+#+END_SRC   
+*** Referential Integrity
+  :PROPERTIES:
+  :CUSTOM_ID: referential_integrity
+  :END: 
+#+BEGIN_SRC spec :tangle spec.txt
+    e: ~email-set
+#+END_SRC   
+*** Effect
+  :PROPERTIES:
+  :CUSTOM_ID: effect
+  :END: 
+#+BEGIN_SRC spec :tangle spec.txt
+    e = new email
+    email-set = email-set U {e}
+#+END_SRC   
+
+
+
 ** Add Developer
   :PROPERTIES:
   :CUSTOM_ID: add_developer
@@ -894,43 +1002,6 @@ entity-set.   The operation may take additional parameters.
 #+END_SRC
 
 
-** Update IntegrationStatus
-  :PROPERTIES:
-  :CUSTOM_ID: update_integrationstatus
-  :END:
-*** Parameters
-  :PROPERTIES:
-  :CUSTOM_ID: update_integrationstatus_parameters
-  :END:
-#+BEGIN_SRC spec :tangle spec.txt
-    i: IntegrationStatus, l:Level, s: Session
-#+END_SRC
-*** Actor credentials
-  :PROPERTIES:
-  :CUSTOM_ID: update_integrationstatus_actor_credentials
-  :END:
-#+BEGIN_SRC spec :tangle spec.txt
-    s.key == system configured key
-#+END_SRC
-*** Referential Integrity
-  :PROPERTIES:
-  :CUSTOM_ID: update_integrationstatus_referential_integrity
-  :END:
-#+BEGIN_SRC spec :tangle spec.txt
-    i : integrationstatus-set
-    s : session-set
-    l : ~level-set
-
-#+END_SRC
-*** Effect
-  :PROPERTIES:
-  :CUSTOM_ID: update_integrationstatus_effect
-  :END:
-#+BEGIN_SRC spec :tangle spec.txt
-    The Integration Status details are updated.
-#+END_SRC
-
-
 ** Delete Lab
   :PROPERTIES:
   :CUSTOM_ID: delete_lab
@@ -1075,6 +1146,117 @@ entity-set.   The operation may take additional parameters.
   :END: 
 #+BEGIN_SRC spec :tangle spec.txt
     discipline-set = discipline-set - {d}
+
+#+END_SRC
+
+
+** Delete Section
+  :PROPERTIES:
+  :CUSTOM_ID: delete_section
+  :END: 
+*** Parameters
+  :PROPERTIES:
+  :CUSTOM_ID: delete_lab_parameters
+  :END: 
+#+BEGIN_SRC spec :tangle spec.txt
+    sec: Section, s: Session
+#+END_SRC   
+*** Actor credentials
+  :PROPERTIES:
+  :CUSTOM_ID: delete_section_actor_credentials
+  :END: 
+#+BEGIN_SRC spec :tangle spec.txt
+    s.key == system configured key
+#+END_SRC   
+*** Referential Integrity
+  :PROPERTIES:
+  :CUSTOM_ID: delete_section_referential_integrity
+  :END: 
+#+BEGIN_SRC spec :tangle spec.txt
+    sec : section-set
+    s : session-set
+
+#+END_SRC   
+*** Effect
+  :PROPERTIES:
+  :CUSTOM_ID: delete_section_effect
+  :END: 
+#+BEGIN_SRC spec :tangle spec.txt
+    section-set = section-set - {sec}
+
+#+END_SRC
+
+
+** Delete Name
+  :PROPERTIES:
+  :CUSTOM_ID: delete_name
+  :END: 
+*** Parameters
+  :PROPERTIES:
+  :CUSTOM_ID: delete_name_parameters
+  :END: 
+#+BEGIN_SRC spec :tangle spec.txt
+    n: Name, s: Session
+#+END_SRC   
+*** Actor credentials
+  :PROPERTIES:
+  :CUSTOM_ID: delete_name_actor_credentials
+  :END: 
+#+BEGIN_SRC spec :tangle spec.txt
+    s.key == system configured key
+#+END_SRC   
+*** Referential Integrity
+  :PROPERTIES:
+  :CUSTOM_ID: delete_name_referential_integrity
+  :END: 
+#+BEGIN_SRC spec :tangle spec.txt
+    n : name-set
+    s : session-set
+
+#+END_SRC   
+*** Effect
+  :PROPERTIES:
+  :CUSTOM_ID: delete_name_effect
+  :END: 
+#+BEGIN_SRC spec :tangle spec.txt
+    name-set = name-set - {n}
+
+#+END_SRC
+
+
+** Delete Email
+  :PROPERTIES:
+  :CUSTOM_ID: delete_email
+  :END: 
+*** Parameters
+  :PROPERTIES:
+  :CUSTOM_ID: delete_email_parameters
+  :END: 
+#+BEGIN_SRC spec :tangle spec.txt
+    e: Email, s: Session
+#+END_SRC   
+*** Actor credentials
+  :PROPERTIES:
+  :CUSTOM_ID: delete_email_actor_credentials
+  :END: 
+#+BEGIN_SRC spec :tangle spec.txt
+    s.key == system configured key
+#+END_SRC   
+*** Referential Integrity
+  :PROPERTIES:
+  :CUSTOM_ID: delete_email_referential_integrity
+  :END: 
+#+BEGIN_SRC spec :tangle spec.txt
+    e : email-set
+    s : session-set
+
+#+END_SRC   
+*** Effect
+  :PROPERTIES:
+  :CUSTOM_ID: delete_email_effect
+  :END: 
+#+BEGIN_SRC spec :tangle spec.txt
+    email-set = email-set - {e}
 
 #+END_SRC
 
