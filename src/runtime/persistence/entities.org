@@ -34,11 +34,11 @@ lab_developers = db.Table('lab_developers',
 		      db.Column('developer_id', db.Integer,
                             db.ForeignKey('developer.id')))
 
-lab_hostinginfos = db.Table('lab_hostinginfos',
+lab_hosting_info = db.Table('lab_hosting_info',
                  db.Column('labid', db.Integer, 
                        db.ForeignKey('lab.id')),
-		 db.Column('hostinginfoid', db.Integer,
-                       db.ForeignKey('hostinginfo.id')))
+		 db.Column('hosting_infoid', db.Integer,
+                       db.ForeignKey('hosting_info.id')))
 
 #+END_SRC
 
@@ -59,7 +59,7 @@ args = {"__tablename__": "lab",
         "discipline_id": db.Column(db.Integer, db.ForeignKey('discipline.id'), 
                                       unique=False, nullable=False),
 
-        "integrationstatus_id": db.Column(db.Integer, db.ForeignKey('integrationstatus.id'),
+        "integration_status_id": db.Column(db.Integer, db.ForeignKey('integration_status.id'),
                                       unique=False, nullable=False),
         "assets": db.relationship('Asset',
                     secondary=lab_assets, 
@@ -67,8 +67,8 @@ args = {"__tablename__": "lab",
         "developers": db.relationship('Developer',
                     secondary=lab_developers, 
                     backref='labs'),
-        "hostinginfos": db.relationship('HostingInfo',
-                    secondary=lab_hostinginfos, 
+        "hosting_info": db.relationship('Hosting_Info',
+                    secondary=lab_hosting_info, 
                     backref='labs')
        }
 
@@ -108,7 +108,7 @@ class TestPersistentLab(TestCase):
         discipline.save()
 
         integration_level = 4
-        intstatus = IntegrationStatus(integration_level=integration_level)
+        intstatus = Integration_Status(integration_level=integration_level)
         intstatus.save()
 
         asset_type = "Image"
@@ -130,7 +130,7 @@ class TestPersistentLab(TestCase):
         hosting_status = "hosted"
         hosted_url = "http://cse14-iiith.vlabs.ac.in"
         hosted_on = "cloud"
-        host = HostingInfo(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
+        host = Hosting_Info(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
         host.save()
 
         exp_name = "Number Systems"
@@ -138,8 +138,8 @@ class TestPersistentLab(TestCase):
         overview = "This is linked list experiment"
         experiment = Experiment(exp_name=exp_name, exp_id=exp_id,
                                     overview=overview, sections=[],
-                                    integrationstatus=intstatus, 
-                                    hostinginfos=[host], assets=[asset], 
+                                    integration_status=intstatus, 
+                                    hosting_info=[host], assets=[asset], 
                                     institute=inst, discipline=discipline, 
                                     developers=[dev])
         experiment.save()
@@ -150,9 +150,9 @@ class TestPersistentLab(TestCase):
         " and ques..etc"
         lab1 = Lab(lab_name=lab_name1, lab_id=lab_id1, overview=overview1,
                        experiments=[experiment], institute=inst,
-                       integrationstatus=intstatus,
+                       integration_status=intstatus,
                        assets=[asset], discipline=discipline, 
-                       developers=[dev], hostinginfos=[host])
+                       developers=[dev], hosting_info=[host])
         lab1.save()
 
         lab_name2="Data Structures"
@@ -162,8 +162,8 @@ class TestPersistentLab(TestCase):
 
         lab2 = Lab(lab_name=lab_name2, lab_id=lab_id2, overview=overview2,
                        experiments=[], institute=inst, discipline=discipline, 
-                       developers=[], hostinginfos=[host], assets=[asset], 
-                       integrationstatus=intstatus)
+                       developers=[], hosting_info=[host], assets=[asset], 
+                       integration_status=intstatus)
         lab2.save()
 
         lab1 = Lab.get_by_id(1)
@@ -181,13 +181,13 @@ class TestPersistentLab(TestCase):
                              asset.get("asset_type"))
         self.assertEqual(lab1.get("experiments")[0].get("exp_name"), 
                              experiment.get("exp_name"))
-        self.assertEqual(lab1.get("integrationstatus").get("integration_level"), 
+        self.assertEqual(lab1.get("integration_status").get("integration_level"), 
                              intstatus.get("integration_level"))
 
         self.assertEqual(lab1.get("developers")[0].get("email").get("email"), 
                              email_id.get("email"))
 
-        self.assertEqual(lab1.get("hostinginfos")[0].get("hosting_status"), 
+        self.assertEqual(lab1.get("hosting_info")[0].get("hosting_status"), 
                              host.get("hosting_status"))
 
         self.assertEqual(lab2.get("lab_name"), lab_name2)
@@ -197,13 +197,13 @@ class TestPersistentLab(TestCase):
                              inst.get("inst_name"))
         self.assertEqual(lab2.get("discipline").get("dis_name"), 
                              discipline.get("dis_name"))
-        self.assertEqual(lab2.get("hostinginfos")[0].get("hosting_status"), 
+        self.assertEqual(lab2.get("hosting_info")[0].get("hosting_status"), 
                              host.get("hosting_status"))
         self.assertEqual(lab2.get("experiments"), [])
 
         self.assertEqual(lab2.get("assets")[0].get("asset_type"), 
                              asset.get("asset_type"))
-        self.assertEqual(lab2.get("integrationstatus").get("integration_level"), 
+        self.assertEqual(lab2.get("integration_status").get("integration_level"), 
                              intstatus.get("integration_level"))
         self.assertEqual(lab2.get("developers"), [])
 
@@ -236,11 +236,11 @@ experiments_developers = db.Table('experiments_developers',
 		      db.Column('developer_id', db.Integer,
                             db.ForeignKey('developer.id')))
 
-experiments_hostinginfos = db.Table('experiments_hostinginfos',
+experiments_hosting_info = db.Table('experiments_hosting_info',
                  db.Column('experimentid', db.Integer, 
                        db.ForeignKey('experiment.id')),
-		 db.Column('hostinginfoid', db.Integer,
-                       db.ForeignKey('hostinginfo.id')))
+		 db.Column('hosting_infoid', db.Integer,
+                       db.ForeignKey('hosting_info.id')))
 
 #+END_SRC
 
@@ -251,7 +251,7 @@ args = {"__tablename__": "experiment",
         "exp_name": db.Column(db.String(255), unique=False, nullable=True),
         "exp_id": db.Column(db.String(255), unique=True, nullable=False),
         "overview": db.Column(db.String(1000), unique=False, nullable=True),
-        "intstatus_id": db.Column(db.Integer, db.ForeignKey('integrationstatus.id'),
+        "intstatus_id": db.Column(db.Integer, db.ForeignKey('integration_status.id'),
                                       unique=False, nullable=False),
         "assets": db.relationship('Asset',
                     secondary=experiments_assets, 
@@ -272,8 +272,8 @@ args = {"__tablename__": "experiment",
         "developers": db.relationship('Developer',
                     secondary=experiments_developers, 
                     backref='experiments'),
-        "hostinginfos": db.relationship('HostingInfo',
-                    secondary=experiments_hostinginfos, 
+        "hosting_info": db.relationship('Hosting_Info',
+                    secondary=experiments_hosting_info, 
                     backref='experiments')
         }
 
@@ -321,7 +321,7 @@ class TestPersistenceExperiment(TestCase):
         hosting_status = "hosted"
         hosted_url = "http://cse14-iiith.vlabs.ac.in"
         hosted_on = "cloud"
-        host = HostingInfo(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
+        host = Hosting_Info(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
         host.save()
 
         exp_name = "Number Systems"
@@ -329,7 +329,7 @@ class TestPersistenceExperiment(TestCase):
         overview = "This is linked list experiment"
 
         integration_level = 4
-        intstatus = IntegrationStatus(integration_level=integration_level)
+        intstatus = Integration_Status(integration_level=integration_level)
         intstatus.save()
 
         asset_type = "Image"
@@ -338,8 +338,8 @@ class TestPersistenceExperiment(TestCase):
         asset.save()
 
         exp = Experiment(exp_name=exp_name, exp_id=exp_id, overview=overview,
-                          integrationstatus=intstatus, assets=[asset], 
-                         sections=[], developers=[dev], hostinginfos=[host],  
+                          integration_status=intstatus, assets=[asset], 
+                         sections=[], developers=[dev], hosting_info=[host],  
                          institute=inst, discipline=discipline)
         exp.save()
 
@@ -352,14 +352,14 @@ class TestPersistenceExperiment(TestCase):
                              inst.get("inst_name"))
         self.assertEqual(experiment.get("discipline").get("dis_name"), 
                              discipline.get("dis_name"))
-        self.assertEqual(experiment.get("integrationstatus").get("integration_level"), 
+        self.assertEqual(experiment.get("integration_status").get("integration_level"), 
                              intstatus.get("integration_level"))
         self.assertEqual(experiment.get("assets")[0].get("asset_type"), 
                              asset.get("asset_type"))
         self.assertEqual(experiment1,None)
         self.assertEqual(experiment.get("developers")[0].get("email").get("email"), 
                              email_id.get("email"))
-        self.assertEqual(experiment.get("hostinginfos")[0].get("hosting_status"), 
+        self.assertEqual(experiment.get("hosting_info")[0].get("hosting_status"), 
                              host.get("hosting_status"))
 
 #+END_SRC
@@ -663,29 +663,29 @@ class TestPersistentDeveloper(TestCase):
 #+END_SRC
 
 
-* HostingInfo
+* Hosting_Info
 
-  =HostingInfo= is a class with attributes =hosting_status= and =hosted_url=.
+  =Hosting_Info= is a class with attributes =hosting_status= and =hosted_url=.
 
-#+NAME: class_HostingInfo
+#+NAME: class_Hosting_Info
 #+begin_src python
-args = {"__tablename__": "hostinginfo",
+args = {"__tablename__": "hosting_info",
         "id": db.Column(db.Integer, primary_key=True),
         "hosting_status": db.Column(db.String(255), unique=False, nullable=True),
         "hosted_url": db.Column(db.String(255), unique=True, nullable=False),
         "hosted_on": db.Column(db.String(255), unique=False, nullable=True),
-#        "labs": db.relationship('Lab', backref=db.backref('hostinginfo')),
-#        "experiments": db.relationship('Experiment', backref=db.backref('hostinginfo'))
+#        "labs": db.relationship('Lab', backref=db.backref('hosting_info')),
+#        "experiments": db.relationship('Experiment', backref=db.backref('hosting_info'))
        }
 
-HostingInfo = ClassPersistenceTemplate.mk_persistent(HostingInfo, ['hosted_url'], **args)
+Hosting_Info = ClassPersistenceTemplate.mk_persistent(Hosting_Info, ['hosted_url'], **args)
 
 #+end_src
 
-** Test HostingInfo
-#+NAME: class_TestHostingInfo
+** Test Hosting_Info
+#+NAME: class_TestHosting_Info
 #+BEGIN_SRC python
-class TestPersistenceHostingInfo(TestCase):
+class TestPersistenceHosting_Info(TestCase):
     TESTING = True
 
     def create_app(self):
@@ -699,19 +699,19 @@ class TestPersistenceHostingInfo(TestCase):
         db.session.remove()
         db.drop_all()
 
-    def test_create_hostinginfo(self):
-        print "test_persistent_hostinginfo"
+    def test_create_hosting_info(self):
+        print "test_persistent_hosting_info"
         hosting_status = "hosted"
         hosted_url = "http://cse14-iiith.vlabs.ac.in"
         hosted_on = "cloud"
-        host = HostingInfo(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
+        host = Hosting_Info(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
         host.save()
-        hostinginfo = HostingInfo.get_by_id(1)
-        hostinginfo1 = HostingInfo.get_by_id(2)
-        self.assertEqual(hostinginfo.get("hosting_status"), hosting_status)
-        self.assertEqual(hostinginfo.get("hosted_url"), hosted_url)
-        self.assertEqual(hostinginfo.get("hosted_on"), hosted_on)
-        self.assertEqual(hostinginfo1,None)
+        hosting_info = Hosting_Info.get_by_id(1)
+        hosting_info1 = Hosting_Info.get_by_id(2)
+        self.assertEqual(hosting_info.get("hosting_status"), hosting_status)
+        self.assertEqual(hosting_info.get("hosted_url"), hosted_url)
+        self.assertEqual(hosting_info.get("hosted_on"), hosted_on)
+        self.assertEqual(hosting_info1,None)
 
 #+END_SRC
 
@@ -765,31 +765,31 @@ class TestPersistenceAsset(TestCase):
 #+END_SRC
 
 
-* IntegrationStatus
+* Integration_Status
 
-  =IntegrationStatus= is a class with attributes =integration_level= of type =is_int=.
+  =Integration_Status= is a class with attributes =integration_level= of type =is_int=.
 
-#+NAME: class_IntegrationStatus
+#+NAME: class_Integration_Status
 #+begin_src python
-args = {"__tablename__": "integrationstatus",
+args = {"__tablename__": "integration_status",
         "id": db.Column(db.Integer, primary_key=True),
         "integration_level": db.Column(db.Integer, unique=True, nullable=False),
-        "labs": db.relationship('Lab', backref=db.backref('integrationstatus')), 
-        "experiments": db.relationship('Experiment', backref=db.backref('integrationstatus')), 
+        "labs": db.relationship('Lab', backref=db.backref('integration_status')), 
+        "experiments": db.relationship('Experiment', backref=db.backref('integration_status')), 
         "integration_level": db.Column(db.Integer, unique=True,
                                            nullable=False),
-        "labs": db.relationship('Lab', backref=db.backref('integrationstatus'))
+        "labs": db.relationship('Lab', backref=db.backref('integration_status'))
        }
 
-IntegrationStatus = ClassPersistenceTemplate.mk_persistent(IntegrationStatus,
+Integration_Status = ClassPersistenceTemplate.mk_persistent(Integration_Status,
                                                 ['integration_level'], **args)
 
 #+end_src
 
-** Test IntegrationStatus
-#+NAME: class_TestIntegrationStatus
+** Test Integration_Status
+#+NAME: class_TestIntegration_Status
 #+BEGIN_SRC python
-class TestPersistenceIntegrationStatus(TestCase):
+class TestPersistenceIntegration_Status(TestCase):
     TESTING = True
 
     def create_app(self):
@@ -803,15 +803,15 @@ class TestPersistenceIntegrationStatus(TestCase):
         db.session.remove()
         db.drop_all()
 
-    def test_create_integrationstatus(self):
-        print "test_persistance_integrationstatus"
+    def test_create_integration_status(self):
+        print "test_persistance_integration_status"
         integration_level = 4
-        intstatus = IntegrationStatus(integration_level=integration_level)
+        intstatus = Integration_Status(integration_level=integration_level)
         intstatus.save()
-        integrationstatus = IntegrationStatus.get_by_id(1)
-        integrationstatus1 = IntegrationStatus.get_by_id(2)
-        self.assertEqual(integrationstatus.get("integration_level"), integration_level)
-        self.assertEqual(integrationstatus1,None)
+        integration_status = Integration_Status.get_by_id(1)
+        integration_status1 = Integration_Status.get_by_id(2)
+        self.assertEqual(integration_status.get("integration_level"), integration_level)
+        self.assertEqual(integration_status1,None)
 
 #+END_SRC
 
@@ -872,9 +872,9 @@ if __name__ == '__main__':
 <<class_Name>>
 <<class_Email>>
 <<class_Developer>>
-<<class_HostingInfo>>
+<<class_Hosting_Info>>
 <<class_Asset>>
-<<class_IntegrationStatus>>
+<<class_Integration_Status>>
 #+end_src
 
 
@@ -889,9 +889,9 @@ if __name__ == '__main__':
 <<class_TestEmail>>
 <<class_TestDeveloper>>
 <<class_TestInstitute>>
-<<class_TestHostingInfo>>
+<<class_TestHosting_Info>>
 <<class_TestAsset>>
 <<class_TestAssets>>
-<<class_TestIntegrationStatus>>
+<<class_TestIntegration_Status>>
 <<run_test_cases>>
 #+end_src
