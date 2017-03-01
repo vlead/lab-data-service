@@ -31,7 +31,7 @@ class PersistenceDelegate():
                          'discipline' : Discipline,
                          'hosting_info': HostingInfo,
                          'asset' : Asset,
-                         'integration_status': Integration_Status,
+                         'integration_status': IntegrationStatus,
                          'name' : Name,
                          'email' : Email,
                          'developer' : Developer
@@ -127,7 +127,7 @@ class TestPersistenceDelegate(TestCase):
         discipline.save()
         
         integration_level = 4
-        integration_status = Integration_Status(integration_level=integration_level)
+        integration_status = IntegrationStatus(integration_level=integration_level)
         integration_status.save()
          
         asset_type = "Image"
@@ -218,7 +218,7 @@ class TestPersistenceDelegate(TestCase):
         overview1 = "overview"
 
         integration_level = 4
-        integration_status = Integration_Status(integration_level=integration_level)
+        integration_status = IntegrationStatus(integration_level=integration_level)
         integration_status.save()
 
         asset_type = "Image"
@@ -534,11 +534,11 @@ class TestPersistenceDelegate(TestCase):
     def test_integration_status_exists(self):
         print "test_integration_status_exists"
         integration_level1 = 4
-        integration_status1 = Integration_Status(integration_level=integration_level1)
+        integration_status1 = IntegrationStatus(integration_level=integration_level1)
         intstatus1 = self.persistence_delegate.add_integration_status(integration_status1)
 
         integration_level2 = 2
-        integration_status2 = Integration_Status(integration_level=integration_level2)
+        integration_status2 = IntegrationStatus(integration_level=integration_level2)
         
         self.assertEqual(self.persistence_delegate.integration_status_exists\
                              (integration_status1), True)
@@ -565,7 +565,7 @@ class TestPersistenceDelegate(TestCase):
          print "test_add_lab"
 
          integration_level = 4
-         integration_status = Integration_Status(integration_level=integration_level)
+         integration_status = IntegrationStatus(integration_level=integration_level)
          integration_status.save()
 
          inst_name = "IIT Kanpur"
@@ -676,7 +676,7 @@ class TestPersistenceDelegate(TestCase):
          host.save()
          
          integration_level = 4
-         integration_status = Integration_Status(integration_level=integration_level)
+         integration_status = IntegrationStatus(integration_level=integration_level)
          integration_status.save()
 
          asset_type = "Image"
@@ -993,13 +993,13 @@ class TestPersistenceDelegate(TestCase):
     def test_add_integration_status(self):
          print "test_add_integration_status"
          integration_level1 = 4
-         integration_status1 = Integration_Status(integration_level=integration_level1)
+         integration_status1 = IntegrationStatus(integration_level=integration_level1)
          integration_status1 = self.persistence_delegate.add_integration_status(integration_status1)
          
          integration_level2= 2
-         integration_status2 = Integration_Status(integration_level=integration_level2)
+         integration_status2 = IntegrationStatus(integration_level=integration_level2)
          
-         integration_status = Integration_Status.get_by_id(1)
+         integration_status = IntegrationStatus.get_by_id(1)
 
          self.assertEqual(self.persistence_delegate.integration_status_exists\
                               (integration_status1), True)
@@ -1042,7 +1042,7 @@ class TestPersistenceDelegate(TestCase):
          discipline.save()
 
          integration_level = 4
-         integration_status = Integration_Status(integration_level=integration_level)
+         integration_status = IntegrationStatus(integration_level=integration_level)
          integration_status.save()
   
          asset_type = "Image"
@@ -1128,7 +1128,7 @@ class TestPersistenceDelegate(TestCase):
          overview = "overview"
 
          integration_level = 4
-         integration_status = Integration_Status(integration_level=integration_level)
+         integration_status = IntegrationStatus(integration_level=integration_level)
          integration_status.save()
 
          asset_type = "Image"
@@ -1387,7 +1387,7 @@ class TestPersistenceDelegate(TestCase):
          inst.save()
 
          integration_level = 4
-         integration_status = Integration_Status(integration_level=integration_level)                    
+         integration_status = IntegrationStatus(integration_level=integration_level)                    
          integration_status.save()
 
          dis_name = "IIT Kanpur"
@@ -1489,7 +1489,7 @@ class TestPersistenceDelegate(TestCase):
          host.save()
          
          integration_level = 4
-         integration_status = Integration_Status(integration_level=integration_level)
+         integration_status = IntegrationStatus(integration_level=integration_level)
          integration_status.save()
 
          asset_type = "Image"
@@ -1869,14 +1869,14 @@ class TestPersistenceDelegate(TestCase):
 
 
 
-***  Delete Integration_Status
+***  Delete IntegrationStatus
     This function deletes existing integration_status.
 #+NAME: persistence_delete_integration_status
 #+BEGIN_SRC python
     def delete_integration_status(self, integration_level):
         record = self.get_integration_status(integration_level=integration_level)
         if not record:
-            abort(404, 'No Integration_Status with id %s' % (integration_level))
+            abort(404, 'No IntegrationStatus with id %s' % (integration_level))
         else:
             try:
                 record.delete()
@@ -1895,16 +1895,16 @@ class TestPersistenceDelegate(TestCase):
     def test_delete_integration_status(self):
          print "test_delete_integration_status"
          integration_level = 4
-         integration_status = Integration_Status(integration_level=integration_level)                    
+         integration_status = IntegrationStatus(integration_level=integration_level)                    
          integration_status1 = self.persistence_delegate.add_integration_status(integration_status)
 
          integration_level1 = 2
-         integration_status1 = Integration_Status(integration_level=integration_level1)
+         integration_status1 = IntegrationStatus(integration_level=integration_level1)
          integration_status2 = self.persistence_delegate.add_integration_status(integration_status1)
 
          self.persistence_delegate.delete_integration_status(integration_level)
 
-         self.assertEqual(len(Integration_Status.get_all()), 1)
+         self.assertEqual(len(IntegrationStatus.get_all()), 1)
 
 #+END_SRC
 
@@ -1957,7 +1957,7 @@ class TestPersistenceDelegate(TestCase):
          asset.save()
 
          integration_level = 4
-         integration_status = Integration_Status(integration_level=integration_level)
+         integration_status = IntegrationStatus(integration_level=integration_level)
          integration_status.save()
 
          dev_name = Name(name="Mohit Tahiliani")
@@ -2050,7 +2050,7 @@ class TestPersistenceDelegate(TestCase):
          asset.save()
 
          integration_level = 4
-         integration_status = Integration_Status(integration_level=integration_level)
+         integration_status = IntegrationStatus(integration_level=integration_level)
          integration_status.save()
 
          dev_name = Name(name="Mohit Tahiliani")
@@ -2142,7 +2142,7 @@ class TestPersistenceDelegate(TestCase):
          discipline.save()
 
          integration_level = 4
-         integration_status = Integration_Status(integration_level=integration_level)
+         integration_status = IntegrationStatus(integration_level=integration_level)
          integration_status.save()
 
          dev_name = Name(name="Mohit Tahiliani")
@@ -2227,7 +2227,7 @@ class TestPersistenceDelegate(TestCase):
          host.save()
 
          integration_level = 4
-         integration_status = Integration_Status(integration_level=integration_level)
+         integration_status = IntegrationStatus(integration_level=integration_level)
          integration_status.save()
 
          asset_type = "Image"
@@ -2312,7 +2312,7 @@ class TestPersistenceDelegate(TestCase):
          asset.save()
 
          integration_level = 4
-         integration_status = Integration_Status(integration_level=integration_level)
+         integration_status = IntegrationStatus(integration_level=integration_level)
          integration_status.save()
 
          dev_name = Name(name="Mohit Tahiliani")
@@ -2501,7 +2501,7 @@ class TestPersistenceDelegate(TestCase):
          overview = "overview"
 
          integration_level = 4
-         integration_status = Integration_Status(integration_level=integration_level)
+         integration_status = IntegrationStatus(integration_level=integration_level)
          integration_status.save()
 
          asset_type = "Image"
@@ -2659,7 +2659,7 @@ class TestPersistenceDelegate(TestCase):
          asset.save()
 
          integration_level = 4
-         integration_status = Integration_Status(integration_level=integration_level)
+         integration_status = IntegrationStatus(integration_level=integration_level)
          integration_status.save()
 
          dev_name = Name(name="Mohit Tahiliani")
@@ -2720,7 +2720,7 @@ class TestPersistenceDelegate(TestCase):
          asset.save()
 
          integration_level = 4
-         integration_status = Integration_Status(integration_level=integration_level)
+         integration_status = IntegrationStatus(integration_level=integration_level)
          integration_status.save()
 
          dev_name = Name(name="Mohit Tahiliani")
@@ -2779,7 +2779,7 @@ class TestPersistenceDelegate(TestCase):
          asset.save()
 
          integration_level = 4
-         integration_status = Integration_Status(integration_level=integration_level)
+         integration_status = IntegrationStatus(integration_level=integration_level)
          integration_status.save()
 
          dev_name = Name(name="Mohit Tahiliani")
@@ -2839,7 +2839,7 @@ class TestPersistenceDelegate(TestCase):
          asset.save()
 
          integration_level = 4
-         integration_status = Integration_Status(integration_level=integration_level)
+         integration_status = IntegrationStatus(integration_level=integration_level)
          integration_status.save()
 
          dev_name = Name(name="Mohit Tahiliani")
@@ -2958,13 +2958,13 @@ class TestPersistenceDelegate(TestCase):
 #+END_SRC
 
 
-***  Get Integration_Status
+***  Get IntegrationStatus
     This function returns integration_status if present in the database. If the integration_status is
     not present, =None= type is returned.
 #+NAME: persistence_get_integration_status
 #+BEGIN_SRC python
     def get_integration_status(self, **kwargs):
-        return self.get_object(Integration_Status, **kwargs)
+        return self.get_object(IntegrationStatus, **kwargs)
 
 #+END_SRC
 
@@ -2975,7 +2975,7 @@ class TestPersistenceDelegate(TestCase):
          print "test_get_integration_status"
 
          integration_level = 4
-         intstatus = Integration_Status(integration_level=integration_level)                             
+         intstatus = IntegrationStatus(integration_level=integration_level)                             
          intstatus.save()
          intstatus_obj = self.persistence_delegate.get_integration_status(integration_level=
                                                 intstatus.get("integration_level"))
@@ -3069,7 +3069,7 @@ class TestPersistenceDelegate(TestCase):
          asset.save()
 
          integration_level = 4
-         integration_status = Integration_Status(integration_level=integration_level)
+         integration_status = IntegrationStatus(integration_level=integration_level)
          integration_status.save()
 
          dev_name = Name(name="Mohit Tahiliani")
@@ -3152,7 +3152,7 @@ class TestPersistenceDelegate(TestCase):
          overview = "overview"
 
          integration_level = 4
-         integration_status = Integration_Status(integration_level=integration_level)
+         integration_status = IntegrationStatus(integration_level=integration_level)
          integration_status.save()
 
          asset_type = "Image"

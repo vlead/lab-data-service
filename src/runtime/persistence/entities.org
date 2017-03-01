@@ -108,7 +108,7 @@ class TestPersistentLab(TestCase):
         discipline.save()
 
         integration_level = 4
-        intstatus = Integration_Status(integration_level=integration_level)
+        intstatus = IntegrationStatus(integration_level=integration_level)
         intstatus.save()
 
         asset_type = "Image"
@@ -329,7 +329,7 @@ class TestPersistenceExperiment(TestCase):
         overview = "This is linked list experiment"
 
         integration_level = 4
-        intstatus = Integration_Status(integration_level=integration_level)
+        intstatus = IntegrationStatus(integration_level=integration_level)
         intstatus.save()
 
         asset_type = "Image"
@@ -765,11 +765,11 @@ class TestPersistenceAsset(TestCase):
 #+END_SRC
 
 
-* Integration_Status
+* IntegrationStatus
 
-  =Integration_Status= is a class with attributes =integration_level= of type =is_int=.
+  =IntegrationStatus= is a class with attributes =integration_level= of type =is_int=.
 
-#+NAME: class_Integration_Status
+#+NAME: class_IntegrationStatus
 #+begin_src python
 args = {"__tablename__": "integration_status",
         "id": db.Column(db.Integer, primary_key=True),
@@ -781,15 +781,15 @@ args = {"__tablename__": "integration_status",
         "labs": db.relationship('Lab', backref=db.backref('integration_status'))
        }
 
-Integration_Status = ClassPersistenceTemplate.mk_persistent(Integration_Status,
+IntegrationStatus = ClassPersistenceTemplate.mk_persistent(IntegrationStatus,
                                                 ['integration_level'], **args)
 
 #+end_src
 
-** Test Integration_Status
-#+NAME: class_TestIntegration_Status
+** Test IntegrationStatus
+#+NAME: class_TestIntegrationStatus
 #+BEGIN_SRC python
-class TestPersistenceIntegration_Status(TestCase):
+class TestPersistenceIntegrationStatus(TestCase):
     TESTING = True
 
     def create_app(self):
@@ -806,10 +806,10 @@ class TestPersistenceIntegration_Status(TestCase):
     def test_create_integration_status(self):
         print "test_persistance_integration_status"
         integration_level = 4
-        intstatus = Integration_Status(integration_level=integration_level)
+        intstatus = IntegrationStatus(integration_level=integration_level)
         intstatus.save()
-        integration_status = Integration_Status.get_by_id(1)
-        integration_status1 = Integration_Status.get_by_id(2)
+        integration_status = IntegrationStatus.get_by_id(1)
+        integration_status1 = IntegrationStatus.get_by_id(2)
         self.assertEqual(integration_status.get("integration_level"), integration_level)
         self.assertEqual(integration_status1,None)
 
@@ -874,7 +874,7 @@ if __name__ == '__main__':
 <<class_Developer>>
 <<class_HostingInfo>>
 <<class_Asset>>
-<<class_Integration_Status>>
+<<class_IntegrationStatus>>
 #+end_src
 
 
@@ -892,6 +892,6 @@ if __name__ == '__main__':
 <<class_TestHostingInfo>>
 <<class_TestAsset>>
 <<class_TestAssets>>
-<<class_TestIntegration_Status>>
+<<class_TestIntegrationStatus>>
 <<run_test_cases>>
 #+end_src
