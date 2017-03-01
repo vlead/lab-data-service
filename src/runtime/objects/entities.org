@@ -607,12 +607,16 @@ class TestDev(TestCase):
 #+NAME: class_Asset
 #+begin_src python
 Asset.add_attributes(path=is_str,
-                    asset_type=is_str)
+                    asset_type=is_str,
+                    discipline=is_discipline,
+                    institute=is_institute)
 
 Asset.__eq__ = lambda self, other: \
                   isinstance(other, self.__class__) and \
                   self.get("path") == other.get("path") and \
-                  self.get("asset_type") == other.get("asset_type")                  
+                  self.get("asset_type") == other.get("asset_type") and \
+                  self.get("discipline") == other.get("discipline") and \
+                  self.get("institute") == other.get("institute")                
 #+end_src
 
 *** Test Asset
@@ -622,12 +626,27 @@ class TestAsset(TestCase):
     TESTING = True
     def test_object_asset(self):
         print "test_object_asset"
+
+        inst_name = "IIIT Hyderabad"
+        inst_id = "IIIT-H"
+        inst = Institute(inst_name=inst_name, inst_id=inst_id)
+
+        dis_name = "IIT Kanpur"
+        dis_id = "IITK"
+        discipline = Discipline(dis_name=dis_name, dis_id=dis_id)  
+
         path = "vlabs.ac.in/static/images/logo.png"
         asset_type = "Image"
-        asset = Asset(path=path, asset_type=asset_type)
+
+        asset = Asset(path=path, asset_type=asset_type,
+                      institute=inst, discipline=discipline)
                                               
         self.assertEqual(asset.get("path"), path)
         self.assertEqual(asset.get("asset_type"), asset_type)
+        self.assertEqual(asset.get("institute").get("inst_name"), 
+                             inst.get("inst_name"))
+        self.assertEqual(asset.get("discipline").get("dis_name"), 
+                             discipline.get("dis_name"))
 #+end_src
 
 
