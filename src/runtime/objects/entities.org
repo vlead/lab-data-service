@@ -44,7 +44,7 @@ Email = ClassTemplate.mk_class("Email")
 Developer = ClassTemplate.mk_class("Developer")
 Institute = ClassTemplate.mk_class("Institute")
 Asset = ClassTemplate.mk_class("Asset")
-Hosting_Info = ClassTemplate.mk_class("Hosting_Info")
+HostingInfo = ClassTemplate.mk_class("HostingInfo")
 Integration_Status = ClassTemplate.mk_class("Integration_Status")
 
 #+END_SRC
@@ -171,7 +171,7 @@ def are_disciplines(disciplies):
 
     return ret_val
 
-is_hosting_info = is_inst(Hosting_Info)
+is_hosting_info = is_inst(HostingInfo)
 check_hosting_info = check_pred(is_hosting_info)
 
 is_integration_status = is_inst(Integration_Status)
@@ -268,7 +268,7 @@ class TestLab(TestCase):
         hosting_status = "hosted"
         hosted_url = "http://cse14-iiith.vlabs.ac.in"
         hosted_on = "cloud"
-        host = Hosting_Info(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
+        host = HostingInfo(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
 
         experiment = Experiment(exp_name=exp_name, exp_id=exp_id, \
                                 overview=overview, sections=[], institute=inst, 
@@ -399,7 +399,7 @@ class TestExperiment(TestCase):
         hosting_status = "hosted"
         hosted_url = "http://cse14-iiith.vlabs.ac.in"
         hosted_on = "cloud"
-        host = Hosting_Info(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
+        host = HostingInfo(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
 
         experiment = Experiment(exp_name=exp_name, exp_id=exp_id, 
                                 institute=inst, discipline=discipline,     
@@ -631,32 +631,32 @@ class TestAsset(TestCase):
 #+end_src
 
 
-* Hosting_Info
-   =Hosting_Info= is an entity that has a field =hosting_status=, =hosted_url=
+* HostingInfo
+   =HostingInfo= is an entity that has a field =hosting_status=, =hosted_url=
    and =hosting_on= which are string
-#+NAME: class_Hosting_Info
+#+NAME: class_HostingInfo
 #+begin_src python
-Hosting_Info.add_attributes(hosting_status=is_str,
+HostingInfo.add_attributes(hosting_status=is_str,
                     hosted_url=is_url, hosted_on=is_str)
 
-Hosting_Info.__eq__ = lambda self, other: \
+HostingInfo.__eq__ = lambda self, other: \
                   isinstance(other, self.__class__) and \
                   self.get("hosting_status") == other.get("hosting_status") and \
                   self.get("hosted_url") == other.get("hosted_url") and \
                   self.get("hosted_on") == other.get("hosted_on")
 #+end_src
 
-*** Test Hosting_Info
-#+NAME: class_TestHosting_Info
+*** Test HostingInfo
+#+NAME: class_TestHostingInfo
 #+BEGIN_SRC python
-class TestHosting_Info(TestCase):
+class TestHostingInfo(TestCase):
     TESTING = True
     def test_object_hosting_info(self):
         print "test_object_hosting_info"
         hosting_status = "hosted"
         hosted_url = "http://cse14-iiith.vlabs.ac.in"
         hosted_on = "cloud"
-        hosting_info = Hosting_Info(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
+        hosting_info = HostingInfo(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
                                               
         self.assertEqual(hosting_info.get("hosting_status"), hosting_status)
         self.assertEqual(hosting_info.get("hosted_url"), hosted_url)
@@ -744,7 +744,7 @@ if __name__ == '__main__':
 <<class_Developer>>
 <<class_Institute>>
 <<class_Asset>>
-<<class_Hosting_Info>>
+<<class_HostingInfo>>
 <<class_Integration_Status>>
 #+end_src
 
@@ -762,7 +762,7 @@ if __name__ == '__main__':
 <<class_TestDeveloper>>
 <<class_TestInstitute>>
 <<class_TestAsset>>
-<<class_TestHosting_Info>>
+<<class_TestHostingInfo>>
 <<class_TestIntegration_Status>>
 <<run_test_cases>>
 #+end_src

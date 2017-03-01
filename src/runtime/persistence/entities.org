@@ -67,7 +67,7 @@ args = {"__tablename__": "lab",
         "developers": db.relationship('Developer',
                     secondary=lab_developers, 
                     backref='labs'),
-        "hosting_info": db.relationship('Hosting_Info',
+        "hosting_info": db.relationship('HostingInfo',
                     secondary=lab_hosting_info, 
                     backref='labs')
        }
@@ -130,7 +130,7 @@ class TestPersistentLab(TestCase):
         hosting_status = "hosted"
         hosted_url = "http://cse14-iiith.vlabs.ac.in"
         hosted_on = "cloud"
-        host = Hosting_Info(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
+        host = HostingInfo(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
         host.save()
 
         exp_name = "Number Systems"
@@ -272,7 +272,7 @@ args = {"__tablename__": "experiment",
         "developers": db.relationship('Developer',
                     secondary=experiments_developers, 
                     backref='experiments'),
-        "hosting_info": db.relationship('Hosting_Info',
+        "hosting_info": db.relationship('HostingInfo',
                     secondary=experiments_hosting_info, 
                     backref='experiments')
         }
@@ -321,7 +321,7 @@ class TestPersistenceExperiment(TestCase):
         hosting_status = "hosted"
         hosted_url = "http://cse14-iiith.vlabs.ac.in"
         hosted_on = "cloud"
-        host = Hosting_Info(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
+        host = HostingInfo(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
         host.save()
 
         exp_name = "Number Systems"
@@ -663,11 +663,11 @@ class TestPersistentDeveloper(TestCase):
 #+END_SRC
 
 
-* Hosting_Info
+* HostingInfo
 
-  =Hosting_Info= is a class with attributes =hosting_status= and =hosted_url=.
+  =HostingInfo= is a class with attributes =hosting_status= and =hosted_url=.
 
-#+NAME: class_Hosting_Info
+#+NAME: class_HostingInfo
 #+begin_src python
 args = {"__tablename__": "hosting_info",
         "id": db.Column(db.Integer, primary_key=True),
@@ -678,14 +678,14 @@ args = {"__tablename__": "hosting_info",
 #        "experiments": db.relationship('Experiment', backref=db.backref('hosting_info'))
        }
 
-Hosting_Info = ClassPersistenceTemplate.mk_persistent(Hosting_Info, ['hosted_url'], **args)
+HostingInfo = ClassPersistenceTemplate.mk_persistent(HostingInfo, ['hosted_url'], **args)
 
 #+end_src
 
-** Test Hosting_Info
-#+NAME: class_TestHosting_Info
+** Test HostingInfo
+#+NAME: class_TestHostingInfo
 #+BEGIN_SRC python
-class TestPersistenceHosting_Info(TestCase):
+class TestPersistenceHostingInfo(TestCase):
     TESTING = True
 
     def create_app(self):
@@ -704,10 +704,10 @@ class TestPersistenceHosting_Info(TestCase):
         hosting_status = "hosted"
         hosted_url = "http://cse14-iiith.vlabs.ac.in"
         hosted_on = "cloud"
-        host = Hosting_Info(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
+        host = HostingInfo(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
         host.save()
-        hosting_info = Hosting_Info.get_by_id(1)
-        hosting_info1 = Hosting_Info.get_by_id(2)
+        hosting_info = HostingInfo.get_by_id(1)
+        hosting_info1 = HostingInfo.get_by_id(2)
         self.assertEqual(hosting_info.get("hosting_status"), hosting_status)
         self.assertEqual(hosting_info.get("hosted_url"), hosted_url)
         self.assertEqual(hosting_info.get("hosted_on"), hosted_on)
@@ -872,7 +872,7 @@ if __name__ == '__main__':
 <<class_Name>>
 <<class_Email>>
 <<class_Developer>>
-<<class_Hosting_Info>>
+<<class_HostingInfo>>
 <<class_Asset>>
 <<class_Integration_Status>>
 #+end_src
@@ -889,7 +889,7 @@ if __name__ == '__main__':
 <<class_TestEmail>>
 <<class_TestDeveloper>>
 <<class_TestInstitute>>
-<<class_TestHosting_Info>>
+<<class_TestHostingInfo>>
 <<class_TestAsset>>
 <<class_TestAssets>>
 <<class_TestIntegration_Status>>
