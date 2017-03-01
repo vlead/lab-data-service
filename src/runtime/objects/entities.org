@@ -44,8 +44,8 @@ Email = ClassTemplate.mk_class("Email")
 Developer = ClassTemplate.mk_class("Developer")
 Institute = ClassTemplate.mk_class("Institute")
 Asset = ClassTemplate.mk_class("Asset")
-HostingInfo = ClassTemplate.mk_class("HostingInfo")
-IntegrationStatus = ClassTemplate.mk_class("IntegrationStatus")
+Hosting_Info = ClassTemplate.mk_class("Hosting_Info")
+Integration_Status = ClassTemplate.mk_class("Integration_Status")
 
 #+END_SRC
 
@@ -171,11 +171,11 @@ def are_disciplines(disciplies):
 
     return ret_val
 
-is_hostinginfo = is_inst(HostingInfo)
-check_hostinginfo = check_pred(is_hostinginfo)
+is_hosting_info = is_inst(Hosting_Info)
+check_hosting_info = check_pred(is_hosting_info)
 
-is_integrationstatus = is_inst(IntegrationStatus)
-check_hostinginfo = check_pred(is_integrationstatus)
+is_integration_status = is_inst(Integration_Status)
+check_hosting_info = check_pred(is_integration_status)
 
 is_asset = is_inst(Asset)
 check_asset = check_pred(is_asset)
@@ -191,11 +191,11 @@ def are_assets(assets):
 
     return ret_val
 
-def are_hostinginfos(hostinginfos):
+def are_hosting_info(hosting_info):
     ret_val = True
-    if is_list(hostinginfos):
-        for hostinginfo in hostinginfos:
-            if not is_hostinginfo(hostinginfo):
+    if is_list(hosting_info):
+        for hosting_info in hosting_info:
+            if not is_hosting_info(hosting_info):
                 ret_val = False
     else:
         ret_val = False
@@ -215,10 +215,10 @@ Lab.add_attributes(lab_name=is_str,
                     institute=is_institute,
                     discipline=is_discipline,
                     assets=are_assets,
-                    integrationstatus=is_integrationstatus,
+                    integration_status=is_integration_status,
                     experiments=are_experiments,
                     developers=are_developers,
-                    hostinginfos=are_hostinginfos)
+                    hosting_info=are_hosting_info)
 
 Lab.__eq__ = lambda self, other: \
                   isinstance(other, self.__class__) and \
@@ -228,10 +228,10 @@ Lab.__eq__ = lambda self, other: \
                   self.get("institute") == other.get("institute") and \
                   self.get("discipline") == other.get("discipline") and \
                   self.get("assets") == other.get("assets") and \
-                  self.get("integrationstatus") == other.get("integrationstatus") and \
+                  self.get("integration_status") == other.get("integration_status") and \
                   self.get("experiments") == other.get("experiments") and \
                   self.get("developers") == other.get("developers") and \
-                  self.get("hostinginfos") == other.get("hostinginfos")
+                  self.get("hosting_info") == other.get("hosting_info")
 
 #+end_src
 
@@ -260,7 +260,7 @@ class TestLab(TestCase):
                       institute=inst, discipline=discipline)
 
         integration_level = 4
-        integrationstatus = IntegrationStatus(integration_level=integration_level)
+        integration_status = Integration_Status(integration_level=integration_level)
 
         dev_name = Name(name="Mohit Tahiliani")
         email_id = Email(email="mohit.tahiliani@gmail.com")
@@ -269,13 +269,13 @@ class TestLab(TestCase):
         hosting_status = "hosted"
         hosted_url = "http://cse14-iiith.vlabs.ac.in"
         hosted_on = "cloud"
-        host = HostingInfo(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
+        host = Hosting_Info(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
 
         experiment = Experiment(exp_name=exp_name, exp_id=exp_id, \
                                 overview=overview, sections=[], institute=inst, 
                                   discipline=discipline,                        
-                                  integrationstatus=integrationstatus, assets=[asset],
-                                  developers=[dev], hostinginfos=[host])
+                                  integration_status=integration_status, assets=[asset],
+                                  developers=[dev], hosting_info=[host])
 
         lab_name = "Computer Programming"
         lab_id = "CSE01"
@@ -283,8 +283,8 @@ class TestLab(TestCase):
         "and ques..etc"
         lab = Lab(lab_name=lab_name, lab_id=lab_id, overview=overview,
                       institute=inst, discipline=discipline, assets=[asset],
-                      integrationstatus=integrationstatus, developers=[dev],
-                      hostinginfos=[host], experiments=[experiment])
+                      integration_status=integration_status, developers=[dev],
+                      hosting_info=[host], experiments=[experiment])
 
         self.assertEqual(lab.get("lab_name"), lab_name)
         self.assertEqual(lab.get("lab_id"), lab_id)
@@ -295,12 +295,12 @@ class TestLab(TestCase):
                              discipline.get("dis_name"))
         self.assertEqual(lab.get("assets")[0].get("asset_type"), 
                              asset.get("asset_type"))
-        self.assertEqual(lab.get("integrationstatus").get("integration_level"), 
-                             integrationstatus.get("integration_level"))
+        self.assertEqual(lab.get("integration_status").get("integration_level"), 
+                             integration_status.get("integration_level"))
         self.assertEqual(lab.get("experiments")[0].get("exp_name"), 
                              experiment.get("exp_name"))
         self.assertEqual(lab.get("developers")[0].get("email").get("email"), email_id.get("email"))
-        self.assertEqual(lab.get("hostinginfos")[0].get("hosting_status"), 
+        self.assertEqual(lab.get("hosting_info")[0].get("hosting_status"), 
                              host.get("hosting_status"))
 
 #+END_SRC
@@ -345,10 +345,10 @@ Experiment.add_attributes(exp_name=is_str,
                           sections=are_sections, 
                           discipline=is_discipline,
                           institute=is_institute,
-                          integrationstatus=is_integrationstatus,
+                          integration_status=is_integration_status,
                           assets=are_assets,
                           developers=are_developers,
-                          hostinginfos=are_hostinginfos)
+                          hosting_info=are_hosting_info)
 
 Experiment.__eq__ = lambda self, other: \
                   isinstance(other, self.__class__) and \
@@ -358,10 +358,10 @@ Experiment.__eq__ = lambda self, other: \
                   self.get("sections") == other.get("sections") and \
                   self.get("discipline") == other.get("discipline") and \
                   self.get("institute") == other.get("institute") and \
-                  self.get("integrationstatus") == other.get("integrationstatus") and \
+                  self.get("integration_status") == other.get("integration_status") and \
                   self.get("assets") == other.get("assets") and \
                   self.get("developers") == other.get("developers") and \
-                  self.get("hostinginfos") == other.get("hostinginfos")
+                  self.get("hosting_info") == other.get("hosting_info")
 
 #+end_src
 
@@ -387,7 +387,7 @@ class TestExperiment(TestCase):
         overview = "This is linked list experiment"
 
         integration_level = 4
-        integrationstatus = IntegrationStatus(integration_level=integration_level)
+        integration_status = Integration_Status(integration_level=integration_level)
 
         asset_type = "Image"
         path = "vlabs.ac.in/images/static/logo.png"
@@ -401,19 +401,19 @@ class TestExperiment(TestCase):
         hosting_status = "hosted"
         hosted_url = "http://cse14-iiith.vlabs.ac.in"
         hosted_on = "cloud"
-        host = HostingInfo(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
+        host = Hosting_Info(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
 
         experiment = Experiment(exp_name=exp_name, exp_id=exp_id, 
                                 institute=inst, discipline=discipline,     
                                 overview=overview,
-                                integrationstatus=integrationstatus, 
+                                integration_status=integration_status, 
                                 sections=[], assets=[asset],
-                                developers=[dev], hostinginfos=[host])
+                                developers=[dev], hosting_info=[host])
 
         self.assertEqual(experiment.get("exp_name"), exp_name)
         self.assertEqual(experiment.get("overview"), overview)
-        self.assertEqual(experiment.get("integrationstatus").get("integration_level"), 
-                             integrationstatus.get("integration_level"))
+        self.assertEqual(experiment.get("integration_status").get("integration_level"), 
+                             integration_status.get("integration_level"))
         self.assertEqual(experiment.get("assets")[0].get("asset_type"), 
                              asset.get("asset_type"))       
         self.assertEqual(experiment.get("exp_id"), exp_id)
@@ -423,7 +423,7 @@ class TestExperiment(TestCase):
         self.assertEqual(experiment.get("discipline").get("dis_name"), 
                              discipline.get("dis_name"))
         self.assertEqual(experiment.get("developers")[0].get("email").get("email"), email_id.get("email"))
-        self.assertEqual(experiment.get("hostinginfos")[0].get("hosting_status"), host.get("hosting_status"))
+        self.assertEqual(experiment.get("hosting_info")[0].get("hosting_status"), host.get("hosting_status"))
 
 #+END_SRC
 
@@ -652,64 +652,64 @@ class TestAsset(TestCase):
 #+end_src
 
 
-* HostingInfo
-   =HostingInfo= is an entity that has a field =hosting_status=, =hosted_url=
+* Hosting_Info
+   =Hosting_Info= is an entity that has a field =hosting_status=, =hosted_url=
    and =hosting_on= which are string
-#+NAME: class_HostingInfo
+#+NAME: class_Hosting_Info
 #+begin_src python
-HostingInfo.add_attributes(hosting_status=is_str,
+Hosting_Info.add_attributes(hosting_status=is_str,
                     hosted_url=is_url, hosted_on=is_str)
 
-HostingInfo.__eq__ = lambda self, other: \
+Hosting_Info.__eq__ = lambda self, other: \
                   isinstance(other, self.__class__) and \
                   self.get("hosting_status") == other.get("hosting_status") and \
                   self.get("hosted_url") == other.get("hosted_url") and \
                   self.get("hosted_on") == other.get("hosted_on")
 #+end_src
 
-*** Test HostingInfo
-#+NAME: class_TestHostingInfo
+*** Test Hosting_Info
+#+NAME: class_TestHosting_Info
 #+BEGIN_SRC python
-class TestHostingInfo(TestCase):
+class TestHosting_Info(TestCase):
     TESTING = True
-    def test_object_hostinginfo(self):
-        print "test_object_hostinginfo"
+    def test_object_hosting_info(self):
+        print "test_object_hosting_info"
         hosting_status = "hosted"
         hosted_url = "http://cse14-iiith.vlabs.ac.in"
         hosted_on = "cloud"
-        hostinginfo = HostingInfo(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
+        hosting_info = Hosting_Info(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
                                               
-        self.assertEqual(hostinginfo.get("hosting_status"), hosting_status)
-        self.assertEqual(hostinginfo.get("hosted_url"), hosted_url)
-        self.assertEqual(hostinginfo.get("hosted_on"), hosted_on)
+        self.assertEqual(hosting_info.get("hosting_status"), hosting_status)
+        self.assertEqual(hosting_info.get("hosted_url"), hosted_url)
+        self.assertEqual(hosting_info.get("hosted_on"), hosted_on)
        
 #+END_SRC
 
 
-* IntegrationStatus
-   =IntegrationStatus= is an entity that has a field =integration_level= with type =is_int=
-#+NAME: class_IntegrationStatus
+* Integration_Status
+   =Integration_Status= is an entity that has a field =integration_level= with type =is_int=
+#+NAME: class_Integration_Status
 #+begin_src python
 
-IntegrationStatus.add_attributes(integration_level=is_int)
+Integration_Status.add_attributes(integration_level=is_int)
 
-IntegrationStatus.__eq__ = lambda self, other: \
+Integration_Status.__eq__ = lambda self, other: \
                   isinstance(other, self.__class__) and \
                   self.get("integration_level") == other.get("integration_level")
 #+end_src
 
-*** Test IntegrationStatus
-#+NAME: class_TestIntegrationStatus
+*** Test Integration_Status
+#+NAME: class_TestIntegration_Status
 #+BEGIN_SRC python
-class TestIntegrationStatus(TestCase):
+class TestIntegration_Status(TestCase):
     TESTING = True
 
-    def test_object_integrationstatus(self):
-        print "test_object_integrationstatus"
+    def test_object_integration_status(self):
+        print "test_object_integration_status"
         integration_level = 4
-        integrationstatus = IntegrationStatus(integration_level=integration_level)
+        integration_status = Integration_Status(integration_level=integration_level)
 
-        self.assertEqual(integrationstatus.get("integration_level"), integration_level)
+        self.assertEqual(integration_status.get("integration_level"), integration_level)
 
 #+END_SRC
 
@@ -765,8 +765,8 @@ if __name__ == '__main__':
 <<class_Developer>>
 <<class_Institute>>
 <<class_Asset>>
-<<class_HostingInfo>>
-<<class_IntegrationStatus>>
+<<class_Hosting_Info>>
+<<class_Integration_Status>>
 #+end_src
 
 
@@ -783,7 +783,7 @@ if __name__ == '__main__':
 <<class_TestDeveloper>>
 <<class_TestInstitute>>
 <<class_TestAsset>>
-<<class_TestHostingInfo>>
-<<class_TestIntegrationStatus>>
+<<class_TestHosting_Info>>
+<<class_TestIntegration_Status>>
 <<run_test_cases>>
 #+end_src

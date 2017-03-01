@@ -42,15 +42,15 @@ class TestAddLab(TestCase):
         discipline_cls = System.delegate.entities['discipline']
         asset_cls = System.delegate.entities['asset']
         experiment_cls = System.delegate.entities['experiment']
-        integrationstatus_cls = System.delegate.entities['integrationstatus']
+        integration_status_cls = System.delegate.entities['integration_status']
         name_cls = System.delegate.entities['name']
         email_cls = System.delegate.entities['email']
         developer_cls = System.delegate.entities['developer']
-        hostinginfo_cls = System.delegate.entities['hostinginfo']
+        hosting_info_cls = System.delegate.entities['hosting_info']
 
         integration_level = 4
-        integrationstatus = integrationstatus_cls(integration_level=integration_level)
-        integrationstatus.save()
+        integration_status = integration_status_cls(integration_level=integration_level)
+        integration_status.save()
 
         dev_name = name_cls(name="Mohit Tahiliani")
         dev_name.save()
@@ -77,7 +77,7 @@ class TestAddLab(TestCase):
         hosting_status = "hosted"
         hosted_url = "http://cse14-iiith.vlabs.ac.in"
         hosted_on = "cloud"
-        host = hostinginfo_cls(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
+        host = hosting_info_cls(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
         host.save()
 
         exp_name = "arrays"
@@ -86,9 +86,9 @@ class TestAddLab(TestCase):
         experiment = experiment_cls(exp_name=exp_name, exp_id=exp_id,
                                     overview=overview, sections=[],
                                     institute=inst, discipline=discipline,
-                                        integrationstatus=integrationstatus, 
+                                        integration_status=integration_status, 
                                         assets=[asset], 
-                                        developers=[dev], hostinginfos=[host])
+                                        developers=[dev], hosting_info=[host])
         experiment.save()
                                 
         lab_name1="Computer Programming"
@@ -98,8 +98,8 @@ class TestAddLab(TestCase):
         session = session_cls(key=key)
         lab = lab_cls(lab_id=lab_id1, lab_name=lab_name1,        
                           institute=inst, discipline=discipline, assets=[asset],                
-                          overview=overview,  integrationstatus=integrationstatus, 
-                          experiments=[experiment], developers=[dev], hostinginfos=[host])
+                          overview=overview,  integration_status=integration_status, 
+                          experiments=[experiment], developers=[dev], hosting_info=[host])
 
         lab1 = System.do("add_lab", lab=lab, session=session)
         new_lab = lab_cls.get_by_id(1)
@@ -132,12 +132,12 @@ class TestAddExperiment(TestCase):
         experiment_cls = System.delegate.entities['experiment']
         institute_cls = System.delegate.entities['institute']
         discipline_cls = System.delegate.entities['discipline']
-        integrationstatus_cls = System.delegate.entities['integrationstatus']
+        integration_status_cls = System.delegate.entities['integration_status']
         asset_cls = System.delegate.entities['asset']
         name_cls = System.delegate.entities['name']
         email_cls = System.delegate.entities['email']
         developer_cls = System.delegate.entities['developer']
-        hostinginfo_cls = System.delegate.entities['hostinginfo']
+        hosting_info_cls = System.delegate.entities['hosting_info']
 
         inst_name = "IIT Kanpur"
         inst_id = "IITK"
@@ -159,7 +159,7 @@ class TestAddExperiment(TestCase):
         hosting_status = "hosted"
         hosted_url = "http://cse14-iiith.vlabs.ac.in"
         hosted_on = "cloud"
-        host = hostinginfo_cls(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
+        host = hosting_info_cls(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
         host.save()
 
         exp_name = "arrays"
@@ -167,8 +167,8 @@ class TestAddExperiment(TestCase):
         overview = "overview"
 
         integration_level = 4
-        integrationstatus = integrationstatus_cls(integration_level=integration_level)
-        integrationstatus.save()
+        integration_status = integration_status_cls(integration_level=integration_level)
+        integration_status.save()
 
         asset_type = "Image"
         path = "vlabs.ac.in/images/static/logo.png"
@@ -178,9 +178,9 @@ class TestAddExperiment(TestCase):
         experiment = experiment_cls(exp_name=exp_name, exp_id=exp_id,
                                         overview=overview, sections=[],
                                         institute=inst, discipline=discipline,
-                                        integrationstatus=integrationstatus,
+                                        integration_status=integration_status,
                                         assets=[asset],
-                                        developers=[dev], hostinginfos=[host])
+                                        developers=[dev], hosting_info=[host])
 
         key = KEY
         session = session_cls(key=key)
@@ -289,12 +289,12 @@ class TestAddSectionsToExperiment(TestCase):
         experiment_cls = System.delegate.entities['experiment']
         institute_cls = System.delegate.entities['institute']
         discipline_cls = System.delegate.entities['discipline']
-        integrationstatus_cls = System.delegate.entities['integrationstatus']
+        integration_status_cls = System.delegate.entities['integration_status']
         asset_cls = System.delegate.entities['asset']
         name_cls = System.delegate.entities['name']
         email_cls = System.delegate.entities['email']
         developer_cls = System.delegate.entities['developer']
-        hostinginfo_cls = System.delegate.entities['hostinginfo']
+        hosting_info_cls = System.delegate.entities['hosting_info']
 
         dev_name = name_cls(name="Mohit Tahiliani")
         dev_name.save()
@@ -306,7 +306,7 @@ class TestAddSectionsToExperiment(TestCase):
         hosting_status = "hosted"
         hosted_url = "http://cse14-iiith.vlabs.ac.in"
         hosted_on = "cloud"
-        host = hostinginfo_cls(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
+        host = hosting_info_cls(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
         host.save()
 
         inst_name = "IIT Kanpur"
@@ -320,8 +320,8 @@ class TestAddSectionsToExperiment(TestCase):
         discipline.save()
                        
         integration_level = 4
-        integrationstatus = integrationstatus_cls(integration_level=integration_level)
-        integrationstatus.save()
+        integration_status = integration_status_cls(integration_level=integration_level)
+        integration_status.save()
 
         asset_type = "Image"
         path = "vlabs.ac.in/images/static/logo.png"
@@ -334,9 +334,9 @@ class TestAddSectionsToExperiment(TestCase):
         experiment = experiment_cls(exp_name=exp_name, exp_id=exp_id,
                                     overview=overview, sections=[],
                                     institute=inst, discipline=discipline,
-                                        integrationstatus=integrationstatus, 
+                                        integration_status=integration_status, 
                                         assets=[asset],
-                                        developers=[dev], hostinginfos=[host])
+                                        developers=[dev], hosting_info=[host])
         key = KEY
         session = session_cls(key=key)
         experiment = System.do("add_experiment", experiment=experiment, \
@@ -509,10 +509,10 @@ class TestAddEmail(TestCase):
 #+END_SRC
 
 
-* Test AddHostingInfo 
-#+NAME: test_add_hostinginfo
+* Test AddHosting_Info 
+#+NAME: test_add_hosting_info
 #+BEGIN_SRC python
-class TestAddHostingInfo(TestCase):
+class TestAddHosting_Info(TestCase):
 
     TESTING = True
 
@@ -527,22 +527,22 @@ class TestAddHostingInfo(TestCase):
         db.session.remove()
         db.drop_all()
 
-    def test_add_hostinginfo(self):
-        print "test_add_hostinginfo_in_system_persistence"
+    def test_add_hosting_info(self):
+        print "test_add_hosting_info_in_system_persistence"
         session_cls = System.delegate.entities['session']
-        hostinginfo_cls = System.delegate.entities['hostinginfo']
+        hosting_info_cls = System.delegate.entities['hosting_info']
         hosting_status = "hosted"
         hosted_url = "http://cse14-iiith.vlabs.ac.in"
         hosted_on = "cloud"
-        hostinginfo = hostinginfo_cls(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
+        hosting_info = hosting_info_cls(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
                                        
         key = KEY
         session = session_cls(key=key)
-        hostinginfo = System.do("add_hostinginfo", hostinginfo=hostinginfo, \
+        hosting_info = System.do("add_hosting_info", hosting_info=hosting_info, \
                                 session=session)
-        hostinginfo1 = hostinginfo_cls.get_by_id(1)
-        self.assertEqual(hostinginfo1.get("hosting_status"), hosting_status)
-        self.assertEqual(hostinginfo1.get("hosted_on"), hosted_on)
+        hosting_info1 = hosting_info_cls.get_by_id(1)
+        self.assertEqual(hosting_info1.get("hosting_status"), hosting_status)
+        self.assertEqual(hosting_info1.get("hosted_on"), hosted_on)
 
 #+END_SRC
 
@@ -587,10 +587,10 @@ class TestAddDeveloper(TestCase):
 #+END_SRC
 
 
-* Test AddIntegrationStatus 
-#+NAME: test_add_integrationstatus
+* Test AddIntegration_Status 
+#+NAME: test_add_integration_status
 #+BEGIN_SRC python
-class TestAddIntegrationStatus(TestCase):
+class TestAddIntegration_Status(TestCase):
 
     TESTING = True
 
@@ -605,19 +605,19 @@ class TestAddIntegrationStatus(TestCase):
         db.session.remove()
         db.drop_all()
 
-    def test_add_integrationstatus(self):
-        print "test_add_integrationstatus_in_system_persistence"
+    def test_add_integration_status(self):
+        print "test_add_integration_status_in_system_persistence"
         session_cls = System.delegate.entities['session']
-        integrationstatus_cls = System.delegate.entities['integrationstatus']
+        integration_status_cls = System.delegate.entities['integration_status']
         integration_level = 4
-        integrationstatus = integrationstatus_cls(integration_level=integration_level)
+        integration_status = integration_status_cls(integration_level=integration_level)
                                        
         key = KEY
         session = session_cls(key=key)
-        integrationstatus = System.do("add_integrationstatus", integrationstatus=integrationstatus, \
+        integration_status = System.do("add_integration_status", integration_status=integration_status, \
                                 session=session)
-        integrationstatus1 = integrationstatus_cls.get_by_id(1)
-        self.assertEqual(integrationstatus1.get("integration_level"), integration_level)
+        integration_status1 = integration_status_cls.get_by_id(1)
+        self.assertEqual(integration_status1.get("integration_level"), integration_level)
 #+END_SRC
 
 
@@ -643,12 +643,12 @@ class TestUpdateExperiment(TestCase):
         print "test_update_exp_in_system_persistence"
         session_cls = System.delegate.entities['session']
         exp_cls = System.delegate.entities['experiment']
-        integrationstatus_cls = System.delegate.entities['integrationstatus']
+        integration_status_cls = System.delegate.entities['integration_status']
         asset_cls = System.delegate.entities['asset']
         name_cls = System.delegate.entities['name']
         email_cls = System.delegate.entities['email']
         developer_cls = System.delegate.entities['developer']
-        hostinginfo_cls = System.delegate.entities['hostinginfo']
+        hosting_info_cls = System.delegate.entities['hosting_info']
         institute_cls = System.delegate.entities['institute']
         experiment_cls = System.delegate.entities['experiment']
         discipline_cls = System.delegate.entities['discipline']
@@ -662,8 +662,8 @@ class TestUpdateExperiment(TestCase):
         inst.save()
 
         integration_level = 4
-        integrationstatus = integrationstatus_cls(integration_level=integration_level)
-        integrationstatus.save()
+        integration_status = integration_status_cls(integration_level=integration_level)
+        integration_status.save()
 
         asset_type = "Image"
         path = "vlabs.ac.in/images/static/logo.png"
@@ -680,7 +680,7 @@ class TestUpdateExperiment(TestCase):
         hosting_status = "hosted"
         hosted_url = "http://cse14-iiith.vlabs.ac.in"
         hosted_on = "cloud"
-        host = hostinginfo_cls(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
+        host = hosting_info_cls(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
         host.save()
 
         dis_name = "IIT Kanpur"
@@ -694,9 +694,9 @@ class TestUpdateExperiment(TestCase):
         experiment = experiment_cls(exp_name=exp_name, exp_id=exp_id,
                                      overview=overview, sections=[],
                                     institute=inst, discipline=discipline,
-                                        integrationstatus=integrationstatus, 
+                                        integration_status=integration_status, 
                                         assets=[asset],
-                                        developers=[dev], hostinginfos=[host])
+                                        developers=[dev], hosting_info=[host])
         experiment.save()
 
         exp_name2 = "two dimentional arrays"
@@ -823,10 +823,10 @@ class TestUpdateSection(TestCase):
 #+END_SRC
 
 
-* Test UpdateHostingInfo 
-#+NAME: test_update_hostinginfo
+* Test UpdateHosting_Info 
+#+NAME: test_update_hosting_info
 #+BEGIN_SRC python
-class TestUpdateHostingInfo(TestCase):
+class TestUpdateHosting_Info(TestCase):
     TESTING = True
 
     def create_app(self):
@@ -840,30 +840,30 @@ class TestUpdateHostingInfo(TestCase):
         db.session.remove()
         db.drop_all()
 
-    def test_update_hostinginfo(self):
+    def test_update_hosting_info(self):
 
-        print "test_update_hostinginfo_in_system_persistence"
+        print "test_update_hosting_info_in_system_persistence"
         session_cls = System.delegate.entities['session']
-        hostinginfo_cls = System.delegate.entities['hostinginfo']
+        hosting_info_cls = System.delegate.entities['hosting_info']
 
         hosting_status1 = "hosted"
         hosted_url1 = "http://cse14-iiith.vlabs.ac.in"
         hosted_on1 = "cloud"
         key = KEY
         session = session_cls(key=key)
-        hostinginfo = hostinginfo_cls(hosting_status=hosting_status1, hosted_url=hosted_url1, hosted_on=hosted_on1)
+        hosting_info = hosting_info_cls(hosting_status=hosting_status1, hosted_url=hosted_url1, hosted_on=hosted_on1)
 
-        hostinginfo.save()
+        hosting_info.save()
 
         hosting_status2 ="not hosted"
         hosted_on2 = "server"
-        hostinginfo1 = System.do("update_hostinginfo", hosting_status=hosting_status2, hosted_on=hosted_on2,
-                                 hostinginfo=hostinginfo, session=session)
+        hosting_info1 = System.do("update_hosting_info", hosting_status=hosting_status2, hosted_on=hosted_on2,
+                                 hosting_info=hosting_info, session=session)
 
-        new_hostinginfo = hostinginfo_cls.get_by_id(1)
+        new_hosting_info = hosting_info_cls.get_by_id(1)
 
-        self.assertEqual(new_hostinginfo.get("hosting_status"), hosting_status2)
-        self.assertEqual(new_hostinginfo.get("hosted_on"), hosted_on2)
+        self.assertEqual(new_hosting_info.get("hosting_status"), hosting_status2)
+        self.assertEqual(new_hosting_info.get("hosted_on"), hosted_on2)
 
 #+END_SRC
 
@@ -892,12 +892,12 @@ class TestDeleteExperiment(TestCase):
         experiment_cls = System.delegate.entities['experiment']
         institute_cls = System.delegate.entities['institute']
         discipline_cls = System.delegate.entities['discipline']
-        integrationstatus_cls = System.delegate.entities['integrationstatus']
+        integration_status_cls = System.delegate.entities['integration_status']
         asset_cls = System.delegate.entities['asset']
         name_cls = System.delegate.entities['name']
         email_cls = System.delegate.entities['email']
         developer_cls = System.delegate.entities['developer']
-        hostinginfo_cls = System.delegate.entities['hostinginfo']
+        hosting_info_cls = System.delegate.entities['hosting_info']
 
         dev_name = name_cls(name="Mohit Tahiliani")
         dev_name.save()
@@ -909,7 +909,7 @@ class TestDeleteExperiment(TestCase):
         hosting_status = "hosted"
         hosted_url = "http://cse14-iiith.vlabs.ac.in"
         hosted_on = "cloud"
-        host = hostinginfo_cls(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
+        host = hosting_info_cls(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
         host.save()
 
         inst_name = "IIT Kanpur"
@@ -923,8 +923,8 @@ class TestDeleteExperiment(TestCase):
         discipline.save()
 
         integration_level = 4
-        integrationstatus = integrationstatus_cls(integration_level=integration_level)
-        integrationstatus.save()
+        integration_status = integration_status_cls(integration_level=integration_level)
+        integration_status.save()
 
         asset_type = "Image"
         path = "vlabs.ac.in/images/static/logo.png"
@@ -938,9 +938,9 @@ class TestDeleteExperiment(TestCase):
         experiment = experiment_cls(exp_name=exp_name, exp_id=exp_id,
                                         overview=overview, sections=[],
                                     institute=inst, discipline=discipline,
-                                        integrationstatus=integrationstatus,
+                                        integration_status=integration_status,
                                         assets=[asset],
-                                        developers=[dev], hostinginfos=[host])
+                                        developers=[dev], hosting_info=[host])
         experiment.save()
         session = session_cls(key=key)
         exp_id1 = System.do("delete_experiment", exp_id = exp_id,
@@ -1097,15 +1097,15 @@ class TestDeleteLab(TestCase):
         discipline_cls = System.delegate.entities['discipline']
         asset_cls = System.delegate.entities['asset']
         experiment_cls = System.delegate.entities['experiment']
-        integrationstatus_cls = System.delegate.entities['integrationstatus']
+        integration_status_cls = System.delegate.entities['integration_status']
         name_cls = System.delegate.entities['name']
         email_cls = System.delegate.entities['email']
         developer_cls = System.delegate.entities['developer']
-        hostinginfo_cls = System.delegate.entities['hostinginfo']
+        hosting_info_cls = System.delegate.entities['hosting_info']
 
         integration_level = 4
-        integrationstatus = integrationstatus_cls(integration_level=integration_level)
-        integrationstatus.save()
+        integration_status = integration_status_cls(integration_level=integration_level)
+        integration_status.save()
 
         inst_name = "IIT Kanpur"
         inst_id = "IITK"
@@ -1132,7 +1132,7 @@ class TestDeleteLab(TestCase):
         hosting_status = "hosted"
         hosted_url = "http://cse14-iiith.vlabs.ac.in"
         hosted_on = "cloud"
-        host = hostinginfo_cls(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
+        host = hosting_info_cls(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
         host.save()
 
         exp_name = "arrays"
@@ -1141,9 +1141,9 @@ class TestDeleteLab(TestCase):
         experiment = experiment_cls(exp_name=exp_name, exp_id=exp_id,
                                         overview=overview, sections=[],
                                     institute=inst, discipline=discipline,
-                                    integrationstatus=integrationstatus,
+                                    integration_status=integration_status,
                                         assets=[asset], 
-                                        developers=[dev], hostinginfos=[host])
+                                        developers=[dev], hosting_info=[host])
         experiment.save()
 
         lab_name1="Computer Programming"
@@ -1154,9 +1154,9 @@ class TestDeleteLab(TestCase):
 
         lab = lab_cls(lab_id=lab_id1, lab_name=lab_name1, 
                       institute=inst, discipline=discipline, assets=[asset],
-                      overview=overview, integrationstatus=integrationstatus, 
+                      overview=overview, integration_status=integration_status, 
                       experiments=[experiment], developers=[dev],
-                      hostinginfos=[host])
+                      hosting_info=[host])
         lab.save()
         lab_id = System.do("delete_lab", lab_id = lab_id1,
                                   session=session)
@@ -1282,10 +1282,10 @@ class TestDeleteDeveloper(TestCase):
 #+END_SRC
 
 
-* Test DeleteHostingInfo 
-#+NAME:  test_delete_hostinginfo 
+* Test DeleteHosting_Info 
+#+NAME:  test_delete_hosting_info 
 #+BEGIN_SRC python
-class TestDeleteHostingInfo(TestCase):
+class TestDeleteHosting_Info(TestCase):
 
     TESTING = True
 
@@ -1300,32 +1300,32 @@ class TestDeleteHostingInfo(TestCase):
         db.session.remove()
         db.drop_all()
 
-    def test_delete_hostinginfo(self):
+    def test_delete_hosting_info(self):
         
-        print "test_delete_hostinginfo_in_system_persistence"
+        print "test_delete_hosting_info_in_system_persistence"
         session_cls = System.delegate.entities['session']
-        hostinginfo_cls = System.delegate.entities['hostinginfo']
+        hosting_info_cls = System.delegate.entities['hosting_info']
 
         hosting_status = "hosted"
         hosted_url = "http://cse14-iiith.vlabs.ac.in"
         hosted_on = "cloud"
         key = KEY
         session = session_cls(key=key)
-        hostinginfo = hostinginfo_cls(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
+        hosting_info = hosting_info_cls(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
                          
-        hostinginfo.save()
-        hostinginfo = System.do("delete_hostinginfo", hosted_url = hosted_url,
+        hosting_info.save()
+        hosting_info = System.do("delete_hosting_info", hosted_url = hosted_url,
                                   session=session)
 
-        self.assertEqual(hostinginfo, hosted_url)
+        self.assertEqual(hosting_info, hosted_url)
             
 #+END_SRC
 
 
-* Test DeleteIntegrationStatus 
-#+NAME:  test_delete_integrationstatus 
+* Test DeleteIntegration_Status 
+#+NAME:  test_delete_integration_status 
 #+BEGIN_SRC python
-class TestDeleteIntegrationStatus(TestCase):
+class TestDeleteIntegration_Status(TestCase):
     TESTING = True
 
     def create_app(self):
@@ -1339,22 +1339,22 @@ class TestDeleteIntegrationStatus(TestCase):
         db.session.remove()
         db.drop_all()
 
-    def test_delete_integrationstatus(self):
+    def test_delete_integration_status(self):
         
-        print "test_delete_integrationstatus_in_system_persistence"
+        print "test_delete_integration_status_in_system_persistence"
         session_cls = System.delegate.entities['session']
-        integrationstatus_cls = System.delegate.entities['integrationstatus']
+        integration_status_cls = System.delegate.entities['integration_status']
 
         integration_level= 4
         key = KEY
         session = session_cls(key=key)
-        integrationstatus = integrationstatus_cls(integration_level=integration_level)
+        integration_status = integration_status_cls(integration_level=integration_level)
                          
-        integrationstatus.save()
-        integrationstatus = System.do("delete_integrationstatus", integration_level = integration_level,
+        integration_status.save()
+        integration_status = System.do("delete_integration_status", integration_level = integration_level,
                                   session=session)
 
-        self.assertEqual(integrationstatus, integration_level)
+        self.assertEqual(integration_status, integration_level)
             
 #+END_SRC
 
@@ -1382,13 +1382,13 @@ class TestGetLab(TestCase):
         print "test_get_lab_in_system_persistence"
         lab_cls = System.delegate.entities['lab']
         institute_cls = System.delegate.entities['institute']
-        integrationstatus_cls = System.delegate.entities['integrationstatus']
+        integration_status_cls = System.delegate.entities['integration_status']
         discipline_cls = System.delegate.entities['discipline']
         asset_cls = System.delegate.entities['asset']
         name_cls = System.delegate.entities['name']
         email_cls = System.delegate.entities['email']
         developer_cls = System.delegate.entities['developer']
-        hostinginfo_cls = System.delegate.entities['hostinginfo']
+        hosting_info_cls = System.delegate.entities['hosting_info']
 
         lab_name1="Computer Programming"
         lab_id1="CSE01"
@@ -1400,8 +1400,8 @@ class TestGetLab(TestCase):
         inst.save()
 
         integration_level = 4
-        integrationstatus = integrationstatus_cls(integration_level=integration_level)
-        integrationstatus.save()
+        integration_status = integration_status_cls(integration_level=integration_level)
+        integration_status.save()
 
         dis_name = "IIT Kanpur"
         dis_id = "IITK"
@@ -1423,7 +1423,7 @@ class TestGetLab(TestCase):
         hosting_status = "hosted"
         hosted_url = "http://cse14-iiith.vlabs.ac.in"
         hosted_on = "cloud"
-        host = hostinginfo_cls(hosting_status=hosting_status,
+        host = hosting_info_cls(hosting_status=hosting_status,
                                    hosted_url=hosted_url, hosted_on=hosted_on)
         host.save()
 
@@ -1431,7 +1431,7 @@ class TestGetLab(TestCase):
         lab = lab_cls(lab_id=lab_id1, lab_name=lab_name1,
                           institute=inst, discipline=discipline, assets=[asset],
                           overview=overview, experiments=[], developers=[dev], 
-                          hostinginfos=[host], integrationstatus=integrationstatus)
+                          hosting_info=[host], integration_status=integration_status)
 
         lab.save()
 
@@ -1467,12 +1467,12 @@ class TestGetLabByInstitute(TestCase):
         lab_cls = System.delegate.entities['lab']
         institute_cls = System.delegate.entities['institute']
         discipline_cls = System.delegate.entities['discipline']
-        integrationstatus_cls = System.delegate.entities['integrationstatus']
+        integration_status_cls = System.delegate.entities['integration_status']
         asset_cls = System.delegate.entities['asset']
         name_cls = System.delegate.entities['name']
         email_cls = System.delegate.entities['email']
         developer_cls = System.delegate.entities['developer']
-        hostinginfo_cls = System.delegate.entities['hostinginfo']
+        hosting_info_cls = System.delegate.entities['hosting_info']
 
         lab_name1="Computer Programming"
         lab_id1="CSE01"
@@ -1484,8 +1484,8 @@ class TestGetLabByInstitute(TestCase):
         inst.save()
 
         integration_level = 4
-        integrationstatus = integrationstatus_cls(integration_level=integration_level)
-        integrationstatus.save()
+        integration_status = integration_status_cls(integration_level=integration_level)
+        integration_status.save()
 
         dis_name = "Computer Science"
         dis_id = "CS"
@@ -1507,13 +1507,13 @@ class TestGetLabByInstitute(TestCase):
         hosting_status = "hosted"
         hosted_url = "http://cse14-iiith.vlabs.ac.in"
         hosted_on = "cloud"
-        host = hostinginfo_cls(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
+        host = hosting_info_cls(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
         host.save()
 
         lab = lab_cls(lab_id=lab_id1, lab_name=lab_name1,
                           institute=inst, discipline=discipline, assets=[asset],
-                          overview=overview, experiments=[], integrationstatus=integrationstatus, 
-                          hostinginfos=[host], developers=[dev])
+                          overview=overview, experiments=[], integration_status=integration_status, 
+                          hosting_info=[host], developers=[dev])
 
         lab.save()
 
@@ -1549,12 +1549,12 @@ class TestGetLabByDiscipline(TestCase):
         lab_cls = System.delegate.entities['lab']
         institute_cls = System.delegate.entities['institute']
         discipline_cls = System.delegate.entities['discipline']
-        integrationstatus_cls = System.delegate.entities['integrationstatus']
+        integration_status_cls = System.delegate.entities['integration_status']
         asset_cls = System.delegate.entities['asset']
         name_cls = System.delegate.entities['name']
         email_cls = System.delegate.entities['email']
         developer_cls = System.delegate.entities['developer']
-        hostinginfo_cls = System.delegate.entities['hostinginfo']
+        hosting_info_cls = System.delegate.entities['hosting_info']
 
         lab_name1="Computer Programming"
         lab_id1="CSE01"
@@ -1566,8 +1566,8 @@ class TestGetLabByDiscipline(TestCase):
         inst.save()
 
         integration_level = 4
-        integrationstatus = integrationstatus_cls(integration_level=integration_level)
-        integrationstatus.save()
+        integration_status = integration_status_cls(integration_level=integration_level)
+        integration_status.save()
 
         dis_name = "Computer Science"
         dis_id = "CS"
@@ -1589,14 +1589,14 @@ class TestGetLabByDiscipline(TestCase):
         hosting_status = "hosted"
         hosted_url = "http://cse14-iiith.vlabs.ac.in"
         hosted_on = "cloud"
-        host = hostinginfo_cls(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
+        host = hosting_info_cls(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
         host.save()
 
         lab = lab_cls(lab_id=lab_id1, lab_name=lab_name1,
                           institute=inst, discipline=discipline, 
-                          hostinginfos=[host], assets=[asset],
+                          hosting_info=[host], assets=[asset],
                           overview=overview, experiments=[], developers=[dev], 
-                          integrationstatus=integrationstatus)
+                          integration_status=integration_status)
 
 
         lab.save()
@@ -1633,12 +1633,12 @@ class TestGetLabByLabName(TestCase):
         lab_cls = System.delegate.entities['lab']
         institute_cls = System.delegate.entities['institute']
         discipline_cls = System.delegate.entities['discipline']
-        integrationstatus_cls = System.delegate.entities['integrationstatus']
+        integration_status_cls = System.delegate.entities['integration_status']
         asset_cls = System.delegate.entities['asset']
         name_cls = System.delegate.entities['name']
         email_cls = System.delegate.entities['email']
         developer_cls = System.delegate.entities['developer']
-        hostinginfo_cls = System.delegate.entities['hostinginfo']
+        hosting_info_cls = System.delegate.entities['hosting_info']
 
         lab_name1="Computer Programming"
         lab_id1="CSE01"
@@ -1650,8 +1650,8 @@ class TestGetLabByLabName(TestCase):
         inst.save()
 
         integration_level = 4
-        integrationstatus = integrationstatus_cls(integration_level=integration_level)
-        integrationstatus.save()
+        integration_status = integration_status_cls(integration_level=integration_level)
+        integration_status.save()
 
         dis_name = "IIT Kanpur"
         dis_id = "IITK"
@@ -1673,14 +1673,14 @@ class TestGetLabByLabName(TestCase):
         hosting_status = "hosted"
         hosted_url = "http://cse14-iiith.vlabs.ac.in"
         hosted_on = "cloud"
-        host = hostinginfo_cls(hosting_status=hosting_status,
+        host = hosting_info_cls(hosting_status=hosting_status,
                                    hosted_url=hosted_url, hosted_on=hosted_on)
         host.save()
 
         lab = lab_cls(lab_id=lab_id1, lab_name=lab_name1, 
-                          integrationstatus=integrationstatus,
+                          integration_status=integration_status,
                           institute=inst, discipline=discipline, 
-                          hostinginfos=[host], assets=[asset],
+                          hosting_info=[host], assets=[asset],
                           overview=overview, experiments=[], developers=[dev])
 
 
@@ -1718,7 +1718,7 @@ class TestGetLabByAsset(TestCase):
         institute_cls = System.delegate.entities['institute']
         discipline_cls = System.delegate.entities['discipline']
         asset_cls = System.delegate.entities['asset']
-        integrationstatus_cls = System.delegate.entities['integrationstatus']
+        integration_status_cls = System.delegate.entities['integration_status']
 
         lab_name1="Computer Programming"
         lab_id1="CSE01"
@@ -1730,8 +1730,8 @@ class TestGetLabByAsset(TestCase):
         inst.save()
 
         integration_level = 4
-        integrationstatus = integrationstatus_cls(integration_level=integration_level)
-        integrationstatus.save()
+        integration_status = integration_status_cls(integration_level=integration_level)
+        integration_status.save()
 
         dis_name = "Computer Science"
         dis_id = "CS"
@@ -1753,14 +1753,14 @@ class TestGetLabByAsset(TestCase):
         hosting_status = "hosted"
         hosted_url = "http://cse14-iiith.vlabs.ac.in"
         hosted_on = "cloud"
-        host = hostinginfo_cls(hosting_status=hosting_status,
+        host = hosting_info_cls(hosting_status=hosting_status,
                                    hosted_url=hosted_url, hosted_on=hosted_on)
         host.save()
 
         lab = lab_cls(lab_id=lab_id1, lab_name=lab_name1, 
-                          integrationstatus=integrationstatus,
+                          integration_status=integration_status,
                           institute=inst, discipline=discipline, 
-                          hostinginfos=[host], assets=[asset],
+                          hosting_info=[host], assets=[asset],
                           overview=overview, experiments=[], developers=[dev])
 
 
@@ -1773,10 +1773,10 @@ class TestGetLabByAsset(TestCase):
 #+END_SRC
 
 
-* Test GetIntegrationStatusByIL
-#+NAME:  test_get_integrationstatus_by_IL 
+* Test GetIntegration_StatusByIL
+#+NAME:  test_get_integration_status_by_IL 
 #+BEGIN_SRC python
-class TestGetIntegrationStatusByIL(TestCase):
+class TestGetIntegration_StatusByIL(TestCase):
     TESTING = True
 
     def create_app(self):
@@ -1790,22 +1790,22 @@ class TestGetIntegrationStatusByIL(TestCase):
         db.session.remove()
         db.drop_all()
 
-    def test_get_integrationstatus_by_IL(self):
-        print "test_get_integrationstatus_by_IL_in_system_persistence"
+    def test_get_integration_status_by_IL(self):
+        print "test_get_integration_status_by_IL_in_system_persistence"
         session_cls = System.delegate.entities['session']
-        integrationstatus_cls = System.delegate.entities['integrationstatus']
+        integration_status_cls = System.delegate.entities['integration_status']
         integration_level = 4
-        integrationstatus = integrationstatus_cls(integration_level=integration_level)
+        integration_status = integration_status_cls(integration_level=integration_level)
                                        
         key = KEY
         session = session_cls(key=key)
-        integrationstatus = System.do("add_integrationstatus", integrationstatus=integrationstatus, \
+        integration_status = System.do("add_integration_status", integration_status=integration_status, \
                                 session=session)
 
-        integrationstatus = System.do("get_integrationstatus_by_IL", 
+        integration_status = System.do("get_integration_status_by_IL", 
                                         integration_level=integration_level)
 
-        self.assertEqual(integrationstatus.get("integration_level"), integration_level)
+        self.assertEqual(integration_status.get("integration_level"), integration_level)
             
 #+END_SRC
 
@@ -1874,9 +1874,9 @@ class TestGetExp(TestCase):
         name_cls = System.delegate.entities['name']
         email_cls = System.delegate.entities['email']
         developer_cls = System.delegate.entities['developer']
-        hostinginfo_cls = System.delegate.entities['hostinginfo']
+        hosting_info_cls = System.delegate.entities['hosting_info']
         experiment_cls = System.delegate.entities['experiment']
-        integrationstatus_cls = System.delegate.entities['integrationstatus']
+        integration_status_cls = System.delegate.entities['integration_status']
         asset_cls = System.delegate.entities['asset']
 
         inst_name = "IIT Kanpur"
@@ -1890,8 +1890,8 @@ class TestGetExp(TestCase):
         discipline.save()
 
         integration_level = 4
-        integrationstatus = integrationstatus_cls(integration_level=integration_level)
-        integrationstatus.save()
+        integration_status = integration_status_cls(integration_level=integration_level)
+        integration_status.save()
 
         asset_type = "Image"
         path = "vlabs.ac.in/images/static/logo.png"
@@ -1908,7 +1908,7 @@ class TestGetExp(TestCase):
         hosting_status = "hosted"
         hosted_url = "http://cse14-iiith.vlabs.ac.in"
         hosted_on = "cloud"
-        host = hostinginfo_cls(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
+        host = hosting_info_cls(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
         host.save()
 
         exp_name = "arrays"
@@ -1917,9 +1917,9 @@ class TestGetExp(TestCase):
         experiment = experiment_cls(exp_name=exp_name, exp_id=exp_id,
                                     overview=overview, sections=[],
                                     institute=inst, discipline=discipline,
-                                        integrationstatus=integrationstatus, 
+                                        integration_status=integration_status, 
                                         assets=[asset],
-                                        developers=[dev], hostinginfos=[host])
+                                        developers=[dev], hosting_info=[host])
         experiment.save()
 
         experiment1 = System.do("get_experiment", exp_id=exp_id)
@@ -2081,10 +2081,10 @@ class TestGetDeveloper(TestCase):
 #+END_SRC
 
 
-* Test GetHostingInfo 
-#+NAME: test_get_hostinginfo
+* Test GetHosting_Info 
+#+NAME: test_get_hosting_info
 #+BEGIN_SRC python
-class TestGetHostingInfo(TestCase):
+class TestGetHosting_Info(TestCase):
 
     TESTING = True
 
@@ -2099,31 +2099,31 @@ class TestGetHostingInfo(TestCase):
         db.session.remove()
         db.drop_all()
 
-    def test_get_hostinginfo(self):
+    def test_get_hosting_info(self):
 
-        print "test_get_hostinginfo_in_system_persistence"
+        print "test_get_hosting_info_in_system_persistence"
         session_cls = System.delegate.entities['session']
-        hostinginfo_cls = System.delegate.entities['hostinginfo']
+        hosting_info_cls = System.delegate.entities['hosting_info']
 
         hosting_status1 = "hosted"
         hosted_url1 = "http://cse14-iiith.vlabs.ac.in"
         hosted_on1 = "cloud"
-        hostinginfo = hostinginfo_cls(hosting_status=hosting_status1, hosted_url=hosted_url1, hosted_on=hosted_on1)
-        hostinginfo.save()
+        hosting_info = hosting_info_cls(hosting_status=hosting_status1, hosted_url=hosted_url1, hosted_on=hosted_on1)
+        hosting_info.save()
 
-        hostinginfo1 = System.do("get_hostinginfo", hosted_url=hosted_url1)
+        hosting_info1 = System.do("get_hosting_info", hosted_url=hosted_url1)
 
-        self.assertEqual(hostinginfo1.get("hosting_status"), hosting_status1)
-        self.assertEqual(hostinginfo1.get("hosted_url"), hosted_url1)
-        self.assertEqual(hostinginfo1.get("hosted_on"), hosted_on1)
+        self.assertEqual(hosting_info1.get("hosting_status"), hosting_status1)
+        self.assertEqual(hosting_info1.get("hosted_url"), hosted_url1)
+        self.assertEqual(hosting_info1.get("hosted_on"), hosted_on1)
             
 #+END_SRC
 
 
-* Test GetIntegrationStatus 
-#+NAME: test_get_integrationstatus
+* Test GetIntegration_Status 
+#+NAME: test_get_integration_status
 #+BEGIN_SRC python
-class TestGetIntegrationStatus(TestCase):
+class TestGetIntegration_Status(TestCase):
 
     TESTING = True
 
@@ -2138,19 +2138,19 @@ class TestGetIntegrationStatus(TestCase):
         db.session.remove()
         db.drop_all()
 
-    def test_get_integrationstatus(self):
+    def test_get_integration_status(self):
 
-        print "test_get_integrationstatus_in_system_persistence"
+        print "test_get_integration_status_in_system_persistence"
         session_cls = System.delegate.entities['session']
-        integrationstatus_cls = System.delegate.entities['integrationstatus']
+        integration_status_cls = System.delegate.entities['integration_status']
 
         integration_level1= 4
-        integrationstatus = integrationstatus_cls(integration_level=integration_level1)
-        integrationstatus.save()
+        integration_status = integration_status_cls(integration_level=integration_level1)
+        integration_status.save()
 
-        integrationstatus1 = System.do("get_integrationstatus", integration_level=integration_level1)
+        integration_status1 = System.do("get_integration_status", integration_level=integration_level1)
 
-        self.assertEqual(integrationstatus1.get("integration_level"), integration_level1)
+        self.assertEqual(integration_status1.get("integration_level"), integration_level1)
             
 #+END_SRC
 
@@ -2332,11 +2332,11 @@ class TestAddAssetsToLab(TestCase):
         discipline_cls = System.delegate.entities['discipline']
         asset_cls = System.delegate.entities['asset']
         experiment_cls = System.delegate.entities['experiment']
-        integrationstatus_cls = System.delegate.entities['integrationstatus']
+        integration_status_cls = System.delegate.entities['integration_status']
                
         integration_level = 4
-        integrationstatus = integrationstatus_cls(integration_level=integration_level)
-        integrationstatus.save()
+        integration_status = integration_status_cls(integration_level=integration_level)
+        integration_status.save()
 
         inst_name = "IIT Kanpur"
         inst_id = "IITK"
@@ -2369,7 +2369,7 @@ class TestAddAssetsToLab(TestCase):
 
         lab = lab_cls(lab_id=lab_id1, lab_name=lab_name1,        
                           institute=inst, discipline=discipline, assets=[asset],                
-                          overview=overview, integrationstatus=integrationstatus, 
+                          overview=overview, integration_status=integration_status, 
                           experiments=[experiment])
         lab.save()
 
@@ -2431,7 +2431,7 @@ if __name__ == '__main__':
 <<test_delete_experiment>>
 <<test_delete_institute>>
 <<test_delete_discipline>>
-<<test_delete_hostinginfo>>
+<<test_delete_hosting_info>>
 <<test_add_experiment>>
 <<test_add_institute>>
 <<test_add_discipline>>
@@ -2439,20 +2439,20 @@ if __name__ == '__main__':
 <<test_add_name>>
 <<test_add_email>>
 <<test_add_developer>>
-<<test_add_integrationstatus>>
+<<test_add_integration_status>>
 <<test_update_lab>>
 <<test_update_experiment>>
 <<test_update_developer>>
 <<test_delete_name>>
 <<test_delete_email>>
 <<test_delete_developer>>
-<<test_delete_integrationstatus>>
-<<test_add_hostinginfo>>
+<<test_delete_integration_status>>
+<<test_add_hosting_info>>
 <<test_update_lab>>
 <<test_update_experiment>>
 <<test_update_institute>>
 <<test_update_discipline>>
-<<test_update_hostinginfo>>
+<<test_update_hosting_info>>
 <<test_add_sections_to_experiment>>
 <<test_get_lab>>
 <<test_get_name>>
@@ -2461,8 +2461,8 @@ if __name__ == '__main__':
 <<test_get_institute>>
 <<test_get_exp>>
 <<test_get_discipline>>
-<<test_get_hostinginfo>>
-<<test_get_integrationstatus>>
+<<test_get_hosting_info>>
+<<test_get_integration_status>>
 <<test_update_asset>>
 #<<test_add_assets_to_lab>>
 <<test_get_asset>>
@@ -2471,7 +2471,7 @@ if __name__ == '__main__':
 <<test_get_labs_by_institute>>
 <<test_get_labs_by_lab_name>>
 <<test_get_labs_by_discipline>>
-<<test_get_integrationstatus_by_IL>>
+<<test_get_integration_status_by_IL>>
 <<run_test_cases>>
 
 #+end_src
