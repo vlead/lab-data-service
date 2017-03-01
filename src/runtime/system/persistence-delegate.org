@@ -29,9 +29,9 @@ class PersistenceDelegate():
                          'section' : Section,
                          'institute' : Institute,
                          'discipline' : Discipline,
-                         'hosting_info': Hosting_Info,
+                         'hosting_info': HostingInfo,
                          'asset' : Asset,
-                         'integration_status': Integration_Status,
+                         'integration_status': IntegrationStatus,
                          'name' : Name,
                          'email' : Email,
                          'developer' : Developer
@@ -127,7 +127,7 @@ class TestPersistenceDelegate(TestCase):
         discipline.save()
         
         integration_level = 4
-        integration_status = Integration_Status(integration_level=integration_level)
+        integration_status = IntegrationStatus(integration_level=integration_level)
         integration_status.save()
          
         asset_type = "Image"
@@ -145,7 +145,7 @@ class TestPersistenceDelegate(TestCase):
         hosting_status = "hosted"
         hosted_url = "http://cse14-iiith.vlabs.ac.in"
         hosted_on = "cloud"
-        host = Hosting_Info(hosting_status=hosting_status,
+        host = HostingInfo(hosting_status=hosting_status,
                                hosted_url=hosted_url, hosted_on=hosted_on)
         host.save()
 
@@ -209,7 +209,7 @@ class TestPersistenceDelegate(TestCase):
         hosting_status = "hosted"
         hosted_url = "http://cse14-iiith.vlabs.ac.in"
         hosted_on = "cloud"
-        host = Hosting_Info(hosting_status=hosting_status,
+        host = HostingInfo(hosting_status=hosting_status,
                                hosted_url=hosted_url, hosted_on=hosted_on)
         host.save()
 
@@ -218,7 +218,7 @@ class TestPersistenceDelegate(TestCase):
         overview1 = "overview"
 
         integration_level = 4
-        integration_status = Integration_Status(integration_level=integration_level)
+        integration_status = IntegrationStatus(integration_level=integration_level)
         integration_status.save()
 
         asset_type = "Image"
@@ -471,13 +471,13 @@ class TestPersistenceDelegate(TestCase):
         hosting_status1 = "hosted"
         hosted_url1 = "http://cse14-iiith.vlabs.ac.in"
         hosted_on1 = "cloud"
-        hosting_info1 = Hosting_Info(hosting_status=hosting_status1, hosted_url=hosted_url1, hosted_on=hosted_on1)
+        hosting_info1 = HostingInfo(hosting_status=hosting_status1, hosted_url=hosted_url1, hosted_on=hosted_on1)
         host1 = self.persistence_delegate.add_hosting_info(hosting_info1)
 
         hosting_status2 = "not hosted"
         hosted_url2 = "http://iitkgp.vlab.co.in/"
         hosted_on2 = "server"
-        hosting_info2 = Hosting_Info(hosting_status=hosting_status2, hosted_url=hosted_url2, hosted_on=hosted_on2)
+        hosting_info2 = HostingInfo(hosting_status=hosting_status2, hosted_url=hosted_url2, hosted_on=hosted_on2)
         
         self.assertEqual(self.persistence_delegate.hosting_info_exists\
                              (hosting_info1), True)
@@ -534,11 +534,11 @@ class TestPersistenceDelegate(TestCase):
     def test_integration_status_exists(self):
         print "test_integration_status_exists"
         integration_level1 = 4
-        integration_status1 = Integration_Status(integration_level=integration_level1)
+        integration_status1 = IntegrationStatus(integration_level=integration_level1)
         intstatus1 = self.persistence_delegate.add_integration_status(integration_status1)
 
         integration_level2 = 2
-        integration_status2 = Integration_Status(integration_level=integration_level2)
+        integration_status2 = IntegrationStatus(integration_level=integration_level2)
         
         self.assertEqual(self.persistence_delegate.integration_status_exists\
                              (integration_status1), True)
@@ -565,7 +565,7 @@ class TestPersistenceDelegate(TestCase):
          print "test_add_lab"
 
          integration_level = 4
-         integration_status = Integration_Status(integration_level=integration_level)
+         integration_status = IntegrationStatus(integration_level=integration_level)
          integration_status.save()
 
          inst_name = "IIT Kanpur"
@@ -593,7 +593,7 @@ class TestPersistenceDelegate(TestCase):
          hosting_status = "hosted"
          hosted_url = "http://cse14-iiith.vlabs.ac.in"
          hosted_on = "cloud"
-         host = Hosting_Info(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
+         host = HostingInfo(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
          host.save()
 
          exp_name = "Number Systems"
@@ -672,11 +672,11 @@ class TestPersistenceDelegate(TestCase):
          hosting_status = "hosted"
          hosted_url = "http://cse14-iiith.vlabs.ac.in"
          hosted_on = "cloud"
-         host = Hosting_Info(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
+         host = HostingInfo(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
          host.save()
          
          integration_level = 4
-         integration_status = Integration_Status(integration_level=integration_level)
+         integration_status = IntegrationStatus(integration_level=integration_level)
          integration_status.save()
 
          asset_type = "Image"
@@ -925,15 +925,15 @@ class TestPersistenceDelegate(TestCase):
          hosting_status1 = "hosted"
          hosted_url1 = "http://cse14-iiith.vlabs.ac.in"
          hosted_on1 = "cloud"
-         hosting_info1 = Hosting_Info(hosting_status=hosting_status1, hosted_url=hosted_url1, hosted_on=hosted_on1)
+         hosting_info1 = HostingInfo(hosting_status=hosting_status1, hosted_url=hosted_url1, hosted_on=hosted_on1)
          hosting_info1 = self.persistence_delegate.add_hosting_info(hosting_info1)
          
          hosting_status2 = "not hosted"
          hosted_url2 = "http://iitkgp.vlab.co.in/"
          hosted_on2 = "server"
-         hosting_info2 = Hosting_Info(hosting_status=hosting_status2, hosted_url=hosted_url2, hosted_on=hosted_on2)
+         hosting_info2 = HostingInfo(hosting_status=hosting_status2, hosted_url=hosted_url2, hosted_on=hosted_on2)
 
-         hosting_info = Hosting_Info.get_by_id(1)
+         hosting_info = HostingInfo.get_by_id(1)
 
          self.assertEqual(self.persistence_delegate.hosting_info_exists\
                              (hosting_info1), True)
@@ -993,13 +993,13 @@ class TestPersistenceDelegate(TestCase):
     def test_add_integration_status(self):
          print "test_add_integration_status"
          integration_level1 = 4
-         integration_status1 = Integration_Status(integration_level=integration_level1)
+         integration_status1 = IntegrationStatus(integration_level=integration_level1)
          integration_status1 = self.persistence_delegate.add_integration_status(integration_status1)
          
          integration_level2= 2
-         integration_status2 = Integration_Status(integration_level=integration_level2)
+         integration_status2 = IntegrationStatus(integration_level=integration_level2)
          
-         integration_status = Integration_Status.get_by_id(1)
+         integration_status = IntegrationStatus.get_by_id(1)
 
          self.assertEqual(self.persistence_delegate.integration_status_exists\
                               (integration_status1), True)
@@ -1042,7 +1042,7 @@ class TestPersistenceDelegate(TestCase):
          discipline.save()
 
          integration_level = 4
-         integration_status = Integration_Status(integration_level=integration_level)
+         integration_status = IntegrationStatus(integration_level=integration_level)
          integration_status.save()
   
          asset_type = "Image"
@@ -1060,7 +1060,7 @@ class TestPersistenceDelegate(TestCase):
          hosting_status = "hosted"
          hosted_url = "http://cse14-iiith.vlabs.ac.in"
          hosted_on = "cloud"
-         host = Hosting_Info(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
+         host = HostingInfo(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
          host.save()
 
          lab = Lab(lab_name=lab_name, lab_id=lab_id, overview=overview, 
@@ -1120,7 +1120,7 @@ class TestPersistenceDelegate(TestCase):
          hosting_status = "hosted"
          hosted_url = "http://cse14-iiith.vlabs.ac.in"
          hosted_on = "cloud"
-         host = Hosting_Info(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
+         host = HostingInfo(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
          host.save()
 
          exp_name = "Data Structures"
@@ -1128,7 +1128,7 @@ class TestPersistenceDelegate(TestCase):
          overview = "overview"
 
          integration_level = 4
-         integration_status = Integration_Status(integration_level=integration_level)
+         integration_status = IntegrationStatus(integration_level=integration_level)
          integration_status.save()
 
          asset_type = "Image"
@@ -1283,7 +1283,7 @@ class TestPersistenceDelegate(TestCase):
 #+END_SRC
 
 
-***  Update Hosting_Info 
+***  Update HostingInfo 
     This function updates existing hosting_info.
 #+NAME: persistence_update_hosting_info
 #+BEGIN_SRC python
@@ -1302,7 +1302,7 @@ class TestPersistenceDelegate(TestCase):
          hosting_status = "hosted"
          hosted_url = "http://cse14-iiith.vlabs.ac.in"
          hosted_on = "cloud"
-         hosting_info = Hosting_Info(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
+         hosting_info = HostingInfo(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
          hosting_info1 = self.persistence_delegate.add_hosting_info(hosting_info)
 
          hosting_status1 = "not hosted"
@@ -1310,7 +1310,7 @@ class TestPersistenceDelegate(TestCase):
          hosting_info2 = self.persistence_delegate.update_hosting_info\
            (hosting_info1, hosting_status1, hosted_on1),
 
-         hosting_info = Hosting_Info.get_by_id(1)
+         hosting_info = HostingInfo.get_by_id(1)
 
          self.assertEqual(hosting_info.get("hosting_status"), hosting_status1)
          self.assertEqual(hosting_info.get("hosted_url"), hosted_url)
@@ -1387,7 +1387,7 @@ class TestPersistenceDelegate(TestCase):
          inst.save()
 
          integration_level = 4
-         integration_status = Integration_Status(integration_level=integration_level)                    
+         integration_status = IntegrationStatus(integration_level=integration_level)                    
          integration_status.save()
 
          dis_name = "IIT Kanpur"
@@ -1410,7 +1410,7 @@ class TestPersistenceDelegate(TestCase):
          hosting_status = "hosted"
          hosted_url = "http://cse14-iiith.vlabs.ac.in"
          hosted_on = "cloud"
-         host = Hosting_Info(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
+         host = HostingInfo(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
          host.save()
 
          lab = Lab(lab_name=lab_name, lab_id=lab_id, overview=overview, 
@@ -1485,11 +1485,11 @@ class TestPersistenceDelegate(TestCase):
          hosting_status = "hosted"
          hosted_url = "http://cse14-iiith.vlabs.ac.in"
          hosted_on = "cloud"
-         host = Hosting_Info(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
+         host = HostingInfo(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
          host.save()
          
          integration_level = 4
-         integration_status = Integration_Status(integration_level=integration_level)
+         integration_status = IntegrationStatus(integration_level=integration_level)
          integration_status.save()
 
          asset_type = "Image"
@@ -1781,14 +1781,14 @@ class TestPersistenceDelegate(TestCase):
 #+END_SRC
 
 
-***  Delete Hosting_Info 
+***  Delete HostingInfo 
     This function deletes existing hosting_info.
 #+NAME: persistence_delete_hosting_info
 #+BEGIN_SRC python
     def delete_hosting_info(self, hosted_url):
         record = self.get_hosting_info(hosted_url=hosted_url)
         if not record:
-            abort(404, 'No Hosting_Info with id %s' % (hosted_url))
+            abort(404, 'No HostingInfo with id %s' % (hosted_url))
         else:
             try:
                 record.delete()
@@ -1810,18 +1810,18 @@ class TestPersistenceDelegate(TestCase):
          hosting_status = "hosted"
          hosted_url = "http://cse14-iiith.vlabs.ac.in"
          hosted_on = "cloud"
-         hosting_info = Hosting_Info(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
+         hosting_info = HostingInfo(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
          hosting_info1 = self.persistence_delegate.add_hosting_info(hosting_info)
 
          hosting_status1 = "not hosted"
          hosted_url1 = "http://iitkgp.vlab.co.in/"
          hosted_on1 = "server"
-         hosting_info1 = Hosting_Info(hosting_status=hosting_status1, hosted_url=hosted_url1, hosted_on=hosted_on1)
+         hosting_info1 = HostingInfo(hosting_status=hosting_status1, hosted_url=hosted_url1, hosted_on=hosted_on1)
          hosting_info2 = self.persistence_delegate.add_hosting_info(hosting_info1)
 
          self.persistence_delegate.delete_hosting_info("http://cse14-iiith.vlabs.ac.in")
 
-         self.assertEqual(len(Hosting_Info.get_all()), 1)
+         self.assertEqual(len(HostingInfo.get_all()), 1)
 
 #+END_SRC
 
@@ -1869,14 +1869,14 @@ class TestPersistenceDelegate(TestCase):
 
 
 
-***  Delete Integration_Status
+***  Delete IntegrationStatus
     This function deletes existing integration_status.
 #+NAME: persistence_delete_integration_status
 #+BEGIN_SRC python
     def delete_integration_status(self, integration_level):
         record = self.get_integration_status(integration_level=integration_level)
         if not record:
-            abort(404, 'No Integration_Status with id %s' % (integration_level))
+            abort(404, 'No IntegrationStatus with id %s' % (integration_level))
         else:
             try:
                 record.delete()
@@ -1895,16 +1895,16 @@ class TestPersistenceDelegate(TestCase):
     def test_delete_integration_status(self):
          print "test_delete_integration_status"
          integration_level = 4
-         integration_status = Integration_Status(integration_level=integration_level)                    
+         integration_status = IntegrationStatus(integration_level=integration_level)                    
          integration_status1 = self.persistence_delegate.add_integration_status(integration_status)
 
          integration_level1 = 2
-         integration_status1 = Integration_Status(integration_level=integration_level1)
+         integration_status1 = IntegrationStatus(integration_level=integration_level1)
          integration_status2 = self.persistence_delegate.add_integration_status(integration_status1)
 
          self.persistence_delegate.delete_integration_status(integration_level)
 
-         self.assertEqual(len(Integration_Status.get_all()), 1)
+         self.assertEqual(len(IntegrationStatus.get_all()), 1)
 
 #+END_SRC
 
@@ -1957,7 +1957,7 @@ class TestPersistenceDelegate(TestCase):
          asset.save()
 
          integration_level = 4
-         integration_status = Integration_Status(integration_level=integration_level)
+         integration_status = IntegrationStatus(integration_level=integration_level)
          integration_status.save()
 
          dev_name = Name(name="Mohit Tahiliani")
@@ -1970,7 +1970,7 @@ class TestPersistenceDelegate(TestCase):
          hosting_status = "hosted"
          hosted_url = "http://cse14-iiith.vlabs.ac.in"
          hosted_on = "cloud"
-         host = Hosting_Info(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
+         host = HostingInfo(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
          host.save()
 
          lab = Lab(lab_name=lab_name, lab_id=lab_id, overview=overview,
@@ -2050,7 +2050,7 @@ class TestPersistenceDelegate(TestCase):
          asset.save()
 
          integration_level = 4
-         integration_status = Integration_Status(integration_level=integration_level)
+         integration_status = IntegrationStatus(integration_level=integration_level)
          integration_status.save()
 
          dev_name = Name(name="Mohit Tahiliani")
@@ -2063,7 +2063,7 @@ class TestPersistenceDelegate(TestCase):
          hosting_status = "hosted"
          hosted_url = "http://cse14-iiith.vlabs.ac.in"
          hosted_on = "cloud"
-         host = Hosting_Info(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
+         host = HostingInfo(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
          host.save()
          
          lab = Lab(lab_name=lab_name, lab_id=lab_id, overview=overview,
@@ -2142,7 +2142,7 @@ class TestPersistenceDelegate(TestCase):
          discipline.save()
 
          integration_level = 4
-         integration_status = Integration_Status(integration_level=integration_level)
+         integration_status = IntegrationStatus(integration_level=integration_level)
          integration_status.save()
 
          dev_name = Name(name="Mohit Tahiliani")
@@ -2155,7 +2155,7 @@ class TestPersistenceDelegate(TestCase):
          hosting_status = "hosted"
          hosted_url = "http://cse14-iiith.vlabs.ac.in"
          hosted_on = "cloud"
-         host = Hosting_Info(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
+         host = HostingInfo(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
          host.save()
 
          lab = Lab(lab_name=lab_name, lab_id=lab_id, overview=overview, 
@@ -2223,11 +2223,11 @@ class TestPersistenceDelegate(TestCase):
          hosting_status = "hosted"
          hosted_url = "http://cse14-iiith.vlabs.ac.in"
          hosted_on = "cloud"
-         host = Hosting_Info(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
+         host = HostingInfo(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
          host.save()
 
          integration_level = 4
-         integration_status = Integration_Status(integration_level=integration_level)
+         integration_status = IntegrationStatus(integration_level=integration_level)
          integration_status.save()
 
          asset_type = "Image"
@@ -2312,7 +2312,7 @@ class TestPersistenceDelegate(TestCase):
          asset.save()
 
          integration_level = 4
-         integration_status = Integration_Status(integration_level=integration_level)
+         integration_status = IntegrationStatus(integration_level=integration_level)
          integration_status.save()
 
          dev_name = Name(name="Mohit Tahiliani")
@@ -2325,7 +2325,7 @@ class TestPersistenceDelegate(TestCase):
          hosting_status = "hosted"
          hosted_url = "http://cse14-iiith.vlabs.ac.in"
          hosted_on = "cloud"
-         host = Hosting_Info(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
+         host = HostingInfo(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
          host.save()
 
          lab = Lab(lab_name=lab_name1, lab_id=lab_id1, overview=overview,
@@ -2483,7 +2483,7 @@ class TestPersistenceDelegate(TestCase):
          hosting_status = "hosted"
          hosted_url = "http://cse14-iiith.vlabs.ac.in"
          hosted_on = "cloud"
-         host = Hosting_Info(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
+         host = HostingInfo(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
          host.save()
 
          inst_name = "IIT Kanpur"
@@ -2501,7 +2501,7 @@ class TestPersistenceDelegate(TestCase):
          overview = "overview"
 
          integration_level = 4
-         integration_status = Integration_Status(integration_level=integration_level)
+         integration_status = IntegrationStatus(integration_level=integration_level)
          integration_status.save()
 
          asset_type = "Image"
@@ -2659,7 +2659,7 @@ class TestPersistenceDelegate(TestCase):
          asset.save()
 
          integration_level = 4
-         integration_status = Integration_Status(integration_level=integration_level)
+         integration_status = IntegrationStatus(integration_level=integration_level)
          integration_status.save()
 
          dev_name = Name(name="Mohit Tahiliani")
@@ -2672,7 +2672,7 @@ class TestPersistenceDelegate(TestCase):
          hosting_status = "hosted"
          hosted_url = "http://cse14-iiith.vlabs.ac.in"
          hosted_on = "cloud"
-         host = Hosting_Info(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
+         host = HostingInfo(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
          host.save()
 
          lab1 = Lab(lab_name=lab_name1, lab_id=lab_id1, overview=overview,
@@ -2720,7 +2720,7 @@ class TestPersistenceDelegate(TestCase):
          asset.save()
 
          integration_level = 4
-         integration_status = Integration_Status(integration_level=integration_level)
+         integration_status = IntegrationStatus(integration_level=integration_level)
          integration_status.save()
 
          dev_name = Name(name="Mohit Tahiliani")
@@ -2733,7 +2733,7 @@ class TestPersistenceDelegate(TestCase):
          hosting_status = "hosted"
          hosted_url = "http://cse14-iiith.vlabs.ac.in"
          hosted_on = "cloud"
-         host = Hosting_Info(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
+         host = HostingInfo(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
          host.save()
 
          lab1 = Lab(lab_name=lab_name1, lab_id=lab_id1, overview=overview,
@@ -2779,7 +2779,7 @@ class TestPersistenceDelegate(TestCase):
          asset.save()
 
          integration_level = 4
-         integration_status = Integration_Status(integration_level=integration_level)
+         integration_status = IntegrationStatus(integration_level=integration_level)
          integration_status.save()
 
          dev_name = Name(name="Mohit Tahiliani")
@@ -2792,7 +2792,7 @@ class TestPersistenceDelegate(TestCase):
          hosting_status = "hosted"
          hosted_url = "http://cse14-iiith.vlabs.ac.in"
          hosted_on = "cloud"
-         host = Hosting_Info(hosting_status=hosting_status, hosted_url=hosted_url, 
+         host = HostingInfo(hosting_status=hosting_status, hosted_url=hosted_url, 
                 hosted_on=hosted_on)
          host.save()
 
@@ -2839,7 +2839,7 @@ class TestPersistenceDelegate(TestCase):
          asset.save()
 
          integration_level = 4
-         integration_status = Integration_Status(integration_level=integration_level)
+         integration_status = IntegrationStatus(integration_level=integration_level)
          integration_status.save()
 
          dev_name = Name(name="Mohit Tahiliani")
@@ -2852,7 +2852,7 @@ class TestPersistenceDelegate(TestCase):
          hosting_status = "hosted"
          hosted_url = "http://cse14-iiith.vlabs.ac.in"
          hosted_on = "cloud"
-         host = Hosting_Info(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
+         host = HostingInfo(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
          host.save()
 
          lab1 = Lab(lab_name=lab_name1, lab_id=lab_id1, overview=overview,
@@ -2921,13 +2921,13 @@ class TestPersistenceDelegate(TestCase):
 #+END_SRC
 
 
-***  Get Hosting_Info
+***  Get HostingInfo
     This function returns hosting_info if present in the database. If the hosting_info is
     not present, =None= type is returned.
 #+NAME: persistence_get_hosting_info
 #+BEGIN_SRC python
     def get_hosting_info(self, **kwargs):
-        return self.get_object(Hosting_Info, **kwargs)
+        return self.get_object(HostingInfo, **kwargs)
 
 #+END_SRC
 **** Tests
@@ -2940,7 +2940,7 @@ class TestPersistenceDelegate(TestCase):
          hosting_status = "hosted"
          hosted_url = "http://cse14-iiith.vlabs.ac.in"
          hosted_on = "cloud"
-         host = Hosting_Info(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
+         host = HostingInfo(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
          host.save()
          host_obj = self.persistence_delegate.get_hosting_info(hosting_status=
                                                 host.get("hosting_status"))
@@ -2958,13 +2958,13 @@ class TestPersistenceDelegate(TestCase):
 #+END_SRC
 
 
-***  Get Integration_Status
+***  Get IntegrationStatus
     This function returns integration_status if present in the database. If the integration_status is
     not present, =None= type is returned.
 #+NAME: persistence_get_integration_status
 #+BEGIN_SRC python
     def get_integration_status(self, **kwargs):
-        return self.get_object(Integration_Status, **kwargs)
+        return self.get_object(IntegrationStatus, **kwargs)
 
 #+END_SRC
 
@@ -2975,7 +2975,7 @@ class TestPersistenceDelegate(TestCase):
          print "test_get_integration_status"
 
          integration_level = 4
-         intstatus = Integration_Status(integration_level=integration_level)                             
+         intstatus = IntegrationStatus(integration_level=integration_level)                             
          intstatus.save()
          intstatus_obj = self.persistence_delegate.get_integration_status(integration_level=
                                                 intstatus.get("integration_level"))
@@ -3069,7 +3069,7 @@ class TestPersistenceDelegate(TestCase):
          asset.save()
 
          integration_level = 4
-         integration_status = Integration_Status(integration_level=integration_level)
+         integration_status = IntegrationStatus(integration_level=integration_level)
          integration_status.save()
 
          dev_name = Name(name="Mohit Tahiliani")
@@ -3082,7 +3082,7 @@ class TestPersistenceDelegate(TestCase):
          hosting_status = "hosted"
          hosted_url = "http://cse14-iiith.vlabs.ac.in"
          hosted_on = "cloud"
-         host = Hosting_Info(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
+         host = HostingInfo(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
          host.save()
 
          lab = Lab(lab_name=lab_name1, lab_id=lab_id1, overview=overview, 
@@ -3134,7 +3134,7 @@ class TestPersistenceDelegate(TestCase):
          hosting_status = "hosted"
          hosted_url = "http://cse14-iiith.vlabs.ac.in"
          hosted_on = "cloud"
-         host = Hosting_Info(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
+         host = HostingInfo(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
          host.save()
 
          inst_name = "IIT Kanpur"
@@ -3152,7 +3152,7 @@ class TestPersistenceDelegate(TestCase):
          overview = "overview"
 
          integration_level = 4
-         integration_status = Integration_Status(integration_level=integration_level)
+         integration_status = IntegrationStatus(integration_level=integration_level)
          integration_status.save()
 
          asset_type = "Image"
