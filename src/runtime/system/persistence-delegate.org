@@ -1066,8 +1066,8 @@ class TestPersistenceDelegate(TestCase):
     This function updates existing lab.
 #+NAME: persistence_update_lab
 #+BEGIN_SRC python
-    def update_lab(self, lab, lab_name, overview):
-        lab.set(lab_name=lab_name, overview=overview)
+    def update_lab(self, lab, lab_name, overview, institute):
+        lab.set(lab_name=lab_name, overview=overview, institute=institute)
         lab.save()
         return lab
 
@@ -1126,13 +1126,20 @@ class TestPersistenceDelegate(TestCase):
          lab1 = self.persistence_delegate.add_lab(lab)
          lab_name1 = "Computer Programming"
          overview1 = "overview"
+         inst_name1 = "IIT Kharagpur"
+         inst_id1 = "IITKgp"
+         inst1 = Institute(inst_name=inst_name1, inst_id=inst_id1)
+         inst1.save()
+
          lab2 = self.persistence_delegate.update_lab\
-           (lab1, lab_name1, overview=overview1),
+           (lab1, lab_name1, overview1, inst1),
          lab2 = Lab.get_by_id(1)
 
          self.assertEqual(lab2.get("lab_id"), lab_id)
          self.assertEqual(lab2.get("lab_name"), lab_name1)
          self.assertEqual(lab2.get("overview"), overview1)
+         self.assertEqual(lab2.get("institute").get("inst_id"), 
+                              inst1.get("inst_id"))
 
 #+END_SRC
 
