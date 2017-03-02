@@ -1779,6 +1779,53 @@ class AddAssetsToLab():
 
 
 
+** =GetLabsByAsset=
+#+NAME: class_get_labs_by_asset
+#+begin_src python
+class GetLabsByAsset():
+    arg_types = {"asset": is_asset}
+    arity_and_type_checks_needed = True
+
+    @staticmethod
+    def auth_check(args):
+        pass
+
+    @staticmethod
+    def state_check(args):
+        pass
+
+    @staticmethod
+    def action(args):
+        asset = args['asset']
+        labs = System.delegate.get_labs(asset=asset)
+        return labs
+
+#+end_src
+
+** =GetAssetByAssetType=
+#+NAME: class_get_asset_by_asset_type
+#+begin_src python
+class GetAssetByAssetType():
+    arg_types = {"asset_type": is_str}
+    arity_and_type_checks_needed = True
+
+    @staticmethod
+    def auth_check(args):
+        pass
+
+    @staticmethod
+    def state_check(args):
+        pass
+
+    @staticmethod
+    def action(args):
+        asset_type = args['asset_type']
+        asset = System.delegate.get_asset(asset_type=asset_type)
+        return asset
+
+#+end_src
+
+
 ** Operations Table
    Each operation has a corresponding implementation defined as a class.
 
@@ -1832,6 +1879,8 @@ ops_table = {'add_lab' : AddLab,
              'get_asset': GetAsset,
              'update_asset': UpdateAsset,
              'add_assets_to_lab': AddAssetsToLab
+             #'get_labs_by_asset': GetLabsByAsset,
+             #'get_asset_by_asset_type': GetAssetByAssetType
              }
 
  #+END_SRC   
@@ -1945,6 +1994,8 @@ if __name__ == '__main__':
 <<class_update_asset>>
 <<class_delete_asset>>
 <<class_add_assets_to_lab>>
+#<<class_get_labs_by_asset>>
+#<<class_get_asset_by_asset_type>>
 <<ops_table>>
 
 #+end_src
