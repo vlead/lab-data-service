@@ -38,6 +38,7 @@ class SystemInterface ():
         lab_cls = System.delegate.entities['lab']
         exp_cls = System.delegate.entities['experiment']
         email_cls = System.delegate.entities['email']
+        asset_cls = System.delegate.entities['asset']
 
         session = session_cls(key=data_dict['key'])
         del(data_dict['key'])
@@ -52,15 +53,21 @@ class SystemInterface ():
         institute = System.do("get_institute", inst_id=inst_id)
 
         integration_level = data_dict['integration_level']
-        integration_status = System.do("get_integration_status", integration_level=integration_level)
+        integration_status = System.do("get_integration_status",
+                                           integration_level=integration_level)
 
         dis_id = data_dict['dis_id']
         discipline = System.do("get_discipline", dis_id=dis_id)
 
+
         assets = data_dict['assets']
         asset_list = []
-        for asset in assets:
-            asset = System.do("get_asset", path=asset)
+        for asset_x in assets:
+            asset = System.do("get_asset", path=asset_x['path'])
+            if asset is None:
+                asset = asset_cls(asset_type=str(asset_x['asset_type']), \
+                                      path=str(asset_x['path']))
+                asset = System.do("add_asset", asset=asset, session=session)
             asset_list.append(asset)
 
         developers = data_dict['developers']
@@ -86,7 +93,6 @@ class SystemInterface ():
                                 experiments=exp_list,
                                 developers=developer_list,
                                 hosting_info=hosting_info_list)
-
         try:
             current_app.logger.debug("running operation add_lab")
             lab = System.do("add_lab", lab=lab, session=session)
@@ -180,7 +186,7 @@ class TestAddLab(TestCase):
                     'hosting_info': ['http://cse14-iiith.vlabs.ac.in'],
                     'inst_id': 'IITK',
                     'dis_id': 'CSE',
-                    'assets': ['vlabs.ac.in/images/static/logo.png'],
+                    'assets': [],
                     'integration_level': 4,
                    }
 
@@ -192,12 +198,17 @@ class TestAddLab(TestCase):
                     'key': KEY,
                     'inst_id': 'IITK',
                     'dis_id': 'CSE',
-                    'assets': ['vlabs.ac.in/images/static/logo.png'],
+                    'assets': [{'path':'vlabs.ac.in/images/static/logo.png',
+                                    'asset_type': 'image'},
+                                {'path':'vlabs.ac.in/images/static/image.png',
+                                    'asset_type': 'image'}],
                     'integration_level': 4,
                     'experiments': ['exp123'],
                     'developers': ['abc@gmail.com'],
                     'hosting_info': ['http://cse14-iiith.vlabs.ac.in']
                    }
+
+        print "=================================="
 
         lab = SystemInterface.add_lab(data_dict)
         lab_cls = System.delegate.entities['lab']
