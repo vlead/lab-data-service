@@ -67,7 +67,7 @@ args = {"__tablename__": "lab",
         "developers": db.relationship('Developer',
                     secondary=lab_developers, 
                     backref='labs'),
-        "hosting_info": db.relationship('Hosting_Info',
+        "hosting_info": db.relationship('HostingInfo',
                     secondary=lab_hosting_info, 
                     backref='labs')
        }
@@ -108,7 +108,7 @@ class TestPersistentLab(TestCase):
         discipline.save()
 
         integration_level = 4
-        intstatus = Integration_Status(integration_level=integration_level)
+        intstatus = IntegrationStatus(integration_level=integration_level)
         intstatus.save()
 
         asset_type = "Image"
@@ -131,7 +131,7 @@ class TestPersistentLab(TestCase):
         hosting_status = "hosted"
         hosted_url = "http://cse14-iiith.vlabs.ac.in"
         hosted_on = "cloud"
-        host = Hosting_Info(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
+        host = HostingInfo(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
         host.save()
 
         exp_name = "Number Systems"
@@ -273,7 +273,7 @@ args = {"__tablename__": "experiment",
         "developers": db.relationship('Developer',
                     secondary=experiments_developers, 
                     backref='experiments'),
-        "hosting_info": db.relationship('Hosting_Info',
+        "hosting_info": db.relationship('HostingInfo',
                     secondary=experiments_hosting_info, 
                     backref='experiments')
         }
@@ -323,7 +323,7 @@ class TestPersistenceExperiment(TestCase):
         hosting_status = "hosted"
         hosted_url = "http://cse14-iiith.vlabs.ac.in"
         hosted_on = "cloud"
-        host = Hosting_Info(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
+        host = HostingInfo(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
         host.save()
 
         exp_name = "Number Systems"
@@ -331,7 +331,7 @@ class TestPersistenceExperiment(TestCase):
         overview = "This is linked list experiment"
 
         integration_level = 4
-        intstatus = Integration_Status(integration_level=integration_level)
+        intstatus = IntegrationStatus(integration_level=integration_level)
         intstatus.save()
 
         asset_type = "Image"
@@ -703,11 +703,11 @@ class TestPersistentDeveloper(TestCase):
 #+END_SRC
 
 
-* Hosting_Info
+* HostingInfo
 
-  =Hosting_Info= is a class with attributes =hosting_status= and =hosted_url=.
+  =HostingInfo= is a class with attributes =hosting_status= and =hosted_url=.
 
-#+NAME: class_Hosting_Info
+#+NAME: class_HostingInfo
 #+begin_src python
 args = {"__tablename__": "hosting_info",
         "id": db.Column(db.Integer, primary_key=True),
@@ -718,14 +718,14 @@ args = {"__tablename__": "hosting_info",
 #        "experiments": db.relationship('Experiment', backref=db.backref('hosting_info'))
        }
 
-Hosting_Info = ClassPersistenceTemplate.mk_persistent(Hosting_Info, ['hosted_url'], **args)
+HostingInfo = ClassPersistenceTemplate.mk_persistent(HostingInfo, ['hosted_url'], **args)
 
 #+end_src
 
-** Test Hosting_Info
-#+NAME: class_TestHosting_Info
+** Test HostingInfo
+#+NAME: class_TestHostingInfo
 #+BEGIN_SRC python
-class TestPersistenceHosting_Info(TestCase):
+class TestPersistenceHostingInfo(TestCase):
     TESTING = True
 
     def create_app(self):
@@ -744,10 +744,10 @@ class TestPersistenceHosting_Info(TestCase):
         hosting_status = "hosted"
         hosted_url = "http://cse14-iiith.vlabs.ac.in"
         hosted_on = "cloud"
-        host = Hosting_Info(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
+        host = HostingInfo(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
         host.save()
-        hosting_info = Hosting_Info.get_by_id(1)
-        hosting_info1 = Hosting_Info.get_by_id(2)
+        hosting_info = HostingInfo.get_by_id(1)
+        hosting_info1 = HostingInfo.get_by_id(2)
         self.assertEqual(hosting_info.get("hosting_status"), hosting_status)
         self.assertEqual(hosting_info.get("hosted_url"), hosted_url)
         self.assertEqual(hosting_info.get("hosted_on"), hosted_on)
@@ -805,11 +805,11 @@ class TestPersistenceAsset(TestCase):
 #+END_SRC
 
 
-* Integration_Status
+* IntegrationStatus
 
-  =Integration_Status= is a class with attributes =integration_level= of type =is_int=.
+  =IntegrationStatus= is a class with attributes =integration_level= of type =is_int=.
 
-#+NAME: class_Integration_Status
+#+NAME: class_IntegrationStatus
 #+begin_src python
 args = {"__tablename__": "integration_status",
         "id": db.Column(db.Integer, primary_key=True),
@@ -821,15 +821,15 @@ args = {"__tablename__": "integration_status",
         "labs": db.relationship('Lab', backref=db.backref('integration_status'))
        }
 
-Integration_Status = ClassPersistenceTemplate.mk_persistent(Integration_Status,
+IntegrationStatus = ClassPersistenceTemplate.mk_persistent(IntegrationStatus,
                                                 ['integration_level'], **args)
 
 #+end_src
 
-** Test Integration_Status
-#+NAME: class_TestIntegration_Status
+** Test IntegrationStatus
+#+NAME: class_TestIntegrationStatus
 #+BEGIN_SRC python
-class TestPersistenceIntegration_Status(TestCase):
+class TestPersistenceIntegrationStatus(TestCase):
     TESTING = True
 
     def create_app(self):
@@ -846,10 +846,10 @@ class TestPersistenceIntegration_Status(TestCase):
     def test_create_integration_status(self):
         print "test_persistance_integration_status"
         integration_level = 4
-        intstatus = Integration_Status(integration_level=integration_level)
+        intstatus = IntegrationStatus(integration_level=integration_level)
         intstatus.save()
-        integration_status = Integration_Status.get_by_id(1)
-        integration_status1 = Integration_Status.get_by_id(2)
+        integration_status = IntegrationStatus.get_by_id(1)
+        integration_status1 = IntegrationStatus.get_by_id(2)
         self.assertEqual(integration_status.get("integration_level"), integration_level)
         self.assertEqual(integration_status1,None)
 
@@ -912,9 +912,9 @@ if __name__ == '__main__':
 <<class_Name>>
 <<class_Email>>
 <<class_Developer>>
-<<class_Hosting_Info>>
+<<class_HostingInfo>>
 <<class_Asset>>
-<<class_Integration_Status>>
+<<class_IntegrationStatus>>
 #+end_src
 
 
@@ -929,9 +929,9 @@ if __name__ == '__main__':
 <<class_TestEmail>>
 <<class_TestDeveloper>>
 <<class_TestInstitute>>
-<<class_TestHosting_Info>>
+<<class_TestHostingInfo>>
 <<class_TestAsset>>
 <<class_TestAssets>>
-<<class_TestIntegration_Status>>
+<<class_TestIntegrationStatus>>
 <<run_test_cases>>
 #+end_src
