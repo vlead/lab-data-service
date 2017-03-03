@@ -97,25 +97,24 @@ class TestPersistentLab(TestCase):
     def test_create_lab(self):
         print "test_persistent_lab"
 
+        asset_type = "Image"
+        path = "vlabs.ac.in/images/static/icon.png"
+        asset = Asset(asset_type=asset_type, path=path)
+        asset.save()
+
         inst_name = "IIT Kanpur"
         inst_id = "IITK"
-        inst = Institute(inst_name=inst_name, inst_id=inst_id)
+        inst = Institute(inst_name=inst_name, inst_id=inst_id, assets=[asset])
         inst.save()
 
         dis_name = "IIT Kanpur"
         dis_id = "IITK"
-        discipline = Discipline(dis_name=dis_name, dis_id=dis_id)
+        discipline = Discipline(dis_name=dis_name, dis_id=dis_id, assets=[asset])
         discipline.save()
 
         integration_level = 4
         intstatus = IntegrationStatus(integration_level=integration_level)
         intstatus.save()
-
-        asset_type = "Image"
-        path = "vlabs.ac.in/images/static/icon.png"
-        asset = Asset(asset_type=asset_type, path=path,
-                      institute=inst, discipline=discipline)
-        asset.save()
 
         exp_name = "Number Systems"
         exp_id = "EE99777"
@@ -301,15 +300,20 @@ class TestPersistenceExperiment(TestCase):
 
     def test_create_experiment(self):
         print "test_persistance_experiment"
+
+        asset_type = "Image"
+        path = "vlabs.ac.in/images/static/icon.png"
+        asset = Asset(asset_type=asset_type, path=path)
+        asset.save()
         
         inst_name = "IIT Kanpur"
         inst_id = "IITK"
-        inst = Institute(inst_name=inst_name, inst_id=inst_id)
+        inst = Institute(inst_name=inst_name, inst_id=inst_id, assets=[asset])
         inst.save()
 
         dis_name = "IIT Kanpur"
         dis_id = "IITK"
-        discipline = Discipline(dis_name=dis_name, dis_id=dis_id)
+        discipline = Discipline(dis_name=dis_name, dis_id=dis_id, assets=[asset])
         discipline.save()      
 
         dev_name = Name(name="Mohit Tahiliani")
@@ -332,12 +336,6 @@ class TestPersistenceExperiment(TestCase):
         integration_level = 4
         intstatus = IntegrationStatus(integration_level=integration_level)
         intstatus.save()
-
-        asset_type = "Image"
-        path = "vlabs.ac.in/images/static/icon.png"
-        asset = Asset(asset_type=asset_type, path=path, 
-                      institute=inst, discipline=discipline)
-        asset.save()
 
         exp = Experiment(exp_name=exp_name, exp_id=exp_id, overview=overview,
                           integration_status=intstatus, assets=[asset], 
@@ -382,7 +380,7 @@ institutes_labs = db.Table('institutes_labs',
 institutes_assets = db.Table('institutes_assets',
 		      db.Column('institute_id', db.Integer, 
                             db.ForeignKey('institute.id')),
-		      db.Column('path', db.Integer,
+		      db.Column('assetid', db.Integer,
                             db.ForeignKey('asset.id')))
 
 #+END_SRC
@@ -394,9 +392,8 @@ args = {"__tablename__": "institute",
         "inst_id": db.Column(db.String(255), unique=True, nullable=False),
         "labs": db.relationship('Lab', backref=db.backref('institute')),
         "experiments": db.relationship('Experiment', backref=db.backref('institute')),
-        "assets": db.relationship('Asset',
-                    secondary=institutes_assets, 
-                    backref='institutes')
+#       "assets": db.relationship('Asset', backref=db.backref('institute')),
+        "assets": db.relationship('Asset', secondary=institutes_assets, backref='institutes')
        }
 
 Institute = ClassPersistenceTemplate.mk_persistent(Institute, ['inst_id'], **args)
@@ -422,14 +419,22 @@ class TestPersistenceInstitute(TestCase):
 
     def test_create_institute(self):
         print "test_persistance_institute"
+
+        asset_type = "Image"
+        path = "vlabs.ac.in/images/static/logo.png"
+        asset = Asset(asset_type=asset_type, path=path)
+        asset.save() 
+
         inst_name = "IIT Kanpur"
         inst_id = "IITK"
-        inst = Institute(inst_name=inst_name, inst_id=inst_id)
+        inst = Institute(inst_name=inst_name, inst_id=inst_id, assets=[asset])
         inst.save()
         institute = Institute.get_by_id(1)
         institute1 = Institute.get_by_id(2)
         self.assertEqual(institute.get("inst_name"), inst_name)
-        self.assertEqual(institute.get("inst_id"), inst_id)       
+        self.assertEqual(institute.get("inst_id"), inst_id)   
+        self.assertEqual(institute.get("assets")[0].get("asset_type"), 
+                             asset.get("asset_type"))    
         self.assertEqual(institute1,None)
 
 #+END_SRC
@@ -444,7 +449,7 @@ class TestPersistenceInstitute(TestCase):
 disciplines_assets = db.Table('disciplines_assets',
 		      db.Column('discipline_id', db.Integer, 
                             db.ForeignKey('discipline.id')),
-		      db.Column('path', db.Integer,
+		      db.Column('assetid', db.Integer,
                             db.ForeignKey('asset.id')))
 
 #+end_src
@@ -457,9 +462,7 @@ args = {"__tablename__": "discipline",
         "dis_id": db.Column(db.String(255), unique=True, nullable=False),
         "labs": db.relationship('Lab', backref=db.backref('discipline')),
         "experiments": db.relationship('Experiment', backref=db.backref('discipline')),
-        "assets": db.relationship('Asset',
-                    secondary=disciplines_assets, 
-                    backref='disciplines')
+        "assets": db.relationship('Asset', secondary=disciplines_assets, backref='disciplines')
         }
 
 Discipline = ClassPersistenceTemplate.mk_persistent(Discipline, ['dis_id'], **args)
@@ -486,13 +489,22 @@ class TestPersistenceDiscipline(TestCase):
 
     def test_create_discipline(self):
         print "test_persistance_discipline"
+
+        asset_type = "Image"
+        path = "vlabs.ac.in/images/static/logo.png"
+        asset = Asset(asset_type=asset_type, path=path)
+        asset.save()
+
         dis_name = "IIT Delhi"
         dis_id = "ECE08"
-        dis = Discipline(dis_name=dis_name, dis_id=dis_id)
+        dis = Discipline(dis_name=dis_name, dis_id=dis_id, assets=[asset])
         dis.save()
+
         discipline = Discipline.get_by_id(1)
         self.assertEqual(discipline.get("dis_name"), dis_name)
         self.assertEqual(discipline.get("dis_id"), dis_id)
+        self.assertEqual(discipline.get("assets")[0].get("asset_type"), 
+                             asset.get("asset_type"))
 
 #+END_SRC
 
@@ -749,8 +761,7 @@ class TestPersistenceHostingInfo(TestCase):
 args = {"__tablename__": "asset",
         "id": db.Column(db.Integer, primary_key=True),
         "asset_type": db.Column(db.String(255), unique=False, nullable=True),        
-        "path": db.Column(db.String(255), unique=True, nullable=False),
-#        "labs": db.relationship('Lab', backref=db.backref('asset'))
+        "path": db.Column(db.String(255), unique=True, nullable=False)
        }
 
 Asset = ClassPersistenceTemplate.mk_persistent(Asset, ['path'], **args)
@@ -777,20 +788,9 @@ class TestPersistenceAsset(TestCase):
     def test_create_asset(self):
         print "test_persistance_asset"
 
-        inst_name = "IIT Kanpur"
-        inst_id = "IITK"
-        inst = Institute(inst_name=inst_name, inst_id=inst_id)
-        inst.save()
-
-        dis_name = "IIT Kanpur"
-        dis_id = "IITK"
-        discipline = Discipline(dis_name=dis_name, dis_id=dis_id)
-        discipline.save() 
-
         path = "vlabs.ac.in/static/images/logo.png"
         asset_type = "Image"
-        asset = Asset(path=path, asset_type=asset_type, 
-                      institute=inst, discipline=discipline)
+        asset = Asset(path=path, asset_type=asset_type)
         asset.save()
 
         asset = asset.get_by_id(1)
