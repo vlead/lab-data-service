@@ -52,13 +52,6 @@ class TestAddLab(TestCase):
         integration_status = integration_status_cls(integration_level=integration_level)
         integration_status.save()
 
-        dev_name = name_cls(name="Mohit Tahiliani")
-        dev_name.save()
-        email_id = email_cls(email="mohit.tahiliani@gmail.com")
-        email_id.save()
-        dev = developer_cls(name=dev_name, email=email_id)
-        dev.save()
-
         inst_name = "IIT Kanpur"
         inst_id = "IITK"
         inst = institute_cls(inst_name=inst_name, inst_id=inst_id)
@@ -73,6 +66,14 @@ class TestAddLab(TestCase):
         dis_id = "IITK"
         discipline = discipline_cls(dis_name=dis_name, dis_id=dis_id)
         discipline.save()
+
+        dev_name = name_cls(name="Mohit Tahiliani")
+        dev_name.save()
+        email_id = email_cls(email="mohit.tahiliani@gmail.com")
+        email_id.save()
+        dev = developer_cls(name=dev_name, email=email_id,
+                            institute=inst, discipline=discipline)
+        dev.save()
 
         hosting_status = "hosted"
         hosted_url = "http://cse14-iiith.vlabs.ac.in"
@@ -153,7 +154,8 @@ class TestAddExperiment(TestCase):
         dev_name.save()
         email_id = email_cls(email="mohit.tahiliani@gmail.com")
         email_id.save()
-        dev = developer_cls(name=dev_name, email=email_id)
+        dev = developer_cls(name=dev_name, email=email_id,
+                            institute=inst, discipline=discipline)
         dev.save()
 
         hosting_status = "hosted"
@@ -296,13 +298,6 @@ class TestAddSectionsToExperiment(TestCase):
         developer_cls = System.delegate.entities['developer']
         hosting_info_cls = System.delegate.entities['hosting_info']
 
-        dev_name = name_cls(name="Mohit Tahiliani")
-        dev_name.save()
-        email_id = email_cls(email="mohit.tahiliani@gmail.com")
-        email_id.save()
-        dev = developer_cls(name=dev_name, email=email_id)
-        dev.save()
-
         hosting_status = "hosted"
         hosted_url = "http://cse14-iiith.vlabs.ac.in"
         hosted_on = "cloud"
@@ -318,7 +313,15 @@ class TestAddSectionsToExperiment(TestCase):
         dis_id = "cse"
         discipline = discipline_cls(dis_name=dis_name, dis_id=dis_id)
         discipline.save()
-                       
+
+        dev_name = name_cls(name="Mohit Tahiliani")
+        dev_name.save()
+        email_id = email_cls(email="mohit.tahiliani@gmail.com")
+        email_id.save()
+        dev = developer_cls(name=dev_name, email=email_id,
+                            institute=inst, discipline=discipline)
+        dev.save()
+
         integration_level = 4
         integration_status = integration_status_cls(integration_level=integration_level)
         integration_status.save()
@@ -334,9 +337,10 @@ class TestAddSectionsToExperiment(TestCase):
         experiment = experiment_cls(exp_name=exp_name, exp_id=exp_id,
                                     overview=overview, sections=[],
                                     institute=inst, discipline=discipline,
-                                        integration_status=integration_status, 
-                                        assets=[asset],
-                                        developers=[dev], hosting_info=[host])
+                                    integration_status=integration_status, 
+                                    assets=[asset],
+                                    developers=[dev], hosting_info=[host])
+
         key = KEY
         session = session_cls(key=key)
         experiment = System.do("add_experiment", experiment=experiment, \
@@ -570,13 +574,26 @@ class TestAddDeveloper(TestCase):
         developer_cls = System.delegate.entities['developer']
         email_cls = System.delegate.entities['email']
         name_cls = System.delegate.entities['name']
+        institute_cls = System.delegate.entities['institute']
+        discipline_cls = System.delegate.entities['discipline']
+
+        inst_name = "IIT Kanpur"
+        inst_id = "IITK"
+        inst = institute_cls(inst_name=inst_name, inst_id=inst_id)
+        inst.save()
+
+        dis_name = "IIT Kanpur"
+        dis_id = "IITK"
+        discipline = discipline_cls(dis_name=dis_name, dis_id=dis_id)
+        discipline.save()
 
         name = name_cls(name="Prof. S. Dharmaraja")
         name.save()
         email = email_cls(email="dharmar@maths.iitd.ac.in")
         email.save()
 
-        developer = developer_cls(name=name, email=email)
+        developer = developer_cls(name=name, email=email,
+                                  institute=inst, discipline=discipline)
         key = KEY
         session = session_cls(key=key)
 
@@ -670,13 +687,6 @@ class TestUpdateExperiment(TestCase):
         asset = asset_cls(asset_type=asset_type, path=path)
         asset.save()
 
-        dev_name = name_cls(name="Mohit Tahiliani")
-        dev_name.save()
-        email_id = email_cls(email="mohit.tahiliani@gmail.com")
-        email_id.save()
-        dev = developer_cls(name=dev_name, email=email_id)
-        dev.save()
-
         hosting_status = "hosted"
         hosted_url = "http://cse14-iiith.vlabs.ac.in"
         hosted_on = "cloud"
@@ -687,6 +697,14 @@ class TestUpdateExperiment(TestCase):
         dis_id = "IITK"
         discipline = discipline_cls(dis_name=dis_name, dis_id=dis_id)
         discipline.save()
+
+        dev_name = name_cls(name="Mohit Tahiliani")
+        dev_name.save()
+        email_id = email_cls(email="mohit.tahiliani@gmail.com")
+        email_id.save()
+        dev = developer_cls(name=dev_name, email=email_id,
+                            institute=inst, discipline=discipline)
+        dev.save()
 
         exp_name = "arrays"
         exp_id = "cse02"
@@ -714,6 +732,7 @@ class TestUpdateExperiment(TestCase):
             
 #+END_SRC
       
+
 * Test UpdateInstitute 
 #+NAME: test_update_institute
 #+BEGIN_SRC python
@@ -899,13 +918,6 @@ class TestDeleteExperiment(TestCase):
         developer_cls = System.delegate.entities['developer']
         hosting_info_cls = System.delegate.entities['hosting_info']
 
-        dev_name = name_cls(name="Mohit Tahiliani")
-        dev_name.save()
-        email_id = email_cls(email="mohit.tahiliani@gmail.com")
-        email_id.save()
-        dev = developer_cls(name=dev_name, email=email_id)
-        dev.save()
-
         hosting_status = "hosted"
         hosted_url = "http://cse14-iiith.vlabs.ac.in"
         hosted_on = "cloud"
@@ -921,6 +933,14 @@ class TestDeleteExperiment(TestCase):
         dis_id = "cse"
         discipline = discipline_cls(dis_name=dis_name, dis_id=dis_id)
         discipline.save()
+
+        dev_name = name_cls(name="Mohit Tahiliani")
+        dev_name.save()
+        email_id = email_cls(email="mohit.tahiliani@gmail.com")
+        email_id.save()
+        dev = developer_cls(name=dev_name, email=email_id,
+                            institute=inst, discipline=discipline)
+        dev.save()
 
         integration_level = 4
         integration_status = integration_status_cls(integration_level=integration_level)
@@ -975,13 +995,26 @@ class TestUpdateDeveloper(TestCase):
         name_cls = System.delegate.entities['name']
         email_cls = System.delegate.entities['email']
         dev_cls = System.delegate.entities['developer']
+        institute_cls = System.delegate.entities['institute']
+        discipline_cls = System.delegate.entities['discipline']
 
         session = session_cls(key=KEY)
+        inst_name = "IIT Kanpur"
+        inst_id = "IITK"
+        inst = institute_cls(inst_name=inst_name, inst_id=inst_id)
+        inst.save()
+
+        dis_name = "IIT Kanpur"
+        dis_id = "IITK"
+        discipline = discipline_cls(dis_name=dis_name, dis_id=dis_id)
+        discipline.save()
+
         dev_name = name_cls(name="Prof. Dharmaraja")
         dev_name.save()
         email_id = email_cls(email="raja@gmail.com")
         email_id.save()
-        developer = dev_cls(name=dev_name, email=email_id)
+        developer = dev_cls(name=dev_name, email=email_id,
+                            institute=inst, discipline=discipline)
         developer.save()
         dev_name2 = name_cls(name="Prof. Raja")
         dev_name2.save()
@@ -1126,7 +1159,8 @@ class TestDeleteLab(TestCase):
         dev_name.save()
         email_id = email_cls(email="mohit.tahiliani@gmail.com")
         email_id.save()
-        dev = developer_cls(name=dev_name, email=email_id)
+        dev = developer_cls(name=dev_name, email=email_id,
+                            institute=inst, discipline=discipline)
         dev.save()
 
         hosting_status = "hosted"
@@ -1139,11 +1173,12 @@ class TestDeleteLab(TestCase):
         exp_id = "cse02"
         overview = "overview"
         experiment = experiment_cls(exp_name=exp_name, exp_id=exp_id,
-                                        overview=overview, sections=[],
+                                    overview=overview, sections=[],
                                     institute=inst, discipline=discipline,
                                     integration_status=integration_status,
-                                        assets=[asset], 
-                                        developers=[dev], hosting_info=[host])
+                                    assets=[asset], 
+                                    developers=[dev], hosting_info=[host])
+
         experiment.save()
 
         lab_name1="Computer Programming"
@@ -1263,6 +1298,18 @@ class TestDeleteDeveloper(TestCase):
         name_cls = System.delegate.entities['name']
         email_cls = System.delegate.entities['email']
         developer_cls = System.delegate.entities['developer']
+        institute_cls = System.delegate.entities['institute']
+        discipline_cls = System.delegate.entities['discipline']
+
+        inst_name = "IIT Kanpur"
+        inst_id = "IITK"
+        inst = institute_cls(inst_name=inst_name, inst_id=inst_id)
+        inst.save()
+
+        dis_name = "IIT Kanpur"
+        dis_id = "IITK"
+        discipline = discipline_cls(dis_name=dis_name, dis_id=dis_id)
+        discipline.save()
 
         dev_name = name_cls(name="Prof. Dharmaraj")
         dev_name.save()
@@ -1272,7 +1319,8 @@ class TestDeleteDeveloper(TestCase):
 
         key = KEY
         session = session_cls(key=key)
-        developer = developer_cls(name=dev_name, email=email_id)
+        developer = developer_cls(name=dev_name, email=email_id,
+                                  institute=inst, discipline=discipline)
         developer.save()
 
         email = System.do("delete_developer", email=email_id, session=session)
@@ -1417,7 +1465,8 @@ class TestGetLab(TestCase):
         dev_name.save()
         email_id = email_cls(email="mohit.tahiliani@gmail.com")
         email_id.save()
-        dev = developer_cls(name=dev_name, email=email_id)
+        dev = developer_cls(name=dev_name, email=email_id,
+                            institute=inst, discipline=discipline)
         dev.save()
 
         hosting_status = "hosted"
@@ -1501,7 +1550,8 @@ class TestGetLabByInstitute(TestCase):
         dev_name.save()
         email_id = email_cls(email="mohit.tahiliani@gmail.com")
         email_id.save()
-        dev = developer_cls(name=dev_name, email=email_id)
+        dev = developer_cls(name=dev_name, email=email_id,
+                            institute=inst, discipline=discipline)
         dev.save()
 
         hosting_status = "hosted"
@@ -1583,7 +1633,8 @@ class TestGetLabByDiscipline(TestCase):
         dev_name.save()
         email_id = email_cls(email="mohit.tahiliani@gmail.com")
         email_id.save()
-        dev = developer_cls(name=dev_name, email=email_id)
+        dev = developer_cls(name=dev_name, email=email_id,
+                            institute=inst, discipline=discipline)
         dev.save()
 
         hosting_status = "hosted"
@@ -1667,7 +1718,8 @@ class TestGetLabByLabName(TestCase):
         dev_name.save()
         email_id = email_cls(email="mohit.tahiliani@gmail.com")
         email_id.save()
-        dev = developer_cls(name=dev_name, email=email_id)
+        dev = developer_cls(name=dev_name, email=email_id,
+                            institute=inst, discipline=discipline)
         dev.save()
 
         hosting_status = "hosted"
@@ -1747,7 +1799,8 @@ class TestGetLabByAsset(TestCase):
         dev_name.save()
         email_id = email_cls(email="mohit.tahiliani@gmail.com")
         email_id.save()
-        dev = developer_cls(name=dev_name, email=email_id)
+        dev = developer_cls(name=dev_name, email=email_id,
+                            institute=inst, discipline=discipline)
         dev.save()
 
         hosting_status = "hosted"
@@ -1902,7 +1955,8 @@ class TestGetExp(TestCase):
         dev_name.save()
         email_id = email_cls(email="mohit.tahiliani@gmail.com")
         email_id.save()
-        dev = developer_cls(name=dev_name, email=email_id)
+        dev = developer_cls(name=dev_name, email=email_id,
+                            institute=inst, discipline=discipline)
         dev.save()
 
         hosting_status = "hosted"
@@ -1917,9 +1971,10 @@ class TestGetExp(TestCase):
         experiment = experiment_cls(exp_name=exp_name, exp_id=exp_id,
                                     overview=overview, sections=[],
                                     institute=inst, discipline=discipline,
-                                        integration_status=integration_status, 
-                                        assets=[asset],
-                                        developers=[dev], hosting_info=[host])
+                                    integration_status=integration_status, 
+                                    assets=[asset],
+                                    developers=[dev], hosting_info=[host])
+
         experiment.save()
 
         experiment1 = System.do("get_experiment", exp_id=exp_id)
@@ -2064,6 +2119,18 @@ class TestGetDeveloper(TestCase):
         name_cls = System.delegate.entities['name']
         email_cls = System.delegate.entities['email']
         dev_cls = System.delegate.entities['developer']
+        institute_cls = System.delegate.entities['institute']
+        discipline_cls = System.delegate.entities['discipline']
+
+        inst_name = "IIT Kanpur"
+        inst_id = "IITK"
+        inst = institute_cls(inst_name=inst_name, inst_id=inst_id)
+        inst.save()
+
+        dis_name = "IIT Kanpur"
+        dis_id = "IITK"
+        discipline = discipline_cls(dis_name=dis_name, dis_id=dis_id)
+        discipline.save()
 
         dev_name1 = name_cls(name="Prof. Dharmaraj")
         dev_name1.save()
@@ -2071,7 +2138,8 @@ class TestGetDeveloper(TestCase):
         email_id1.save()
         key = KEY
         session = session_cls(key=key)
-        developer = dev_cls(name=dev_name1, email=email_id1)
+        developer = dev_cls(name=dev_name1, email=email_id1,
+                            institute=inst, discipline=discipline)
         developer.save()
         developer1 = System.do("get_developer", email=email_id1)
 
@@ -2424,6 +2492,7 @@ if __name__ == '__main__':
 * Tangling                                                      :boilerplate:
 
 #+BEGIN_SRC python :tangle test_persistence_system.py :eval no :noweb yes
+
 <<imports_for_tests>>
 <<populate_db>>
 <<test_add_lab>>
