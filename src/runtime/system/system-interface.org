@@ -3546,6 +3546,7 @@ class TestGetNameById(TestCase):
 
  #+END_SRC
 
+
 ** Update Lab
 #+NAME: class_update_lab
 #+begin_src python
@@ -3567,11 +3568,29 @@ class TestGetNameById(TestCase):
         else:
             overview=data_dict['overview']
 
+        if 'institute' not in data_dict:
+            institute=str(lab.get("institute"))
+        else:
+            institute = System.do("get_institute", inst_id=data_dict['inst_id'])
+
+        if 'discipline' not in data_dict:
+            discipline=str(lab.get("discipline"))
+        else:
+            discipline = System.do("get_discipline", dis_id=data_dict['dis_id'])
+
+        if 'integration_status' not in data_dict:
+            integration_status=str(lab.get("integration_status"))
+        else:
+            integration_status = System.do("get_integration_status", dis_id=data_dict['integration_level'])
+
         try:
             current_app.logger.debug("running operation update_lab")
             lab = System.do("update_lab", lab=lab,
                                     lab_name=lab_name, 
                                     overview=overview,
+                                    institute=institute,
+                                    discipline=discipline,
+                                    integration_status=integration_status,
                                     session=session)
             current_app.logger.debug("completed operation update_lab")
             return lab.to_client()
@@ -3600,7 +3619,7 @@ class TestUpdateLab(TestCase):
         db.session.remove()
         db.drop_all()
 
-    def test_update_lab_name_in_system_interface(self):
+    def test_update_lab_in_system_interface(self):
         print "test_update_lab_name_in_system_interface"
 
         data_dict = {
@@ -3688,9 +3707,36 @@ class TestUpdateLab(TestCase):
                    }
 
         data_dict1 = {
+                    'key': KEY,
+                    'inst_name': 'IIT Kharagpur',
+                    'inst_id': 'IITKgp'
+                    }
+
+        institute = SystemInterface.add_institute(data_dict1)
+
+        data_dict1 = {
+                    'key' : KEY,
+                    'dis_name': 'electronics engineering',
+                    'dis_id': 'ECE'
+                   }
+
+        discipline = SystemInterface.add_discipline(data_dict1)
+
+        data_dict1 = {
+                    'key' : KEY,
+                    'integration_level': 2
+                    }
+
+        integration_status = SystemInterface.add_integration_status(data_dict1)
+
+        data_dict1 = {
                     'key' : KEY,
                     'lab_name': 'Computer Programming',
-                    'lab_id': 'cse02'
+                    'overview': 'Computer Programming overview',
+                    'lab_id': 'cse02',
+                    'inst_id': 'IITKgp',
+                    'dis_id': 'ECE',
+                    'integration_level': 2
                    }
 
         lab = SystemInterface.add_lab(data_dict)
@@ -3699,6 +3745,9 @@ class TestUpdateLab(TestCase):
         self.assertEqual(lab1.get("lab_name"), data_dict1['lab_name'])
         self.assertEqual(lab1.get("lab_id"), data_dict['lab_id'])
         self.assertEqual(lab1.get("overview"), data_dict['overview'])
+        self.assertEqual(lab1.get("inst_id"), data_dict1['inst_id'])
+        self.assertEqual(lab1.get("dis_id"), data_dict1['dis_id'])
+        self.assertEqual(lab1.get("integration_level"), data_dict1['integration_level'])
 
     def test_update_lab_overview_in_system_interface(self):
         print "test_update_lab_name_in_system_interface"

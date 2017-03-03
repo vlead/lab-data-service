@@ -528,7 +528,9 @@ class AddIntegration_Status():
 #+begin_src python
 class UpdateLab():
     arg_types = {"lab": is_lab, "lab_name": is_str,
-                     "overview" : is_str, "session": is_session}
+                 "overview" : is_str, "institute": is_institute,
+                 "discipline": is_discipline, "integration_status": is_integration_status,
+                 "session": is_session}
     arity_and_type_checks_needed = True
 
     @staticmethod
@@ -549,7 +551,11 @@ class UpdateLab():
         lab = args["lab"]
         lab_name = args["lab_name"]
         overview = args["overview"]
-        lab = System.delegate.update_lab(lab, lab_name, overview)
+        institute = args["institute"]
+        discipline = args["discipline"]
+        integration_status = args["integration_status"]
+        lab = System.delegate.update_lab(lab, lab_name, overview, institute,
+                                         discipline, integration_status)
         return lab
 
 #+end_src
