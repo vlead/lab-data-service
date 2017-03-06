@@ -5892,7 +5892,7 @@ class TestDeleteLab(TestCase):
     http://localhost:5000/experiments?exp_id=exp9
 #+END_EXAMPLE
 
-**** Implementation
+*** Implementation  
 #+NAME: update_experiment
 #+BEGIN_SRC python
 @api.route('/experiments', methods=['PUT'])
@@ -5947,7 +5947,7 @@ def update_experiment():
 
 #+END_SRC
 *** Test Cases
-*** TestUpdateExperiment
+***** TestUpdateExperiment
  #+NAME: test_update_experiment
  #+BEGIN_SRC python
 class TestUpdateExperiment(TestCase):
@@ -6027,6 +6027,18 @@ class TestUpdateExperiment(TestCase):
                    'assets': ['vlabs.ac.in/images/static/logo.png'],
                    'sections' : [],
                    'integration_level': 4,
+                   'inst_id': 'IITKgp',
+                   'dis_id': 'ece',
+                   'key': KEY,
+                   'developers': ['abc@gmail.com'],
+                   'hosting_info': ['http://cse14-iiith.vlabs.ac.in']}
+        
+        payload1 = {'exp_name': 'queue',
+                   'exp_id': 'cse02',
+                   'overview' : 'overview',
+                   'assets': ['vlabs.ac.in/images/static/logo.png'],
+                   'sections' : [],
+                   'integration_level': 4,
                    'inst_id': 'IITK',
                    'dis_id': 'CSE',
                    'key': KEY,
@@ -6038,7 +6050,9 @@ class TestUpdateExperiment(TestCase):
         response = self.client.post("/experiments", data=json.dumps(payload),
                                  headers=headers)
 
-        response = self.client.get("/experiments", headers=headers)
+        response = self.client.put("/experiments?exp_id=cse01", 
+                                       data=json.dumps(payload1),
+                                       headers=headers)
         self.assertEqual(response.status_code, 200)
 
 
