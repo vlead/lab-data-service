@@ -137,14 +137,6 @@ class TestAddLab(TestCase):
 
         data_dict = {
                     'key' : KEY,
-                    'name': 'Prof. Dharamaja',
-                    'email': 'abc@gmail.com'
-                   }
-
-        developer = SystemInterface.add_developer(data_dict)
-
-        data_dict = {
-                    'key' : KEY,
                     'asset_type': 'Image',
                     'path': 'vlabs.ac.in/images/static/logo.png'
                    }
@@ -249,13 +241,6 @@ class TestAddLab(TestCase):
                     }
 
         integration_status = SystemInterface.add_integration_status(data_dict)
-
-        data_dict = {
-                    'key' : KEY,
-                    'name': 'Prof. Dharamaja',
-                    'email': 'abc@gmail.com'
-                   }
-        developer = SystemInterface.add_developer(data_dict)
 
         data_dict = {
                     'key' : KEY,
@@ -371,6 +356,7 @@ class TestAddLab(TestCase):
         for asset in assets:
             asset = System.do("get_asset", path=asset)
             asset_list.append(asset)
+
         developers = data_dict['developers']
         developer_list = []
         for d_id in developers:
@@ -611,6 +597,7 @@ class TestAddExperiment(TestCase):
     def add_institute(data_dict):
         session_cls = System.delegate.entities['session']       
         institute_cls = System.delegate.entities['institute']
+        asset_cls = System.delegate.entities['asset']
 
         session = session_cls(key=data_dict['key'])
         del(data_dict['key'])
@@ -620,7 +607,6 @@ class TestAddExperiment(TestCase):
         for asset in assets:
             asset = System.do("get_asset", path=asset)
             asset_list.append(asset)
-
         institute = institute_cls(inst_name=str(data_dict['inst_name']),
                                   inst_id=str(data_dict['inst_id']),
                                   assets=asset_list)
@@ -694,19 +680,15 @@ class TestAddInstitute(TestCase):
                    }
 
         asset = SystemInterface.add_asset(data_dict)
-
        
         data_dict = {
                     'key' : KEY,
                     'inst_name': 'IIT Kanpur',
-                    'inst_id': 'IITK',
+                    'inst_id': '123',
                     'assets': ['vlabs.ac.in/images/static/logo.png']
                     }
-
-        institute = SystemInterface.add_institute(data_dict)
-
         with self.assertRaises(TypeError):
-            SystemInterface.add_experiment(data_dict)
+            SystemInterface.add_institute(data_dict)
 
  #+END_SRC
 
@@ -718,6 +700,7 @@ class TestAddInstitute(TestCase):
     def add_discipline(data_dict):
         session_cls = System.delegate.entities['session']
         discipline_cls = System.delegate.entities['discipline']
+        asset_cls = System.delegate.entities['asset']
 
         session = session_cls(key=data_dict['key'])
 
@@ -1308,14 +1291,6 @@ class TestGetLabsByLabName(TestCase):
 
         data_dict = {
                     'key' : KEY,
-                    'name': 'Prof. Dharamaja',
-                    'email': 'abc@gmail.com'
-                   }
-
-        developer = SystemInterface.add_developer(data_dict)
-
-        data_dict = {
-                    'key' : KEY,
                     'asset_type': 'Image',
                     'path': 'vlabs.ac.in/images/static/logo.png'
                    }
@@ -1474,14 +1449,6 @@ class TestGetLabsByKeywordLabName(TestCase):
                     }
 
         integration_status = SystemInterface.add_integration_status(data_dict)
-
-        data_dict = {
-                    'key' : KEY,
-                    'name': 'Prof. Dharamaja',
-                    'email': 'abc@gmail.com'
-                   }
-
-        developer = SystemInterface.add_developer(data_dict)
 
         data_dict = {
                     'key' : KEY,
@@ -2422,6 +2389,14 @@ class TestGetExperiments(TestCase):
 
         data_dict = {
                     'key' : KEY,
+                    'asset_type': 'Image',
+                    'path': 'vlabs.ac.in/images/static/logo.png'
+                   }
+
+        asset = SystemInterface.add_asset(data_dict)
+
+        data_dict = {
+                    'key' : KEY,
                     'inst_name': 'IIT Kanpur',
                     'inst_id': 'IITK',
                     'assets': ['vlabs.ac.in/images/static/logo.png']
@@ -2443,15 +2418,7 @@ class TestGetExperiments(TestCase):
                     'integration_level': 4
                     }
 
-        integration_status = SystemInterface.add_integration_status(data_dict)
-
-        data_dict = {
-                    'key' : KEY,
-                    'asset_type': 'Image',
-                    'path': 'vlabs.ac.in/images/static/logo.png'
-                   }
-
-        asset = SystemInterface.add_asset(data_dict)
+        integration_status = SystemInterface.add_integration_status(data_dict)  
 
         data_dict = {
                     'key' : KEY,
@@ -3001,8 +2968,17 @@ class TestGetDevelopers(TestCase):
 
         data_dict = {
                     'key' : KEY,
+                    'asset_type': 'Image',
+                    'path': 'vlabs.ac.in/images/static/logo.png'
+                   }
+
+        asset = SystemInterface.add_asset(data_dict)
+
+        data_dict = {
+                    'key' : KEY,
                     'inst_name': 'IIT Kanpur',
-                    'inst_id': 'IITK'
+                    'inst_id': 'IITK',
+                    'assets': ['vlabs.ac.in/images/static/logo.png']
                     }
 
         institute = SystemInterface.add_institute(data_dict)
@@ -3010,7 +2986,8 @@ class TestGetDevelopers(TestCase):
         data_dict = {
                     'key' : KEY,
                     'dis_name': 'computer science',
-                    'dis_id': 'CSE'
+                    'dis_id': 'CSE',
+                    'assets': ['vlabs.ac.in/images/static/logo.png']
                    }
 
         discipline = SystemInterface.add_discipline(data_dict)
@@ -3025,8 +3002,17 @@ class TestGetDevelopers(TestCase):
 
         data_dict1 = {
                     'key' : KEY,
+                    'asset_type': 'Icon',
+                    'path': 'vlabs.ac.in/images/static/icon.png'
+                   }
+
+        asset1 = SystemInterface.add_asset(data_dict1)
+
+        data_dict1 = {
+                    'key' : KEY,
                     'inst_name': 'IIT Kharagpur',
-                    'inst_id': 'IITKgp'
+                    'inst_id': 'IITKgp',
+                    'assets': ['vlabs.ac.in/images/static/icon.png']
                     }
 
         institute1 = SystemInterface.add_institute(data_dict1)
@@ -3034,7 +3020,8 @@ class TestGetDevelopers(TestCase):
         data_dict1 = {
                     'key' : KEY,
                     'dis_name': 'electronics and communication',
-                    'dis_id': 'ECE'
+                    'dis_id': 'ECE',
+                    'assets': ['vlabs.ac.in/images/static/icon.png']
                    }
 
         discipline1 = SystemInterface.add_discipline(data_dict1)
@@ -3814,7 +3801,8 @@ class TestUpdateLab(TestCase):
         data_dict1 = {
                     'key' : KEY,
                     'lab_name': 'Computer Programming',
-                    'lab_id': 'cse02'
+                    'lab_id': 'cse02',
+                    'overview': 'overview'
                    }
 
         lab = SystemInterface.add_lab(data_dict)
@@ -4533,15 +4521,6 @@ class TestDeleteLab(TestCase):
         integration_status = SystemInterface.add_integration_status(data_dict)
 
         data_dict = {
-                    'key': KEY,
-                    'name': 'Prof. Dharamaja',
-                    'email': 'abc@gmail.com'
-                   }
-
-        developer = SystemInterface.add_developer(data_dict)
-
-        data_dict = {
-                    'key' : KEY,
                     'key' : KEY,
                     'asset_type': 'Image',
                     'path': 'vlabs.ac.in/images/static/logo.png'
@@ -4557,14 +4536,6 @@ class TestDeleteLab(TestCase):
                    }
 
         hosting_info = SystemInterface.add_hosting_info(data_dict)
-
-        data_dict = {
-                    'key' : KEY,
-                    'asset_type': 'Image',
-                    'path': 'vlabs.ac.in/images/static/logo.png'
-                    }
-
-        asset = SystemInterface.add_asset(data_dict)
 
         data_dict = {
                     'key' : KEY,
@@ -4982,10 +4953,17 @@ class TestDeleteDiscipline(TestCase):
                     'assets': ['vlabs.ac.in/images/static/logo.png']
                     }
 
-        dis1 = SystemInterface.add_discipline(data_dict)
-        dis_id = SystemInterface.delete_discipline('CSE', KEY)
-        
-        self.assertEqual(dis_id, data_dict['dis_id'])
+        data_dict1 = {'dis_name': 'Electronics and Communication',
+                    'dis_id': 'ECE',
+                    'key' : KEY,
+                    'assets': ['vlabs.ac.in/images/static/logo.png']
+                    }
+
+        dis = SystemInterface.add_discipline(data_dict)
+        dis1 = SystemInterface.add_discipline(data_dict1)
+        dis_id = SystemInterface.delete_discipline('ECE', KEY)
+
+        self.assertEqual(dis_id,'ECE')
 
  #+END_SRC
 
@@ -5470,20 +5448,12 @@ class TestGetLabByLabId(TestCase):
         integration_status = SystemInterface.add_integration_status(data_dict)
 
         data_dict = {
-                    'key': KEY,
-                    'name': 'Prof. Dharamaja',
-                    'email': 'abc@gmail.com'
-                   }
-
-        developer = SystemInterface.add_developer(data_dict)
-
-        data_dict = {
-                    'key' : KEY,
                     'key' : KEY,
                     'asset_type': 'Image',
                     'path': 'vlabs.ac.in/images/static/logo.png'
                     }
-        asset1 = SystemInterface.add_asset(data_dict)
+
+        asset = SystemInterface.add_asset(data_dict)
 
         data_dict = {
                     'hosting_status': 'hosted',
@@ -5496,19 +5466,21 @@ class TestGetLabByLabId(TestCase):
 
         data_dict = {
                     'key' : KEY,
-                    'asset_type': 'Image',
-                    'path': 'vlabs.ac.in/images/static/logo.png'
-                   }
+                    'inst_name': 'IIT Kanpur',
+                    'inst_id': 'IITK',
+                    'assets': ['vlabs.ac.in/images/static/logo.png']
+                    }
 
-        asset1 = SystemInterface.add_asset(data_dict)
+        institute = SystemInterface.add_institute(data_dict)
 
         data_dict = {
                     'key' : KEY,
-                    'asset_type': 'Image',
-                    'path': 'vlabs.ac.in/images/static/icon.png'
+                    'dis_name': 'computer science',
+                    'dis_id': 'CSE',
+                    'assets': ['vlabs.ac.in/images/static/logo.png']
                    }
 
-        asset2 = SystemInterface.add_asset(data_dict)
+        discipline = SystemInterface.add_discipline(data_dict)
 
         data_dict = {
                     'key' : KEY,
@@ -5522,23 +5494,6 @@ class TestGetLabByLabId(TestCase):
                    }
 
         developer = SystemInterface.add_developer(data_dict)
-
-        data_dict = {
-                    'key' : KEY,
-                    'asset_type': 'Image',
-                    'path': 'vlabs.ac.in/images/static/icon.png',
-                    }
-
-        institute = SystemInterface.add_institute(data_dict)
-
-        data_dict = {
-                    'key' : KEY,
-                    'dis_name': 'computer science',
-                    'dis_id': 'CSE',
-                    'assets': ['vlabs.ac.in/images/static/logo.png']
-                   }
-
-        discipline = SystemInterface.add_discipline(data_dict)
 
         data_dict = {
                     'key': KEY,
@@ -5686,22 +5641,6 @@ class TestGetExpByExpId(TestCase):
                     }
 
         integration_status = SystemInterface.add_integration_status(data_dict)
-
-        data_dict = {
-                    'key': KEY,
-                    'name': 'Prof. Dharamaja',
-                    'email': 'abc@gmail.com'
-                   }
-
-        developer = SystemInterface.add_developer(data_dict)
- 
-        data_dict = {
-                    'key' : KEY,
-                    'asset_type': 'Image',
-                    'path': 'vlabs.ac.in/images/static/logo.png'
-                   }
-
-        asset = SystemInterface.add_asset(data_dict)
 
         data_dict = {
                     'hosting_status': 'hosted',
@@ -5872,8 +5811,17 @@ class TestGetDeveloperByEmail(TestCase):
 
         data_dict = {
                     'key' : KEY,
+                    'asset_type': 'Image',
+                    'path': 'vlabs.ac.in/images/static/logo.png'
+                   }
+
+        asset = SystemInterface.add_asset(data_dict)
+
+        data_dict = {
+                    'key' : KEY,
                     'inst_name': 'IIT Kanpur',
-                    'inst_id': 'IITK'
+                    'inst_id': 'IITK',
+                    'assets': ['vlabs.ac.in/images/static/logo.png']
                     }
 
         institute = SystemInterface.add_institute(data_dict)
@@ -5881,7 +5829,8 @@ class TestGetDeveloperByEmail(TestCase):
         data_dict = {
                     'key' : KEY,
                     'dis_name': 'computer science',
-                    'dis_id': 'CSE'
+                    'dis_id': 'CSE',
+                    'assets': ['vlabs.ac.in/images/static/logo.png']
                    }
 
         discipline = SystemInterface.add_discipline(data_dict)
@@ -6019,7 +5968,6 @@ class TestAddAsset(TestCase):
 
         asset = SystemInterface.add_asset(data_dict)
 
-        asset = SystemInterface.add_asset(data_dict)
         asset_cls = System.delegate.entities['asset']
         asset = asset_cls.get_all()[0]
 
@@ -6077,8 +6025,8 @@ class TestUpdateAsset(TestCase):
         db.session.remove()
         db.drop_all()
 
-    def test_update_asset_name_in_system_interfaceinterface(self):
-        print "test_update_asset_name_in_system_interface"
+    def test_update_asset_type_in_system_interface(self):
+        print "test_update_asset_type_in_system_interface"
 
         data_dict = {
                     'key' : KEY,
@@ -6089,7 +6037,7 @@ class TestUpdateAsset(TestCase):
         data_dict1 = {
                     'key' : KEY,
                     'asset_type': 'Video', 
-                    'path': 'vlabs.ac.in/static/images/icon.png'
+                    'path': 'vlabs.ac.in/static/images/logo.png'
                     }
 
         asset = SystemInterface.add_asset(data_dict)
