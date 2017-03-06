@@ -1066,8 +1066,10 @@ class TestPersistenceDelegate(TestCase):
     This function updates existing lab.
 #+NAME: persistence_update_lab
 #+BEGIN_SRC python
-    def update_lab(self, lab, lab_name, overview, institute):
-        lab.set(lab_name=lab_name, overview=overview, institute=institute)
+    def update_lab(self, lab, lab_name, overview, institute, discipline,
+                         integration_status):
+        lab.set(lab_name=lab_name, overview=overview, institute=institute, discipline=discipline,
+                integration_status=integration_status)
         lab.save()
         return lab
 
@@ -1089,7 +1091,7 @@ class TestPersistenceDelegate(TestCase):
          inst = Institute(inst_name=inst_name, inst_id=inst_id)
          inst.save()
 
-         dis_name = "IIT Kanpur"
+         dis_name = "Electronics & Communications"
          dis_id = "IITK"
          discipline = Discipline(dis_name=dis_name, dis_id=dis_id)
          discipline.save()
@@ -1131,8 +1133,17 @@ class TestPersistenceDelegate(TestCase):
          inst1 = Institute(inst_name=inst_name1, inst_id=inst_id1)
          inst1.save()
 
+         dis_name1 = "Computer Science & Engineering"
+         dis_id1 = "IIT Kharagpur"
+         discipline1 = Discipline(dis_name=dis_name1, dis_id=dis_id1)
+         discipline1.save()
+
+         integration_level1 = 2
+         integration_status1 = IntegrationStatus(integration_level=integration_level1)
+         integration_status1.save()
+
          lab2 = self.persistence_delegate.update_lab\
-           (lab1, lab_name1, overview1, inst1),
+           (lab1, lab_name1, overview1, inst1, discipline1, integration_status1),
          lab2 = Lab.get_by_id(1)
 
          self.assertEqual(lab2.get("lab_id"), lab_id)
@@ -1140,6 +1151,10 @@ class TestPersistenceDelegate(TestCase):
          self.assertEqual(lab2.get("overview"), overview1)
          self.assertEqual(lab2.get("institute").get("inst_id"), 
                               inst1.get("inst_id"))
+         self.assertEqual(lab2.get("discipline").get("dis_id"), 
+                              discipline1.get("dis_id"))
+         self.assertEqual(lab2.get("integration_status").get("integration_level"), 
+                              integration_status1.get("integration_level"))
 
 #+END_SRC
 
