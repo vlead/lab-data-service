@@ -528,7 +528,9 @@ class AddIntegration_Status():
 #+begin_src python
 class UpdateLab():
     arg_types = {"lab": is_lab, "lab_name": is_str,
-                     "overview" : is_str, "session": is_session}
+                     "overview" : is_str, "session": is_session, 
+                     "institute" : is_institute, "discipline" : is_discipline, 
+                     "integration_status" : is_integration_status}
     arity_and_type_checks_needed = True
 
     @staticmethod
@@ -563,7 +565,10 @@ class UpdateExperiment():
     arg_types = {"exp_name": is_str_or_none,
                      "experiment": is_experiment,
                      "overview" : is_str,
-                     "session": is_session}
+                     "session": is_session,
+                     "institute": is_institute,
+                     "discipline": is_discipline,
+                     "integration_status": is_integration_status}
     arity_and_type_checks_needed = True
 
     @staticmethod
@@ -584,7 +589,12 @@ class UpdateExperiment():
         experiment = args["experiment"]
         exp_name=args["exp_name"]
         overview = args["overview"]
-        exp = System.delegate.update_experiment(experiment, exp_name, overview)
+        institute = args["institute"]
+        discipline = args["discipline"]
+        integration_status = args["integration_status"]
+        exp = System.delegate.update_experiment(experiment, exp_name, overview,
+                                                institute, discipline, 
+                                                integration_status)
         return exp
 
 #+end_src

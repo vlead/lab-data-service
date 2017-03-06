@@ -1148,8 +1148,10 @@ class TestPersistenceDelegate(TestCase):
     This function updates existing experiment.
 #+NAME: persistence_update_experiment
 #+BEGIN_SRC python
-    def update_experiment(self, experiment, exp_name, overview):
-        experiment.set(exp_name=exp_name, overview=overview)
+    def update_experiment(self, experiment, exp_name, overview, institute, 
+                          discipline, integration_status):
+        experiment.set(exp_name=exp_name, overview=overview, institute=institute, 
+                       discipline=discipline, integration_status=integration_status)
         experiment.save()
         return experiment
 
@@ -1166,8 +1168,8 @@ class TestPersistenceDelegate(TestCase):
          inst = Institute(inst_name=inst_name, inst_id=inst_id)
          inst.save()
 
-         dis_name = "IIT Kanpur"
-         dis_id = "IITK"
+         dis_name = "Electronics & communication"
+         dis_id = "ece"
          discipline = Discipline(dis_name=dis_name, dis_id=dis_id)
          discipline.save()
 
@@ -1207,12 +1209,44 @@ class TestPersistenceDelegate(TestCase):
 
          exp_name1 = "Computer Programming"
          overview1 = "overveiw exp"
-         exp2 = self.persistence_delegate.update_experiment(exp1, exp_name1, overview1)
+
+         inst_name1 = "IIT Kharagpur"
+         inst_id1 = "IITKgp"
+         inst1 = Institute(inst_name=inst_name1, inst_id=inst_id1)
+         inst1.save()
+
+         dis_name1 = "Computer Science & Engineering"
+         dis_id1 = "cse"
+         discipline1 = Discipline(dis_name=dis_name1, dis_id=dis_id1)
+         discipline1.save()
+
+         dev_name1 = Name(name="Palavi Pawar")
+         dev_name1.save()
+         email_id1 = Email(email="pallavipawar@gmail.com")
+         email_id1.save()
+         dev1 = Developer(name=dev_name1, email=email_id1,
+                         institute=inst1, discipline=discipline1)
+         dev1.save()
+
+         integration_level1 = 3
+         integration_status1 = IntegrationStatus(integration_level=integration_level1)
+         integration_status1.save()
+
+         exp2 = self.persistence_delegate.update_experiment(exp1, exp_name1,
+                                         overview1, inst1, discipline1,
+                                         integration_status1)
          exp2 = Experiment.get_by_id(1)
 
          self.assertEqual(exp2.get("exp_name"), exp_name1)
          self.assertEqual(exp2.get("overview"), overview1)
          self.assertEqual(exp2.get("exp_id"), exp_id)
+         self.assertEqual(exp2.get("institute").get("inst_id"), 
+                              inst1.get("inst_id"))
+         self.assertEqual(exp2.get("discipline").get("dis_id"), 
+                              discipline1.get("dis_id"))
+         self.assertEqual(exp2.get("integration_status").get("integration_level"), 
+                              integration_status1.get("integration_level"))
+
 
 #+END_SRC
 
