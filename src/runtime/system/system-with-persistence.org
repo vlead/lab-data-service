@@ -832,24 +832,56 @@ class TestUpdateExperiment(TestCase):
         overview = "overview"
         experiment = experiment_cls(exp_name=exp_name, exp_id=exp_id,
                                      overview=overview, sections=[],
-                                    institute=inst, discipline=discipline,
-                                        integration_status=integration_status, 
-                                        assets=[asset],
-                                        developers=[dev], hosting_info=[host])
+                                     institute=inst, discipline=discipline,
+                                     integration_status=integration_status, 
+                                     assets=[asset],developers=[dev],
+                                     hosting_info=[host])
         experiment.save()
 
-        exp_name2 = "two dimentional arrays"
-        overview2 = "exp overview"
+        exp_name1 = "Computer Programming"
+        overview1 = "overveiw exp"
+        
+        inst_name1 = "IIT Kharagpur"
+        inst_id1 = "IITKgp"
+        inst1 = institute_cls(inst_name=inst_name1, inst_id=inst_id1)
+        inst1.save()
+        
+        dis_name1 = "Computer Science & Engineering"
+        dis_id1 = "cse"
+        discipline1 = discipline_cls(dis_name=dis_name1, dis_id=dis_id1)
+        discipline1.save()
+        
+        dev_name1 = name_cls(name="Palavi Pawar")
+        dev_name1.save()
+        email_id1 = email_cls(email="pallavipawar@gmail.com")
+        email_id1.save()
+        dev1 = developer_cls(name=dev_name1, email=email_id1,
+                         institute=inst1, discipline=discipline1)
+        dev1.save()
+        
+        integration_level1 = 3
+        integration_status1 = integration_status_cls(integration_level=integration_level1)
+        integration_status1.save()
 
-        exp1 = System.do("update_experiment", exp_name=exp_name2,
-                             experiment=experiment, overview=overview2,
-                             session=session)
-
-        new_exp = exp_cls.get_by_id(1)
-
-        self.assertEqual(new_exp.get("exp_name"), exp_name2)
-        self.assertEqual(new_exp.get("overview"), overview2)
-        self.assertEqual(new_exp.get("exp_id"), exp_id)
+        key = KEY
+        session = session_cls(key=key)
+        
+        exp2 = System.do("update_experiment", exp_name=exp_name1,
+                            overview=overview1, experiment=experiment,
+                            institute=inst1, session=session, 
+                            discipline=discipline1,
+                            integration_status=integration_status1)
+        exp2 = exp_cls.get_by_id(1)
+        
+        self.assertEqual(exp2.get("exp_name"), exp_name1)
+        self.assertEqual(exp2.get("overview"), overview1)
+        self.assertEqual(exp2.get("exp_id"), exp_id)
+        self.assertEqual(exp2.get("institute").get("inst_id"), 
+                                    inst1.get("inst_id"))
+        self.assertEqual(exp2.get("discipline").get("dis_id"), 
+                                    discipline1.get("dis_id"))
+        self.assertEqual(exp2.get("integration_status").get("integration_level"), 
+                                    integration_status1.get("integration_level"))
             
 #+END_SRC
       
