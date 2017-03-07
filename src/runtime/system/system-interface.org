@@ -331,6 +331,8 @@ class TestAddLab(TestCase):
         experiment_cls = System.delegate.entities['experiment']
         institute_cls = System.delegate.entities['institute']
         discipline_cls = System.delegate.entities['discipline']
+        developer_cls = System.delegate.entities['developer']
+        asset_cls = System.delegate.entities['asset']
         email_cls = System.delegate.entities['email']
         session = session_cls(key=data_dict['key'])
         del(data_dict['key'])
@@ -349,20 +351,30 @@ class TestAddLab(TestCase):
 
         assets = data_dict['assets']
         asset_list = []
-        for asset in assets:
-            asset = System.do("get_asset", path=asset)
+        for asset_x in assets:
+            asset = System.do("get_asset", path=asset_x['path'])
+            if asset is None:
+                asset = asset_cls(asset_type=str(asset_x['asset_type']), \
+                                      path=str(asset_x['path']))
+                asset = System.do("add_asset", asset=asset, session=session)
             asset_list.append(asset)
+
         developers = data_dict['developers']
         developer_list = []
-        for d_id in developers:
-            email = email_cls(email=d_id)
-            developer = System.do("get_developer", email=email)
+        for developer_x in developers:
+            developer = System.do("get_developer", email=developer_x['email'])
+            if developer is None:
+                developer = developer_cls(name=str(developer_x['name']), \
+                                      email=str(developer_x['email']))
+                developer = System.do("add_developer", developer=developer,
+                                          session=session)
             developer_list.append(developer)
 
         hosting_info = data_dict['hosting_info']
         hosting_info_list = []
         for hosting_info in hosting_info:
-            hosting_info = System.do("get_hosting_info", hosted_url=hosting_info)
+            hosting_info = System.do("get_hosting_info",
+                                         hosted_url=hosting_info)
             hosting_info_list.append(hosting_info)
 
         experiment = experiment_cls(exp_name=data_dict['exp_name'],
@@ -487,7 +499,10 @@ class TestAddExperiment(TestCase):
                     'sections': ["Introduction", "Quize"],
                     'inst_id': 'IITK',
                     'dis_id': 'CSE',
-                    'assets': ['vlabs.ac.in/images/static/logo.png'], 
+                    'assets': [{'path':'vlabs.ac.in/images/static/logo.png',
+                                    'asset_type': 'image'},
+                                {'path':'vlabs.ac.in/images/static/image.png',
+                                    'asset_type': 'image'}], 
                     'integration_level': 4,
                     'developers': ['abc@gmail.com'],
                     'hosting_info': ['http://cse14-iiith.vlabs.ac.in']
@@ -567,7 +582,10 @@ class TestAddExperiment(TestCase):
                     'exp_name': 'cse02',
                     'overview': 'overview',
                     'integration_level': 4,
-                    'assets': ['vlabs.ac.in/images/static/logo.png'], 
+                    'assets': [{'path':'vlabs.ac.in/images/static/logo.png',
+                                    'asset_type': 'image'},
+                                {'path':'vlabs.ac.in/images/static/image.png',
+                                    'asset_type': 'image'}], 
                     'exp_id': 123,
                     'sections': ["Theory", "Procedure"],
                     'inst_id': 'IITK',
