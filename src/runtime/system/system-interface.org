@@ -3654,6 +3654,69 @@ class TestGetDisciplineById(TestCase):
 
  #+END_SRC
 
+** Get Name By Id
+
+#+NAME: class_get_name_by_id
+#+begin_src python
+    @staticmethod
+    def get_name_by_id(id):
+        name_cls = System.delegate.entities['name']
+        try:
+            current_app.logger.debug("getting name by id")
+            name = name_cls.get_by_id(id)
+            if not name:
+                return ("No name found with id: %s" % (id))
+
+            return name.to_client()
+
+        except (ArityError, TypeError, NotAuthorizedError, StateError) as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+
+        except Exception as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+#+end_src
+
+*** TestGetNameById
+ #+NAME: test_class_get_name_by_id
+ #+BEGIN_SRC python
+class TestGetNameById(TestCase):
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_get_name_by_id_in_system_interface(self):
+        print "test_get_name_by_id_in_system_interface"
+
+        data_dict = {
+                    'key' : KEY,
+                    'name' : "Prof. Dharamraj"
+                   }
+
+        data_dict1 = {
+                    'key' : KEY,
+                    'name' : "Prof. Dharamrajuuuu"
+                   }
+
+        name1 = SystemInterface.add_name(data_dict)
+        name2 = SystemInterface.add_name(data_dict1)
+
+        name_data_one = SystemInterface.get_name_by_id(1)
+        name_data_two = SystemInterface.get_name_by_id(2)
+        
+        self.assertEqual(name_data_one.get("name"), data_dict['name'])
+        self.assertEqual(name_data_two.get("name"), data_dict1['name'])
+
+ #+END_SRC
 
 ** Update Lab
 #+NAME: class_update_lab
@@ -3662,6 +3725,8 @@ class TestGetDisciplineById(TestCase):
     def update_lab(data_dict):
         session_cls = System.delegate.entities['session']
         session = session_cls(key=data_dict['key'])
+        institute_cls = System.delegate.entities['institute']
+        discipline_cls = System.delegate.entities['discipline']
 
         lab_id = str(data_dict['lab_id'])
         lab = System.do("get_lab", lab_id=lab_id)
@@ -3676,12 +3741,30 @@ class TestGetDisciplineById(TestCase):
         else:
             overview=data_dict['overview']
 
+        if 'institute' not in data_dict:
+            institute=str(lab.get("institute"))
+        else:
+            institute = System.do("get_institute", inst_id=data_dict['inst_id'])
+
+        if 'discipline' not in data_dict:
+            discipline=str(lab.get("discipline"))
+        else:
+            discipline = System.do("get_discipline", dis_id=data_dict['dis_id'])
+
+        if 'integration_status' not in data_dict:
+            integration_status=str(lab.get("integration_status"))
+        else:
+            integration_status = System.do("get_integration_status",
+                             integration_level=data_dict['integration_level'])
+
         try:
             current_app.logger.debug("running operation update_lab")
             lab = System.do("update_lab", lab=lab,
                                     lab_name=lab_name, 
-                                    overview=overview,
-                                    session=session)
+                                    overview=overview, session=session, 
+                                    institute=institute, 
+                                    discipline=discipline, 
+                                    integration_status=integration_status)
             current_app.logger.debug("completed operation update_lab")
             return lab.to_client()
         except (ArityError, TypeError, NotAuthorizedError, StateError) as err:
@@ -3693,7 +3776,7 @@ class TestGetDisciplineById(TestCase):
             raise err
 #+end_src
 
-*** TestUpateLab
+*** TestUpdateLab
  #+NAME: test_class_update_lab
  #+BEGIN_SRC python
 class TestUpdateLab(TestCase):
@@ -3709,7 +3792,7 @@ class TestUpdateLab(TestCase):
         db.session.remove()
         db.drop_all()
 
-    def test_update_lab_name_in_system_interface(self):
+    def test_update_lab_in_system_interface(self):
         print "test_update_lab_name_in_system_interface"
 
         data_dict = {
@@ -3799,10 +3882,36 @@ class TestUpdateLab(TestCase):
                    }
 
         data_dict1 = {
+                    'key': KEY,
+                    'inst_name': 'IIT Kharagpur',
+                    'inst_id': 'IITKgp'
+                    }
+
+        institute = SystemInterface.add_institute(data_dict1)
+
+        data_dict1 = {
+                    'key' : KEY,
+                    'dis_name': 'electronics engineering',
+                    'dis_id': 'ECE'
+                   }
+
+        discipline = SystemInterface.add_discipline(data_dict1)
+
+        data_dict1 = {
+                    'key' : KEY,
+                    'integration_level': 2
+                    }
+
+        integration_status = SystemInterface.add_integration_status(data_dict1)
+
+        data_dict1 = {
                     'key' : KEY,
                     'lab_name': 'Computer Programming',
-                    'lab_id': 'cse02',
-                    'overview': 'overview'
+                    'lab_id': 'cse02', 
+                    'overview': 'overview', 
+                    'integration_level': 3 ,
+                    'inst_id': 'IITKgp',
+                    'dis_id': 'ece'
                    }
 
         lab = SystemInterface.add_lab(data_dict)
@@ -3811,6 +3920,9 @@ class TestUpdateLab(TestCase):
         self.assertEqual(lab1.get("lab_name"), data_dict1['lab_name'])
         self.assertEqual(lab1.get("lab_id"), data_dict['lab_id'])
         self.assertEqual(lab1.get("overview"), data_dict['overview'])
+        self.assertEqual(lab1.get("inst_id"), data_dict1['inst_id'])
+        self.assertEqual(lab1.get("dis_id"), data_dict1['dis_id'])
+        self.assertEqual(lab1.get("integration_level"), data_dict1['integration_level'])
 
     def test_update_lab_overview_in_system_interface(self):
         print "test_update_lab_overview_in_system_interface"
@@ -3903,8 +4015,12 @@ class TestUpdateLab(TestCase):
 
         data_dict1 = {
                     'key' : KEY,
-                    'overview': 'Computer Programming overview',
-                    'lab_id': 'cse02'
+                    'lab_name': 'Computer Programming overview',
+                    'lab_id': 'cse02', 
+                    'overview': 'overview', 
+                    'integration_level': 3,
+                    'inst_id': 'IITKgp',
+                    'dis_id': 'ece'
                    }
 
         lab = SystemInterface.add_lab(data_dict)
@@ -3926,10 +4042,10 @@ class TestUpdateLab(TestCase):
         exp_cls = System.delegate.entities['experiment']
         institute_cls = System.delegate.entities['institute']
         discipline_cls = System.delegate.entities['discipline']
-
         session = session_cls(key=str(data_dict['key']))
         exp_id = str(data_dict['exp_id'])
         experiment = System.do("get_experiment", exp_id=exp_id)
+
         if 'exp_name' not in data_dict:
             exp_name=str(experiment.get("exp_name"))
         else:
@@ -3942,12 +4058,29 @@ class TestUpdateLab(TestCase):
         else:
             overview=data_dict['overview']
 
+        if 'inst_id' not in data_dict:
+            institute=str(experiment.get("institute"))
+        else:
+            institute= System.do("get_institute", inst_id=data_dict['inst_id'])
+
+        if 'dis_id' not in data_dict:
+            discipline=str(experiment.get("discipline"))
+        else:
+            discipline= System.do("get_discipline", dis_id=data_dict['dis_id'])
+
+        if 'integration_level' not in data_dict:
+            integration_status=str(experiment.get("integration_status"))
+        else:
+            integration_status= System.do("get_integration_status", 
+                      integration_level=data_dict['integration_level'])
+
         try:
             current_app.logger.debug("running operation update_experiment")
             exp = System.do("update_experiment", exp_name=exp_name, 
-                                    experiment=experiment,
-                                    overview=overview,
-                                    session=session)
+                                    experiment=experiment, overview=overview,
+                                    session=session, institute=institute, 
+                                    discipline=discipline, 
+                                    integration_status=integration_status)
             current_app.logger.debug("completed operation update_experiment")
             return exp.to_client()
         except (ArityError, TypeError, NotAuthorizedError, StateError) as err:
@@ -4049,8 +4182,35 @@ class TestUpdateExperiment(TestCase):
 
         data_dict1 = {
                     'key' : KEY,
+                    'integration_level': 3
+                    }
+
+        integration_status = SystemInterface.add_integration_status(data_dict1)
+
+        data_dict1 = {
+                    'key' : KEY,
+                    'inst_name': 'IIT Kharagpur',
+                    'inst_id': 'IITKgp'
+                    }
+
+        institute = SystemInterface.add_institute(data_dict1)
+
+        data_dict1 = {
+                    'key' : KEY,
+                    'dis_name': 'electronics & engineering',
+                    'dis_id': 'ece'
+                   }
+
+        discipline = SystemInterface.add_discipline(data_dict1)
+
+        data_dict1 = {
+                    'key' : KEY,
                     'exp_id': 'cse02',
-                    'exp_name': 'arrays'
+                    'exp_name': 'arrays',
+                    'overview': 'overview',
+                    'inst_id': 'IITKgp',
+                    'dis_id': 'ece',
+                    'integration_level': 3
                    }
       
         exp1 = SystemInterface.update_experiment(data_dict1)
