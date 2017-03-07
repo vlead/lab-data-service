@@ -197,8 +197,18 @@ class TestAddLab(TestCase):
                     'exp_id': 'exp123',
                     'overview': 'overview', 
                     'sections': [],
-                    'developers': ['abc@gmail.com'],
-                    'hosting_info': ['http://cse14-iiith.vlabs.ac.in'],
+                    'developers': [{'name':'Prof. Dharamaja',
+                                    'email': 'abc@gmail.com',
+                                    'inst_id': 'IITK', 'dis_id': 'CSE'},
+                                    {'name':'Prof. Pallavi Pawar',
+                                    'email': 'pallavi.pawar@gmail.com',
+                                    'inst_id': 'IITK', 'dis_id': 'CSE'}],
+                    'hosting_info': [{'hosted_url':'http://cse14-iiith.vlabs.ac.in',
+                                    'hosting_status': 'hosted',
+                                    'hosted_on': 'cloud'},
+                                    {'hosted_url':'http://iitkgp.vlab.co.in/',
+                                    'hosting_status': 'hosted',
+                                    'hosted_on': 'server'}],
                     'inst_id': 'IITK',
                     'dis_id': 'CSE',
                     'assets': [],
@@ -311,13 +321,26 @@ class TestAddLab(TestCase):
                     'exp_name': 'arrays',
                     'exp_id': 'exp123',
                     'overview': 'overview',
-                    'assets': ['vlabs.ac.in/images/static/logo.png'], 
+                    'assets': [{'path':'vlabs.ac.in/images/static/logo.png',
+                                    'asset_type': 'image'},
+                                {'path':'vlabs.ac.in/images/static/image.png',
+                                    'asset_type': 'image'}],
                     'inst_id': 'IITK',
                     'dis_id': 'CSE', 
                     'integration_level': 4,
                     'sections': [], 
-                    'developers': ['abc@gmail.com'],
-                    'hosting_info': ['http://cse14-iiith.vlabs.ac.in']
+                    'developers': [{'name':'Prof. Dharamaja',
+                                    'email': 'abc@gmail.com',
+                                    'inst_id': 'IITK', 'dis_id': 'CSE'},
+                                    {'name':'Prof. Pallavi Pawar',
+                                    'email': 'pallavi.pawar@gmail.com',
+                                    'inst_id': 'IITK', 'dis_id': 'CSE'}],
+                    'hosting_info': [{'hosted_url':'http://cse14-iiith.vlabs.ac.in',
+                                    'hosting_status': 'hosted',
+                                    'hosted_on': 'cloud'},
+                                    {'hosted_url':'http://iitkgp.vlab.co.in/',
+                                    'hosting_status': 'hosted',
+                                    'hosted_on': 'server'}]
                    }
 
         experiment = SystemInterface.add_experiment(data_dict)
@@ -364,7 +387,11 @@ class TestAddLab(TestCase):
         experiment_cls = System.delegate.entities['experiment']
         institute_cls = System.delegate.entities['institute']
         discipline_cls = System.delegate.entities['discipline']
+        developer_cls = System.delegate.entities['developer']
+        name_cls = System.delegate.entities['name']
         email_cls = System.delegate.entities['email']
+        hosting_info_cls = System.delegate.entities['hosting_info']
+        asset_cls = System.delegate.entities['asset']
         session = session_cls(key=data_dict['key'])
         del(data_dict['key'])
 
@@ -382,20 +409,38 @@ class TestAddLab(TestCase):
 
         assets = data_dict['assets']
         asset_list = []
-        for asset in assets:
-            asset = System.do("get_asset", path=asset)
+        for asset_x in assets:
+            asset = System.do("get_asset", path=asset_x['path'])
+            if asset is None:
+                asset = asset_cls(asset_type=str(asset_x['asset_type']), \
+                                      path=str(asset_x['path']))
+                asset = System.do("add_asset", asset=asset, session=session)
             asset_list.append(asset)
+
         developers = data_dict['developers']
         developer_list = []
-        for d_id in developers:
-            email = email_cls(email=d_id)
+        for developer_x in developers:
+            name = name_cls(name=developer_x['name'])
+            email = email_cls(email=developer_x['email'])
             developer = System.do("get_developer", email=email)
+            institute = System.do("get_institute", inst_id=developer_x['inst_id'])
+            discipline = System.do("get_discipline", dis_id=developer_x['dis_id'])
+            if developer is None:
+                developer = developer_cls(name=name, email=email,
+                                              institute=institute,
+                                              discipline=discipline)
+                developer = System.do("add_developer", developer=developer,
+                                          session=session)
             developer_list.append(developer)
 
         hosting_info = data_dict['hosting_info']
         hosting_info_list = []
-        for hosting_info in hosting_info:
-            hosting_info = System.do("get_hosting_info", hosted_url=hosting_info)
+        for hosting_info_x in hosting_info:
+            hosting_info = System.do("get_hosting_info", hosted_url=hosting_info_x['hosted_url'])
+            if hosting_info is None:
+                hosting_info = hosting_info_cls(hosting_status=str(hosting_info_x['hosting_status']), \
+                                      hosted_url=str(hosting_info_x['hosted_url']), hosted_on=str(hosting_info_x['hosted_on']))
+                hosting_info = System.do("add_hosting_info", hosting_info=hosting_info, session=session)
             hosting_info_list.append(hosting_info)
 
         experiment = experiment_cls(exp_name=data_dict['exp_name'],
@@ -520,10 +565,23 @@ class TestAddExperiment(TestCase):
                     'sections': ["Introduction", "Quize"],
                     'inst_id': 'IITK',
                     'dis_id': 'CSE',
-                    'assets': ['vlabs.ac.in/images/static/logo.png'], 
+                    'assets': [{'path':'vlabs.ac.in/images/static/logo.png',
+                                    'asset_type': 'image'},
+                                {'path':'vlabs.ac.in/images/static/image.png',
+                                    'asset_type': 'image'}], 
                     'integration_level': 4,
-                    'developers': ['abc@gmail.com'],
-                    'hosting_info': ['http://cse14-iiith.vlabs.ac.in']
+                    'developers': [{'name':'Prof. Dharamaja',
+                                    'email': 'abc@gmail.com',
+                                    'inst_id': 'IITK', 'dis_id': 'CSE'},
+                                    {'name':'Prof. Pallavi Pawar',
+                                    'email': 'pallavi.pawar@gmail.com',
+                                    'inst_id': 'IITK', 'dis_id': 'CSE'}],
+                    'hosting_info': [{'hosted_url':'http://cse14-iiith.vlabs.ac.in',
+                                    'hosting_status': 'hosted',
+                                    'hosted_on': 'cloud'},
+                                    {'hosted_url':'http://iitkgp.vlab.co.in/',
+                                    'hosting_status': 'hosted',
+                                    'hosted_on': 'server'}]
                    }
 
         experiment = SystemInterface.add_experiment(data_dict)
@@ -600,13 +658,26 @@ class TestAddExperiment(TestCase):
                     'exp_name': 'cse02',
                     'overview': 'overview',
                     'integration_level': 4,
-                    'assets': ['vlabs.ac.in/images/static/logo.png'], 
+                    'assets': [{'path':'vlabs.ac.in/images/static/logo.png',
+                                    'asset_type': 'image'},
+                                {'path':'vlabs.ac.in/images/static/image.png',
+                                    'asset_type': 'image'}], 
                     'exp_id': 123,
                     'sections': ["Theory", "Procedure"],
                     'inst_id': 'IITK',
                     'dis_id': 'CSE',
-                    'developers': ['abc@gmail.com'],
-                    'hosting_info': ['http://cse14-iiith.vlabs.ac.in']
+                    'developers': [{'name':'Prof. Dharamaja',
+                                    'email': 'abc@gmail.com',
+                                    'inst_id': 'IITK', 'dis_id': 'CSE'},
+                                    {'name':'Prof. Pallavi Pawar',
+                                    'email': 'pallavi.pawar@gmail.com',
+                                    'inst_id': 'IITK', 'dis_id': 'CSE'}],
+                    'hosting_info': [{'hosted_url':'http://cse14-iiith.vlabs.ac.in',
+                                    'hosting_status': 'hosted',
+                                    'hosted_on': 'cloud'},
+                                    {'hosted_url':'http://iitkgp.vlab.co.in/',
+                                    'hosting_status': 'hosted',
+                                    'hosted_on': 'server'}],
 		    }
         with self.assertRaises(TypeError):
             SystemInterface.add_experiment(data_dict)
@@ -1285,11 +1356,24 @@ class TestGetLabsByLabName(TestCase):
                     'exp_id': 'exp123',
                     'overview': 'overview', 
                     'sections': [],
-                    'developers': ['abc@gmail.com'],
-                    'hosting_info': ['http://cse14-iiith.vlabs.ac.in'],
+                    'developers': [{'name':'Prof. Dharamaja',
+                                    'email': 'abc@gmail.com',
+                                    'inst_id': 'IITK', 'dis_id': 'CSE'},
+                                    {'name':'Prof. Pallavi Pawar',
+                                    'email': 'pallavi.pawar@gmail.com',
+                                    'inst_id': 'IITK', 'dis_id': 'CSE'}],
+                    'hosting_info': [{'hosted_url':'http://cse14-iiith.vlabs.ac.in',
+                                    'hosting_status': 'hosted',
+                                    'hosted_on': 'cloud'},
+                                    {'hosted_url':'http://iitkgp.vlab.co.in/',
+                                    'hosting_status': 'hosted',
+                                    'hosted_on': 'server'}],
                     'inst_id': 'IITK',
                     'dis_id': 'CSE',
-                    'assets': ['vlabs.ac.in/images/static/logo.png'],
+                    'assets': [{'path':'vlabs.ac.in/images/static/logo.png',
+                                    'asset_type': 'image'},
+                                {'path':'vlabs.ac.in/images/static/image.png',
+                                    'asset_type': 'image'}],
                     'integration_level': 4,
                    }
 
@@ -1337,7 +1421,7 @@ class TestGetLabsByLabName(TestCase):
                                     {'name':'Prof. Pallavi Pawar',
                                     'email': 'pallavi.pawar@gmail.com',
                                     'inst_id': 'IITK', 'dis_id': 'CSE'}],
-                    'hosting_info': [{'hosted_url':'http://cse14-iiith.vlabs.ac.in',
+                      'hosting_info': [{'hosted_url':'http://cse14-iiith.vlabs.ac.in',
                                     'hosting_status': 'hosted',
                                     'hosted_on': 'cloud'},
                                     {'hosted_url':'http://iitkgp.vlab.co.in/',
@@ -1464,11 +1548,24 @@ class TestGetLabsByKeywordLabName(TestCase):
                     'exp_id': 'exp123',
                     'overview': 'overview', 
                     'sections': [],
-                    'developers': ['abc@gmail.com'],
-                    'hosting_info': ['http://cse14-iiith.vlabs.ac.in'],
+                    'developers': [{'name':'Prof. Dharamaja',
+                                    'email': 'abc@gmail.com',
+                                    'inst_id': 'IITK', 'dis_id': 'CSE'},
+                                    {'name':'Prof. Pallavi Pawar',
+                                    'email': 'pallavi.pawar@gmail.com',
+                                    'inst_id': 'IITK', 'dis_id': 'CSE'}],
+                    'hosting_info': [{'hosted_url':'http://cse14-iiith.vlabs.ac.in',
+                                    'hosting_status': 'hosted',
+                                    'hosted_on': 'cloud'},
+                                    {'hosted_url':'http://iitkgp.vlab.co.in/',
+                                    'hosting_status': 'hosted',
+                                    'hosted_on': 'server'}],
                     'inst_id': 'IITK',
                     'dis_id': 'CSE',
-                    'assets': ['vlabs.ac.in/images/static/logo.png'],
+                    'assets': [{'path':'vlabs.ac.in/images/static/logo.png',
+                                    'asset_type': 'image'},
+                                {'path':'vlabs.ac.in/images/static/image.png',
+                                    'asset_type': 'image'}],
                     'integration_level': 4,
                    }
 
@@ -1516,7 +1613,7 @@ class TestGetLabsByKeywordLabName(TestCase):
                                     {'name':'Prof. Pallavi Pawar',
                                     'email': 'pallavi.pawar@gmail.com',
                                     'inst_id': 'IITK', 'dis_id': 'CSE'}],
-                    'hosting_info': [{'hosted_url':'http://cse14-iiith.vlabs.ac.in',
+                      'hosting_info': [{'hosted_url':'http://cse14-iiith.vlabs.ac.in',
                                     'hosting_status': 'hosted',
                                     'hosted_on': 'cloud'},
                                     {'hosted_url':'http://iitkgp.vlab.co.in/',
@@ -1651,11 +1748,24 @@ class TestGetLabsByInstitute(TestCase):
                     'exp_name': 'arrays',
                     'exp_id': 'exp123',
                     'overview': 'overview',
-                    'assets': ['vlabs.ac.in/images/static/logo.png'], 
+                    'assets': [{'path':'vlabs.ac.in/images/static/logo.png',
+                                    'asset_type': 'image'},
+                                {'path':'vlabs.ac.in/images/static/image.png',
+                                    'asset_type': 'image'}], 
                     'integration_level': 4,
                     'sections': [],
-                    'developers': ['abc@gmail.com'],
-                    'hosting_info': ['http://cse14-iiith.vlabs.ac.in'], 
+                    'developers': [{'name':'Prof. Dharamaja',
+                                    'email': 'abc@gmail.com',
+                                    'inst_id': 'IITK', 'dis_id': 'CSE'},
+                                    {'name':'Prof. Pallavi Pawar',
+                                    'email': 'pallavi.pawar@gmail.com',
+                                    'inst_id': 'IITK', 'dis_id': 'CSE'}],
+                    'hosting_info': [{'hosted_url':'http://cse14-iiith.vlabs.ac.in',
+                                    'hosting_status': 'hosted',
+                                    'hosted_on': 'cloud'},
+                                    {'hosted_url':'http://iitkgp.vlab.co.in/',
+                                    'hosting_status': 'hosted',
+                                    'hosted_on': 'server'}], 
                     'inst_id': 'IITK',
                     'dis_id': 'CSE'
                    }
@@ -1835,11 +1945,24 @@ class TestGetLabsByDiscipline(TestCase):
                     'exp_name': 'arrays',
                     'exp_id': 'exp123',
                     'overview': 'overview',
-                    'assets': ['vlabs.ac.in/images/static/logo.png'], 
+                    'assets': [{'path':'vlabs.ac.in/images/static/logo.png',
+                                    'asset_type': 'image'},
+                                {'path':'vlabs.ac.in/images/static/image.png',
+                                    'asset_type': 'image'}],
                     'integration_level': 4,
                     'sections' : [],
-                    'developers': ['abc@gmail.com'],
-                    'hosting_info': ['http://cse14-iiith.vlabs.ac.in'], 
+                    'developers': [{'name':'Prof. Dharamaja',
+                                    'email': 'abc@gmail.com',
+                                    'inst_id': 'IITK', 'dis_id': 'CSE'},
+                                    {'name':'Prof. Pallavi Pawar',
+                                    'email': 'pallavi.pawar@gmail.com',
+                                    'inst_id': 'IITK', 'dis_id': 'CSE'}],
+                    'hosting_info': [{'hosted_url':'http://cse14-iiith.vlabs.ac.in',
+                                    'hosting_status': 'hosted',
+                                    'hosted_on': 'cloud'},
+                                    {'hosted_url':'http://iitkgp.vlab.co.in/',
+                                    'hosting_status': 'hosted',
+                                    'hosted_on': 'server'}],
                     'inst_id': 'IITK',
                     'dis_id': 'CSE'
                    }
@@ -2010,11 +2133,24 @@ class TestGetLabsByLabName(TestCase):
                     'exp_name': 'arrays',
                     'exp_id': 'exp123',
                     'overview': 'overview',
-                    'assets': ['vlabs.ac.in/images/static/logo.png'], 
+                    'assets': [{'path':'vlabs.ac.in/images/static/logo.png',
+                                    'asset_type': 'image'},
+                                {'path':'vlabs.ac.in/images/static/image.png',
+                                    'asset_type': 'image'}], 
                     'integration_level': 4,
                     'sections': [],
-                    'developers': ['abc@gmail.com'],
-                    'hosting_info': ['http://cse14-iiith.vlabs.ac.in'], 
+                    'developers': [{'name':'Prof. Dharamaja',
+                                    'email': 'abc@gmail.com',
+                                    'inst_id': 'IITK', 'dis_id': 'CSE'},
+                                    {'name':'Prof. Pallavi Pawar',
+                                    'email': 'pallavi.pawar@gmail.com',
+                                    'inst_id': 'IITK', 'dis_id': 'CSE'}],
+                    'hosting_info': [{'hosted_url':'http://cse14-iiith.vlabs.ac.in',
+                                    'hosting_status': 'hosted',
+                                    'hosted_on': 'cloud'},
+                                    {'hosted_url':'http://iitkgp.vlab.co.in/',
+                                    'hosting_status': 'hosted',
+                                    'hosted_on': 'server'}],
                     'inst_id': 'IITK',
                     'dis_id': 'CSE'
                    }
@@ -2186,11 +2322,24 @@ class TestGetLabsByAssetType(TestCase):
                     'exp_name': 'arrays',
                     'exp_id': 'exp123',
                     'overview': 'overview',
-                    'assets': ['vlabs.ac.in/images/static/logo.png'], 
+                    'assets': [{'path':'vlabs.ac.in/images/static/logo.png',
+                                    'asset_type': 'image'},
+                                {'path':'vlabs.ac.in/images/static/image.png',
+                                    'asset_type': 'image'}], 
                     'integration_level': 4,
                     'sections': [],
-                    'developers': ['abc@gmail.com'],
-                    'hosting_info': ['http://cse14-iiith.vlabs.ac.in'], 
+                    'developers': [{'name':'Prof. Dharamaja',
+                                    'email': 'abc@gmail.com',
+                                    'inst_id': 'IITK', 'dis_id': 'CSE'},
+                                    {'name':'Prof. Pallavi Pawar',
+                                    'email': 'pallavi.pawar@gmail.com',
+                                    'inst_id': 'IITK', 'dis_id': 'CSE'}],
+                    'hosting_info': [{'hosted_url':'http://cse14-iiith.vlabs.ac.in',
+                                    'hosting_status': 'hosted',
+                                    'hosted_on': 'cloud'},
+                                    {'hosted_url':'http://iitkgp.vlab.co.in/',
+                                    'hosting_status': 'hosted',
+                                    'hosted_on': 'server'}],
                     'inst_id': 'IITK',
                     'dis_id': 'CSE'
                    }
@@ -2342,11 +2491,24 @@ class TestGetLabsByIntegration_Status(TestCase):
                     'exp_name': 'arrays',
                     'exp_id': 'exp123',
                     'overview': 'overview',
-                    'assets': ['vlabs.ac.in/images/static/logo.png'], 
+                    'assets': [{'path':'vlabs.ac.in/images/static/logo.png',
+                                    'asset_type': 'image'},
+                                {'path':'vlabs.ac.in/images/static/image.png',
+                                    'asset_type': 'image'}], 
                     'integration_level': 4, 
                     'sections': [],
-                    'developers': ['abc@gmail.com'],
-                    'hosting_info': ['http://cse14-iiith.vlabs.ac.in']
+                    'developers': [{'name':'Prof. Dharamaja',
+                                    'email': 'abc@gmail.com',
+                                    'inst_id': 'IITK', 'dis_id': 'CSE'},
+                                    {'name':'Prof. Pallavi Pawar',
+                                    'email': 'pallavi.pawar@gmail.com',
+                                    'inst_id': 'IITK', 'dis_id': 'CSE'}],
+                    'hosting_info': [{'hosted_url':'http://cse14-iiith.vlabs.ac.in',
+                                    'hosting_status': 'hosted',
+                                    'hosted_on': 'cloud'},
+                                    {'hosted_url':'http://iitkgp.vlab.co.in/',
+                                    'hosting_status': 'hosted',
+                                    'hosted_on': 'server'}]
                    }
 
         experiment = SystemInterface.add_experiment(data_dict)
@@ -2512,14 +2674,27 @@ class TestGetExperiments(TestCase):
         data_dict = {'exp_name': 'stack',
                     'exp_id': 'cse01',
                     'overview': 'overview',
-                    'assets': ['vlabs.ac.in/images/static/logo.png'],
+                    'assets': [{'path':'vlabs.ac.in/images/static/logo.png',
+                                    'asset_type': 'image'},
+                                {'path':'vlabs.ac.in/images/static/image.png',
+                                    'asset_type': 'image'}],
                     'integration_level': 4,
                     'sections': [],
                     'key': KEY,
                     'inst_id': 'IITK',
                     'dis_id': 'CSE',
-                    'developers': ['abc@gmail.com'],
-                    'hosting_info': ['http://cse14-iiith.vlabs.ac.in']
+                    'developers': [{'name':'Prof. Dharamaja',
+                                    'email': 'abc@gmail.com',
+                                    'inst_id': 'IITK', 'dis_id': 'CSE'},
+                                    {'name':'Prof. Pallavi Pawar',
+                                    'email': 'pallavi.pawar@gmail.com',
+                                    'inst_id': 'IITK', 'dis_id': 'CSE'}],
+                    'hosting_info': [{'hosted_url':'http://cse14-iiith.vlabs.ac.in',
+                                    'hosting_status': 'hosted',
+                                    'hosted_on': 'cloud'},
+                                    {'hosted_url':'http://iitkgp.vlab.co.in/',
+                                    'hosting_status': 'hosted',
+                                    'hosted_on': 'server'}]
                    }
 
         data_dict1 = {
@@ -2541,14 +2716,27 @@ class TestGetExperiments(TestCase):
         data_dict1 = {'exp_name': "arrays",
                       'exp_id': 'cse02',
                       'overview': 'overview',
-                      'assets': ['vlabs.ac.in/images/static/logo.png'],
+                      'assets': [{'path':'vlabs.ac.in/images/static/logo.png',
+                                    'asset_type': 'image'},
+                                {'path':'vlabs.ac.in/images/static/image.png',
+                                    'asset_type': 'image'}],
                       'integration_level': 4,
                       'sections':[],
                       'key': KEY,
                       'inst_id': 'IITKgp',
                       'dis_id': 'ECE',
-                      'developers': ['abc@gmail.com'],
-                      'hosting_info': ['http://cse14-iiith.vlabs.ac.in']
+                      'developers': [{'name':'Prof. Dharamaja',
+                                    'email': 'abc@gmail.com',
+                                    'inst_id': 'IITK', 'dis_id': 'CSE'},
+                                    {'name':'Prof. Pallavi Pawar',
+                                    'email': 'pallavi.pawar@gmail.com',
+                                    'inst_id': 'IITK', 'dis_id': 'CSE'}],
+                      'hosting_info': [{'hosted_url':'http://cse14-iiith.vlabs.ac.in',
+                                    'hosting_status': 'hosted',
+                                    'hosted_on': 'cloud'},
+                                    {'hosted_url':'http://iitkgp.vlab.co.in/',
+                                    'hosting_status': 'hosted',
+                                    'hosted_on': 'server'}]
                       }
 
         exp1 = SystemInterface.add_experiment(data_dict)
@@ -3241,13 +3429,26 @@ class TestGetLabById(TestCase):
                     'exp_name': 'arrays',
                     'exp_id': 'exp123',
                     'overview': 'overview',
-                    'assets': ['vlabs.ac.in/images/static/logo.png'], 
+                    'assets': [{'path':'vlabs.ac.in/images/static/logo.png',
+                                    'asset_type': 'image'},
+                                {'path':'vlabs.ac.in/images/static/image.png',
+                                    'asset_type': 'image'}], 
                     'integration_level': 4,
                     'sections': [],
-                    'developers': ['abc@gmail.com'],
-                    'hosting_info': ['http://cse14-iiith.vlabs.ac.in'],
-                    'inst_id': 'IITK',
-                    'dis_id': 'CSE'
+                    'developers': [{'name':'Prof. Dharamaja',
+                                    'email': 'abc@gmail.com',
+                                    'inst_id': 'IITK', 'dis_id': 'CSE'},
+                                    {'name':'Prof. Pallavi Pawar',
+                                    'email': 'pallavi.pawar@gmail.com',
+                                    'inst_id': 'IITK', 'dis_id': 'CSE'}],
+                    'hosting_info': [{'hosted_url':'http://cse14-iiith.vlabs.ac.in',
+                                    'hosting_status': 'hosted',
+                                    'hosted_on': 'cloud'},
+                                    {'hosted_url':'http://iitkgp.vlab.co.in/',
+                                    'hosting_status': 'hosted',
+                                    'hosted_on': 'server'}],
+                     'inst_id': 'IITK',
+                     'dis_id': 'CSE'
                    }
 
         experiment = SystemInterface.add_experiment(data_dict)
@@ -3499,28 +3700,54 @@ class TestGetExperimentById(TestCase):
                     'key': KEY,
                     'exp_name': 'array',
                     'overview': 'overview',
-                    'assets': ['vlabs.ac.in/images/static/logo.png'], 
+                    'assets': [{'path':'vlabs.ac.in/images/static/logo.png',
+                                    'asset_type': 'image'},
+                                {'path':'vlabs.ac.in/images/static/image.png',
+                                    'asset_type': 'image'}], 
                     'integration_level': 4,
                     'exp_id': 'cse02',
                     'sections': [],
                     'inst_id': 'IITK',
                     'dis_id': 'CSE',
-                    'developers': ['abc@gmail.com'],
-                    'hosting_info': ['http://cse14-iiith.vlabs.ac.in']
+                    'developers': [{'name':'Prof. Dharamaja',
+                                    'email': 'abc@gmail.com',
+                                    'inst_id': 'IITK', 'dis_id': 'CSE'},
+                                    {'name':'Prof. Pallavi Pawar',
+                                    'email': 'pallavi.pawar@gmail.com',
+                                    'inst_id': 'IITK', 'dis_id': 'CSE'}],
+                    'hosting_info': [{'hosted_url':'http://cse14-iiith.vlabs.ac.in',
+                                    'hosting_status': 'hosted',
+                                    'hosted_on': 'cloud'},
+                                    {'hosted_url':'http://iitkgp.vlab.co.in/',
+                                    'hosting_status': 'hosted',
+                                    'hosted_on': 'server'}]
                    }
 
         data_dict1 = {
                     'key': KEY,
                     'exp_name': 'stack',
                     'overview': 'overview',
-                    'assets': ['vlabs.ac.in/images/static/logo.png'], 
+                    'assets': [{'path':'vlabs.ac.in/images/static/logo.png',
+                                    'asset_type': 'image'},
+                                {'path':'vlabs.ac.in/images/static/image.png',
+                                    'asset_type': 'image'}], 
                     'integration_level': 4,
                     'exp_id': 'cse03',
                     'sections': [],
                     'inst_id': 'IITKgp',
                     'dis_id': 'ECE',
-                    'developers': ['abc@gmail.com'],
-                    'hosting_info': ['http://cse14-iiith.vlabs.ac.in']
+                    'developers': [{'name':'Prof. Dharamaja',
+                                    'email': 'abc@gmail.com',
+                                    'inst_id': 'IITK', 'dis_id': 'CSE'},
+                                    {'name':'Prof. Pallavi Pawar',
+                                    'email': 'pallavi.pawar@gmail.com',
+                                    'inst_id': 'IITK', 'dis_id': 'CSE'}],
+                    'hosting_info': [{'hosted_url':'http://cse14-iiith.vlabs.ac.in',
+                                    'hosting_status': 'hosted',
+                                    'hosted_on': 'cloud'},
+                                    {'hosted_url':'http://iitkgp.vlab.co.in/',
+                                    'hosting_status': 'hosted',
+                                    'hosted_on': 'server'}]
                    }
 
         exp1 = SystemInterface.add_experiment(data_dict)
@@ -3875,11 +4102,24 @@ class TestUpdateLab(TestCase):
                     'exp_name': 'arrays',
                     'exp_id': 'exp123',
                     'overview': 'overview',
-                    'assets': ['vlabs.ac.in/images/static/logo.png'], 
+                    'assets': [{'path':'vlabs.ac.in/images/static/logo.png',
+                                    'asset_type': 'image'},
+                                {'path':'vlabs.ac.in/images/static/image.png',
+                                    'asset_type': 'image'}],
                     'integration_level': 4,
                     'sections' : [],
-                    'developers': ['abc@gmail.com'],
-                    'hosting_info': ['http://cse14-iiith.vlabs.ac.in']
+                    'developers': [{'name':'Prof. Dharamaja',
+                                    'email': 'abc@gmail.com',
+                                    'inst_id': 'IITK', 'dis_id': 'CSE'},
+                                    {'name':'Prof. Pallavi Pawar',
+                                    'email': 'pallavi.pawar@gmail.com',
+                                    'inst_id': 'IITK', 'dis_id': 'CSE'}],
+                    'hosting_info': [{'hosted_url':'http://cse14-iiith.vlabs.ac.in',
+                                    'hosting_status': 'hosted',
+                                    'hosted_on': 'cloud'},
+                                    {'hosted_url':'http://iitkgp.vlab.co.in/',
+                                    'hosting_status': 'hosted',
+                                    'hosted_on': 'server'}]
                    }
 
         experiment = SystemInterface.add_experiment(data_dict)
@@ -3901,7 +4141,7 @@ class TestUpdateLab(TestCase):
                                     {'name':'Prof. Pallavi Pawar',
                                     'email': 'pallavi.pawar@gmail.com',
                                     'inst_id': 'IITK', 'dis_id': 'CSE'}],
-                    'hosting_info': [{'hosted_url':'http://cse14-iiith.vlabs.ac.in',
+                   'hosting_info': [{'hosted_url':'http://cse14-iiith.vlabs.ac.in',
                                     'hosting_status': 'hosted',
                                     'hosted_on': 'cloud'},
                                     {'hosted_url':'http://iitkgp.vlab.co.in/',
@@ -4012,11 +4252,24 @@ class TestUpdateLab(TestCase):
                     'exp_name': 'arrays',
                     'exp_id': 'exp123',
                     'overview': 'overview',
-                    'assets': ['vlabs.ac.in/images/static/logo.png'], 
+                    'assets': [{'path':'vlabs.ac.in/images/static/logo.png',
+                                    'asset_type': 'image'},
+                                {'path':'vlabs.ac.in/images/static/image.png',
+                                    'asset_type': 'image'}],
                     'integration_level': 4,
                     'sections': [],
-                    'developers': ['abc@gmail.com'],
-                    'hosting_info': ['http://cse14-iiith.vlabs.ac.in'], 
+                    'developers': [{'name':'Prof. Dharamaja',
+                                    'email': 'abc@gmail.com',
+                                    'inst_id': 'IITK', 'dis_id': 'CSE'},
+                                    {'name':'Prof. Pallavi Pawar',
+                                    'email': 'pallavi.pawar@gmail.com',
+                                    'inst_id': 'IITK', 'dis_id': 'CSE'}],
+                    'hosting_info': [{'hosted_url':'http://cse14-iiith.vlabs.ac.in',
+                                    'hosting_status': 'hosted',
+                                    'hosted_on': 'cloud'},
+                                    {'hosted_url':'http://iitkgp.vlab.co.in/',
+                                    'hosting_status': 'hosted',
+                                    'hosted_on': 'server'}], 
                     'dis_name': 'computer science',
                     'inst_id': 'IITK',
                     'dis_id': 'CSE'
@@ -4042,7 +4295,7 @@ class TestUpdateLab(TestCase):
                                     {'name':'Prof. Pallavi Pawar',
                                     'email': 'pallavi.pawar@gmail.com',
                                     'inst_id': 'IITK', 'dis_id': 'CSE'}],
-                    'hosting_info': [{'hosted_url':'http://cse14-iiith.vlabs.ac.in',
+                   'hosting_info': [{'hosted_url':'http://cse14-iiith.vlabs.ac.in',
                                     'hosting_status': 'hosted',
                                     'hosted_on': 'cloud'},
                                     {'hosted_url':'http://iitkgp.vlab.co.in/',
@@ -4204,14 +4457,27 @@ class TestUpdateExperiment(TestCase):
                     'key': KEY,
                     'exp_name': 'Data Structures',
                     'overview': 'overview',
-                    'assets': ['vlabs.ac.in/images/static/logo.png'], 
+                    'assets': [{'path':'vlabs.ac.in/images/static/logo.png',
+                                    'asset_type': 'image'},
+                                {'path':'vlabs.ac.in/images/static/image.png',
+                                    'asset_type': 'image'}],
                     'integration_level': 4,
                     'sections': [],
                     'exp_id': 'cse02',
                     'inst_id': 'IITK',
                     'dis_id': 'CSE',
-                    'developers': ['abc@gmail.com'],
-                    'hosting_info': ['http://cse14-iiith.vlabs.ac.in']
+                    'developers': [{'name':'Prof. Dharamaja',
+                                    'email': 'abc@gmail.com',
+                                    'inst_id': 'IITK', 'dis_id': 'CSE'},
+                                    {'name':'Prof. Pallavi Pawar',
+                                    'email': 'pallavi.pawar@gmail.com',
+                                    'inst_id': 'IITK', 'dis_id': 'CSE'}],
+                    'hosting_info': [{'hosted_url':'http://cse14-iiith.vlabs.ac.in',
+                                    'hosting_status': 'hosted',
+                                    'hosted_on': 'cloud'},
+                                    {'hosted_url':'http://iitkgp.vlab.co.in/',
+                                    'hosting_status': 'hosted',
+                                    'hosted_on': 'server'}]
                    }
 
         exp = SystemInterface.add_experiment(data_dict)
@@ -4743,11 +5009,24 @@ class TestDeleteLab(TestCase):
                     'overview': 'overview',
                     'inst_id': 'IITK',
                     'dis_id': 'CSE',
-                    'assets': ['vlabs.ac.in/images/static/logo.png'], 
+                    'assets': [{'path':'vlabs.ac.in/images/static/logo.png',
+                                    'asset_type': 'image'},
+                                {'path':'vlabs.ac.in/images/static/image.png',
+                                    'asset_type': 'image'}],
                     'integration_level': 4,
                     'sections': [],
-                    'developers': ['abc@gmail.com'],
-                    'hosting_info': ['http://cse14-iiith.vlabs.ac.in']
+                    'developers': [{'name':'Prof. Dharamaja',
+                                    'email': 'abc@gmail.com',
+                                    'inst_id': 'IITK', 'dis_id': 'CSE'},
+                                    {'name':'Prof. Pallavi Pawar',
+                                    'email': 'pallavi.pawar@gmail.com',
+                                    'inst_id': 'IITK', 'dis_id': 'CSE'}],
+                    'hosting_info': [{'hosted_url':'http://cse14-iiith.vlabs.ac.in',
+                                    'hosting_status': 'hosted',
+                                    'hosted_on': 'cloud'},
+                                    {'hosted_url':'http://iitkgp.vlab.co.in/',
+                                    'hosting_status': 'hosted',
+                                    'hosted_on': 'server'}]
                    }
 
         experiment = SystemInterface.add_experiment(data_dict)
@@ -4911,28 +5190,54 @@ class TestDeleteExperiment(TestCase):
                     'key' : KEY,
                     'exp_name': 'Data Structures',
                     'overview': 'overview',
-                    'assets': ['vlabs.ac.in/images/static/logo.png'], 
+                    'assets': [{'path':'vlabs.ac.in/images/static/logo.png',
+                                    'asset_type': 'image'},
+                                {'path':'vlabs.ac.in/images/static/image.png',
+                                    'asset_type': 'image'}],
                     'integration_level': 4,
                     'exp_id': 'cse01',
                     'sections': [],
                     'inst_id': 'IITK',
                     'dis_id': 'CSE',
-                    'developers': ['abc@gmail.com'],
-                    'hosting_info': ['http://cse14-iiith.vlabs.ac.in']
+                    'developers': [{'name':'Prof. Dharamaja',
+                                    'email': 'abc@gmail.com',
+                                    'inst_id': 'IITK', 'dis_id': 'CSE'},
+                                    {'name':'Prof. Pallavi Pawar',
+                                    'email': 'pallavi.pawar@gmail.com',
+                                    'inst_id': 'IITK', 'dis_id': 'CSE'}],
+                    'hosting_info': [{'hosted_url':'http://cse14-iiith.vlabs.ac.in',
+                                    'hosting_status': 'hosted',
+                                    'hosted_on': 'cloud'},
+                                    {'hosted_url':'http://iitkgp.vlab.co.in/',
+                                    'hosting_status': 'hosted',
+                                    'hosted_on': 'server'}]
                    }
 
         data_dict1 = {
                     'key': KEY,
                     'exp_name': 'Computer Programming',
                     'overview': 'overview',
-                    'assets': ['vlabs.ac.in/images/static/logo.png'], 
+                    'assets': [{'path':'vlabs.ac.in/images/static/logo.png',
+                                    'asset_type': 'image'},
+                                {'path':'vlabs.ac.in/images/static/image.png',
+                                    'asset_type': 'image'}],
                     'integration_level': 4,
                     'exp_id': 'cse02',
                     'sections':[],
                     'inst_id': 'IITK',
                     'dis_id': 'CSE',
-                    'developers': ['abc@gmail.com'],
-                    'hosting_info': ['http://cse14-iiith.vlabs.ac.in']
+                    'developers': [{'name':'Prof. Dharamaja',
+                                    'email': 'abc@gmail.com',
+                                    'inst_id': 'IITK', 'dis_id': 'CSE'},
+                                    {'name':'Prof. Pallavi Pawar',
+                                    'email': 'pallavi.pawar@gmail.com',
+                                    'inst_id': 'IITK', 'dis_id': 'CSE'}],
+                    'hosting_info': [{'hosted_url':'http://cse14-iiith.vlabs.ac.in',
+                                    'hosting_status': 'hosted',
+                                    'hosted_on': 'cloud'},
+                                    {'hosted_url':'http://iitkgp.vlab.co.in/',
+                                    'hosting_status': 'hosted',
+                                    'hosted_on': 'server'}]
                    }
 
         exp = SystemInterface.add_experiment(data_dict)
@@ -5638,11 +5943,24 @@ class TestGetLabByLabId(TestCase):
                     'overview': 'overview',
                     'inst_id': 'IITK',
                     'dis_id': 'CSE',
-                    'assets': ['vlabs.ac.in/images/static/logo.png'], 
+                    'assets': [{'path':'vlabs.ac.in/images/static/logo.png',
+                                    'asset_type': 'image'},
+                                {'path':'vlabs.ac.in/images/static/image.png',
+                                    'asset_type': 'image'}],
                     'integration_level': 4,
                     'sections': [],
-                    'developers': ['abc@gmail.com'],
-                    'hosting_info': ['http://cse14-iiith.vlabs.ac.in']
+                    'developers': [{'name':'Prof. Dharamaja',
+                                    'email': 'abc@gmail.com',
+                                    'inst_id': 'IITK', 'dis_id': 'CSE'},
+                                    {'name':'Prof. Pallavi Pawar',
+                                    'email': 'pallavi.pawar@gmail.com',
+                                    'inst_id': 'IITK', 'dis_id': 'CSE'}],
+                    'hosting_info': [{'hosted_url':'http://cse14-iiith.vlabs.ac.in',
+                                    'hosting_status': 'hosted',
+                                    'hosted_on': 'cloud'},
+                                    {'hosted_url':'http://iitkgp.vlab.co.in/',
+                                    'hosting_status': 'hosted',
+                                    'hosted_on': 'server'}]
                    }
 
         experiment = SystemInterface.add_experiment(data_dict)
@@ -5808,28 +6126,54 @@ class TestGetExpByExpId(TestCase):
                     'exp_name': 'Number Systems',
                     'exp_id': 'EE99777',
                     'overview': 'This is linked list experiment',
-                    'assets': ['vlabs.ac.in/images/static/logo.png'], 
+                    'assets': [{'path':'vlabs.ac.in/images/static/logo.png',
+                                    'asset_type': 'image'},
+                                {'path':'vlabs.ac.in/images/static/image.png',
+                                    'asset_type': 'image'}],
                     'integration_level': 4,
                     'sections': [],
                     'key': KEY,
                     'inst_id': 'IITK',
                     'dis_id': 'CSE',
-                    'developers': ['abc@gmail.com'],
-                    'hosting_info': ['http://cse14-iiith.vlabs.ac.in']
+                    'developers': [{'name':'Prof. Dharamaja',
+                                    'email': 'abc@gmail.com',
+                                    'inst_id': 'IITK', 'dis_id': 'CSE'},
+                                    {'name':'Prof. Pallavi Pawar',
+                                    'email': 'pallavi.pawar@gmail.com',
+                                    'inst_id': 'IITK', 'dis_id': 'CSE'}],
+                    'hosting_info': [{'hosted_url':'http://cse14-iiith.vlabs.ac.in',
+                                    'hosting_status': 'hosted',
+                                    'hosted_on': 'cloud'},
+                                    {'hosted_url':'http://iitkgp.vlab.co.in/',
+                                    'hosting_status': 'hosted',
+                                    'hosted_on': 'server'}]
                    }
 
         data_dict1 = {
                     'exp_name': 'Binary Systems',
                     'exp_id': 'EE99778',
                     'overview': 'This is linked list experiment',
-                    'assets': ['vlabs.ac.in/images/static/logo.png'], 
+                    'assets': [{'path':'vlabs.ac.in/images/static/logo.png',
+                                    'asset_type': 'image'},
+                                {'path':'vlabs.ac.in/images/static/image.png',
+                                    'asset_type': 'image'}],
                     'integration_level': 4,
                     'sections': [],
                     'key': KEY,
                     'inst_id': 'IITK',
                     'dis_id': 'CSE',
-                    'developers': ['abc@gmail.com'],
-                    'hosting_info': ['http://cse14-iiith.vlabs.ac.in']
+                    'developers': [{'name':'Prof. Dharamaja',
+                                    'email': 'abc@gmail.com',
+                                    'inst_id': 'IITK', 'dis_id': 'CSE'},
+                                    {'name':'Prof. Pallavi Pawar',
+                                    'email': 'pallavi.pawar@gmail.com',
+                                    'inst_id': 'IITK', 'dis_id': 'CSE'}],
+                    'hosting_info': [{'hosted_url':'http://cse14-iiith.vlabs.ac.in',
+                                    'hosting_status': 'hosted',
+                                    'hosted_on': 'cloud'},
+                                    {'hosted_url':'http://iitkgp.vlab.co.in/',
+                                    'hosting_status': 'hosted',
+                                    'hosted_on': 'server'}]
                    }
 
         exp = SystemInterface.add_experiment(data_dict)
