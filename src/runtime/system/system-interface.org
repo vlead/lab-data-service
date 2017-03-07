@@ -344,7 +344,6 @@ class TestAddLab(TestCase):
         discipline_cls = System.delegate.entities['discipline']
         developer_cls = System.delegate.entities['developer']
         name_cls = System.delegate.entities['name']
-        asset_cls = System.delegate.entities['asset']
         email_cls = System.delegate.entities['email']
         asset_cls = System.delegate.entities['asset']
         session = session_cls(key=data_dict['key'])
@@ -378,9 +377,12 @@ class TestAddLab(TestCase):
             name = name_cls(name=developer_x['name'])
             email = email_cls(email=developer_x['email'])
             developer = System.do("get_developer", email=email)
+            institute = System.do("get_institute", inst_id=developer_x['inst_id'])
+            discipline = System.do("get_discipline", dis_id=developer_x['dis_id'])
             if developer is None:
-                developer = developer_cls(name=name, email=email)
-            
+                developer = developer_cls(name=name, email=email,
+                                              institute=institute,
+                                              discipline=discipline)
                 developer = System.do("add_developer", developer=developer,
                                           session=session)
             developer_list.append(developer)
@@ -388,8 +390,7 @@ class TestAddLab(TestCase):
         hosting_info = data_dict['hosting_info']
         hosting_info_list = []
         for hosting_info in hosting_info:
-            hosting_info = System.do("get_hosting_info",
-                                         hosted_url=hosting_info)
+            hosting_info = System.do("get_hosting_info", hosted_url=hosting_info)
             hosting_info_list.append(hosting_info)
 
         experiment = experiment_cls(exp_name=data_dict['exp_name'],
