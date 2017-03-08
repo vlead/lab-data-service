@@ -962,10 +962,11 @@ class TestUpdateExperiment(TestCase):
         session = session_cls(key=key)
         
         exp2 = System.do("update_experiment", exp_name=exp_name1,
-                            overview=overview1, experiment=experiment,
-                            institute=inst1, session=session, 
-                            discipline=discipline1, hosting_info=[host1], 
-                            integration_status=integration_status1)
+                            overview=overview1, institute=inst1, 
+                            session=session, discipline=discipline1,
+                            integration_status=integration_status1, 
+                            hosting_info=[host1], 
+                            developers=[dev1], assets=[asset1])
         exp2 = exp_cls.get_by_id(1)
         
         self.assertEqual(exp2.get("exp_name"), exp_name1)
@@ -980,6 +981,10 @@ class TestUpdateExperiment(TestCase):
                              integration_status1.get("integration_level"))
         self.assertEqual(exp2.get("hosting_info")[0].get("hosted_url"), 
                               hosted_url1)
+        self.assertEqual(exp2.get("developer")[0].get("email").get("email"), 
+                              email_id1)
+        self.assertEqual(exp2.get("asset")[0].get("path"), 
+                              path1)
             
 #+END_SRC
       
@@ -1032,7 +1037,7 @@ class TestUpdateInstitute(TestCase):
 #+END_SRC
 
 
-* Test UpdateDiscipline 
+ * Test UpdateDiscipline 
 #+NAME: test_update_discipline
 #+BEGIN_SRC python
 class TestUpdateDisciplilne(TestCase):
