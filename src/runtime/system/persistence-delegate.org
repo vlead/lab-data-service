@@ -1159,16 +1159,15 @@ class TestPersistenceDelegate(TestCase):
 #+NAME: persistence_update_lab
 #+BEGIN_SRC python
     def update_lab(self, lab, lab_name, overview, institute, discipline,
-                         integration_status, hosting_info):
-        lab.set(lab_name=lab_name, overview=overview, institute=institute, \
+                         integration_status, hosting_info, developers, assets):
+        lab.set(lab_name=lab_name, overview=overview, institute=institute, 
                     discipline=discipline, hosting_info=hosting_info,
-                    integration_status=integration_status)
+                    integration_status=integration_status,
+                    developers=developers, assets=assets)
         lab.save()
         return lab
 
 #+END_SRC
-
-  
 **** Tests
 #+NAME: test_persistence_update_lab
 #+BEGIN_SRC python
@@ -1217,8 +1216,8 @@ class TestPersistenceDelegate(TestCase):
          host.save()
 
          lab = Lab(lab_name=lab_name, lab_id=lab_id, overview=overview, 
-                       institute=inst, discipline=discipline,
-                       hosting_info=[host], assets=[asset], 
+                       institute=inst, discipline=discipline, 
+                       assets=[asset], hosting_info=[host],
                        experiments=experiments, developers=[dev], 
                        integration_status=integration_status) 
 
@@ -1251,9 +1250,22 @@ class TestPersistenceDelegate(TestCase):
                                  hosted_on=hosted_on1)
          host1.save()
 
+         dev_name1 = Name(name="Tahiliani")
+         dev_name1.save()
+         email_id1 = Email(email="tahiliani@gmail.com")
+         email_id1.save()
+         dev1 = Developer(name=dev_name1, email=email_id1,
+                         institute=inst1, discipline=discipline1)
+         dev1.save()
+
+         asset_type1 = "Image"
+         path1 = "vlabs.ac.in/images/static/image.png"
+         asset1 = Asset(asset_type=asset_type1, path=path1)
+         asset1.save()
+
          lab2 = self.persistence_delegate.update_lab\
            (lab1, lab_name1, overview1, inst1, discipline1,
-                integration_status1, [host1]),
+                integration_status1, [host1], [dev1], [asset1]),
          lab2 = Lab.get_by_id(1)
 
          self.assertEqual(lab2.get("lab_id"), lab_id)
@@ -1269,6 +1281,11 @@ class TestPersistenceDelegate(TestCase):
 
          self.assertEqual(lab2.get("hosting_info")[0].get("hosted_url"), 
                               hosted_url1)
+         self.assertEqual(lab2.get("developers")[0].get("email").get("email"), 
+                              email_id1.get("email"))
+         self.assertEqual(lab2.get("assets")[0].get("path"),
+                              asset1.get("path"))
+
 
 #+END_SRC
 
@@ -1278,11 +1295,13 @@ class TestPersistenceDelegate(TestCase):
 #+NAME: persistence_update_experiment
 #+BEGIN_SRC python
     def update_experiment(self, experiment, exp_name, overview, institute, 
-                          discipline, integration_status, hosting_info):
+                          discipline, integration_status, hosting_info,
+                          developers, assets):
         experiment.set(exp_name=exp_name, overview=overview,
                            institute=institute, discipline=discipline,
                            integration_status=integration_status, 
-                           hosting_info=hosting_info)
+                           hosting_info=hosting_info, 
+                           developers=developers, assets=assets)
         experiment.save()
         return experiment
 
@@ -1386,7 +1405,8 @@ class TestPersistenceDelegate(TestCase):
 
          exp2 = self.persistence_delegate.update_experiment(exp1, exp_name1,
                                          overview1, inst1, discipline1,
-                                         integration_status1, [host1])
+                                         integration_status1, [host1], 
+                                         [dev1], [asset1])
          exp2 = Experiment.get_by_id(1)
 
          self.assertEqual(exp2.get("exp_name"), exp_name1)
@@ -1401,6 +1421,10 @@ class TestPersistenceDelegate(TestCase):
                               integration_status1.get("integration_level"))
          self.assertEqual(exp2.get("hosting_info")[0].get("hosted_url"), 
                               hosted_url1)
+         self.assertEqual(exp2.get("developers")[0].get("email").get("email"), 
+                              email_id1.get("email"))
+         self.assertEqual(exp2.get("assets")[0].get("path"),
+                              asset1.get("path"))
 
 
 #+END_SRC
