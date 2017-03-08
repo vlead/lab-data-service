@@ -67,7 +67,7 @@ class TestPersistenceDelegate(TestCase):
 
    Other functions that help =System= perform the operations. 
   
-***  Check if entity already exists 
+*** Check if entity already exists 
     The following three functions checks whether the given entity exists or
     not. To optimize the code, apply the following three principles:
 
@@ -454,7 +454,7 @@ class TestPersistenceDelegate(TestCase):
 #+END_SRC
 
 
-***  Check if =Discipline= already exists
+*** Check if =Discipline= already exists
     This function checks if a discipline is already in the discipline-set of the =System=.
 #+NAME: persistence_discipline_exists
 #+BEGIN_SRC python
@@ -602,7 +602,7 @@ class TestPersistenceDelegate(TestCase):
 #+END_SRC
 
 
-***  Add lab to the system
+*** Add lab to the system
     This function adds lab to the system.
 #+NAME: persistence_add_lab
 #+BEGIN_SRC python
@@ -696,7 +696,7 @@ class TestPersistenceDelegate(TestCase):
 #+END_SRC
 
 
-***  Add experiment to the system
+*** Add experiment to the system
 
     This function adds experiment to the system.
 #+NAME: persistence_add_experiment
@@ -783,7 +783,7 @@ class TestPersistenceDelegate(TestCase):
 #+END_SRC
 
 
-***  Add discipline to the system
+*** Add discipline to the system
     This function adds discipline to the system.
 #+NAME: persistence_add_discipline
 #+BEGIN_SRC python
@@ -819,7 +819,7 @@ class TestPersistenceDelegate(TestCase):
 
 
 
-***  Add section to the system
+*** Add section to the system
     This function adds section to the system.
 #+NAME: persistence_add_section
 #+BEGIN_SRC python
@@ -844,7 +844,7 @@ class TestPersistenceDelegate(TestCase):
 #+END_SRC
 
 
-***  Add name to the system
+*** Add name to the system
     This function adds name to the system.
 #+NAME: persistence_add_name
 #+BEGIN_SRC python
@@ -869,7 +869,7 @@ class TestPersistenceDelegate(TestCase):
 #+END_SRC
 
 
-***  Add email to the system
+*** Add email to the system
     This function adds email to the system.
 #+NAME: persistence_add_email
 #+BEGIN_SRC python
@@ -894,7 +894,7 @@ class TestPersistenceDelegate(TestCase):
 #+END_SRC
 
 
-***  Add developer to the system
+*** Add developer to the system
     This function adds developer to the system.
 #+NAME: persistence_add_developer
 #+BEGIN_SRC python
@@ -1163,10 +1163,10 @@ class TestPersistenceDelegate(TestCase):
 #+NAME: persistence_update_lab
 #+BEGIN_SRC python
     def update_lab(self, lab, lab_name, overview, institute, discipline,
-                         integration_status):
-        lab.set(lab_name=lab_name, overview=overview, institute=institute,
-                    discipline=discipline,
-                integration_status=integration_status)
+                         integration_status, hosting_info):
+        lab.set(lab_name=lab_name, overview=overview, institute=institute, \
+                    discipline=discipline, hosting_info=hosting_info,
+                    integration_status=integration_status)
         lab.save()
         return lab
 
@@ -1247,9 +1247,17 @@ class TestPersistenceDelegate(TestCase):
                                                      integration_level1)
          integration_status1.save()
 
+         hosting_status1 = "hosted"
+         hosted_url1 = "http://cse13-iiith.vlabs.ac.in"
+         hosted_on1 = "cloud"
+         host1 = HostingInfo(hosting_status=hosting_status1,
+                                 hosted_url=hosted_url1,
+                                 hosted_on=hosted_on1)
+         host1.save()
+
          lab2 = self.persistence_delegate.update_lab\
            (lab1, lab_name1, overview1, inst1, discipline1,
-                integration_status1),
+                integration_status1, [host1]),
          lab2 = Lab.get_by_id(1)
 
          self.assertEqual(lab2.get("lab_id"), lab_id)
@@ -1262,6 +1270,9 @@ class TestPersistenceDelegate(TestCase):
          self.assertEqual(lab2.get("integration_status").
                               get("integration_level"), 
                               integration_status1.get("integration_level"))
+
+         self.assertEqual(lab2.get("hosting_info")[0].get("hosted_url"), 
+                              hosted_url1)
 
 #+END_SRC
 

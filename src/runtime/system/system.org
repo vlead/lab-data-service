@@ -528,8 +528,9 @@ class AddIntegration_Status():
 #+begin_src python
 class UpdateLab():
     arg_types = {"lab": is_lab, "lab_name": is_str,
-                     "overview" : is_str, "session": is_session, 
-                     "institute" : is_institute, "discipline" : is_discipline, 
+                     "overview" : is_str, "session": is_session,
+                     "institute" : is_institute, "discipline" : is_discipline,
+                     "hosting_info": are_hosting_info,
                      "integration_status" : is_integration_status}
     arity_and_type_checks_needed = True
 
@@ -554,8 +555,10 @@ class UpdateLab():
         institute = args["institute"]
         discipline = args["discipline"]
         integration_status = args["integration_status"]
+        hosting_info = args["hosting_info"]
         lab = System.delegate.update_lab(lab, lab_name, overview, institute,
-                                         discipline, integration_status)
+                                         discipline, integration_status,
+                                         hosting_info)
         return lab
 
 #+end_src
@@ -1289,12 +1292,8 @@ class GetDiscipline():
 
     @staticmethod
     def state_check(args):
-        dis_id = args['dis_id']
-        discipline = System.delegate.get_discipline(dis_id=dis_id)    
-        if not System.delegate.discipline_exists(discipline):
-            raise StateError("discipline %s does not exists in System"
-                                 % discipline.to_client())
-        
+        pass
+
     @staticmethod
     def action(args):
         dis_id = args["dis_id"]
@@ -1903,7 +1902,8 @@ from runtime.objects.entities import is_str, is_lab, are_labs,\
      is_date, is_session, is_section, is_int, is_experiment,\
      are_experiments, are_sections, is_name, is_email, is_developer,\
      is_institute, are_institutes, is_discipline, are_disciplines,\
-     is_url, is_hosting_info, is_integration_status, is_asset, are_assets
+     is_url, is_hosting_info, is_integration_status, is_asset, are_assets,\
+     are_hosting_info
 
 from runtime.utils.type_utils import is_str_or_none
 from runtime.config.system_config import KEY
