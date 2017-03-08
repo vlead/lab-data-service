@@ -4386,7 +4386,7 @@ class TestUpdateLab(TestCase):
                                     'hosted_on': 'cloud'},
                                     {'hosted_url':'http://iitk.vlab.co.in/',
                                     'hosting_status': 'hosted',
-                                    'hosted_on': 'server'}],
+                                    'hosted_on': 'server'}]
 
                    }
 
@@ -4421,6 +4421,7 @@ class TestUpdateLab(TestCase):
         exp_cls = System.delegate.entities['experiment']
         institute_cls = System.delegate.entities['institute']
         discipline_cls = System.delegate.entities['discipline']
+        hosting_info_cls = System.delegate.entities['hosting_info']
         session = session_cls(key=str(data_dict['key']))
         exp_id = str(data_dict['exp_id'])
         experiment = System.do("get_experiment", exp_id=exp_id)
@@ -4453,13 +4454,24 @@ class TestUpdateLab(TestCase):
             integration_status= System.do("get_integration_status_by_IL", 
                       integration_level=data_dict['integration_level'])
 
+        hosting_info = data_dict['hosting_info']
+        hosting_info_list = []
+        for hosting_info_x in hosting_info:
+            hosting_info = System.do("get_hosting_info", hosted_url=hosting_info_x['hosted_url'])
+            if hosting_info is None:
+                hosting_info = hosting_info_cls(hosting_status=str(hosting_info_x['hosting_status']), \
+                                      hosted_url=str(hosting_info_x['hosted_url']), hosted_on=str(hosting_info_x['hosted_on']))
+                hosting_info = System.do("add_hosting_info", hosting_info=hosting_info, session=session)
+            hosting_info_list.append(hosting_info)
+
         try:
             current_app.logger.debug("running operation update_experiment")
             exp = System.do("update_experiment", exp_name=exp_name, 
                                     experiment=experiment, overview=overview,
                                     session=session, institute=institute, 
                                     discipline=discipline, 
-                                    integration_status=integration_status)
+                                    integration_status=integration_status,
+                                    hosting_info=hosting_info_list)
             current_app.logger.debug("completed operation update_experiment")
             return exp.to_client()
         except (ArityError, TypeError, NotAuthorizedError, StateError) as err:
@@ -4613,12 +4625,29 @@ class TestUpdateExperiment(TestCase):
                     'overview': 'overview',
                     'inst_id': 'IITKgp',
                     'dis_id': 'ECE',
-                    'integration_level': 3
+                    'integration_level': 3,
+                    'hosting_info': [{'hosted_url':'http://cse13-iiith.vlabs.ac.in',
+                                    'hosting_status': 'hosted',
+                                    'hosted_on': 'cloud'},
+                                    {'hosted_url':'http://iitk.vlab.co.in/',
+                                    'hosting_status': 'hosted',
+                                    'hosted_on': 'server'}]
                    }
       
         exp1 = SystemInterface.update_experiment(data_dict1)
         
         self.assertEqual(exp1.get("exp_name"), data_dict1['exp_name'])
+        self.assertEqual(exp1.get("institute").get("inst_id"),
+                             data_dict1['inst_id'])
+        self.assertEqual(exp1.get("discipline").get("dis_id"),
+                             data_dict1['dis_id'])
+        self.assertEqual(exp1.get("integration_status").\
+                             get("integration_level"),
+                             data_dict1['integration_level'])
+        self.assertEqual(exp1.get("hosting_info")[0].get("hosted_url"), 
+                             data_dict1['hosting_info'][0]['hosted_url'])
+        self.assertEqual(exp1.get("hosting_info")[1].get("hosted_url"), 
+                             data_dict1['hosting_info'][1]['hosted_url'])
 
  #+END_SRC
 
