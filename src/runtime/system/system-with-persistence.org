@@ -52,19 +52,19 @@ class TestAddLab(TestCase):
         integration_status = integration_status_cls(integration_level=integration_level)
         integration_status.save()
 
-        inst_name = "IIT Kanpur"
-        inst_id = "IITK"
-        inst = institute_cls(inst_name=inst_name, inst_id=inst_id)
-        inst.save()
-
         asset_type = "Image"
         path = "vlabs.ac.in/images/static/logo.png"
         asset = asset_cls(asset_type=asset_type, path=path)
         asset.save()
 
+        inst_name = "IIT Kanpur"
+        inst_id = "IITK"
+        inst = institute_cls(inst_name=inst_name, inst_id=inst_id, assets=[asset])
+        inst.save()
+
         dis_name = "IIT Kanpur"
         dis_id = "IITK"
-        discipline = discipline_cls(dis_name=dis_name, dis_id=dis_id)
+        discipline = discipline_cls(dis_name=dis_name, dis_id=dis_id, assets=[asset])
         discipline.save()
 
         dev_name = name_cls(name="Mohit Tahiliani")
@@ -140,14 +140,19 @@ class TestAddExperiment(TestCase):
         developer_cls = System.delegate.entities['developer']
         hosting_info_cls = System.delegate.entities['hosting_info']
 
+        asset_type = "Image"
+        path = "vlabs.ac.in/images/static/logo.png"
+        asset = asset_cls(asset_type=asset_type, path=path)
+        asset.save()
+
         inst_name = "IIT Kanpur"
         inst_id = "IITK"
-        inst = institute_cls(inst_name=inst_name, inst_id=inst_id)
+        inst = institute_cls(inst_name=inst_name, inst_id=inst_id, assets=[asset])
         inst.save()
 
         dis_name = "IIT Kanpur"
         dis_id = "IITK"
-        discipline = discipline_cls(dis_name=dis_name, dis_id=dis_id)
+        discipline = discipline_cls(dis_name=dis_name, dis_id=dis_id, assets=[asset])
         discipline.save()
 
         dev_name = name_cls(name="Mohit Tahiliani")
@@ -171,11 +176,6 @@ class TestAddExperiment(TestCase):
         integration_level = 4
         integration_status = integration_status_cls(integration_level=integration_level)
         integration_status.save()
-
-        asset_type = "Image"
-        path = "vlabs.ac.in/images/static/logo.png"
-        asset = asset_cls(asset_type=asset_type, path=path)
-        asset.save()
 
         experiment = experiment_cls(exp_name=exp_name, exp_id=exp_id,
                                         overview=overview, sections=[],
@@ -217,10 +217,16 @@ class TestAddInstitute(TestCase):
         print "test_add_institute_in_system_persistence"
         session_cls = System.delegate.entities['session']
         institute_cls = System.delegate.entities['institute']
+        asset_cls = System.delegate.entities['asset']
+
+        asset_type = "Image"
+        path = "vlabs.ac.in/images/static/logo.png"
+        asset = asset_cls(asset_type=asset_type, path=path)
+        asset.save()
 
         inst_name = "IIT Kanpur"
         inst_id = "IITK"
-        institute = institute_cls(inst_name=inst_name, inst_id=inst_id)
+        institute = institute_cls(inst_name=inst_name, inst_id=inst_id, assets=[asset])
                                        
         key = KEY
         session = session_cls(key=key)
@@ -253,10 +259,16 @@ class TestAddDiscipline(TestCase):
         print "test_add_discipline_in_system_persistence"
         session_cls = System.delegate.entities['session']
         discipline_cls = System.delegate.entities['discipline']
+        asset_cls = System.delegate.entities['asset']
+
+        asset_type = "Image"
+        path = "vlabs.ac.in/images/static/logo.png"
+        asset = asset_cls(asset_type=asset_type, path=path)
+        asset.save()
 
         dis_name = "arrays"
         dis_id = "cse02"
-        discipline = discipline_cls(dis_name=dis_name, dis_id=dis_id)
+        discipline = discipline_cls(dis_name=dis_name, dis_id=dis_id, assets=[asset])
 
         key = KEY
         session = session_cls(key=key)
@@ -304,14 +316,19 @@ class TestAddSectionsToExperiment(TestCase):
         host = hosting_info_cls(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
         host.save()
 
+        asset_type = "Image"
+        path = "vlabs.ac.in/images/static/logo.png"
+        asset = asset_cls(asset_type=asset_type, path=path)
+        asset.save()
+
         inst_name = "IIT Kanpur"
         inst_id = "IITK"
-        inst = institute_cls(inst_name=inst_name, inst_id=inst_id)
+        inst = institute_cls(inst_name=inst_name, inst_id=inst_id, assets=[asset])
         inst.save()
 
         dis_name = "computer science"
         dis_id = "cse"
-        discipline = discipline_cls(dis_name=dis_name, dis_id=dis_id)
+        discipline = discipline_cls(dis_name=dis_name, dis_id=dis_id, assets=[asset])
         discipline.save()
 
         dev_name = name_cls(name="Mohit Tahiliani")
@@ -325,11 +342,6 @@ class TestAddSectionsToExperiment(TestCase):
         integration_level = 4
         integration_status = integration_status_cls(integration_level=integration_level)
         integration_status.save()
-
-        asset_type = "Image"
-        path = "vlabs.ac.in/images/static/logo.png"
-        asset = asset_cls(asset_type=asset_type, path=path)
-        asset.save()
      
         exp_name = "arrays"
         exp_id = "cse02"
@@ -388,9 +400,14 @@ class TestAddLabsToInstitute(TestCase):
         lab_cls = System.delegate.entities['lab']
         institute_cls = System.delegate.entities['institute']
 
+        asset_type = "Image"
+        path = "vlabs.ac.in/images/static/logo.png"
+        asset = asset_cls(asset_type=asset_type, path=path)
+        asset.save()
+
         inst_name = "arrays"
         inst_id = "cse02"
-        institute = institute_cls(inst_name=inst_name, inst_id=inst_id)
+        institute = institute_cls(inst_name=inst_name, inst_id=inst_id, assets=[asset])
                                         
         key = KEY
         session = session_cls(key=key)
@@ -576,15 +593,21 @@ class TestAddDeveloper(TestCase):
         name_cls = System.delegate.entities['name']
         institute_cls = System.delegate.entities['institute']
         discipline_cls = System.delegate.entities['discipline']
+        asset_cls = System.delegate.entities['asset']
+ 
+        asset_type = "Image"
+        path = "vlabs.ac.in/images/static/logo.png"
+        asset = asset_cls(asset_type=asset_type, path=path)
+        asset.save()
 
         inst_name = "IIT Kanpur"
         inst_id = "IITK"
-        inst = institute_cls(inst_name=inst_name, inst_id=inst_id)
+        inst = institute_cls(inst_name=inst_name, inst_id=inst_id, assets=[asset])
         inst.save()
 
         dis_name = "IIT Kanpur"
         dis_id = "IITK"
-        discipline = discipline_cls(dis_name=dis_name, dis_id=dis_id)
+        discipline = discipline_cls(dis_name=dis_name, dis_id=dis_id, assets=[asset])
         discipline.save()
 
         name = name_cls(name="Prof. S. Dharmaraja")
@@ -638,6 +661,132 @@ class TestAddIntegration_Status(TestCase):
 #+END_SRC
 
 
+* Test UpdateLab
+#+NAME: test_update_lab
+#+BEGIN_SRC python
+class TestUpdateLabt(TestCase):
+    TESTING = True
+
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_update_lab(self):
+        
+        print "test_update_lab_in_system_persistence"
+        session_cls = System.delegate.entities['session']
+        exp_cls = System.delegate.entities['experiment']
+        integration_status_cls = System.delegate.entities['integration_status']
+        asset_cls = System.delegate.entities['asset']
+        name_cls = System.delegate.entities['name']
+        email_cls = System.delegate.entities['email']
+        developer_cls = System.delegate.entities['developer']
+        hosting_info_cls = System.delegate.entities['hosting_info']
+        institute_cls = System.delegate.entities['institute']
+        experiment_cls = System.delegate.entities['experiment']
+        discipline_cls = System.delegate.entities['discipline']
+        lab_cls = System.delegate.entities['lab']
+
+        session = session_cls(key=KEY)
+
+        asset_type = "Image"
+        path = "vlabs.ac.in/images/static/logo.png"
+        asset = asset_cls(asset_type=asset_type, path=path)
+        asset.save()
+
+        inst_name = "IIT Kanpur"
+        inst_id = "IITK"
+        inst = institute_cls(inst_name=inst_name, inst_id=inst_id, assets=[asset])
+        inst.save()
+
+        integration_level = 4
+        integration_status = integration_status_cls(integration_level=integration_level)
+        integration_status.save()
+
+        hosting_status = "hosted"
+        hosted_url = "http://cse14-iiith.vlabs.ac.in"
+        hosted_on = "cloud"
+        host = hosting_info_cls(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
+        host.save()
+
+        dis_name = "IIT Kanpur"
+        dis_id = "IITK"
+        discipline = discipline_cls(dis_name=dis_name, dis_id=dis_id, assets=[asset])
+        discipline.save()
+
+        dev_name = name_cls(name="Mohit Tahiliani")
+        dev_name.save()
+        email_id = email_cls(email="mohit.tahiliani@gmail.com")
+        email_id.save()
+        dev = developer_cls(name=dev_name, email=email_id,
+                            institute=inst, discipline=discipline)
+        dev.save()
+
+        exp_name = "arrays"
+        exp_id = "cse02"
+        overview = "overview"
+        experiment = experiment_cls(exp_name=exp_name, exp_id=exp_id,
+                                     overview=overview, sections=[],
+                                    institute=inst, discipline=discipline,
+                                        integration_status=integration_status, 
+                                        assets=[asset],
+                                        developers=[dev], hosting_info=[host])
+        experiment.save()
+
+        lab_name = "Computer Programming"
+        lab_id = "CSE01"
+        overview = "overview"
+        lab = lab_cls(lab_id=lab_id, lab_name=lab_name,        
+                          institute=inst, discipline=discipline, assets=[asset],                
+                          overview=overview,  integration_status=integration_status, 
+                          experiments=[experiment], developers=[dev], hosting_info=[host])
+        lab.save()
+
+        lab_name1 = "two dimentional arrays"
+        overview1 = "exp overview"
+
+        asset_type1 = "Video"
+        path1 = "vlabs.ac.in/images/video/icon.png"
+        asset1 = asset_cls(asset_type=asset_type1, path=path1)
+        asset1.save()
+
+        inst_name1 = "IIT Kharagpur"
+        inst_id1 = "IITKgp"
+        inst1 = institute_cls(inst_name=inst_name1, inst_id=inst_id1, assets=[asset])
+        inst1.save()
+
+        dis_name1 = "Computer Science & Engineering"
+        dis_id1 = "CSE02"
+        discipline1 = discipline_cls(dis_name=dis_name1, dis_id=dis_id1, assets=[asset])
+        discipline1.save()
+
+        integration_level1 = 2
+        integration_status1 = integration_status_cls(integration_level=integration_level1)
+        integration_status1.save()
+
+        lab1 = System.do("update_lab", lab=lab, lab_name=lab_name1, overview=overview1,
+                          institute=inst1, discipline=discipline1,
+                          integration_status=integration_status1, session=session)
+
+        new_lab = lab_cls.get_by_id(1)
+
+        self.assertEqual(new_lab.get("lab_name"), lab_name1)
+        self.assertEqual(new_lab.get("overview"), overview1)
+        self.assertEqual(new_lab.get("lab_id"), lab_id)
+        self.assertEqual(new_lab.get("institute").get("inst_id"), inst_id1)
+        self.assertEqual(new_lab.get("discipline").get("dis_id"), dis_id1)
+        self.assertEqual(new_lab.get("integration_status").get("integration_level"), integration_level1)
+            
+#+END_SRC
+      
+
 * Test UpdateExperiment
 #+NAME: test_update_experiment
 #+BEGIN_SRC python
@@ -673,19 +822,19 @@ class TestUpdateExperiment(TestCase):
 
         session = session_cls(key=KEY)
 
+        asset_type = "Image"
+        path = "vlabs.ac.in/images/static/logo.png"
+        asset = asset_cls(asset_type=asset_type, path=path)
+        asset.save()
+
         inst_name = "IIT Kanpur"
         inst_id = "IITK"
-        inst = institute_cls(inst_name=inst_name, inst_id=inst_id)
+        inst = institute_cls(inst_name=inst_name, inst_id=inst_id, assets=[asset])
         inst.save()
 
         integration_level = 4
         integration_status = integration_status_cls(integration_level=integration_level)
         integration_status.save()
-
-        asset_type = "Image"
-        path = "vlabs.ac.in/images/static/logo.png"
-        asset = asset_cls(asset_type=asset_type, path=path)
-        asset.save()
 
         hosting_status = "hosted"
         hosted_url = "http://cse14-iiith.vlabs.ac.in"
@@ -693,9 +842,9 @@ class TestUpdateExperiment(TestCase):
         host = hosting_info_cls(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
         host.save()
 
-        dis_name = "IIT Kanpur"
-        dis_id = "IITK"
-        discipline = discipline_cls(dis_name=dis_name, dis_id=dis_id)
+        dis_name = "computer science"
+        dis_id = "cse"
+        discipline = discipline_cls(dis_name=dis_name, dis_id=dis_id, assets=[asset])
         discipline.save()
 
         dev_name = name_cls(name="Mohit Tahiliani")
@@ -711,24 +860,61 @@ class TestUpdateExperiment(TestCase):
         overview = "overview"
         experiment = experiment_cls(exp_name=exp_name, exp_id=exp_id,
                                      overview=overview, sections=[],
-                                    institute=inst, discipline=discipline,
-                                        integration_status=integration_status, 
-                                        assets=[asset],
-                                        developers=[dev], hosting_info=[host])
+                                     institute=inst, discipline=discipline,
+                                     integration_status=integration_status, 
+                                     assets=[asset],developers=[dev],
+                                     hosting_info=[host])
         experiment.save()
 
-        exp_name2 = "two dimentional arrays"
-        overview2 = "exp overview"
+        exp_name1 = "Computer Programming"
+        overview1 = "overveiw exp"
 
-        exp1 = System.do("update_experiment", exp_name=exp_name2,
-                             experiment=experiment, overview=overview2,
-                             session=session)
+        asset_type1 = "Video"
+        path1 = "vlabs.ac.in/images/video/icon.png"
+        asset1 = asset_cls(asset_type=asset_type1, path=path1)
+        asset1.save()
+        
+        inst_name1 = "IIT Kharagpur"
+        inst_id1 = "IITKgp"
+        inst1 = institute_cls(inst_name=inst_name1, inst_id=inst_id1, assets=[asset1])
+        inst1.save()
+        
+        dis_name1 = "electronics and communication"
+        dis_id1 = "ece"
+        discipline1 = discipline_cls(dis_name=dis_name1, dis_id=dis_id1, assets=[asset1])
+        discipline1.save()
+        
+        dev_name1 = name_cls(name="Palavi Pawar")
+        dev_name1.save()
+        email_id1 = email_cls(email="pallavipawar@gmail.com")
+        email_id1.save()
+        dev1 = developer_cls(name=dev_name1, email=email_id1,
+                         institute=inst1, discipline=discipline1)
+        dev1.save()
+        
+        integration_level1 = 3
+        integration_status1 = integration_status_cls(integration_level=integration_level1)
+        integration_status1.save()
 
-        new_exp = exp_cls.get_by_id(1)
-
-        self.assertEqual(new_exp.get("exp_name"), exp_name2)
-        self.assertEqual(new_exp.get("overview"), overview2)
-        self.assertEqual(new_exp.get("exp_id"), exp_id)
+        key = KEY
+        session = session_cls(key=key)
+        
+        exp2 = System.do("update_experiment", exp_name=exp_name1,
+                            overview=overview1, experiment=experiment,
+                            institute=inst1, session=session, 
+                            discipline=discipline1,
+                            integration_status=integration_status1)
+        exp2 = exp_cls.get_by_id(1)
+        
+        self.assertEqual(exp2.get("exp_name"), exp_name1)
+        self.assertEqual(exp2.get("overview"), overview1)
+        self.assertEqual(exp2.get("exp_id"), exp_id)
+        self.assertEqual(exp2.get("institute").get("inst_id"), 
+                                    inst1.get("inst_id"))
+        self.assertEqual(exp2.get("discipline").get("dis_id"), 
+                                    discipline1.get("dis_id"))
+        self.assertEqual(exp2.get("integration_status").get("integration_level"), 
+                                    integration_status1.get("integration_level"))
             
 #+END_SRC
       
@@ -755,12 +941,18 @@ class TestUpdateInstitute(TestCase):
         print "test_update_institute_in_system_persistence"
         session_cls = System.delegate.entities['session']
         institute_cls = System.delegate.entities['institute']
+        asset_cls = System.delegate.entities['asset']
+
+        asset_type1 = "Image"
+        path1 = "vlabs.ac.in/images/static/logo.png"
+        asset1 = asset_cls(asset_type=asset_type1, path=path1)
+        asset1.save()
 
         inst_name1="IIT Kanpur"
         inst_id1="IITK"
         key = KEY
         session = session_cls(key=key)
-        institute = institute_cls(inst_id=inst_id1, inst_name=inst_name1)
+        institute = institute_cls(inst_id=inst_id1, inst_name=inst_name1, assets=[asset1])
 
         institute.save()
 
@@ -797,10 +989,16 @@ class TestUpdateDisciplilne(TestCase):
         print "test_update_discipline_in_system_persistence"
         session_cls = System.delegate.entities['session']
         discipline_cls = System.delegate.entities['discipline']
+        asset_cls = System.delegate.entities['asset']
+    
+        asset_type = "Image"
+        path = "vlabs.ac.in/images/static/logo.png"
+        asset = asset_cls(asset_type=asset_type, path=path)
+        asset.save()
 
         dis_name = "arrays"
         dis_id = "cse02"
-        discipline = discipline_cls(dis_name=dis_name, dis_id=dis_id)
+        discipline = discipline_cls(dis_name=dis_name, dis_id=dis_id, assets=[asset])
         discipline.save()
         key = KEY
         session = session_cls(key=key)
@@ -924,14 +1122,19 @@ class TestDeleteExperiment(TestCase):
         host = hosting_info_cls(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
         host.save()
 
+        asset_type = "Image"
+        path = "vlabs.ac.in/images/static/logo.png"
+        asset = asset_cls(asset_type=asset_type, path=path)
+        asset.save()
+
         inst_name = "IIT Kanpur"
         inst_id = "IITK"
-        inst = institute_cls(inst_name=inst_name, inst_id=inst_id)
+        inst = institute_cls(inst_name=inst_name, inst_id=inst_id, assets=[asset])
         inst.save()
 
         dis_name = "computer science"
         dis_id = "cse"
-        discipline = discipline_cls(dis_name=dis_name, dis_id=dis_id)
+        discipline = discipline_cls(dis_name=dis_name, dis_id=dis_id, assets=[asset])
         discipline.save()
 
         dev_name = name_cls(name="Mohit Tahiliani")
@@ -945,11 +1148,6 @@ class TestDeleteExperiment(TestCase):
         integration_level = 4
         integration_status = integration_status_cls(integration_level=integration_level)
         integration_status.save()
-
-        asset_type = "Image"
-        path = "vlabs.ac.in/images/static/logo.png"
-        asset = asset_cls(asset_type=asset_type, path=path)
-        asset.save()
 
         exp_name = "arrays"
         exp_id = "cse02"
@@ -997,16 +1195,23 @@ class TestUpdateDeveloper(TestCase):
         dev_cls = System.delegate.entities['developer']
         institute_cls = System.delegate.entities['institute']
         discipline_cls = System.delegate.entities['discipline']
+        asset_cls = System.delegate.entities['asset']
 
         session = session_cls(key=KEY)
+
+        asset_type = "Image"
+        path = "vlabs.ac.in/images/static/logo.png"
+        asset = asset_cls(asset_type=asset_type, path=path)
+        asset.save()     
+
         inst_name = "IIT Kanpur"
         inst_id = "IITK"
-        inst = institute_cls(inst_name=inst_name, inst_id=inst_id)
+        inst = institute_cls(inst_name=inst_name, inst_id=inst_id, assets=[asset])
         inst.save()
 
-        dis_name = "IIT Kanpur"
-        dis_id = "IITK"
-        discipline = discipline_cls(dis_name=dis_name, dis_id=dis_id)
+        dis_name = "computer science"
+        dis_id = "cse"
+        discipline = discipline_cls(dis_name=dis_name, dis_id=dis_id, assets=[asset])
         discipline.save()
 
         dev_name = name_cls(name="Prof. Dharmaraja")
@@ -1052,12 +1257,18 @@ class TestDeleteInstitute(TestCase):
         print "test_delete_institute_in_system_persistence"
         session_cls = System.delegate.entities['session']
         institute_cls = System.delegate.entities['institute']
+        asset_cls = System.delegate.entities['asset']
+
+        asset_type = "Image"
+        path = "vlabs.ac.in/images/static/logo.png"
+        asset = asset_cls(asset_type=asset_type, path=path)
+        asset.save()
 
         inst_name= "IIT Kanpur"
         inst_id= "IITK"
         key = KEY
         session = session_cls(key=key)
-        institute = institute_cls(inst_id=inst_id, inst_name=inst_name)
+        institute = institute_cls(inst_id=inst_id, inst_name=inst_name, assets=[asset])
                          
         institute.save()
         institute = System.do("delete_institute", inst_id = inst_id,
@@ -1140,19 +1351,19 @@ class TestDeleteLab(TestCase):
         integration_status = integration_status_cls(integration_level=integration_level)
         integration_status.save()
 
-        inst_name = "IIT Kanpur"
-        inst_id = "IITK"
-        inst = institute_cls(inst_name=inst_name, inst_id=inst_id)
-        inst.save()
-
         asset_type = "Image"
         path = "vlabs.ac.in/images/static/logo.png"
         asset = asset_cls(asset_type=asset_type, path=path)
         asset.save()
-        
+
+        inst_name = "IIT Kanpur"
+        inst_id = "IITK"
+        inst = institute_cls(inst_name=inst_name, inst_id=inst_id, assets=[asset])
+        inst.save()
+
         dis_name = "IIT Kanpur"
         dis_id = "IITK"
-        discipline = discipline_cls(dis_name=dis_name, dis_id=dis_id)
+        discipline = discipline_cls(dis_name=dis_name, dis_id=dis_id, assets=[asset])
         discipline.save()
 
         dev_name = name_cls(name="Mohit Tahiliani")
@@ -1258,10 +1469,16 @@ class TestDeleteDiscipline(TestCase):
         print "test_delete_discipline_in_system_persistence"
         session_cls = System.delegate.entities['session']
         discipline_cls = System.delegate.entities['discipline']
+        asset_cls = System.delegate.entities['asset']
+
+        asset_type = "Image"
+        path = "vlabs.ac.in/images/static/logo.png"
+        asset = asset_cls(asset_type=asset_type, path=path)
+        asset.save()
 
         dis_name = "arrays"
         dis_id = "cse02"
-        discipline = discipline_cls(dis_name=dis_name, dis_id=dis_id)
+        discipline = discipline_cls(dis_name=dis_name, dis_id=dis_id, assets=[asset])
         discipline.save()
         key = KEY
         session = session_cls(key=key)
@@ -1300,15 +1517,21 @@ class TestDeleteDeveloper(TestCase):
         developer_cls = System.delegate.entities['developer']
         institute_cls = System.delegate.entities['institute']
         discipline_cls = System.delegate.entities['discipline']
+        asset_cls = System.delegate.entities['asset']
+
+        asset_type = "Image"
+        path = "vlabs.ac.in/images/static/logo.png"
+        asset = asset_cls(asset_type=asset_type, path=path)
+        asset.save()
 
         inst_name = "IIT Kanpur"
         inst_id = "IITK"
-        inst = institute_cls(inst_name=inst_name, inst_id=inst_id)
+        inst = institute_cls(inst_name=inst_name, inst_id=inst_id, assets=[asset])
         inst.save()
 
-        dis_name = "IIT Kanpur"
-        dis_id = "IITK"
-        discipline = discipline_cls(dis_name=dis_name, dis_id=dis_id)
+        dis_name = "computer science"
+        dis_id = "cse"
+        discipline = discipline_cls(dis_name=dis_name, dis_id=dis_id, assets=[asset])
         discipline.save()
 
         dev_name = name_cls(name="Prof. Dharmaraj")
@@ -1442,24 +1665,24 @@ class TestGetLab(TestCase):
         lab_id1="CSE01"
         overview = "overview"
 
+        asset_type = "Image"
+        path = "vlabs.ac.in/images/static/logo.png"
+        asset = asset_cls(asset_type=asset_type, path=path)
+        asset.save()
+
         inst_name = "IIT Kanpur"
         inst_id = "IITK"
-        inst = institute_cls(inst_name=inst_name, inst_id=inst_id)
+        inst = institute_cls(inst_name=inst_name, inst_id=inst_id, assets=[asset])
         inst.save()
 
         integration_level = 4
         integration_status = integration_status_cls(integration_level=integration_level)
         integration_status.save()
 
-        dis_name = "IIT Kanpur"
-        dis_id = "IITK"
-        discipline = discipline_cls(dis_name=dis_name, dis_id=dis_id)
+        dis_name = "computer science"
+        dis_id = "cse"
+        discipline = discipline_cls(dis_name=dis_name, dis_id=dis_id, assets=[asset])
         discipline.save()
-
-        asset_type = "Image"
-        path = "vlabs.ac.in/images/static/logo.png"
-        asset = asset_cls(asset_type=asset_type, path=path)
-        asset.save()
 
         dev_name = name_cls(name="Mohit Tahiliani")
         dev_name.save()
@@ -1527,9 +1750,14 @@ class TestGetLabByInstitute(TestCase):
         lab_id1="CSE01"
         overview = "overview"
 
+        asset_type = "Image"
+        path = "vlabs.ac.in/images/static/logo.png"
+        asset = asset_cls(asset_type=asset_type, path=path)
+        asset.save()
+
         inst_name = "IIT Kanpur"
         inst_id = "IITK"
-        inst = institute_cls(inst_name=inst_name, inst_id=inst_id)
+        inst = institute_cls(inst_name=inst_name, inst_id=inst_id, assets=[asset])
         inst.save()
 
         integration_level = 4
@@ -1538,13 +1766,8 @@ class TestGetLabByInstitute(TestCase):
 
         dis_name = "Computer Science"
         dis_id = "CS"
-        discipline = discipline_cls(dis_name=dis_name, dis_id=dis_id)
+        discipline = discipline_cls(dis_name=dis_name, dis_id=dis_id, assets=[asset])
         discipline.save()
-
-        asset_type = "Image"
-        path = "vlabs.ac.in/images/static/logo.png"
-        asset = asset_cls(asset_type=asset_type, path=path)
-        asset.save()
 
         dev_name = name_cls(name="Mohit Tahiliani")
         dev_name.save()
@@ -1610,9 +1833,14 @@ class TestGetLabByDiscipline(TestCase):
         lab_id1="CSE01"
         overview = "overview"
 
+        asset_type = "Image"
+        path = "vlabs.ac.in/images/static/logo.png"
+        asset = asset_cls(asset_type=asset_type, path=path)
+        asset.save()
+
         inst_name = "IIT Kanpur"
         inst_id = "IITK"
-        inst = institute_cls(inst_name=inst_name, inst_id=inst_id)
+        inst = institute_cls(inst_name=inst_name, inst_id=inst_id, assets=[asset])
         inst.save()
 
         integration_level = 4
@@ -1620,14 +1848,9 @@ class TestGetLabByDiscipline(TestCase):
         integration_status.save()
 
         dis_name = "Computer Science"
-        dis_id = "CS"
-        discipline = discipline_cls(dis_name=dis_name, dis_id=dis_id)
+        dis_id = "cse"
+        discipline = discipline_cls(dis_name=dis_name, dis_id=dis_id, assets=[asset])
         discipline.save()
-
-        asset_type = "Image"
-        path = "vlabs.ac.in/images/static/logo.png"
-        asset = asset_cls(asset_type=asset_type, path=path)
-        asset.save()
 
         dev_name = name_cls(name="Mohit Tahiliani")
         dev_name.save()
@@ -1695,24 +1918,24 @@ class TestGetLabByLabName(TestCase):
         lab_id1="CSE01"
         overview = "overview"
 
+        asset_type = "Image"
+        path = "vlabs.ac.in/images/static/logo.png"
+        asset = asset_cls(asset_type=asset_type, path=path)
+        asset.save()
+
         inst_name = "IIT Kanpur"
         inst_id = "IITK"
-        inst = institute_cls(inst_name=inst_name, inst_id=inst_id)
+        inst = institute_cls(inst_name=inst_name, inst_id=inst_id, assets=[asset])
         inst.save()
 
         integration_level = 4
         integration_status = integration_status_cls(integration_level=integration_level)
         integration_status.save()
 
-        dis_name = "IIT Kanpur"
-        dis_id = "IITK"
-        discipline = discipline_cls(dis_name=dis_name, dis_id=dis_id)
+        dis_name = "computer science"
+        dis_id = "cse"
+        discipline = discipline_cls(dis_name=dis_name, dis_id=dis_id, assets=[asset])
         discipline.save()
-
-        asset_type = "Image"
-        path = "vlabs.ac.in/images/static/logo.png"
-        asset = asset_cls(asset_type=asset_type, path=path)
-        asset.save()
 
         dev_name = name_cls(name="Mohit Tahiliani")
         dev_name.save()
@@ -1776,9 +1999,14 @@ class TestGetLabByAsset(TestCase):
         lab_id1="CSE01"
         overview = "overview"
 
+        asset_type = "Image"
+        path = "vlabs.ac.in/images/static/logo.png"
+        asset = asset_cls(asset_type=asset_type, path=path)
+        asset.save()
+
         inst_name = "IIT Kanpur"
         inst_id = "IITK"
-        inst = institute_cls(inst_name=inst_name, inst_id=inst_id)
+        inst = institute_cls(inst_name=inst_name, inst_id=inst_id, assets=[asset])
         inst.save()
 
         integration_level = 4
@@ -1787,13 +2015,8 @@ class TestGetLabByAsset(TestCase):
 
         dis_name = "Computer Science"
         dis_id = "CS"
-        discipline = discipline_cls(dis_name=dis_name, dis_id=dis_id)
+        discipline = discipline_cls(dis_name=dis_name, dis_id=dis_id, assets=[asset])
         discipline.save()
-
-        asset_type = "Image"
-        path = "vlabs.ac.in/images/static/logo.png"
-        asset = asset_cls(asset_type=asset_type, path=path)
-        asset.save()
 
         dev_name = name_cls(name="Mohit Tahiliani")
         dev_name.save()
@@ -1932,24 +2155,24 @@ class TestGetExp(TestCase):
         integration_status_cls = System.delegate.entities['integration_status']
         asset_cls = System.delegate.entities['asset']
 
+        asset_type = "Image"
+        path = "vlabs.ac.in/images/static/logo.png"
+        asset = asset_cls(asset_type=asset_type, path=path)
+        asset.save()
+
         inst_name = "IIT Kanpur"
         inst_id = "IITK"
-        inst = institute_cls(inst_name=inst_name, inst_id=inst_id)
+        inst = institute_cls(inst_name=inst_name, inst_id=inst_id, assets=[asset])
         inst.save()
 
-        dis_name = "IIT Kanpur"
-        dis_id = "IITK"
-        discipline = discipline_cls(dis_name=dis_name, dis_id=dis_id)
+        dis_name = "computer science"
+        dis_id = "cse"
+        discipline = discipline_cls(dis_name=dis_name, dis_id=dis_id, assets=[asset])
         discipline.save()
 
         integration_level = 4
         integration_status = integration_status_cls(integration_level=integration_level)
         integration_status.save()
-
-        asset_type = "Image"
-        path = "vlabs.ac.in/images/static/logo.png"
-        asset = asset_cls(asset_type=asset_type, path=path)
-        asset.save()
 
         dev_name = name_cls(name="Mohit Tahiliani")
         dev_name.save()
@@ -2045,10 +2268,16 @@ class TestGetInstitute(TestCase):
         print "test_get_institute_in_system_persistence"
         session_cls = System.delegate.entities['session']
         institute_cls = System.delegate.entities['institute']
+        asset_cls = System.delegate.entities['asset']
+
+        asset_type = "Image"
+        path = "vlabs.ac.in/images/static/logo.png"
+        asset = asset_cls(asset_type=asset_type, path=path)
+        asset.save()
 
         inst_name1= "IIT Kanpur"
         inst_id1= "IITK"
-        institute = institute_cls(inst_id=inst_id1, inst_name=inst_name1)
+        institute = institute_cls(inst_id=inst_id1, inst_name=inst_name1, assets=[asset])
         institute.save()
 
         institute1 = System.do("get_institute", inst_id=inst_id1)
@@ -2080,10 +2309,16 @@ class TestGetDiscipline(TestCase):
 
         print "test_get_discipline_in_system_persistence"
         discipline_cls = System.delegate.entities['discipline']
+        asset_cls = System.delegate.entities['asset']
+
+        asset_type = "Image"
+        path = "vlabs.ac.in/images/static/logo.png"
+        asset = asset_cls(asset_type=asset_type, path=path)
+        asset.save()
 
         dis_name = "arrays"
         dis_id = "cse02"
-        discipline = discipline_cls(dis_name=dis_name, dis_id=dis_id)
+        discipline = discipline_cls(dis_name=dis_name, dis_id=dis_id, assets=[asset])
         discipline.save()
 
         exp1 = System.do("get_discipline", dis_id=dis_id)
@@ -2121,15 +2356,21 @@ class TestGetDeveloper(TestCase):
         dev_cls = System.delegate.entities['developer']
         institute_cls = System.delegate.entities['institute']
         discipline_cls = System.delegate.entities['discipline']
+        asset_cls = System.delegate.entities['asset']
+
+        asset_type = "Image"
+        path = "vlabs.ac.in/images/static/logo.png"
+        asset = asset_cls(asset_type=asset_type, path=path)
+        asset.save()
 
         inst_name = "IIT Kanpur"
         inst_id = "IITK"
-        inst = institute_cls(inst_name=inst_name, inst_id=inst_id)
+        inst = institute_cls(inst_name=inst_name, inst_id=inst_id, assets=[asset])
         inst.save()
 
         dis_name = "IIT Kanpur"
         dis_id = "IITK"
-        discipline = discipline_cls(dis_name=dis_name, dis_id=dis_id)
+        discipline = discipline_cls(dis_name=dis_name, dis_id=dis_id, assets=[asset])
         discipline.save()
 
         dev_name1 = name_cls(name="Prof. Dharmaraj")
@@ -2406,20 +2647,20 @@ class TestAddAssetsToLab(TestCase):
         integration_status = integration_status_cls(integration_level=integration_level)
         integration_status.save()
 
-        inst_name = "IIT Kanpur"
-        inst_id = "IITK"
-        inst = institute_cls(inst_name=inst_name, inst_id=inst_id)
-        inst.save()
-
-        dis_name = "IIT Kanpur"
-        dis_id = "IITK"
-        discipline = discipline_cls(dis_name=dis_name, dis_id=dis_id)
-        discipline.save()
-
         asset_type = "Image"
         path = "vlabs.ac.in/images/static/logo.png"
         asset = asset_cls(asset_type=asset_type, path=path)
         asset.save()
+
+        inst_name = "IIT Kanpur"
+        inst_id = "IITK"
+        inst = institute_cls(inst_name=inst_name, inst_id=inst_id, assets=[asset])
+        inst.save()
+
+        dis_name = "IIT Kanpur"
+        dis_id = "IITK"
+        discipline = discipline_cls(dis_name=dis_name, dis_id=dis_id, assets=[asset])
+        discipline.save()
 
         exp_name = "arrays"
         exp_id = "cse02"
