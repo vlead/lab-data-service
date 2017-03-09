@@ -771,9 +771,18 @@ class TestUpdateLabt(TestCase):
         integration_status1 = integration_status_cls(integration_level=integration_level1)
         integration_status1.save()
 
-        lab1 = System.do("update_lab", lab=lab, lab_name=lab_name1, overview=overview1,
-                          institute=inst1, discipline=discipline1,
-                          integration_status=integration_status1, session=session)
+        hosting_status1 = "hosted"
+        hosted_url1 = "http://cse13-iiith.vlabs.ac.in"
+        hosted_on1 = "cloud"
+        host1 = hosting_info_cls(hosting_status=hosting_status1,
+                                hosted_url=hosted_url1, hosted_on=hosted_on1)
+        host1.save()
+         
+        lab1 = System.do("update_lab", lab=lab, lab_name=lab_name1,
+                             overview=overview1, institute=inst1,
+                             discipline=discipline1, hosting_info=[host1],
+                             integration_status=integration_status1,
+                             session=session)
 
         new_lab = lab_cls.get_by_id(1)
 
@@ -782,7 +791,10 @@ class TestUpdateLabt(TestCase):
         self.assertEqual(new_lab.get("lab_id"), lab_id)
         self.assertEqual(new_lab.get("institute").get("inst_id"), inst_id1)
         self.assertEqual(new_lab.get("discipline").get("dis_id"), dis_id1)
-        self.assertEqual(new_lab.get("integration_status").get("integration_level"), integration_level1)
+        self.assertEqual(new_lab.get("integration_status").
+                             get("integration_level"), integration_level1)
+        self.assertEqual(new_lab.get("hosting_info")[0].get("hosted_url"), 
+                              hosted_url1)
             
 #+END_SRC
       
