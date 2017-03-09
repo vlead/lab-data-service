@@ -528,9 +528,8 @@ class AddIntegration_Status():
 #+begin_src python
 class UpdateLab():
     arg_types = {"lab": is_lab, "lab_name": is_str,
-                     "overview" : is_str, "session": is_session, 
-                     "institute" : is_institute, "discipline" : is_discipline, 
-                     "integration_status" : is_integration_status}
+                     "overview": is_str, "session": is_session, "institute": is_institute, "discipline": is_discipline, 
+                     "integration_status": is_integration_status}
     arity_and_type_checks_needed = True
 
     @staticmethod
@@ -781,7 +780,8 @@ class UpdateEmail():
 #+begin_src python
 class UpdateDeveloper():
     arg_types = {"developer": is_developer, "name": is_name,
-                     "session": is_session}
+                 "session": is_session, "institute": is_institute,
+                 "discipline" : is_discipline}
     arity_and_type_checks_needed = True
 
     @staticmethod
@@ -805,7 +805,9 @@ class UpdateDeveloper():
         else:
            name=args["name"]
 
-        section = System.delegate.update_developer(developer, name)
+        institute = args["institute"]
+        discipline = args["discipline"]
+        developer = System.delegate.update_developer(developer, name, institute, discipline)
         return developer
 
 #+end_src

@@ -1221,16 +1221,30 @@ class TestUpdateDeveloper(TestCase):
         developer = dev_cls(name=dev_name, email=email_id,
                             institute=inst, discipline=discipline)
         developer.save()
+
+        inst_name1 = "IIT Kharagpur"
+        inst_id1 = "IITKgp"
+        inst1 = institute_cls(inst_name=inst_name1, inst_id=inst_id1, assets=[asset])
+        inst1.save()
+
+        dis_name1 = "Computer Science & Engineering"
+        dis_id1 = "CSE02"
+        discipline1 = discipline_cls(dis_name=dis_name1, dis_id=dis_id1, assets=[asset])
+        discipline1.save()
+
         dev_name2 = name_cls(name="Prof. Raja")
         dev_name2.save()
 
         dev1 = System.do("update_developer", developer=developer,
-                             name=dev_name2,  session=session)
+                         name=dev_name2, institute=inst1,
+                         discipline=discipline1, session=session)
 
         new_dev = dev_cls.get_by_id(1)
 
         self.assertEqual(new_dev.get("name").get("name"),
                              dev_name2.get('name'))
+        self.assertEqual(new_dev.get("institute").get("inst_id"), inst_id1)
+        self.assertEqual(new_dev.get("discipline").get("dis_id"), dis_id1)
 
 #+END_SRC
 
