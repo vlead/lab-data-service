@@ -4073,6 +4073,7 @@ class TestGetDisciplineById(TestCase):
 
  #+END_SRC
 
+
 ** Get Name By Id
 
 #+NAME: class_get_name_by_id
@@ -4136,6 +4137,7 @@ class TestGetNameById(TestCase):
         self.assertEqual(name_data_two.get("name"), data_dict1['name'])
 
  #+END_SRC
+
 
 ** Update Lab
 #+NAME: class_update_lab
@@ -4251,7 +4253,7 @@ class TestUpdateLab(TestCase):
         data_dict = {
                     'key' : KEY,
                     'dis_name': 'computer science',
-                    'dis_id': 'cse',
+                    'dis_id': 'CSE',
                     'assets': ['vlabs.ac.in/images/static/logo.png']
                    }
 
@@ -4352,7 +4354,7 @@ class TestUpdateLab(TestCase):
 
         data_dict1 = {
                     'key' : KEY,
-                    'integration_level': 2
+                    'integration_level': 3
                     }
 
         integration_status = SystemInterface.add_integration_status(data_dict1)
@@ -4373,9 +4375,13 @@ class TestUpdateLab(TestCase):
         self.assertEqual(lab1.get("lab_name"), data_dict1['lab_name'])
         self.assertEqual(lab1.get("lab_id"), data_dict['lab_id'])
         self.assertEqual(lab1.get("overview"), data_dict['overview'])
-        self.assertEqual(lab1.get("inst_id"), data_dict1['inst_id'])
-        self.assertEqual(lab1.get("dis_id"), data_dict1['dis_id'])
-        self.assertEqual(lab1.get("integration_level"), data_dict1['integration_level'])
+        self.assertEqual(lab1.get("institute").get("inst_id"),
+                             data_dict1['inst_id'])
+        self.assertEqual(lab1.get("discipline").get("dis_id"),
+                             data_dict1['dis_id'])
+        self.assertEqual(lab1.get("integration_status").\
+                             get("integration_level"),
+                             data_dict1['integration_level'])
 
     def test_update_lab_overview_in_system_interface(self):
         print "test_update_lab_overview_in_system_interface"
@@ -4572,7 +4578,7 @@ class TestUpdateLab(TestCase):
         if 'integration_level' not in data_dict:
             integration_status=str(experiment.get("integration_status"))
         else:
-            integration_status= System.do("get_integration_status", 
+            integration_status= System.do("get_integration_status_by_IL", 
                       integration_level=data_dict['integration_level'])
 
         try:
@@ -4722,7 +4728,7 @@ class TestUpdateExperiment(TestCase):
         data_dict1 = {
                     'key' : KEY,
                     'dis_name': 'electronics & engineering',
-                    'dis_id': 'ece',
+                    'dis_id': 'ECE',
                     'assets': ['vlabs.ac.in/images/video/icon.png']
                    }
 
@@ -4734,7 +4740,7 @@ class TestUpdateExperiment(TestCase):
                     'exp_name': 'arrays',
                     'overview': 'overview',
                     'inst_id': 'IITKgp',
-                    'dis_id': 'ece',
+                    'dis_id': 'ECE',
                     'integration_level': 3
                    }
       
