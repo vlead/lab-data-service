@@ -1119,10 +1119,11 @@ class TestPersistenceDelegate(TestCase):
 #+NAME: persistence_update_lab
 #+BEGIN_SRC python
     def update_lab(self, lab, lab_name, overview, institute, discipline,
-                         integration_status, hosting_info):
-        lab.set(lab_name=lab_name, overview=overview, institute=institute, \
+                         integration_status, hosting_info, developers, assets):
+        lab.set(lab_name=lab_name, overview=overview, institute=institute, 
                     discipline=discipline, hosting_info=hosting_info,
-                    integration_status=integration_status)
+                    integration_status=integration_status,
+                    developers=developers, assets=assets)
         lab.save()
         return lab
 
@@ -1169,12 +1170,13 @@ class TestPersistenceDelegate(TestCase):
          hosting_status = "hosted"
          hosted_url = "http://cse14-iiith.vlabs.ac.in"
          hosted_on = "cloud"
-         host = HostingInfo(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
+         host = HostingInfo(hosting_status=hosting_status,
+                                hosted_url=hosted_url, hosted_on=hosted_on)
          host.save()
 
          lab = Lab(lab_name=lab_name, lab_id=lab_id, overview=overview, 
-                       institute=inst, discipline=discipline, hosting_info=[host],
-                       assets=[asset], 
+                       institute=inst, discipline=discipline, 
+                       assets=[asset], hosting_info=[host],
                        experiments=experiments, developers=[dev], 
                        integration_status=integration_status) 
 
@@ -1184,26 +1186,44 @@ class TestPersistenceDelegate(TestCase):
 
          inst_name1 = "IIT Kharagpur"
          inst_id1 = "IITKgp"
-         inst1 = Institute(inst_name=inst_name1, inst_id=inst_id1, assets=[asset])
+         inst1 = Institute(inst_name=inst_name1, inst_id=inst_id1,
+                               assets=[asset])
          inst1.save()
 
          dis_name1 = "Computer Science & Engineering"
          dis_id1 = "IIT Kharagpur"
-         discipline1 = Discipline(dis_name=dis_name1, dis_id=dis_id1, assets=[asset])
+         discipline1 = Discipline(dis_name=dis_name1, dis_id=dis_id1,
+                                      assets=[asset])
          discipline1.save()
 
          integration_level1 = 2
-         integration_status1 = IntegrationStatus(integration_level=integration_level1)
+         integration_status1 = IntegrationStatus(integration_level=
+                                                     integration_level1)
          integration_status1.save()
 
          hosting_status1 = "hosted"
          hosted_url1 = "http://cse13-iiith.vlabs.ac.in"
          hosted_on1 = "cloud"
-         host1 = HostingInfo(hosting_status=hosting_status1, hosted_url=hosted_url1, hosted_on=hosted_on1)
+         host1 = HostingInfo(hosting_status=hosting_status1,
+                                 hosted_url=hosted_url1, hosted_on=hosted_on1)
          host1.save()
 
+         dev_name1 = Name(name="Tahiliani")
+         dev_name1.save()
+         email_id1 = Email(email="tahiliani@gmail.com")
+         email_id1.save()
+         dev1 = Developer(name=dev_name1, email=email_id1,
+                         institute=inst1, discipline=discipline1)
+         dev1.save()
+
+         asset_type1 = "Image"
+         path1 = "vlabs.ac.in/images/static/image.png"
+         asset1 = Asset(asset_type=asset_type1, path=path1)
+         asset1.save()
+
          lab2 = self.persistence_delegate.update_lab\
-           (lab1, lab_name1, overview1, inst1, discipline1, integration_status1, [host1]),
+           (lab1, lab_name1, overview1, inst1, discipline1,
+                integration_status1, [host1], [dev1], [asset1]),
          lab2 = Lab.get_by_id(1)
 
          self.assertEqual(lab2.get("lab_id"), lab_id)
@@ -1218,6 +1238,11 @@ class TestPersistenceDelegate(TestCase):
 
          self.assertEqual(lab2.get("hosting_info")[0].get("hosted_url"), 
                               hosted_url1)
+         self.assertEqual(lab2.get("developers")[0].get("email").get("email"), 
+                              email_id1.get("email"))
+         self.assertEqual(lab2.get("assets")[0].get("path"),
+                              asset1.get("path"))
+
 
 #+END_SRC
 
