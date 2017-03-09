@@ -4073,6 +4073,7 @@ class TestGetDisciplineById(TestCase):
 
  #+END_SRC
 
+
 ** Get Name By Id
 
 #+NAME: class_get_name_by_id
@@ -4137,6 +4138,7 @@ class TestGetNameById(TestCase):
 
  #+END_SRC
 
+
 ** Update Lab
 #+NAME: class_update_lab
 #+begin_src python
@@ -4160,29 +4162,30 @@ class TestGetNameById(TestCase):
         else:
             overview=data_dict['overview']
 
-        if 'institute' not in data_dict:
+        if 'inst_id' not in data_dict:
             institute=str(lab.get("institute"))
         else:
-            institute = System.do("get_institute", inst_id=data_dict['inst_id'])
+            institute = System.do("get_institute", inst_id=
+                                      data_dict['inst_id'])
 
-        if 'discipline' not in data_dict:
+        if 'dis_id' not in data_dict:
             discipline=str(lab.get("discipline"))
         else:
-            discipline = System.do("get_discipline", dis_id=data_dict['dis_id'])
+            discipline = System.do("get_discipline", dis_id=
+                                       data_dict['dis_id'])
 
-        if 'integration_status' not in data_dict:
+        if 'integration_level' not in data_dict:
             integration_status=str(lab.get("integration_status"))
         else:
-            integration_status = System.do("get_integration_status",
+            integration_status = System.do("get_integration_status_by_IL",
                              integration_level=data_dict['integration_level'])
-
         try:
             current_app.logger.debug("running operation update_lab")
             lab = System.do("update_lab", lab=lab,
-                                    lab_name=lab_name, 
-                                    overview=overview, session=session, 
-                                    institute=institute, 
-                                    discipline=discipline, 
+                                    lab_name=lab_name,
+                                    overview=overview, session=session,
+                                    institute=institute,
+                                    discipline=discipline,
                                     integration_status=integration_status)
             current_app.logger.debug("completed operation update_lab")
             return lab.to_client()
@@ -4250,7 +4253,7 @@ class TestUpdateLab(TestCase):
         data_dict = {
                     'key' : KEY,
                     'dis_name': 'computer science',
-                    'dis_id': 'cse',
+                    'dis_id': 'CSE',
                     'assets': ['vlabs.ac.in/images/static/logo.png']
                    }
 
@@ -4335,7 +4338,7 @@ class TestUpdateLab(TestCase):
                     'key': KEY,
                     'inst_name': 'IIT Kharagpur',
                     'inst_id': 'IITKgp',
-                    'assets': ['vlabs.ac.in/images/video/icon.png']                  
+                    'assets': ['vlabs.ac.in/images/video/icon.png']
                     }
 
         institute = SystemInterface.add_institute(data_dict1)
@@ -4351,7 +4354,7 @@ class TestUpdateLab(TestCase):
 
         data_dict1 = {
                     'key' : KEY,
-                    'integration_level': 2
+                    'integration_level': 3
                     }
 
         integration_status = SystemInterface.add_integration_status(data_dict1)
@@ -4359,8 +4362,8 @@ class TestUpdateLab(TestCase):
         data_dict1 = {
                     'key' : KEY,
                     'lab_name': 'Computer Programming',
-                    'lab_id': 'cse02', 
-                    'overview': 'overview', 
+                    'lab_id': 'cse02',
+                    'overview': 'overview',
                     'integration_level': 3 ,
                     'inst_id': 'IITKgp',
                     'dis_id': 'ece'
@@ -4368,13 +4371,17 @@ class TestUpdateLab(TestCase):
 
         lab = SystemInterface.add_lab(data_dict)
         lab1 = SystemInterface.update_lab(data_dict1)
-        
+
         self.assertEqual(lab1.get("lab_name"), data_dict1['lab_name'])
         self.assertEqual(lab1.get("lab_id"), data_dict['lab_id'])
         self.assertEqual(lab1.get("overview"), data_dict['overview'])
-        self.assertEqual(lab1.get("inst_id"), data_dict1['inst_id'])
-        self.assertEqual(lab1.get("dis_id"), data_dict1['dis_id'])
-        self.assertEqual(lab1.get("integration_level"), data_dict1['integration_level'])
+        self.assertEqual(lab1.get("institute").get("inst_id"),
+                             data_dict1['inst_id'])
+        self.assertEqual(lab1.get("discipline").get("dis_id"),
+                             data_dict1['dis_id'])
+        self.assertEqual(lab1.get("integration_status").\
+                             get("integration_level"),
+                             data_dict1['integration_level'])
 
     def test_update_lab_overview_in_system_interface(self):
         print "test_update_lab_overview_in_system_interface"
@@ -4407,6 +4414,22 @@ class TestUpdateLab(TestCase):
 
         data_dict = {
                     'key' : KEY,
+                    'inst_name': 'IIT Kharagpur',
+                    'inst_id': 'IITKgp',
+                    'assets': ['vlabs.ac.in/images/static/logo.png']
+                    }
+
+        institute = SystemInterface.add_institute(data_dict)
+
+        data_dict = {
+                    'key' : KEY,
+                    'integration_level': 3
+                    }
+
+        integration_status = SystemInterface.add_integration_status(data_dict)
+
+        data_dict = {
+                    'key' : KEY,
                     'integration_level': 4
                     }
 
@@ -4416,6 +4439,15 @@ class TestUpdateLab(TestCase):
                     'key' : KEY,
                     'dis_name': 'computer science',
                     'dis_id': 'CSE',
+                    'assets': ['vlabs.ac.in/images/static/logo.png']
+                   }
+
+        discipline = SystemInterface.add_discipline(data_dict)
+
+        data_dict = {
+                    'key' : KEY,
+                    'dis_name': 'electronics',
+                    'dis_id': 'ECE',
                     'assets': ['vlabs.ac.in/images/static/logo.png']
                    }
 
@@ -4453,7 +4485,7 @@ class TestUpdateLab(TestCase):
                                     'hosted_on': 'cloud'},
                                     {'hosted_url':'http://iitkgp.vlab.co.in/',
                                     'hosting_status': 'hosted',
-                                    'hosted_on': 'server'}], 
+                                    'hosted_on': 'server'}],
                     'dis_name': 'computer science',
                     'inst_id': 'IITK',
                     'dis_id': 'CSE'
@@ -4491,20 +4523,20 @@ class TestUpdateLab(TestCase):
         data_dict1 = {
                     'key' : KEY,
                     'lab_name': 'Computer Programming overview',
-                    'lab_id': 'cse02', 
-                    'overview': 'overview', 
+                    'lab_id': 'cse02',
+                    'overview': 'overview',
                     'integration_level': 3,
                     'inst_id': 'IITKgp',
-                    'dis_id': 'ece'
+                    'dis_id': 'ECE'
                    }
 
         lab = SystemInterface.add_lab(data_dict)
         lab1 = SystemInterface.update_lab(data_dict1)
-        
-        self.assertEqual(lab1.get("lab_id"), data_dict['lab_id'])
-        self.assertEqual(lab1.get("lab_name"), data_dict['lab_name'])
-        self.assertEqual(lab1.get("overview"), data_dict1['overview'])
 
+        self.assertEqual(lab1.get("lab_id"), data_dict1['lab_id'])
+        self.assertEqual(lab1.get("lab_name"), data_dict1['lab_name'])
+        self.assertEqual(lab1.get("overview"), data_dict1['overview'])
+ 
  #+END_SRC
 
 
@@ -4546,7 +4578,7 @@ class TestUpdateLab(TestCase):
         if 'integration_level' not in data_dict:
             integration_status=str(experiment.get("integration_status"))
         else:
-            integration_status= System.do("get_integration_status", 
+            integration_status= System.do("get_integration_status_by_IL", 
                       integration_level=data_dict['integration_level'])
 
         try:
@@ -4696,7 +4728,7 @@ class TestUpdateExperiment(TestCase):
         data_dict1 = {
                     'key' : KEY,
                     'dis_name': 'electronics & engineering',
-                    'dis_id': 'ece',
+                    'dis_id': 'ECE',
                     'assets': ['vlabs.ac.in/images/video/icon.png']
                    }
 
@@ -4708,7 +4740,7 @@ class TestUpdateExperiment(TestCase):
                     'exp_name': 'arrays',
                     'overview': 'overview',
                     'inst_id': 'IITKgp',
-                    'dis_id': 'ece',
+                    'dis_id': 'ECE',
                     'integration_level': 3
                    }
       

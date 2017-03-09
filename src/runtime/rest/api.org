@@ -6442,7 +6442,20 @@ class TestUpdateExperiment(TestCase):
                                     {'hosted_url':'http://iitkgp.vlab.co.in/',
                                     'hosting_status': 'hosted',
                                     'hosted_on': 'server'}]}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/experiments", data=json.dumps(payload),
+                                 headers=headers)
         
+        payload = {'integration_level': 3,
+                    'key': KEY
+                  }
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/integration_status", data=json.dumps(payload),
+                                 headers=headers)
+            
         payload1 = {'exp_name': 'queue',
                    'exp_id': 'cse02',
                    'overview' : 'overview',
@@ -6469,9 +6482,6 @@ class TestUpdateExperiment(TestCase):
                                     'hosted_on': 'server'}]}
 
         headers = {'Content-Type': 'application/json'}
-
-        response = self.client.post("/experiments", data=json.dumps(payload),
-                                 headers=headers)
 
         response = self.client.put("/experiments?exp_id=cse01", 
                                        data=json.dumps(payload1),
