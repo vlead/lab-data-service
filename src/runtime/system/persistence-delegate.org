@@ -102,7 +102,11 @@ class TestPersistenceDelegate(TestCase):
 #+NAME: persistence_lab_exists
 #+BEGIN_SRC python
     def lab_exists(self, lab):
+        current_app.logger.debug("running check on the existence of"
+                                 " lab = %s" % lab)
         lab_id = lab.get("lab_id")
+        current_app.logger.debug("completed check on the existence of"
+                                 " lab with lab_id = %s" % lab_id)
         return lab == self.get_lab(lab_id=lab_id)
         
 #+END_SRC
@@ -179,7 +183,11 @@ class TestPersistenceDelegate(TestCase):
 #+NAME: persistence_experiment_exists
 #+BEGIN_SRC python
     def experiment_exists(self, experiment):
+        current_app.logger.debug("running check on the existence of"
+                                 " experiment = %s" % experiment)
         exp_id = experiment.get("exp_id")
+        current_app.logger.debug("completed check on the existence of"
+                                 " experiment with exp_id = %s" % exp_id)
         return experiment == self.get_experiment(exp_id=exp_id)
         
 #+END_SRC
@@ -258,7 +266,11 @@ class TestPersistenceDelegate(TestCase):
 #+NAME: persistence_section_exists
 #+BEGIN_SRC python
     def section_exists(self, section):
+        current_app.logger.debug("running check on the existence of"
+                                 " section = %s" % section) 
         name = section.get("name")
+        current_app.logger.debug("completed check on the existence of"
+                                 " section with name = %s" % name)
         return section == self.get_section(name=name)
         
 #+END_SRC
@@ -286,7 +298,11 @@ class TestPersistenceDelegate(TestCase):
 #+NAME: persistence_institute_exists
 #+BEGIN_SRC python
     def institute_exists(self, institute):
+        current_app.logger.debug("running check on the existence of"
+                                 " institute = %s" % institute)
         inst_id = institute.get("inst_id")
+        current_app.logger.debug("completed check on the existence of"
+                                 " institute with inst_id = %s" % inst_id)
         return institute == self.get_institute(inst_id=inst_id)
         
 #+END_SRC
@@ -329,9 +345,12 @@ class TestPersistenceDelegate(TestCase):
     def name_exists(self, name):
         ret_val = False
         try:
+            current_app.logger.debug("running check on the existence of name")
             if self.get_name(name=name.get("name")) is not None:
                 ret_val = True
+            current_app.logger.debug("completed check on the existence of name")
         except Exception as e:
+            current_app.logger.error("Error in returning the name")
             pass
         return ret_val
         
@@ -362,9 +381,12 @@ class TestPersistenceDelegate(TestCase):
     def email_exists(self, email):
         ret_val = False
         try:
+            current_app.logger.debug("running check on the existence of email")
             if self.get_email(email=email.get("email")) is not None:
                 ret_val = True
+            current_app.logger.debug("completed check on the existence of email")
         except Exception as e:
+            current_app.logger.error("Error in returning the email")
             pass
 
         return ret_val
@@ -394,9 +416,14 @@ class TestPersistenceDelegate(TestCase):
     def developer_exists(self, developer):
         ret_val = False
         try:
+            current_app.logger.debug("running check on the existence of"
+                                     " developer")
             if self.get_developer(email=developer.get("email")) is not None:
                 ret_val = True
+            current_app.logger.debug("completed check on the existence of"
+                                     " developer")
         except Exception as e:
+            current_app.logger.error("Error in returning the developer")
             pass
 
         return ret_val
@@ -450,7 +477,13 @@ class TestPersistenceDelegate(TestCase):
 #+NAME: persistence_discipline_exists
 #+BEGIN_SRC python
     def discipline_exists(self, discipline):
+        current_app.logger.debug("running check on the existence of"
+                                 " discipline = %s" % 
+                                 discipline.to_client())
         dis_id = discipline.get("dis_id")
+        current_app.logger.debug("completed check on the existence of"
+                                 " discipline with dis_id = %s"
+                                 % dis_id)
         return discipline == self.get_discipline(dis_id=dis_id)
 
 #+END_SRC
@@ -494,9 +527,15 @@ class TestPersistenceDelegate(TestCase):
 #+NAME: persistence_hosting_info_exists
 #+BEGIN_SRC python
     def hosting_info_exists(self, hosting_info):
+        current_app.logger.debug("running check on the existence of"
+                                 " hosting_info = %s" % 
+                                 hosting_info.to_client())
         hosted_url = hosting_info.get("hosted_url")
+        current_app.logger.debug("completed check on the existence of" 
+                                 " hosting_info with hosted_url = %s"
+                                 % hosted_url)
         return hosting_info == self.get_hosting_info(hosted_url=hosted_url)
-        
+   
 #+END_SRC
 
 **** Tests
@@ -529,8 +568,13 @@ class TestPersistenceDelegate(TestCase):
 #+NAME: persistence_asset_exists
 #+BEGIN_SRC python
     def asset_exists(self, asset):
+        current_app.logger.debug("running check on the existence of"
+                                 " asset = %s" % asset.to_client())
         path = asset.get("path")
+        current_app.logger.debug("completed check on the existence of"
+                                 " asset with path = %s" % path)
         return asset == self.get_asset(path=path)
+  
 #+END_SRC
 
 **** Tests
@@ -560,9 +604,16 @@ class TestPersistenceDelegate(TestCase):
 #+NAME: persistence_integration_status_exists
 #+BEGIN_SRC python
     def integration_status_exists(self, integration_status):
+        current_app.logger.debug("running check on the existence of"
+                                     " integration_status = %s"
+                                    % integration_status.to_client())
         integration_level = integration_status.get("integration_level")
-        return integration_status == self.get_integration_status(integration_level=integration_level)
-        
+        current_app.logger.debug("completed check on the existence of"
+                                 " integration_status"
+                                 " with integration_level = %s" % 
+                                 integration_level)
+        return integration_status == self.get_integration_status(
+                                     integration_level=integration_level)
 #+END_SRC
 
 **** Tests
@@ -590,7 +641,11 @@ class TestPersistenceDelegate(TestCase):
 #+NAME: persistence_add_lab
 #+BEGIN_SRC python
     def add_lab(self, lab):
+        current_app.logger.debug("running add lab to system operation"
+                                 " lab = %s" % lab.to_client())
         lab.save()
+        current_app.logger.debug("completed add lab to system operation"
+                                 " lab = %s" % lab.to_client())
         return lab
 
 #+END_SRC
@@ -679,7 +734,11 @@ class TestPersistenceDelegate(TestCase):
 #+NAME: persistence_add_experiment
 #+BEGIN_SRC python
     def add_experiment(self, experiment):
+        current_app.logger.debug("running add experiment to system operation"
+                                 " experiment = %s" % experiment.to_client())
         experiment.save()
+        current_app.logger.debug("completed add experiment to system operation"
+                                 " experiment = %s" % experiment.to_client())
         return experiment
 
 #+END_SRC
@@ -759,7 +818,11 @@ class TestPersistenceDelegate(TestCase):
 #+NAME: persistence_add_discipline
 #+BEGIN_SRC python
     def add_discipline(self, discipline):
+        current_app.logger.debug("running add discipline to system operation"
+                                 " discipline = %s" % discipline.to_client())
         discipline.save()
+        current_app.logger.debug("completed add discipline to system operation"
+                                 " discipline = %s" % discipline.to_client())
         return discipline
 
 #+END_SRC
@@ -794,7 +857,11 @@ class TestPersistenceDelegate(TestCase):
 #+NAME: persistence_add_section
 #+BEGIN_SRC python
     def add_section(self, section):
+        current_app.logger.debug("running add section to system operation"
+                                 " section = %s" % section.to_client())
         section.save()
+        current_app.logger.debug("completed add section to system operation"
+                                 " section = %s" % section.to_client())
         return section
 
 #+END_SRC
@@ -819,7 +886,11 @@ class TestPersistenceDelegate(TestCase):
 #+NAME: persistence_add_name
 #+BEGIN_SRC python
     def add_name(self, name):
+        current_app.logger.debug("running add name to system operation"
+                                 " name = %s" % name.to_client())
         name.save()
+        current_app.logger.debug("completed add name to system operation"
+                                 " name = %s" % name.to_client())
         return name
 
 #+END_SRC
@@ -844,7 +915,11 @@ class TestPersistenceDelegate(TestCase):
 #+NAME: persistence_add_email
 #+BEGIN_SRC python
     def add_email(self, email):
+        current_app.logger.debug("running add email to system operation"
+                                 " email = %s" % email.to_client())
         email.save()
+        current_app.logger.debug("completed add email to system operation"
+                                 " email = %s" % email.to_client())
         return email
 
 #+END_SRC
@@ -869,12 +944,20 @@ class TestPersistenceDelegate(TestCase):
 #+NAME: persistence_add_developer
 #+BEGIN_SRC python
     def add_developer(self, developer):
+        current_app.logger.debug("running add developer to system"
+                                 " developer = %s" % developer.to_client())
         name = developer.get("name")
         email = developer.get("email")
         if not self.name_exists(name.get("name")):
             name.save()
+            current_app.logger.debug("completed add operation"
+                                    " to system with developer" 
+                                    " name = %s" % name)
         if not self.email_exists(email.get("email")):
             email.save()
+            current_app.logger.debug("completed add operation"
+                                    " to system with developer"
+                                 " email = %s" % email)
         developer.save()
         return developer
 
@@ -977,7 +1060,11 @@ class TestPersistenceDelegate(TestCase):
 #+NAME: persistence_add_institute
 #+BEGIN_SRC python
     def add_institute(self, institute):
+        current_app.logger.debug("running add institute to system operation"
+                                 " institute = %s" % institute.to_client())
         institute.save()
+        current_app.logger.debug("completed add institute to system operation"
+                                 " institute = %s" % institute.to_client())
         return institute
 
 #+END_SRC
@@ -1017,7 +1104,14 @@ class TestPersistenceDelegate(TestCase):
 #+NAME: persistence_add_hosting_info
 #+BEGIN_SRC python
     def add_hosting_info(self, hosting_info):
+        current_app.logger.debug("running add hosting_info to system operation"
+                                 " hosting_info = %s" % 
+                                 hosting_info.to_client())
         hosting_info.save()
+        current_app.logger.debug("completed add hosting_info"
+                                 " to system operation"
+                                 " hosting_info = %s" % 
+                                 hosting_info.to_client())
         return hosting_info
 
 #+END_SRC
@@ -1053,7 +1147,11 @@ class TestPersistenceDelegate(TestCase):
 #+NAME: persistence_add_asset
 #+BEGIN_SRC python
     def add_asset(self, asset):
+        current_app.logger.debug("running add asset to system operation"
+                                 " asset = %s" % asset.to_client())
         asset.save()
+        current_app.logger.debug("completed add asset to system operation"
+                                 " asset = %s" % asset.to_client())
         return asset
 
 #+END_SRC
@@ -1088,7 +1186,15 @@ class TestPersistenceDelegate(TestCase):
 #+NAME: persistence_add_integration_status
 #+BEGIN_SRC python
     def add_integration_status(self, integration_status):
+        current_app.logger.debug("running add integration_status to"
+                                 " system operation"
+                                 " integration_status = %s" % 
+                                 integration_status.to_client())
         integration_status.save()
+        current_app.logger.debug("completed add integration_status to"
+                                 " system operation"
+                                 " integration_status = %s" % 
+                                 integration_status.to_client())
         return integration_status
 
 #+END_SRC
@@ -1596,10 +1702,16 @@ class TestPersistenceDelegate(TestCase):
             abort(404, 'No Lab with lab_id %s' % (lab_id))
         else:
             try:
+                current_app.logger.debug("running delete operation on"
+                                         " lab with lab_id = %s"
+                                         % lab_id)
                 record.delete()
                 #db.session.delete(record)
                 #db.session.commit()
             except Exception, e:
+                current_app.logger.debug("completed delete operation on"
+                                         " lab with lab_id = %s"
+                                         % lab_id)
                 print e
                 abort(500, str(e))
 
@@ -1684,10 +1796,16 @@ class TestPersistenceDelegate(TestCase):
             abort(404, 'No Experiment found with exp_id %s' % (exp_id))
         else:
             try:
+                current_app.logger.debug("running delete operation on"
+                                         " experiment with exp_id = %s"
+                                         % exp_id)
                 record.delete()
                 #db.session.delete(record)
                 #db.session.commit()
             except Exception, e:
+                current_app.logger.debug("completed delete operation on"
+                                         " experiment with exp_id = %s"
+                                         % exp_id)
                 print e
                 abort(500, str(e))
 
@@ -1771,10 +1889,16 @@ class TestPersistenceDelegate(TestCase):
             abort(404, 'No Discipline  with dis_id %s' % (dis_id))
         else:
             try:
+                current_app.logger.debug("running delete operation on"
+                                         " discipline with dis_id = %s"
+                                         % dis_id)
                 record.delete()
                 #db.session.delete(record)
                 #db.session.commit()
             except Exception, e:
+                current_app.logger.debug("completed delete operation on"
+                                         " discipline with dis_id = %s"
+                                         % dis_id)
                 print e
                 abort(500, str(e))
 
@@ -1820,10 +1944,13 @@ class TestPersistenceDelegate(TestCase):
             abort(404, 'No Section with id %s' % (e_id))
         else:
             try:
+                current_app.logger.debug("running delete operation on section")
                 record.delete()
                 #db.session.delete(record)
                 #db.session.commit()
             except Exception, e:
+                current_app.logger.debug("completed delete"
+                                         " operation on section")
                 print e
                 abort(500, str(e))
 
@@ -1861,10 +1988,14 @@ class TestPersistenceDelegate(TestCase):
             abort(404, 'No Name with id %s' % (name))
         else:
             try:
+                current_app.logger.debug("running delete on developer"
+                                         " name = %s" % name)
                 record.delete()
                 #db.session.delete(record)
                 #db.session.commit()
             except Exception, e:
+                current_app.logger.debug("completed delete on developer" 
+                                         " name = %s" % name)
                 print e
                 abort(500, str(e))
 
@@ -1902,10 +2033,14 @@ class TestPersistenceDelegate(TestCase):
             abort(404, 'No Email with id %s' % (email_id))
         else:
             try:
+                current_app.logger.debug("running delete on developer"
+                                         " email = %s" % email)
                 record.delete()
                 #db.session.delete(record)
                 #db.session.commit()
             except Exception, e:
+                current_app.logger.debug("completed delete on developer"
+                                         " email = %s" % email)
                 print e
                 abort(500, str(e))
 
@@ -1940,9 +2075,15 @@ class TestPersistenceDelegate(TestCase):
             abort(404, 'No Developer with id %s' % (email_id))
         else:
             try:
+                current_app.logger.debug("running delete on developer"
+                                         " with email_id = %s" % 
+                                         email_id)
                 record.delete()
                 self.delete_email(email_id)
             except Exception, e:
+                current_app.logger.debug("completed delete on developer"
+                                         " with email_id = %s" % 
+                                         email_id)
                 print e
                 abort(500, str(e))
 
@@ -2009,10 +2150,16 @@ class TestPersistenceDelegate(TestCase):
             abort(404, 'No Institute with id %s' % (inst_id))
         else:
             try:
+                current_app.logger.debug("running delete on institute"
+                                         " with inst_id = %s" % 
+                                         inst_id)
                 record.delete()
                 #db.session.delete(record)
                 #db.session.commit()
             except Exception, e:
+                current_app.logger.debug("completed delete on institute"
+                                         " with inst_id = %s" % 
+                                         inst_id)
                 print e
                 abort(500, str(e))
 
@@ -2058,10 +2205,14 @@ class TestPersistenceDelegate(TestCase):
             abort(404, 'No HostingInfo with id %s' % (hosted_url))
         else:
             try:
+                current_app.logger.debug("running delete on hosting_info"
+                                         " with hosted_url = %s" % hosted_url)
                 record.delete()
                 #db.session.delete(record)
                 #db.session.commit()
             except Exception, e:
+                current_app.logger.debug("completed delete on hosting_info"
+                                         " with hosted_url = %s" % hosted_url)
                 print e
                 abort(500, str(e))
 
@@ -2103,10 +2254,14 @@ class TestPersistenceDelegate(TestCase):
             abort(404, 'No Asset found with path %s' % (path))
         else:
             try:
+                current_app.logger.debug("running delete on asset"
+                                         " with path = %s" % path)
                 record.delete()
                 #db.session.delete(record)
                 #db.session.commit()
             except Exception, e:
+                current_app.logger.debug("completed delete on asset"
+                                         " with path = %s" % path)
                 print e
                 abort(500, str(e))
 
@@ -2149,10 +2304,16 @@ class TestPersistenceDelegate(TestCase):
             abort(404, 'No IntegrationStatus with id %s' % (integration_level))
         else:
             try:
+                current_app.logger.debug("running delete on integration_status"
+                                         " with integration_level = %s" 
+                                         % integration_level)
                 record.delete()
                 #db.session.delete(record)
                 #db.session.commit()
             except Exception, e:
+                current_app.logger.debug("completed delete on integration_status"
+                                         " with integration_level = %s" 
+                                         % integration_level)
                 print e
                 abort(500, str(e))
 
