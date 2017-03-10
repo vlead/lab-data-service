@@ -4419,14 +4419,14 @@ class TestUpdateLab(TestCase):
                                     {'hosted_url':'http://iitk.vlab.co.in/',
                                     'hosting_status': 'hosted',
                                     'hosted_on': 'server'}],
-                    'assets': [{'path':'vlabs.ac.in/images/static/icon.png',
+                   'assets': [{'path':'vlabs.ac.in/images/static/icon.png',
                                     'asset_type': 'image'}],
                    'developers': [{'name':'Prof. Dharamaja',
                                     'email': 'xyz@gmail.com',
                                     'inst_id': 'IITK', 'dis_id': 'CSE'},
                                     {'name':'Prof. Pallav',
                                     'email': 'pallavi@gmail.com',
-                                    'inst_id': 'IITK', 'dis_id': 'CSE'}],
+                                    'inst_id': 'IITK', 'dis_id': 'CSE'}]
 
                    }
 
@@ -4447,6 +4447,14 @@ class TestUpdateLab(TestCase):
                              data_dict1['hosting_info'][0]['hosted_url'])
         self.assertEqual(lab1.get("hosting_info")[1].get("hosted_url"), 
                              data_dict1['hosting_info'][1]['hosted_url'])
+        self.assertEqual(lab1.get("developers")[0].get("email").get("email"), 
+                             data_dict1['developers'][0]['email'])
+        self.assertEqual(lab1.get("developers")[1].get("email").get("email"), 
+                             data_dict1['developers'][1]['email'])
+        self.assertEqual(lab1.get("assets")[0].get("path"), 
+                             data_dict1['assets'][0]['path'])
+        self.assertEqual(lab1.get("assets")[1].get("path"), 
+                             data_dict1['assets'][1]['path'])
 
  
  #+END_SRC
@@ -4461,6 +4469,11 @@ class TestUpdateLab(TestCase):
         exp_cls = System.delegate.entities['experiment']
         institute_cls = System.delegate.entities['institute']
         discipline_cls = System.delegate.entities['discipline']
+        hosting_info_cls = System.delegate.entities['hosting_info']
+        developer_cls = System.delegate.entities['developer']
+        asset_cls = System.delegate.entities['asset']
+        name_cls = System.delegate.entities['name']
+        email_cls = System.delegate.entities['email']
         session = session_cls(key=str(data_dict['key']))
         exp_id = str(data_dict['exp_id'])
         experiment = System.do("get_experiment", exp_id=exp_id)
@@ -4492,6 +4505,41 @@ class TestUpdateLab(TestCase):
         else:
             integration_status= System.do("get_integration_status_by_IL", 
                       integration_level=data_dict['integration_level'])
+
+        hosting_info = data_dict['hosting_info']
+        hosting_info_list = []
+        for hosting_info_x in hosting_info:
+            hosting_info = System.do("get_hosting_info",
+                                         hosted_url=
+                                         hosting_info_x['hosted_url'])
+            if hosting_info is None:
+                hosting_info = hosting_info_cls(hosting_status=str(hosting_info_x['hosting_status']), \
+                                      hosted_url=str(hosting_info_x['hosted_url']), hosted_on=str(hosting_info_x['hosted_on']))
+                hosting_info = System.do("add_hosting_info", hosting_info=hosting_info, session=session)
+            hosting_info_list.append(hosting_info)
+
+        assets = data_dict['assets']
+        asset_list = []
+        for asset_x in assets:
+            asset = System.do("get_asset", path=asset_x['path'])
+            if asset is None:
+                asset = asset_cls(asset_type=str(asset_x['asset_type']), \
+                                      path=str(asset_x['path']))
+                asset = System.do("add_asset", asset=asset, session=session)
+            asset_list.append(asset)
+
+        developers = data_dict['developers']
+        developer_list = []
+        for developer_x in developers:
+            name = name_cls(name=developer_x['name'])
+            email = email_cls(email=developer_x['email'])
+            developer = System.do("get_developer", email=email)
+            institute = System.do("get_institute", inst_id=developer_x['inst_id'])
+            discipline = System.do("get_discipline", dis_id=developer_x['dis_id'])
+            if developer is None:
+                developer = developer_cls(name=name, email=email, institute=institute, discipline=discipline)
+                developer = System.do("add_developer", developer=developer, session=session)
+            developer_list.append(developer)
 
         try:
             current_app.logger.debug("running operation update_experiment")
@@ -4592,7 +4640,6 @@ class TestUpdateExperiment(TestCase):
                                 {'path':'vlabs.ac.in/images/static/image.png',
                                     'asset_type': 'image'}],
                     'integration_level': 4,
-                    'sections': [],
                     'exp_id': 'cse02',
                     'inst_id': 'IITK',
                     'dis_id': 'CSE',
@@ -4651,14 +4698,50 @@ class TestUpdateExperiment(TestCase):
                     'exp_id': 'cse02',
                     'exp_name': 'arrays',
                     'overview': 'overview',
+                    'sections': [],
                     'inst_id': 'IITKgp',
                     'dis_id': 'ECE',
-                    'integration_level': 3
+                    'integration_level': 3,
+                    'hosting_info': [{'hosted_url':'http://cse13-iiith.vlabs.ac.in',
+                                    'hosting_status': 'hosted',
+                                    'hosted_on': 'cloud'},
+                                    {'hosted_url':'http://iitk.vlab.co.in/',
+                                    'hosting_status': 'hosted',
+                                    'hosted_on': 'server'}],
+                    'assets': [{'path':'vlabs.ac.in/images/static/icon.png',
+                                    'asset_type': 'image'}],
+                    'developers': [{'name':'Prof. Dharamaja',
+                                    'email': 'xyz@gmail.com',
+                                    'inst_id': 'IITK', 'dis_id': 'CSE'},
+                                    {'name':'Prof. Pallav',
+                                    'email': 'pallavi@gmail.com',
+                                    'inst_id': 'IITK', 'dis_id': 'CSE'}]
                    }
       
         exp1 = SystemInterface.update_experiment(data_dict1)
         
         self.assertEqual(exp1.get("exp_name"), data_dict1['exp_name'])
+        self.assertEqual(lab1.get("overview"), data_dict1['overview'])
+        self.assertEqual(lab1.get("exp_id"), data_dict1['exp_id'])
+        self.assertEqual(lab1.get("institute").get("inst_id"),
+                             data_dict['inst_id'])
+        self.assertEqual(lab1.get("discipline").get("dis_id"),
+                             data_dict1['dis_id'])
+        self.assertEqual(lab1.get("integration_status").\
+                             get("integration_level"),
+                             data_dict1['integration_level'])
+        self.assertEqual(lab1.get("hosting_info")[0].get("hosted_url"), 
+                             data_dict1['hosting_info'][0]['hosted_url'])
+        self.assertEqual(lab1.get("hosting_info")[1].get("hosted_url"), 
+                             data_dict1['hosting_info'][1]['hosted_url'])
+        self.assertEqual(lab1.get("developers")[0].get("email").get("email"), 
+                             data_dict1['developers'][0]['email'])
+        self.assertEqual(lab1.get("developers")[1].get("email").get("email"), 
+                             data_dict1['developers'][1]['email'])
+        self.assertEqual(lab1.get("assets")[0].get("path"), 
+                             data_dict1['assets'][0]['path'])
+        self.assertEqual(lab1.get("assets")[1].get("path"), 
+                             data_dict1['assets'][1]['path'])
 
  #+END_SRC
 
