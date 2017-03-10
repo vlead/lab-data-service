@@ -734,10 +734,10 @@ class TestUpdateLabt(TestCase):
         overview = "overview"
         experiment = experiment_cls(exp_name=exp_name, exp_id=exp_id,
                                      overview=overview, sections=[],
-                                    institute=inst, discipline=discipline,
-                                        integration_status=integration_status, 
-                                        assets=[asset],
-                                        developers=[dev], hosting_info=[host])
+                                     institute=inst, discipline=discipline,
+                                     integration_status=integration_status, 
+                                     assets=[asset],
+                                     developers=[dev], hosting_info=[host])
         experiment.save()
 
         lab_name = "Computer Programming"
@@ -777,11 +777,20 @@ class TestUpdateLabt(TestCase):
         host1 = hosting_info_cls(hosting_status=hosting_status1,
                                 hosted_url=hosted_url1, hosted_on=hosted_on1)
         host1.save()
-         
+        
+        dev_name1 = Name(name="Tahiliani")
+        dev_name1.save()
+        email_id1 = Email(email="tahiliani@gmail.com")
+        email_id1.save()
+        dev1 = developer_cls(name=dev_name1, email=email_id1,
+                         institute=inst1, discipline=discipline1)
+        dev1.save()
+ 
         lab1 = System.do("update_lab", lab=lab, lab_name=lab_name1,
                              overview=overview1, institute=inst1,
                              discipline=discipline1, hosting_info=[host1],
                              integration_status=integration_status1,
+                             developers=[dev1], assets=[asset1],
                              session=session)
 
         new_lab = lab_cls.get_by_id(1)

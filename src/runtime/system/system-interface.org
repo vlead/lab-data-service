@@ -4145,10 +4145,15 @@ class TestGetNameById(TestCase):
     @staticmethod
     def update_lab(data_dict):
         session_cls = System.delegate.entities['session']
-        session = session_cls(key=data_dict['key'])
         institute_cls = System.delegate.entities['institute']
         discipline_cls = System.delegate.entities['discipline']
         hosting_info_cls = System.delegate.entities['hosting_info']
+        asset_cls = System.delegate.entities['asset']
+        developer_cls = System.delegate.entities['developer']
+        name_cls = System.delegate.entities['name']
+        email_cls = System.delegate.entities['email']
+
+        session = session_cls(key=data_dict['key'])
 
         lab_id = str(data_dict['lab_id'])
         lab = System.do("get_lab", lab_id=lab_id)
@@ -4184,12 +4189,37 @@ class TestGetNameById(TestCase):
         hosting_info = data_dict['hosting_info']
         hosting_info_list = []
         for hosting_info_x in hosting_info:
-            hosting_info = System.do("get_hosting_info", hosted_url=hosting_info_x['hosted_url'])
+            hosting_info = System.do("get_hosting_info",
+                                         hosted_url=
+                                         hosting_info_x['hosted_url'])
             if hosting_info is None:
                 hosting_info = hosting_info_cls(hosting_status=str(hosting_info_x['hosting_status']), \
                                       hosted_url=str(hosting_info_x['hosted_url']), hosted_on=str(hosting_info_x['hosted_on']))
                 hosting_info = System.do("add_hosting_info", hosting_info=hosting_info, session=session)
             hosting_info_list.append(hosting_info)
+
+        assets = data_dict['assets']
+        asset_list = []
+        for asset_x in assets:
+            asset = System.do("get_asset", path=asset_x['path'])
+            if asset is None:
+                asset = asset_cls(asset_type=str(asset_x['asset_type']), \
+                                      path=str(asset_x['path']))
+                asset = System.do("add_asset", asset=asset, session=session)
+            asset_list.append(asset)
+
+        developers = data_dict['developers']
+        developer_list = []
+        for developer_x in developers:
+            name = name_cls(name=developer_x['name'])
+            email = email_cls(email=developer_x['email'])
+            developer = System.do("get_developer", email=email)
+            institute = System.do("get_institute", inst_id=developer_x['inst_id'])
+            discipline = System.do("get_discipline", dis_id=developer_x['dis_id'])
+            if developer is None:
+                developer = developer_cls(name=name, email=email, institute=institute, discipline=discipline)
+                developer = System.do("add_developer", developer=developer, session=session)
+            developer_list.append(developer)
 
         try:
             current_app.logger.debug("running operation update_lab")
@@ -4199,6 +4229,8 @@ class TestGetNameById(TestCase):
                                     institute=institute,
                                     discipline=discipline,
                                     hosting_info=hosting_info_list,
+                                    assets=asset_list, 
+                                    developers=developer_list,
                                     integration_status=integration_status)
             current_app.logger.debug("completed operation update_lab")
             return lab.to_client()
@@ -4387,6 +4419,14 @@ class TestUpdateLab(TestCase):
                                     {'hosted_url':'http://iitk.vlab.co.in/',
                                     'hosting_status': 'hosted',
                                     'hosted_on': 'server'}],
+                    'assets': [{'path':'vlabs.ac.in/images/static/icon.png',
+                                    'asset_type': 'image'}],
+                   'developers': [{'name':'Prof. Dharamaja',
+                                    'email': 'xyz@gmail.com',
+                                    'inst_id': 'IITK', 'dis_id': 'CSE'},
+                                    {'name':'Prof. Pallav',
+                                    'email': 'pallavi@gmail.com',
+                                    'inst_id': 'IITK', 'dis_id': 'CSE'}],
 
                    }
 
@@ -4394,10 +4434,10 @@ class TestUpdateLab(TestCase):
         lab1 = SystemInterface.update_lab(data_dict1)
 
         self.assertEqual(lab1.get("lab_name"), data_dict1['lab_name'])
-        self.assertEqual(lab1.get("lab_id"), data_dict['lab_id'])
-        self.assertEqual(lab1.get("overview"), data_dict['overview'])
+        self.assertEqual(lab1.get("lab_id"), data_dict1['lab_id'])
+        self.assertEqual(lab1.get("overview"), data_dict1['overview'])
         self.assertEqual(lab1.get("institute").get("inst_id"),
-                             data_dict1['inst_id'])
+                             data_dict['inst_id'])
         self.assertEqual(lab1.get("discipline").get("dis_id"),
                              data_dict1['dis_id'])
         self.assertEqual(lab1.get("integration_status").\
