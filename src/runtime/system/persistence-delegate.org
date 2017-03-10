@@ -1159,11 +1159,13 @@ class TestPersistenceDelegate(TestCase):
 #+NAME: persistence_update_lab
 #+BEGIN_SRC python
     def update_lab(self, lab, lab_name, overview, institute, discipline,
-                         integration_status, hosting_info, developers, assets):
+                       integration_status, hosting_info, developers,
+                       assets, experiments):
         lab.set(lab_name=lab_name, overview=overview, institute=institute, 
                     discipline=discipline, hosting_info=hosting_info,
                     integration_status=integration_status,
-                    developers=developers, assets=assets)
+                    developers=developers, assets=assets,
+                    experiments=experiments)
         lab.save()
         return lab
 
@@ -1189,7 +1191,7 @@ class TestPersistenceDelegate(TestCase):
          inst.save()
 
          dis_name = "Electronics & Communications"
-         dis_id = "IITK"
+         dis_id = "ECE"
          discipline = Discipline(dis_name=dis_name, dis_id=dis_id,
                                      assets=[asset])
          discipline.save()
@@ -1215,10 +1217,25 @@ class TestPersistenceDelegate(TestCase):
                                 hosted_on=hosted_on)
          host.save()
 
+
+         exp_name = "Data Structures"
+         exp_id = "cse01"
+         overview = "overview"
+        
+         exp = Experiment(exp_name=exp_name, exp_id=exp_id, \
+                              overview=overview, sections=[],
+                              institute=inst, discipline=discipline, 
+                              integration_status=integration_status,
+                              assets=[asset], developers=[dev],
+                              hosting_info=[host])
+
+         exp1 = self.persistence_delegate.add_experiment(exp)
+
+
          lab = Lab(lab_name=lab_name, lab_id=lab_id, overview=overview, 
                        institute=inst, discipline=discipline, 
                        assets=[asset], hosting_info=[host],
-                       experiments=experiments, developers=[dev], 
+                       experiments=[exp1], developers=[dev], 
                        integration_status=integration_status) 
 
          lab1 = self.persistence_delegate.add_lab(lab)
@@ -1232,7 +1249,7 @@ class TestPersistenceDelegate(TestCase):
          inst1.save()
 
          dis_name1 = "Computer Science & Engineering"
-         dis_id1 = "IIT Kharagpur"
+         dis_id1 = "CSE"
          discipline1 = Discipline(dis_name=dis_name1, dis_id=dis_id1,
                                       assets=[asset])
          discipline1.save()
@@ -1263,9 +1280,23 @@ class TestPersistenceDelegate(TestCase):
          asset1 = Asset(asset_type=asset_type1, path=path1)
          asset1.save()
 
+         exp_name1 = "Computer Programming"
+         exp_id1 = "cse02"
+         overview1 = "computer overview"
+        
+         exp1 = Experiment(exp_name=exp_name1, exp_id=exp_id1, \
+                              overview=overview1, sections=[],
+                              institute=inst1, discipline=discipline1, 
+                              integration_status=integration_status,
+                              assets=[asset1], developers=[dev1],
+                              hosting_info=[host1])
+
+         exp2 = self.persistence_delegate.add_experiment(exp)
+
          lab2 = self.persistence_delegate.update_lab\
            (lab1, lab_name1, overview1, inst1, discipline1,
-                integration_status1, [host1], [dev1], [asset1]),
+                integration_status1, [host1], [dev1], [asset1], [exp2]),
+
          lab2 = Lab.get_by_id(1)
 
          self.assertEqual(lab2.get("lab_id"), lab_id)
@@ -1285,6 +1316,8 @@ class TestPersistenceDelegate(TestCase):
                               email_id1.get("email"))
          self.assertEqual(lab2.get("assets")[0].get("path"),
                               asset1.get("path"))
+         self.assertEqual(lab2.get("experiments")[0].get("exp_id"),
+                              exp2.get("exp_id"))
 
 
 #+END_SRC
