@@ -37,7 +37,11 @@ class SystemInterface ():
         session_cls = System.delegate.entities['session']
         lab_cls = System.delegate.entities['lab']
         exp_cls = System.delegate.entities['experiment']
+        name_cls = System.delegate.entities['name']
         email_cls = System.delegate.entities['email']
+        developer_cls = System.delegate.entities['developer']
+        asset_cls = System.delegate.entities['asset']
+        hosting_info_cls = System.delegate.entities['hosting_info']
 
         session = session_cls(key=data_dict['key'])
         del(data_dict['key'])
@@ -52,28 +56,44 @@ class SystemInterface ():
         institute = System.do("get_institute", inst_id=inst_id)
 
         integration_level = data_dict['integration_level']
-        integration_status = System.do("get_integration_status", integration_level=integration_level)
+        integration_status = System.do("get_integration_status",
+                                           integration_level=integration_level)
 
         dis_id = data_dict['dis_id']
         discipline = System.do("get_discipline", dis_id=dis_id)
 
+
         assets = data_dict['assets']
         asset_list = []
-        for asset in assets:
-            asset = System.do("get_asset", path=asset)
+        for asset_x in assets:
+            asset = System.do("get_asset", path=asset_x['path'])
+            if asset is None:
+                asset = asset_cls(asset_type=str(asset_x['asset_type']), \
+                                      path=str(asset_x['path']))
+                asset = System.do("add_asset", asset=asset, session=session)
             asset_list.append(asset)
 
         developers = data_dict['developers']
         developer_list = []
-        for d_id in developers:
-            email = email_cls(email=d_id)
+        for developer_x in developers:
+            name = name_cls(name=developer_x['name'])
+            email = email_cls(email=developer_x['email'])
             developer = System.do("get_developer", email=email)
+            institute = System.do("get_institute", inst_id=developer_x['inst_id'])
+            discipline = System.do("get_discipline", dis_id=developer_x['dis_id'])
+            if developer is None:
+                developer = developer_cls(name=name, email=email, institute=institute, discipline=discipline)
+                developer = System.do("add_developer", developer=developer, session=session)
             developer_list.append(developer)
 
         hosting_info = data_dict['hosting_info']
         hosting_info_list = []
-        for hosting_info in hosting_info:
-            hosting_info = System.do("get_hosting_info", hosted_url=hosting_info)
+        for hosting_info_x in hosting_info:
+            hosting_info = System.do("get_hosting_info", hosted_url=hosting_info_x['hosted_url'])
+            if hosting_info is None:
+                hosting_info = hosting_info_cls(hosting_status=str(hosting_info_x['hosting_status']), \
+                                      hosted_url=str(hosting_info_x['hosted_url']), hosted_on=str(hosting_info_x['hosted_on']))
+                hosting_info = System.do("add_hosting_info", hosting_info=hosting_info, session=session)
             hosting_info_list.append(hosting_info)
 
         lab = lab_cls(lab_name=data_dict['lab_name'],
@@ -86,7 +106,6 @@ class SystemInterface ():
                                 experiments=exp_list,
                                 developers=developer_list,
                                 hosting_info=hosting_info_list)
-
         try:
             current_app.logger.debug("running operation add_lab")
             lab = System.do("add_lab", lab=lab, session=session)
@@ -136,14 +155,6 @@ class TestAddLab(TestCase):
                    }
 
         asset = SystemInterface.add_asset(data_dict)
-
-        data_dict = {
-                    'key' : KEY,
-                    'name': 'Prof. Dharamaja',
-                    'email': 'abc@gmail.com'
-                   }
-
-        developer = SystemInterface.add_developer(data_dict)
         
         data_dict = {
                     'key' : KEY,
@@ -157,7 +168,8 @@ class TestAddLab(TestCase):
         data_dict = {
                     'key' : KEY,
                     'inst_name': 'IIT Kanpur',
-                    'inst_id': 'IITK'
+                    'inst_id': 'IITK',
+                    'assets': ['vlabs.ac.in/images/static/logo.png']
                     }
 
         institute = SystemInterface.add_institute(data_dict)
@@ -165,10 +177,21 @@ class TestAddLab(TestCase):
         data_dict = {
                     'key' : KEY,
                     'dis_name': 'computer science',
-                    'dis_id': 'CSE'
+                    'dis_id': 'CSE',
+                    'assets': ['vlabs.ac.in/images/static/logo.png']
                    }
 
         discipline = SystemInterface.add_discipline(data_dict)
+
+        data_dict = {
+                    'key' : KEY,
+                    'name': 'Prof. Dharamaja',
+                    'email': 'abc@gmail.com',
+                    'inst_id': 'IITK',
+                    'dis_id': 'CSE'
+                   }
+
+        developer = SystemInterface.add_developer(data_dict)
 
         data_dict = {
                     'key': KEY,
@@ -176,27 +199,50 @@ class TestAddLab(TestCase):
                     'exp_id': 'exp123',
                     'overview': 'overview', 
                     'sections': [],
-                    'developers': ['abc@gmail.com'],
-                    'hosting_info': ['http://cse14-iiith.vlabs.ac.in'],
+                    'developers': [{'name':'Prof. Dharamaja',
+                                    'email': 'abc@gmail.com',
+                                    'inst_id': 'IITK', 'dis_id': 'CSE'},
+                                    {'name':'Prof. Pallavi Pawar',
+                                    'email': 'pallavi.pawar@gmail.com',
+                                    'inst_id': 'IITK', 'dis_id': 'CSE'}],
+                    'hosting_info': [{'hosted_url':'http://cse14-iiith.vlabs.ac.in',
+                                    'hosting_status': 'hosted',
+                                    'hosted_on': 'cloud'},
+                                    {'hosted_url':'http://iitkgp.vlab.co.in/',
+                                    'hosting_status': 'hosted',
+                                    'hosted_on': 'server'}],
                     'inst_id': 'IITK',
                     'dis_id': 'CSE',
-                    'assets': ['vlabs.ac.in/images/static/logo.png'],
+                    'assets': [],
                     'integration_level': 4,
                    }
 
         experiment = SystemInterface.add_experiment(data_dict)
 
         data_dict = {'lab_name': 'data structure',
-                    'lab_id': 'cse02',
-                    'overview': 'overview',
-                    'key': KEY,
-                    'inst_id': 'IITK',
-                    'dis_id': 'CSE',
-                    'assets': ['vlabs.ac.in/images/static/logo.png'],
-                    'integration_level': 4,
-                    'experiments': ['exp123'],
-                    'developers': ['abc@gmail.com'],
-                    'hosting_info': ['http://cse14-iiith.vlabs.ac.in']
+                     'lab_id': 'cse02',
+                     'overview': 'overview',
+                     'key': KEY,
+                     'inst_id': 'IITK',
+                     'dis_id': 'CSE',
+                     'assets': [{'path':'vlabs.ac.in/images/static/logo.png',
+                                    'asset_type': 'image'},
+                                {'path':'vlabs.ac.in/images/static/image.png',
+                                    'asset_type': 'image'}],
+                     'developers': [{'name':'Prof. Dharamaja',
+                                    'email': 'abc@gmail.com',
+                                    'inst_id': 'IITK', 'dis_id': 'CSE'},
+                                    {'name':'Prof. Pallavi Pawar',
+                                    'email': 'pallavi.pawar@gmail.com',
+                                    'inst_id': 'IITK', 'dis_id': 'CSE'}],
+                     'hosting_info': [{'hosted_url':'http://cse14-iiith.vlabs.ac.in',
+                                    'hosting_status': 'hosted',
+                                    'hosted_on': 'cloud'},
+                                    {'hosted_url':'http://iitkgp.vlab.co.in/',
+                                    'hosting_status': 'hosted',
+                                    'hosted_on': 'server'}],
+                     'integration_level': 4,
+                     'experiments': ['exp123']
                    }
 
         lab = SystemInterface.add_lab(data_dict)
@@ -238,13 +284,6 @@ class TestAddLab(TestCase):
         asset = SystemInterface.add_asset(data_dict)
 
         data_dict = {
-                    'key' : KEY,
-                    'name': 'Prof. Dharamaja',
-                    'email': 'abc@gmail.com'
-                   }
-        developer = SystemInterface.add_developer(data_dict)
-
-        data_dict = {
                     'hosting_status': 'hosted',
                     'hosted_url': 'http://cse14-iiith.vlabs.ac.in',
                     'hosted_on': 'cloud',
@@ -256,7 +295,8 @@ class TestAddLab(TestCase):
         data_dict = {
                     'key' : KEY,
                     'inst_name': 'IIT Kanpur',
-                    'inst_id': 'IITK'
+                    'inst_id': 'IITK',
+                    'assets': ['vlabs.ac.in/images/static/logo.png']
                     }
 
         institute = SystemInterface.add_institute(data_dict)
@@ -264,23 +304,47 @@ class TestAddLab(TestCase):
         data_dict = {
                     'key' : KEY,
                     'dis_name': 'computer science',
-                    'dis_id': 'CSE'
+                    'dis_id': 'CSE',
+                    'assets': ['vlabs.ac.in/images/static/logo.png']
                    }
 
         discipline = SystemInterface.add_discipline(data_dict)
+
+        data_dict = {
+                    'key' : KEY,
+                    'name': 'Prof. Dharamaja',
+                    'email': 'abc@gmail.com',
+                    'inst_id': 'IITK',
+                    'dis_id': 'CSE'
+                   }
+
+        developer = SystemInterface.add_developer(data_dict)
 
         data_dict = {
                     'key': KEY,
                     'exp_name': 'arrays',
                     'exp_id': 'exp123',
                     'overview': 'overview',
-                    'assets': ['vlabs.ac.in/images/static/logo.png'], 
+                    'assets': [{'path':'vlabs.ac.in/images/static/logo.png',
+                                    'asset_type': 'image'},
+                                {'path':'vlabs.ac.in/images/static/image.png',
+                                    'asset_type': 'image'}],
                     'inst_id': 'IITK',
                     'dis_id': 'CSE', 
                     'integration_level': 4,
                     'sections': [], 
-                    'developers': ['abc@gmail.com'],
-                    'hosting_info': ['http://cse14-iiith.vlabs.ac.in']
+                    'developers': [{'name':'Prof. Dharamaja',
+                                    'email': 'abc@gmail.com',
+                                    'inst_id': 'IITK', 'dis_id': 'CSE'},
+                                    {'name':'Prof. Pallavi Pawar',
+                                    'email': 'pallavi.pawar@gmail.com',
+                                    'inst_id': 'IITK', 'dis_id': 'CSE'}],
+                    'hosting_info': [{'hosted_url':'http://cse14-iiith.vlabs.ac.in',
+                                    'hosting_status': 'hosted',
+                                    'hosted_on': 'cloud'},
+                                    {'hosted_url':'http://iitkgp.vlab.co.in/',
+                                    'hosting_status': 'hosted',
+                                    'hosted_on': 'server'}]
                    }
 
         experiment = SystemInterface.add_experiment(data_dict)
@@ -291,11 +355,24 @@ class TestAddLab(TestCase):
                     'key': KEY,
                     'inst_id': 'IITK',
                     'dis_id': 'CSE',
-                    'assets': ['vlabs.ac.in/images/static/logo.png'],
+                    'assets': [{'path':'vlabs.ac.in/images/static/logo.png',
+                                    'asset_type': 'image'},
+                                {'path':'vlabs.ac.in/images/static/image.png',
+                                    'asset_type': 'image'}],
                     'experiments': ['exp123'],
                     'integration_level': 4,
-                    'developers': ['abc@gmail.com'],
-                    'hosting_info': ['http://cse14-iiith.vlabs.ac.in']
+                    'developers': [{'name':'Prof. Dharamaja',
+                                    'email': 'abc@gmail.com',
+                                    'inst_id': 'IITK', 'dis_id': 'CSE'},
+                                    {'name':'Prof. Pallavi Pawar',
+                                    'email': 'pallavi.pawar@gmail.com',
+                                    'inst_id': 'IITK', 'dis_id': 'CSE'}],
+                    'hosting_info': [{'hosted_url':'http://cse14-iiith.vlabs.ac.in',
+                                    'hosting_status': 'hosted',
+                                    'hosted_on': 'cloud'},
+                                    {'hosted_url':'http://iitkgp.vlab.co.in/',
+                                    'hosting_status': 'hosted',
+                                    'hosted_on': 'server'}]
                     }
 
         with self.assertRaises(TypeError):
@@ -314,7 +391,11 @@ class TestAddLab(TestCase):
         experiment_cls = System.delegate.entities['experiment']
         institute_cls = System.delegate.entities['institute']
         discipline_cls = System.delegate.entities['discipline']
+        developer_cls = System.delegate.entities['developer']
+        name_cls = System.delegate.entities['name']
         email_cls = System.delegate.entities['email']
+        hosting_info_cls = System.delegate.entities['hosting_info']
+        asset_cls = System.delegate.entities['asset']
         session = session_cls(key=data_dict['key'])
         del(data_dict['key'])
 
@@ -332,20 +413,38 @@ class TestAddLab(TestCase):
 
         assets = data_dict['assets']
         asset_list = []
-        for asset in assets:
-            asset = System.do("get_asset", path=asset)
+        for asset_x in assets:
+            asset = System.do("get_asset", path=asset_x['path'])
+            if asset is None:
+                asset = asset_cls(asset_type=str(asset_x['asset_type']), \
+                                      path=str(asset_x['path']))
+                asset = System.do("add_asset", asset=asset, session=session)
             asset_list.append(asset)
+
         developers = data_dict['developers']
         developer_list = []
-        for d_id in developers:
-            email = email_cls(email=d_id)
+        for developer_x in developers:
+            name = name_cls(name=developer_x['name'])
+            email = email_cls(email=developer_x['email'])
             developer = System.do("get_developer", email=email)
+            institute = System.do("get_institute", inst_id=developer_x['inst_id'])
+            discipline = System.do("get_discipline", dis_id=developer_x['dis_id'])
+            if developer is None:
+                developer = developer_cls(name=name, email=email,
+                                              institute=institute,
+                                              discipline=discipline)
+                developer = System.do("add_developer", developer=developer,
+                                          session=session)
             developer_list.append(developer)
 
         hosting_info = data_dict['hosting_info']
         hosting_info_list = []
-        for hosting_info in hosting_info:
-            hosting_info = System.do("get_hosting_info", hosted_url=hosting_info)
+        for hosting_info_x in hosting_info:
+            hosting_info = System.do("get_hosting_info", hosted_url=hosting_info_x['hosted_url'])
+            if hosting_info is None:
+                hosting_info = hosting_info_cls(hosting_status=str(hosting_info_x['hosting_status']), \
+                                      hosted_url=str(hosting_info_x['hosted_url']), hosted_on=str(hosting_info_x['hosted_on']))
+                hosting_info = System.do("add_hosting_info", hosting_info=hosting_info, session=session)
             hosting_info_list.append(hosting_info)
 
         experiment = experiment_cls(exp_name=data_dict['exp_name'],
@@ -414,8 +513,17 @@ class TestAddExperiment(TestCase):
 
         data_dict = {
                     'key' : KEY,
+                    'asset_type': 'Image',
+                    'path': 'vlabs.ac.in/images/static/logo.png'
+                    }
+
+        asset = SystemInterface.add_asset(data_dict)
+
+        data_dict = {
+                    'key' : KEY,
                     'inst_name': 'IIT Kanpur',
-                    'inst_id': 'IITK'
+                    'inst_id': 'IITK',
+                    'assets': ['vlabs.ac.in/images/static/logo.png']
                     }
 
         institute = SystemInterface.add_institute(data_dict)
@@ -423,7 +531,8 @@ class TestAddExperiment(TestCase):
         data_dict = {
                     'key' : KEY,
                     'dis_name': 'computer science',
-                    'dis_id': 'CSE'
+                    'dis_id': 'CSE',
+                    'assets': ['vlabs.ac.in/images/static/logo.png']
                    }
 
         discipline = SystemInterface.add_discipline(data_dict)
@@ -437,17 +546,12 @@ class TestAddExperiment(TestCase):
 
         data_dict = {
                     'key' : KEY,
-                    'asset_type': 'Image',
-                    'path': 'vlabs.ac.in/images/static/logo.png'
-                   }
-
-        asset = SystemInterface.add_asset(data_dict)
-
-        data_dict = {
-                    'key' : KEY,
                     'name': 'Prof. Dharamaja',
-                    'email': 'abc@gmail.com'
+                    'email': 'abc@gmail.com',
+                    'inst_id': 'IITK',
+                    'dis_id': 'CSE'
                    }
+
         developer = SystemInterface.add_developer(data_dict)
         
         data_dict = {
@@ -467,10 +571,23 @@ class TestAddExperiment(TestCase):
                     'sections': ["Introduction", "Quize"],
                     'inst_id': 'IITK',
                     'dis_id': 'CSE',
-                    'assets': ['vlabs.ac.in/images/static/logo.png'], 
+                    'assets': [{'path':'vlabs.ac.in/images/static/logo.png',
+                                    'asset_type': 'image'},
+                                {'path':'vlabs.ac.in/images/static/image.png',
+                                    'asset_type': 'image'}], 
                     'integration_level': 4,
-                    'developers': ['abc@gmail.com'],
-                    'hosting_info': ['http://cse14-iiith.vlabs.ac.in']
+                    'developers': [{'name':'Prof. Dharamaja',
+                                    'email': 'abc@gmail.com',
+                                    'inst_id': 'IITK', 'dis_id': 'CSE'},
+                                    {'name':'Prof. Pallavi Pawar',
+                                    'email': 'pallavi.pawar@gmail.com',
+                                    'inst_id': 'IITK', 'dis_id': 'CSE'}],
+                    'hosting_info': [{'hosted_url':'http://cse14-iiith.vlabs.ac.in',
+                                    'hosting_status': 'hosted',
+                                    'hosted_on': 'cloud'},
+                                    {'hosted_url':'http://iitkgp.vlab.co.in/',
+                                    'hosting_status': 'hosted',
+                                    'hosted_on': 'server'}]
                    }
 
         experiment = SystemInterface.add_experiment(data_dict)
@@ -495,8 +612,18 @@ class TestAddExperiment(TestCase):
 
         data_dict = {
                     'key' : KEY,
+                    'asset_type': 'Image',
+                    'path': 'vlabs.ac.in/images/static/logo.png'
+                   }
+
+        asset = SystemInterface.add_asset(data_dict)
+
+
+        data_dict = {
+                    'key' : KEY,
                     'inst_name': 'IIT Kanpur',
-                    'inst_id': 'IITK'
+                    'inst_id': 'IITK',
+                    'assets': ['vlabs.ac.in/images/static/logo.png']
                     }
 
         institute = SystemInterface.add_institute(data_dict)
@@ -504,7 +631,8 @@ class TestAddExperiment(TestCase):
         data_dict = {
                     'key' : KEY,
                     'dis_name': 'computer science',
-                    'dis_id': 'CSE'
+                    'dis_id': 'CSE',
+                    'assets': ['vlabs.ac.in/images/static/logo.png']
                    }
         discipline = SystemInterface.add_discipline(data_dict)
 
@@ -517,17 +645,12 @@ class TestAddExperiment(TestCase):
 
         data_dict = {
                     'key' : KEY,
-                    'asset_type': 'Image',
-                    'path': 'vlabs.ac.in/images/static/logo.png'
-                   }
-
-        asset = SystemInterface.add_asset(data_dict)
-
-        data_dict = {
-                    'key' : KEY,
                     'name': 'Prof. Dharamaja',
-                    'email': 'abc@gmail.com'
+                    'email': 'abc@gmail.com',
+                    'inst_id': 'IITK',
+                    'dis_id': 'CSE'
                    }
+
         developer = SystemInterface.add_developer(data_dict)
 
         data_dict = {
@@ -544,13 +667,26 @@ class TestAddExperiment(TestCase):
                     'exp_name': 'cse02',
                     'overview': 'overview',
                     'integration_level': 4,
-                    'assets': ['vlabs.ac.in/images/static/logo.png'], 
+                    'assets': [{'path':'vlabs.ac.in/images/static/logo.png',
+                                    'asset_type': 'image'},
+                                {'path':'vlabs.ac.in/images/static/image.png',
+                                    'asset_type': 'image'}], 
                     'exp_id': 123,
                     'sections': ["Theory", "Procedure"],
                     'inst_id': 'IITK',
                     'dis_id': 'CSE',
-                    'developers': ['abc@gmail.com'],
-                    'hosting_info': ['http://cse14-iiith.vlabs.ac.in']
+                    'developers': [{'name':'Prof. Dharamaja',
+                                    'email': 'abc@gmail.com',
+                                    'inst_id': 'IITK', 'dis_id': 'CSE'},
+                                    {'name':'Prof. Pallavi Pawar',
+                                    'email': 'pallavi.pawar@gmail.com',
+                                    'inst_id': 'IITK', 'dis_id': 'CSE'}],
+                    'hosting_info': [{'hosted_url':'http://cse14-iiith.vlabs.ac.in',
+                                    'hosting_status': 'hosted',
+                                    'hosted_on': 'cloud'},
+                                    {'hosted_url':'http://iitkgp.vlab.co.in/',
+                                    'hosting_status': 'hosted',
+                                    'hosted_on': 'server'}],
 		    }
         with self.assertRaises(TypeError):
             SystemInterface.add_experiment(data_dict)
@@ -564,12 +700,19 @@ class TestAddExperiment(TestCase):
     def add_institute(data_dict):
         session_cls = System.delegate.entities['session']       
         institute_cls = System.delegate.entities['institute']
+        asset_cls = System.delegate.entities['asset']
 
         session = session_cls(key=data_dict['key'])
         del(data_dict['key'])
 
+        assets = data_dict['assets']
+        asset_list = []
+        for asset in assets:
+            asset = System.do("get_asset", path=asset)
+            asset_list.append(asset)
         institute = institute_cls(inst_name=str(data_dict['inst_name']),
-                                  inst_id=str(data_dict['inst_id']))
+                                  inst_id=str(data_dict['inst_id']),
+                                  assets=asset_list)
 
         try:
             current_app.logger.debug("running operation add_institute")
@@ -607,8 +750,17 @@ class TestAddInstitute(TestCase):
 
         data_dict = {
                     'key' : KEY,
+                    'asset_type': 'Image',
+                    'path': 'vlabs.ac.in/images/static/logo.png'
+                   }
+
+        asset = SystemInterface.add_asset(data_dict)
+
+        data_dict = {
+                    'key' : KEY,
                     'inst_name': 'IIT Kanpur',
-                    'inst_id': 'IITK'
+                    'inst_id': 'IITK',
+                    'assets': ['vlabs.ac.in/images/static/logo.png']
                     }
 
         institute = SystemInterface.add_institute(data_dict)
@@ -618,7 +770,28 @@ class TestAddInstitute(TestCase):
         self.assertEqual(institute.get("inst_name"), 
                              data_dict['inst_name'])
         self.assertEqual(institute.get("inst_id"), data_dict['inst_id'])
-        
+        self.assertEqual(institute.get("assets")[0].get("path"), 
+                             'vlabs.ac.in/images/static/logo.png')
+
+#    def test_add_institute_raises_type_error_in_system_interface(self):
+#        print "test_add_institute_raises_type_error_in_system_interface"
+ 
+#        data_dict = {
+#                    'key' : KEY,
+#                    'asset_type': 'Image',
+#                    'path': 'vlabs.ac.in/images/static/logo.png'
+#                   }
+
+#        asset = SystemInterface.add_asset(data_dict)
+       
+#        data_dict = {
+#                    'key' : KEY,
+#                    'inst_name': 'IIT Kanpur',
+#                    'inst_id': 123,
+#                    'assets': ['vlabs.ac.in/images/static/logo.png']
+#                    }
+#        with self.assertRaises(TypeError):
+#            SystemInterface.add_institute(data_dict)
 
  #+END_SRC
 
@@ -630,10 +803,19 @@ class TestAddInstitute(TestCase):
     def add_discipline(data_dict):
         session_cls = System.delegate.entities['session']
         discipline_cls = System.delegate.entities['discipline']
+        asset_cls = System.delegate.entities['asset']
 
         session = session_cls(key=data_dict['key'])
+
+        assets = data_dict['assets']
+        asset_list = []
+        for asset in assets:
+            asset = System.do("get_asset", path=asset)
+            asset_list.append(asset)
+ 
         discipline = discipline_cls(dis_name=data_dict['dis_name'],
-                                dis_id=data_dict['dis_id'])
+                                    dis_id=data_dict['dis_id'],
+                                    assets=asset_list)
         try:
             current_app.logger.debug("running operation add_discipline")
             question = System.do("add_discipline", discipline=discipline, 
@@ -673,8 +855,17 @@ class TestAddDiscipline(TestCase):
 
         data_dict = {
                     'key' : KEY,
+                    'asset_type': 'Image',
+                    'path': 'vlabs.ac.in/images/static/logo.png'
+                   }
+
+        asset = SystemInterface.add_asset(data_dict)
+
+        data_dict = {
+                    'key' : KEY,
                     'dis_name': 'array',
-                    'dis_id': 'cse02'
+                    'dis_id': 'cse02',
+                    'assets': ['vlabs.ac.in/images/static/logo.png']
                    }
 
         discipline = SystemInterface.add_discipline(data_dict)
@@ -682,14 +873,25 @@ class TestAddDiscipline(TestCase):
         self.assertEqual(discipline.get("dis_name"), 
                              data_dict['dis_name'])
         self.assertEqual(discipline.get("dis_id"), data_dict['dis_id'])
+        self.assertEqual(discipline.get("assets")[0].get("path"), 
+                             'vlabs.ac.in/images/static/logo.png')
         
     def test_add_discipline_raises_type_error_in_system_interface(self):
         print "test_add_discipline_raises_type_error_in_system_interface"
 
         data_dict = {
                     'key' : KEY,
+                    'asset_type': 'Image',
+                    'path': 'vlabs.ac.in/images/static/logo.png'
+                   }
+
+        asset = SystemInterface.add_asset(data_dict)
+
+        data_dict = {
+                    'key' : KEY,
                     'dis_name': 'cse02',
-                    'dis_id': 123
+                    'dis_id': 123,
+                    'assets': ['vlabs.ac.in/images/static/logo.png']
 		    }
         with self.assertRaises(TypeError):
             SystemInterface.add_discipline(data_dict)
@@ -960,68 +1162,6 @@ class TestAddEmail(TestCase):
             SystemInterface.add_email(data_dict)
  #+END_SRC
 
-#** Get Emails
-#+NAME: class_get_emails
-#+begin_src python
-    @staticmethod
-    def get_emails():
-        email_cls = System.delegate.entities['email']
-        try:
-            current_app.logger.debug("getting emails")
-            emails = email_cls.get_all()
-            email_dict_list = []
-            for email in emails:
-                email_x = email.to_client()
-                email_dict_list.append(email_x)
-            current_app.logger.debug("got emails")
-            return  email_dict_list
-
-        except (ArityError, TypeError, NotAuthorizedError, StateError) as err:
-            current_app.logger.error("Exception = %s" % str(err))
-            raise err
-
-        except Exception as err:
-            current_app.logger.error("Exception = %s" % str(err))
-            raise err
-#+end_src
-
-#*** TestGetEmails
- #+NAME: test_class_get_emails
- #+BEGIN_SRC python
-class TestGetEmails(TestCase):
-    TESTING = True
-    def create_app(self):
-        app = create_app(config)
-        return app
-
-    def setUp(self):
-        db.create_all()
-
-    def tearDown(self):
-        db.session.remove()
-        db.drop_all()
-
-    def test_get_emails_in_system_interface(self):
-        print "test_get_emails_in_system_interface"
-
-        data_dict = {'email': 'dharamaraj@gmail.com',
-                     'key': KEY
-                    }
-
-        data_dict1 = {'email': 'raja@gmail.com',
-                      'key': KEY
-                     }
-
-        email1 = SystemInterface.add_email(data_dict)
-        email2 = SystemInterface.add_email(data_dict1)
-
-        emails_list = SystemInterface.get_emails()
-        
-        self.assertEqual(emails_list[0].get("email"), data_dict['email'])
-        self.assertEqual(emails_list[1].get("email"), data_dict1['email'])
-
- #+END_SRC
-
 
 ** Add Developer
 #+NAME: class_add_developer
@@ -1032,12 +1172,21 @@ class TestGetEmails(TestCase):
         name_cls = System.delegate.entities['name']
         email_cls = System.delegate.entities['email']
         developer_cls = System.delegate.entities['developer']
+        institute_cls = System.delegate.entities['institute']
+        discipline_cls = System.delegate.entities['discipline']
 
         session = session_cls(key=data_dict['key'])
         name = name_cls(name=str(data_dict['name']))
         email = email_cls(email=str(data_dict['email']))
 
-        developer = developer_cls(name=name, email=email)
+        inst_id = data_dict['inst_id']
+        institute = System.do("get_institute", inst_id=inst_id)
+
+        dis_id = data_dict['dis_id']
+        discipline = System.do("get_discipline", dis_id=dis_id)
+
+        developer = developer_cls(name=name, email=email,
+                                  institute=institute, discipline=discipline)
 
         try:
             current_app.logger.debug("running operation add_developer")
@@ -1076,9 +1225,37 @@ class TestAddDeveloper(TestCase):
         print "test_add_developer_in_system_interface"
 
         data_dict = {
-                    'key': KEY,
-                    'name': 'Prof. S. Dharmaraja',
-                    'email': 'dharmar@maths.iitd.ac.in'
+                    'key' : KEY,
+                    'asset_type': 'Image',
+                    'path': 'vlabs.ac.in/images/static/logo.png'
+                   }
+
+        asset = SystemInterface.add_asset(data_dict)
+
+        data_dict = {
+                    'key' : KEY,
+                    'inst_name': 'IIT Kanpur',
+                    'inst_id': 'IITK',
+                    'assets': ['vlabs.ac.in/images/static/logo.png']
+                    }
+
+        institute = SystemInterface.add_institute(data_dict)
+
+        data_dict = {
+                    'key' : KEY,
+                    'dis_name': 'computer science',
+                    'dis_id': 'CSE',
+                    'assets': ['vlabs.ac.in/images/static/logo.png']
+                   }
+
+        discipline = SystemInterface.add_discipline(data_dict)
+
+        data_dict = {
+                    'key' : KEY,
+                    'name': 'Prof. Dharamaja',
+                    'email': 'abc@gmail.com',
+                    'inst_id': 'IITK',
+                    'dis_id': 'CSE'
                    }
 
         developer = SystemInterface.add_developer(data_dict)
@@ -1222,14 +1399,6 @@ class TestGetLabsByLabName(TestCase):
                    }
 
         asset = SystemInterface.add_asset(data_dict)
-
-        data_dict = {
-                    'key' : KEY,
-                    'name': 'Prof. Dharamaja',
-                    'email': 'abc@gmail.com'
-                   }
-
-        developer = SystemInterface.add_developer(data_dict)
         
         data_dict = {
                     'key' : KEY,
@@ -1243,7 +1412,8 @@ class TestGetLabsByLabName(TestCase):
         data_dict = {
                     'key' : KEY,
                     'inst_name': 'IIT Kanpur',
-                    'inst_id': 'IITK'
+                    'inst_id': 'IITK',
+                    'assets': ['vlabs.ac.in/images/static/logo.png']
                     }
 
         institute = SystemInterface.add_institute(data_dict)
@@ -1251,10 +1421,21 @@ class TestGetLabsByLabName(TestCase):
         data_dict = {
                     'key' : KEY,
                     'dis_name': 'computer science',
-                    'dis_id': 'CSE'
+                    'dis_id': 'CSE',
+                    'assets': ['vlabs.ac.in/images/static/logo.png']
                    }
 
         discipline = SystemInterface.add_discipline(data_dict)
+
+        data_dict = {
+                    'key' : KEY,
+                    'name': 'Prof. Dharamaja',
+                    'email': 'abc@gmail.com',
+                    'inst_id': 'IITK',
+                    'dis_id': 'CSE'
+                   }
+
+        developer = SystemInterface.add_developer(data_dict)
 
         data_dict = {
                     'key': KEY,
@@ -1262,11 +1443,24 @@ class TestGetLabsByLabName(TestCase):
                     'exp_id': 'exp123',
                     'overview': 'overview', 
                     'sections': [],
-                    'developers': ['abc@gmail.com'],
-                    'hosting_info': ['http://cse14-iiith.vlabs.ac.in'],
+                    'developers': [{'name':'Prof. Dharamaja',
+                                    'email': 'abc@gmail.com',
+                                    'inst_id': 'IITK', 'dis_id': 'CSE'},
+                                    {'name':'Prof. Pallavi Pawar',
+                                    'email': 'pallavi.pawar@gmail.com',
+                                    'inst_id': 'IITK', 'dis_id': 'CSE'}],
+                    'hosting_info': [{'hosted_url':'http://cse14-iiith.vlabs.ac.in',
+                                    'hosting_status': 'hosted',
+                                    'hosted_on': 'cloud'},
+                                    {'hosted_url':'http://iitkgp.vlab.co.in/',
+                                    'hosting_status': 'hosted',
+                                    'hosted_on': 'server'}],
                     'inst_id': 'IITK',
                     'dis_id': 'CSE',
-                    'assets': ['vlabs.ac.in/images/static/logo.png'],
+                    'assets': [{'path':'vlabs.ac.in/images/static/logo.png',
+                                    'asset_type': 'image'},
+                                {'path':'vlabs.ac.in/images/static/image.png',
+                                    'asset_type': 'image'}],
                     'integration_level': 4,
                    }
 
@@ -1278,11 +1472,24 @@ class TestGetLabsByLabName(TestCase):
                     'key': KEY,
                     'inst_id': 'IITK',
                     'dis_id': 'CSE',
-                    'assets': ['vlabs.ac.in/images/static/logo.png'],
+                    'assets': [{'path':'vlabs.ac.in/images/static/logo.png',
+                                    'asset_type': 'image'},
+                                {'path':'vlabs.ac.in/images/static/image.png',
+                                    'asset_type': 'image'}],
+                    'developers': [{'name':'Prof. Dharamaja',
+                                    'email': 'abc@gmail.com',
+                                    'inst_id': 'IITK', 'dis_id': 'CSE'},
+                                    {'name':'Prof. Pallavi Pawar',
+                                    'email': 'pallavi.pawar@gmail.com',
+                                    'inst_id': 'IITK', 'dis_id': 'CSE'}],
+                    'hosting_info': [{'hosted_url':'http://cse14-iiith.vlabs.ac.in',
+                                    'hosting_status': 'hosted',
+                                    'hosted_on': 'cloud'},
+                                    {'hosted_url':'http://iitkgp.vlab.co.in/',
+                                    'hosting_status': 'hosted',
+                                    'hosted_on': 'server'}],
                     'integration_level': 4,
-                    'experiments': ['exp123'],
-                    'developers': ['abc@gmail.com'],
-                    'hosting_info': ['http://cse14-iiith.vlabs.ac.in']
+                    'experiments': ['exp123']
                    }
 
         data_dict1 = {'lab_name': "data Automata",
@@ -1291,11 +1498,24 @@ class TestGetLabsByLabName(TestCase):
                       'overview': 'overview',
                       'inst_id': 'IITK',
                       'dis_id': 'CSE',
-                      'assets': ['vlabs.ac.in/images/static/logo.png'],
+                      'assets': [{'path':'vlabs.ac.in/images/static/logo.png',
+                                    'asset_type': 'image'},
+                                {'path':'vlabs.ac.in/images/static/image.png',
+                                    'asset_type': 'image'}],
+                      'developers': [{'name':'Prof. Dharamaja',
+                                    'email': 'abc@gmail.com',
+                                    'inst_id': 'IITK', 'dis_id': 'CSE'},
+                                    {'name':'Prof. Pallavi Pawar',
+                                    'email': 'pallavi.pawar@gmail.com',
+                                    'inst_id': 'IITK', 'dis_id': 'CSE'}],
+                      'hosting_info': [{'hosted_url':'http://cse14-iiith.vlabs.ac.in',
+                                    'hosting_status': 'hosted',
+                                    'hosted_on': 'cloud'},
+                                    {'hosted_url':'http://iitkgp.vlab.co.in/',
+                                    'hosting_status': 'hosted',
+                                    'hosted_on': 'server'}],
                       'experiments': ['exp123'], 
-                      'integration_level': 4,
-                      'developers': ['abc@gmail.com'],
-                      'hosting_info': ['http://cse14-iiith.vlabs.ac.in']
+                      'integration_level': 4
                       }
 
         lab1 = SystemInterface.add_lab(data_dict)
@@ -1373,14 +1593,6 @@ class TestGetLabsByKeywordLabName(TestCase):
                    }
 
         asset = SystemInterface.add_asset(data_dict)
-
-        data_dict = {
-                    'key' : KEY,
-                    'name': 'Prof. Dharamaja',
-                    'email': 'abc@gmail.com'
-                   }
-
-        developer = SystemInterface.add_developer(data_dict)
         
         data_dict = {
                     'key' : KEY,
@@ -1394,7 +1606,8 @@ class TestGetLabsByKeywordLabName(TestCase):
         data_dict = {
                     'key' : KEY,
                     'inst_name': 'IIT Kanpur',
-                    'inst_id': 'IITK'
+                    'inst_id': 'IITK',
+                    'assets': ['vlabs.ac.in/images/static/logo.png']
                     }
 
         institute = SystemInterface.add_institute(data_dict)
@@ -1402,10 +1615,21 @@ class TestGetLabsByKeywordLabName(TestCase):
         data_dict = {
                     'key' : KEY,
                     'dis_name': 'computer science',
-                    'dis_id': 'CSE'
+                    'dis_id': 'CSE',
+                    'assets': ['vlabs.ac.in/images/static/logo.png']
                    }
 
         discipline = SystemInterface.add_discipline(data_dict)
+
+        data_dict = {
+                    'key' : KEY,
+                    'name': 'Prof. Dharamaja',
+                    'email': 'abc@gmail.com',
+                    'inst_id': 'IITK',
+                    'dis_id': 'CSE'
+                   }
+
+        developer = SystemInterface.add_developer(data_dict)
 
         data_dict = {
                     'key': KEY,
@@ -1413,11 +1637,24 @@ class TestGetLabsByKeywordLabName(TestCase):
                     'exp_id': 'exp123',
                     'overview': 'overview', 
                     'sections': [],
-                    'developers': ['abc@gmail.com'],
-                    'hosting_info': ['http://cse14-iiith.vlabs.ac.in'],
+                    'developers': [{'name':'Prof. Dharamaja',
+                                    'email': 'abc@gmail.com',
+                                    'inst_id': 'IITK', 'dis_id': 'CSE'},
+                                    {'name':'Prof. Pallavi Pawar',
+                                    'email': 'pallavi.pawar@gmail.com',
+                                    'inst_id': 'IITK', 'dis_id': 'CSE'}],
+                    'hosting_info': [{'hosted_url':'http://cse14-iiith.vlabs.ac.in',
+                                    'hosting_status': 'hosted',
+                                    'hosted_on': 'cloud'},
+                                    {'hosted_url':'http://iitkgp.vlab.co.in/',
+                                    'hosting_status': 'hosted',
+                                    'hosted_on': 'server'}],
                     'inst_id': 'IITK',
                     'dis_id': 'CSE',
-                    'assets': ['vlabs.ac.in/images/static/logo.png'],
+                    'assets': [{'path':'vlabs.ac.in/images/static/logo.png',
+                                    'asset_type': 'image'},
+                                {'path':'vlabs.ac.in/images/static/image.png',
+                                    'asset_type': 'image'}],
                     'integration_level': 4,
                    }
 
@@ -1429,11 +1666,24 @@ class TestGetLabsByKeywordLabName(TestCase):
                     'key': KEY,
                     'inst_id': 'IITK',
                     'dis_id': 'CSE',
-                    'assets': ['vlabs.ac.in/images/static/logo.png'],
+                    'assets': [{'path':'vlabs.ac.in/images/static/logo.png',
+                                    'asset_type': 'image'},
+                                {'path':'vlabs.ac.in/images/static/image.png',
+                                    'asset_type': 'image'}],
+                    'developers': [{'name':'Prof. Dharamaja',
+                                    'email': 'abc@gmail.com',
+                                    'inst_id': 'IITK', 'dis_id': 'CSE'},
+                                    {'name':'Prof. Pallavi Pawar',
+                                    'email': 'pallavi.pawar@gmail.com',
+                                    'inst_id': 'IITK', 'dis_id': 'CSE'}],
+                    'hosting_info': [{'hosted_url':'http://cse14-iiith.vlabs.ac.in',
+                                    'hosting_status': 'hosted',
+                                    'hosted_on': 'cloud'},
+                                    {'hosted_url':'http://iitkgp.vlab.co.in/',
+                                    'hosting_status': 'hosted',
+                                    'hosted_on': 'server'}],
                     'integration_level': 4,
-                    'experiments': ['exp123'],
-                    'developers': ['abc@gmail.com'],
-                    'hosting_info': ['http://cse14-iiith.vlabs.ac.in']
+                    'experiments': ['exp123']
                    }
 
         data_dict1 = {'lab_name': "data Automata",
@@ -1442,11 +1692,24 @@ class TestGetLabsByKeywordLabName(TestCase):
                       'overview': 'overview',
                       'inst_id': 'IITK',
                       'dis_id': 'CSE',
-                      'assets': ['vlabs.ac.in/images/static/logo.png'],
+                      'assets': [{'path':'vlabs.ac.in/images/static/logo.png',
+                                    'asset_type': 'image'},
+                                {'path':'vlabs.ac.in/images/static/image.png',
+                                    'asset_type': 'image'}],
+                      'developers': [{'name':'Prof. Dharamaja',
+                                    'email': 'abc@gmail.com',
+                                    'inst_id': 'IITK', 'dis_id': 'CSE'},
+                                    {'name':'Prof. Pallavi Pawar',
+                                    'email': 'pallavi.pawar@gmail.com',
+                                    'inst_id': 'IITK', 'dis_id': 'CSE'}],
+                      'hosting_info': [{'hosted_url':'http://cse14-iiith.vlabs.ac.in',
+                                    'hosting_status': 'hosted',
+                                    'hosted_on': 'cloud'},
+                                    {'hosted_url':'http://iitkgp.vlab.co.in/',
+                                    'hosting_status': 'hosted',
+                                    'hosted_on': 'server'}],
                       'experiments': ['exp123'], 
-                      'integration_level': 4,
-                      'developers': ['abc@gmail.com'],
-                      'hosting_info': ['http://cse14-iiith.vlabs.ac.in']
+                      'integration_level': 4
                       }
 
 
@@ -1512,14 +1775,6 @@ class TestGetLabsByInstitute(TestCase):
         print "test_get_labs_by_institute_in_system_interface"
 
         data_dict = {
-                    'key': KEY,
-                    'name': 'Prof. Dharamaja',
-                    'email': 'abc@gmail.com'
-                   }
-
-        developer = SystemInterface.add_developer(data_dict)
-
-        data_dict = {
                     'key' : KEY,
                     'hosting_status': 'hosted',
                     'hosted_url': 'http://cse14-iiith.vlabs.ac.in',
@@ -1537,8 +1792,18 @@ class TestGetLabsByInstitute(TestCase):
 
         data_dict = {
                     'key' : KEY,
+                    'asset_type': 'Image',
+                    'path': 'vlabs.ac.in/images/static/logo.png'
+                   }
+
+        asset = SystemInterface.add_asset(data_dict)
+
+
+        data_dict = {
+                    'key' : KEY,
                     'inst_name': 'IIT Kanpur',
-                    'inst_id': 'IITK'
+                    'inst_id': 'IITK',
+                    'assets': ['vlabs.ac.in/images/static/logo.png']
                     }
 
         institute = SystemInterface.add_institute(data_dict)
@@ -1546,18 +1811,21 @@ class TestGetLabsByInstitute(TestCase):
         data_dict = {
                     'key' : KEY,
                     'dis_name': 'computer science',
-                    'dis_id': 'CSE'
+                    'dis_id': 'CSE',
+                    'assets': ['vlabs.ac.in/images/static/logo.png']
                    }
 
         discipline = SystemInterface.add_discipline(data_dict)
 
         data_dict = {
                     'key' : KEY,
-                    'asset_type': 'Image',
-                    'path': 'vlabs.ac.in/images/static/logo.png'
+                    'name': 'Prof. Dharamaja',
+                    'email': 'abc@gmail.com',
+                    'inst_id': 'IITK',
+                    'dis_id': 'CSE'
                    }
 
-        asset1 = SystemInterface.add_asset(data_dict)
+        developer = SystemInterface.add_developer(data_dict)
 
         data_dict = {
                     'key' : KEY,
@@ -1572,11 +1840,24 @@ class TestGetLabsByInstitute(TestCase):
                     'exp_name': 'arrays',
                     'exp_id': 'exp123',
                     'overview': 'overview',
-                    'assets': ['vlabs.ac.in/images/static/logo.png'], 
+                    'assets': [{'path':'vlabs.ac.in/images/static/logo.png',
+                                    'asset_type': 'image'},
+                                {'path':'vlabs.ac.in/images/static/image.png',
+                                    'asset_type': 'image'}], 
                     'integration_level': 4,
                     'sections': [],
-                    'developers': ['abc@gmail.com'],
-                    'hosting_info': ['http://cse14-iiith.vlabs.ac.in'], 
+                    'developers': [{'name':'Prof. Dharamaja',
+                                    'email': 'abc@gmail.com',
+                                    'inst_id': 'IITK', 'dis_id': 'CSE'},
+                                    {'name':'Prof. Pallavi Pawar',
+                                    'email': 'pallavi.pawar@gmail.com',
+                                    'inst_id': 'IITK', 'dis_id': 'CSE'}],
+                    'hosting_info': [{'hosted_url':'http://cse14-iiith.vlabs.ac.in',
+                                    'hosting_status': 'hosted',
+                                    'hosted_on': 'cloud'},
+                                    {'hosted_url':'http://iitkgp.vlab.co.in/',
+                                    'hosting_status': 'hosted',
+                                    'hosted_on': 'server'}], 
                     'inst_id': 'IITK',
                     'dis_id': 'CSE'
                    }
@@ -1590,11 +1871,24 @@ class TestGetLabsByInstitute(TestCase):
                     'overview': 'overview',
                     'inst_id': 'IITK',
                     'dis_id': 'CSE',
-                    'assets': ['vlabs.ac.in/images/static/logo.png'],
+                    'assets': [{'path':'vlabs.ac.in/images/static/logo.png',
+                                    'asset_type': 'image'},
+                                {'path':'vlabs.ac.in/images/static/image.png',
+                                    'asset_type': 'image'}],
+                    'developers': [{'name':'Prof. Dharamaja',
+                                    'email': 'abc@gmail.com',
+                                    'inst_id': 'IITK', 'dis_id': 'CSE'},
+                                    {'name':'Prof. Pallavi Pawar',
+                                    'email': 'pallavi.pawar@gmail.com',
+                                    'inst_id': 'IITK', 'dis_id': 'CSE'}],
+                    'hosting_info': [{'hosted_url':'http://cse14-iiith.vlabs.ac.in',
+                                    'hosting_status': 'hosted',
+                                    'hosted_on': 'cloud'},
+                                    {'hosted_url':'http://iitkgp.vlab.co.in/',
+                                    'hosting_status': 'hosted',
+                                    'hosted_on': 'server'}],
                     'experiments': ['exp123'], 
-                    'integration_level': 4,
-                    'developers': ['abc@gmail.com'],
-                    'hosting_info': ['http://cse14-iiith.vlabs.ac.in']
+                    'integration_level': 4
                    }
 
         data_dict1 = {
@@ -1604,11 +1898,24 @@ class TestGetLabsByInstitute(TestCase):
                     'overview': 'overview',
                     'inst_id': 'IITK',
                     'dis_id': 'CSE',
-                    'assets': ['vlabs.ac.in/images/static/icon.png'],
+                    'assets': [{'path':'vlabs.ac.in/images/static/logo.png',
+                                    'asset_type': 'image'},
+                                {'path':'vlabs.ac.in/images/static/image.png',
+                                    'asset_type': 'image'}],
+                    'developers': [{'name':'Prof. Dharamaja',
+                                    'email': 'abc@gmail.com',
+                                    'inst_id': 'IITK', 'dis_id': 'CSE'},
+                                    {'name':'Prof. Pallavi Pawar',
+                                    'email': 'pallavi.pawar@gmail.com',
+                                    'inst_id': 'IITK', 'dis_id': 'CSE'}],
+                    'hosting_info': [{'hosted_url':'http://cse14-iiith.vlabs.ac.in',
+                                    'hosting_status': 'hosted',
+                                    'hosted_on': 'cloud'},
+                                    {'hosted_url':'http://iitkgp.vlab.co.in/',
+                                    'hosting_status': 'hosted',
+                                    'hosted_on': 'server'}],
                     'experiments': ['exp123'], 
-                    'integration_level': 4,
-                    'developers': ['abc@gmail.com'],
-                    'hosting_info': ['http://cse14-iiith.vlabs.ac.in']
+                    'integration_level': 4
                    }
 
         lab = SystemInterface.add_lab(data_dict)
@@ -1668,14 +1975,6 @@ class TestGetLabsByDiscipline(TestCase):
         print "test_get_labs_by_discipline_in_system_interface"
 
         data_dict = {
-                    'key': KEY,
-                    'name': 'Prof. Dharamaja',
-                    'email': 'abc@gmail.com'
-                   }
-
-        developer = SystemInterface.add_developer(data_dict)
-
-        data_dict = {
                     'key' : KEY,
                     'hosting_status': 'hosted',
                     'hosted_url': 'http://cse14-iiith.vlabs.ac.in',
@@ -1693,8 +1992,25 @@ class TestGetLabsByDiscipline(TestCase):
 
         data_dict = {
                     'key' : KEY,
+                    'asset_type': 'Image',
+                    'path': 'vlabs.ac.in/images/static/logo.png'
+                    }
+
+        asset = SystemInterface.add_asset(data_dict)
+
+        data_dict = {
+                    'key' : KEY,
+                    'asset_type': 'Image',
+                    'path': 'vlabs.ac.in/images/static/icon.png'
+                    }
+
+        asset2 = SystemInterface.add_asset(data_dict)
+
+        data_dict = {
+                    'key' : KEY,
                     'inst_name': 'IIT Kanpur',
-                    'inst_id': 'IITK'
+                    'inst_id': 'IITK',
+                    'assets': ['vlabs.ac.in/images/static/logo.png']
                     }
 
         institute = SystemInterface.add_institute(data_dict)
@@ -1702,37 +2018,45 @@ class TestGetLabsByDiscipline(TestCase):
         data_dict = {
                     'key' : KEY,
                     'dis_name': 'Computer Science',
-                    'dis_id': 'CSE'
+                    'dis_id': 'CSE',
+                    'assets': ['vlabs.ac.in/images/static/logo.png']
                    }
 
         discipline = SystemInterface.add_discipline(data_dict)
 
         data_dict = {
                     'key' : KEY,
-                    'asset_type': 'Image',
-                    'path': 'vlabs.ac.in/images/static/logo.png'
+                    'name': 'Prof. Dharamaja',
+                    'email': 'abc@gmail.com',
+                    'inst_id': 'IITK',
+                    'dis_id': 'CSE'
                    }
 
-        asset1 = SystemInterface.add_asset(data_dict)
-
-        data_dict = {
-                    'key' : KEY,
-                    'asset_type': 'Image',
-                    'path': 'vlabs.ac.in/images/static/icon.png'
-                   }
-
-        asset2 = SystemInterface.add_asset(data_dict)
+        developer = SystemInterface.add_developer(data_dict)
 
         data_dict = {
                     'key' : KEY,
                     'exp_name': 'arrays',
                     'exp_id': 'exp123',
                     'overview': 'overview',
-                    'assets': ['vlabs.ac.in/images/static/logo.png'], 
+                    'assets': [{'path':'vlabs.ac.in/images/static/logo.png',
+                                    'asset_type': 'image'},
+                                {'path':'vlabs.ac.in/images/static/image.png',
+                                    'asset_type': 'image'}],
                     'integration_level': 4,
                     'sections' : [],
-                    'developers': ['abc@gmail.com'],
-                    'hosting_info': ['http://cse14-iiith.vlabs.ac.in'], 
+                    'developers': [{'name':'Prof. Dharamaja',
+                                    'email': 'abc@gmail.com',
+                                    'inst_id': 'IITK', 'dis_id': 'CSE'},
+                                    {'name':'Prof. Pallavi Pawar',
+                                    'email': 'pallavi.pawar@gmail.com',
+                                    'inst_id': 'IITK', 'dis_id': 'CSE'}],
+                    'hosting_info': [{'hosted_url':'http://cse14-iiith.vlabs.ac.in',
+                                    'hosting_status': 'hosted',
+                                    'hosted_on': 'cloud'},
+                                    {'hosted_url':'http://iitkgp.vlab.co.in/',
+                                    'hosting_status': 'hosted',
+                                    'hosted_on': 'server'}],
                     'inst_id': 'IITK',
                     'dis_id': 'CSE'
                    }
@@ -1746,11 +2070,24 @@ class TestGetLabsByDiscipline(TestCase):
                     'overview': 'overview',
                     'inst_id': 'IITK',
                     'dis_id': 'CSE',
-                    'assets': ['vlabs.ac.in/images/static/logo.png'],
+                    'assets': [{'path':'vlabs.ac.in/images/static/logo.png',
+                                    'asset_type': 'image'},
+                                {'path':'vlabs.ac.in/images/static/image.png',
+                                    'asset_type': 'image'}],
+                    'developers': [{'name':'Prof. Dharamaja',
+                                    'email': 'abc@gmail.com',
+                                    'inst_id': 'IITK', 'dis_id': 'CSE'},
+                                    {'name':'Prof. Pallavi Pawar',
+                                    'email': 'pallavi.pawar@gmail.com',
+                                    'inst_id': 'IITK', 'dis_id': 'CSE'}],
+                    'hosting_info': [{'hosted_url':'http://cse14-iiith.vlabs.ac.in',
+                                    'hosting_status': 'hosted',
+                                    'hosted_on': 'cloud'},
+                                    {'hosted_url':'http://iitkgp.vlab.co.in/',
+                                    'hosting_status': 'hosted',
+                                    'hosted_on': 'server'}],
                     'experiments': ['exp123'], 
-                    'integration_level': 4,
-                    'developers': ['abc@gmail.com'],
-                    'hosting_info': ['http://cse14-iiith.vlabs.ac.in']
+                    'integration_level': 4
                    }
 
         data_dict1 = {
@@ -1760,11 +2097,24 @@ class TestGetLabsByDiscipline(TestCase):
                     'overview': 'overview',
                     'inst_id': 'IITK',
                     'dis_id': 'CSE',
-                    'assets': ['vlabs.ac.in/images/static/icon.png'],
+                    'assets': [{'path':'vlabs.ac.in/images/static/logo.png',
+                                    'asset_type': 'image'},
+                                {'path':'vlabs.ac.in/images/static/image.png',
+                                    'asset_type': 'image'}],
+                    'developers': [{'name':'Prof. Dharamaja',
+                                    'email': 'abc@gmail.com',
+                                    'inst_id': 'IITK', 'dis_id': 'CSE'},
+                                    {'name':'Prof. Pallavi Pawar',
+                                    'email': 'pallavi.pawar@gmail.com',
+                                    'inst_id': 'IITK', 'dis_id': 'CSE'}],
+                    'hosting_info': [{'hosted_url':'http://cse14-iiith.vlabs.ac.in',
+                                    'hosting_status': 'hosted',
+                                    'hosted_on': 'cloud'},
+                                    {'hosted_url':'http://iitkgp.vlab.co.in/',
+                                    'hosting_status': 'hosted',
+                                    'hosted_on': 'server'}],
                     'experiments': ['exp123'], 
-                    'integration_level': 4,
-                    'developers': ['abc@gmail.com'],
-                    'hosting_info': ['http://cse14-iiith.vlabs.ac.in']
+                    'integration_level': 4
                    }
 
         lab = SystemInterface.add_lab(data_dict)
@@ -1823,14 +2173,6 @@ class TestGetLabsByLabName(TestCase):
         print "test_get_labs_by_lab_name_in_system_interface"
 
         data_dict = {
-                    'key': KEY,
-                    'name': 'Prof. Dharamaja',
-                    'email': 'abc@gmail.com'
-                   }
-
-        developer = SystemInterface.add_developer(data_dict)
-
-        data_dict = {
                     'hosting_status': 'hosted',
                     'hosted_url': 'http://cse14-iiith.vlabs.ac.in',
                     'hosted_on': 'cloud',
@@ -1848,22 +2190,6 @@ class TestGetLabsByLabName(TestCase):
 
         data_dict = {
                     'key' : KEY,
-                    'inst_name': 'IIT Kanpur',
-                    'inst_id': 'IITK'
-                    }
-
-        institute = SystemInterface.add_institute(data_dict)
-
-        data_dict = {
-                    'key' : KEY,
-                    'dis_name': 'computer science',
-                    'dis_id': 'CSE'
-                   }
-
-        discipline = SystemInterface.add_discipline(data_dict)
-
-        data_dict = {
-                    'key' : KEY,
                     'asset_type': 'Image',
                     'path': 'vlabs.ac.in/images/static/logo.png'
                    }
@@ -1871,15 +2197,56 @@ class TestGetLabsByLabName(TestCase):
         asset = SystemInterface.add_asset(data_dict)
 
         data_dict = {
+                    'key' : KEY,
+                    'inst_name': 'IIT Kanpur',
+                    'inst_id': 'IITK',
+                    'assets': ['vlabs.ac.in/images/static/logo.png']
+                    }
+
+        institute = SystemInterface.add_institute(data_dict)
+
+        data_dict = {
+                    'key' : KEY,
+                    'dis_name': 'computer science',
+                    'dis_id': 'CSE',
+                    'assets': ['vlabs.ac.in/images/static/logo.png']
+                   }
+
+        discipline = SystemInterface.add_discipline(data_dict)
+
+        data_dict = {
+                    'key' : KEY,
+                    'name': 'Prof. Dharamaja',
+                    'email': 'abc@gmail.com',
+                    'inst_id': 'IITK',
+                    'dis_id': 'CSE'
+                   }
+
+        developer = SystemInterface.add_developer(data_dict)
+
+        data_dict = {
                     'key': KEY,
                     'exp_name': 'arrays',
                     'exp_id': 'exp123',
                     'overview': 'overview',
-                    'assets': ['vlabs.ac.in/images/static/logo.png'], 
+                    'assets': [{'path':'vlabs.ac.in/images/static/logo.png',
+                                    'asset_type': 'image'},
+                                {'path':'vlabs.ac.in/images/static/image.png',
+                                    'asset_type': 'image'}], 
                     'integration_level': 4,
                     'sections': [],
-                    'developers': ['abc@gmail.com'],
-                    'hosting_info': ['http://cse14-iiith.vlabs.ac.in'], 
+                    'developers': [{'name':'Prof. Dharamaja',
+                                    'email': 'abc@gmail.com',
+                                    'inst_id': 'IITK', 'dis_id': 'CSE'},
+                                    {'name':'Prof. Pallavi Pawar',
+                                    'email': 'pallavi.pawar@gmail.com',
+                                    'inst_id': 'IITK', 'dis_id': 'CSE'}],
+                    'hosting_info': [{'hosted_url':'http://cse14-iiith.vlabs.ac.in',
+                                    'hosting_status': 'hosted',
+                                    'hosted_on': 'cloud'},
+                                    {'hosted_url':'http://iitkgp.vlab.co.in/',
+                                    'hosting_status': 'hosted',
+                                    'hosted_on': 'server'}],
                     'inst_id': 'IITK',
                     'dis_id': 'CSE'
                    }
@@ -1893,11 +2260,24 @@ class TestGetLabsByLabName(TestCase):
                     'overview': 'overview',
                     'inst_id': 'IITK',
                     'dis_id': 'CSE',
-                    'assets': ['vlabs.ac.in/images/static/logo.png'],
+                    'assets': [{'path':'vlabs.ac.in/images/static/logo.png',
+                                    'asset_type': 'image'},
+                                {'path':'vlabs.ac.in/images/static/image.png',
+                                    'asset_type': 'image'}],
+                    'developers': [{'name':'Prof. Dharamaja',
+                                    'email': 'abc@gmail.com',
+                                    'inst_id': 'IITK', 'dis_id': 'CSE'},
+                                    {'name':'Prof. Pallavi Pawar',
+                                    'email': 'pallavi.pawar@gmail.com',
+                                    'inst_id': 'IITK', 'dis_id': 'CSE'}],
+                    'hosting_info': [{'hosted_url':'http://cse14-iiith.vlabs.ac.in',
+                                    'hosting_status': 'hosted',
+                                    'hosted_on': 'cloud'},
+                                    {'hosted_url':'http://iitkgp.vlab.co.in/',
+                                    'hosting_status': 'hosted',
+                                    'hosted_on': 'server'}],
                     'experiments': ['exp123'], 
-                    'integration_level': 4,
-                    'developers': ['abc@gmail.com'],
-                    'hosting_info': ['http://cse14-iiith.vlabs.ac.in']
+                    'integration_level': 4
                    }
 
         data_dict1 = {
@@ -1907,11 +2287,24 @@ class TestGetLabsByLabName(TestCase):
                     'overview': 'overview',
                     'inst_id': 'IITK',
                     'dis_id': 'CSE',
-                    'assets': ['vlabs.ac.in/images/static/logo.png'],
+                    'assets': [{'path':'vlabs.ac.in/images/static/logo.png',
+                                    'asset_type': 'image'},
+                                {'path':'vlabs.ac.in/images/static/image.png',
+                                    'asset_type': 'image'}],
+                    'developers': [{'name':'Prof. Dharamaja',
+                                    'email': 'abc@gmail.com',
+                                    'inst_id': 'IITK', 'dis_id': 'CSE'},
+                                    {'name':'Prof. Pallavi Pawar',
+                                    'email': 'pallavi.pawar@gmail.com',
+                                    'inst_id': 'IITK', 'dis_id': 'CSE'}],
+                    'hosting_info': [{'hosted_url':'http://cse14-iiith.vlabs.ac.in',
+                                    'hosting_status': 'hosted',
+                                    'hosted_on': 'cloud'},
+                                    {'hosted_url':'http://iitkgp.vlab.co.in/',
+                                    'hosting_status': 'hosted',
+                                    'hosted_on': 'server'}],
                     'experiments': ['exp123'], 
-                    'integration_level': 4,
-                    'developers': ['abc@gmail.com'],
-                    'hosting_info': ['http://cse14-iiith.vlabs.ac.in']
+                    'integration_level': 4
                    }
 
         lab = SystemInterface.add_lab(data_dict)
@@ -1971,14 +2364,6 @@ class TestGetLabsByAssetType(TestCase):
         print "test_get_labs_by_asset_in_system_interface"
 
         data_dict = {
-                    'key': KEY,
-                    'name': 'Prof. Dharamaja',
-                    'email': 'abc@gmail.com'
-                   }
-
-        developer = SystemInterface.add_developer(data_dict)
-
-        data_dict = {
                     'hosting_status': 'hosted',
                     'hosted_url': 'http://cse14-iiith.vlabs.ac.in',
                     'hosted_on': 'cloud',
@@ -1996,22 +2381,6 @@ class TestGetLabsByAssetType(TestCase):
 
         data_dict = {
                     'key' : KEY,
-                    'inst_name': 'IIT Kanpur',
-                    'inst_id': 'IITK'
-                    }
-
-        institute = SystemInterface.add_institute(data_dict)
-
-        data_dict = {
-                    'key' : KEY,
-                    'dis_name': 'computer science',
-                    'dis_id': 'CSE'
-                   }
-
-        discipline = SystemInterface.add_discipline(data_dict)
-
-        data_dict = {
-                    'key' : KEY,
                     'asset_type': 'Image',
                     'path': 'vlabs.ac.in/images/static/logo.png'
                    }
@@ -2019,15 +2388,56 @@ class TestGetLabsByAssetType(TestCase):
         asset = SystemInterface.add_asset(data_dict)
 
         data_dict = {
+                    'key' : KEY,
+                    'inst_name': 'IIT Kanpur',
+                    'inst_id': 'IITK',
+                    'assets': ['vlabs.ac.in/images/static/logo.png']
+                    }
+
+        institute = SystemInterface.add_institute(data_dict)
+
+        data_dict = {
+                    'key' : KEY,
+                    'dis_name': 'computer science',
+                    'dis_id': 'CSE',
+                    'assets': ['vlabs.ac.in/images/static/logo.png']
+                   }
+
+        discipline = SystemInterface.add_discipline(data_dict)
+
+        data_dict = {
+                    'key' : KEY,
+                    'name': 'Prof. Dharamaja',
+                    'email': 'abc@gmail.com',
+                    'inst_id': 'IITK',
+                    'dis_id': 'CSE'
+                   }
+
+        developer = SystemInterface.add_developer(data_dict)
+
+        data_dict = {
                     'key': KEY,
                     'exp_name': 'arrays',
                     'exp_id': 'exp123',
                     'overview': 'overview',
-                    'assets': ['vlabs.ac.in/images/static/logo.png'], 
+                    'assets': [{'path':'vlabs.ac.in/images/static/logo.png',
+                                    'asset_type': 'image'},
+                                {'path':'vlabs.ac.in/images/static/image.png',
+                                    'asset_type': 'image'}], 
                     'integration_level': 4,
                     'sections': [],
-                    'developers': ['abc@gmail.com'],
-                    'hosting_info': ['http://cse14-iiith.vlabs.ac.in'], 
+                    'developers': [{'name':'Prof. Dharamaja',
+                                    'email': 'abc@gmail.com',
+                                    'inst_id': 'IITK', 'dis_id': 'CSE'},
+                                    {'name':'Prof. Pallavi Pawar',
+                                    'email': 'pallavi.pawar@gmail.com',
+                                    'inst_id': 'IITK', 'dis_id': 'CSE'}],
+                    'hosting_info': [{'hosted_url':'http://cse14-iiith.vlabs.ac.in',
+                                    'hosting_status': 'hosted',
+                                    'hosted_on': 'cloud'},
+                                    {'hosted_url':'http://iitkgp.vlab.co.in/',
+                                    'hosting_status': 'hosted',
+                                    'hosted_on': 'server'}],
                     'inst_id': 'IITK',
                     'dis_id': 'CSE'
                    }
@@ -2041,11 +2451,24 @@ class TestGetLabsByAssetType(TestCase):
                     'overview': 'overview',
                     'inst_id': 'IITK',
                     'dis_id': 'CSE',
-                    'assets': ['vlabs.ac.in/images/static/logo.png'],
+                    'assets': [{'path':'vlabs.ac.in/images/static/logo.png',
+                                    'asset_type': 'image'},
+                                {'path':'vlabs.ac.in/images/static/image.png',
+                                    'asset_type': 'image'}],
+                    'developers': [{'name':'Prof. Dharamaja',
+                                    'email': 'abc@gmail.com',
+                                    'inst_id': 'IITK', 'dis_id': 'CSE'},
+                                    {'name':'Prof. Pallavi Pawar',
+                                    'email': 'pallavi.pawar@gmail.com',
+                                    'inst_id': 'IITK', 'dis_id': 'CSE'}],
+                    'hosting_info': [{'hosted_url':'http://cse14-iiith.vlabs.ac.in',
+                                    'hosting_status': 'hosted',
+                                    'hosted_on': 'cloud'},
+                                    {'hosted_url':'http://iitkgp.vlab.co.in/',
+                                    'hosting_status': 'hosted',
+                                    'hosted_on': 'server'}],
                     'experiments': ['exp123'], 
-                    'integration_level': 4,
-                    'developers': ['abc@gmail.com'],
-                    'hosting_info': ['http://cse14-iiith.vlabs.ac.in']
+                    'integration_level': 4
                    }
 
         data_dict1 = {
@@ -2055,11 +2478,24 @@ class TestGetLabsByAssetType(TestCase):
                     'overview': 'overview',
                     'inst_id': 'IITK',
                     'dis_id': 'CSE',
-                    'assets': ['vlabs.ac.in/images/static/logo.png'],
+                    'assets': [{'path':'vlabs.ac.in/images/static/logo.png',
+                                    'asset_type': 'image'},
+                                {'path':'vlabs.ac.in/images/static/image.png',
+                                    'asset_type': 'image'}],
+                    'developers': [{'name':'Prof. Dharamaja',
+                                    'email': 'abc@gmail.com',
+                                    'inst_id': 'IITK', 'dis_id': 'CSE'},
+                                    {'name':'Prof. Pallavi Pawar',
+                                    'email': 'pallavi.pawar@gmail.com',
+                                    'inst_id': 'IITK', 'dis_id': 'CSE'}],
+                    'hosting_info': [{'hosted_url':'http://cse14-iiith.vlabs.ac.in',
+                                    'hosting_status': 'hosted',
+                                    'hosted_on': 'cloud'},
+                                    {'hosted_url':'http://iitkgp.vlab.co.in/',
+                                    'hosting_status': 'hosted',
+                                    'hosted_on': 'server'}],
                     'experiments': ['exp123'], 
-                    'integration_level': 4,
-                    'developers': ['abc@gmail.com'],
-                    'hosting_info': ['http://cse14-iiith.vlabs.ac.in']
+                    'integration_level': 4
                    }
 
         lab = SystemInterface.add_lab(data_dict)
@@ -2097,13 +2533,6 @@ class TestGetLabsByIntegration_Status(TestCase):
         integration_status = SystemInterface.add_integration_status(data_dict)
 
         data_dict = {
-                    'key' : KEY,
-                    'name': 'Prof. Dharamaja',
-                    'email': 'abc@gmail.com'
-                   }
-        developer = SystemInterface.add_developer(data_dict)
-
-        data_dict = {
                     'hosting_status': 'hosted',
                     'hosted_url': 'http://cse14-iiith.vlabs.ac.in',
                     'hosted_on': 'cloud',
@@ -2115,7 +2544,8 @@ class TestGetLabsByIntegration_Status(TestCase):
         data_dict = {
                     'key' : KEY,
                     'inst_name': 'IIT Kanpur',
-                    'inst_id': 'IITK'
+                    'inst_id': 'IITK',
+                    'assets': ['vlabs.ac.in/images/static/logo.png']
                     }
 
         institute = SystemInterface.add_institute(data_dict)
@@ -2123,23 +2553,34 @@ class TestGetLabsByIntegration_Status(TestCase):
         data_dict = {
                     'key' : KEY,
                     'dis_name': 'Computer Science',
-                    'dis_id': 'CSE'
+                    'dis_id': 'CSE',
+                    'assets': ['vlabs.ac.in/images/static/logo.png']
                    }
 
         discipline = SystemInterface.add_discipline(data_dict)
 
         data_dict = {
                     'key' : KEY,
-                    'asset_type': 'Image',
-                    'path': 'vlabs.ac.in/images/static/logo.png'
-                    }
+                    'name': 'Prof. Dharamaja',
+                    'email': 'abc@gmail.com',
+                    'inst_id': 'IITK',
+                    'dis_id': 'CSE'
+                   }
 
-        asset1 = SystemInterface.add_asset(data_dict)
+        developer = SystemInterface.add_developer(data_dict)
 
         data_dict = {
                     'key' : KEY,
                     'asset_type': 'Image',
-                    'path': 'vlabs.ac.in/images/static/icon.png',
+                    'path': 'vlabs.ac.in/images/static/logo.png'
+                   }
+
+        asset = SystemInterface.add_asset(data_dict)
+
+        data_dict = {
+                    'key' : KEY,
+                    'asset_type': 'Image',
+                    'path': 'vlabs.ac.in/images/static/icon.png'
                     }
 
         asset2 = SystemInterface.add_asset(data_dict)
@@ -2150,11 +2591,24 @@ class TestGetLabsByIntegration_Status(TestCase):
                     'exp_name': 'arrays',
                     'exp_id': 'exp123',
                     'overview': 'overview',
-                    'assets': ['vlabs.ac.in/images/static/logo.png'], 
+                    'assets': [{'path':'vlabs.ac.in/images/static/logo.png',
+                                    'asset_type': 'image'},
+                                {'path':'vlabs.ac.in/images/static/image.png',
+                                    'asset_type': 'image'}], 
                     'integration_level': 4, 
                     'sections': [],
-                    'developers': ['abc@gmail.com'],
-                    'hosting_info': ['http://cse14-iiith.vlabs.ac.in']
+                    'developers': [{'name':'Prof. Dharamaja',
+                                    'email': 'abc@gmail.com',
+                                    'inst_id': 'IITK', 'dis_id': 'CSE'},
+                                    {'name':'Prof. Pallavi Pawar',
+                                    'email': 'pallavi.pawar@gmail.com',
+                                    'inst_id': 'IITK', 'dis_id': 'CSE'}],
+                    'hosting_info': [{'hosted_url':'http://cse14-iiith.vlabs.ac.in',
+                                    'hosting_status': 'hosted',
+                                    'hosted_on': 'cloud'},
+                                    {'hosted_url':'http://iitkgp.vlab.co.in/',
+                                    'hosting_status': 'hosted',
+                                    'hosted_on': 'server'}]
                    }
 
         experiment = SystemInterface.add_experiment(data_dict)
@@ -2166,11 +2620,24 @@ class TestGetLabsByIntegration_Status(TestCase):
                     'overview': 'overview',
                     'inst_id': 'IITK',
                     'dis_id': 'CSE',
-                    'assets': ['vlabs.ac.in/images/static/logo.png'],
+                    'assets': [{'path':'vlabs.ac.in/images/static/logo.png',
+                                    'asset_type': 'image'},
+                                {'path':'vlabs.ac.in/images/static/image.png',
+                                    'asset_type': 'image'}],
+                    'developers': [{'name':'Prof. Dharamaja',
+                                    'email': 'abc@gmail.com',
+                                    'inst_id': 'IITK', 'dis_id': 'CSE'},
+                                    {'name':'Prof. Pallavi Pawar',
+                                    'email': 'pallavi.pawar@gmail.com',
+                                    'inst_id': 'IITK', 'dis_id': 'CSE'}],
+                    'hosting_info': [{'hosted_url':'http://cse14-iiith.vlabs.ac.in',
+                                    'hosting_status': 'hosted',
+                                    'hosted_on': 'cloud'},
+                                    {'hosted_url':'http://iitkgp.vlab.co.in/',
+                                    'hosting_status': 'hosted',
+                                    'hosted_on': 'server'}],
                     'experiments': ['exp123'], 
-                    'integration_level': 4,
-                    'developers': ['abc@gmail.com'],
-                    'hosting_info': ['http://cse14-iiith.vlabs.ac.in']
+                    'integration_level': 4
                    }
 
         data_dict1 = {
@@ -2180,11 +2647,24 @@ class TestGetLabsByIntegration_Status(TestCase):
                     'overview': 'overview',
                     'inst_id': 'IITK',
                     'dis_id': 'CSE',
-                    'assets': ['vlabs.ac.in/images/static/icon.png'],
+                    'assets': [{'path':'vlabs.ac.in/images/static/logo.png',
+                                    'asset_type': 'image'},
+                                {'path':'vlabs.ac.in/images/static/image.png',
+                                    'asset_type': 'image'}],
+                    'developers': [{'name':'Prof. Dharamaja',
+                                    'email': 'abc@gmail.com',
+                                    'inst_id': 'IITK', 'dis_id': 'CSE'},
+                                    {'name':'Prof. Pallavi Pawar',
+                                    'email': 'pallavi.pawar@gmail.com',
+                                    'inst_id': 'IITK', 'dis_id': 'CSE'}],
+                    'hosting_info': [{'hosted_url':'http://cse14-iiith.vlabs.ac.in',
+                                    'hosting_status': 'hosted',
+                                    'hosted_on': 'cloud'},
+                                    {'hosted_url':'http://iitkgp.vlab.co.in/',
+                                    'hosting_status': 'hosted',
+                                    'hosted_on': 'server'}],
                     'experiments': ['exp123'], 
-                    'integration_level': 4,
-                    'developers': ['abc@gmail.com'],
-                    'hosting_info': ['http://cse14-iiith.vlabs.ac.in']
+                    'integration_level': 4
                    }
 
         lab = SystemInterface.add_lab(data_dict)
@@ -2243,8 +2723,17 @@ class TestGetExperiments(TestCase):
 
         data_dict = {
                     'key' : KEY,
+                    'asset_type': 'Image',
+                    'path': 'vlabs.ac.in/images/static/logo.png'
+                   }
+
+        asset = SystemInterface.add_asset(data_dict)
+
+        data_dict = {
+                    'key' : KEY,
                     'inst_name': 'IIT Kanpur',
-                    'inst_id': 'IITK'
+                    'inst_id': 'IITK',
+                    'assets': ['vlabs.ac.in/images/static/logo.png']
                     }
 
         institute = SystemInterface.add_institute(data_dict)
@@ -2252,7 +2741,8 @@ class TestGetExperiments(TestCase):
         data_dict = {
                     'key' : KEY,
                     'dis_name': 'computer science',
-                    'dis_id': 'CSE'
+                    'dis_id': 'CSE',
+                    'assets': ['vlabs.ac.in/images/static/logo.png']
                    }
 
         discipline = SystemInterface.add_discipline(data_dict)
@@ -2262,21 +2752,16 @@ class TestGetExperiments(TestCase):
                     'integration_level': 4
                     }
 
-        integration_status = SystemInterface.add_integration_status(data_dict)
-
-        data_dict = {
-                    'key' : KEY,
-                    'asset_type': 'Image',
-                    'path': 'vlabs.ac.in/images/static/logo.png'
-                   }
-
-        asset = SystemInterface.add_asset(data_dict)
+        integration_status = SystemInterface.add_integration_status(data_dict)  
 
         data_dict = {
                     'key' : KEY,
                     'name': 'Prof. Dharamaja',
-                    'email': 'abc@gmail.com'
+                    'email': 'abc@gmail.com',
+                    'inst_id': 'IITK',
+                    'dis_id': 'CSE'
                    }
+
         developer = SystemInterface.add_developer(data_dict)
 
         data_dict = {
@@ -2291,20 +2776,34 @@ class TestGetExperiments(TestCase):
         data_dict = {'exp_name': 'stack',
                     'exp_id': 'cse01',
                     'overview': 'overview',
-                    'assets': ['vlabs.ac.in/images/static/logo.png'],
+                    'assets': [{'path':'vlabs.ac.in/images/static/logo.png',
+                                    'asset_type': 'image'},
+                                {'path':'vlabs.ac.in/images/static/image.png',
+                                    'asset_type': 'image'}],
                     'integration_level': 4,
                     'sections': [],
                     'key': KEY,
                     'inst_id': 'IITK',
                     'dis_id': 'CSE',
-                    'developers': ['abc@gmail.com'],
-                    'hosting_info': ['http://cse14-iiith.vlabs.ac.in']
+                    'developers': [{'name':'Prof. Dharamaja',
+                                    'email': 'abc@gmail.com',
+                                    'inst_id': 'IITK', 'dis_id': 'CSE'},
+                                    {'name':'Prof. Pallavi Pawar',
+                                    'email': 'pallavi.pawar@gmail.com',
+                                    'inst_id': 'IITK', 'dis_id': 'CSE'}],
+                    'hosting_info': [{'hosted_url':'http://cse14-iiith.vlabs.ac.in',
+                                    'hosting_status': 'hosted',
+                                    'hosted_on': 'cloud'},
+                                    {'hosted_url':'http://iitkgp.vlab.co.in/',
+                                    'hosting_status': 'hosted',
+                                    'hosted_on': 'server'}]
                    }
 
         data_dict1 = {
                     'key' : KEY,
                     'inst_name': 'IIT Kharagpur',
-                    'inst_id': 'IITKgp'
+                    'inst_id': 'IITKgp',
+                    'assets': ['vlabs.ac.in/images/static/logo.png']
                     }
 
         institute1 = SystemInterface.add_institute(data_dict1)
@@ -2312,7 +2811,8 @@ class TestGetExperiments(TestCase):
         data_dict1 = {
                     'key' : KEY,
                     'dis_name': 'electronics and communication',
-                    'dis_id': 'ECE'
+                    'dis_id': 'ECE',
+                    'assets': ['vlabs.ac.in/images/static/logo.png']
                    }
 
         discipline1 = SystemInterface.add_discipline(data_dict1)
@@ -2320,14 +2820,27 @@ class TestGetExperiments(TestCase):
         data_dict1 = {'exp_name': "arrays",
                       'exp_id': 'cse02',
                       'overview': 'overview',
-                      'assets': ['vlabs.ac.in/images/static/logo.png'],
+                      'assets': [{'path':'vlabs.ac.in/images/static/logo.png',
+                                    'asset_type': 'image'},
+                                {'path':'vlabs.ac.in/images/static/image.png',
+                                    'asset_type': 'image'}],
                       'integration_level': 4,
                       'sections':[],
                       'key': KEY,
                       'inst_id': 'IITKgp',
                       'dis_id': 'ECE',
-                      'developers': ['abc@gmail.com'],
-                      'hosting_info': ['http://cse14-iiith.vlabs.ac.in']
+                      'developers': [{'name':'Prof. Dharamaja',
+                                    'email': 'abc@gmail.com',
+                                    'inst_id': 'IITK', 'dis_id': 'CSE'},
+                                    {'name':'Prof. Pallavi Pawar',
+                                    'email': 'pallavi.pawar@gmail.com',
+                                    'inst_id': 'IITK', 'dis_id': 'CSE'}],
+                      'hosting_info': [{'hosted_url':'http://cse14-iiith.vlabs.ac.in',
+                                    'hosting_status': 'hosted',
+                                    'hosted_on': 'cloud'},
+                                    {'hosted_url':'http://iitkgp.vlab.co.in/',
+                                    'hosting_status': 'hosted',
+                                    'hosted_on': 'server'}]
                       }
 
         exp1 = SystemInterface.add_experiment(data_dict)
@@ -2389,13 +2902,23 @@ class TestGetInstitutes(TestCase):
     def test_get_institutes_in_system_interface(self):
         print "test_get_institutes_in_system_interface"
 
+        data_dict = {
+                    'key' : KEY,
+                    'asset_type': 'Image',
+                    'path': 'vlabs.ac.in/images/static/logo.png'
+                   }
+
+        asset = SystemInterface.add_asset(data_dict)
+
         data_dict = {'inst_name': 'IIT Kharagpur',
                     'inst_id': 'IITKgp',
+                    'assets': ['vlabs.ac.in/images/static/logo.png'],
                     'key' : KEY
                     }
 
         data_dict1 = {'inst_name': "IIT Delhi",
                      'inst_id': 'IITD',
+                     'assets': ['vlabs.ac.in/images/static/logo.png'],
                      'key' : KEY
                      }
 
@@ -2523,15 +3046,26 @@ class TestGetDisciplines(TestCase):
     def test_get_disciplines_in_system_interface(self):
         print "test_get_disciplines_in_system_interface"
 
+        data_dict = {
+                    'key' : KEY,
+                    'asset_type': 'Image',
+                    'path': 'vlabs.ac.in/images/static/logo.png'
+                    }
+
+        asset = SystemInterface.add_asset(data_dict)
+
+
         data_dict = {'dis_name': 'data structure',
                     'dis_id': 'cse01',
-                    'key' : KEY
-                   }
+                    'key' : KEY,
+                    'assets': ['vlabs.ac.in/images/static/logo.png']
+                    }
 
         data_dict1 = {'dis_name': "Automata",
                       'dis_id': 'DFA',
-                      'key' : KEY
-                     }
+                      'key' : KEY,
+                      'assets': ['vlabs.ac.in/images/static/logo.png']
+                      }
 
         dis = SystemInterface.add_discipline(data_dict)
         dis1 = SystemInterface.add_discipline(data_dict1)
@@ -2792,13 +3326,70 @@ class TestGetDevelopers(TestCase):
     def test_get_developer_in_system_interface(self):
         print "test_get_developer_in_system_interface"
 
-        data_dict = {'name': 'Prof. Dharamaja',
-                     'email': 'abc@gmail.com',
-                     'key': KEY
+        data_dict = {
+                    'key' : KEY,
+                    'asset_type': 'Image',
+                    'path': 'vlabs.ac.in/images/static/logo.png'
                    }
+
+        asset = SystemInterface.add_asset(data_dict)
+
+        data_dict = {
+                    'key' : KEY,
+                    'inst_name': 'IIT Kanpur',
+                    'inst_id': 'IITK',
+                    'assets': ['vlabs.ac.in/images/static/logo.png']
+                    }
+
+        institute = SystemInterface.add_institute(data_dict)
+
+        data_dict = {
+                    'key' : KEY,
+                    'dis_name': 'computer science',
+                    'dis_id': 'CSE',
+                    'assets': ['vlabs.ac.in/images/static/logo.png']
+                   }
+
+        discipline = SystemInterface.add_discipline(data_dict)
+
+        data_dict = {
+                    'key' : KEY,
+                    'name': 'Prof. Dharamaja',
+                    'email': 'abc@gmail.com',
+                    'inst_id': 'IITK',
+                    'dis_id': 'CSE'
+                   }
+
+        data_dict1 = {
+                    'key' : KEY,
+                    'asset_type': 'Icon',
+                    'path': 'vlabs.ac.in/images/static/icon.png'
+                   }
+
+        asset1 = SystemInterface.add_asset(data_dict1)
+
+        data_dict1 = {
+                    'key' : KEY,
+                    'inst_name': 'IIT Kharagpur',
+                    'inst_id': 'IITKgp',
+                    'assets': ['vlabs.ac.in/images/static/icon.png']
+                    }
+
+        institute1 = SystemInterface.add_institute(data_dict1)
+
+        data_dict1 = {
+                    'key' : KEY,
+                    'dis_name': 'electronics and communication',
+                    'dis_id': 'ECE',
+                    'assets': ['vlabs.ac.in/images/static/icon.png']
+                   }
+
+        discipline1 = SystemInterface.add_discipline(data_dict1)
 
         data_dict1 = {'name': 'Prof. Yamraja',
                       'email': 'xyz@gmail.com',
+                      'inst_id': 'IITKgp',
+                      'dis_id': 'ECE',
                       'key': KEY
                      }
 
@@ -2921,14 +3512,6 @@ class TestGetLabById(TestCase):
         print "test_get_lab_by_id_in_system_interface"
 
         data_dict = {
-                    'key': KEY,
-                    'name': 'Prof. Dharamaja',
-                    'email': 'abc@gmail.com'
-                   }
-
-        developer = SystemInterface.add_developer(data_dict)
-
-        data_dict = {
                     'hosting_status': 'hosted',
                     'hosted_url': 'http://cse14-iiith.vlabs.ac.in',
                     'hosted_on': 'cloud',
@@ -2946,8 +3529,17 @@ class TestGetLabById(TestCase):
 
         data_dict = {
                     'key' : KEY,
+                    'asset_type': 'Image',
+                    'path': 'vlabs.ac.in/images/static/logo.png'
+                   }
+
+        asset = SystemInterface.add_asset(data_dict)
+
+        data_dict = {
+                    'key' : KEY,
                     'inst_name': 'IIT Kanpur',
-                    'inst_id': 'IITK'
+                    'inst_id': 'IITK',
+                    'assets': ['vlabs.ac.in/images/static/logo.png']
                     }
 
         institute = SystemInterface.add_institute(data_dict)
@@ -2955,24 +3547,27 @@ class TestGetLabById(TestCase):
         data_dict = {
                     'key' : KEY,
                     'dis_name': 'computer science',
-                    'dis_id': 'CSE'
+                    'dis_id': 'CSE',
+                    'assets': ['vlabs.ac.in/images/static/logo.png']
                    }
 
         discipline = SystemInterface.add_discipline(data_dict)
 
         data_dict = {
                     'key' : KEY,
-                    'asset_type': 'Image',
-                    'path': 'vlabs.ac.in/images/static/logo.png'
+                    'name': 'Prof. Dharamaja',
+                    'email': 'abc@gmail.com',
+                    'inst_id': 'IITK',
+                    'dis_id': 'CSE'
                    }
 
-        asset1 = SystemInterface.add_asset(data_dict)
+        developer = SystemInterface.add_developer(data_dict)
 
         data_dict = {
                     'key' : KEY,
                     'asset_type': 'Image',
-                    'path': 'vlabs.ac.in/images/static/icon.png',
-                    }
+                    'path': 'vlabs.ac.in/images/static/icon.png'
+                   }
 
         asset2 = SystemInterface.add_asset(data_dict)
 
@@ -2981,13 +3576,26 @@ class TestGetLabById(TestCase):
                     'exp_name': 'arrays',
                     'exp_id': 'exp123',
                     'overview': 'overview',
-                    'assets': ['vlabs.ac.in/images/static/logo.png'], 
+                    'assets': [{'path':'vlabs.ac.in/images/static/logo.png',
+                                    'asset_type': 'image'},
+                                {'path':'vlabs.ac.in/images/static/image.png',
+                                    'asset_type': 'image'}], 
                     'integration_level': 4,
                     'sections': [],
-                    'developers': ['abc@gmail.com'],
-                    'hosting_info': ['http://cse14-iiith.vlabs.ac.in'],
-                    'inst_id': 'IITK',
-                    'dis_id': 'CSE'
+                    'developers': [{'name':'Prof. Dharamaja',
+                                    'email': 'abc@gmail.com',
+                                    'inst_id': 'IITK', 'dis_id': 'CSE'},
+                                    {'name':'Prof. Pallavi Pawar',
+                                    'email': 'pallavi.pawar@gmail.com',
+                                    'inst_id': 'IITK', 'dis_id': 'CSE'}],
+                    'hosting_info': [{'hosted_url':'http://cse14-iiith.vlabs.ac.in',
+                                    'hosting_status': 'hosted',
+                                    'hosted_on': 'cloud'},
+                                    {'hosted_url':'http://iitkgp.vlab.co.in/',
+                                    'hosting_status': 'hosted',
+                                    'hosted_on': 'server'}],
+                     'inst_id': 'IITK',
+                     'dis_id': 'CSE'
                    }
 
         experiment = SystemInterface.add_experiment(data_dict)
@@ -2998,12 +3606,25 @@ class TestGetLabById(TestCase):
                     'lab_id': 'cse02',
                     'inst_id': 'IITK',
                     'dis_id': 'CSE',
-                    'assets': ['vlabs.ac.in/images/static/logo.png'],
+                    'assets': [{'path':'vlabs.ac.in/images/static/logo.png',
+                                    'asset_type': 'image'},
+                                {'path':'vlabs.ac.in/images/static/image.png',
+                                    'asset_type': 'image'}],
+                    'developers': [{'name':'Prof. Dharamaja',
+                                    'email': 'abc@gmail.com',
+                                    'inst_id': 'IITK', 'dis_id': 'CSE'},
+                                    {'name':'Prof. Pallavi Pawar',
+                                    'email': 'pallavi.pawar@gmail.com',
+                                    'inst_id': 'IITK', 'dis_id': 'CSE'}],
+                    'hosting_info': [{'hosted_url':'http://cse14-iiith.vlabs.ac.in',
+                                    'hosting_status': 'hosted',
+                                    'hosted_on': 'cloud'},
+                                    {'hosted_url':'http://iitkgp.vlab.co.in/',
+                                    'hosting_status': 'hosted',
+                                    'hosted_on': 'server'}],
                     'overview': 'overview',
                     'experiments': ['exp123'], 
-                    'integration_level': 4,
-                    'developers': ['abc@gmail.com'],
-                    'hosting_info': ['http://cse14-iiith.vlabs.ac.in']
+                    'integration_level': 4
                    }
 
         data_dict1 = {
@@ -3012,12 +3633,25 @@ class TestGetLabById(TestCase):
                     'lab_id': 'cse03',
                     'inst_id': 'IITK',
                     'dis_id': 'CSE',
-                    'assets': ['vlabs.ac.in/images/static/icon.png'],
+                    'assets': [{'path':'vlabs.ac.in/images/static/logo.png',
+                                    'asset_type': 'image'},
+                                {'path':'vlabs.ac.in/images/static/image.png',
+                                    'asset_type': 'image'}],
+                    'developers': [{'name':'Prof. Dharamaja',
+                                    'email': 'abc@gmail.com',
+                                    'inst_id': 'IITK', 'dis_id': 'CSE'},
+                                    {'name':'Prof. Pallavi Pawar',
+                                    'email': 'pallavi.pawar@gmail.com',
+                                    'inst_id': 'IITK', 'dis_id': 'CSE'}],
+                    'hosting_info': [{'hosted_url':'http://cse14-iiith.vlabs.ac.in',
+                                    'hosting_status': 'hosted',
+                                    'hosted_on': 'cloud'},
+                                    {'hosted_url':'http://iitkgp.vlab.co.in/',
+                                    'hosting_status': 'hosted',
+                                    'hosted_on': 'server'}],
                     'overview': 'overview',
                     'experiments': ['exp123'], 
-                    'integration_level': 4,
-                    'developers': ['abc@gmail.com'],
-                    'hosting_info': ['http://cse14-iiith.vlabs.ac.in']
+                    'integration_level': 4
                    }
 
         lab1 = SystemInterface.add_lab(data_dict)
@@ -3145,8 +3779,17 @@ class TestGetExperimentById(TestCase):
 
         data_dict = {
                     'key' : KEY,
+                    'asset_type': 'Image',
+                    'path': 'vlabs.ac.in/images/static/logo.png'
+                   }
+
+        asset = SystemInterface.add_asset(data_dict)
+
+        data_dict = {
+                    'key' : KEY,
                     'inst_name': 'IIT Kanpur',
-                    'inst_id': 'IITK'
+                    'inst_id': 'IITK',
+                    'assets': ['vlabs.ac.in/images/static/logo.png']
                     }
 
         institute = SystemInterface.add_institute(data_dict)
@@ -3154,7 +3797,8 @@ class TestGetExperimentById(TestCase):
         data_dict = {
                     'key' : KEY,
                     'dis_name': 'computer science',
-                    'dis_id': 'CSE'
+                    'dis_id': 'CSE',
+                    'assets': ['vlabs.ac.in/images/static/logo.png']
                    }
 
         discipline = SystemInterface.add_discipline(data_dict)
@@ -3162,7 +3806,8 @@ class TestGetExperimentById(TestCase):
         data_dict1 = {
                     'key' : KEY,
                     'inst_name': 'IIT Kharagpur',
-                    'inst_id': 'IITKgp'
+                    'inst_id': 'IITKgp',
+                    'assets': ['vlabs.ac.in/images/static/logo.png']
                     }
 
         institute1 = SystemInterface.add_institute(data_dict1)
@@ -3170,7 +3815,8 @@ class TestGetExperimentById(TestCase):
         data_dict1 = {
                     'key' : KEY,
                     'dis_name': 'electronics and communication',
-                    'dis_id': 'ECE'
+                    'dis_id': 'ECE',
+                    'assets': ['vlabs.ac.in/images/static/logo.png']
                    }
 
         discipline1 = SystemInterface.add_discipline(data_dict1)
@@ -3181,19 +3827,13 @@ class TestGetExperimentById(TestCase):
                     }
 
         integration_status = SystemInterface.add_integration_status(data_dict)
-
+    
         data_dict = {
                     'key' : KEY,
-                    'asset_type': 'Image',
-                    'path': 'vlabs.ac.in/images/static/logo.png'
-                   }
-
-        asset = SystemInterface.add_asset(data_dict)
-
-        data_dict = {
-                    'key': KEY,
                     'name': 'Prof. Dharamaja',
-                    'email': 'abc@gmail.com'
+                    'email': 'abc@gmail.com',
+                    'inst_id': 'IITK',
+                    'dis_id': 'CSE'
                    }
 
         developer = SystemInterface.add_developer(data_dict)
@@ -3211,28 +3851,54 @@ class TestGetExperimentById(TestCase):
                     'key': KEY,
                     'exp_name': 'array',
                     'overview': 'overview',
-                    'assets': ['vlabs.ac.in/images/static/logo.png'], 
+                    'assets': [{'path':'vlabs.ac.in/images/static/logo.png',
+                                    'asset_type': 'image'},
+                                {'path':'vlabs.ac.in/images/static/image.png',
+                                    'asset_type': 'image'}], 
                     'integration_level': 4,
                     'exp_id': 'cse02',
                     'sections': [],
                     'inst_id': 'IITK',
                     'dis_id': 'CSE',
-                    'developers': ['abc@gmail.com'],
-                    'hosting_info': ['http://cse14-iiith.vlabs.ac.in']
+                    'developers': [{'name':'Prof. Dharamaja',
+                                    'email': 'abc@gmail.com',
+                                    'inst_id': 'IITK', 'dis_id': 'CSE'},
+                                    {'name':'Prof. Pallavi Pawar',
+                                    'email': 'pallavi.pawar@gmail.com',
+                                    'inst_id': 'IITK', 'dis_id': 'CSE'}],
+                    'hosting_info': [{'hosted_url':'http://cse14-iiith.vlabs.ac.in',
+                                    'hosting_status': 'hosted',
+                                    'hosted_on': 'cloud'},
+                                    {'hosted_url':'http://iitkgp.vlab.co.in/',
+                                    'hosting_status': 'hosted',
+                                    'hosted_on': 'server'}]
                    }
 
         data_dict1 = {
                     'key': KEY,
                     'exp_name': 'stack',
                     'overview': 'overview',
-                    'assets': ['vlabs.ac.in/images/static/logo.png'], 
+                    'assets': [{'path':'vlabs.ac.in/images/static/logo.png',
+                                    'asset_type': 'image'},
+                                {'path':'vlabs.ac.in/images/static/image.png',
+                                    'asset_type': 'image'}], 
                     'integration_level': 4,
                     'exp_id': 'cse03',
                     'sections': [],
                     'inst_id': 'IITKgp',
                     'dis_id': 'ECE',
-                    'developers': ['abc@gmail.com'],
-                    'hosting_info': ['http://cse14-iiith.vlabs.ac.in']
+                    'developers': [{'name':'Prof. Dharamaja',
+                                    'email': 'abc@gmail.com',
+                                    'inst_id': 'IITK', 'dis_id': 'CSE'},
+                                    {'name':'Prof. Pallavi Pawar',
+                                    'email': 'pallavi.pawar@gmail.com',
+                                    'inst_id': 'IITK', 'dis_id': 'CSE'}],
+                    'hosting_info': [{'hosted_url':'http://cse14-iiith.vlabs.ac.in',
+                                    'hosting_status': 'hosted',
+                                    'hosted_on': 'cloud'},
+                                    {'hosted_url':'http://iitkgp.vlab.co.in/',
+                                    'hosting_status': 'hosted',
+                                    'hosted_on': 'server'}]
                    }
 
         exp1 = SystemInterface.add_experiment(data_dict)
@@ -3293,14 +3959,25 @@ class TestGetInstituteById(TestCase):
 
         data_dict = {
                     'key' : KEY,
+                    'asset_type': 'Image',
+                    'path': 'vlabs.ac.in/images/static/logo.png'
+                   }
+
+        asset = SystemInterface.add_asset(data_dict)
+
+
+        data_dict = {
+                    'key' : KEY,
                     'inst_name': 'IIT Kanpur',
                     'inst_id': 'IITK',
+                    'assets': ['vlabs.ac.in/images/static/logo.png']
                     }
 
         data_dict1 = {
                     'key' : KEY,
                     'inst_name': 'IIT Delhi',
                     'inst_id': 'IITD',
+                    'assets': ['vlabs.ac.in/images/static/logo.png']
                     }
 
         inst1 = SystemInterface.add_institute(data_dict)
@@ -3361,14 +4038,24 @@ class TestGetDisciplineById(TestCase):
     def test_get_discipline_by_id_in_system_interface(self):
         print "test_get_discipline_by_id_in_system_interface"
 
+        data_dict = {
+                    'key' : KEY,
+                    'asset_type': 'Image',
+                    'path': 'vlabs.ac.in/images/static/logo.png'
+                   }
+
+        asset = SystemInterface.add_asset(data_dict)
+
         data_dict = {'dis_name': 'data structure',
                     'dis_id': 'cse01',
-                    'key' : KEY
+                    'key' : KEY,
+                    'assets': ['vlabs.ac.in/images/static/logo.png']
                    }
 
         data_dict1 = {'dis_name': "Automata",
                       'dis_id': 'DFA',
-                      'key' : KEY
+                      'key' : KEY,
+                      'assets': ['vlabs.ac.in/images/static/logo.png']
                      }
 
         dis = SystemInterface.add_discipline(data_dict)
@@ -3387,6 +4074,71 @@ class TestGetDisciplineById(TestCase):
  #+END_SRC
 
 
+** Get Name By Id
+
+#+NAME: class_get_name_by_id
+#+begin_src python
+    @staticmethod
+    def get_name_by_id(id):
+        name_cls = System.delegate.entities['name']
+        try:
+            current_app.logger.debug("getting name by id")
+            name = name_cls.get_by_id(id)
+            if not name:
+                return ("No name found with id: %s" % (id))
+
+            return name.to_client()
+
+        except (ArityError, TypeError, NotAuthorizedError, StateError) as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+
+        except Exception as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+#+end_src
+
+*** TestGetNameById
+ #+NAME: test_class_get_name_by_id
+ #+BEGIN_SRC python
+class TestGetNameById(TestCase):
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_get_name_by_id_in_system_interface(self):
+        print "test_get_name_by_id_in_system_interface"
+
+        data_dict = {
+                    'key' : KEY,
+                    'name' : "Prof. Dharamraj"
+                   }
+
+        data_dict1 = {
+                    'key' : KEY,
+                    'name' : "Prof. Dharamrajuuuu"
+                   }
+
+        name1 = SystemInterface.add_name(data_dict)
+        name2 = SystemInterface.add_name(data_dict1)
+
+        name_data_one = SystemInterface.get_name_by_id(1)
+        name_data_two = SystemInterface.get_name_by_id(2)
+        
+        self.assertEqual(name_data_one.get("name"), data_dict['name'])
+        self.assertEqual(name_data_two.get("name"), data_dict1['name'])
+
+ #+END_SRC
+
+
 ** Update Lab
 #+NAME: class_update_lab
 #+begin_src python
@@ -3394,6 +4146,8 @@ class TestGetDisciplineById(TestCase):
     def update_lab(data_dict):
         session_cls = System.delegate.entities['session']
         session = session_cls(key=data_dict['key'])
+        institute_cls = System.delegate.entities['institute']
+        discipline_cls = System.delegate.entities['discipline']
 
         lab_id = str(data_dict['lab_id'])
         lab = System.do("get_lab", lab_id=lab_id)
@@ -3408,12 +4162,31 @@ class TestGetDisciplineById(TestCase):
         else:
             overview=data_dict['overview']
 
+        if 'inst_id' not in data_dict:
+            institute=str(lab.get("institute"))
+        else:
+            institute = System.do("get_institute", inst_id=
+                                      data_dict['inst_id'])
+
+        if 'dis_id' not in data_dict:
+            discipline=str(lab.get("discipline"))
+        else:
+            discipline = System.do("get_discipline", dis_id=
+                                       data_dict['dis_id'])
+
+        if 'integration_level' not in data_dict:
+            integration_status=str(lab.get("integration_status"))
+        else:
+            integration_status = System.do("get_integration_status_by_IL",
+                             integration_level=data_dict['integration_level'])
         try:
             current_app.logger.debug("running operation update_lab")
             lab = System.do("update_lab", lab=lab,
-                                    lab_name=lab_name, 
-                                    overview=overview,
-                                    session=session)
+                                    lab_name=lab_name,
+                                    overview=overview, session=session,
+                                    institute=institute,
+                                    discipline=discipline,
+                                    integration_status=integration_status)
             current_app.logger.debug("completed operation update_lab")
             return lab.to_client()
         except (ArityError, TypeError, NotAuthorizedError, StateError) as err:
@@ -3425,7 +4198,7 @@ class TestGetDisciplineById(TestCase):
             raise err
 #+end_src
 
-*** TestUpateLab
+*** TestUpdateLab
  #+NAME: test_class_update_lab
  #+BEGIN_SRC python
 class TestUpdateLab(TestCase):
@@ -3441,16 +4214,8 @@ class TestUpdateLab(TestCase):
         db.session.remove()
         db.drop_all()
 
-    def test_update_lab_name_in_system_interface(self):
+    def test_update_lab_in_system_interface(self):
         print "test_update_lab_name_in_system_interface"
-
-        data_dict = {
-                    'key': KEY,
-                    'name': 'Prof. Dharamaja',
-                    'email': 'abc@gmail.com'
-                   }
-
-        developer = SystemInterface.add_developer(data_dict)
 
         data_dict = {
                     'hosting_status': 'hosted',
@@ -3462,9 +4227,18 @@ class TestUpdateLab(TestCase):
         hosting_info = SystemInterface.add_hosting_info(data_dict)
 
         data_dict = {
+                    'key' : KEY,
+                    'asset_type': 'Image',
+                    'path': 'vlabs.ac.in/images/static/logo.png'
+                   }
+
+        asset = SystemInterface.add_asset(data_dict)
+
+        data_dict = {
                     'key': KEY,
                     'inst_name': 'IIT Kanpur',
-                    'inst_id': 'IITK'
+                    'inst_id': 'IITK',
+                    'assets': ['vlabs.ac.in/images/static/logo.png']
                     }
 
         institute = SystemInterface.add_institute(data_dict)
@@ -3478,19 +4252,23 @@ class TestUpdateLab(TestCase):
 
         data_dict = {
                     'key' : KEY,
-                    'asset_type': 'Image',
-                    'path': 'vlabs.ac.in/images/static/logo.png'
-                    }
-
-        asset = SystemInterface.add_asset(data_dict)
-
-        data_dict = {
-                    'key' : KEY,
                     'dis_name': 'computer science',
-                    'dis_id': 'CSE'
+                    'dis_id': 'CSE',
+                    'assets': ['vlabs.ac.in/images/static/logo.png']
                    }
 
         discipline = SystemInterface.add_discipline(data_dict)
+
+        data_dict = {
+                    'key' : KEY,
+                    'name': 'Prof. Dharamaja',
+                    'email': 'abc@gmail.com',
+                    'inst_id': 'IITK',
+                    'dis_id': 'CSE'
+                   }
+
+        developer = SystemInterface.add_developer(data_dict)
+
         data_dict = {
                     'key' : KEY,
                     'dis_name': 'computer science',
@@ -3499,11 +4277,24 @@ class TestUpdateLab(TestCase):
                     'exp_name': 'arrays',
                     'exp_id': 'exp123',
                     'overview': 'overview',
-                    'assets': ['vlabs.ac.in/images/static/logo.png'], 
+                    'assets': [{'path':'vlabs.ac.in/images/static/logo.png',
+                                    'asset_type': 'image'},
+                                {'path':'vlabs.ac.in/images/static/image.png',
+                                    'asset_type': 'image'}],
                     'integration_level': 4,
                     'sections' : [],
-                    'developers': ['abc@gmail.com'],
-                    'hosting_info': ['http://cse14-iiith.vlabs.ac.in']
+                    'developers': [{'name':'Prof. Dharamaja',
+                                    'email': 'abc@gmail.com',
+                                    'inst_id': 'IITK', 'dis_id': 'CSE'},
+                                    {'name':'Prof. Pallavi Pawar',
+                                    'email': 'pallavi.pawar@gmail.com',
+                                    'inst_id': 'IITK', 'dis_id': 'CSE'}],
+                    'hosting_info': [{'hosted_url':'http://cse14-iiith.vlabs.ac.in',
+                                    'hosting_status': 'hosted',
+                                    'hosted_on': 'cloud'},
+                                    {'hosted_url':'http://iitkgp.vlab.co.in/',
+                                    'hosting_status': 'hosted',
+                                    'hosted_on': 'server'}]
                    }
 
         experiment = SystemInterface.add_experiment(data_dict)
@@ -3515,36 +4306,85 @@ class TestUpdateLab(TestCase):
                     'overview': 'overview',
                     'inst_id': 'IITK',
                     'dis_id': 'CSE',
-                    'assets': ['vlabs.ac.in/images/static/logo.png'],
+                    'assets': [{'path':'vlabs.ac.in/images/static/logo.png',
+                                    'asset_type': 'image'},
+                                {'path':'vlabs.ac.in/images/static/image.png',
+                                    'asset_type': 'image'}],
+                   'developers': [{'name':'Prof. Dharamaja',
+                                    'email': 'abc@gmail.com',
+                                    'inst_id': 'IITK', 'dis_id': 'CSE'},
+                                    {'name':'Prof. Pallavi Pawar',
+                                    'email': 'pallavi.pawar@gmail.com',
+                                    'inst_id': 'IITK', 'dis_id': 'CSE'}],
+                   'hosting_info': [{'hosted_url':'http://cse14-iiith.vlabs.ac.in',
+                                    'hosting_status': 'hosted',
+                                    'hosted_on': 'cloud'},
+                                    {'hosted_url':'http://iitkgp.vlab.co.in/',
+                                    'hosting_status': 'hosted',
+                                    'hosted_on': 'server'}],
                     'experiments': ['exp123'],
-                    'integration_level': 4,
-                    'developers': ['abc@gmail.com'],
-                    'hosting_info': ['http://cse14-iiith.vlabs.ac.in']
+                    'integration_level': 4
                    }
 
         data_dict1 = {
                     'key' : KEY,
+                    'asset_type': 'Video',
+                    'path': 'vlabs.ac.in/images/video/icon.png'
+                     }
+
+        asset = SystemInterface.add_asset(data_dict1)
+
+        data_dict1 = {
+                    'key': KEY,
+                    'inst_name': 'IIT Kharagpur',
+                    'inst_id': 'IITKgp',
+                    'assets': ['vlabs.ac.in/images/video/icon.png']
+                    }
+
+        institute = SystemInterface.add_institute(data_dict1)
+
+        data_dict1 = {
+                    'key' : KEY,
+                    'dis_name': 'electronics engineering',
+                    'dis_id': 'ece',
+                    'assets': ['vlabs.ac.in/images/video/icon.png']
+                    }
+
+        discipline = SystemInterface.add_discipline(data_dict1)
+
+        data_dict1 = {
+                    'key' : KEY,
+                    'integration_level': 3
+                    }
+
+        integration_status = SystemInterface.add_integration_status(data_dict1)
+
+        data_dict1 = {
+                    'key' : KEY,
                     'lab_name': 'Computer Programming',
-                    'lab_id': 'cse02'
+                    'lab_id': 'cse02',
+                    'overview': 'overview',
+                    'integration_level': 3 ,
+                    'inst_id': 'IITKgp',
+                    'dis_id': 'ece'
                    }
 
         lab = SystemInterface.add_lab(data_dict)
         lab1 = SystemInterface.update_lab(data_dict1)
-        
+
         self.assertEqual(lab1.get("lab_name"), data_dict1['lab_name'])
         self.assertEqual(lab1.get("lab_id"), data_dict['lab_id'])
         self.assertEqual(lab1.get("overview"), data_dict['overview'])
+        self.assertEqual(lab1.get("institute").get("inst_id"),
+                             data_dict1['inst_id'])
+        self.assertEqual(lab1.get("discipline").get("dis_id"),
+                             data_dict1['dis_id'])
+        self.assertEqual(lab1.get("integration_status").\
+                             get("integration_level"),
+                             data_dict1['integration_level'])
 
     def test_update_lab_overview_in_system_interface(self):
-        print "test_update_lab_name_in_system_interface"
-
-        data_dict = {
-                    'key' : KEY,
-                    'name': 'Prof. Dharamaja',
-                    'email': 'abc@gmail.com'
-                   }
-
-        developer = SystemInterface.add_developer(data_dict)
+        print "test_update_lab_overview_in_system_interface"
 
         data_dict = {
                     'hosting_status': 'hosted',
@@ -3557,11 +4397,36 @@ class TestUpdateLab(TestCase):
 
         data_dict = {
                     'key' : KEY,
+                    'asset_type': 'Image',
+                    'path': 'vlabs.ac.in/images/static/logo.png'
+                   }
+
+        asset = SystemInterface.add_asset(data_dict)
+
+        data_dict = {
+                    'key' : KEY,
                     'inst_name': 'IIT Kanpur',
-                    'inst_id': 'IITK'
+                    'inst_id': 'IITK',
+                    'assets': ['vlabs.ac.in/images/static/logo.png']
                     }
 
         institute = SystemInterface.add_institute(data_dict)
+
+        data_dict = {
+                    'key' : KEY,
+                    'inst_name': 'IIT Kharagpur',
+                    'inst_id': 'IITKgp',
+                    'assets': ['vlabs.ac.in/images/static/logo.png']
+                    }
+
+        institute = SystemInterface.add_institute(data_dict)
+
+        data_dict = {
+                    'key' : KEY,
+                    'integration_level': 3
+                    }
+
+        integration_status = SystemInterface.add_integration_status(data_dict)
 
         data_dict = {
                     'key' : KEY,
@@ -3572,29 +4437,55 @@ class TestUpdateLab(TestCase):
 
         data_dict = {
                     'key' : KEY,
-                    'asset_type': 'Image',
-                    'path': 'vlabs.ac.in/images/static/logo.png'
-                    }
-
-        asset = SystemInterface.add_asset(data_dict)
-
-        data_dict = {
-                    'key' : KEY,
                     'dis_name': 'computer science',
-                    'dis_id': 'CSE'
+                    'dis_id': 'CSE',
+                    'assets': ['vlabs.ac.in/images/static/logo.png']
                    }
 
         discipline = SystemInterface.add_discipline(data_dict)
+
+        data_dict = {
+                    'key' : KEY,
+                    'dis_name': 'electronics',
+                    'dis_id': 'ECE',
+                    'assets': ['vlabs.ac.in/images/static/logo.png']
+                   }
+
+        discipline = SystemInterface.add_discipline(data_dict)
+
+        data_dict = {
+                    'key' : KEY,
+                    'name': 'Prof. Dharamaja',
+                    'email': 'abc@gmail.com',
+                    'inst_id': 'IITK',
+                    'dis_id': 'CSE'
+                   }
+
+        developer = SystemInterface.add_developer(data_dict)
+
         data_dict = {
                     'key': KEY,
                     'exp_name': 'arrays',
                     'exp_id': 'exp123',
                     'overview': 'overview',
-                    'assets': ['vlabs.ac.in/images/static/logo.png'], 
+                    'assets': [{'path':'vlabs.ac.in/images/static/logo.png',
+                                    'asset_type': 'image'},
+                                {'path':'vlabs.ac.in/images/static/image.png',
+                                    'asset_type': 'image'}],
                     'integration_level': 4,
                     'sections': [],
-                    'developers': ['abc@gmail.com'],
-                    'hosting_info': ['http://cse14-iiith.vlabs.ac.in'], 
+                    'developers': [{'name':'Prof. Dharamaja',
+                                    'email': 'abc@gmail.com',
+                                    'inst_id': 'IITK', 'dis_id': 'CSE'},
+                                    {'name':'Prof. Pallavi Pawar',
+                                    'email': 'pallavi.pawar@gmail.com',
+                                    'inst_id': 'IITK', 'dis_id': 'CSE'}],
+                    'hosting_info': [{'hosted_url':'http://cse14-iiith.vlabs.ac.in',
+                                    'hosting_status': 'hosted',
+                                    'hosted_on': 'cloud'},
+                                    {'hosted_url':'http://iitkgp.vlab.co.in/',
+                                    'hosting_status': 'hosted',
+                                    'hosted_on': 'server'}],
                     'dis_name': 'computer science',
                     'inst_id': 'IITK',
                     'dis_id': 'CSE'
@@ -3610,25 +4501,42 @@ class TestUpdateLab(TestCase):
                     'integration_level': 4 ,
                     'inst_id': 'IITK',
                     'dis_id': 'CSE',
-                    'assets': ['vlabs.ac.in/images/static/logo.png'],
-                    'experiments': ['exp123'],
-                    'developers': ['abc@gmail.com'],
-                    'hosting_info': ['http://cse14-iiith.vlabs.ac.in']
+                    'assets': [{'path':'vlabs.ac.in/images/static/logo.png',
+                                    'asset_type': 'image'},
+                                {'path':'vlabs.ac.in/images/static/image.png',
+                                    'asset_type': 'image'}],
+                   'developers': [{'name':'Prof. Dharamaja',
+                                    'email': 'abc@gmail.com',
+                                    'inst_id': 'IITK', 'dis_id': 'CSE'},
+                                    {'name':'Prof. Pallavi Pawar',
+                                    'email': 'pallavi.pawar@gmail.com',
+                                    'inst_id': 'IITK', 'dis_id': 'CSE'}],
+                   'hosting_info': [{'hosted_url':'http://cse14-iiith.vlabs.ac.in',
+                                    'hosting_status': 'hosted',
+                                    'hosted_on': 'cloud'},
+                                    {'hosted_url':'http://iitkgp.vlab.co.in/',
+                                    'hosting_status': 'hosted',
+                                    'hosted_on': 'server'}],
+                    'experiments': ['exp123']
                    }
 
         data_dict1 = {
                     'key' : KEY,
-                    'overview': 'Computer Programming overview',
-                    'lab_id': 'cse02'
+                    'lab_name': 'Computer Programming overview',
+                    'lab_id': 'cse02',
+                    'overview': 'overview',
+                    'integration_level': 3,
+                    'inst_id': 'IITKgp',
+                    'dis_id': 'ECE'
                    }
 
         lab = SystemInterface.add_lab(data_dict)
         lab1 = SystemInterface.update_lab(data_dict1)
-        
-        self.assertEqual(lab1.get("lab_id"), data_dict['lab_id'])
-        self.assertEqual(lab1.get("lab_name"), data_dict['lab_name'])
-        self.assertEqual(lab1.get("overview"), data_dict1['overview'])
 
+        self.assertEqual(lab1.get("lab_id"), data_dict1['lab_id'])
+        self.assertEqual(lab1.get("lab_name"), data_dict1['lab_name'])
+        self.assertEqual(lab1.get("overview"), data_dict1['overview'])
+ 
  #+END_SRC
 
 
@@ -3641,10 +4549,10 @@ class TestUpdateLab(TestCase):
         exp_cls = System.delegate.entities['experiment']
         institute_cls = System.delegate.entities['institute']
         discipline_cls = System.delegate.entities['discipline']
-
         session = session_cls(key=str(data_dict['key']))
         exp_id = str(data_dict['exp_id'])
         experiment = System.do("get_experiment", exp_id=exp_id)
+
         if 'exp_name' not in data_dict:
             exp_name=str(experiment.get("exp_name"))
         else:
@@ -3657,12 +4565,29 @@ class TestUpdateLab(TestCase):
         else:
             overview=data_dict['overview']
 
+        if 'inst_id' not in data_dict:
+            institute=str(experiment.get("institute"))
+        else:
+            institute= System.do("get_institute", inst_id=data_dict['inst_id'])
+
+        if 'dis_id' not in data_dict:
+            discipline=str(experiment.get("discipline"))
+        else:
+            discipline= System.do("get_discipline", dis_id=data_dict['dis_id'])
+
+        if 'integration_level' not in data_dict:
+            integration_status=str(experiment.get("integration_status"))
+        else:
+            integration_status= System.do("get_integration_status_by_IL", 
+                      integration_level=data_dict['integration_level'])
+
         try:
             current_app.logger.debug("running operation update_experiment")
             exp = System.do("update_experiment", exp_name=exp_name, 
-                                    experiment=experiment,
-                                    overview=overview,
-                                    session=session)
+                                    experiment=experiment, overview=overview,
+                                    session=session, institute=institute, 
+                                    discipline=discipline, 
+                                    integration_status=integration_status)
             current_app.logger.debug("completed operation update_experiment")
             return exp.to_client()
         except (ArityError, TypeError, NotAuthorizedError, StateError) as err:
@@ -3702,22 +4627,6 @@ class TestUpdateExperiment(TestCase):
         integration_status = SystemInterface.add_integration_status(data_dict)
 
         data_dict = {
-                    'key' : KEY,
-                    'asset_type': 'Image',
-                    'path': 'vlabs.ac.in/images/static/logo.png'
-                   }
-
-        asset = SystemInterface.add_asset(data_dict)
-
-        data_dict = {
-                    'key': KEY,
-                    'name': 'Prof. Dharamaja',
-                    'email': 'abc@gmail.com'
-                   }
-
-        developer = SystemInterface.add_developer(data_dict)
-
-        data_dict = {
                     'hosting_status': 'hosted',
                     'hosted_url': 'http://cse14-iiith.vlabs.ac.in',
                     'hosted_on': 'cloud',
@@ -3728,8 +4637,17 @@ class TestUpdateExperiment(TestCase):
 
         data_dict = {
                     'key' : KEY,
+                    'asset_type': 'Image',
+                    'path': 'vlabs.ac.in/images/static/logo.png'
+                   }
+
+        asset = SystemInterface.add_asset(data_dict)
+
+        data_dict = {
+                    'key' : KEY,
                     'inst_name': 'IIT Kanpur',
-                    'inst_id': 'IITK'
+                    'inst_id': 'IITK',
+                    'assets': ['vlabs.ac.in/images/static/logo.png']
                     }
 
         institute = SystemInterface.add_institute(data_dict)
@@ -3737,31 +4655,93 @@ class TestUpdateExperiment(TestCase):
         data_dict = {
                     'key' : KEY,
                     'dis_name': 'computer science',
-                    'dis_id': 'CSE'
+                    'dis_id': 'CSE',
+                    'assets': ['vlabs.ac.in/images/static/logo.png']
                    }
 
         discipline = SystemInterface.add_discipline(data_dict)
+     
+        data_dict = {
+                    'key' : KEY,
+                    'name': 'Prof. Dharamaja',
+                    'email': 'abc@gmail.com',
+                    'inst_id': 'IITK',
+                    'dis_id': 'CSE'
+                   }
+
+        developer = SystemInterface.add_developer(data_dict)
 
         data_dict = {
                     'key': KEY,
                     'exp_name': 'Data Structures',
                     'overview': 'overview',
-                    'assets': ['vlabs.ac.in/images/static/logo.png'], 
+                    'assets': [{'path':'vlabs.ac.in/images/static/logo.png',
+                                    'asset_type': 'image'},
+                                {'path':'vlabs.ac.in/images/static/image.png',
+                                    'asset_type': 'image'}],
                     'integration_level': 4,
                     'sections': [],
                     'exp_id': 'cse02',
                     'inst_id': 'IITK',
                     'dis_id': 'CSE',
-                    'developers': ['abc@gmail.com'],
-                    'hosting_info': ['http://cse14-iiith.vlabs.ac.in']
+                    'developers': [{'name':'Prof. Dharamaja',
+                                    'email': 'abc@gmail.com',
+                                    'inst_id': 'IITK', 'dis_id': 'CSE'},
+                                    {'name':'Prof. Pallavi Pawar',
+                                    'email': 'pallavi.pawar@gmail.com',
+                                    'inst_id': 'IITK', 'dis_id': 'CSE'}],
+                    'hosting_info': [{'hosted_url':'http://cse14-iiith.vlabs.ac.in',
+                                    'hosting_status': 'hosted',
+                                    'hosted_on': 'cloud'},
+                                    {'hosted_url':'http://iitkgp.vlab.co.in/',
+                                    'hosting_status': 'hosted',
+                                    'hosted_on': 'server'}]
                    }
 
         exp = SystemInterface.add_experiment(data_dict)
 
         data_dict1 = {
                     'key' : KEY,
+                    'integration_level': 3
+                    }
+
+        integration_status = SystemInterface.add_integration_status(data_dict1)
+
+        data_dict1 = {
+                    'key' : KEY,
+                    'asset_type': 'Video',
+                    'path': 'vlabs.ac.in/images/video/icon.png'
+                   }
+
+        asset = SystemInterface.add_asset(data_dict1)
+
+
+        data_dict1 = {
+                    'key' : KEY,
+                    'inst_name': 'IIT Kharagpur',
+                    'inst_id': 'IITKgp',
+                    'assets': ['vlabs.ac.in/images/video/icon.png']
+                    }
+
+        institute = SystemInterface.add_institute(data_dict1)
+
+        data_dict1 = {
+                    'key' : KEY,
+                    'dis_name': 'electronics & engineering',
+                    'dis_id': 'ECE',
+                    'assets': ['vlabs.ac.in/images/video/icon.png']
+                   }
+
+        discipline = SystemInterface.add_discipline(data_dict1)
+
+        data_dict1 = {
+                    'key' : KEY,
                     'exp_id': 'cse02',
-                    'exp_name': 'arrays'
+                    'exp_name': 'arrays',
+                    'overview': 'overview',
+                    'inst_id': 'IITKgp',
+                    'dis_id': 'ECE',
+                    'integration_level': 3
                    }
       
         exp1 = SystemInterface.update_experiment(data_dict1)
@@ -3824,15 +4804,25 @@ class TestUpdateInstitute(TestCase):
 
         data_dict = {
                     'key' : KEY,
+                    'asset_type': 'Image',
+                    'path': 'vlabs.ac.in/images/static/logo.png'
+                   }
+
+        asset = SystemInterface.add_asset(data_dict)
+
+        data_dict = {
+                    'key' : KEY,
                     'inst_name': 'IIT Kanpur',
                     'inst_id': 'IITK',
-                    'overview' : 'overview'
+                    'overview' : 'overview',
+                    'assets': ['vlabs.ac.in/images/static/logo.png']
                     }
 
         data_dict1 = {
                     'key' : KEY,
                     'inst_name': 'IIT Delhi',
-                    'inst_id': 'IITK'
+                    'inst_id': 'IITK',
+                    'assets': ['vlabs.ac.in/images/static/logo.png']
                    }
 
         institute = SystemInterface.add_institute(data_dict)
@@ -3962,16 +4952,27 @@ class TestUpdateDiscipline(TestCase):
 
     def test_update_discipline_name_in_system_interface(self):
         print "test_update_discipline_name_in_system_interface"
+ 
+        data_dict = {
+                    'key' : KEY,
+                    'asset_type': 'Image',
+                    'path': 'vlabs.ac.in/images/static/logo.png'
+                   }
+
+        asset = SystemInterface.add_asset(data_dict)
 
         data_dict = {'dis_name': 'Computer Science',
                     'dis_id': 'CSE',
-                    'key' : KEY
+                    'key' : KEY,
+                    'assets': ['vlabs.ac.in/images/static/logo.png']
                    }
 
         data_dict1 = {'dis_name': 'Computer Science and Engineering',
-            'dis_id': 'CSE',
-            'key' : KEY
-           }
+                     'dis_id': 'CSE',
+                      'assets': ['vlabs.ac.in/images/static/logo.png'],
+                     'key' : KEY
+                     }
+
         dis1 = SystemInterface.add_discipline(data_dict)
         dis = SystemInterface.update_discipline(data_dict1)
         
@@ -4078,11 +5079,21 @@ class TestUpdateHosting_Info(TestCase):
         else:
             name=name_cls(name=str(data_dict['name']))
 
+        if 'institute' not in data_dict:
+            institute=str(developer.get("institute"))
+        else:
+            institute = System.do("get_institute", inst_id=data_dict['inst_id'])
+
+        if 'discipline' not in data_dict:
+            discipline=str(developer.get("discipline"))
+        else:
+            discipline = System.do("get_discipline", dis_id=data_dict['dis_id'])
+
         try:
             current_app.logger.debug("running operation update_developer")
             developer = System.do("update_developer", name=name,
-                                      developer=developer,
-                                      session=session)
+                                      developer=developer, institute=institute,
+                                      discipline=discipline, session=session)
             current_app.logger.debug("completed operation update_developer")
             return developer
 
@@ -4115,15 +5126,71 @@ class TestUpdateDeveloper(TestCase):
         print "test_update_developer_name_in_system_interface"
 
         data_dict = {
-                    'key': KEY,
-                    'name': 'Prof. Dharamaraja',
-                    'email': 'dharamaraj@gmail.com'
+                    'key' : KEY,
+                    'asset_type': 'Image',
+                    'path': 'vlabs.ac.in/images/static/logo.png'
+                   }
+
+        asset = SystemInterface.add_asset(data_dict)
+
+        data_dict = {
+                    'key' : KEY,
+                    'inst_name': 'IIT Kanpur',
+                    'inst_id': 'IITK',
+                    'assets': ['vlabs.ac.in/images/static/logo.png']
+                    }
+
+        institute = SystemInterface.add_institute(data_dict)
+
+        data_dict = {
+                    'key' : KEY,
+                    'dis_name': 'computer science',
+                    'dis_id': 'CSE',
+                    'assets': ['vlabs.ac.in/images/static/logo.png']
+                   }
+
+        discipline = SystemInterface.add_discipline(data_dict)
+
+        data_dict = {
+                    'key' : KEY,
+                    'name': 'Prof. Dharamaja',
+                    'email': 'abc@gmail.com',
+                    'inst_id': 'IITK',
+                    'dis_id': 'CSE'
                    }
 
         data_dict1 = {
+                    'key' : KEY,
+                    'asset_type': 'Image',
+                    'path': 'vlabs.ac.in/images/video/icon.png'
+                   }
+
+        asset = SystemInterface.add_asset(data_dict1)
+
+        data_dict1 = {
                     'key': KEY,
-                    'email': 'dharamaraj@gmail.com',
-                    'name': 'Prof. Raja'
+                    'inst_name': 'IIT Kharagpur',
+                    'inst_id': 'IITKgp',
+                    'assets': ['vlabs.ac.in/images/video/icon.png']                  
+                    }
+
+        institute = SystemInterface.add_institute(data_dict1)
+
+        data_dict1 = {
+                    'key' : KEY,
+                    'dis_name': 'electronics engineering',
+                    'dis_id': 'ece',
+                    'assets': ['vlabs.ac.in/images/video/icon.png']
+                    }
+
+        discipline = SystemInterface.add_discipline(data_dict1)
+
+        data_dict1 = {
+                    'key': KEY,
+                    'email': 'abc@gmail.com',
+                    'name': 'Prof. Raja',
+                    'inst_id': 'IITKgp',
+                    'dis_id': 'ece'
                    }
 
         developer = SystemInterface.add_developer(data_dict)
@@ -4131,6 +5198,8 @@ class TestUpdateDeveloper(TestCase):
 
         self.assertEqual(developer1.get("name").get("name"),
                              data_dict1['name'])
+        self.assertEqual(developer1.get("inst_id"), data_dict1['inst_id'])
+        self.assertEqual(developer1.get("dis_id"), data_dict1['dis_id'])
 
  #+END_SRC
 
@@ -4190,15 +5259,6 @@ class TestDeleteLab(TestCase):
 
         asset1 = SystemInterface.add_asset(data_dict)
 
-
-        data_dict = {
-                    'key': KEY,
-                    'name': 'Prof. Dharamaja',
-                    'email': 'abc@gmail.com'
-                   }
-
-        developer = SystemInterface.add_developer(data_dict)
-
         data_dict = {
                     'hosting_status': 'hosted',
                     'hosted_url': 'http://cse14-iiith.vlabs.ac.in',
@@ -4211,7 +5271,8 @@ class TestDeleteLab(TestCase):
         data_dict = {
                     'key' : KEY,
                     'inst_name': 'IIT Kanpur',
-                    'inst_id': 'IITK'
+                    'inst_id': 'IITK',
+                    'assets': ['vlabs.ac.in/images/static/logo.png']
                     }
 
         institute = SystemInterface.add_institute(data_dict)
@@ -4219,18 +5280,29 @@ class TestDeleteLab(TestCase):
         data_dict = {
                     'key' : KEY,
                     'dis_name': 'computer science',
-                    'dis_id': 'CSE'
+                    'dis_id': 'CSE',
+                    'assets': ['vlabs.ac.in/images/static/logo.png']
                    }
 
         discipline = SystemInterface.add_discipline(data_dict)
+ 
+        data_dict = {
+                    'key' : KEY,
+                    'name': 'Prof. Dharamaja',
+                    'email': 'abc@gmail.com',
+                    'inst_id': 'IITK',
+                    'dis_id': 'CSE'
+                   }
+
+        developer = SystemInterface.add_developer(data_dict)
 
         data_dict = {
                     'key' : KEY,
                     'asset_type': 'Image',
-                    'path': 'vlabs.ac.in/images/static/icon.png',
+                    'path': 'vlabs.ac.in/images/static/icon.png'
                     }
 
-        asset2 = SystemInterface.add_asset(data_dict) 
+        asset2 = SystemInterface.add_asset(data_dict)
 
         data_dict = {
                     'key': KEY,
@@ -4239,11 +5311,24 @@ class TestDeleteLab(TestCase):
                     'overview': 'overview',
                     'inst_id': 'IITK',
                     'dis_id': 'CSE',
-                    'assets': ['vlabs.ac.in/images/static/logo.png'], 
+                    'assets': [{'path':'vlabs.ac.in/images/static/logo.png',
+                                    'asset_type': 'image'},
+                                {'path':'vlabs.ac.in/images/static/image.png',
+                                    'asset_type': 'image'}],
                     'integration_level': 4,
                     'sections': [],
-                    'developers': ['abc@gmail.com'],
-                    'hosting_info': ['http://cse14-iiith.vlabs.ac.in']
+                    'developers': [{'name':'Prof. Dharamaja',
+                                    'email': 'abc@gmail.com',
+                                    'inst_id': 'IITK', 'dis_id': 'CSE'},
+                                    {'name':'Prof. Pallavi Pawar',
+                                    'email': 'pallavi.pawar@gmail.com',
+                                    'inst_id': 'IITK', 'dis_id': 'CSE'}],
+                    'hosting_info': [{'hosted_url':'http://cse14-iiith.vlabs.ac.in',
+                                    'hosting_status': 'hosted',
+                                    'hosted_on': 'cloud'},
+                                    {'hosted_url':'http://iitkgp.vlab.co.in/',
+                                    'hosting_status': 'hosted',
+                                    'hosted_on': 'server'}]
                    }
 
         experiment = SystemInterface.add_experiment(data_dict)
@@ -4254,12 +5339,25 @@ class TestDeleteLab(TestCase):
                     'lab_id': 'cse01',
                     'inst_id': 'IITK',
                     'dis_id': 'CSE',
-                    'assets': ['vlabs.ac.in/images/static/logo.png'],
+                    'assets': [{'path':'vlabs.ac.in/images/static/logo.png',
+                                    'asset_type': 'image'},
+                                {'path':'vlabs.ac.in/images/static/image.png',
+                                    'asset_type': 'image'}],
+                    'developers': [{'name':'Prof. Dharamaja',
+                                    'email': 'abc@gmail.com',
+                                    'inst_id': 'IITK', 'dis_id': 'CSE'},
+                                    {'name':'Prof. Pallavi Pawar',
+                                    'email': 'pallavi.pawar@gmail.com',
+                                    'inst_id': 'IITK', 'dis_id': 'CSE'}],
+                    'hosting_info': [{'hosted_url':'http://cse14-iiith.vlabs.ac.in',
+                                    'hosting_status': 'hosted',
+                                    'hosted_on': 'cloud'},
+                                    {'hosted_url':'http://iitkgp.vlab.co.in/',
+                                    'hosting_status': 'hosted',
+                                    'hosted_on': 'server'}],
                     'overview': 'overview',
                     'experiments': ['exp123'], 
-                    'integration_level': 4,
-                    'developers': ['abc@gmail.com'],
-                    'hosting_info': ['http://cse14-iiith.vlabs.ac.in']
+                    'integration_level': 4
                    }
 
         data_dict1 = {
@@ -4268,12 +5366,25 @@ class TestDeleteLab(TestCase):
                     'lab_id': 'cse02',
                     'inst_id': 'IITK',
                     'dis_id': 'CSE',
-                    'assets': ['vlabs.ac.in/images/static/icon.png'],
+                    'assets': [{'path':'vlabs.ac.in/images/static/logo.png',
+                                    'asset_type': 'image'},
+                                {'path':'vlabs.ac.in/images/static/image.png',
+                                    'asset_type': 'image'}],
+                    'developers': [{'name':'Prof. Dharamaja',
+                                    'email': 'abc@gmail.com',
+                                    'inst_id': 'IITK', 'dis_id': 'CSE'},
+                                    {'name':'Prof. Pallavi Pawar',
+                                    'email': 'pallavi.pawar@gmail.com',
+                                    'inst_id': 'IITK', 'dis_id': 'CSE'}],
+                    'hosting_info': [{'hosted_url':'http://cse14-iiith.vlabs.ac.in',
+                                    'hosting_status': 'hosted',
+                                    'hosted_on': 'cloud'},
+                                    {'hosted_url':'http://iitkgp.vlab.co.in/',
+                                    'hosting_status': 'hosted',
+                                    'hosted_on': 'server'}],
                     'overview': 'overview',
                     'experiments': ['exp123'], 
-                    'integration_level': 4,
-                    'developers': ['abc@gmail.com'],
-                    'hosting_info': ['http://cse14-iiith.vlabs.ac.in']
+                    'integration_level': 4
                    }
 
         lab = SystemInterface.add_lab(data_dict)
@@ -4328,14 +5439,6 @@ class TestDeleteExperiment(TestCase):
         print "test_delete_experiment_in_system_interface"
 
         data_dict = {
-                    'key': KEY,
-                    'name': 'Prof. Dharamaja',
-                    'email': 'abc@gmail.com'
-                   }
-
-        developer = SystemInterface.add_developer(data_dict)
-
-        data_dict = {
                     'hosting_status': 'hosted',
                     'hosted_url': 'http://cse14-iiith.vlabs.ac.in',
                     'hosted_on': 'cloud',
@@ -4362,7 +5465,8 @@ class TestDeleteExperiment(TestCase):
         data_dict = {
                     'key' : KEY,
                     'inst_name': 'IIT Kanpur',
-                    'inst_id': 'IITK'
+                    'inst_id': 'IITK',
+                    'assets': ['vlabs.ac.in/images/static/logo.png']
                     }
 
         institute = SystemInterface.add_institute(data_dict)
@@ -4370,37 +5474,74 @@ class TestDeleteExperiment(TestCase):
         data_dict = {
                     'key' : KEY,
                     'dis_name': 'computer science',
-                    'dis_id': 'CSE'
+                    'dis_id': 'CSE',
+                    'assets': ['vlabs.ac.in/images/static/logo.png']
                    }
 
         discipline = SystemInterface.add_discipline(data_dict)
+      
+        data_dict = {
+                    'key' : KEY,
+                    'name': 'Prof. Dharamaja',
+                    'email': 'abc@gmail.com',
+                    'inst_id': 'IITK',
+                    'dis_id': 'CSE'
+                   }
+
+        developer = SystemInterface.add_developer(data_dict)
 
         data_dict = {
                     'key' : KEY,
                     'exp_name': 'Data Structures',
                     'overview': 'overview',
-                    'assets': ['vlabs.ac.in/images/static/logo.png'], 
+                    'assets': [{'path':'vlabs.ac.in/images/static/logo.png',
+                                    'asset_type': 'image'},
+                                {'path':'vlabs.ac.in/images/static/image.png',
+                                    'asset_type': 'image'}],
                     'integration_level': 4,
                     'exp_id': 'cse01',
                     'sections': [],
                     'inst_id': 'IITK',
                     'dis_id': 'CSE',
-                    'developers': ['abc@gmail.com'],
-                    'hosting_info': ['http://cse14-iiith.vlabs.ac.in']
+                    'developers': [{'name':'Prof. Dharamaja',
+                                    'email': 'abc@gmail.com',
+                                    'inst_id': 'IITK', 'dis_id': 'CSE'},
+                                    {'name':'Prof. Pallavi Pawar',
+                                    'email': 'pallavi.pawar@gmail.com',
+                                    'inst_id': 'IITK', 'dis_id': 'CSE'}],
+                    'hosting_info': [{'hosted_url':'http://cse14-iiith.vlabs.ac.in',
+                                    'hosting_status': 'hosted',
+                                    'hosted_on': 'cloud'},
+                                    {'hosted_url':'http://iitkgp.vlab.co.in/',
+                                    'hosting_status': 'hosted',
+                                    'hosted_on': 'server'}]
                    }
 
         data_dict1 = {
                     'key': KEY,
                     'exp_name': 'Computer Programming',
                     'overview': 'overview',
-                    'assets': ['vlabs.ac.in/images/static/logo.png'], 
+                    'assets': [{'path':'vlabs.ac.in/images/static/logo.png',
+                                    'asset_type': 'image'},
+                                {'path':'vlabs.ac.in/images/static/image.png',
+                                    'asset_type': 'image'}],
                     'integration_level': 4,
                     'exp_id': 'cse02',
                     'sections':[],
                     'inst_id': 'IITK',
                     'dis_id': 'CSE',
-                    'developers': ['abc@gmail.com'],
-                    'hosting_info': ['http://cse14-iiith.vlabs.ac.in']
+                    'developers': [{'name':'Prof. Dharamaja',
+                                    'email': 'abc@gmail.com',
+                                    'inst_id': 'IITK', 'dis_id': 'CSE'},
+                                    {'name':'Prof. Pallavi Pawar',
+                                    'email': 'pallavi.pawar@gmail.com',
+                                    'inst_id': 'IITK', 'dis_id': 'CSE'}],
+                    'hosting_info': [{'hosted_url':'http://cse14-iiith.vlabs.ac.in',
+                                    'hosting_status': 'hosted',
+                                    'hosted_on': 'cloud'},
+                                    {'hosted_url':'http://iitkgp.vlab.co.in/',
+                                    'hosting_status': 'hosted',
+                                    'hosted_on': 'server'}]
                    }
 
         exp = SystemInterface.add_experiment(data_dict)
@@ -4456,14 +5597,24 @@ class TestDeleteInstitute(TestCase):
 
         data_dict = {
                     'key' : KEY,
+                    'asset_type': 'Image',
+                    'path': 'vlabs.ac.in/images/static/logo.png'
+                   }
+
+        asset = SystemInterface.add_asset(data_dict)
+
+        data_dict = {
+                    'key' : KEY,
                     'inst_name': 'IIT Kanpur',
-                    'inst_id': 'IITK'
+                    'inst_id': 'IITK',
+                    'assets': ['vlabs.ac.in/images/static/logo.png']
                     }
 
         data_dict1 = {
                     'key' : KEY,
                     'inst_name': 'IIT Kharagpur',
-                    'inst_id': 'IITKgp'
+                    'inst_id': 'IITKgp',
+                    'assets': ['vlabs.ac.in/images/static/logo.png']
                      }
 
         institute = SystemInterface.add_institute(data_dict)
@@ -4578,15 +5729,31 @@ class TestDeleteDiscipline(TestCase):
     def test_delete_discipline_name_in_system_interface(self):
         print "test_update_discipline_name_in_system_interface"
 
+        data_dict = {
+                    'key' : KEY,
+                    'asset_type': 'Image',
+                    'path': 'vlabs.ac.in/images/static/logo.png'
+                    }
+
+        asset = SystemInterface.add_asset(data_dict)
+
         data_dict = {'dis_name': 'Computer Science',
                     'dis_id': 'CSE',
-                    'key' : KEY
-                   }
+                    'key' : KEY,
+                    'assets': ['vlabs.ac.in/images/static/logo.png']
+                    }
 
-        dis1 = SystemInterface.add_discipline(data_dict)
-        dis_id = SystemInterface.delete_discipline('CSE', KEY)
-        
-        self.assertEqual(dis_id, data_dict['dis_id'])
+        data_dict1 = {'dis_name': 'Electronics and Communication',
+                    'dis_id': 'ECE',
+                    'key' : KEY,
+                    'assets': ['vlabs.ac.in/images/static/logo.png']
+                    }
+
+        dis = SystemInterface.add_discipline(data_dict)
+        dis1 = SystemInterface.add_discipline(data_dict1)
+        dis_id = SystemInterface.delete_discipline('ECE', KEY)
+
+        self.assertEqual(dis_id,'ECE')
 
  #+END_SRC
 
@@ -4831,15 +5998,46 @@ class TestDeleteDeveloper(TestCase):
         print "test_delete_developer_in_system_interface"
 
         data_dict = {
-                    'key': KEY,
-                    'name': 'Prof. Dharmaraj',
-                    'email': 'abc@gmail.com'
+                    'key' : KEY,
+                    'asset_type': 'Image',
+                    'path': 'vlabs.ac.in/images/static/logo.png'
+                   }
+
+        asset = SystemInterface.add_asset(data_dict)
+
+
+        data_dict = {
+                    'key' : KEY,
+                    'inst_name': 'IIT Kanpur',
+                    'inst_id': 'IITK',
+                    'assets': ['vlabs.ac.in/images/static/logo.png']
+                    }
+
+        institute = SystemInterface.add_institute(data_dict)
+
+        data_dict = {
+                    'key' : KEY,
+                    'dis_name': 'computer science',
+                    'dis_id': 'CSE',
+                    'assets': ['vlabs.ac.in/images/static/logo.png']
+                   }
+
+        discipline = SystemInterface.add_discipline(data_dict)
+
+        data_dict = {
+                    'key' : KEY,
+                    'name': 'Prof. Dharamaja',
+                    'email': 'abc@gmail.com',
+                    'inst_id': 'IITK',
+                    'dis_id': 'CSE'
                    }
 
         data_dict1 = {
                     'key': KEY,
                     'name' : 'Prof. Raja',
-                    'email': 'xyz@gmail.com'
+                    'email': 'xyz@gmail.com',
+                    'inst_id': 'IITK',
+                    'dis_id': 'CSE'
                    }
 
         developer = SystemInterface.add_developer(data_dict)
@@ -4959,14 +6157,24 @@ class TestGetInstituteByInstituteId(TestCase):
 
         data_dict = {
                     'key' : KEY,
+                    'asset_type': 'Image',
+                    'path': 'vlabs.ac.in/images/static/logo.png'
+                   }
+
+        asset = SystemInterface.add_asset(data_dict)
+
+        data_dict = {
+                    'key' : KEY,
                     'inst_name': 'IIT Delhi',
-                    'inst_id': 'IITD'
+                    'inst_id': 'IITD',
+                    'assets': ['vlabs.ac.in/images/static/logo.png']
                     }
 
         data_dict1 = {
                     'key' : KEY,
                     'inst_name': 'IIT Kanpur',
                     'inst_id': 'IITK',
+                    'assets': ['vlabs.ac.in/images/static/logo.png']
                     }
 
         institute = SystemInterface.add_institute(data_dict)
@@ -5034,15 +6242,8 @@ class TestGetLabByLabId(TestCase):
                     'asset_type': 'Image',
                     'path': 'vlabs.ac.in/images/static/logo.png'
                     }
-        asset1 = SystemInterface.add_asset(data_dict)
 
-        data_dict = {
-                    'key': KEY,
-                    'name': 'Prof. Dharamaja',
-                    'email': 'abc@gmail.com'
-                   }
-
-        developer = SystemInterface.add_developer(data_dict)
+        asset = SystemInterface.add_asset(data_dict)
 
         data_dict = {
                     'hosting_status': 'hosted',
@@ -5056,7 +6257,8 @@ class TestGetLabByLabId(TestCase):
         data_dict = {
                     'key' : KEY,
                     'inst_name': 'IIT Kanpur',
-                    'inst_id': 'IITK'
+                    'inst_id': 'IITK',
+                    'assets': ['vlabs.ac.in/images/static/logo.png']
                     }
 
         institute = SystemInterface.add_institute(data_dict)
@@ -5064,18 +6266,24 @@ class TestGetLabByLabId(TestCase):
         data_dict = {
                     'key' : KEY,
                     'dis_name': 'computer science',
-                    'dis_id': 'CSE'
+                    'dis_id': 'CSE',
+                    'assets': ['vlabs.ac.in/images/static/logo.png']
                    }
 
         discipline = SystemInterface.add_discipline(data_dict)
 
         data_dict = {
                     'key' : KEY,
-                    'asset_type': 'Image',
-                    'path': 'vlabs.ac.in/images/static/icon.png',
-                    }
+                    'inst_name': 'IIT Kanpur',
+                    'inst_id': 'IITK',
+                    'assets': ['vlabs.ac.in/images/static/logo.png'],
+                    'name': 'Prof. Dharamaja',
+                    'email': 'abc@gmail.com',
+                    'inst_id': 'IITK',
+                    'dis_id': 'CSE'
+                   }
 
-        asset2 = SystemInterface.add_asset(data_dict)
+        developer = SystemInterface.add_developer(data_dict)
 
         data_dict = {
                     'key': KEY,
@@ -5084,11 +6292,24 @@ class TestGetLabByLabId(TestCase):
                     'overview': 'overview',
                     'inst_id': 'IITK',
                     'dis_id': 'CSE',
-                    'assets': ['vlabs.ac.in/images/static/logo.png'], 
+                    'assets': [{'path':'vlabs.ac.in/images/static/logo.png',
+                                    'asset_type': 'image'},
+                                {'path':'vlabs.ac.in/images/static/image.png',
+                                    'asset_type': 'image'}],
                     'integration_level': 4,
                     'sections': [],
-                    'developers': ['abc@gmail.com'],
-                    'hosting_info': ['http://cse14-iiith.vlabs.ac.in']
+                    'developers': [{'name':'Prof. Dharamaja',
+                                    'email': 'abc@gmail.com',
+                                    'inst_id': 'IITK', 'dis_id': 'CSE'},
+                                    {'name':'Prof. Pallavi Pawar',
+                                    'email': 'pallavi.pawar@gmail.com',
+                                    'inst_id': 'IITK', 'dis_id': 'CSE'}],
+                    'hosting_info': [{'hosted_url':'http://cse14-iiith.vlabs.ac.in',
+                                    'hosting_status': 'hosted',
+                                    'hosted_on': 'cloud'},
+                                    {'hosted_url':'http://iitkgp.vlab.co.in/',
+                                    'hosting_status': 'hosted',
+                                    'hosted_on': 'server'}]
                    }
 
         experiment = SystemInterface.add_experiment(data_dict)
@@ -5100,11 +6321,24 @@ class TestGetLabByLabId(TestCase):
                     'overview': 'overview',
                     'inst_id': 'IITK',
                     'dis_id': 'CSE',
-                    'assets': ['vlabs.ac.in/images/static/logo.png'],
+                    'assets': [{'path':'vlabs.ac.in/images/static/logo.png',
+                                    'asset_type': 'image'},
+                                {'path':'vlabs.ac.in/images/static/image.png',
+                                    'asset_type': 'image'}],
+                    'developers': [{'name':'Prof. Dharamaja',
+                                    'email': 'abc@gmail.com',
+                                    'inst_id': 'IITK', 'dis_id': 'CSE'},
+                                    {'name':'Prof. Pallavi Pawar',
+                                    'email': 'pallavi.pawar@gmail.com',
+                                    'inst_id': 'IITK', 'dis_id': 'CSE'}],
+                    'hosting_info': [{'hosted_url':'http://cse14-iiith.vlabs.ac.in',
+                                    'hosting_status': 'hosted',
+                                    'hosted_on': 'cloud'},
+                                    {'hosted_url':'http://iitkgp.vlab.co.in/',
+                                    'hosting_status': 'hosted',
+                                    'hosted_on': 'server'}],
                     'experiments': ['exp123'], 
-                    'integration_level': 4,
-                    'developers': ['abc@gmail.com'],
-                    'hosting_info': ['http://cse14-iiith.vlabs.ac.in']
+                    'integration_level': 4
                    }
 
         data_dict1 = {
@@ -5114,11 +6348,24 @@ class TestGetLabByLabId(TestCase):
                     'overview': 'overview',
                     'inst_id': 'IITK',
                     'dis_id': 'CSE',
-                    'assets': ['vlabs.ac.in/images/static/icon.png'],
+                    'assets': [{'path':'vlabs.ac.in/images/static/logo.png',
+                                    'asset_type': 'image'},
+                                {'path':'vlabs.ac.in/images/static/image.png',
+                                    'asset_type': 'image'}],
+                    'developers': [{'name':'Prof. Dharamaja',
+                                    'email': 'abc@gmail.com',
+                                    'inst_id': 'IITK', 'dis_id': 'CSE'},
+                                    {'name':'Prof. Pallavi Pawar',
+                                    'email': 'pallavi.pawar@gmail.com',
+                                    'inst_id': 'IITK', 'dis_id': 'CSE'}],
+                    'hosting_info': [{'hosted_url':'http://cse14-iiith.vlabs.ac.in',
+                                    'hosting_status': 'hosted',
+                                    'hosted_on': 'cloud'},
+                                    {'hosted_url':'http://iitkgp.vlab.co.in/',
+                                    'hosting_status': 'hosted',
+                                    'hosted_on': 'server'}],
                     'experiments': ['exp123'], 
-                    'integration_level': 4,
-                    'developers': ['abc@gmail.com'],
-                    'hosting_info': ['http://cse14-iiith.vlabs.ac.in']
+                    'integration_level': 4
                    }
 
         lab = SystemInterface.add_lab(data_dict)
@@ -5176,8 +6423,18 @@ class TestGetExpByExpId(TestCase):
 
         data_dict = {
                     'key' : KEY,
+                    'asset_type': 'Image',
+                    'path': 'vlabs.ac.in/images/static/logo.png'
+                   }
+
+        asset = SystemInterface.add_asset(data_dict)
+
+
+        data_dict = {
+                    'key' : KEY,
                     'inst_name': 'IIT Kanpur',
-                    'inst_id': 'IITK'
+                    'inst_id': 'IITK',
+                    'assets': ['vlabs.ac.in/images/static/logo.png']
                     }
 
         institute = SystemInterface.add_institute(data_dict)
@@ -5185,10 +6442,21 @@ class TestGetExpByExpId(TestCase):
         data_dict = {
                     'key' : KEY,
                     'dis_name': 'computer science',
-                    'dis_id': 'CSE'
+                    'dis_id': 'CSE',
+                    'assets': ['vlabs.ac.in/images/static/logo.png']
                    }
 
         discipline = SystemInterface.add_discipline(data_dict)
+
+        data_dict = {
+                    'key' : KEY,
+                    'name': 'Prof. Dharamaja',
+                    'email': 'abc@gmail.com',
+                    'inst_id': 'IITK',
+                    'dis_id': 'CSE'
+                   }
+
+        developer = SystemInterface.add_developer(data_dict)
 
         data_dict = {
                     'key' : KEY,
@@ -5196,22 +6464,6 @@ class TestGetExpByExpId(TestCase):
                     }
 
         integration_status = SystemInterface.add_integration_status(data_dict)
-
-        data_dict = {
-                    'key' : KEY,
-                    'asset_type': 'Image',
-                    'path': 'vlabs.ac.in/images/static/logo.png'
-                   }
-
-        asset = SystemInterface.add_asset(data_dict)
-
-        data_dict = {
-                    'key': KEY,
-                    'name': 'Prof. Dharamaja',
-                    'email': 'abc@gmail.com'
-                   }
-
-        developer = SystemInterface.add_developer(data_dict)
 
         data_dict = {
                     'hosting_status': 'hosted',
@@ -5226,28 +6478,54 @@ class TestGetExpByExpId(TestCase):
                     'exp_name': 'Number Systems',
                     'exp_id': 'EE99777',
                     'overview': 'This is linked list experiment',
-                    'assets': ['vlabs.ac.in/images/static/logo.png'], 
+                    'assets': [{'path':'vlabs.ac.in/images/static/logo.png',
+                                    'asset_type': 'image'},
+                                {'path':'vlabs.ac.in/images/static/image.png',
+                                    'asset_type': 'image'}],
                     'integration_level': 4,
                     'sections': [],
                     'key': KEY,
                     'inst_id': 'IITK',
                     'dis_id': 'CSE',
-                    'developers': ['abc@gmail.com'],
-                    'hosting_info': ['http://cse14-iiith.vlabs.ac.in']
+                    'developers': [{'name':'Prof. Dharamaja',
+                                    'email': 'abc@gmail.com',
+                                    'inst_id': 'IITK', 'dis_id': 'CSE'},
+                                    {'name':'Prof. Pallavi Pawar',
+                                    'email': 'pallavi.pawar@gmail.com',
+                                    'inst_id': 'IITK', 'dis_id': 'CSE'}],
+                    'hosting_info': [{'hosted_url':'http://cse14-iiith.vlabs.ac.in',
+                                    'hosting_status': 'hosted',
+                                    'hosted_on': 'cloud'},
+                                    {'hosted_url':'http://iitkgp.vlab.co.in/',
+                                    'hosting_status': 'hosted',
+                                    'hosted_on': 'server'}]
                    }
 
         data_dict1 = {
                     'exp_name': 'Binary Systems',
                     'exp_id': 'EE99778',
                     'overview': 'This is linked list experiment',
-                    'assets': ['vlabs.ac.in/images/static/logo.png'], 
+                    'assets': [{'path':'vlabs.ac.in/images/static/logo.png',
+                                    'asset_type': 'image'},
+                                {'path':'vlabs.ac.in/images/static/image.png',
+                                    'asset_type': 'image'}],
                     'integration_level': 4,
                     'sections': [],
                     'key': KEY,
                     'inst_id': 'IITK',
                     'dis_id': 'CSE',
-                    'developers': ['abc@gmail.com'],
-                    'hosting_info': ['http://cse14-iiith.vlabs.ac.in']
+                    'developers': [{'name':'Prof. Dharamaja',
+                                    'email': 'abc@gmail.com',
+                                    'inst_id': 'IITK', 'dis_id': 'CSE'},
+                                    {'name':'Prof. Pallavi Pawar',
+                                    'email': 'pallavi.pawar@gmail.com',
+                                    'inst_id': 'IITK', 'dis_id': 'CSE'}],
+                    'hosting_info': [{'hosted_url':'http://cse14-iiith.vlabs.ac.in',
+                                    'hosting_status': 'hosted',
+                                    'hosted_on': 'cloud'},
+                                    {'hosted_url':'http://iitkgp.vlab.co.in/',
+                                    'hosting_status': 'hosted',
+                                    'hosted_on': 'server'}]
                    }
 
         exp = SystemInterface.add_experiment(data_dict)
@@ -5303,14 +6581,25 @@ class TestGetDisciplineByDisciplineId(TestCase):
     def test_get_discipline_by_disid_in_system_interface(self):
         print "test_get_discipline_by_disid_in_system_interface"
 
+        data_dict = {
+                    'key' : KEY,
+                    'asset_type': 'Image',
+                    'path': 'vlabs.ac.in/images/static/logo.png'
+                   }
+
+        asset = SystemInterface.add_asset(data_dict)
+
+
         data_dict = {'dis_name': 'Computer Science',
                     'dis_id': 'CSE',
-                    'key' : KEY
+                    'key' : KEY,
+                    'assets': ['vlabs.ac.in/images/static/logo.png']
                    }
 
         data_dict1 = {'dis_name': 'Electronics',
                     'dis_id': 'ECE',
-                    'key' : KEY
+                    'key' : KEY,
+                    'assets': ['vlabs.ac.in/images/static/logo.png']
                    }
 
         dis = SystemInterface.add_discipline(data_dict)
@@ -5371,8 +6660,36 @@ class TestGetDeveloperByEmail(TestCase):
 
         data_dict = {
                     'key' : KEY,
+                    'asset_type': 'Image',
+                    'path': 'vlabs.ac.in/images/static/logo.png'
+                   }
+
+        asset = SystemInterface.add_asset(data_dict)
+
+        data_dict = {
+                    'key' : KEY,
+                    'inst_name': 'IIT Kanpur',
+                    'inst_id': 'IITK',
+                    'assets': ['vlabs.ac.in/images/static/logo.png']
+                    }
+
+        institute = SystemInterface.add_institute(data_dict)
+
+        data_dict = {
+                    'key' : KEY,
+                    'dis_name': 'computer science',
+                    'dis_id': 'CSE',
+                    'assets': ['vlabs.ac.in/images/static/logo.png']
+                   }
+
+        discipline = SystemInterface.add_discipline(data_dict)
+
+        data_dict = {
+                    'key' : KEY,
                     'name': 'Prof. Dharamaja',
-                    'email': 'abc@gmail.com'
+                    'email': 'abc@gmail.com',
+                    'inst_id': 'IITK',
+                    'dis_id': 'CSE'
                    }
 
         developer = SystemInterface.add_developer(data_dict)
@@ -5450,7 +6767,7 @@ class TestGetIntegration_StatusByIL(TestCase):
     def add_asset(data_dict):
         session_cls = System.delegate.entities['session']       
         asset_cls = System.delegate.entities['asset']
-
+    
         session = session_cls(key=data_dict['key'])
         del(data_dict['key'])
 
@@ -5495,10 +6812,11 @@ class TestAddAsset(TestCase):
         data_dict = {
                     'key' : KEY,
                     'asset_type': 'Image',
-                    'path': 'vlabs.ac.in/static/images/icon.png'
-                    }
+                    'path': 'vlabs.ac.in/images/static/logo.png'
+                   }
 
         asset = SystemInterface.add_asset(data_dict)
+
         asset_cls = System.delegate.entities['asset']
         asset = asset_cls.get_all()[0]
 
@@ -5515,8 +6833,8 @@ class TestAddAsset(TestCase):
     @staticmethod
     def update_asset(data_dict):
         session_cls = System.delegate.entities['session']
-        session = session_cls(key=data_dict['key'])
-
+        session = session_cls(key=str(data_dict['key']))
+   
         path = str(data_dict['path'])
         asset = System.do("get_asset", path=path)
 
@@ -5556,8 +6874,8 @@ class TestUpdateAsset(TestCase):
         db.session.remove()
         db.drop_all()
 
-    def test_update_asset_name_in_system_interfaceinterface(self):
-        print "test_update_asset_name_in_system_interface"
+    def test_update_asset_type_in_system_interface(self):
+        print "test_update_asset_type_in_system_interface"
 
         data_dict = {
                     'key' : KEY,
@@ -5648,6 +6966,7 @@ class TestDeleteAsset(TestCase):
     @staticmethod
     def get_assets():
         asset_cls = System.delegate.entities['asset']
+
         try:
             current_app.logger.debug("getting assets")
             assets = asset_cls.get_all()
@@ -5666,6 +6985,52 @@ class TestDeleteAsset(TestCase):
             current_app.logger.error("Exception = %s" % str(err))
             raise err
 #+end_src
+
+*** TestGetAssets
+ #+NAME: test_class_get_assets
+ #+BEGIN_SRC python
+class TestGetAssets(TestCase):
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_get_assets_in_system_interface(self):
+        print "test_get_assets_in_system_interface"
+        
+        data_dict = {
+                    'key' : KEY,
+                    'asset_type': 'Image',
+                    'path': 'vlabs.ac.in/images/static/logo.png'
+                   }
+
+        asset = SystemInterface.add_asset(data_dict)
+
+        data_dict1 = {
+                     'key' : KEY,
+                     'asset_type': 'Video',
+                     'path': 'vlabs.ac.in/images/static/icon.png'
+                     }
+
+        asset1 = SystemInterface.add_asset(data_dict1)
+        
+        asset_dict_list = SystemInterface.get_assets()
+        
+        self.assertEqual(asset_dict_list[0].get("asset_type"), data_dict['asset_type'])
+        self.assertEqual(asset_dict_list[1].get("asset_type"), data_dict1['asset_type'])
+        self.assertEqual(asset_dict_list[0].get("path"), 
+                             data_dict['path'])
+        self.assertEqual(asset_dict_list[1].get("path"), 
+                             data_dict1['path'])
+
+ #+END_SRC
 
 
 * Infra                                                         :boilerplate:
@@ -5816,7 +7181,7 @@ if __name__ == '__main__':
 <<test_class_get_disciplines>>
 <<test_class_get_hosting_info>>
 <<test_class_get_integration_statuss>>
-
+<<test_class_get_assets>>
 
 <<test_class_get_lab_by_id>>
 #<<test_class_get_labs_by_asset>>

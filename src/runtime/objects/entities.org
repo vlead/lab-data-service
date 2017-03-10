@@ -246,24 +246,25 @@ class TestLab(TestCase):
         exp_id = "EE99777"
         overview = "This is array exp"
 
-        inst_name = "IIIT Hyderabad"
-        inst_id = "IIIT-H"
-        inst = Institute(inst_name=inst_name, inst_id=inst_id)
-
-        dis_name = "IIT Kanpur"
-        dis_id = "IITK"
-        discipline = Discipline(dis_name=dis_name, dis_id=dis_id)
-
         asset_type = "Image"
         path = "vlabs.ac.in/images/static/logo.png"
         asset = Asset(asset_type=asset_type, path=path)
+
+        inst_name = "IIIT Hyderabad"
+        inst_id = "IIIT-H"
+        inst = Institute(inst_name=inst_name, inst_id=inst_id, assets=[asset])
+
+        dis_name = "IIT Kanpur"
+        dis_id = "IITK"
+        discipline = Discipline(dis_name=dis_name, dis_id=dis_id, assets=[asset])
 
         integration_level = 4
         integration_status = IntegrationStatus(integration_level=integration_level)
 
         dev_name = Name(name="Mohit Tahiliani")
         email_id = Email(email="mohit.tahiliani@gmail.com")
-        dev = Developer(name=dev_name, email=email_id)
+        dev = Developer(name=dev_name, email=email_id,
+                        institute=inst, discipline=discipline)
 
         hosting_status = "hosted"
         hosted_url = "http://cse14-iiith.vlabs.ac.in"
@@ -310,12 +311,14 @@ class TestLab(TestCase):
 #+NAME: class_Institute
 #+begin_src python
 Institute.add_attributes(inst_name=is_str,
-                    inst_id=is_str)
+                    inst_id=is_str,
+                    assets=are_assets)
 
 Institute.__eq__ = lambda self, other: \
                   isinstance(other, self.__class__) and \
                   self.get("inst_name") == other.get("inst_name") and \
-                  self.get("inst_id") == other.get("inst_id")                  
+                  self.get("inst_id") == other.get("inst_id") and \
+                  self.get("assets") == other.get("assets")                 
 #+end_src
 
 *** Test Institute
@@ -325,12 +328,19 @@ class TestInstitute(TestCase):
     TESTING = True
     def test_object_institute(self):
         print "test_object_institute"
+
+        asset_type = "Image"
+        path = "vlabs.ac.in/images/static/logo.png"
+        asset = Asset(asset_type=asset_type, path=path)
+
         inst_name = "IIIT Hyderabad"
         inst_id = "IIIT-H"
-        institute = Institute(inst_name=inst_name, inst_id=inst_id)
+        institute = Institute(inst_name=inst_name, inst_id=inst_id, assets=[asset])
                                               
         self.assertEqual(institute.get("inst_name"), inst_name)
         self.assertEqual(institute.get("inst_id"), inst_id)
+        self.assertEqual(institute.get("assets")[0].get("asset_type"), 
+                             asset.get("asset_type"))
        
 #+END_SRC
 
@@ -373,13 +383,17 @@ class TestExperiment(TestCase):
     def test_object_experiment(self):
         print "test_object_experiment"
 
+        asset_type = "Image"
+        path = "vlabs.ac.in/images/static/logo.png"
+        asset = Asset(asset_type=asset_type, path=path)
+
         inst_name = "IIIT Hyderabad"
         inst_id = "IIIT-H"
-        inst = Institute(inst_name=inst_name, inst_id=inst_id)
+        inst = Institute(inst_name=inst_name, inst_id=inst_id, assets=[asset])
 
         dis_name = "IIT Kanpur"
         dis_id = "IITK"
-        discipline = Discipline(dis_name=dis_name, dis_id=dis_id)  
+        discipline = Discipline(dis_name=dis_name, dis_id=dis_id, assets=[asset])  
 
         exp_name = "Number Systems"
         exp_id = "EE99777"
@@ -388,13 +402,10 @@ class TestExperiment(TestCase):
         integration_level = 4
         integration_status = IntegrationStatus(integration_level=integration_level)
 
-        asset_type = "Image"
-        path = "vlabs.ac.in/images/static/logo.png"
-        asset = Asset(asset_type=asset_type, path=path)
-
         dev_name = Name(name="Mohit Tahiliani")
         email_id = Email(email="mohit.tahiliani@gmail.com")
-        dev = Developer(name=dev_name, email=email_id)
+        dev = Developer(name=dev_name, email=email_id,
+                        institute=inst, discipline=discipline)
 
         hosting_status = "hosted"
         hosted_url = "http://cse14-iiith.vlabs.ac.in"
@@ -550,11 +561,15 @@ class TestEmail(TestCase):
 #+NAME: class_Discipline
 #+begin_src python
 
-Discipline.add_attributes(dis_name=is_str, dis_id=is_str)
+Discipline.add_attributes(dis_name=is_str, 
+                          dis_id=is_str,
+                          assets=are_assets)
 Discipline.__eq__ = lambda self, other: \
                   isinstance(other, self.__class__) and \
                   self.get("dis_name") == other.get("dis_name") and \
-                  self.get("dis_id") == other.get("dis_id")
+                  self.get("dis_id") == other.get("dis_id") and \
+                  self.get("assets") == other.get("assets")
+                  
 
 #+end_src
 
@@ -565,11 +580,19 @@ class TestDiscipline(TestCase):
     TESTING = True
     def test_object_discipline(self):
         print "test_object_discipline"
+
+        asset_type = "Image"
+        path = "vlabs.ac.in/images/static/logo.png"
+        asset = Asset(asset_type=asset_type, path=path)
+
         dis_name = "IIT Delhi"
         dis_id = "ECE08"
-        discipline = Discipline(dis_name=dis_name, dis_id=dis_id)
+        discipline = Discipline(dis_name=dis_name, dis_id=dis_id, assets=[asset])
+
         self.assertEqual(discipline.get("dis_name"), dis_name)
         self.assertEqual(discipline.get("dis_id"), dis_id)
+        self.assertEqual(discipline.get("assets")[0].get("asset_type"), 
+                             asset.get("asset_type"))
 
 #+END_SRC
 
@@ -579,12 +602,17 @@ class TestDiscipline(TestCase):
 #+NAME: class_Developer
 #+begin_src python
 
-Developer.add_attributes(name=is_name, email=is_email)
+Developer.add_attributes(name=is_name,
+                         email=is_email,
+                         discipline=is_discipline,
+                         institute=is_institute)
 
 Developer.__eq__ = lambda self, other: \
                   isinstance(other, self.__class__) and \
                   self.get("name") == other.get("name") and\
-                  self.get("email") == other.get("email")
+                  self.get("email") == other.get("email") and \
+                  self.get("discipline") == other.get("discipline") and \
+                  self.get("institute") == other.get("institute")
 #+end_src
 
 *** Test Developer
@@ -594,11 +622,32 @@ class TestDev(TestCase):
     TESTING = True
     def test_object_dev(self):
         print "test_object_dev"
+
+        asset_type = "Image"
+        path = "vlabs.ac.in/images/static/logo.png"
+        asset = Asset(asset_type=asset_type, path=path)
+
+        inst_name = "IIIT Hyderabad"
+        inst_id = "IIIT-H"
+        inst = Institute(inst_name=inst_name, inst_id=inst_id, assets=[asset])
+
+        dis_name = "IIT Kanpur"
+        dis_id = "IITK"
+        discipline = Discipline(dis_name=dis_name, dis_id=dis_id, assets=[asset])  
+
         dev_name = Name(name="Mohit Tahiliani")
         email_id = Email(email="mohit.tahiliani@gmail.com")
-        dev = Developer(name=dev_name, email=email_id)
+        dev = Developer(name=dev_name, email=email_id,
+                        institute=inst, discipline=discipline)
+
         self.assertEqual(dev.get("name").get("name"), dev_name.get("name"))
         self.assertEqual(dev.get("email").get("email"), email_id.get("email"))
+        self.assertEqual(dev.get("institute").get("inst_name"), 
+                             inst.get("inst_name"))
+        self.assertEqual(dev.get("discipline").get("dis_name"), 
+                             discipline.get("dis_name"))
+
+
 #+END_SRC
 
 
@@ -612,7 +661,8 @@ Asset.add_attributes(path=is_str,
 Asset.__eq__ = lambda self, other: \
                   isinstance(other, self.__class__) and \
                   self.get("path") == other.get("path") and \
-                  self.get("asset_type") == other.get("asset_type")                  
+                  self.get("asset_type") == other.get("asset_type") 
+                               
 #+end_src
 
 *** Test Asset
@@ -622,12 +672,15 @@ class TestAsset(TestCase):
     TESTING = True
     def test_object_asset(self):
         print "test_object_asset"
+
         path = "vlabs.ac.in/static/images/logo.png"
         asset_type = "Image"
+
         asset = Asset(path=path, asset_type=asset_type)
                                               
         self.assertEqual(asset.get("path"), path)
         self.assertEqual(asset.get("asset_type"), asset_type)
+    
 #+end_src
 
 

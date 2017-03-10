@@ -528,7 +528,10 @@ class AddIntegration_Status():
 #+begin_src python
 class UpdateLab():
     arg_types = {"lab": is_lab, "lab_name": is_str,
-                     "overview" : is_str, "session": is_session}
+                     "overview" : is_str, "session": is_session,
+                     "institute" : is_institute, "discipline" : is_discipline,
+                     "integration_status" : is_integration_status}
+
     arity_and_type_checks_needed = True
 
     @staticmethod
@@ -549,7 +552,11 @@ class UpdateLab():
         lab = args["lab"]
         lab_name = args["lab_name"]
         overview = args["overview"]
-        lab = System.delegate.update_lab(lab, lab_name, overview)
+        institute = args["institute"]
+        discipline = args["discipline"]
+        integration_status = args["integration_status"]
+        lab = System.delegate.update_lab(lab, lab_name, overview, institute,
+                                         discipline, integration_status)
         return lab
 
 #+end_src
@@ -563,7 +570,10 @@ class UpdateExperiment():
     arg_types = {"exp_name": is_str_or_none,
                      "experiment": is_experiment,
                      "overview" : is_str,
-                     "session": is_session}
+                     "session": is_session,
+                     "institute": is_institute,
+                     "discipline": is_discipline,
+                     "integration_status": is_integration_status}
     arity_and_type_checks_needed = True
 
     @staticmethod
@@ -584,7 +594,12 @@ class UpdateExperiment():
         experiment = args["experiment"]
         exp_name=args["exp_name"]
         overview = args["overview"]
-        exp = System.delegate.update_experiment(experiment, exp_name, overview)
+        institute = args["institute"]
+        discipline = args["discipline"]
+        integration_status = args["integration_status"]
+        exp = System.delegate.update_experiment(experiment, exp_name, overview,
+                                                institute, discipline, 
+                                                integration_status)
         return exp
 
 #+end_src
@@ -767,7 +782,8 @@ class UpdateEmail():
 #+begin_src python
 class UpdateDeveloper():
     arg_types = {"developer": is_developer, "name": is_name,
-                     "session": is_session}
+                 "session": is_session, "institute": is_institute,
+                 "discipline" : is_discipline}
     arity_and_type_checks_needed = True
 
     @staticmethod
@@ -791,7 +807,9 @@ class UpdateDeveloper():
         else:
            name=args["name"]
 
-        section = System.delegate.update_developer(developer, name)
+        institute = args["institute"]
+        discipline = args["discipline"]
+        developer = System.delegate.update_developer(developer, name, institute, discipline)
         return developer
 
 #+end_src
@@ -1199,11 +1217,7 @@ class GetInstitute():
 
     @staticmethod
     def state_check(args):
-        inst_id = args['inst_id']
-        institute = System.delegate.get_institute(inst_id=inst_id)    
-        if not System.delegate.institute_exists(institute):
-            raise StateError("institute %s does not exists in System"
-                                 % institute.to_client())
+        pass
         
     @staticmethod
     def action(args):
@@ -1279,12 +1293,8 @@ class GetDiscipline():
 
     @staticmethod
     def state_check(args):
-        dis_id = args['dis_id']
-        discipline = System.delegate.get_discipline(dis_id=dis_id)    
-        if not System.delegate.discipline_exists(discipline):
-            raise StateError("discipline %s does not exists in System"
-                                 % discipline.to_client())
-        
+        pass
+
     @staticmethod
     def action(args):
         dis_id = args["dis_id"]
@@ -1309,11 +1319,7 @@ class GetHosting_Info():
 
     @staticmethod
     def state_check(args):
-        hosted_url = args['hosted_url']
-        hosting_info = System.delegate.get_hosting_info(hosted_url=hosted_url)
-        if not System.delegate.hosting_info_exists(hosting_info):
-            raise StateError("hosting_info %s does not exists in System"
-                                 % hosting_info.to_client())
+        pass
         
     @staticmethod
     def action(args):
@@ -1720,13 +1726,10 @@ class GetAsset():
     @staticmethod
     def auth_check(args):
         pass
+
     @staticmethod
     def state_check(args):
-        path = args['path']
-        asset = System.delegate.get_asset(path=path)
-        if not System.delegate.asset_exists(asset):
-            raise StateError("asset %s does not exists in System"
-                                 % asset.to_client())
+        pass
 
     @staticmethod
     def action(args):
@@ -1801,6 +1804,7 @@ class GetLabsByAsset():
         return labs
 
 #+end_src
+
 
 ** =GetAssetByAssetType=
 #+NAME: class_get_asset_by_asset_type
