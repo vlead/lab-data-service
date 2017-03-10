@@ -799,9 +799,9 @@ class TestUpdateLabt(TestCase):
                                      developers=[dev1], hosting_info=[host1])
         experiment1.save()
              
-        dev_name1 = Name(name="Tahiliani")
+        dev_name1 = name_cls(name="Tahiliani")
         dev_name1.save()
-        email_id1 = Email(email="tahiliani@gmail.com")
+        email_id1 = email_cls(email="tahiliani@gmail.com")
         email_id1.save()
         dev1 = developer_cls(name=dev_name1, email=email_id1,
                          institute=inst1, discipline=discipline1)
@@ -811,7 +811,7 @@ class TestUpdateLabt(TestCase):
                              overview=overview1, institute=inst1,
                              discipline=discipline1, hosting_info=[host1],
                              integration_status=integration_status1,
-                             session=session, developer=[dev1], 
+                             session=session, developers=[dev1], 
                              assets=[asset1])
 
         new_lab = lab_cls.get_by_id(1)
@@ -825,9 +825,9 @@ class TestUpdateLabt(TestCase):
                              get("integration_level"), integration_level1)
         self.assertEqual(new_lab.get("hosting_info")[0].get("hosted_url"), 
                               hosted_url1)
-        self.assertEqual(new_lab.get("developer")[0].get("email").get("email"), 
-                              email_id1)
-        self.assertEqual(new_lab.get("asset")[0].get("path"), 
+        self.assertEqual(new_lab.get("developers")[0].get("email").get("email"), 
+                              email_id1.get("email"))
+        self.assertEqual(new_lab.get("assets")[0].get("path"), 
                               path1)
                     
 #+END_SRC
