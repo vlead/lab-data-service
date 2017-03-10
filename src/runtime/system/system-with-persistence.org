@@ -977,14 +977,22 @@ class TestUpdateInstitute(TestCase):
 
         institute.save()
 
+        asset_type1 = "Video"
+        path1 = "vlabs.ac.in/images/video/icon.png"
+        asset1 = asset_cls(asset_type=asset_type1, path=path1)
+        asset1.save()
+
         inst_name2="IIT Kharagpur"
 
         institute1 = System.do("update_institute", inst_name=inst_name2,
-                                 institute=institute, session=session)
+                                 institute=institute, assets=[asset1], session=session)
 
         new_institute = institute_cls.get_by_id(1)
 
         self.assertEqual(new_institute.get("inst_name"), inst_name2)
+        self.assertEqual(new_institute.get("assets")[0].get("path"),
+                              asset1.get("path"))
+
 #+END_SRC
 
 
@@ -1024,12 +1032,19 @@ class TestUpdateDisciplilne(TestCase):
         key = KEY
         session = session_cls(key=key)
 
+        asset_type1 = "Video"
+        path1 = "vlabs.ac.in/images/video/icon.png"
+        asset1 = asset_cls(asset_type=asset_type1, path=path1)
+        asset1.save()
+
         dis_name1 = "lists"
 
         discipline1 = System.do("update_discipline", dis_name=dis_name1,
-                                  discipline=discipline, session=session)
+                                  discipline=discipline, assets=[asset1], session=session)
 
         self.assertEqual(discipline1.get("dis_name"), dis_name1)
+        self.assertEqual(discipline1.get("assets")[0].get("path"),
+                              asset1.get("path"))
 
 #+END_SRC
 

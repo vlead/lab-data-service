@@ -4669,10 +4669,21 @@ class TestUpdateExperiment(TestCase):
     @staticmethod
     def update_institute(data_dict):
         session_cls = System.delegate.entities['session']
+        asset_cls = System.delegate.entities['asset']
         session = session_cls(key=data_dict['key'])
 
         inst_id = str(data_dict['inst_id'])
         institute = System.do("get_institute", inst_id=inst_id)
+
+        assets = data_dict['assets']
+        asset_list = []
+        for asset_x in assets:
+            asset = System.do("get_asset", path=asset_x['path'])
+            if asset is None:
+                asset = asset_cls(asset_type=str(asset_x['asset_type']), \
+                                      path=str(asset_x['path']))
+                asset = System.do("add_asset", asset=asset, session=session)
+            asset_list.append(asset)
 
         if 'inst_name' not in data_dict:
             inst_name=str(inst.get("inst_name"))
@@ -4683,7 +4694,7 @@ class TestUpdateExperiment(TestCase):
             current_app.logger.debug("running operation update_institute")
             institute = System.do("update_institute", institute=institute,
                                     inst_name=inst_name, 
-                                    session=session)
+                                    session=session, assets=asset_list)
             current_app.logger.debug("completed operation update_institute")
             return institute.to_client()
         except (ArityError, TypeError, NotAuthorizedError, StateError) as err:
@@ -4732,16 +4743,25 @@ class TestUpdateInstitute(TestCase):
 
         data_dict1 = {
                     'key' : KEY,
+                    'asset_type': 'Video',
+                    'path': 'vlabs.ac.in/images/video/icon.png'
+                     }
+
+        asset = SystemInterface.add_asset(data_dict1)
+
+        data_dict1 = {
+                    'key' : KEY,
                     'inst_name': 'IIT Delhi',
                     'inst_id': 'IITK',
-                    'assets': ['vlabs.ac.in/images/static/logo.png']
+                    'assets': ['vlabs.ac.in/images/video/icon.png']
                    }
 
         institute = SystemInterface.add_institute(data_dict)
         institute1 = SystemInterface.update_institute(data_dict1)
         
         self.assertEqual(institute1.get("inst_name"), data_dict1['inst_name'])
-
+        self.assertEqual(institute1.get("assets")[0].get("path"), 
+                             data_dict1['assets'][0]['get'])
  #+END_SRC
 
 
@@ -4820,10 +4840,21 @@ class TestUpdateSection(TestCase):
     @staticmethod
     def update_discipline(data_dict):
         session_cls = System.delegate.entities['session']
+        asset_cls = System.delegate.entities['asset']
         session = session_cls(key=data_dict['key'])
 
         dis_id = str(data_dict['dis_id'])
         discipline = System.do("get_discipline", dis_id=dis_id)
+
+        assets = data_dict['assets']
+        asset_list = []
+        for asset_x in assets:
+            asset = System.do("get_asset", path=asset_x['path'])
+            if asset is None:
+                asset = asset_cls(asset_type=str(asset_x['asset_type']), \
+                                      path=str(asset_x['path']))
+                asset = System.do("add_asset", asset=asset, session=session)
+            asset_list.append(asset)
 
         if "dis_name" not in data_dict:
             dis_name=str(discipline.get("dis_name"))
@@ -4834,7 +4865,7 @@ class TestUpdateSection(TestCase):
             current_app.logger.debug("running operation update_discipline")
             discipline = System.do("update_discipline", discipline=discipline,
                                     dis_name=dis_name, 
-                                    session=session)
+                                    session=session, assets=asset_list)
             current_app.logger.debug("completed operation update_discipline")
             return discipline.to_client()
         except (ArityError, TypeError, NotAuthorizedError, StateError) as err:
@@ -4879,16 +4910,26 @@ class TestUpdateDiscipline(TestCase):
                     'assets': ['vlabs.ac.in/images/static/logo.png']
                    }
 
+        data_dict1 = {
+                    'key' : KEY,
+                    'asset_type': 'Video',
+                    'path': 'vlabs.ac.in/images/video/icon.png'
+                     }
+
+        asset = SystemInterface.add_asset(data_dict1)
+
         data_dict1 = {'dis_name': 'Computer Science and Engineering',
-                     'dis_id': 'CSE',
+                      'dis_id': 'CSE',
                       'assets': ['vlabs.ac.in/images/static/logo.png'],
-                     'key' : KEY
+                      'key' : KEY
                      }
 
         dis1 = SystemInterface.add_discipline(data_dict)
         dis = SystemInterface.update_discipline(data_dict1)
         
         self.assertEqual(dis.get("dis_name"), data_dict1['dis_name'])
+        self.assertEqual(dis.get("assets")[0].get("path"), 
+                             data_dict1['assets'][0]['get'])
 
  #+END_SRC
 
