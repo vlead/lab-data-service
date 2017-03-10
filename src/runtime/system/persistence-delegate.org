@@ -128,11 +128,13 @@ class TestPersistenceDelegate(TestCase):
 
         dis_name = "IIT Kanpur"
         dis_id = "IITK"
-        discipline = Discipline(dis_name=dis_name, dis_id=dis_id, assets=[asset])
+        discipline = Discipline(dis_name=dis_name, dis_id=dis_id,\
+                                    assets=[asset])
         discipline.save()
         
         integration_level = 4
-        integration_status = IntegrationStatus(integration_level=integration_level)
+        integration_status = IntegrationStatus(integration_level=\
+                                                   integration_level)
         integration_status.save()
          
         dev_name = Name(name="Mohit Tahiliani")
@@ -147,7 +149,8 @@ class TestPersistenceDelegate(TestCase):
         hosted_url = "http://cse14-iiith.vlabs.ac.in"
         hosted_on = "cloud"
         host = HostingInfo(hosting_status=hosting_status,
-                               hosted_url=hosted_url, hosted_on=hosted_on)
+                               hosted_url=hosted_url, 
+                               hosted_on=hosted_on)
         host.save()
 
         lab = Lab(lab_name=lab_name1, lab_id=lab_id1, overview=overview1,
@@ -162,7 +165,7 @@ class TestPersistenceDelegate(TestCase):
         overview2 = "overview"
         lab2 = Lab(lab_name=lab_name2, lab_id=lab_id2, overview=overview2,
                        integration_status=integration_status,               
-                       institute=inst, discipline=discipline, assets=[asset],                
+                       institute=inst, discipline=discipline, assets=[asset],
                        experiments=[], developers=[dev], hosting_info=[host])
 
         self.assertEqual(self.persistence_delegate.lab_exists(lab1),
@@ -202,7 +205,8 @@ class TestPersistenceDelegate(TestCase):
 
         dis_name = "IIT Kanpur"
         dis_id = "IITK"
-        discipline = Discipline(dis_name=dis_name, dis_id=dis_id, assets=[asset])
+        discipline = Discipline(dis_name=dis_name, dis_id=dis_id,\
+                                    assets=[asset])
         discipline.save()
  
         dev_name = Name(name="Mohit Tahiliani")
@@ -225,14 +229,16 @@ class TestPersistenceDelegate(TestCase):
         overview1 = "overview"
 
         integration_level = 4
-        integration_status = IntegrationStatus(integration_level=integration_level)
+        integration_status = IntegrationStatus(integration_level=\
+                                                   integration_level)
         integration_status.save()
 
         experiment1 = Experiment(exp_name=exp_name1, exp_id=exp_id1,
-                                 overview=overview1, sections=[], institute=inst,
-                                 discipline=discipline, 
-                                 integration_status=integration_status, assets=[asset],
-                                 developers=[dev], hosting_info=[host])
+                                 overview=overview1, sections=[],
+                                 institute=inst, discipline=discipline, 
+                                 integration_status=integration_status,
+                                 assets=[asset], developers=[dev],
+                                 hosting_info=[host])
 
         exp1 = self.persistence_delegate.add_experiment(experiment1)
 
@@ -240,10 +246,11 @@ class TestPersistenceDelegate(TestCase):
         exp_id2 = "EE98747"
         overview2 = "overview"
         experiment2 = Experiment(exp_name=exp_name2, exp_id=exp_id2, \
-                                overview=overview2, sections=[], institute=inst,
-                                 discipline=discipline, 
-                                     integration_status=integration_status, assets=[asset], 
-                                     developers=[dev], hosting_info=[host])
+                                overview=overview2, sections=[],
+                                institute=inst, discipline=discipline, 
+                                integration_status=integration_status,
+                                assets=[asset], developers=[dev],
+                                hosting_info=[host])
         self.assertEqual(self.persistence_delegate.experiment_exists\
                              (experiment1), True)
         self.assertEqual(self.persistence_delegate.experiment_exists\
@@ -421,7 +428,8 @@ class TestPersistenceDelegate(TestCase):
 
         dis_name = "IIT Kanpur"
         dis_id = "IITK"
-        discipline = Discipline(dis_name=dis_name, dis_id=dis_id, assets=[asset])
+        discipline = Discipline(dis_name=dis_name, dis_id=dis_id,\
+                                    assets=[asset])
         discipline.save()
 
         dev_name1 = Name(name="Prof. Dharmaraj")
@@ -439,7 +447,8 @@ class TestPersistenceDelegate(TestCase):
         developer2 = Developer(name=dev_name2, email=email_id2,
                                institute=inst, discipline=discipline)
 
-        self.assertEqual(self.persistence_delegate.developer_exists(developer1), True)
+        self.assertEqual(self.persistence_delegate.\
+                             developer_exists(developer1), True)
         self.assertEqual(self.persistence_delegate.developer_exists\
                              (developer2), False)
 #+END_SRC
@@ -507,13 +516,17 @@ class TestPersistenceDelegate(TestCase):
         hosting_status1 = "hosted"
         hosted_url1 = "http://cse14-iiith.vlabs.ac.in"
         hosted_on1 = "cloud"
-        hosting_info1 = HostingInfo(hosting_status=hosting_status1, hosted_url=hosted_url1, hosted_on=hosted_on1)
+        hosting_info1 = HostingInfo(hosting_status=hosting_status1,\
+                                        hosted_url=hosted_url1,\
+                                        hosted_on=hosted_on1)
         host1 = self.persistence_delegate.add_hosting_info(hosting_info1)
 
         hosting_status2 = "not hosted"
         hosted_url2 = "http://iitkgp.vlab.co.in/"
         hosted_on2 = "server"
-        hosting_info2 = HostingInfo(hosting_status=hosting_status2, hosted_url=hosted_url2, hosted_on=hosted_on2)
+        hosting_info2 = HostingInfo(hosting_status=hosting_status2,\
+                                        hosted_url=hosted_url2,\
+                                        hosted_on=hosted_on2)
         
         self.assertEqual(self.persistence_delegate.hosting_info_exists\
                              (hosting_info1), True)
@@ -561,7 +574,8 @@ class TestPersistenceDelegate(TestCase):
 #+BEGIN_SRC python
     def integration_status_exists(self, integration_status):
         integration_level = integration_status.get("integration_level")
-        return integration_status == self.get_integration_status(integration_level=integration_level)
+        return integration_status == self.\
+          get_integration_status(integration_level=integration_level)
         
 #+END_SRC
 
@@ -571,11 +585,14 @@ class TestPersistenceDelegate(TestCase):
     def test_integration_status_exists(self):
         print "test_integration_status_exists"
         integration_level1 = 4
-        integration_status1 = IntegrationStatus(integration_level=integration_level1)
-        intstatus1 = self.persistence_delegate.add_integration_status(integration_status1)
+        integration_status1 = IntegrationStatus(integration_level=\
+                                                    integration_level1)
+        intstatus1 = self.persistence_delegate.add_integration_status\
+        (integration_status1)
 
         integration_level2 = 2
-        integration_status2 = IntegrationStatus(integration_level=integration_level2)
+        integration_status2 = IntegrationStatus(integration_level=\
+                                                    integration_level2)
         
         self.assertEqual(self.persistence_delegate.integration_status_exists\
                              (integration_status1), True)
@@ -590,6 +607,7 @@ class TestPersistenceDelegate(TestCase):
 #+NAME: persistence_add_lab
 #+BEGIN_SRC python
     def add_lab(self, lab):
+        
         lab.save()
         return lab
 
@@ -602,7 +620,8 @@ class TestPersistenceDelegate(TestCase):
          print "test_add_lab"
 
          integration_level = 4
-         integration_status = IntegrationStatus(integration_level=integration_level)
+         integration_status = IntegrationStatus(integration_level=\
+                                                    integration_level)
          integration_status.save()
 
          asset_type = "Image"
@@ -612,12 +631,14 @@ class TestPersistenceDelegate(TestCase):
 
          inst_name = "IIT Kanpur"
          inst_id = "IITK"
-         inst = Institute(inst_name=inst_name, inst_id=inst_id, assets=[asset])
+         inst = Institute(inst_name=inst_name, inst_id=inst_id,\
+                              assets=[asset])
          inst.save()
 
          dis_name = "IIT Kanpur"
          dis_id = "IITK"
-         discipline = Discipline(dis_name=dis_name, dis_id=dis_id, assets=[asset])
+         discipline = Discipline(dis_name=dis_name, dis_id=dis_id,\
+                                     assets=[asset])
          discipline.save()
 
          dev_name = Name(name="Mohit Tahiliani")
@@ -631,7 +652,8 @@ class TestPersistenceDelegate(TestCase):
          hosting_status = "hosted"
          hosted_url = "http://cse14-iiith.vlabs.ac.in"
          hosted_on = "cloud"
-         host = HostingInfo(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
+         host = HostingInfo(hosting_status=hosting_status,\
+                                hosted_url=hosted_url, hosted_on=hosted_on)
          host.save()
 
          exp_name = "Number Systems"
@@ -649,10 +671,11 @@ class TestPersistenceDelegate(TestCase):
          lab_id1="CSE01"
          overview="lab"
          lab1 = Lab(lab_name=lab_name1, lab_id=lab_id1, \
-                        institute=inst, discipline=discipline, assets=[asset], \
-                        overview=overview, experiments=[experiment], \
-                        integration_status=integration_status, developers=[dev],
-                        hosting_info=[host])
+                        institute=inst, discipline=discipline,\
+                        assets=[asset], overview=overview,\
+                        experiments=[experiment], \
+                        integration_status=integration_status,\
+                        developers=[dev], hosting_info=[host])
 
          lab1 = self.persistence_delegate.add_lab(lab1)
         
@@ -702,7 +725,8 @@ class TestPersistenceDelegate(TestCase):
 
          dis_name = "IIT Kanpur"
          dis_id = "IITK"
-         discipline = Discipline(dis_name=dis_name, dis_id=dis_id, assets=[asset])
+         discipline = Discipline(dis_name=dis_name, dis_id=dis_id,
+                                     assets=[asset])
          discipline.save()
 
          dev_name = Name(name="Mohit Tahiliani")
@@ -716,11 +740,14 @@ class TestPersistenceDelegate(TestCase):
          hosting_status = "hosted"
          hosted_url = "http://cse14-iiith.vlabs.ac.in"
          hosted_on = "cloud"
-         host = HostingInfo(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
+         host = HostingInfo(hosting_status=hosting_status,
+                                hosted_url=hosted_url,
+                                hosted_on=hosted_on)
          host.save()
          
          integration_level = 4
-         integration_status = IntegrationStatus(integration_level=integration_level)
+         integration_status = IntegrationStatus(integration_level=
+                                                    integration_level)
          integration_status.save()
          
          exp_name1 = "Number Systems"
@@ -740,15 +767,17 @@ class TestPersistenceDelegate(TestCase):
          overview2="overview"
          experiment2 = Experiment(exp_name=exp_name2, exp_id=exp_id2,
                                       overview=overview2, sections=[],
-                                  institute=inst, discipline=discipline, 
+                                      institute=inst, discipline=discipline, 
                                       integration_status=integration_status,
-                                      assets=[asset],
-                                      developers=[dev], hosting_info=[host])    
+                                      assets=[asset], developers=[dev], 
+                                      hosting_info=[host])    
          experiment = Experiment.get_by_id(1)
 
-         self.assertEqual(self.persistence_delegate.experiment_exists(experiment1),
+         self.assertEqual(self.persistence_delegate.
+                              experiment_exists(experiment1),
                           True)
-         self.assertEqual(self.persistence_delegate.experiment_exists(experiment2),
+         self.assertEqual(self.persistence_delegate.
+                              experiment_exists(experiment2),
                           False)
         
 #+END_SRC
@@ -777,7 +806,8 @@ class TestPersistenceDelegate(TestCase):
 
          dis_name = "IIT Delhi"
          dis_id = "EEE08"
-         discipline = Discipline(dis_name=dis_name, dis_id=dis_id, assets=[asset])
+         discipline = Discipline(dis_name=dis_name, dis_id=dis_id,
+                                     assets=[asset])
          discipline = self.persistence_delegate.add_discipline(discipline)
 
          discipline = discipline.get_by_id(1)
@@ -898,7 +928,8 @@ class TestPersistenceDelegate(TestCase):
 
          dis_name = "IIT Kanpur"
          dis_id = "IITK"
-         discipline = Discipline(dis_name=dis_name, dis_id=dis_id, assets=[asset])
+         discipline = Discipline(dis_name=dis_name, dis_id=dis_id,
+                                     assets=[asset])
          discipline.save()
 
          dev_name = Name(name="Prof. S. Dharmaraja")
@@ -927,7 +958,8 @@ class TestPersistenceDelegate(TestCase):
 
          dis_name = "IIT Kanpur"
          dis_id = "IITK"
-         discipline = Discipline(dis_name=dis_name, dis_id=dis_id, assets=[asset])
+         discipline = Discipline(dis_name=dis_name, dis_id=dis_id,
+                                     assets=[asset])
          discipline.save()
 
          dev_name = Name(name="Prof. S. Dharmaraja")
@@ -955,7 +987,8 @@ class TestPersistenceDelegate(TestCase):
 
          dis_name = "IIT Kanpur"
          dis_id = "IITK"
-         discipline = Discipline(dis_name=dis_name, dis_id=dis_id, assets=[asset])
+         discipline = Discipline(dis_name=dis_name, dis_id=dis_id,
+                                     assets=[asset])
          discipline.save()
 
          dev_name = Name(name="Prof. S. Dharmaraja")
@@ -994,12 +1027,14 @@ class TestPersistenceDelegate(TestCase):
 
          inst_name1 = "IIT Kanpur"
          inst_id1 = "IITK"
-         institute1 = Institute(inst_name=inst_name1, inst_id=inst_id1, assets=[asset])                             
+         institute1 = Institute(inst_name=inst_name1, inst_id=inst_id1,
+                                    assets=[asset])  
          institute1 = self.persistence_delegate.add_institute(institute1)
          
          inst_name2= "IIT Kharagpur"
          inst_id2= "IITKgp"
-         institute2 = Institute(inst_name=inst_name2, inst_id=inst_id2, assets=[asset]) 
+         institute2 = Institute(inst_name=inst_name2, inst_id=inst_id2,
+                                    assets=[asset]) 
          
          institute = Institute.get_by_id(1)
 
@@ -1008,6 +1043,7 @@ class TestPersistenceDelegate(TestCase):
          self.assertEqual(self.persistence_delegate.institute_exists\
                               (institute2), False)
         
+
 #+END_SRC
 
 
@@ -1021,7 +1057,7 @@ class TestPersistenceDelegate(TestCase):
         return hosting_info
 
 #+END_SRC
-**** Tests
+**** COMMENT Tests
 #+NAME: test_persistence_add_hosting_info
 #+BEGIN_SRC python
     def test_add_hosting_info(self):
@@ -1029,13 +1065,17 @@ class TestPersistenceDelegate(TestCase):
          hosting_status1 = "hosted"
          hosted_url1 = "http://cse14-iiith.vlabs.ac.in"
          hosted_on1 = "cloud"
-         hosting_info1 = HostingInfo(hosting_status=hosting_status1, hosted_url=hosted_url1, hosted_on=hosted_on1)
+         hosting_info1 = HostingInfo(hosting_status=hosting_status1,\
+                                         hosted_url=hosted_url1,\
+                                         hosted_on=hosted_on1)
          hosting_info1 = self.persistence_delegate.add_hosting_info(hosting_info1)
          
          hosting_status2 = "not hosted"
          hosted_url2 = "http://iitkgp.vlab.co.in/"
          hosted_on2 = "server"
-         hosting_info2 = HostingInfo(hosting_status=hosting_status2, hosted_url=hosted_url2, hosted_on=hosted_on2)
+         hosting_info2 = HostingInfo(hosting_status=hosting_status2,\
+                                         hosted_url=hosted_url2,\
+                                         hosted_on=hosted_on2)
 
          hosting_info = HostingInfo.get_by_id(1)
 
@@ -1098,11 +1138,11 @@ class TestPersistenceDelegate(TestCase):
     def test_add_integration_status(self):
          print "test_add_integration_status"
          integration_level1 = 4
-         integration_status1 = IntegrationStatus(integration_level=integration_level1)
+         integration_status1 = IntegrationStatus(integration_level= integration_level1)
          integration_status1 = self.persistence_delegate.add_integration_status(integration_status1)
          
          integration_level2= 2
-         integration_status2 = IntegrationStatus(integration_level=integration_level2)
+         integration_status2 = IntegrationStatus(integration_level= integration_level2)
          
          integration_status = IntegrationStatus.get_by_id(1)
 
@@ -1119,17 +1159,17 @@ class TestPersistenceDelegate(TestCase):
 #+NAME: persistence_update_lab
 #+BEGIN_SRC python
     def update_lab(self, lab, lab_name, overview, institute, discipline,
-                         integration_status, hosting_info, developers, assets):
+                       integration_status, hosting_info, developers,
+                       assets, experiments):
         lab.set(lab_name=lab_name, overview=overview, institute=institute, 
                     discipline=discipline, hosting_info=hosting_info,
                     integration_status=integration_status,
-                    developers=developers, assets=assets)
+                    developers=developers, assets=assets,
+                    experiments=experiments)
         lab.save()
         return lab
 
 #+END_SRC
-
-  
 **** Tests
 #+NAME: test_persistence_update_lab
 #+BEGIN_SRC python
@@ -1151,7 +1191,7 @@ class TestPersistenceDelegate(TestCase):
          inst.save()
 
          dis_name = "Electronics & Communications"
-         dis_id = "IITK"
+         dis_id = "ECE"
          discipline = Discipline(dis_name=dis_name, dis_id=dis_id,
                                      assets=[asset])
          discipline.save()
@@ -1173,13 +1213,29 @@ class TestPersistenceDelegate(TestCase):
          hosted_url = "http://cse14-iiith.vlabs.ac.in"
          hosted_on = "cloud"
          host = HostingInfo(hosting_status=hosting_status,
-                                hosted_url=hosted_url, hosted_on=hosted_on)
+                                hosted_url=hosted_url,
+                                hosted_on=hosted_on)
          host.save()
+
+
+         exp_name = "Data Structures"
+         exp_id = "cse01"
+         overview = "overview"
+        
+         exp = Experiment(exp_name=exp_name, exp_id=exp_id, \
+                              overview=overview, sections=[],
+                              institute=inst, discipline=discipline, 
+                              integration_status=integration_status,
+                              assets=[asset], developers=[dev],
+                              hosting_info=[host])
+
+         exp1 = self.persistence_delegate.add_experiment(exp)
+
 
          lab = Lab(lab_name=lab_name, lab_id=lab_id, overview=overview, 
                        institute=inst, discipline=discipline, 
                        assets=[asset], hosting_info=[host],
-                       experiments=experiments, developers=[dev], 
+                       experiments=[exp1], developers=[dev], 
                        integration_status=integration_status) 
 
          lab1 = self.persistence_delegate.add_lab(lab)
@@ -1193,13 +1249,13 @@ class TestPersistenceDelegate(TestCase):
          inst1.save()
 
          dis_name1 = "Computer Science & Engineering"
-         dis_id1 = "IIT Kharagpur"
+         dis_id1 = "CSE"
          discipline1 = Discipline(dis_name=dis_name1, dis_id=dis_id1,
                                       assets=[asset])
          discipline1.save()
 
          integration_level1 = 2
-         integration_status1 = IntegrationStatus(integration_level=
+         integration_status1 = IntegrationStatus(integration_level=\
                                                      integration_level1)
          integration_status1.save()
 
@@ -1207,7 +1263,8 @@ class TestPersistenceDelegate(TestCase):
          hosted_url1 = "http://cse13-iiith.vlabs.ac.in"
          hosted_on1 = "cloud"
          host1 = HostingInfo(hosting_status=hosting_status1,
-                                 hosted_url=hosted_url1, hosted_on=hosted_on1)
+                                 hosted_url=hosted_url1,
+                                 hosted_on=hosted_on1)
          host1.save()
 
          dev_name1 = Name(name="Tahiliani")
@@ -1223,9 +1280,23 @@ class TestPersistenceDelegate(TestCase):
          asset1 = Asset(asset_type=asset_type1, path=path1)
          asset1.save()
 
+         exp_name1 = "Computer Programming"
+         exp_id1 = "cse02"
+         overview1 = "computer overview"
+        
+         exp1 = Experiment(exp_name=exp_name1, exp_id=exp_id1, \
+                              overview=overview1, sections=[],
+                              institute=inst1, discipline=discipline1, 
+                              integration_status=integration_status,
+                              assets=[asset1], developers=[dev1],
+                              hosting_info=[host1])
+
+         exp2 = self.persistence_delegate.add_experiment(exp)
+
          lab2 = self.persistence_delegate.update_lab\
            (lab1, lab_name1, overview1, inst1, discipline1,
-                integration_status1, [host1], [dev1], [asset1]),
+                integration_status1, [host1], [dev1], [asset1], [exp2]),
+
          lab2 = Lab.get_by_id(1)
 
          self.assertEqual(lab2.get("lab_id"), lab_id)
@@ -1245,6 +1316,8 @@ class TestPersistenceDelegate(TestCase):
                               email_id1.get("email"))
          self.assertEqual(lab2.get("assets")[0].get("path"),
                               asset1.get("path"))
+         self.assertEqual(lab2.get("experiments")[0].get("exp_id"),
+                              exp2.get("exp_id"))
 
 
 #+END_SRC
@@ -1254,9 +1327,13 @@ class TestPersistenceDelegate(TestCase):
 #+NAME: persistence_update_experiment
 #+BEGIN_SRC python
     def update_experiment(self, experiment, exp_name, overview, institute, 
-                          discipline, integration_status):
-        experiment.set(exp_name=exp_name, overview=overview, institute=institute, 
-                       discipline=discipline, integration_status=integration_status)
+                          discipline, integration_status, hosting_info,
+                          developers, assets):
+        experiment.set(exp_name=exp_name, overview=overview,
+                           institute=institute, discipline=discipline,
+                           integration_status=integration_status, 
+                           hosting_info=hosting_info, 
+                           developers=developers, assets=assets)
         experiment.save()
         return experiment
 
@@ -1280,7 +1357,8 @@ class TestPersistenceDelegate(TestCase):
 
          dis_name = "computer science"
          dis_id = "cse"
-         discipline = Discipline(dis_name=dis_name, dis_id=dis_id, assets=[asset])
+         discipline = Discipline(dis_name=dis_name, dis_id=dis_id,
+                                     assets=[asset])
          discipline.save()
 
          dev_name = Name(name="Mohit Tahiliani")
@@ -1294,7 +1372,9 @@ class TestPersistenceDelegate(TestCase):
          hosting_status = "hosted"
          hosted_url = "http://cse14-iiith.vlabs.ac.in"
          hosted_on = "cloud"
-         host = HostingInfo(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
+         host = HostingInfo(hosting_status=hosting_status,
+                                hosted_url=hosted_url, 
+                                hosted_on=hosted_on)
          host.save()
 
          exp_name = "Data Structures"
@@ -1302,14 +1382,16 @@ class TestPersistenceDelegate(TestCase):
          overview = "overview"
 
          integration_level = 4
-         integration_status = IntegrationStatus(integration_level=integration_level)
+         integration_status = IntegrationStatus(integration_level=
+                                                    integration_level)
          integration_status.save()
         
          exp = Experiment(exp_name=exp_name, exp_id=exp_id, \
                               overview=overview, sections=[],
-                          institute=inst, discipline=discipline, 
-                              integration_status=integration_status, assets=[asset],
-                              developers=[dev], hosting_info=[host])
+                              institute=inst, discipline=discipline, 
+                              integration_status=integration_status,
+                              assets=[asset], developers=[dev],
+                              hosting_info=[host])
          exp1 = self.persistence_delegate.add_experiment(exp)
 
          exp_name1 = "Computer Programming"
@@ -1322,12 +1404,14 @@ class TestPersistenceDelegate(TestCase):
 
          inst_name1 = "IIT Kharagpur"
          inst_id1 = "IITKgp"
-         inst1 = Institute(inst_name=inst_name1, inst_id=inst_id1, assets=[asset1])
+         inst1 = Institute(inst_name=inst_name1, inst_id=inst_id1,
+                               assets=[asset1])
          inst1.save()
 
          dis_name1 = "Electronics and Communication"
          dis_id1 = "ece"
-         discipline1 = Discipline(dis_name=dis_name1, dis_id=dis_id1, assets=[asset1])
+         discipline1 = Discipline(dis_name=dis_name1, dis_id=dis_id1,
+                                      assets=[asset1])
          discipline1.save()
 
          dev_name1 = Name(name="Palavi Pawar")
@@ -1339,12 +1423,22 @@ class TestPersistenceDelegate(TestCase):
          dev1.save()
 
          integration_level1 = 3
-         integration_status1 = IntegrationStatus(integration_level=integration_level1)
+         integration_status1 = IntegrationStatus(integration_level=
+                                                     integration_level1)
          integration_status1.save()
+
+         hosting_status1 = "hosted"
+         hosted_url1 = "http://cse13-iiith.vlabs.ac.in"
+         hosted_on1 = "cloud"
+         host1 = HostingInfo(hosting_status=hosting_status1,
+                                 hosted_url=hosted_url1,
+                                 hosted_on=hosted_on1)
+         host1.save()
 
          exp2 = self.persistence_delegate.update_experiment(exp1, exp_name1,
                                          overview1, inst1, discipline1,
-                                         integration_status1)
+                                         integration_status1, [host1], 
+                                         [dev1], [asset1])
          exp2 = Experiment.get_by_id(1)
 
          self.assertEqual(exp2.get("exp_name"), exp_name1)
@@ -1354,8 +1448,15 @@ class TestPersistenceDelegate(TestCase):
                               inst1.get("inst_id"))
          self.assertEqual(exp2.get("discipline").get("dis_id"), 
                               discipline1.get("dis_id"))
-         self.assertEqual(exp2.get("integration_status").get("integration_level"), 
+         self.assertEqual(exp2.get("integration_status").
+                              get("integration_level"), 
                               integration_status1.get("integration_level"))
+         self.assertEqual(exp2.get("hosting_info")[0].get("hosted_url"), 
+                              hosted_url1)
+         self.assertEqual(exp2.get("developers")[0].get("email").get("email"), 
+                              email_id1.get("email"))
+         self.assertEqual(exp2.get("assets")[0].get("path"),
+                              asset1.get("path"))
 
 
 #+END_SRC
@@ -1466,7 +1567,8 @@ class TestPersistenceDelegate(TestCase):
 
          dis_name = "computer science"
          dis_id = "cse"
-         discipline = Discipline(dis_name=dis_name, dis_id=dis_id, assets=[asset])
+         discipline = Discipline(dis_name=dis_name, dis_id=dis_id,
+                                     assets=[asset])
          discipline.save()
 
          dev_name = Name(name="Prof. S. Dharmaraja")
@@ -1491,6 +1593,7 @@ class TestPersistenceDelegate(TestCase):
          dev_name1.save()
 
          dev2 = self.persistence_delegate.update_developer(dev1, dev_name1, inst1, discipline1)
+
 
          self.assertEqual(dev1.get("name").get("name"), dev_name1.get("name"))
          self.assertEqual(dev1.get("institute").get("inst_id"), 
@@ -1525,7 +1628,8 @@ class TestPersistenceDelegate(TestCase):
 
          inst_name = "IIT Delhi"
          inst_id = "IITD"
-         institute = Institute(inst_name=inst_name, inst_id=inst_id, assets=[asset])
+         institute = Institute(inst_name=inst_name, inst_id=inst_id,
+                                   assets=[asset])
          institute1 = self.persistence_delegate.add_institute(institute)
 
          asset_type1 = "Image"
@@ -1566,8 +1670,11 @@ class TestPersistenceDelegate(TestCase):
          hosting_status = "hosted"
          hosted_url = "http://cse14-iiith.vlabs.ac.in"
          hosted_on = "cloud"
-         hosting_info = HostingInfo(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
-         hosting_info1 = self.persistence_delegate.add_hosting_info(hosting_info)
+         hosting_info = HostingInfo(hosting_status=hosting_status,
+                                        hosted_url=hosted_url,
+                                        hosted_on=hosted_on)
+         hosting_info1 = self.persistence_delegate.add_hosting_info(
+             hosting_info)
 
          hosting_status1 = "not hosted"
          hosted_on1 = "server"
@@ -1653,16 +1760,19 @@ class TestPersistenceDelegate(TestCase):
 
          inst_name = "IIT Kanpur"
          inst_id = "IITK"
-         inst = Institute(inst_name=inst_name, inst_id=inst_id, assets=[asset])
+         inst = Institute(inst_name=inst_name, inst_id=inst_id,
+                              assets=[asset])
          inst.save()
 
          integration_level = 4
-         integration_status = IntegrationStatus(integration_level=integration_level)                    
+         integration_status = IntegrationStatus(integration_level=
+                                                    integration_level)                    
          integration_status.save()
 
          dis_name = "IIT Kanpur"
          dis_id = "IITK"
-         discipline = Discipline(dis_name=dis_name, dis_id=dis_id, assets=[asset])
+         discipline = Discipline(dis_name=dis_name, dis_id=dis_id,
+                                     assets=[asset])
          discipline.save()
  
          dev_name = Name(name="Mohit Tahiliani")
@@ -1676,13 +1786,16 @@ class TestPersistenceDelegate(TestCase):
          hosting_status = "hosted"
          hosted_url = "http://cse14-iiith.vlabs.ac.in"
          hosted_on = "cloud"
-         host = HostingInfo(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
+         host = HostingInfo(hosting_status=hosting_status,
+                                hosted_url=hosted_url,
+                                hosted_on=hosted_on)
          host.save()
 
          lab = Lab(lab_name=lab_name, lab_id=lab_id, overview=overview, 
-                       institute=inst, discipline=discipline, hosting_info=[host], 
-                       assets=[asset],
-                       experiments=[], developers=[dev], integration_status=integration_status)
+                       institute=inst, discipline=discipline,
+                       hosting_info=[host],  assets=[asset],
+                       experiments=[], developers=[dev],
+                       integration_status=integration_status)
 
          lab1 = self.persistence_delegate.add_lab(lab)
 
@@ -1743,7 +1856,8 @@ class TestPersistenceDelegate(TestCase):
 
          dis_name = "IIT Kanpur"
          dis_id = "IITK"
-         discipline = Discipline(dis_name=dis_name, dis_id=dis_id, assets=[asset])
+         discipline = Discipline(dis_name=dis_name, dis_id=dis_id,
+                                     assets=[asset])
          discipline.save()
 
          dev_name = Name(name="Mohit Tahiliani")
@@ -1757,11 +1871,14 @@ class TestPersistenceDelegate(TestCase):
          hosting_status = "hosted"
          hosted_url = "http://cse14-iiith.vlabs.ac.in"
          hosted_on = "cloud"
-         host = HostingInfo(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
+         host = HostingInfo(hosting_status=hosting_status,
+                                hosted_url=hosted_url,
+                                hosted_on=hosted_on)
          host.save()
          
          integration_level = 4
-         integration_status = IntegrationStatus(integration_level=integration_level)
+         integration_status = IntegrationStatus(integration_level=
+                                                    integration_level)
          integration_status.save()
         
          exp_name = "arrays"
@@ -1769,19 +1886,21 @@ class TestPersistenceDelegate(TestCase):
          overview = "overview"
          exp = Experiment(exp_name=exp_name, exp_id=exp_id, \
                               overview=overview, sections=[],
-                          institute=inst, discipline=discipline,
-                              integration_status=integration_status, assets=[asset], 
-                              developers=[dev], hosting_info=[host])
+                              institute=inst, discipline=discipline,
+                              integration_status=integration_status,
+                              assets=[asset], developers=[dev],
+                              hosting_info=[host])
          exp1 = self.persistence_delegate.add_experiment(exp)
 
          exp_name1 = "linked list"
          exp_id1 = "cse02"
          overview = "overview"
          exp1 = Experiment(exp_name=exp_name1, exp_id=exp_id1, \
-                           overview=overview, sections=[],
-                           institute=inst, discipline=discipline,
-                               integration_status=integration_status, assets=[asset],
-                               developers=[dev], hosting_info=[host])
+                               overview=overview, sections=[],
+                               institute=inst, discipline=discipline,
+                               integration_status=integration_status,
+                               assets=[asset], developers=[dev],
+                               hosting_info=[host])
          exp2 = self.persistence_delegate.add_experiment(exp1)
 
          self.persistence_delegate.delete_experiment(exp_id)
@@ -1998,7 +2117,8 @@ class TestPersistenceDelegate(TestCase):
 
          dis_name = "IIT Kanpur"
          dis_id = "IITK"
-         discipline = Discipline(dis_name=dis_name, dis_id=dis_id, assets=[asset])
+         discipline = Discipline(dis_name=dis_name, dis_id=dis_id,
+                                     assets=[asset])
          discipline.save()
 
          dev_name = Name(name="Prof. S. Dharmaraja")
@@ -2063,12 +2183,14 @@ class TestPersistenceDelegate(TestCase):
 
          inst_name = "IIT Delhi"
          inst_id = "IITD"
-         institute = Institute(inst_name=inst_name, inst_id=inst_id, assets=[asset])                    
+         institute = Institute(inst_name=inst_name, inst_id=inst_id,
+                                   assets=[asset])                    
          institute1 = self.persistence_delegate.add_institute(institute)
 
          inst_name1 = "IIT Kharagpur"
          inst_id1 = "IITKgp"
-         institute1 = Institute(inst_name=inst_name1, inst_id=inst_id1, assets=[asset]) 
+         institute1 = Institute(inst_name=inst_name1, inst_id=inst_id1,
+                                    assets=[asset]) 
          institute2 = self.persistence_delegate.add_institute(institute1)
 
          self.persistence_delegate.delete_institute("IITD")
@@ -2107,16 +2229,22 @@ class TestPersistenceDelegate(TestCase):
          hosting_status = "hosted"
          hosted_url = "http://cse14-iiith.vlabs.ac.in"
          hosted_on = "cloud"
-         hosting_info = HostingInfo(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
-         hosting_info1 = self.persistence_delegate.add_hosting_info(hosting_info)
+         hosting_info = HostingInfo(hosting_status=hosting_status,
+                                        hosted_url=hosted_url,
+                                        hosted_on=hosted_on)
+         hosting_info = self.persistence_delegate.add_hosting_info(hosting_info)
 
          hosting_status1 = "not hosted"
          hosted_url1 = "http://iitkgp.vlab.co.in/"
          hosted_on1 = "server"
-         hosting_info1 = HostingInfo(hosting_status=hosting_status1, hosted_url=hosted_url1, hosted_on=hosted_on1)
-         hosting_info2 = self.persistence_delegate.add_hosting_info(hosting_info1)
+         hosting_info1 = HostingInfo(hosting_status=hosting_status1,
+                                         hosted_url=hosted_url1,
+                                         hosted_on=hosted_on1)
+         hosting_info2 = self.persistence_delegate.add_hosting_info(
+             hosting_info1)
 
-         self.persistence_delegate.delete_hosting_info("http://cse14-iiith.vlabs.ac.in")
+         self.persistence_delegate.delete_hosting_info(
+             "http://cse14-iiith.vlabs.ac.in")
 
          self.assertEqual(len(HostingInfo.get_all()), 1)
 
@@ -2195,12 +2323,16 @@ class TestPersistenceDelegate(TestCase):
     def test_delete_integration_status(self):
          print "test_delete_integration_status"
          integration_level = 4
-         integration_status = IntegrationStatus(integration_level=integration_level)                    
-         integration_status1 = self.persistence_delegate.add_integration_status(integration_status)
+         integration_status = IntegrationStatus(integration_level=\
+                                                    integration_level)         
+         integration_status1 = self.persistence_delegate.add_integration_status\
+         (integration_status)
 
          integration_level1 = 2
-         integration_status1 = IntegrationStatus(integration_level=integration_level1)
-         integration_status2 = self.persistence_delegate.add_integration_status(integration_status1)
+         integration_status1 = IntegrationStatus(integration_level=\
+                                                     integration_level1)
+         integration_status2 = self.persistence_delegate.\
+           add_integration_status(integration_status1)
 
          self.persistence_delegate.delete_integration_status(integration_level)
 
@@ -2219,8 +2351,10 @@ class TestPersistenceDelegate(TestCase):
         experiment_list = []
         for experiment in experiments:
             if self.experiment_exists(experiment):
-                experiment = self.get_experiment(exp_id=experiment.get('exp_id'),
-                                                 exp_name=experiment.get('exp_name'))
+                experiment = self.get_experiment(exp_id=experiment.
+                                                     get('exp_id'),
+                                                 exp_name=experiment.
+                                                     get('exp_name'))
             else:
                 experiment.save()
 
@@ -2253,11 +2387,13 @@ class TestPersistenceDelegate(TestCase):
 
          dis_name = "IIT Kanpur"
          dis_id = "IITK"
-         discipline = Discipline(dis_name=dis_name, dis_id=dis_id, assets=[asset])
+         discipline = Discipline(dis_name=dis_name, dis_id=dis_id,
+                                     assets=[asset])
          discipline.save()
 
          integration_level = 4
-         integration_status = IntegrationStatus(integration_level=integration_level)
+         integration_status = IntegrationStatus(integration_level=
+                                                    integration_level)
          integration_status.save()
 
          dev_name = Name(name="Mohit Tahiliani")
@@ -2271,13 +2407,16 @@ class TestPersistenceDelegate(TestCase):
          hosting_status = "hosted"
          hosted_url = "http://cse14-iiith.vlabs.ac.in"
          hosted_on = "cloud"
-         host = HostingInfo(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
+         host = HostingInfo(hosting_status=hosting_status,
+                                hosted_url=hosted_url,
+                                hosted_on=hosted_on)
          host.save()
 
          lab = Lab(lab_name=lab_name, lab_id=lab_id, overview=overview,
                        institute=inst, discipline=discipline,
                        hosting_info=[host], assets=[asset],
-                       experiments=[], developers=[dev], integration_status=integration_status)
+                       experiments=[], developers=[dev],
+                       integration_status=integration_status)
 
          lab.save()
 
@@ -2288,8 +2427,8 @@ class TestPersistenceDelegate(TestCase):
                                      overview=overview, sections=[],
                                      institute=inst, discipline=discipline, 
                                      integration_status=integration_status,
-                                     assets=[asset],
-                                     developers=[dev], hosting_info=[host])
+                                     assets=[asset], developers=[dev],
+                                     hosting_info=[host])
          experiment.save()
         
          lab1 = Lab.get_by_id(1)
@@ -2314,7 +2453,8 @@ class TestPersistenceDelegate(TestCase):
         for asset in assets:
             if self.asset_exists(asset):
                 asset = self.get_asset(path=asset.get('path'),
-                                                 asset_type=asset.get('asset_type'))
+                                           asset_type=asset.
+                                           get('asset_type'))
             else:
                 asset.save()
 
@@ -2347,11 +2487,13 @@ class TestPersistenceDelegate(TestCase):
 
          dis_name = "IIT Kanpur"
          dis_id = "IITK"
-         discipline = Discipline(dis_name=dis_name, dis_id=dis_id, assets=[asset])
+         discipline = Discipline(dis_name=dis_name, dis_id=dis_id,
+                                     assets=[asset])
          discipline.save()
 
          integration_level = 4
-         integration_status = IntegrationStatus(integration_level=integration_level)
+         integration_status = IntegrationStatus(integration_level=
+                                                    integration_level)
          integration_status.save()
 
          dev_name = Name(name="Mohit Tahiliani")
@@ -2364,12 +2506,16 @@ class TestPersistenceDelegate(TestCase):
          hosting_status = "hosted"
          hosted_url = "http://cse14-iiith.vlabs.ac.in"
          hosted_on = "cloud"
-         host = HostingInfo(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
+         host = HostingInfo(hosting_status=hosting_status,
+                                hosted_url=hosted_url,
+                                hosted_on=hosted_on)
          host.save()
          
          lab = Lab(lab_name=lab_name, lab_id=lab_id, overview=overview,
-                       institute=inst, discipline=discipline, hosting_info=[host], assets=[asset],
-                       experiments=[], developers=[dev], integration_status=integration_status)
+                       institute=inst, discipline=discipline,
+                       hosting_info=[host], assets=[asset],
+                       experiments=[], developers=[dev],
+                       integration_status=integration_status)
 
          lab.save()
 
@@ -2440,11 +2586,13 @@ class TestPersistenceDelegate(TestCase):
 
          dis_name = "IIT Kanpur"
          dis_id = "IITK"
-         discipline = Discipline(dis_name=dis_name, dis_id=dis_id, assets=[asset])
+         discipline = Discipline(dis_name=dis_name, dis_id=dis_id,
+                                     assets=[asset])
          discipline.save()
 
          integration_level = 4
-         integration_status = IntegrationStatus(integration_level=integration_level)
+         integration_status = IntegrationStatus(integration_level=
+                                                    integration_level)
          integration_status.save()
 
          dev_name = Name(name="Mohit Tahiliani")
@@ -2457,20 +2605,22 @@ class TestPersistenceDelegate(TestCase):
          hosting_status = "hosted"
          hosted_url = "http://cse14-iiith.vlabs.ac.in"
          hosted_on = "cloud"
-         host = HostingInfo(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
+         host = HostingInfo(hosting_status=hosting_status,
+                                hosted_url=hosted_url,
+                                hosted_on=hosted_on)
          host.save()
 
          lab = Lab(lab_name=lab_name, lab_id=lab_id, overview=overview, 
-                       institute=inst, discipline=discipline, hosting_info=[host],
-                       assets=[], experiments=[], developers=[dev], 
-                       integration_status=integration_status)
+                       institute=inst, discipline=discipline,
+                       hosting_info=[host],  assets=[], experiments=[],
+                       developers=[dev], integration_status=integration_status)
 
          lab.save()
          
          institute1 = Lab.get_by_id(1)
 
-         institute1 = self.persistence_delegate.add_labs_to_institute(institute1.id, \
-                                                             [lab])
+         institute1 = self.persistence_delegate.add_labs_to_institute(
+             institute1.id, [lab])
         
          self.assertEqual(len(institute1.get("labs")), 1)
          self.assertEqual(institute1.get("labs")[0].get("lab_id"), lab_id)
@@ -2517,7 +2667,8 @@ class TestPersistenceDelegate(TestCase):
 
          dis_name = "IIT Kanpur"
          dis_id = "IITK"
-         discipline = Discipline(dis_name=dis_name, dis_id=dis_id, assets=[asset])
+         discipline = Discipline(dis_name=dis_name, dis_id=dis_id,
+                                     assets=[asset])
          discipline.save()
 
          dev_name = Name(name="Mohit Tahiliani")
@@ -2531,18 +2682,22 @@ class TestPersistenceDelegate(TestCase):
          hosting_status = "hosted"
          hosted_url = "http://cse14-iiith.vlabs.ac.in"
          hosted_on = "cloud"
-         host = HostingInfo(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
+         host = HostingInfo(hosting_status=hosting_status,
+                                hosted_url=hosted_url,
+                                hosted_on=hosted_on)
          host.save()
 
          integration_level = 4
-         integration_status = IntegrationStatus(integration_level=integration_level)
+         integration_status = IntegrationStatus(integration_level=
+                                                    integration_level)
          integration_status.save()
          
          exp_name = "Number Systems"
          exp_id = "EE99777"
          overview = "overview"
          exp = Experiment(exp_name=exp_name, exp_id=exp_id, \
-                           overview=overview, institute=inst, discipline=discipline, 
+                           overview=overview, institute=inst,
+                           discipline=discipline, 
                            integration_status=integration_status, 
                            sections=[], assets=[asset],
                            developers=[dev], hosting_info=[host])
@@ -2611,11 +2766,13 @@ class TestPersistenceDelegate(TestCase):
 
          dis_name = "IIT Kanpur"
          dis_id = "IITK"
-         discipline = Discipline(dis_name=dis_name, dis_id=dis_id, assets=[asset])
+         discipline = Discipline(dis_name=dis_name, dis_id=dis_id,
+                                     assets=[asset])
          discipline.save()
 
          integration_level = 4
-         integration_status = IntegrationStatus(integration_level=integration_level)
+         integration_status = IntegrationStatus(integration_level=
+                                                    integration_level)
          integration_status.save()
 
          dev_name = Name(name="Mohit Tahiliani")
@@ -2629,7 +2786,9 @@ class TestPersistenceDelegate(TestCase):
          hosting_status = "hosted"
          hosted_url = "http://cse14-iiith.vlabs.ac.in"
          hosted_on = "cloud"
-         host = HostingInfo(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
+         host = HostingInfo(hosting_status=hosting_status,
+                                hosted_url=hosted_url,
+                                hosted_on=hosted_on)
          host.save()
 
          lab = Lab(lab_name=lab_name1, lab_id=lab_id1, overview=overview,
@@ -2761,7 +2920,8 @@ class TestPersistenceDelegate(TestCase):
 
          dis_name = "IIT Kanpur"
          dis_id = "IITK"
-         discipline = Discipline(dis_name=dis_name, dis_id=dis_id, assets=[asset])
+         discipline = Discipline(dis_name=dis_name, dis_id=dis_id,
+                                     assets=[asset])
          discipline.save()
         
          dev_name = Name(name="Prof. S. Dharmaraja")
@@ -2772,8 +2932,10 @@ class TestPersistenceDelegate(TestCase):
                          institute=inst, discipline=discipline)
          dev.save()
 
-         dev_obj = self.persistence_delegate.get_developer(email=dev.get("email"))
-         self.assertEqual(dev_obj.get("email").get("email"), email_id.get("email"))
+         dev_obj = self.persistence_delegate.get_developer(email=dev.
+                                                               get("email"))
+         self.assertEqual(dev_obj.get("email").get("email"), email_id.
+                              get("email"))
 
 #+END_SRC
 
@@ -2798,7 +2960,9 @@ class TestPersistenceDelegate(TestCase):
          hosting_status = "hosted"
          hosted_url = "http://cse14-iiith.vlabs.ac.in"
          hosted_on = "cloud"
-         host = HostingInfo(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
+         host = HostingInfo(hosting_status=hosting_status,
+                                hosted_url=hosted_url,
+                                hosted_on=hosted_on)
          host.save()
 
          asset_type = "Image"
@@ -2813,7 +2977,8 @@ class TestPersistenceDelegate(TestCase):
 
          dis_name = "IIT Kanpur"
          dis_id = "IITK"
-         discipline = Discipline(dis_name=dis_name, dis_id=dis_id, assets=[asset])
+         discipline = Discipline(dis_name=dis_name, dis_id=dis_id,
+                                     assets=[asset])
          discipline.save()
 
          dev_name = Name(name="Mohit Tahiliani")
@@ -2829,14 +2994,16 @@ class TestPersistenceDelegate(TestCase):
          overview = "overview"
 
          integration_level = 4
-         integration_status = IntegrationStatus(integration_level=integration_level)
+         integration_status = IntegrationStatus(integration_level=
+                                                    integration_level)
          integration_status.save()
 
          exp = Experiment(exp_name=exp_name, exp_id=exp_id,
                               overview=overview, sections=[],
                               institute=inst, discipline=discipline, 
-                              integration_status=integration_status, assets=[asset], 
-                              developers=[dev], hosting_info=[host])
+                              integration_status=integration_status,
+                              assets=[asset], developers=[dev],
+                              hosting_info=[host])
          exp.save()
          exp_obj = self.persistence_delegate.get_experiment(exp_name=
                                                 exp.get("exp_name"))
@@ -2871,7 +3038,8 @@ class TestPersistenceDelegate(TestCase):
 
          inst_name = "IIT Delhi"
          inst_id = "IITD"
-         inst = Institute(inst_name=inst_name, inst_id=inst_id, assets=[asset])                             
+         inst = Institute(inst_name=inst_name, inst_id=inst_id,
+                              assets=[asset]) 
          inst.save()
          inst_obj = self.persistence_delegate.get_institute(inst_name=
                                                 inst.get("inst_name"))
@@ -2988,11 +3156,13 @@ class TestPersistenceDelegate(TestCase):
 
          dis_name = "IIT Kanpur"
          dis_id = "IITK"
-         discipline = Discipline(dis_name=dis_name, dis_id=dis_id, assets=[asset])
+         discipline = Discipline(dis_name=dis_name, dis_id=dis_id,
+                                     assets=[asset])
          discipline.save()
 
          integration_level = 4
-         integration_status = IntegrationStatus(integration_level=integration_level)
+         integration_status = IntegrationStatus(integration_level=
+                                                    integration_level)
          integration_status.save()
 
          dev_name = Name(name="Mohit Tahiliani")
@@ -3006,7 +3176,9 @@ class TestPersistenceDelegate(TestCase):
          hosting_status = "hosted"
          hosted_url = "http://cse14-iiith.vlabs.ac.in"
          hosted_on = "cloud"
-         host = HostingInfo(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
+         host = HostingInfo(hosting_status=hosting_status,
+                                hosted_url=hosted_url,
+                                hosted_on=hosted_on)
          host.save()
 
          lab1 = Lab(lab_name=lab_name1, lab_id=lab_id1, overview=overview,
@@ -3021,7 +3193,7 @@ class TestPersistenceDelegate(TestCase):
          lab_id2="CSE02"
 
          lab2 = Lab(lab_name=lab_name2, lab_id=lab_id2, overview=overview, \
-                        institute=inst, discipline=discipline, assets=[asset], \
+                        institute=inst, discipline=discipline, assets=[asset],\
                         experiments=[], integration_status=integration_status,
                         developers=[dev], hosting_info=[host])
 
@@ -3050,11 +3222,13 @@ class TestPersistenceDelegate(TestCase):
 
          dis_name = "IIT Kanpur"
          dis_id = "IITK"
-         discipline = Discipline(dis_name=dis_name, dis_id=dis_id, assets=[asset])
+         discipline = Discipline(dis_name=dis_name, dis_id=dis_id,
+                                     assets=[asset])
          discipline.save()
 
          integration_level = 4
-         integration_status = IntegrationStatus(integration_level=integration_level)
+         integration_status = IntegrationStatus(integration_level=
+                                                    integration_level)
          integration_status.save()
 
          dev_name = Name(name="Mohit Tahiliani")
@@ -3068,7 +3242,9 @@ class TestPersistenceDelegate(TestCase):
          hosting_status = "hosted"
          hosted_url = "http://cse14-iiith.vlabs.ac.in"
          hosted_on = "cloud"
-         host = HostingInfo(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
+         host = HostingInfo(hosting_status=hosting_status,
+                                hosted_url=hosted_url,
+                                hosted_on=hosted_on)
          host.save()
 
          lab1 = Lab(lab_name=lab_name1, lab_id=lab_id1, overview=overview,
@@ -3083,8 +3259,8 @@ class TestPersistenceDelegate(TestCase):
          lab_id2="CSE02"
 
          lab2 = Lab(lab_name=lab_name2, lab_id=lab_id2, overview=overview, \
-                        institute=inst, discipline=discipline, assets=[asset], \
-                        experiments=[], integration_status=integration_status, \
+                        institute=inst, discipline=discipline, assets=[asset],\
+                        experiments=[], integration_status=integration_status,\
                         developers=[dev],  hosting_info=[host])
 
          lab2.save()
@@ -3111,11 +3287,13 @@ class TestPersistenceDelegate(TestCase):
 
          dis_name = "computer science"
          dis_id = "cse"
-         discipline = Discipline(dis_name=dis_name, dis_id=dis_id, assets=[asset])
+         discipline = Discipline(dis_name=dis_name, dis_id=dis_id,
+                                     assets=[asset])
          discipline.save()
 
          integration_level = 4
-         integration_status = IntegrationStatus(integration_level=integration_level)
+         integration_status = IntegrationStatus(integration_level=
+                                                    integration_level)
          integration_status.save()
 
          dev_name = Name(name="Mohit Tahiliani")
@@ -3129,8 +3307,9 @@ class TestPersistenceDelegate(TestCase):
          hosting_status = "hosted"
          hosted_url = "http://cse14-iiith.vlabs.ac.in"
          hosted_on = "cloud"
-         host = HostingInfo(hosting_status=hosting_status, hosted_url=hosted_url, 
-                hosted_on=hosted_on)
+         host = HostingInfo(hosting_status=hosting_status,
+                                hosted_url=hosted_url,
+                                hosted_on=hosted_on)
          host.save()
 
          lab1 = Lab(lab_name=lab_name1, lab_id=lab_id1, overview=overview,
@@ -3144,7 +3323,7 @@ class TestPersistenceDelegate(TestCase):
          lab_id2="CSE02"
 
          lab2 = Lab(lab_name=lab_name2, lab_id=lab_id2, overview=overview, \
-                        institute=inst, discipline=discipline, assets=[asset], \
+                        institute=inst, discipline=discipline, assets=[asset],\
                         experiments=[], integration_status=integration_status,
                         developers=[dev], hosting_info=[host])
          lab2.save()
@@ -3173,11 +3352,13 @@ class TestPersistenceDelegate(TestCase):
 
          dis_name = "IIT Kanpur"
          dis_id = "IITK"
-         discipline = Discipline(dis_name=dis_name, dis_id=dis_id, assets=[asset])
+         discipline = Discipline(dis_name=dis_name, dis_id=dis_id,
+                                     assets=[asset])
          discipline.save()
 
          integration_level = 4
-         integration_status = IntegrationStatus(integration_level=integration_level)
+         integration_status = IntegrationStatus(integration_level=
+                                                    integration_level)
          integration_status.save()
 
          dev_name = Name(name="Mohit Tahiliani")
@@ -3191,7 +3372,9 @@ class TestPersistenceDelegate(TestCase):
          hosting_status = "hosted"
          hosted_url = "http://cse14-iiith.vlabs.ac.in"
          hosted_on = "cloud"
-         host = HostingInfo(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
+         host = HostingInfo(hosting_status=hosting_status,
+                                hosted_url=hosted_url,
+                                hosted_on=hosted_on)
          host.save()
 
          lab1 = Lab(lab_name=lab_name1, lab_id=lab_id1, overview=overview,
@@ -3205,7 +3388,7 @@ class TestPersistenceDelegate(TestCase):
          lab_id2="CSE02"
 
          lab2 = Lab(lab_name=lab_name2, lab_id=lab_id2, overview=overview, \
-                        institute=inst, discipline=discipline, assets=[asset], \
+                        institute=inst, discipline=discipline, assets=[asset],\
                         experiments=[], integration_status=integration_status,
                         developers=[dev], hosting_info=[host])
          lab2.save()
@@ -3248,7 +3431,8 @@ class TestPersistenceDelegate(TestCase):
 
          inst_name = "IIT Delhi"
          inst_id = "IITD"
-         inst = Institute(inst_name=inst_name, inst_id=inst_id, assets=[asset])                             
+         inst = Institute(inst_name=inst_name, inst_id=inst_id,
+                              assets=[asset])                             
          inst.save()
          inst_obj = self.persistence_delegate.get_institute(inst_name=
                                                 inst.get("inst_name"))
@@ -3284,7 +3468,9 @@ class TestPersistenceDelegate(TestCase):
          hosting_status = "hosted"
          hosted_url = "http://cse14-iiith.vlabs.ac.in"
          hosted_on = "cloud"
-         host = HostingInfo(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
+         host = HostingInfo(hosting_status=hosting_status,
+                                hosted_url=hosted_url,
+                                hosted_on=hosted_on)
          host.save()
          host_obj = self.persistence_delegate.get_hosting_info(hosting_status=
                                                 host.get("hosting_status"))
@@ -3295,9 +3481,12 @@ class TestPersistenceDelegate(TestCase):
          host_obj2 = self.persistence_delegate.get_hosting_info(hosted_on=
                                                 host.get("hosted_on"))
 
-         self.assertEqual(host_obj.get("hosting_status"), host.get("hosting_status"))
-         self.assertEqual(host_obj1.get("hosted_url"), host.get("hosted_url"))
-         self.assertEqual(host_obj2.get("hosted_on"), host.get("hosted_on"))
+         self.assertEqual(host_obj.get("hosting_status"),
+                              host.get("hosting_status"))
+         self.assertEqual(host_obj1.get("hosted_url"), host.
+                              get("hosted_url"))
+         self.assertEqual(host_obj2.get("hosted_on"), host.
+                              get("hosted_on"))
 
 #+END_SRC
 
@@ -3319,12 +3508,13 @@ class TestPersistenceDelegate(TestCase):
          print "test_get_integration_status"
 
          integration_level = 4
-         intstatus = IntegrationStatus(integration_level=integration_level)                             
+         intstatus = IntegrationStatus(integration_level=integration_level)
          intstatus.save()
-         intstatus_obj = self.persistence_delegate.get_integration_status(integration_level=
-                                                intstatus.get("integration_level"))
+         intstatus_obj = self.persistence_delegate.get_integration_status\
+         (integration_level=intstatus.get("integration_level"))
 
-         self.assertEqual(intstatus_obj.get("integration_level"), intstatus.get("integration_level"))
+         self.assertEqual(intstatus_obj.get("integration_level"),
+                              intstatus.get("integration_level"))
 
 #+END_SRC
 
@@ -3354,7 +3544,7 @@ class TestPersistenceDelegate(TestCase):
 
          asset_type = "Image"
          path = "vlabs.ac.in/static/images/logo.png"
-         asset = Asset(path=path, asset_type=asset_type)                              
+         asset = Asset(path=path, asset_type=asset_type)     
          asset.save()
          asset_obj = self.persistence_delegate.get_asset(asset_type=
                                                 asset.get("asset_type"))
@@ -3410,11 +3600,13 @@ class TestPersistenceDelegate(TestCase):
 
          dis_name = "IIT Kanpur"
          dis_id = "IITK"
-         discipline = Discipline(dis_name=dis_name, dis_id=dis_id, assets=[asset])
+         discipline = Discipline(dis_name=dis_name, dis_id=dis_id,
+                                     assets=[asset])
          discipline.save()
 
          integration_level = 4
-         integration_status = IntegrationStatus(integration_level=integration_level)
+         integration_status = IntegrationStatus(integration_level=
+                                                    integration_level)
          integration_status.save()
 
          dev_name = Name(name="Mohit Tahiliani")
@@ -3428,7 +3620,9 @@ class TestPersistenceDelegate(TestCase):
          hosting_status = "hosted"
          hosted_url = "http://cse14-iiith.vlabs.ac.in"
          hosted_on = "cloud"
-         host = HostingInfo(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
+         host = HostingInfo(hosting_status=hosting_status,
+                                hosted_url=hosted_url,
+                                hosted_on=hosted_on)
          host.save()
 
          lab = Lab(lab_name=lab_name1, lab_id=lab_id1, overview=overview, 
@@ -3474,7 +3668,9 @@ class TestPersistenceDelegate(TestCase):
          hosting_status = "hosted"
          hosted_url = "http://cse14-iiith.vlabs.ac.in"
          hosted_on = "cloud"
-         host = HostingInfo(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
+         host = HostingInfo(hosting_status=hosting_status,
+                                hosted_url=hosted_url,
+                                hosted_on=hosted_on)
          host.save()
 
          asset_type = "Image"
@@ -3489,7 +3685,8 @@ class TestPersistenceDelegate(TestCase):
 
          dis_name = "IIT Kanpur"
          dis_id = "IITK"
-         discipline = Discipline(dis_name=dis_name, dis_id=dis_id, assets=[asset])
+         discipline = Discipline(dis_name=dis_name, dis_id=dis_id,
+                                     assets=[asset])
          discipline.save()
 
          dev_name = Name(name="Mohit Tahiliani")
@@ -3505,14 +3702,16 @@ class TestPersistenceDelegate(TestCase):
          overview = "overview"
 
          integration_level = 4
-         integration_status = IntegrationStatus(integration_level=integration_level)
+         integration_status = IntegrationStatus(integration_level=
+                                                    integration_level)
          integration_status.save()
         
          exp = Experiment(exp_name=exp_name, exp_id=exp_id,
                               overview=overview, sections=[],
                          institute=inst, discipline=discipline, 
-                              integration_status=integration_status, assets=[asset],
-                              developers=[dev], hosting_info=[host])
+                              integration_status=integration_status,
+                              assets=[asset], developers=[dev],
+                              hosting_info=[host])
          exp.save()
 
          exp_obj = self.persistence_delegate.get_experiment_by_id(1)
@@ -3554,7 +3753,8 @@ class TestPersistenceDelegate(TestCase):
 
          inst_name = "IIT Kanpur"
          inst_id = "IITK"
-         inst = Institute(inst_name=inst_name, inst_id=inst_id, assets=[asset])                                         
+         inst = Institute(inst_name=inst_name, inst_id=inst_id,
+                              assets=[asset])      
          inst.save()
 
          inst_obj = self.persistence_delegate.get_institute_by_id(1)

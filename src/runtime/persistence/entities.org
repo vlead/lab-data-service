@@ -59,8 +59,10 @@ args = {"__tablename__": "lab",
         "discipline_id": db.Column(db.Integer, db.ForeignKey('discipline.id'), 
                                       unique=False, nullable=False),
 
-        "integration_status_id": db.Column(db.Integer, db.ForeignKey('integration_status.id'),
-                                      unique=False, nullable=False),
+        "integration_status_id": db.Column(db.Integer,
+                                               db.ForeignKey\
+                                               ('integration_status.id'),
+                                               unique=False, nullable=False),
         "assets": db.relationship('Asset',
                     secondary=lab_assets, 
                     backref='labs'),
@@ -73,7 +75,7 @@ args = {"__tablename__": "lab",
        }
 
 Lab = ClassPersistenceTemplate.mk_persistent(Lab, ['lab_id'],\
-                                                 **args)
+                                                 ,**args)
 
 #+end_src
 
@@ -109,7 +111,8 @@ class TestPersistentLab(TestCase):
 
         dis_name = "IIT Kanpur"
         dis_id = "IITK"
-        discipline = Discipline(dis_name=dis_name, dis_id=dis_id, assets=[asset])
+        discipline = Discipline(dis_name=dis_name, dis_id=dis_id,
+                                    assets=[asset])
         discipline.save()
 
         integration_level = 4
@@ -131,7 +134,8 @@ class TestPersistentLab(TestCase):
         hosting_status = "hosted"
         hosted_url = "http://cse14-iiith.vlabs.ac.in"
         hosted_on = "cloud"
-        host = HostingInfo(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
+        host = HostingInfo(hosting_status=hosting_status,
+                               hosted_url=hosted_url, hosted_on=hosted_on)
         host.save()
 
         exp_name = "Number Systems"
@@ -182,7 +186,8 @@ class TestPersistentLab(TestCase):
                              asset.get("asset_type"))
         self.assertEqual(lab1.get("experiments")[0].get("exp_name"), 
                              experiment.get("exp_name"))
-        self.assertEqual(lab1.get("integration_status").get("integration_level"), 
+        self.assertEqual(lab1.get("integration_status").\
+                             get("integration_level"), 
                              intstatus.get("integration_level"))
 
         self.assertEqual(lab1.get("developers")[0].get("email").get("email"), 
@@ -204,7 +209,8 @@ class TestPersistentLab(TestCase):
 
         self.assertEqual(lab2.get("assets")[0].get("asset_type"), 
                              asset.get("asset_type"))
-        self.assertEqual(lab2.get("integration_status").get("integration_level"), 
+        self.assertEqual(lab2.get("integration_status").\
+                             get("integration_level"), 
                              intstatus.get("integration_level"))
         self.assertEqual(lab2.get("developers"), [])
 
@@ -252,7 +258,8 @@ args = {"__tablename__": "experiment",
         "exp_name": db.Column(db.String(255), unique=False, nullable=True),
         "exp_id": db.Column(db.String(255), unique=True, nullable=False),
         "overview": db.Column(db.String(1000), unique=False, nullable=True),
-        "intstatus_id": db.Column(db.Integer, db.ForeignKey('integration_status.id'),
+        "intstatus_id": db.Column(db.Integer, db.ForeignKey\
+                                      ('integration_status.id'),
                                       unique=False, nullable=False),
         "assets": db.relationship('Asset',
                     secondary=experiments_assets, 
@@ -278,7 +285,8 @@ args = {"__tablename__": "experiment",
                     backref='experiments')
         }
 
-Experiment = ClassPersistenceTemplate.mk_persistent(Experiment, ['exp_id'], **args)
+Experiment = ClassPersistenceTemplate.mk_persistent(Experiment, ['exp_id'],
+                                                        ,**args)
 
 #+end_src
 
@@ -314,7 +322,8 @@ class TestPersistenceExperiment(TestCase):
 
         dis_name = "IIT Kanpur"
         dis_id = "IITK"
-        discipline = Discipline(dis_name=dis_name, dis_id=dis_id, assets=[asset])
+        discipline = Discipline(dis_name=dis_name, dis_id=dis_id,
+                                    assets=[asset])
         discipline.save()      
 
         dev_name = Name(name="Mohit Tahiliani")
@@ -328,7 +337,8 @@ class TestPersistenceExperiment(TestCase):
         hosting_status = "hosted"
         hosted_url = "http://cse14-iiith.vlabs.ac.in"
         hosted_on = "cloud"
-        host = HostingInfo(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
+        host = HostingInfo(hosting_status=hosting_status,
+                               hosted_url=hosted_url, hosted_on=hosted_on)
         host.save()
 
         exp_name = "Number Systems"
@@ -354,14 +364,16 @@ class TestPersistenceExperiment(TestCase):
                              inst.get("inst_name"))
         self.assertEqual(experiment.get("discipline").get("dis_name"), 
                              discipline.get("dis_name"))
-        self.assertEqual(experiment.get("integration_status").get("integration_level"), 
+        self.assertEqual(experiment.get("integration_status").\
+                             get("integration_level"), 
                              intstatus.get("integration_level"))
         self.assertEqual(experiment.get("assets")[0].get("asset_type"), 
                              asset.get("asset_type"))
         self.assertEqual(experiment1,None)
-        self.assertEqual(experiment.get("developers")[0].get("email").get("email"), 
-                             email_id.get("email"))
-        self.assertEqual(experiment.get("hosting_info")[0].get("hosting_status"), 
+        self.assertEqual(experiment.get("developers")[0].get("email").\
+                             get("email"), email_id.get("email"))
+        self.assertEqual(experiment.get("hosting_info")[0].\
+                             get("hosting_status"), 
                              host.get("hosting_status"))
 
 #+END_SRC
@@ -393,12 +405,16 @@ args = {"__tablename__": "institute",
         "inst_name": db.Column(db.String(255), unique=False, nullable=True),
         "inst_id": db.Column(db.String(255), unique=True, nullable=False),
         "labs": db.relationship('Lab', backref=db.backref('institute')),
-        "experiments": db.relationship('Experiment', backref=db.backref('institute')),
-        "assets": db.relationship('Asset', secondary=institutes_assets, backref='institutes'),
-        "developers": db.relationship('Developer', backref=db.backref('institute'))
+        "experiments": db.relationship('Experiment', backref=\
+                                           db.backref('institute')),
+        "assets": db.relationship('Asset', secondary=institutes_assets,
+                                      backref='institutes'),
+        "developers": db.relationship('Developer', backref=\
+                                          db.backref('institute'))
        }
 
-Institute = ClassPersistenceTemplate.mk_persistent(Institute, ['inst_id'], **args)
+Institute = ClassPersistenceTemplate.mk_persistent(Institute, ['inst_id'],\
+                                                       ,**args)
 
 #+end_src
 
@@ -463,12 +479,16 @@ args = {"__tablename__": "discipline",
         "dis_name": db.Column(db.String(255), unique=False, nullable=True),
         "dis_id": db.Column(db.String(255), unique=True, nullable=False),
         "labs": db.relationship('Lab', backref=db.backref('discipline')),
-        "experiments": db.relationship('Experiment', backref=db.backref('discipline')),
-        "assets": db.relationship('Asset', secondary=disciplines_assets, backref='disciplines'),
-        "developers": db.relationship('Developer', backref=db.backref('discipline'))
+        "experiments": db.relationship('Experiment', backref=\
+                                           db.backref('discipline')),
+        "assets": db.relationship('Asset', secondary=disciplines_assets,
+                                      backref='disciplines'),
+        "developers": db.relationship('Developer', backref=\
+                                          db.backref('discipline'))
         }
 
-Discipline = ClassPersistenceTemplate.mk_persistent(Discipline, ['dis_id'], **args)
+Discipline = ClassPersistenceTemplate.mk_persistent(Discipline, ['dis_id'],\
+                                                        ,**args)
 
 #+end_src
 
@@ -721,7 +741,8 @@ class TestPersistentDeveloper(TestCase):
 
         dis_name = "IIT Kanpur"
         dis_id = "IITK"
-        discipline = Discipline(dis_name=dis_name, dis_id=dis_id, assets=[asset])
+        discipline = Discipline(dis_name=dis_name, dis_id=dis_id,
+                                    assets=[asset])
         discipline.save()
 
         dev_name = Name(name="Mohit Tahiliani")
@@ -752,14 +773,15 @@ class TestPersistentDeveloper(TestCase):
 #+begin_src python
 args = {"__tablename__": "hosting_info",
         "id": db.Column(db.Integer, primary_key=True),
-        "hosting_status": db.Column(db.String(255), unique=False, nullable=True),
+        "hosting_status": db.Column(db.String(255), unique=False,\
+                                        nullable=True),
         "hosted_url": db.Column(db.String(255), unique=True, nullable=False),
         "hosted_on": db.Column(db.String(255), unique=False, nullable=True),
-#        "labs": db.relationship('Lab', backref=db.backref('hosting_info')),
-#        "experiments": db.relationship('Experiment', backref=db.backref('hosting_info'))
        }
 
-HostingInfo = ClassPersistenceTemplate.mk_persistent(HostingInfo, ['hosted_url'], **args)
+HostingInfo = ClassPersistenceTemplate.mk_persistent(HostingInfo,\
+                                                         ['hosted_url'],\
+                                                         ,**args)
 
 #+end_src
 
@@ -804,7 +826,7 @@ class TestPersistenceHostingInfo(TestCase):
 #+begin_src python
 args = {"__tablename__": "asset",
         "id": db.Column(db.Integer, primary_key=True),
-        "asset_type": db.Column(db.String(255), unique=False, nullable=True),        
+        "asset_type": db.Column(db.String(255), unique=False, nullable=True),  
         "path": db.Column(db.String(255), unique=True, nullable=False)
        }
 
@@ -854,12 +876,16 @@ class TestPersistenceAsset(TestCase):
 #+begin_src python
 args = {"__tablename__": "integration_status",
         "id": db.Column(db.Integer, primary_key=True),
-        "integration_level": db.Column(db.Integer, unique=True, nullable=False),
-        "labs": db.relationship('Lab', backref=db.backref('integration_status')), 
-        "experiments": db.relationship('Experiment', backref=db.backref('integration_status')), 
+        "integration_level": db.Column(db.Integer, unique=True,\
+                                           nullable=False),
+        "labs": db.relationship('Lab', backref=\
+                                    db.backref('integration_status')), 
+        "experiments": db.relationship('Experiment', backref=\
+                                           db.backref('integration_status')), 
         "integration_level": db.Column(db.Integer, unique=True,
                                            nullable=False),
-        "labs": db.relationship('Lab', backref=db.backref('integration_status'))
+        "labs": db.relationship('Lab', backref=\
+                                    db.backref('integration_status'))
        }
 
 IntegrationStatus = ClassPersistenceTemplate.mk_persistent(IntegrationStatus,
@@ -891,7 +917,8 @@ class TestPersistenceIntegrationStatus(TestCase):
         intstatus.save()
         integration_status = IntegrationStatus.get_by_id(1)
         integration_status1 = IntegrationStatus.get_by_id(2)
-        self.assertEqual(integration_status.get("integration_level"), integration_level)
+        self.assertEqual(integration_status.get("integration_level"),\
+                             integration_level)
         self.assertEqual(integration_status1,None)
 
 #+END_SRC

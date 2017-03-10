@@ -1,0 +1,139 @@
+#    -*- mode: org -*-
+
+
+Archived entries from file /home/osboxes/vlabs/lab-data-service/src/runtime/system/persistence-delegate.org
+
+
+* Tests
+  :PROPERTIES:
+  :ARCHIVE_TIME: 2017-03-08 Wed 20:36
+  :ARCHIVE_FILE: ~/vlabs/lab-data-service/src/runtime/system/persistence-delegate.org
+  :ARCHIVE_OLPATH: Persistence Delegate/Other functions/Update lab
+  :ARCHIVE_CATEGORY: persistence-delegate
+  :END:
+#+NAME: test_persistence_update_lab
+#+BEGIN_SRC python
+    def test_update_lab(self):
+         print "test_update_lab"
+         lab_name = "Data Structures"
+         lab_id = "cse01"
+         overview = "overview lab"
+         experiments = []
+
+         asset_type = "Image"
+         path = "vlabs.ac.in/images/static/logo.png"
+         asset = Asset(asset_type=asset_type, path=path)
+         asset.save()
+
+         inst_name = "IIT Kanpur"
+         inst_id = "IITK"
+         inst = Institute(inst_name=inst_name, inst_id=inst_id, assets=[asset])
+         inst.save()
+
+         dis_name = "Electronics & Communications"
+         dis_id = "IITK"
+         discipline = Discipline(dis_name=dis_name, dis_id=dis_id,
+                                     assets=[asset])
+         discipline.save()
+
+         integration_level = 4
+         integration_status = IntegrationStatus(integration_level=
+                                                    integration_level)
+         integration_status.save()
+      
+         dev_name = Name(name="Mohit Tahiliani")
+         dev_name.save()
+         email_id = Email(email="mohit.tahiliani@gmail.com")
+         email_id.save()
+         dev = Developer(name=dev_name, email=email_id,
+                         institute=inst, discipline=discipline)
+         dev.save()
+
+         hosting_status = "hosted"
+         hosted_url = "http://cse14-iiith.vlabs.ac.in"
+         hosted_on = "cloud"
+         host = HostingInfo(hosting_status=hosting_status,
+<<<<<<< HEAD
+                                hosted_url=hosted_url,
+                                hosted_on=hosted_on)
+         host.save()
+
+         lab = Lab(lab_name=lab_name, lab_id=lab_id, overview=overview, 
+                       institute=inst, discipline=discipline, 
+                       assets=[asset], hosting_info=[host],
+                       experiments=experiments, developers=[dev], 
+                       integration_status=integration_status) 
+
+         lab1 = self.persistence_delegate.add_lab(lab)
+         lab_name1 = "Computer Programming"
+         overview1 = "overview"
+
+         inst_name1 = "IIT Kharagpur"
+         inst_id1 = "IITKgp"
+         inst1 = Institute(inst_name=inst_name1, inst_id=inst_id1,
+                               assets=[asset])
+         inst1.save()
+
+         dis_name1 = "Computer Science & Engineering"
+         dis_id1 = "IIT Kharagpur"
+         discipline1 = Discipline(dis_name=dis_name1, dis_id=dis_id1,
+                                      assets=[asset])
+         discipline1.save()
+
+         integration_level1 = 2
+         integration_status1 = IntegrationStatus(integration_level=\
+                                                     integration_level1)
+         integration_status1.save()
+
+         hosting_status1 = "hosted"
+         hosted_url1 = "http://cse13-iiith.vlabs.ac.in"
+         hosted_on1 = "cloud"
+         host1 = HostingInfo(hosting_status=hosting_status1,
+                                 hosted_url=hosted_url1,
+                                 hosted_on=hosted_on1)
+         host1.save()
+
+         dev_name1 = Name(name="Tahiliani")
+         dev_name1.save()
+         email_id1 = Email(email="tahiliani@gmail.com")
+         email_id1.save()
+         dev1 = Developer(name=dev_name1, email=email_id1,
+                         institute=inst1, discipline=discipline1)
+         dev1.save()
+
+         asset_type1 = "Image"
+         path1 = "vlabs.ac.in/images/static/image.png"
+         asset1 = Asset(asset_type=asset_type1, path=path1)
+         asset1.save()
+
+         lab2 = self.persistence_delegate.update_lab\
+           (lab1, lab_name1, overview1, inst1, discipline1,
+<<<<<<< HEAD
+                integration_status1, [host1]),
+=======
+                integration_status1, [host1], [dev1], [asset1]),
+>>>>>>> 830b5761a140520bffe83bde09764b7ce20f709e
+         lab2 = Lab.get_by_id(1)
+
+         self.assertEqual(lab2.get("lab_id"), lab_id)
+         self.assertEqual(lab2.get("lab_name"), lab_name1)
+         self.assertEqual(lab2.get("overview"), overview1)
+         self.assertEqual(lab2.get("institute").get("inst_id"), 
+                              inst1.get("inst_id"))
+         self.assertEqual(lab2.get("discipline").get("dis_id"), 
+                              discipline1.get("dis_id"))
+         self.assertEqual(lab2.get("integration_status").
+                              get("integration_level"), 
+                              integration_status1.get("integration_level"))
+
+         self.assertEqual(lab2.get("hosting_info")[0].get("hosted_url"), 
+                              hosted_url1)
+         self.assertEqual(lab2.get("developers")[0].get("email").get("email"), 
+                              email_id1.get("email"))
+         self.assertEqual(lab2.get("assets")[0].get("path"),
+                              asset1.get("path"))
+
+
+#+END_SRC
+
+
