@@ -2783,6 +2783,42 @@ class TestAddAssetsToLab(TestCase):
 #+END_SRC
 
 
+* Test GetSection
+#+NAME: test_get_section
+#+BEGIN_SRC python
+class TestGetName(TestCase):
+    TESTING = True
+
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_get_section(self):
+
+        print "test_get_section_in_system_persistence"
+        session_cls = System.delegate.entities['session']
+        section_cls = System.delegate.entities['section']
+
+        name1="Theory"
+        key = KEY
+        session = session_cls(key=key)
+        name = section_cls(name=name1)
+
+        name.save()
+
+        name2 = System.do("get_section", name=name, session=session)
+
+        self.assertEqual(name2.get("name"), name1)
+#+END_SRC
+
+
 * Infra                                                         :boilerplate:
 ** Tests
 *** Imports 
