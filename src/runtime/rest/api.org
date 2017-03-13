@@ -5296,10 +5296,10 @@ http://localhost:5000/hosting_info
 
 #+BEGIN_EXAMPLE
 {
-  "hosting_status": "hosted",
-  "hosted_url": "http://cse14-iiith.vlabs.ac.in",
-  "hosted_on": "cloud",
-  "id": 1
+    "hosted_on": "cloud",
+    "hosted_url": "http://cse14-iiith.vlabs.ac.in",
+    "hosting_status": "hosted",
+    "id": 1
 }
 #+END_EXAMPLE	       
 
@@ -5322,7 +5322,7 @@ def get_hosting_info():
        if 'hosted_url' in request.args:
            hosted_url  = request.args['hosted_url']
            try:
-               hosting_info = SystemInterface.get_hosting_info(hosted_url)
+               hosting_info = SystemInterface.get_hosting_info_by_hosted_url(hosted_url)
                return jsonify(hosting_info)
 
            except NotAuthorizedError as e:
@@ -6257,7 +6257,7 @@ class TestGetNames(TestCase):
 
  #+END_SRC
    
-
+ 
 ** Add Name
 *** API Design
 **** Add names
@@ -6401,7 +6401,54 @@ class TestAddName(TestCase):
       + Contents :
 
 #+BEGIN_EXAMPLE
-[{"id": 1, "dev_name": "Prof. Dharamraj", "email_id": "dharamraj@gmail.com"}]
+[
+    {
+        "discipline": {
+            "dis_id": "cse",
+            "assets": [],
+            "dis_name": "Computer Science and Engineering",
+            "id": 6
+        },
+        "institute": {
+            "id": 8,
+            "inst_name": "IIT Kanpur",
+            "assets": [],
+            "inst_id": "iitk"
+        },
+        "id": 1,
+        "name": {
+            "name": "Prof. Dharamrajiiiiii",
+            "id": 4
+        },
+        "email": {
+            "email": "dharamrajiiiiii@gmail.com",
+            "id": 4
+        }
+    },
+    {
+        "discipline": {
+            "dis_id": "cse",
+            "assets": [],
+            "dis_name": "Computer Science and Engineering",
+            "id": 6
+        },
+        "institute": {
+            "id": 8,
+            "inst_name": "IIT Kanpur",
+            "assets": [],
+            "inst_id": "iitk"
+        },
+        "id": 2,
+        "name": {
+            "name": "Prof. Dharam",
+            "id": 5
+        },
+        "email": {
+            "email": "dharam@gmail.com",
+            "id": 5
+        }
+    }
+]
 #+END_EXAMPLE	       
 
     
@@ -6564,8 +6611,11 @@ class TestGetDeveloper(TestCase):
   - Payload :: 
 #+BEGIN_EXAMPLE
 {
-"name": "Prof. Dharamraj",
-"email": "dharamraj@gmail.com",
+"name": "Prof. Dharam",
+"email": "dharam@gmail.com",
+"inst_id": "IITK",
+"dis_id": "cse",
+"assets": ["vlabs.ac.in/static/images/logo.png"],
 "key": "<key>"
 }
 #+END_EXAMPLE	       
@@ -6574,11 +6624,54 @@ class TestGetDeveloper(TestCase):
     + Status_Code: 200
     + Content: 
 #+BEGIN_EXAMPLE
-{
-  "id": 1,
-  "name": "Prof. Dharamraj",
-  "email": "dharamraj@gmail.com"
-}
+[
+    {
+        "discipline": {
+            "dis_id": "cse",
+            "assets": [],
+            "dis_name": "Computer Science and Engineering",
+            "id": 6
+        },
+        "institute": {
+            "id": 8,
+            "inst_name": "IIT Kanpur",
+            "assets": [],
+            "inst_id": "iitk"
+        },
+        "id": 1,
+        "name": {
+            "name": "Prof. Dharamrajiiiiii",
+            "id": 4
+        },
+        "email": {
+            "email": "dharamrajiiiiii@gmail.com",
+            "id": 4
+        }
+    },
+    {
+        "discipline": {
+            "dis_id": "cse",
+            "assets": [],
+            "dis_name": "Computer Science and Engineering",
+            "id": 6
+        },
+        "institute": {
+            "id": 8,
+            "inst_name": "IIT Kanpur",
+            "assets": [],
+            "inst_id": "iitk"
+        },
+        "id": 2,
+        "name": {
+            "name": "Prof. Dharam",
+            "id": 5
+        },
+        "email": {
+            "email": "dharam@gmail.com",
+            "id": 5
+        }
+    }
+]
 
 #+END_EXAMPLE
 
@@ -7305,7 +7398,7 @@ class TestDeleteLab(TestCase):
 "hosted_on": "server"}],
 "sections": ["Theory", "Procedure"],
 "integration_level": 4,
-"key":"defaultkey"
+"key":"<key>"
 }
 
 #+END_EXAMPLE	       
@@ -9965,7 +10058,11 @@ http://localhost:5000/assets
       + Contents :
 
 #+BEGIN_EXAMPLE
-{"asset_type": "Image", "id": 1, "path": "vlabs.ac.in/images/static/logo.png"}
+{
+    "asset_type": "Image",
+    "id": 3,
+    "path": "vlabs.ac.in/images/static/icon.png"
+}
 #+END_EXAMPLE	       
 
     
@@ -9988,7 +10085,7 @@ def get_asset():
        if 'path' in request.args:
            path  = request.args['path']
            try:
-               asset = SystemInterface.get_asset(path)
+               asset = SystemInterface.get_asset_by_path(path)
                return jsonify(asset)
 
            except TypeError as e:
