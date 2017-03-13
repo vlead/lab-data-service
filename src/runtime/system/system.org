@@ -734,7 +734,7 @@ class UpdateInstitute():
 #+NAME: class_update_name
 #+begin_src python
 class UpdateName():
-    arg_types = {"name": is_name, "session": is_session}
+    arg_types = {"name": is_name, "n_name": is_str, "session": is_session}
     arity_and_type_checks_needed = True
 
     @staticmethod
@@ -754,11 +754,11 @@ class UpdateName():
     def action(args):
         name = args["name"]
         if not "name" in args:
-           name=name.get("name")
+           n_name=name.get("name")
         else:
-           name=args["name"]
+           n_name=args["name"]
 
-        section = System.delegate.update_name(name, name)
+        name = System.delegate.update_name(name, n_name)
         return name
 
 #+end_src
@@ -1932,7 +1932,8 @@ ops_table = {'add_lab' : AddLab,
              'get_asset': GetAsset,
              'update_asset': UpdateAsset,
              'add_assets_to_lab': AddAssetsToLab, 
-             'get_section': GetSection
+             'get_section': GetSection, 
+             'update_name': UpdateName
              #'get_labs_by_asset': GetLabsByAsset,
              #'get_asset_by_asset_type': GetAssetByAssetType
              }
@@ -2050,6 +2051,7 @@ if __name__ == '__main__':
 <<class_delete_asset>>
 <<class_add_assets_to_lab>>
 <<class_get_section>>
+<<class_update_name>>
 #<<class_get_labs_by_asset>>
 #<<class_get_asset_by_asset_type>>
 <<ops_table>>

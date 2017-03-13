@@ -1547,7 +1547,6 @@ class TestPersistenceDelegate(TestCase):
 
 #+END_SRC
 
-
 ***  Update developer
     This function updates existing developer.
 #+NAME: persistence_update_developer
@@ -3814,6 +3813,35 @@ class TestPersistenceDelegate(TestCase):
 
 #+END_SRC
 
+***  Update Name
+    This function updates existing name.
+#+NAME: persistence_update_name
+#+BEGIN_SRC python
+    def update_name(self, name, n_name):
+        name.set(name=n_name)
+        name.save()
+        return name
+
+#+END_SRC
+
+**** Tests
+
+#+NAME: test_persistence_update_name
+#+BEGIN_SRC python
+    def test_update_name(self):
+         print "test_update_name"
+         n_name = "Prof. Dharamraj"
+         name = Name(name=n_name)
+         name1 = self.persistence_delegate.add_name(name)
+         n_name1 = "Prof. Dharam"         
+         name2 = self.persistence_delegate.update_name\
+           (name1, n_name1)
+         name2 = Name.get_by_id(1)
+         self.assertEqual(name2.get("name"), n_name1)
+
+#+END_SRC
+
+
 
 * Infra                                                         :boilerplate:
 
@@ -3942,6 +3970,8 @@ if __name__ == '__main__':
 <<persistence_get_name>>
 <<persistence_get_email>>
 <<persistence_get_developer>>
+<<persistence_update_name>>
+
 #+end_src
 
 
@@ -4025,6 +4055,7 @@ if __name__ == '__main__':
 <<test_persistence_get_name>>
 <<test_persistence_get_email>>
 <<test_persistence_get_developer>>
+<<test_persistence_update_name>>
 <<run_test_cases>>
 
 #+end_src
