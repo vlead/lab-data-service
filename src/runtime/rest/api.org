@@ -15,7 +15,7 @@
 
 
 * REST
-  
+
 ** Get Labs, Get Lab, Get Labs by institute, lab_name, discipline and asset and Get labs by passing lab_name as keyword
 *** API Designs 
 **** Get all labs
@@ -2557,6 +2557,18 @@ class TestAddLab(TestCase):
         "inst_name": "NIT Surathkal",
         "assets": [],
         "inst_id": "nitk"
+    },
+    {
+        "id": 13,
+        "inst_name": "IIT Hyderabad",
+        "assets": [
+            {
+                "path": "vlabs.ac.in/images/static/logo.png",
+                "asset_type": "Image",
+                "id": 1
+            }
+        ],
+        "inst_id": " IITH"
     }
 ]
 #+END_EXAMPLE	       
@@ -2589,10 +2601,16 @@ http://localhost:5000/institutes
 
 #+BEGIN_EXAMPLE
 {
-    "assets": [],
-    "id": 7,
-    "inst_id": "iiith",
-    "inst_name": "IIIT Hyderabad"
+    "assets": [
+        {
+            "asset_type": "Image",
+            "id": 1,
+            "path": "vlabs.ac.in/images/static/logo.png"
+        }
+    ],
+    "id": 14,
+    "inst_id": "IITH",
+    "inst_name": "IIT Hyderabad"
 }
 #+END_EXAMPLE	       
 
@@ -2780,10 +2798,10 @@ class TestGetInstitute(TestCase):
   - Payload :: 
 #+BEGIN_EXAMPLE
 {
-"inst_id": "iiith",
-"inst_name": "IIIT Hyderabad",
+"inst_id": " IITH",
+"inst_name": "IIT Hyderabad",
 "key": "<key>",
-"assets": "vlabs.ac.in/images/static/logo.png" 
+"assets": ["vlabs.ac.in/images/static/logo.png"]
 }
 #+END_EXAMPLE	       
 
@@ -2792,11 +2810,17 @@ class TestGetInstitute(TestCase):
     + Content: 
 #+BEGIN_EXAMPLE
 {
-  "id": 1, 
-  "inst_id": "iiith", 
-  "inst_name": "IIIT Hyderabad"
+    "assets": [
+        {
+            "asset_type": "Image",
+            "id": 1,
+            "path": "vlabs.ac.in/images/static/logo.png"
+        }
+    ],
+    "id": 13,
+    "inst_id": " IITH",
+    "inst_name": "IIT Hyderabad"
 }
-
 #+END_EXAMPLE
 
   - Error Response:
@@ -3006,6 +3030,18 @@ class TestAddInstitute(TestCase):
         "assets": [],
         "dis_name": "Material Sciences",
         "id": 14
+    },
+    {
+        "dis_id": "ab",
+        "assets": [
+            {
+                "path": "vlabs.ac.in/images/static/logo.png",
+                "asset_type": "Image",
+                "id": 1
+            }
+        ],
+        "dis_name": "Auto Mobiles",
+        "id": 15
     }
 ]
 #+END_EXAMPLE	       
@@ -3038,10 +3074,16 @@ http://localhost:5000/disciplines
 
 #+BEGIN_EXAMPLE
 {
-    "assets": [],
-    "dis_id": "cse",
-    "dis_name": "Computer Science and Engineering",
-    "id": 6
+    "assets": [
+        {
+            "asset_type": "Image",
+            "id": 1,
+            "path": "vlabs.ac.in/images/static/logo.png"
+        }
+    ],
+    "dis_id": "ab",
+    "dis_name": "Auto Mobiles",
+    "id": 15
 }
 #+END_EXAMPLE	       
 
@@ -3230,9 +3272,10 @@ class TestGetDisciplineByDisId(TestCase):
   - Payload :: 
 #+BEGIN_EXAMPLE
 {
-"dis_id": "cse",
-"dis_name": "Computer Science",
-  "key": "<key>"
+"dis_id": "ab",
+"assets": ["vlabs.ac.in/images/static/logo.png"], 
+"dis_name": "Auto Mobiles",
+"key": "<key>"
 }
 #+END_EXAMPLE	       
 
@@ -3241,9 +3284,16 @@ class TestGetDisciplineByDisId(TestCase):
     + Content: 
 #+BEGIN_EXAMPLE
 {
-  "dis_id": "cse", 
-  "dis_name": "Computer Science", 
-  "id": 1
+    "assets": [
+        {
+            "asset_type": "Image",
+            "id": 1,
+            "path": "vlabs.ac.in/images/static/logo.png"
+        }
+    ],
+    "dis_id": "ab",
+    "dis_name": "Auto Mobiles",
+    "id": 15
 }
 
 #+END_EXAMPLE
@@ -4741,7 +4791,40 @@ class TestAddHosting_Info(TestCase):
       + Contents :
 
 #+BEGIN_EXAMPLE
-[{"integration_level": 4, "id": 1}]
+[
+    {
+        "integration_level": 0,
+        "id": 1
+    },
+    {
+        "integration_level": 1,
+        "id": 2
+    },
+    {
+        "integration_level": 2,
+        "id": 3
+    },
+    {
+        "integration_level": 3,
+        "id": 4
+    },
+    {
+        "integration_level": 4,
+        "id": 5
+    },
+    {
+        "integration_level": 5,
+        "id": 6
+    },
+    {
+        "integration_level": 6,
+        "id": 7
+    },
+    {
+        "integration_level": 9,
+        "id": 8
+    }
+]
 #+END_EXAMPLE	       
 
     
@@ -4886,7 +4969,7 @@ class TestGetIntegration_Status(TestCase):
   - Payload :: 
 #+BEGIN_EXAMPLE
 {
-"integration_level": 4,
+"integration_level": 9,
 "key": "<key>"
 }
 #+END_EXAMPLE	       
@@ -5662,8 +5745,6 @@ class TestGetDeveloper(TestCase):
 {
 "name": "Prof. Dharamraj",
 "email": "dharamraj@gmail.com",
-"inst_id":"iiith",
-"dis_id":"cse",
 "key": "<key>"
 }
 #+END_EXAMPLE	       
@@ -5673,27 +5754,9 @@ class TestGetDeveloper(TestCase):
     + Content: 
 #+BEGIN_EXAMPLE
 {
-  "discipline": {
-    "assets": [], 
-    "dis_id": "cse", 
-    "dis_name": "Computer Science and Engineering", 
-    "id": 6
-  }, 
-  "email": {
-    "email": "dharamraj@gmail.com", 
-    "id": 1
-  }, 
-  "id": 1, 
-  "institute": {
-    "assets": [], 
-    "id": 7, 
-    "inst_id": "iiith", 
-    "inst_name": "IIIT Hyderabad"
-  }, 
-  "name": {
-    "id": 1, 
-    "name": "Prof. Dharamraj"
-  }
+  "id": 1,
+  "name": "Prof. Dharamraj",
+  "email": "dharamraj@gmail.com"
 }
 
 #+END_EXAMPLE
@@ -6703,7 +6766,7 @@ class TestUpdateExperiment(TestCase):
 #+BEGIN_EXAMPLE
 
 {
-  "key" : "<key",
+  "key" : "<key>",
   "name" : "Quiz"
 }
 
@@ -6745,7 +6808,12 @@ http://localhost:5000/sections/1
   - Success Response
     + Status_Code: 200
       + Contents :
-                 { "status" : "success" }
+#+BEGIN_EXAMPLE
+{
+  "status": "sucess"
+}
+
+#+END_EXAMPLE
     
   - Error Response:
     + Contents :
@@ -7024,7 +7092,7 @@ class TestGetSectionbyid(TestCase):
   :PROPERTIES:
   :CUSTOM_ID: api_update_institutes_by_instid
   :END:    
-  - URL :: /institutes/<inst_id>
+  - URL :: /institutes?<inst_id>
 
   - Method :: PUT
 
@@ -7145,9 +7213,13 @@ class TestUpdateInstitute(TestCase):
                                  headers=headers)
 
         payload = {'inst_name': 'IIT Kharagpur',
-                   'inst_id': 'IITKgp',
                    'assets': ['vlabs.ac.in/images/static/logo.png'],
                    'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/institutes", data=json.dumps(payload),
+                                 headers=headers)
 
         payload1 = {'asset_type': 'Video',
                    'path': 'vlabs.ac.in/images/video/icon.png',
@@ -7159,12 +7231,10 @@ class TestUpdateInstitute(TestCase):
                                  headers=headers)
 
         payload1 = {'inst_name': 'IIT Kanpur',
-                   'key': KEY}
+                    'assets': ['vlabs.ac.in/images/static/icon.png'], 
+                    'key': KEY}
 
         headers = {'Content-Type': 'application/json'}
-
-        response = self.client.post("/institutes", data=json.dumps(payload),
-                                 headers=headers)
 
         response = self.client.put("/institutes?inst_id=IITKgp", data=json.dumps(payload1),
                                  headers=headers)
@@ -7204,7 +7274,7 @@ class TestUpdateInstitute(TestCase):
     
   - Example:
 #+BEGIN_EXAMPLE
-http://localhost:5000/institutes?inst_id=iiith&key=defaultkey
+http://localhost:5000/institutes?inst_id=iiith&key=<key>
 #+END_EXAMPLE
 
 *** Implementation
@@ -7317,18 +7387,26 @@ class TestDeleteInstitute(TestCase):
   - Payload :: 
 #+BEGIN_EXAMPLE
 {
-"dis_name": "Computer Science and Engineering",
-  "key": "<key>"
+"dis_name": "Auto Mobiles and Engineering",
+"assets": ["vlabs.ac.in/images/static/logo.png"],
+  "key": "defaultkey"
 }
 #+END_EXAMPLE
   - Success Response
     + Status_Code: 200
       + Contents :
 #+BEGIN_EXAMPLE
- {
-  "dis_id": "cse", 
-  "dis_name": "Computer Science and Engineering", 
-  "id": 1
+{
+    "assets": [
+        {
+            "asset_type": "Image",
+            "id": 1,
+            "path": "vlabs.ac.in/images/static/logo.png"
+        }
+    ],
+    "dis_id": "ab",
+    "dis_name": "Auto Mobiles and Engineering",
+    "id": 15
 }
 
 #+END_EXAMPLE
@@ -8039,7 +8117,7 @@ class TestDeleteHosting_Info(TestCase):
   :PROPERTIES:
   :CUSTOM_ID: api_delete_integration_status_by_integration_level
   :END:    
-  - URL :: /integration_status?<integration_level>&key=<key>
+  - URL :: /integration_status?integration_level=<integration_level>&key=<key>
 
   - Method :: DELETE
 
