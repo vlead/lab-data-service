@@ -6556,7 +6556,7 @@ def update_experiment():
         
         try:
             exp = SystemInterface.update_experiment(data_dict)
-            return jsonify(exp)
+            return jsonify({"status":"sucess"})
 
         except NotAuthorizedError as e:
             err_str = str(e)
@@ -7670,7 +7670,7 @@ class TestDeleteDiscipline(TestCase):
   :PROPERTIES:
   :CUSTOM_ID: update_hosting_info_by_hosted_url
   :END:    
-  - URL :: /hosting_info/<hosted_url>
+  - URL :: /hosting_info?hosted_url=<hosted_url>
 
   - Method :: PUT
 
@@ -8232,36 +8232,9 @@ class TestDeleteIntegration_Status(TestCase):
 ** Delete Email
 *** API Design
 **** Delete email
-  :PROPERTIES:
-  :CUSTOM_ID: delete_email_by_email
-  :END:    
-  - URL :: /emails?<email>&key=<key>
-
-  - Method :: DELETE
-
-  - URL Params ::  None
-
-  - Payload :: 
-
-  - Success Response
-    + Status_Code: 200
-      + Contents :
-#+BEGIN_EXAMPLE
-{
-  "status": "sucess"
-}
-
-#+END_EXAMPLE
-    
-  - Error Response:
-    + Contents :
-                {"status" : "error"}
-    
-  - Example:
-#+BEGIN_EXAMPLE
-    http://localhost:5000/emails?email=dharamraj@gmail.com&key=<key>
-#+END_EXAMPLE
-
+     Since Email is associated with developer entity. Deleting developer will
+     delete corresponding email id. 
+     
 *** Implementation
 #+NAME: delete_email
 #+BEGIN_SRC python
