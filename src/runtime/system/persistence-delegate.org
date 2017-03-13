@@ -2013,10 +2013,10 @@ class TestPersistenceDelegate(TestCase):
     This function delete existing name.
 #+NAME: persistence_delete_name
 #+BEGIN_SRC python
-    def delete_name(self, name):
-        record = self.get_name(name=name.get("name"))
+    def delete_name(self, n_id):
+        record = Name.get_by_id(n_id)
         if not record:
-            abort(404, 'No Name with id %s' % (name))
+            abort(404, 'No Name with id %s' % (n_id))
         else:
             try:
                 record.delete()
@@ -2026,7 +2026,7 @@ class TestPersistenceDelegate(TestCase):
                 print e
                 abort(500, str(e))
 
-        return name
+        return n_id
 
 #+END_SRC
 
@@ -2043,7 +2043,7 @@ class TestPersistenceDelegate(TestCase):
          name2 = Name(name=name1)
          name2.save()
 
-         self.persistence_delegate.delete_name(name2)
+         self.persistence_delegate.delete_name(1)
 
          self.assertEqual(len(Name.get_all()), 1)
 

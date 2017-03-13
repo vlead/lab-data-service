@@ -1392,6 +1392,45 @@ class TestDeleteInstitute(TestCase):
 
 
 
+* Test DeleteSection
+#+NAME:  test_delete_section
+#+BEGIN_SRC python
+class TestDeleteSection(TestCase):
+
+    TESTING = True
+
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_delete_section(self):
+        print "test_delete_section_in_system_persistence"
+        session_cls = System.delegate.entities['session']
+        section_cls = System.delegate.entities['section']
+
+        name = "theory"
+        key = KEY
+        session = session_cls(key=key)
+        section1 = section_cls(name=name)
+        section1.save()
+
+        name1 = "procedure"
+        section2 = section_cls(name=name1)
+        section2.save()
+        section3 = System.do("delete_section", s_id=1, session=session)
+
+        self.assertEqual(len(section_cls.get_all()), 1)
+
+#+END_SRC
+
+
 * Test DeleteName 
 #+NAME:  test_delete_name 
 #+BEGIN_SRC python
@@ -1419,10 +1458,14 @@ class TestDeleteName(TestCase):
         key = KEY
         session = session_cls(key=key)
         name1 = name_cls(name=name)
-
         name1.save()
-        name2 = System.do("delete_name", name=name1, session=session)
-        self.assertEqual(name, name2.get("name"))
+
+        name2 = "Prof. Raja"
+        name3 = name_cls(name=name2)
+        name3.save()
+        name4 = System.do("delete_name", n_id=1, session=session)
+
+        self.assertEqual(len(name_cls.get_all()), 1)
 
 #+END_SRC
 
@@ -2958,6 +3001,7 @@ if __name__ == '__main__':
 <<test_get_labs_by_discipline>>
 <<test_get_integration_status_by_IL>>
 <<test_update_name>>
+<<test_delete_section>>
 <<run_test_cases>>
 
 #+end_src
