@@ -1,6 +1,6 @@
 #!/bin/bash
 
-DB_NAME="feedback"
+DB_NAME="lds"
 DB_PASS="xxx"
 VERSION="v1.0.0"
 

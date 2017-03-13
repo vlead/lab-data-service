@@ -11,111 +11,6 @@
 This holds the application's configuration parameters.
 
 
-* Feedback Forms
-  The feedback service can work with multiple feedback forms.  The set of
-  questions and meta data about questions like type of a question - whether it
-  is a =textbox= or a =radiobutton= or a =checkbox= along with the options that
-  a user can select for each question are captured as key value pairs.  This
-  information is rendered on the client dynamically when a feedback form is
-  requested.
-#+NAME: feedback_forms
-#+BEGIN_SRC python
-
-
-
-feedback_forms = [
-    {'version': 'open-edx-virtual-labs-v2.0_for_experiment',
-     'questions': [
-         {'id' : '1', 'name': 'Designation', 'type': 'radio',
-          'options': ["Student", "Instructor", "Others"],'driver' : [], 'mandatory' : 'Yes'},
-	 {'id' : '2', 'name':'Did you attempt the experiment?', 'type':'radio',
-	  'options':['Yes', 'No'], 'driver' : [3,4,7], 'mandatory' : 'Yes'},
-	 {'id' : '3','name':'Did the experiment work?', 'type':'radio',
-	  'options': ['Yes', 'No', 'Not applicable'],'mandatory' : 'Yes'},
-         {'id' : '4','name': 'Did you find any bugs in the experiment?', 'type': 'radio',
-	  'options': ["Yes", "No", "Not applicable"],'linked_answer' : 'Yes', 'mandatory' : 'Yes'},
-	 {'id' : '5','name': 'How much did you know about the experiment before doing it in Virtual Labs?', 'type': 'radio',
-	  'options': ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"],'mandatory' : 'Yes'},
-	 {'id' : '6','name': 'Is this experiment part of your curriculum?', 'type': 'radio',
-	  'options': ["Yes", "No", "Don't know", "Not applicable"],'mandatory' : 'Yes'},
-	 {'id' : '7','name': 'Did this experiment help you understand the concept better?', 'type': 'radio',
-	  'options': ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "Not applicable"],'mandatory' : 'Yes'},
-	 {'id' : '8','name': 'Will you recommend this experiment to others?', 'type': 'radio',
-	  'options': ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"],'mandatory' : 'Yes'},
-         {'id' : '9', 'name': 'Please provide any other feedback about this experiment', 'type': 'textarea',
-	  'options': ["Yes"],'mandatory' : 'No'}
-     ]},    
-    {'version': 'open-edx-virtual-labs-v2.0_for_lab',
-     'questions': [
-         {'id' : '1', 'name': 'Designation', 'type': 'radio',
-          'options': ["Student", "Instructor", "Others"],'driver' : [], 'mandatory' : 'Yes'},
-	 {'id' : '2', 'name': 'How much did you know about the lab?', 'type': 'radio',
-	  'options': ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"],'driver' : [], 'mandatory' : 'Yes'},
-	 {'id' : '3', 'name': 'Is this lab part of your curriculum?', 'type': 'radio',
-	  'options': ["Yes", "No", "Don't know", "Not applicable"],'mandatory' : 'Yes'},
-         {'id' : '4','name': "Did you find any bugs in the lab?", 'type': 'radio', 'linked_answer' : 'Yes', 'options': ["Yes", "No"],'mandatory' : 'Yes'},
-	 {'id' : '5','name': 'Did this lab help you understand the concept better?', 'type': 'radio',
-	  'options': ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"],'linked_answer' : 'No','mandatory' : 'Yes'},
-	 {'id' : '6','name': 'Will you recommend this lab to others?', 'type': 'radio',
-	  'options': ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"],'mandatory' : 'Yes'},
-         {'id' : '7','name': 'Please provide any other feedback about this lab', 'type': 'textarea',
-         'options': ["Yes"],'mandatory' : 'No'}
-]},
-
-    {'version': 'generic-feedback-v2.0',
-     'questions': [
-     {'id' : '1', 'name': 'Designation', 'type': 'radio',
-      'options': ["Student", "Instructor", "Others"],'driver' : [], 'mandatory' : 'Yes'},
-     {'id' : '2', 'name': 'Did you attempt any experiments ?', 'driver' : [], 'type': 'radio',
-      'options': ["Yes", "No"],'mandatory' : 'Yes'},
-     {'id' : '3','name': "Please rate your experience", 'type': 'radio', 'options': ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"],'mandatory' : 'Yes'},
-     {'id' : '4','name': 'Please provide any other feedback about Virtual Labs', 'type': 'textarea',
-      'options': ["Yes"],'linked_answer' : 'No','mandatory' : 'No'},
-     ]},
-
-    {'version': 'generic-exp-feedback-v2.0',
-     'questions': [
-         {'id' : '1', 'name': 'Designation', 'type': 'radio',
-          'options': ["Student", "Instructor", "Others"],'driver' : [], 'mandatory' : 'Yes'},
-	 {'id' : '2', 'name':'Did you attempt the experiment?', 'type':'radio',
-	  'options':['Yes', 'No'], 'driver' : [3,4,7], 'mandatory' : 'Yes'},
-	 {'id' : '3','name':'Did the experiment work?', 'type':'radio',
-	  'options': ['Yes', 'No', 'Not applicable'],'mandatory' : 'Yes'},
-         {'id' : '4','name': 'Did you find any bugs in the experiment?', 'type': 'radio',
-	  'options': ["Yes", "No", "Not applicable"],'linked_answer' : 'Yes', 'mandatory' : 'Yes'},
-	 {'id' : '5','name': 'How much did you know about the experiment before doing it in Virtual Labs?', 'type': 'radio',
-	  'options': ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"],'mandatory' : 'Yes'},
-	 {'id' : '6','name': 'Is this experiment part of your curriculum?', 'type': 'radio',
-	  'options': ["Yes", "No", "Don't know", "Not applicable"],'mandatory' : 'Yes'},
-	 {'id' : '7','name': 'Did this experiment help you understand the concept better?', 'type': 'radio',
-	  'options': ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "Not applicable"],'mandatory' : 'Yes'},
-	 {'id' : '8','name': 'Will you recommend this experiment to others?', 'type': 'radio',
-	  'options': ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"],'mandatory' : 'Yes'},
-         {'id' : '9', 'name': 'Please provide any other feedback about this experiment', 'type': 'textarea',
-	  'options': ["Yes"],'mandatory' : 'No'}
-     ]},    
-    {'version': 'generic-lab-feedback-v2.0',
-     'questions': [
-         {'id' : '1', 'name': 'Designation', 'type': 'radio',
-          'options': ["Student", "Instructor", "Others"],'driver' : [], 'mandatory' : 'Yes'},
-	 {'id' : '2', 'name': 'How much did you know about the lab?', 'type': 'radio',
-	  'options': ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"],'driver' : [], 'mandatory' : 'Yes'},
-	 {'id' : '3', 'name': 'Is this lab part of your curriculum?', 'type': 'radio',
-	  'options': ["Yes", "No", "Don't know", "Not applicable"],'mandatory' : 'Yes'},
-         {'id' : '4','name': "Did you find any bugs in the lab?", 'type': 'radio', 'linked_answer' : 'Yes', 'options': ["Yes", "No"],'mandatory' : 'Yes'},
-	 {'id' : '5','name': 'Did this lab help you understand the concept better?', 'type': 'radio',
-	  'options': ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"],'linked_answer' : 'No','mandatory' : 'Yes'},
-	 {'id' : '6','name': 'Will you recommend this lab to others?', 'type': 'radio',
-	  'options': ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"],'mandatory' : 'Yes'},
-         {'id' : '7','name': 'Please provide any other feedback about this lab', 'type': 'textarea',
-         'options': ["Yes"],'mandatory' : 'No'}
-]}
-
-]
-
-#+END_SRC
-
-
 * Flask Application Configuration
   Configuration for the flask application. 
 #+NAME: flask_app_config
@@ -141,7 +36,7 @@ WHITELIST_IPS = ["127.0.0.1"]
 
 # Configure your log paths
 LOG_FILE_DIRECTORY = 'logs'
-LOG_FILE = 'feedback.log'
+LOG_FILE = 'lds.log'
 
 # Log level for the application
 #10=DEBUG, 20=INFO, 30=WARNING, 40=ERROR, 50=CRITICAL",
@@ -160,12 +55,6 @@ KEY="defaultkey"
 
 
 * Tangling                                                      :boilerplate:
-** feedback_forms
-#+BEGIN_SRC python :tangle feedback_forms.py :eval no :noweb yes
-<<feedback_forms>>
-#+end_src
-
-
 ** flask_app_config
 #+BEGIN_SRC python :tangle flask_app_config.py :eval no :noweb yes
 <<flask_app_config>>
