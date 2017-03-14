@@ -400,7 +400,13 @@ class TestAddLab(TestCase):
         del(data_dict['key'])
 
         sections = data_dict['sections']
-        data_dict['sections'] = []
+        section_list = []
+        for section_x in sections:
+            section = System.do("get_section", name=section_x)
+            if section is None:
+                section = section_cls(name=str(section_x))
+                section = System.do("add_section", section=section, session=session)
+            section_list.append(section)
 
         inst_id = data_dict['inst_id']
         institute = System.do("get_institute", inst_id=inst_id)
@@ -451,7 +457,7 @@ class TestAddLab(TestCase):
         experiment = experiment_cls(exp_name=data_dict['exp_name'],
                                 exp_id=data_dict['exp_id'],
                                 overview=data_dict['overview'],
-                                sections=data_dict['sections'],
+                                sections=section_list,
                                 institute=institute,
                                 discipline=discipline,
                                 assets=asset_list,
@@ -460,9 +466,10 @@ class TestAddLab(TestCase):
                                 hosting_info=hosting_info_list)
         try:
             current_app.logger.debug("running operation add_experiment")
-            question = System.do("add_experiment", experiment=experiment, 
+            experiment = System.do("add_experiment", experiment=experiment, 
                                     session=session)
             current_app.logger.debug("completed operation add_experiment")
+            return experiment
 
         except (ArityError, TypeError, NotAuthorizedError, StateError) as err:
             current_app.logger.error("Exception = %s" % str(err))
@@ -578,7 +585,7 @@ class TestAddExperiment(TestCase):
                     }
 
         experiment = SystemInterface.add_experiment(data_dict)
-
+        
         self.assertEqual(experiment.get("exp_name"), 
                              data_dict['exp_name'])
         self.assertEqual(experiment.get("exp_id"), data_dict['exp_id'])
@@ -594,7 +601,7 @@ class TestAddExperiment(TestCase):
                              'http://cse14-iiith.vlabs.ac.in')
         self.assertEqual(experiment.get("developers")[0].get("email").\
                              get("email"), 'abc@gmail.com')
-        self.assertEqual(experiment.get("sections")[0]['name'], 'Theory')
+        self.assertEqual(experiment.get("sections")[0].get("name"), 'Theory')
 
     def test_add_experiment_raises_type_error_in_system_interface(self):
         print "test_add_experiment_raises_type_error_in_system_interface"
