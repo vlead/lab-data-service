@@ -528,8 +528,10 @@ class AddIntegration_Status():
 #+begin_src python
 class UpdateLab():
     arg_types = {"lab": is_lab, "lab_name": is_str,
-                     "overview" : is_str, "session": is_session,
-                     "institute" : is_institute, "discipline" : is_discipline,
+                     "overview" : is_str, 
+                     "session": is_session,
+                     "institute" : is_institute, 
+                     "discipline" : is_discipline,
                      "hosting_info": are_hosting_info, 
                      "developers": are_developers,
                      "assets": are_assets, "experiments":are_experiments,
@@ -583,7 +585,10 @@ class UpdateExperiment():
                      "institute": is_institute,
                      "discipline": is_discipline,
                      "integration_status": is_integration_status,
-                     "hosting_info": are_hosting_info}
+                     "hosting_info": are_hosting_info,
+                     "developers": are_developers,
+                     "assets": are_assets, 
+                     "sections": are_sections}
     arity_and_type_checks_needed = True
 
     @staticmethod
@@ -608,10 +613,14 @@ class UpdateExperiment():
         discipline = args["discipline"]
         integration_status = args["integration_status"]
         hosting_info = args["hosting_info"]
+        developers = args["developers"]
+        assets = args["assets"]
+        sections = args["sections"]
         exp = System.delegate.update_experiment(experiment, exp_name, overview,
                                                 institute, discipline, 
                                                 integration_status, 
-                                                hosting_info)
+                                                hosting_info, developers,
+                                                assets, sections)
         return exp
 
 #+end_src
@@ -1844,6 +1853,31 @@ class GetAssetByAssetType():
 #+end_src
 
 
+** =GetSection=
+#+NAME: class_get_section
+#+begin_src python
+class GetSection():
+    arg_types = {"name": is_str}
+    arity_and_type_checks_needed = True
+
+    @staticmethod
+    def auth_check(args):
+        pass
+
+    @staticmethod
+    def state_check(args):
+        pass
+
+    @staticmethod
+    def action(args):
+        name = args["name"]
+        section = System.delegate.get_section(name=name)
+        return section
+
+#+end_src
+
+
+
 ** Operations Table
    Each operation has a corresponding implementation defined as a class.
 
@@ -1896,7 +1930,8 @@ ops_table = {'add_lab' : AddLab,
              'delete_asset': DeleteAsset,
              'get_asset': GetAsset,
              'update_asset': UpdateAsset,
-             'add_assets_to_lab': AddAssetsToLab
+             'add_assets_to_lab': AddAssetsToLab, 
+             'get_section': GetSection
              #'get_labs_by_asset': GetLabsByAsset,
              #'get_asset_by_asset_type': GetAssetByAssetType
              }
@@ -2013,6 +2048,7 @@ if __name__ == '__main__':
 <<class_update_asset>>
 <<class_delete_asset>>
 <<class_add_assets_to_lab>>
+<<class_get_section>>
 #<<class_get_labs_by_asset>>
 #<<class_get_asset_by_asset_type>>
 <<ops_table>>

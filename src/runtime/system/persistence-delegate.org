@@ -1328,12 +1328,13 @@ class TestPersistenceDelegate(TestCase):
 #+BEGIN_SRC python
     def update_experiment(self, experiment, exp_name, overview, institute, 
                           discipline, integration_status, hosting_info,
-                          developers, assets):
+                          developers, assets, sections):
         experiment.set(exp_name=exp_name, overview=overview,
                            institute=institute, discipline=discipline,
                            integration_status=integration_status, 
                            hosting_info=hosting_info, 
-                           developers=developers, assets=assets)
+                           developers=developers, assets=assets, 
+                           sections=sections)
         experiment.save()
         return experiment
 
@@ -1385,13 +1386,17 @@ class TestPersistenceDelegate(TestCase):
          integration_status = IntegrationStatus(integration_level=
                                                     integration_level)
          integration_status.save()
+
+         name = "Theory"
+         section = Section(name=name)
+         section.save()
         
          exp = Experiment(exp_name=exp_name, exp_id=exp_id, \
-                              overview=overview, sections=[],
+                              overview=overview, sections=[section],
                               institute=inst, discipline=discipline, 
                               integration_status=integration_status,
                               assets=[asset], developers=[dev],
-                              hosting_info=[host])
+                              hosting_info=[host] )
          exp1 = self.persistence_delegate.add_experiment(exp)
 
          exp_name1 = "Computer Programming"
@@ -1434,11 +1439,15 @@ class TestPersistenceDelegate(TestCase):
                                  hosted_url=hosted_url1,
                                  hosted_on=hosted_on1)
          host1.save()
+         
+         name1 = "Procedure"
+         section1 = Section(name=name1)
+         section1.save()
 
          exp2 = self.persistence_delegate.update_experiment(exp1, exp_name1,
                                          overview1, inst1, discipline1,
                                          integration_status1, [host1], 
-                                         [dev1], [asset1])
+                                         [dev1], [asset1], [section1])
          exp2 = Experiment.get_by_id(1)
 
          self.assertEqual(exp2.get("exp_name"), exp_name1)
@@ -1457,6 +1466,8 @@ class TestPersistenceDelegate(TestCase):
                               email_id1.get("email"))
          self.assertEqual(exp2.get("assets")[0].get("path"),
                               asset1.get("path"))
+         self.assertEqual(exp2.get("sections")[0].get("name"),
+                              section1.get("name"))
 
 
 #+END_SRC

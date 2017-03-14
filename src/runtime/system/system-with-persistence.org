@@ -867,6 +867,7 @@ class TestUpdateExperiment(TestCase):
         experiment_cls = System.delegate.entities['experiment']
         discipline_cls = System.delegate.entities['discipline']
         lab_cls = System.delegate.entities['lab']
+        section_cls = System.delegate.entities['section']
 
         session = session_cls(key=KEY)
 
@@ -908,11 +909,15 @@ class TestUpdateExperiment(TestCase):
                             institute=inst, discipline=discipline)
         dev.save()
 
+        name = "Theory"
+        section = section_cls(name=name)
+        section.save()
+
         exp_name = "arrays"
         exp_id = "cse02"
         overview = "overview"
         experiment = experiment_cls(exp_name=exp_name, exp_id=exp_id,
-                                     overview=overview, sections=[],
+                                     overview=overview, sections=[section],
                                      institute=inst, discipline=discipline,
                                      integration_status=integration_status, 
                                      assets=[asset],developers=[dev],
@@ -962,12 +967,18 @@ class TestUpdateExperiment(TestCase):
 
         key = KEY
         session = session_cls(key=key)
+
+        name1 = "Procedure"
+        section1 = section_cls(name=name1)
+        section1.save()
         
         exp2 = System.do("update_experiment", exp_name=exp_name1,
-                            overview=overview1, experiment=experiment,
-                            institute=inst1, session=session, 
-                            discipline=discipline1, hosting_info=[host1], 
-                            integration_status=integration_status1)
+                            overview=overview1, institute=inst1, 
+                            session=session, discipline=discipline1,
+                            integration_status=integration_status1, 
+                            sections=[section1], 
+                            hosting_info=[host1], experiment=experiment, 
+                            developers=[dev1], assets=[asset1])
         exp2 = exp_cls.get_by_id(1)
         
         self.assertEqual(exp2.get("exp_name"), exp_name1)
@@ -982,6 +993,11 @@ class TestUpdateExperiment(TestCase):
                              integration_status1.get("integration_level"))
         self.assertEqual(exp2.get("hosting_info")[0].get("hosted_url"), 
                               hosted_url1)
+        self.assertEqual(exp2.get("developers")[0].get("email").get("email"), 
+                              email_id1.get("email"))
+        self.assertEqual(exp2.get("assets")[0].get("path"), path1)
+        self.assertEqual(exp2.get("sections")[0].get("name"), name1)
+   
             
 #+END_SRC
       
@@ -1042,7 +1058,7 @@ class TestUpdateInstitute(TestCase):
 #+END_SRC
 
 
-* Test UpdateDiscipline 
+ * Test UpdateDiscipline 
 #+NAME: test_update_discipline
 #+BEGIN_SRC python
 class TestUpdateDisciplilne(TestCase):
@@ -2793,6 +2809,42 @@ class TestAddAssetsToLab(TestCase):
         self.assertEqual(lab1.get("assets")[0].get("asset_type"), "Image")
         self.assertEqual(lab1.get("assets")[1].get("asset_type"), "Video")            
 
+#+END_SRC
+
+
+* Test GetSection
+#+NAME: test_get_section
+#+BEGIN_SRC python
+class TestGetName(TestCase):
+    TESTING = True
+
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_get_section(self):
+
+        print "test_get_section_in_system_persistence"
+        session_cls = System.delegate.entities['session']
+        section_cls = System.delegate.entities['section']
+
+        name1="Theory"
+        key = KEY
+        session = session_cls(key=key)
+        name = section_cls(name=name1)
+
+        name.save()
+
+        name2 = System.do("get_section", name=name, session=session)
+
+        self.assertEqual(name2.get("name"), name1)
 #+END_SRC
 
 
