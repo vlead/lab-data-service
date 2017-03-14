@@ -536,6 +536,7 @@ class UpdateLab():
                      "developers": are_developers,
                      "assets": are_assets, "experiments":are_experiments,
                      "integration_status" : is_integration_status}
+
     arity_and_type_checks_needed = True
 
     @staticmethod
@@ -667,7 +668,7 @@ class UpdateSection():
 #+begin_src python
 class UpdateDiscipline():
     arg_types = {"discipline": is_discipline, "dis_name": is_str_or_none,
-                     "session": is_session}
+                     "session": is_session, "assets": are_assets}
     arity_and_type_checks_needed = True
 
     @staticmethod
@@ -687,7 +688,8 @@ class UpdateDiscipline():
     def action(args):
         discipline = args["discipline"]
         dis_name=args["dis_name"]
-        dis = System.delegate.update_discipline(discipline, dis_name)
+        assets = args["assets"]
+        dis = System.delegate.update_discipline(discipline, dis_name, assets)
         return dis
 
 #+end_src
@@ -699,7 +701,7 @@ class UpdateDiscipline():
 #+begin_src python
 class UpdateInstitute():
     arg_types = {"institute": is_institute, "inst_name": is_str_or_none, 
-                       "session": is_session}                               
+                       "session": is_session, "assets": are_assets}
     arity_and_type_checks_needed = True
 
     @staticmethod
@@ -720,7 +722,8 @@ class UpdateInstitute():
     def action(args):
         inst_name = args["inst_name"]
         institute = args["institute"]       
-        institute = System.delegate.update_institute(institute, inst_name)
+        assets = args["assets"]
+        institute = System.delegate.update_institute(institute, inst_name, assets)
         return institute
 
 #+end_src
@@ -802,7 +805,8 @@ class UpdateEmail():
 #+begin_src python
 class UpdateDeveloper():
     arg_types = {"developer": is_developer, "name": is_name,
-                     "session": is_session}
+                 "session": is_session, "institute": is_institute,
+                 "discipline" : is_discipline}
     arity_and_type_checks_needed = True
 
     @staticmethod
@@ -826,7 +830,9 @@ class UpdateDeveloper():
         else:
            name=args["name"]
 
-        section = System.delegate.update_developer(developer, name)
+        institute = args["institute"]
+        discipline = args["discipline"]
+        developer = System.delegate.update_developer(developer, name, institute, discipline)
         return developer
 
 #+end_src

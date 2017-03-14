@@ -1039,14 +1039,22 @@ class TestUpdateInstitute(TestCase):
 
         institute.save()
 
+        asset_type1 = "Video"
+        path1 = "vlabs.ac.in/images/video/icon.png"
+        asset1 = asset_cls(asset_type=asset_type1, path=path1)
+        asset1.save()
+
         inst_name2="IIT Kharagpur"
 
         institute1 = System.do("update_institute", inst_name=inst_name2,
-                                 institute=institute, session=session)
+                                 institute=institute, assets=[asset1], session=session)
 
         new_institute = institute_cls.get_by_id(1)
 
         self.assertEqual(new_institute.get("inst_name"), inst_name2)
+        self.assertEqual(new_institute.get("assets")[0].get("path"),
+                              asset1.get("path"))
+
 #+END_SRC
 
 
@@ -1086,12 +1094,19 @@ class TestUpdateDisciplilne(TestCase):
         key = KEY
         session = session_cls(key=key)
 
+        asset_type1 = "Video"
+        path1 = "vlabs.ac.in/images/video/icon.png"
+        asset1 = asset_cls(asset_type=asset_type1, path=path1)
+        asset1.save()
+
         dis_name1 = "lists"
 
         discipline1 = System.do("update_discipline", dis_name=dis_name1,
-                                  discipline=discipline, session=session)
+                                  discipline=discipline, assets=[asset1], session=session)
 
         self.assertEqual(discipline1.get("dis_name"), dis_name1)
+        self.assertEqual(discipline1.get("assets")[0].get("path"),
+                              asset1.get("path"))
 
 #+END_SRC
 
@@ -1304,16 +1319,30 @@ class TestUpdateDeveloper(TestCase):
         developer = dev_cls(name=dev_name, email=email_id,
                             institute=inst, discipline=discipline)
         developer.save()
+
+        inst_name1 = "IIT Kharagpur"
+        inst_id1 = "IITKgp"
+        inst1 = institute_cls(inst_name=inst_name1, inst_id=inst_id1, assets=[asset])
+        inst1.save()
+
+        dis_name1 = "Computer Science & Engineering"
+        dis_id1 = "CSE02"
+        discipline1 = discipline_cls(dis_name=dis_name1, dis_id=dis_id1, assets=[asset])
+        discipline1.save()
+
         dev_name2 = name_cls(name="Prof. Raja")
         dev_name2.save()
 
         dev1 = System.do("update_developer", developer=developer,
-                             name=dev_name2,  session=session)
+                         name=dev_name2, institute=inst1,
+                         discipline=discipline1, session=session)
 
         new_dev = dev_cls.get_by_id(1)
 
         self.assertEqual(new_dev.get("name").get("name"),
                              dev_name2.get('name'))
+        self.assertEqual(new_dev.get("institute").get("inst_id"), inst_id1)
+        self.assertEqual(new_dev.get("discipline").get("dis_id"), dis_id1)
 
 #+END_SRC
 
