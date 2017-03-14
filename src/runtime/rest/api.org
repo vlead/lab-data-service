@@ -5823,6 +5823,14 @@ class TestUpdateLab(TestCase):
         response = self.client.post("/integration_status", data=json.dumps(payload),
                                  headers=headers)
 
+        payload = {'name': 'Theory',
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/sections", data=json.dumps(payload),
+                                 headers=headers)
+
         payload = {'dis_name': 'Computer Science',
                    'dis_id': 'CSE',
                    'assets': ['vlabs.ac.in/images/static/logo.png'],
@@ -5859,7 +5867,7 @@ class TestUpdateLab(TestCase):
                    'integration_level': 4,
                    'inst_id': 'IITK',
                    'dis_id': 'CSE',
-                   'sections': [],
+                   'sections': ['Theory','Procedure'],
                    'key': KEY,
                    'assets': [{'path':'vlabs.ac.in/images/static/logo.png',
                                     'asset_type': 'image'},
@@ -5905,6 +5913,9 @@ class TestUpdateLab(TestCase):
                    'experiments':[],
                    'key': KEY
                    }
+
+        response = self.client.post("/labs", data=json.dumps(payload),
+                                 headers=headers)
 
         payload1 = {'asset_type': 'Video',
                    'path': 'vlabs.ac.in/images/video/icon.png',
@@ -5959,9 +5970,6 @@ class TestUpdateLab(TestCase):
                    'experiments':['exp1']
                    }
 
-
-        response = self.client.post("/labs", data=json.dumps(payload),
-                                 headers=headers)
 
         response = self.client.put("/labs?lab_id=cse01", 
                                        data=json.dumps(payload1),
@@ -6377,6 +6385,14 @@ class TestUpdateExperiment(TestCase):
         response = self.client.post("/assets", data=json.dumps(payload),
                                   headers=headers)
 
+        payload = {'name': 'Theory',
+                    'key': KEY
+                  }
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/sections", data=json.dumps(payload),
+                                 headers=headers)
+
         payload = {'inst_name': 'IIT Kanpur',
                    'inst_id': 'IITK',
                    'assets': ['vlabs.ac.in/images/static/logo.png'],
@@ -6421,7 +6437,7 @@ class TestUpdateExperiment(TestCase):
         payload = {'exp_name': 'stack',
                    'exp_id': 'cse01',
                    'overview' : 'overview',
-                   'sections' : [],
+                   'sections' : ['Theory', 'Procedure'],
                    'integration_level': 4,
                    'inst_id': 'IITKgp',
                    'dis_id': 'ece',
@@ -6459,7 +6475,7 @@ class TestUpdateExperiment(TestCase):
         payload1 = {'exp_name': 'queue',
                    'exp_id': 'cse02',
                    'overview' : 'overview',
-                   'sections' : [],
+                   'sections' : ['Theory', 'Procedure'],
                    'integration_level': 3,
                    'inst_id': 'IITK',
                    'dis_id': 'CSE',
@@ -6490,198 +6506,6 @@ class TestUpdateExperiment(TestCase):
 
 
 #+END_SRC
-   
-
-** Delete Experiment
-*** API Design
-**** Delete experiment by exp_id
-  :PROPERTIES:
-  :CUSTOM_ID: api_delete_experiment_by_exp_id
-  :END:    
-  - URL :: /experiments?exp_id=<exp_id>&key=<key>
-
-  - Method :: DELETE
-
-  - URL Params ::  None
-
-  - Payload :: 
-
-  - Success Response
-    + Status_Code: 200
-      + Contents :
-#+BEGIN_EXAMPLE
-{
-  "status": "sucess"
-}
-
-#+END_EXAMPLE
-    
-  - Error Response:
-    + Contents :
-                {"status" : "error"}
-    
-  - Example:
-#+BEGIN_EXAMPLE
-http://localhost:5000/experiments/2
-#+END_EXAMPLE
-
-*** Implementation
-#+NAME: delete_experiment
-#+BEGIN_SRC python
-@api.route('/experiments', methods=['DELETE'])
-def delete_experiment():
-    if request.method == 'DELETE':
-        if 'exp_id' in request.args and 'key' in request.args:
-            exp_id  = request.args['exp_id']
-            key = request.args['key']
-            try:
-                exp_id = SystemInterface.delete_experiment(exp_id, key)
-                return jsonify({"status":"sucess"})
-            
-            except NotAuthorizedError as e:
-                err_str = str(e)
-                msg = {"status": "failure",
-                        "status code": 401,
-                        "msg": err_str}
-                return jsonify(msg)
-            
-            except TypeError as e:
-                err_str = str(e)
-                msg = {"status": "failure",
-                        "msg": err_str }
-                return jsonify(msg)
-            
-            except StateError as e:
-                err_str = str(e)
-                msg = {"status": "failure",
-                        "msg": err_str}
-                return jsonify(msg)
-            
-            except NotFoundError as e:
-                err_str = str(e)
-                msg = {"status": "failure",
-                        "status code": 404,
-                       "msg": err_str}
-                return jsonify(msg)
-            
-            except Exception as e:
-                err_str = str(e)
-                msg = {"status": "failure",
-                        "msg": err_str}
-                return jsonify(msg)
-            
-            
-#+END_SRC
-*** Test Cases
-**** TestDeleteExperiment
- #+NAME: test_delete_experiment
- #+BEGIN_SRC python
-class TestDeleteExperiment(TestCase):
-    TESTING = True
-    def create_app(self):
-        app = create_app(config)
-        return app
-
-    def setUp(self):
-        db.create_all()
-
-    def tearDown(self):
-        db.session.remove()
-        db.drop_all()
-
-    def test_delete_experiment(self):
-        print "test_delete_experiment"
-
-        payload = {'asset_type': 'Image',
-                   'path': 'vlabs.ac.in/images/static/logo.png',
-                   'key': KEY}
-        headers = {'Content-Type': 'application/json'}
-
-        response = self.client.post("/assets", data=json.dumps(payload),
-                                  headers=headers)
-
-        payload = {'inst_name': 'IIT Kanpur',
-                   'inst_id': 'IITK',
-                   'assets': ['vlabs.ac.in/images/static/logo.png'],
-                   'key': KEY}
-
-        headers = {'Content-Type': 'application/json'}
-
-        response = self.client.post("/institutes", data=json.dumps(payload),
-                                 headers=headers)
-
-        payload = {'dis_name': 'Computer Science',
-                   'dis_id': 'CSE',
-                   'assets': ['vlabs.ac.in/images/static/logo.png'],
-                   'key': KEY}
-
-        headers = {'Content-Type': 'application/json'}
-
-        response = self.client.post("/disciplines", data=json.dumps(payload),
-                                 headers=headers)
-
-        payload = {'integration_level': 4,
-                    'key': KEY
-                  }
-        headers = {'Content-Type': 'application/json'}
-
-        response = self.client.post("/integration_status", data=json.dumps(payload),
-                                 headers=headers)
-
-        payload = {'name': 'Prof. Dharamaja',
-                   'email': 'abc@gmail.com',
-                   'key': KEY,
-                   'inst_id': 'IITK',
-                   'dis_id': 'CSE'}
-
-        headers = {'Content-Type': 'application/json'}
-
-        response = self.client.post("/developers", data=json.dumps(payload),
-                                 headers=headers)
-
-        payload = {'hosting_status': 'hosted',
-                   'hosted_url': 'http://cse14-iiith.vlabs.ac.in',
-                   'hosted_on': 'cloud',
-                   'key': KEY}
-
-        headers = {'Content-Type': 'application/json'}
-
-        response = self.client.post("/hosting_info", data=json.dumps(payload),
-                                 headers=headers)
-
-        payload = {'exp_name': 'stack',
-                   'exp_id': 'cse01',
-                   'overview' : 'overview',
-                   'sections' : [],
-                   'integration_level': 4,
-                   'inst_id': 'IITK',
-                   'dis_id': 'CSE',
-                   'key': KEY,
-                   'assets': [{'path':'vlabs.ac.in/images/static/logo.png',
-                                    'asset_type': 'image'},
-                                {'path':'vlabs.ac.in/images/static/image.png',
-                                    'asset_type': 'image'}],
-                   'developers': [{'name':'Prof. Dharamaja',
-                                    'email': 'abc@gmail.com',
-                                    'inst_id': 'IITK', 'dis_id': 'CSE'},
-                                    {'name':'Prof. Pallavi Pawar',
-                                    'email': 'pallavi.pawar@gmail.com',
-                                    'inst_id': 'IITK', 'dis_id': 'CSE'}],
-                   'hosting_info': [{'hosted_url':'http://cse14-iiith.vlabs.ac.in',
-                                    'hosting_status': 'hosted',
-                                    'hosted_on': 'cloud'},
-                                    {'hosted_url':'http://iitkgp.vlab.co.in/',
-                                    'hosting_status': 'hosted',
-                                    'hosted_on': 'server'}]}
-        headers = {'Content-Type': 'application/json'}
-
-        response = self.client.post("/experiments", data=json.dumps(payload),
-                                 headers=headers)
-
-        response = self.client.get("/experiments", headers=headers)
-        self.assertEqual(response.status_code, 200)
-
- #+END_SRC
    
 
 ** Update, Delete and Get Section by ID
