@@ -734,19 +734,21 @@ class TestUpdateLabt(TestCase):
         overview = "overview"
         experiment = experiment_cls(exp_name=exp_name, exp_id=exp_id,
                                      overview=overview, sections=[],
-                                    institute=inst, discipline=discipline,
-                                        integration_status=integration_status, 
-                                        assets=[asset],
-                                        developers=[dev], hosting_info=[host])
+                                     institute=inst, discipline=discipline,
+                                     integration_status=integration_status, 
+                                     assets=[asset],
+                                     developers=[dev], hosting_info=[host])
         experiment.save()
 
         lab_name = "Computer Programming"
         lab_id = "CSE01"
         overview = "overview"
         lab = lab_cls(lab_id=lab_id, lab_name=lab_name,        
-                          institute=inst, discipline=discipline, assets=[asset],                
-                          overview=overview,  integration_status=integration_status, 
-                          experiments=[experiment], developers=[dev], hosting_info=[host])
+                          institute=inst, discipline=discipline,
+                          assets=[asset], overview=overview, 
+                          integration_status=integration_status, 
+                          experiments=[experiment], developers=[dev], 
+                          hosting_info=[host])
         lab.save()
 
         lab_name1 = "two dimentional arrays"
@@ -771,18 +773,46 @@ class TestUpdateLabt(TestCase):
         integration_status1 = integration_status_cls(integration_level=integration_level1)
         integration_status1.save()
 
+        dev_name1 = name_cls(name="pallavi pawar")
+        dev_name1.save()
+        email_id1 = email_cls(email="pallavi.pawar@gmail.com")
+        email_id1.save()
+        dev1 = developer_cls(name=dev_name1, email=email_id1,
+                            institute=inst1, discipline=discipline1)
+        dev1.save()
+
         hosting_status1 = "hosted"
         hosted_url1 = "http://cse13-iiith.vlabs.ac.in"
         hosted_on1 = "cloud"
         host1 = hosting_info_cls(hosting_status=hosting_status1,
                                 hosted_url=hosted_url1, hosted_on=hosted_on1)
         host1.save()
-         
+
+        exp_name1 = "Computer Programming"
+        overview1 = "overveiw exp"
+        exp_id1 = "cse03"
+        experiment1 = experiment_cls(exp_name=exp_name1, exp_id=exp_id1,
+                                     overview=overview1, sections=[],
+                                     institute=inst1, discipline=discipline1,
+                                     integration_status=integration_status1, 
+                                     assets=[asset1],
+                                     developers=[dev1], hosting_info=[host1])
+        experiment1.save()
+             
+        dev_name1 = name_cls(name="Tahiliani")
+        dev_name1.save()
+        email_id1 = email_cls(email="tahiliani@gmail.com")
+        email_id1.save()
+        dev1 = developer_cls(name=dev_name1, email=email_id1,
+                         institute=inst1, discipline=discipline1)
+        dev1.save()
+ 
         lab1 = System.do("update_lab", lab=lab, lab_name=lab_name1,
                              overview=overview1, institute=inst1,
                              discipline=discipline1, hosting_info=[host1],
                              integration_status=integration_status1,
-                             session=session)
+                             session=session, developers=[dev1], 
+                             assets=[asset1], experiments=[experiment1])
 
         new_lab = lab_cls.get_by_id(1)
 
@@ -795,7 +825,13 @@ class TestUpdateLabt(TestCase):
                              get("integration_level"), integration_level1)
         self.assertEqual(new_lab.get("hosting_info")[0].get("hosted_url"), 
                               hosted_url1)
-            
+        self.assertEqual(new_lab.get("developers")[0].get("email").get("email"), 
+                              email_id1.get("email"))
+        self.assertEqual(new_lab.get("assets")[0].get("path"), 
+                              path1)
+        self.assertEqual(new_lab.get("experiments")[0].get("exp_id"), 
+                              experiment1.get("exp_id"))
+                    
 #+END_SRC
       
 
@@ -841,22 +877,27 @@ class TestUpdateExperiment(TestCase):
 
         inst_name = "IIT Kanpur"
         inst_id = "IITK"
-        inst = institute_cls(inst_name=inst_name, inst_id=inst_id, assets=[asset])
+        inst = institute_cls(inst_name=inst_name, inst_id=inst_id,\
+                                 assets=[asset])
         inst.save()
 
         integration_level = 4
-        integration_status = integration_status_cls(integration_level=integration_level)
+        integration_status = integration_status_cls(integration_level=\
+                                                        integration_level)
         integration_status.save()
 
         hosting_status = "hosted"
         hosted_url = "http://cse14-iiith.vlabs.ac.in"
         hosted_on = "cloud"
-        host = hosting_info_cls(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
+        host = hosting_info_cls(hosting_status=hosting_status,
+                                    hosted_url=hosted_url,
+                                    hosted_on=hosted_on)
         host.save()
 
         dis_name = "computer science"
         dis_id = "cse"
-        discipline = discipline_cls(dis_name=dis_name, dis_id=dis_id, assets=[asset])
+        discipline = discipline_cls(dis_name=dis_name,
+                                        dis_id=dis_id, assets=[asset])
         discipline.save()
 
         dev_name = name_cls(name="Mohit Tahiliani")
@@ -888,12 +929,14 @@ class TestUpdateExperiment(TestCase):
         
         inst_name1 = "IIT Kharagpur"
         inst_id1 = "IITKgp"
-        inst1 = institute_cls(inst_name=inst_name1, inst_id=inst_id1, assets=[asset1])
+        inst1 = institute_cls(inst_name=inst_name1, inst_id=inst_id1,
+                                  assets=[asset1])
         inst1.save()
         
         dis_name1 = "electronics and communication"
         dis_id1 = "ece"
-        discipline1 = discipline_cls(dis_name=dis_name1, dis_id=dis_id1, assets=[asset1])
+        discipline1 = discipline_cls(dis_name=dis_name1,
+                                         dis_id=dis_id1, assets=[asset1])
         discipline1.save()
         
         dev_name1 = name_cls(name="Palavi Pawar")
@@ -905,8 +948,17 @@ class TestUpdateExperiment(TestCase):
         dev1.save()
         
         integration_level1 = 3
-        integration_status1 = integration_status_cls(integration_level=integration_level1)
+        integration_status1 = integration_status_cls(integration_level=\
+                                                         integration_level1)
         integration_status1.save()
+
+        hosting_status1 = "hosted"
+        hosted_url1 = "http://cse13-iiith.vlabs.ac.in"
+        hosted_on1 = "cloud"
+        host1 = hosting_info_cls(hosting_status=hosting_status1,
+                                hosted_url=hosted_url1,
+                                     hosted_on=hosted_on1)
+        host1.save()
 
         key = KEY
         session = session_cls(key=key)
@@ -914,7 +966,7 @@ class TestUpdateExperiment(TestCase):
         exp2 = System.do("update_experiment", exp_name=exp_name1,
                             overview=overview1, experiment=experiment,
                             institute=inst1, session=session, 
-                            discipline=discipline1,
+                            discipline=discipline1, hosting_info=[host1], 
                             integration_status=integration_status1)
         exp2 = exp_cls.get_by_id(1)
         
@@ -925,8 +977,11 @@ class TestUpdateExperiment(TestCase):
                                     inst1.get("inst_id"))
         self.assertEqual(exp2.get("discipline").get("dis_id"), 
                                     discipline1.get("dis_id"))
-        self.assertEqual(exp2.get("integration_status").get("integration_level"), 
-                                    integration_status1.get("integration_level"))
+        self.assertEqual(exp2.get("integration_status").\
+                             get("integration_level"),
+                             integration_status1.get("integration_level"))
+        self.assertEqual(exp2.get("hosting_info")[0].get("hosted_url"), 
+                              hosted_url1)
             
 #+END_SRC
       
