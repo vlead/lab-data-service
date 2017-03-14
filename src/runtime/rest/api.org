@@ -6966,7 +6966,6 @@ class TestUpdateLab(TestCase):
 
     def test_update_lab(self):
         print "test_update_lab"
-
         payload = {'asset_type': 'Image',
                    'path': 'vlabs.ac.in/images/static/logo.png',
                    'key': KEY}
@@ -6994,18 +6993,12 @@ class TestUpdateLab(TestCase):
         response = self.client.post("/integration_status", data=json.dumps(payload),
                                  headers=headers)
 
-        payload = {'name': 'Theory',
-                   'key': KEY}
-
-        headers = {'Content-Type': 'application/json'}
-
-        response = self.client.post("/sections", data=json.dumps(payload),
-                                 headers=headers)
-
         payload = {'dis_name': 'Computer Science',
                    'dis_id': 'CSE',
                    'assets': ['vlabs.ac.in/images/static/logo.png'],
                    'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
 
         response = self.client.post("/disciplines", data=json.dumps(payload),
                                  headers=headers)
@@ -7020,7 +7013,7 @@ class TestUpdateLab(TestCase):
 
         response = self.client.post("/developers", data=json.dumps(payload),
                                  headers=headers)
-  
+
         payload = {'hosting_status': 'hosted',
                    'hosted_url': 'http://cse14-iiith.vlabs.ac.in',
                    'hosted_on': 'cloud',
@@ -7028,17 +7021,16 @@ class TestUpdateLab(TestCase):
 
         headers = {'Content-Type': 'application/json'}
 
-
         response = self.client.post("/hosting_info", data=json.dumps(payload),
                                  headers=headers)
 
         payload = {'exp_name': 'arrays',
                    'exp_id': 'exp1',
                    'overview' : 'overview',
-                   'integration_level': 4,
+                   'sections': [],
                    'inst_id': 'IITK',
+                   'integration_level': 4,
                    'dis_id': 'CSE',
-                   'sections': ['Theory','Procedure'],
                    'key': KEY,
                    'assets': [{'path':'vlabs.ac.in/images/static/logo.png',
                                     'asset_type': 'image'},
@@ -7055,7 +7047,7 @@ class TestUpdateLab(TestCase):
                                     'hosted_on': 'cloud'},
                                     {'hosted_url':'http://iitkgp.vlab.co.in/',
                                     'hosting_status': 'hosted',
-                                    'hosted_on': 'server'}]}
+                                    'hosted_on': 'server'}],}
 
         headers = {'Content-Type': 'application/json'}
 
@@ -7064,11 +7056,14 @@ class TestUpdateLab(TestCase):
 
         payload = {'lab_name': 'Data Structures',
                    'lab_id': 'cse01',
-                   'overview' : 'overview',
+                   'key': KEY,
                    'inst_id': 'IITK',
                    'integration_level': 4,
                    'dis_id': 'CSE',
-                   'assets': ['vlabs.ac.in/images/static/logo.png'],
+                   'assets': [{'path':'vlabs.ac.in/images/static/logo.png',
+                                    'asset_type': 'image'},
+                                {'path':'vlabs.ac.in/images/static/image.png',
+                                    'asset_type': 'image'}],
                    'developers': [{'name':'Prof. Dharamaja',
                                     'email': 'abc@gmail.com',
                                     'inst_id': 'IITK', 'dis_id': 'CSE'},
@@ -7081,12 +7076,15 @@ class TestUpdateLab(TestCase):
                                     {'hosted_url':'http://iitkgp.vlab.co.in/',
                                     'hosting_status': 'hosted',
                                     'hosted_on': 'server'}],
-                   'experiments':[],
-                   'key': KEY
-                   }
+                   'overview' : 'overview',
+                   'experiments': ['exp1']
+                  }
+
+        headers = {'Content-Type': 'application/json'}
 
         response = self.client.post("/labs", data=json.dumps(payload),
                                  headers=headers)
+
 
         payload1 = {'asset_type': 'Video',
                    'path': 'vlabs.ac.in/images/video/icon.png',
@@ -7094,7 +7092,7 @@ class TestUpdateLab(TestCase):
 
         headers = {'Content-Type': 'application/json'}
 
-        response = self.client.post("/assets", data=json.dumps(payload),
+        response = self.client.post("/assets", data=json.dumps(payload1),
                                  headers=headers)
 
         payload1 = {'inst_name': 'IIT Kharagpur',
@@ -7104,7 +7102,7 @@ class TestUpdateLab(TestCase):
 
         headers = {'Content-Type': 'application/json'}
 
-        response = self.client.post("/institutes", data=json.dumps(payload),
+        response = self.client.post("/institutes", data=json.dumps(payload1),
                                  headers=headers)
 
         payload1 = {'dis_name': 'Electronics & Comuunication Engg.',
@@ -7113,7 +7111,7 @@ class TestUpdateLab(TestCase):
                     'key': KEY}
 
 
-        response = self.client.post("/disciplines", data=json.dumps(payload),
+        response = self.client.post("/disciplines", data=json.dumps(payload1),
                                  headers=headers)
 
         payload1 = {'lab_name': 'Computer Programming',
@@ -8204,7 +8202,8 @@ class TestUpdateInstitute(TestCase):
         response = self.client.post("/assets", data=json.dumps(payload),
                                  headers=headers)
 
-        payload = {'inst_name': 'IIT Kharagpur',
+        payload = {'inst_name': 'IIT Kanpur',
+                   'inst_id': 'IITK',
                    'assets': ['vlabs.ac.in/images/static/logo.png'],
                    'key': KEY}
 
@@ -8219,16 +8218,16 @@ class TestUpdateInstitute(TestCase):
 
         headers = {'Content-Type': 'application/json'}
 
-        response = self.client.post("/assets", data=json.dumps(payload),
+        response = self.client.post("/assets", data=json.dumps(payload1),
                                  headers=headers)
 
-        payload1 = {'inst_name': 'IIT Kanpur',
-                    'assets': ['vlabs.ac.in/images/static/icon.png'], 
+        payload1 = {'inst_name': 'IIT Kharagpur',
+                    'assets': ['vlabs.ac.in/images/video/icon.png'], 
                     'key': KEY}
 
         headers = {'Content-Type': 'application/json'}
 
-        response = self.client.put("/institutes?inst_id=IITKgp", data=json.dumps(payload1),
+        response = self.client.put("/institutes?inst_id=IITK", data=json.dumps(payload1),
                                  headers=headers)
 
         self.assertEqual(response.status_code, 200)
