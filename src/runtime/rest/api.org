@@ -4316,6 +4316,40 @@ class TestAddSection(TestCase):
 http://localhost:5000/hosting_info
 #+END_EXAMPLE
 
+**** Get Hosting_Info by hosted_url
+  :PROPERTIES:
+  :CUSTOM_ID: api_get_hosting_info_by_hosted_url
+  :END:    
+  - URL :: /hosting_infos?hosted_url=<hosted_url>
+
+  - Method :: GET
+
+  - URL Params ::  None
+
+  - Payload :: 
+
+  - Success Response
+    + Status_Code: 200
+      + Contents :
+
+#+BEGIN_EXAMPLE
+{
+  "hosting_status": "hosted",
+  "hosted_url": "http://cse14-iiith.vlabs.ac.in",
+  "hosted_on": "cloud",
+  "id": 1
+}
+#+END_EXAMPLE	       
+
+    
+  - Error Response:
+    + Contents :
+                {"status" : "error"}
+    
+  - Example:
+#+BEGIN_EXAMPLE
+http://localhost:5000/assets?path=http://cse14-iiith.vlabs.ac.in
+#+END_EXAMPLE
 *** Implementation
 REST API to get all hosting_info.
 #+NAME: get_hosting_info
@@ -4433,6 +4467,40 @@ class TestGetHosting_Info(TestCase):
 
  #+END_SRC
    
+**** TestGetHostingInfoByHostedURL
+ #+NAME: test_get_hosting_info_by_hosted_url
+ #+BEGIN_SRC python
+class TestGetAssetByPath(TestCase):
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_get_asset_by_path(self):
+        print "test_get_hosting_info_by_hosted_url_in_rest"
+
+        payload = {'hosting_status': 'hosted',
+                   'hosted_url': 'http://cse14-iiith.vlabs.ac.in',
+                   'hosted_on': 'cloud',
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/hosting_info", data=json.dumps(payload),
+                                 headers=headers)
+
+        response = self.client.get("/hosting_info", headers=headers)
+        self.assertEqual(response.status_code, 200)
+
+ #+END_SRC
+
 
 ** Add Hosting_Info
 *** API Design
@@ -9483,5 +9551,6 @@ if __name__ == '__main__':
 <<test_get_Developer>>
 <<test_get_section_by_id>>
 <<test_get_name_by_id>>
+<<test_get_hosting_info_by_hosted_url>>
 <<run_test_cases>>
 #+end_src

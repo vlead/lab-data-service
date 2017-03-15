@@ -7152,6 +7152,161 @@ class TestGetAssets(TestCase):
  #+END_SRC
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+** Get Asset By Path
+#+NAME: class_get_asset_by_path
+#+begin_src python
+    @staticmethod
+    def get_asset_by_path(path):
+        asset_cls = System.delegate.entities['asset']
+
+        try:
+            current_app.logger.debug("getting asset by path")
+            asset = System.do("get_asset", path=str(path))
+            current_app.logger.debug("completed operation get_asset_by_path")
+            if not asset:
+                return ("No asset found with path: %s" % (path))
+            return asset.to_client()
+
+        except (ArityError, TypeError, NotAuthorizedError, StateError) as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+
+        except Exception as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+#+end_src
+
+*** TestGetAssetByPath
+ #+NAME: test_class_get_asset_by_path
+ #+BEGIN_SRC python
+class TestGetAssetByPath(TestCase):
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_get_asset_by_path_in_system_interface(self):
+        print "test_get_asset_by_path_in_system_interface"
+        
+        data_dict = {
+                    'key' : KEY,
+                    'asset_type': 'Image',
+                    'path': 'vlabs.ac.in/images/static/logo.png'
+                   }
+
+        asset = SystemInterface.add_asset(data_dict)
+
+        data_dict1 = {
+                     'key' : KEY,
+                     'asset_type': 'Video',
+                     'path': 'vlabs.ac.in/images/static/icon.png'
+                     }
+
+        asset1 = SystemInterface.add_asset(data_dict1)
+
+        asset_data_one = SystemInterface.get_asset_by_path(data_dict['path'])
+
+        self.assertEqual(asset_data_one.get("path"), data_dict['path'])
+ #+END_SRC
+
+** Get Hosting_Info_by_hosted_URL
+#+NAME: class_get_hosting_info_by_hosted_URL
+#+begin_src python
+    @staticmethod
+    def get_hosting_info_by_hosted_url(hosted_url):
+        hosting_info_cls = System.delegate.entities['hosting_info']
+        try:
+            current_app.logger.debug("getting hosting_info by hosted URL")
+            hosting_info = System.do("get_hosting_info", hosted_url=str(hosted_url))
+            current_app.logger.debug("completed operation get_hosting_info_by_hosted_url")
+            if not hosting_info:
+                return ("No hosting_info found with hosted_url: %s" % (hosted_url))
+            return hosting_info.to_client()
+
+        except (ArityError, TypeError, NotAuthorizedError, StateError) as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+
+        except Exception as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+#+end_src
+
+*** TestGetHosting_Info_by hosted_url
+ #+NAME: test_class_get_hosting_info_by_hosted_url
+ #+BEGIN_SRC python
+class TestGetHosting_Info_by_hosted_url(TestCase):
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_get_hosting_info_by_hosted_url_in_system_interface(self):
+        print "test_get_hosting_info_by_hosted_url_in_system_interface"
+
+        data_dict = {'hosting_status': 'hosted',
+                     'hosted_url': 'http://cse14-iiith.vlabs.ac.in',
+                     'hosted_on': 'cloud',
+                     'key' : KEY
+                    }
+
+        data_dict1 = {'hosting_status': 'not hosted',
+                      'hosted_url': 'http://cse12-iiith.vlabs.ac.in',
+                      'hosted_on': 'server',
+                      'key' : KEY
+                     }
+
+        host1 = SystemInterface.add_hosting_info(data_dict)
+        host2 = SystemInterface.add_hosting_info(data_dict1)
+
+        host_list = SystemInterface.get_hosting_info_by_hosted_url('http://cse12-iiith.vlabs.ac.in')
+        
+        self.assertEqual(host_list.get("hosted_url"), data_dict1['hosted_url'])
+
+ #+END_SRC
+
+
 * Infra                                                         :boilerplate:
   
 ** sources
@@ -7267,6 +7422,8 @@ if __name__ == '__main__':
 <<class_update_asset>>
 <<class_delete_asset>>
 <<class_get_assets>>
+<<class_get_asset_by_path>>
+<<class_get_hosting_info_by_hosted_URL>>
 #+end_src
 
 
@@ -7337,6 +7494,8 @@ if __name__ == '__main__':
 <<test_class_update_asset>>
 <<test_class_delete_asset>>
 <<test_class_get_assets>>
+<<test_class_get_asset_by_path>>
+<<test_class_get_hosting_info_by_hosted_url>>
 <<run_test_cases>>
 
 #+end_src
