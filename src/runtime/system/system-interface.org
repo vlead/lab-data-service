@@ -4522,6 +4522,7 @@ class TestUpdateLab(TestCase):
         asset_cls = System.delegate.entities['asset']
         name_cls = System.delegate.entities['name']
         email_cls = System.delegate.entities['email']
+        section_cls = System.delegate.entities['section']
         session = session_cls(key=str(data_dict['key']))
         exp_id = str(data_dict['exp_id'])
         experiment = System.do("get_experiment", exp_id=exp_id)
@@ -4722,7 +4723,7 @@ class TestUpdateExperiment(TestCase):
                     'exp_id': 'cse02',
                     'inst_id': 'IITK',
                     'dis_id': 'CSE',
-                    'sections': ['Theory'],
+                    'sections': ['Theory', 'Procedure'],
                     'developers': [{'name':'Prof. Dharamaja',
                                     'email': 'abc@gmail.com',
                                     'inst_id': 'IITK', 'dis_id': 'CSE'},
@@ -4775,7 +4776,7 @@ class TestUpdateExperiment(TestCase):
         
         data_dict1 = {
                     'key' : KEY,
-                    'name': 'Procedure'
+                    'name': 'Aim'
                     }
         section = SystemInterface.add_section(data_dict1)
 
@@ -4784,7 +4785,7 @@ class TestUpdateExperiment(TestCase):
                     'exp_id': 'cse02',
                     'exp_name': 'arrays',
                     'overview': 'overview',
-                    'sections': ['Procedure'],
+                    'sections': [''],
                     'inst_id': 'IITKgp',
                     'dis_id': 'ECE',
                     'integration_level': 3,
@@ -5926,14 +5927,14 @@ class TestDeleteHosting_Info(TestCase):
                     'hosted_on': 'cloud'
                     }
 
+        hosting_info = SystemInterface.add_hosting_info(data_dict)
+
         data_dict1 = {
                     'key' : KEY,
                     'hosting_status': 'not hosted',
                     'hosted_url': 'http://cse12-iiith.vlabs.ac.in',
                     'hosted_on': 'server'
                      }
-
-        hosting_info = SystemInterface.add_hosting_info(data_dict)
         hosting_info1 = SystemInterface.add_hosting_info(data_dict1)
         hosted_url = SystemInterface.delete_hosting_info("http://cse14-iiith.vlabs.ac.in", KEY)
         
