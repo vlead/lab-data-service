@@ -5944,15 +5944,13 @@ class TestDeleteHosting_Info(TestCase):
 #+NAME: class_delete_name
 #+begin_src python
     @staticmethod
-    def delete_name(name, key):
+    def delete_name(id):
         session_cls = System.delegate.entities['session']
-        name_cls = System.delegate.entities['name']
 
-        session = session_cls(key=str(key))
-        name = name_cls(name=str(name))
+        session = session_cls(key=KEY)
         try:
             current_app.logger.debug("running operation delete_name")
-            name = System.do("delete_name", name=name, session=session)
+            name = System.do("delete_name", n_id=int(id), session=session)
             current_app.logger.debug("completed operation delete_name")
             return name
         except (ArityError, TypeError, NotAuthorizedError, StateError) as err:
@@ -5995,10 +5993,9 @@ class TestDeleteName(TestCase):
 
         name = SystemInterface.add_name(data_dict)
         name1 = SystemInterface.add_name(data_dict1)
-        name_id = SystemInterface.delete_name(data_dict1['name'],
-                                                  data_dict1['key'])
+        name_id = SystemInterface.delete_name(1)
 
-        self.assertEqual(name_id.get("name"), data_dict1["name"])
+        self.assertEqual(name_id, 1)
 
  #+END_SRC
 
@@ -7422,6 +7419,7 @@ if __name__ == '__main__':
 <<class_get_assets>>
 <<class_get_asset_by_path>>
 <<class_get_hosting_info_by_hosted_URL>>
+<<class_get_name_by_id>>
 #+end_src
 
 
@@ -7494,6 +7492,7 @@ if __name__ == '__main__':
 <<test_class_get_assets>>
 <<test_class_get_asset_by_path>>
 <<test_class_get_hosting_info_by_hosted_url>>
+<<test_class_get_name_by_id>>
 <<run_test_cases>>
 
 #+end_src
