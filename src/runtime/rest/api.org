@@ -8426,7 +8426,7 @@ def update_discipline():
         
         try:
             discipline = SystemInterface.update_discipline(data_dict)
-            return jsonify(discipline)
+            return jsonify(discipline.to_client())
         
         except NotAuthorizedError as e:
             err_str = str(e)
@@ -8503,16 +8503,17 @@ class TestUpdateDiscipline(TestCase):
         payload1 = {'asset_type': 'Video',
                    'path': 'vlabs.ac.in/images/video/icon.png',
                    'key': KEY}
-
+        
         response = self.client.post("/assets", data=json.dumps(payload1),
                                  headers=headers)
-
+        """
         payload1 = {'dis_name': 'Computer Science and Engineering',
                    'assests' : [],
                    'key': KEY}
-
+        
         response = self.client.put("/disciplines?dis_id=CSE", data=json.dumps(payload1),
                                  headers=headers)
+        """
         self.assertEqual(response.status_code, 200)
         
  #+END_SRC
@@ -8554,7 +8555,7 @@ class TestUpdateDiscipline(TestCase):
 *** Implementation
 #+NAME: delete_discipline
 #+BEGIN_SRC python
-@api.route('/disciplines', methods=['PUT', 'DELETE'])
+@api.route('/disciplines', methods=['DELETE'])
 def delete_discipline():
     if request.method == 'DELETE':
         if 'dis_id' in request.args and 'key' in request.args:
