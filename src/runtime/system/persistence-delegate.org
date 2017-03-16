@@ -1267,12 +1267,18 @@ class TestPersistenceDelegate(TestCase):
     def update_lab(self, lab, lab_name, overview, institute, discipline,
                        integration_status, hosting_info, developers,
                        assets, experiments):
+
+        current_app.logger.debug("running update lab operation")
+
         lab.set(lab_name=lab_name, overview=overview, institute=institute, 
                     discipline=discipline, hosting_info=hosting_info,
                     integration_status=integration_status,
                     developers=developers, assets=assets,
                     experiments=experiments)
         lab.save()
+ 
+        current_app.logger.debug("completed update lab operation") 
+
         return lab
 
 #+END_SRC
@@ -1435,6 +1441,8 @@ class TestPersistenceDelegate(TestCase):
     def update_experiment(self, experiment, exp_name, overview, institute, 
                           discipline, integration_status, hosting_info,
                           developers, assets, sections):
+        current_app.logger.debug("running update experiment operation")
+
         experiment.set(exp_name=exp_name, overview=overview,
                            institute=institute, discipline=discipline,
                            integration_status=integration_status, 
@@ -1442,6 +1450,9 @@ class TestPersistenceDelegate(TestCase):
                            developers=developers, assets=assets, 
                            sections=sections)
         experiment.save()
+
+        current_app.logger.debug("completed update experiment operation")
+
         return experiment
 
 #+END_SRC
@@ -1584,8 +1595,12 @@ class TestPersistenceDelegate(TestCase):
 #+NAME: persistence_update_discipline
 #+BEGIN_SRC python
     def update_discipline(self, discipline, dis_name, assets):
+        current_app.logger.debug("running update discipline operation")
+
         discipline.set(dis_name=dis_name, assets=assets)
         discipline.save()
+       
+        current_app.logger.debug("completed update discipline operation")
         return discipline
 
 #+END_SRC
@@ -1630,8 +1645,14 @@ class TestPersistenceDelegate(TestCase):
 #+NAME: persistence_update_section
 #+BEGIN_SRC python
     def update_section(self, section, name):
+        current_app.logger.debug("running update section operation"
+                                 " with section name = %s" % name)
+
         section.set(name=name)
         section.save()
+
+        current_app.logger.debug("completed update section operation"
+                                 " with section name = %s" % name)
         return section
 
 #+END_SRC
@@ -1659,8 +1680,14 @@ class TestPersistenceDelegate(TestCase):
 #+NAME: persistence_update_developer
 #+BEGIN_SRC python
     def update_developer(self, dev, dev_name, institute, discipline):
+
+        current_app.logger.debug("running update developer operation")
+
         dev.set(name=dev_name, institute=institute, discipline=discipline)
         dev.save()
+
+        current_app.logger.debug("completed update developer operation")
+
         return dev
 
 #+END_SRC
@@ -1725,8 +1752,14 @@ class TestPersistenceDelegate(TestCase):
 #+NAME: persistence_update_institute
 #+BEGIN_SRC python
     def update_institute(self, institute, inst_name, assets):
+
+        current_app.logger.debug("running update institute operation")
+
         institute.set(inst_name=inst_name, assets=assets)
         institute.save()
+
+        current_app.logger.debug("completed update institute operation")
+
         return institute
 
 #+END_SRC
@@ -1772,8 +1805,14 @@ class TestPersistenceDelegate(TestCase):
 #+NAME: persistence_update_hosting_info
 #+BEGIN_SRC python
     def update_hosting_info(self, hosting_info, hosting_status, hosted_on):
+
+        current_app.logger.debug("running update hosting_info operation")
+
         hosting_info.set(hosting_status=hosting_status, hosted_on=hosted_on)
         hosting_info.save()
+
+        current_app.logger.debug("completed update hosting_info operation")
+
         return hosting_info
 
 #+END_SRC
@@ -1811,8 +1850,12 @@ class TestPersistenceDelegate(TestCase):
 #+NAME: persistence_update_asset
 #+BEGIN_SRC python
     def update_asset(self, asset, asset_type):
+
+        current_app.logger.debug("running update asset operation")
         asset.set(asset_type=asset_type)
         asset.save()
+
+        current_app.logger.debug("completed update asset operation")
         return asset
 
 #+END_SRC
@@ -2521,6 +2564,10 @@ class TestPersistenceDelegate(TestCase):
         lab = self.get_lab_by_id(labid)
         experiment_list = []
         for experiment in experiments:
+
+            current_app.logger.debug("running add experiments to a lab"
+                                     " operation with labid = %s" % labid)
+
             if self.experiment_exists(experiment):
                 experiment = self.get_experiment(exp_id=experiment.
                                                      get('exp_id'),
@@ -2532,6 +2579,8 @@ class TestPersistenceDelegate(TestCase):
             experiment_list.append(experiment)
 
         lab.set(experiments=experiment_list)
+
+        current_app.logger.debug("completed add experiments to a lab operation")        
         return lab
 
 #+END_SRC
@@ -2622,6 +2671,9 @@ class TestPersistenceDelegate(TestCase):
     def add_assets_to_lab(self, lab, assets):
         asset_list = []
         for asset in assets:
+
+            current_app.logger.debug("running add assets to a lab" = %s
+                                     % lab.to_client())
             if self.asset_exists(asset):
                 asset = self.get_asset(path=asset.get('path'),
                                            asset_type=asset.
@@ -2632,6 +2684,9 @@ class TestPersistenceDelegate(TestCase):
             asset_list.append(asset)
 
         lab.set(assets=asset_list)
+
+        current_app.logger.debug("completed add assets to a lab" = %s
+                                 % lab.to_client())
         return lab
 
 #+END_SRC
