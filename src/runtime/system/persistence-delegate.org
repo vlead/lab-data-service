@@ -977,7 +977,12 @@ class TestPersistenceDelegate(TestCase):
         current_app.logger.debug("running add developer to system"
                                  " developer = %s" % developer.to_client())
         name = developer.get("name")
+        current_app.logger.debug("running add developer to system"
+                                 " with name = %s" % name)
         email = developer.get("email")
+        current_app.logger.debug("running add developer to system"
+                                 " with email = %s" % email)
+
         if not self.name_exists(name.get("name")):
             name.save()
             current_app.logger.debug("completed add operation"
@@ -987,8 +992,11 @@ class TestPersistenceDelegate(TestCase):
             email.save()
             current_app.logger.debug("completed add operation"
                                     " to system with developer"
-                                 " email = %s" % email)
+                                    " email = %s" % email)
         developer.save()
+
+        current_app.logger.debug("completed add developer"
+                                 " operation = %s" % developer.to_client())
         return developer
 
 #+END_SRC
@@ -2186,18 +2194,19 @@ class TestPersistenceDelegate(TestCase):
 #+BEGIN_SRC python
     def delete_name(self, name):
         record = self.get_name(name=name.get("name"))
+        current_app.logger.debug("running delete on developer"
+                                 " name = %s" % name)
         if not record:
             abort(404, 'No Name with id %s' % (name))
         else:
             try:
-                current_app.logger.debug("running delete on developer"
-                                         " name = %s" % name)
                 record.delete()
+                current_app.logger.debug("completed delete on developer" 
+                                         " name = %s" % name)
                 #db.session.delete(record)
                 #db.session.commit()
             except Exception, e:
-                current_app.logger.debug("completed delete on developer" 
-                                         " name = %s" % name)
+                current_app.logger.error("Exception = %s" % str(e))
                 print e
                 abort(500, str(e))
 
@@ -2231,18 +2240,19 @@ class TestPersistenceDelegate(TestCase):
 #+BEGIN_SRC python
     def delete_email(self, email_id):
         record = self.get_email(email=email_id.get("email"))
+        current_app.logger.debug("running delete on developer"
+                                 " email with email_id = %s" % email_id)
         if not record:
             abort(404, 'No Email with id %s' % (email_id))
         else:
-            try:
-                current_app.logger.debug("running delete on developer"
-                                         " email = %s" % email)
+            try:               
                 record.delete()
+                current_app.logger.debug("completed delete on developer"
+                                        " email with email_id = %s" % email_id)
                 #db.session.delete(record)
                 #db.session.commit()
             except Exception, e:
-                current_app.logger.debug("completed delete on developer"
-                                         " email = %s" % email)
+                current_app.logger.error("Exception = %s" % str(etest_delete_developer))
                 print e
                 abort(500, str(e))
 
@@ -2274,18 +2284,18 @@ class TestPersistenceDelegate(TestCase):
     def delete_developer(self, email_id):
         record = self.get_developer(email=email_id)
         if not record:
+            current_app.logger.debug("running delete on developer"
+                                     " with email_id = %s" % email_id)
             abort(404, 'No Developer with id %s' % (email_id))
         else:
             try:
-                current_app.logger.debug("running delete on developer"
-                                         " with email_id = %s" % 
-                                         email_id)
                 record.delete()
-                self.delete_email(email_id)
-            except Exception, e:
                 current_app.logger.debug("completed delete on developer"
-                                         " with email_id = %s" % 
-                                         email_id)
+                                         " with email_id = %s" % email_id)
+                self.delete_email(email_id)
+               
+            except Exception, e:
+                current_app.logger.error("Exception = %s" % str(e))
                 print e
                 abort(500, str(e))
 
@@ -2357,12 +2367,13 @@ class TestPersistenceDelegate(TestCase):
                                          " with inst_id = %s" % 
                                          inst_id)
                 record.delete()
-                #db.session.delete(record)
-                #db.session.commit()
-            except Exception, e:
                 current_app.logger.debug("completed delete on institute"
                                          " with inst_id = %s" % 
                                          inst_id)
+                #db.session.delete(record)
+                #db.session.commit()
+            except Exception, e:
+                current_app.logger.error("Exception = %s" % str(e))
                 print e
                 abort(500, str(e))
 
@@ -2413,11 +2424,12 @@ class TestPersistenceDelegate(TestCase):
                 current_app.logger.debug("running delete on hosting_info"
                                          " with hosted_url = %s" % hosted_url)
                 record.delete()
+                current_app.logger.debug("completed delete on hosting_info"
+                                         " with hosted_url = %s" % hosted_url)
                 #db.session.delete(record)
                 #db.session.commit()
             except Exception, e:
-                current_app.logger.debug("completed delete on hosting_info"
-                                         " with hosted_url = %s" % hosted_url)
+                current_app.logger.error("Exception = %s" % str(e))
                 print e
                 abort(500, str(e))
 
@@ -2468,11 +2480,12 @@ class TestPersistenceDelegate(TestCase):
                 current_app.logger.debug("running delete on asset"
                                          " with path = %s" % path)
                 record.delete()
+                current_app.logger.debug("completed delete on asset"
+                                         " with path = %s" % path)
                 #db.session.delete(record)
                 #db.session.commit()
             except Exception, e:
-                current_app.logger.debug("completed delete on asset"
-                                         " with path = %s" % path)
+                current_app.logger.error("Exception = %s" % str(e))
                 print e
                 abort(500, str(e))
 
@@ -2519,12 +2532,13 @@ class TestPersistenceDelegate(TestCase):
                                          " with integration_level = %s" 
                                          % integration_level)
                 record.delete()
-                #db.session.delete(record)
-                #db.session.commit()
-            except Exception, e:
                 current_app.logger.debug("completed delete on integration_status"
                                          " with integration_level = %s" 
                                          % integration_level)
+                #db.session.delete(record)
+                #db.session.commit()
+            except Exception, e:
+                current_app.logger.error("Exception = %s" % str(e))
                 print e
                 abort(500, str(e))
 
@@ -2672,8 +2686,8 @@ class TestPersistenceDelegate(TestCase):
         asset_list = []
         for asset in assets:
 
-            current_app.logger.debug("running add assets to a lab" = %s
-                                     % lab.to_client())
+            current_app.logger.debug("running add assets to a" 
+                                     " lab = %s" % lab.to_client())
             if self.asset_exists(asset):
                 asset = self.get_asset(path=asset.get('path'),
                                            asset_type=asset.
@@ -2685,7 +2699,7 @@ class TestPersistenceDelegate(TestCase):
 
         lab.set(assets=asset_list)
 
-        current_app.logger.debug("completed add assets to a lab" = %s
+        current_app.logger.debug("completed add assets to a lab = %s"
                                  % lab.to_client())
         return lab
 
@@ -2777,6 +2791,8 @@ class TestPersistenceDelegate(TestCase):
         institute = self.get_institute_by_id(instituteid)
         lab_list = []
         for lab in labs:
+            current_app.logger.debug("running add labs to an institute with"
+                                     " instituteid = %s" % instituteid)
             if self.lab_exists(lab):
                 lab = self.get_lab(lab_id=lab.get('lab_id'),
                                                  lab_name=lab.get('lab_name'))
@@ -2786,6 +2802,9 @@ class TestPersistenceDelegate(TestCase):
             lab_list.append(lab)
 
         institute.set(labs=lab_list)
+
+        current_app.logger.debug("completed add labs to an institute with"
+                                 " instituteid = %s" % instituteid)
         return institute
 
 #+END_SRC
@@ -2863,6 +2882,8 @@ class TestPersistenceDelegate(TestCase):
     def add_sections_to_experiment(self, experiment, sections):
         section_list = []
         for section in sections:
+            current_app.logger.debug("running add sections to an"
+                                   " experiment = %s" % experiment.to_client())
             if self.section_exists(section):
                 section = self.get_section(name=section.get('name'))
             else:
@@ -2871,6 +2892,9 @@ class TestPersistenceDelegate(TestCase):
             section_list.append(section)
 
         experiment.set(sections=section_list)
+
+        current_app.logger.debug("completed add sections to an"
+                                 " experiment = %s" % experiment.to_client())
         return experiment
 
 #+END_SRC
@@ -2967,6 +2991,9 @@ class TestPersistenceDelegate(TestCase):
 #+NAME: persistence_get_lab
 #+BEGIN_SRC python
     def get_lab(self, **kwargs):
+        current_app.logger.debug("running get lab operation")
+        current_app.logger.debug("completed get lab operation")
+
         return self.get_object(Lab, **kwargs)
 
 #+END_SRC
@@ -3040,6 +3067,8 @@ class TestPersistenceDelegate(TestCase):
 #+NAME: persistence_get_section
 #+BEGIN_SRC python
     def get_section(self, **kwargs):
+        current_app.logger.debug("running get section operation")
+        current_app.logger.debug("completed get section operation")
         return self.get_object(Section, **kwargs)
 
 #+END_SRC
@@ -3068,6 +3097,8 @@ class TestPersistenceDelegate(TestCase):
 #+NAME: persistence_get_name
 #+BEGIN_SRC python
     def get_name(self, **kwargs):
+        current_app.logger.debug("running get developer's name operation")
+        current_app.logger.debug("completed get developer's name operation")
         return self.get_object(Name, **kwargs)
 
 #+END_SRC
@@ -3096,6 +3127,8 @@ class TestPersistenceDelegate(TestCase):
 #+NAME: persistence_get_email
 #+BEGIN_SRC python
     def get_email(self, **kwargs):
+        current_app.logger.debug("running get developer's email operation")
+        current_app.logger.debug("completed get developer's email operation")
         return self.get_object(Email, **kwargs)
 
 #+END_SRC
@@ -3124,6 +3157,8 @@ class TestPersistenceDelegate(TestCase):
 #+NAME: persistence_get_developer
 #+BEGIN_SRC python
     def get_developer(self, **kwargs):
+        current_app.logger.debug("running get developer operation")
+        current_app.logger.debug("completed get developer operation")
         return self.get_object(Developer, **kwargs)
 
 #+END_SRC
@@ -3173,6 +3208,8 @@ class TestPersistenceDelegate(TestCase):
 #+NAME: persistence_get_experiment
 #+BEGIN_SRC python
     def get_experiment(self, **kwargs):
+        current_app.logger.debug("running get experiment operation")
+        current_app.logger.debug("completed get experiment operation")
         return self.get_object(Experiment, **kwargs)
 
 #+END_SRC
@@ -3247,6 +3284,8 @@ class TestPersistenceDelegate(TestCase):
 #+NAME: persistence_get_institute
 #+BEGIN_SRC python
     def get_institute(self, **kwargs):
+        current_app.logger.debug("running get institute operation")
+        current_app.logger.debug("completed get institute operation")
         return self.get_object(Institute, **kwargs)
 
 #+END_SRC
@@ -3285,6 +3324,8 @@ class TestPersistenceDelegate(TestCase):
 #+NAME: persistence_get_discipline 
 #+BEGIN_SRC python
     def get_discipline(self, **kwargs):
+        current_app.logger.debug("running get discipline operation")
+        current_app.logger.debug("completed get discipline operation")
         return self.get_object(Discipline, **kwargs)
 
 #+END_SRC
@@ -3320,6 +3361,8 @@ class TestPersistenceDelegate(TestCase):
 #+NAME: persistence_get_asset
 #+BEGIN_SRC python
     def get_asset(self, **kwargs):
+        current_app.logger.debug("running get asset operation")
+        current_app.logger.debug("completed get asset operation")
         return self.get_object(Asset, **kwargs)
 
 #+END_SRC
@@ -3353,8 +3396,11 @@ class TestPersistenceDelegate(TestCase):
         current_app.logger.debug("")
         ret_val = None
         try:
+            current_app.logger.debug("running operation get labs")
             ret_val = Lab.apply_filters(**kwargs)
+
         except NotFoundError as e:
+            current_app.logger.error("Exception = %s" % str(e))
             ret_val = None
         
         return ret_val
@@ -3636,8 +3682,11 @@ class TestPersistenceDelegate(TestCase):
         current_app.logger.debug("")
         ret_val = None
         try:
+            current_app.logger.debug("running operation get institutes")
             ret_val = Institute.apply_filters(**kwargs)
+
         except NotFoundError as e:
+            current_app.logger.error("Exception = %s" % str(e))
             ret_val = None
         
         return ret_val
@@ -3681,6 +3730,8 @@ class TestPersistenceDelegate(TestCase):
 #+NAME: persistence_get_hosting_info
 #+BEGIN_SRC python
     def get_hosting_info(self, **kwargs):
+        current_app.logger.debug("running get hostinginfo operation")
+        current_app.logger.debug("completed get hostinginfo operation")
         return self.get_object(HostingInfo, **kwargs)
 
 #+END_SRC
@@ -3723,6 +3774,8 @@ class TestPersistenceDelegate(TestCase):
 #+NAME: persistence_get_integration_status
 #+BEGIN_SRC python
     def get_integration_status(self, **kwargs):
+        current_app.logger.debug("running get instegration status operation")
+        current_app.logger.debug("completed get integration status operation")
         return self.get_object(IntegrationStatus, **kwargs)
 
 #+END_SRC
@@ -3754,8 +3807,10 @@ class TestPersistenceDelegate(TestCase):
         current_app.logger.debug("")
         ret_val = None
         try:
+            current_app.logger.debug("running operation get assets")
             ret_val = Asset.apply_filters(**kwargs)
         except NotFoundError as e:
+            current_app.logger.error("Exception = %s" % str(e))
             ret_val = None
         
         return ret_val
@@ -3795,6 +3850,8 @@ class TestPersistenceDelegate(TestCase):
     def get_lab_by_id(self, id):
         ret_val = None
         try:
+            current_app.logger.debug("running operation get"
+                                     " lab by ID = %s" % id)
             ret_val = Lab.get_by_id(id)
         except Exception as err:
             current_app.logger.error("Exception = %s" % str(err))
@@ -3876,6 +3933,8 @@ class TestPersistenceDelegate(TestCase):
     def get_experiment_by_id(self, id):
         ret_val = None
         try:
+            current_app.logger.debug("running operation get"
+                                     " experiment by ID = %s" % id)
             ret_val = Experiment.get_by_id(id)
         except Exception as err:
             current_app.logger.error("Exception = %s" % str(err))
@@ -3957,6 +4016,8 @@ class TestPersistenceDelegate(TestCase):
     def get_institute_by_id(self, id):
         ret_val = None
         try:
+            current_app.logger.debug("running operation get"
+                                     " institute by ID = %s" % id)
             ret_val = Institute.get_by_id(id)
         except Exception as err:
             current_app.logger.error("Exception = %s" % str(err))
@@ -3999,6 +4060,8 @@ class TestPersistenceDelegate(TestCase):
     def get_discipline_by_id(self, id):
         ret_val = None
         try:
+            current_app.logger.debug("running operation get"
+                                     " discipline by ID = %s" % id)
             ret_val = Discipline.get_by_id(id)
         except Exception as err:
             current_app.logger.error("Exception = %s" % str(err))
