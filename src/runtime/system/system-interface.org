@@ -1350,7 +1350,7 @@ class TestAddIntegration_Status(TestCase):
     def get_labs():
         lab_cls = System.delegate.entities['lab']
         try:
-            current_app.logger.debug("getting labs")
+            current_app.logger.debug("running operation get labs")
             labs = lab_cls.get_all()
             lab_dict_list = []
             for lab in labs:
@@ -1542,7 +1542,8 @@ class TestGetLabsByLabName(TestCase):
     def get_labs_by_keyword_lab_name(keyword):
         lab_cls = System.delegate.entities['lab']
         try:
-            current_app.logger.debug("getting labs")
+            current_app.logger.debug("running get labs by keyword" 
+                                     " lab name")
             labs = lab_cls.get_all()
             labs_match_list=[]
             for lab in labs:
@@ -1550,7 +1551,7 @@ class TestGetLabsByLabName(TestCase):
                 if keyword.lower() in (lab_x['lab_name']).lower():
                     labs_match_list.append(lab_x)
 
-            current_app.logger.debug("got labs")
+            current_app.logger.debug("got labs by keyword lab name")
             return  labs_match_list
 
         except (ArityError, TypeError, NotAuthorizedError, StateError) as err:
@@ -1940,7 +1941,7 @@ class TestGetLabsByInstitute(TestCase):
         try:
             current_app.logger.debug("running operation get_labs_by_discipline")
             labs = System.do("get_labs_by_discipline", discipline=discipline)
-            current_app.logger.debug("completed operation get_labs_by_institute")
+            current_app.logger.debug("completed operation get_labs_by_discipline")
             labs_dict_list = []
             for lab in labs:
                 lab_x = lab.to_client()
@@ -3017,7 +3018,7 @@ class TestGetSections(TestCase):
             for dis in disciplines:
                 dis_x = dis.to_client()
                 dis_dict_list.append(dis_x)
-            current_app.logger.debug("got discipline")
+            current_app.logger.debug("got disciplines")
             return  dis_dict_list
 
         except (ArityError, TypeError, NotAuthorizedError, StateError) as err:
@@ -3097,7 +3098,7 @@ class TestGetDisciplines(TestCase):
             for host in hosting_info:
                 host_x = host.to_client()
                 host_dict_list.append(host_x)
-            current_app.logger.debug("got hosting_info")
+            current_app.logger.debug("got hosting_infos")
             return  host_dict_list
 
         except (ArityError, TypeError, NotAuthorizedError, StateError) as err:
@@ -3291,7 +3292,7 @@ class TestGetEmails(TestCase):
     def get_developers():
         developer_cls = System.delegate.entities['developer']
         try:
-            current_app.logger.debug("getting developes")
+            current_app.logger.debug("getting developers")
             developers = developer_cls.get_all()
             developer_dict_list = []
             for developer in developers:
@@ -3483,6 +3484,7 @@ class TestGetIntegration_Status(TestCase):
             if not lab:
                 return ("No lab found with id: %s" % (id))
 
+            current_app.logger.debug("got lab by id: %s" % id)
             return lab.to_client()
 
         except (ArityError, TypeError, NotAuthorizedError, StateError) as err:
@@ -3685,6 +3687,7 @@ class TestGetLabById(TestCase):
             if not section:
                 return ("No section found with id: %s" % (id))
 
+            current_app.logger.debug("got section by id = %s" % id)
             return section.to_client()
 
         except (ArityError, TypeError, NotAuthorizedError, StateError) as err:
@@ -3749,6 +3752,7 @@ class TestGetSectionById(TestCase):
             if not experiment:
                 return ("No experiment found with id: %s" % (id))
 
+            current_app.logger.debug("got experiment by id = %s" % id)
             return experiment.to_client()
 
         except (ArityError, TypeError, NotAuthorizedError, StateError) as err:
@@ -3929,6 +3933,7 @@ class TestGetExperimentById(TestCase):
             if not institute:
                 return ("No institute found with id: %s" % (id))
 
+            current_app.logger.debug("got institute by id = %s" % id)
             return institute.to_client()
 
         except (ArityError, TypeError, NotAuthorizedError, StateError) as err:
@@ -4010,6 +4015,7 @@ class TestGetInstituteById(TestCase):
             if not discipline:
                 return ("No discipline found with id: %s" % (id))
 
+            current_app.logger.debug("got discipline by id = %s" % id)
             return discipline.to_client()
 
         except (ArityError, TypeError, NotAuthorizedError, StateError) as err:
@@ -4089,6 +4095,7 @@ class TestGetDisciplineById(TestCase):
             if not name:
                 return ("No name found with id: %s" % (id))
 
+            current_app.logger.debug("got developer name by id = %s" % id)
             return name.to_client()
 
         except (ArityError, TypeError, NotAuthorizedError, StateError) as err:
@@ -6827,10 +6834,12 @@ class TestGetDeveloperByEmail(TestCase):
     @staticmethod
     def get_integration_status_by_IL(integration_level):
         try:
-            current_app.logger.debug("running operation get_integration_status_by_integration_level")
+            current_app.logger.debug("running operation get_integration_status_"
+                                     " by_integration_level")
             integration_status_id = System.do("get_integration_status_by_IL", 
                                       integration_level=int(integration_level))
-            current_app.logger.debug("completed operation get_integration_status_by_integration_level")
+            current_app.logger.debug("completed operation get_integration_"
+                                     " status_by_integration_level")
             return integration_status_id
 
         except (ArityError, TypeError, NotAuthorizedError, StateError) as err:
@@ -7188,7 +7197,7 @@ class TestGetAssets(TestCase):
         asset_cls = System.delegate.entities['asset']
 
         try:
-            current_app.logger.debug("getting asset by path")
+            current_app.logger.debug("running get_asset_by_path")
             asset = System.do("get_asset", path=str(path))
             current_app.logger.debug("completed operation get_asset_by_path")
             if not asset:
