@@ -2963,7 +2963,11 @@ def add_lab():
 
         try:
             lab = SystemInterface.add_lab(data_dict)
-            return jsonify(lab)
+            return_data = {}
+            return_data["data"] = lab
+            return_data["status"] = "success"
+            return_data["status_code"] = 200
+            return jsonify(return_data)
 
         except NotAuthorizedError as e:
             err_str = str(e)
@@ -7665,6 +7669,7 @@ class TestUpdateExperiment(TestCase):
                                  headers=headers)
 
         payload = {'exp_name': 'stack',
+                   'exp_id': 'cse01',
                    'overview' : 'overview',
                    'sections' : ['Theory', 'Procedure'],
                    'integration_level': 4,
