@@ -29,9 +29,9 @@ class PersistenceDelegate():
                          'section' : Section,
                          'institute' : Institute,
                          'discipline' : Discipline,
-                         'hostinginfo': HostingInfo,
+                         'hosting_info': HostingInfo,
                          'asset' : Asset,
-                         'integrationstatus': IntegrationStatus,
+                         'integration_status': IntegrationStatus,
                          'name' : Name,
                          'email' : Email,
                          'developer' : Developer
@@ -67,7 +67,7 @@ class TestPersistenceDelegate(TestCase):
 
    Other functions that help =System= perform the operations. 
   
-***  Check if entity already exists 
+*** Check if entity already exists 
     The following three functions checks whether the given entity exists or
     not. To optimize the code, apply the following three principles:
 
@@ -102,7 +102,11 @@ class TestPersistenceDelegate(TestCase):
 #+NAME: persistence_lab_exists
 #+BEGIN_SRC python
     def lab_exists(self, lab):
+        current_app.logger.debug("running check on the existence of"
+                                 " lab = %s" % lab)
         lab_id = lab.get("lab_id")
+        current_app.logger.debug("completed check on the existence of"
+                                 " lab with lab_id = %s" % lab_id)
         return lab == self.get_lab(lab_id=lab_id)
         
 #+END_SRC
@@ -116,43 +120,47 @@ class TestPersistenceDelegate(TestCase):
         lab_id1="CSE01"
         overview1 = "overview"
 
-        inst_name = "IIT Kanpur"
-        inst_id = "IITK"
-        inst = Institute(inst_name=inst_name, inst_id=inst_id)
-        inst.save()
-
-        dis_name = "IIT Kanpur"
-        dis_id = "IITK"
-        discipline = Discipline(dis_name=dis_name, dis_id=dis_id)
-        discipline.save()
-        
-        integration_level = 4
-        integrationstatus = IntegrationStatus(integration_level=integration_level)
-        integrationstatus.save()
-         
         asset_type = "Image"
         path = "vlabs.ac.in/images/static/logo.png"
         asset = Asset(asset_type=asset_type, path=path)
         asset.save()
 
+        inst_name = "IIT Kanpur"
+        inst_id = "IITK"
+        inst = Institute(inst_name=inst_name, inst_id=inst_id, assets=[asset])
+        inst.save()
+
+        dis_name = "IIT Kanpur"
+        dis_id = "IITK"
+        discipline = Discipline(dis_name=dis_name, dis_id=dis_id,\
+                                    assets=[asset])
+        discipline.save()
+        
+        integration_level = 4
+        integration_status = IntegrationStatus(integration_level=\
+                                                   integration_level)
+        integration_status.save()
+         
         dev_name = Name(name="Mohit Tahiliani")
         dev_name.save()
         email_id = Email(email="mohit.tahiliani@gmail.com")
         email_id.save()
-        dev = Developer(name=dev_name, email=email_id)
+        dev = Developer(name=dev_name, email=email_id,
+                        institute=inst, discipline=discipline)
         dev.save()
 
         hosting_status = "hosted"
         hosted_url = "http://cse14-iiith.vlabs.ac.in"
         hosted_on = "cloud"
         host = HostingInfo(hosting_status=hosting_status,
-                               hosted_url=hosted_url, hosted_on=hosted_on)
+                               hosted_url=hosted_url, 
+                               hosted_on=hosted_on)
         host.save()
 
         lab = Lab(lab_name=lab_name1, lab_id=lab_id1, overview=overview1,
                       institute=inst, discipline=discipline, assets=[asset],
-                      experiments=[], integrationstatus=integrationstatus,
-                      developers=[dev], hostinginfo=host)
+                      experiments=[], integration_status=integration_status,
+                      developers=[dev], hosting_info=[host])
 
         lab1 = self.persistence_delegate.add_lab(lab)
 
@@ -160,9 +168,9 @@ class TestPersistenceDelegate(TestCase):
         lab_id2="CSE02"
         overview2 = "overview"
         lab2 = Lab(lab_name=lab_name2, lab_id=lab_id2, overview=overview2,
-                       integrationstatus=integrationstatus,               
-                       institute=inst, discipline=discipline, assets=[asset],                
-                       experiments=[], developers=[dev], hostinginfo=host)
+                       integration_status=integration_status,               
+                       institute=inst, discipline=discipline, assets=[asset],
+                       experiments=[], developers=[dev], hosting_info=[host])
 
         self.assertEqual(self.persistence_delegate.lab_exists(lab1),
                             True)
@@ -178,7 +186,11 @@ class TestPersistenceDelegate(TestCase):
 #+NAME: persistence_experiment_exists
 #+BEGIN_SRC python
     def experiment_exists(self, experiment):
+        current_app.logger.debug("running check on the existence of"
+                                 " experiment = %s" % experiment)
         exp_id = experiment.get("exp_id")
+        current_app.logger.debug("completed check on the existence of"
+                                 " experiment with exp_id = %s" % exp_id)
         return experiment == self.get_experiment(exp_id=exp_id)
         
 #+END_SRC
@@ -188,19 +200,65 @@ class TestPersistenceDelegate(TestCase):
 #+BEGIN_SRC python
     def test_experiment_exists(self):
         print "test_experiment_exists"
+
+        asset_type = "Image"
+        path = "vlabs.ac.in/images/static/logo.png"
+        asset = Asset(asset_type=asset_type, path=path)
+        asset.save()
+
+        inst_name = "IIT Kanpur"
+        inst_id = "IITK"
+        inst = Institute(inst_name=inst_name, inst_id=inst_id, assets=[asset])
+        inst.save()
+
+        dis_name = "IIT Kanpur"
+        dis_id = "IITK"
+        discipline = Discipline(dis_name=dis_name, dis_id=dis_id,\
+                                    assets=[asset])
+        discipline.save()
+ 
+        dev_name = Name(name="Mohit Tahiliani")
+        dev_name.save()
+        email_id = Email(email="mohit.tahiliani@gmail.com")
+        email_id.save()
+        dev = Developer(name=dev_name, email=email_id,
+                        institute=inst, discipline=discipline)
+        dev.save()
+
+        hosting_status = "hosted"
+        hosted_url = "http://cse14-iiith.vlabs.ac.in"
+        hosted_on = "cloud"
+        host = HostingInfo(hosting_status=hosting_status,
+                               hosted_url=hosted_url, hosted_on=hosted_on)
+        host.save()
+
         exp_name1 = "Number Systems"
         exp_id1 = "EE99777"
         overview1 = "overview"
+
+        integration_level = 4
+        integration_status = IntegrationStatus(integration_level=\
+                                                   integration_level)
+        integration_status.save()
+
         experiment1 = Experiment(exp_name=exp_name1, exp_id=exp_id1,
-                                     overview=overview1, sections=[])
+                                 overview=overview1, sections=[],
+                                 institute=inst, discipline=discipline, 
+                                 integration_status=integration_status,
+                                 assets=[asset], developers=[dev],
+                                 hosting_info=[host])
+
         exp1 = self.persistence_delegate.add_experiment(experiment1)
 
         exp_name2 = "Transformations"
         exp_id2 = "EE98747"
         overview2 = "overview"
         experiment2 = Experiment(exp_name=exp_name2, exp_id=exp_id2, \
-                                     overview=overview2, sections=[])
-
+                                overview=overview2, sections=[],
+                                institute=inst, discipline=discipline, 
+                                integration_status=integration_status,
+                                assets=[asset], developers=[dev],
+                                hosting_info=[host])
         self.assertEqual(self.persistence_delegate.experiment_exists\
                              (experiment1), True)
         self.assertEqual(self.persistence_delegate.experiment_exists\
@@ -215,7 +273,11 @@ class TestPersistenceDelegate(TestCase):
 #+NAME: persistence_section_exists
 #+BEGIN_SRC python
     def section_exists(self, section):
+        current_app.logger.debug("running check on the existence of"
+                                 " section = %s" % section) 
         name = section.get("name")
+        current_app.logger.debug("completed check on the existence of"
+                                 " section with name = %s" % name)
         return section == self.get_section(name=name)
         
 #+END_SRC
@@ -243,7 +305,11 @@ class TestPersistenceDelegate(TestCase):
 #+NAME: persistence_institute_exists
 #+BEGIN_SRC python
     def institute_exists(self, institute):
+        current_app.logger.debug("running check on the existence of"
+                                 " institute = %s" % institute)
         inst_id = institute.get("inst_id")
+        current_app.logger.debug("completed check on the existence of"
+                                 " institute with inst_id = %s" % inst_id)
         return institute == self.get_institute(inst_id=inst_id)
         
 #+END_SRC
@@ -253,14 +319,22 @@ class TestPersistenceDelegate(TestCase):
 #+BEGIN_SRC python
     def test_institute_exists(self):
         print "test_institute_exists"
+
+        asset_type = "Image"
+        path = "vlabs.ac.in/images/static/logo.png"
+        asset = Asset(asset_type=asset_type, path=path)
+        asset.save()
+
         inst_name1 = "IIT Kanpur"
         inst_id1 = "IITK"
-        institute1 = Institute(inst_name=inst_name1, inst_id=inst_id1) 
+        institute1 = Institute(inst_name=inst_name1, inst_id=inst_id1,
+                               assets=[asset]) 
         inst1 = self.persistence_delegate.add_institute(institute1)
 
         inst_name2 = "IIT Kharagpur"
         inst_id2 = "IITKgp"
-        institute2 = Institute(inst_name=inst_name2, inst_id=inst_id2) 
+        institute2 = Institute(inst_name=inst_name2, inst_id=inst_id2,
+                               assets=[asset]) 
         
         self.assertEqual(self.persistence_delegate.institute_exists\
                              (institute1), True)
@@ -278,9 +352,12 @@ class TestPersistenceDelegate(TestCase):
     def name_exists(self, name):
         ret_val = False
         try:
+            current_app.logger.debug("running check on the existence of name")
             if self.get_name(name=name.get("name")) is not None:
                 ret_val = True
+            current_app.logger.debug("completed check on the existence of name")
         except Exception as e:
+            current_app.logger.error("Error in returning the name")
             pass
         return ret_val
         
@@ -311,9 +388,12 @@ class TestPersistenceDelegate(TestCase):
     def email_exists(self, email):
         ret_val = False
         try:
+            current_app.logger.debug("running check on the existence of email")
             if self.get_email(email=email.get("email")) is not None:
                 ret_val = True
+            current_app.logger.debug("completed check on the existence of email")
         except Exception as e:
+            current_app.logger.error("Error in returning the email")
             pass
 
         return ret_val
@@ -343,9 +423,14 @@ class TestPersistenceDelegate(TestCase):
     def developer_exists(self, developer):
         ret_val = False
         try:
+            current_app.logger.debug("running check on the existence of"
+                                     " developer")
             if self.get_developer(email=developer.get("email")) is not None:
                 ret_val = True
+            current_app.logger.debug("completed check on the existence of"
+                                     " developer")
         except Exception as e:
+            current_app.logger.error("Error in returning the developer")
             pass
 
         return ret_val
@@ -357,31 +442,57 @@ class TestPersistenceDelegate(TestCase):
 #+BEGIN_SRC python
     def test_developer_exists(self):
         print "test_developer_exists"
+
+        asset_type = "Image"
+        path = "vlabs.ac.in/images/static/logo.png"
+        asset = Asset(asset_type=asset_type, path=path)
+        asset.save()
+
+        inst_name = "IIT Kanpur"
+        inst_id = "IITK"
+        inst = Institute(inst_name=inst_name, inst_id=inst_id, assets=[asset])
+        inst.save()
+
+        dis_name = "IIT Kanpur"
+        dis_id = "IITK"
+        discipline = Discipline(dis_name=dis_name, dis_id=dis_id,\
+                                    assets=[asset])
+        discipline.save()
+
         dev_name1 = Name(name="Prof. Dharmaraj")
         dev_name1.save()
         email_id1 = Email(email="abc@gmail.com")
         email_id1.save()
-        developer1 = Developer(name=dev_name1, email=email_id1)
+        developer1 = Developer(name=dev_name1, email=email_id1,
+                               institute=inst, discipline=discipline)
         developer1.save()
 
         dev_name2 = Name(name="Prof. Raja")
         dev_name2.save()
         email_id2 = Email(email="xyz@gmail.com")
         email_id2.save()
-        developer2 = Developer(name=dev_name2, email=email_id2)
+        developer2 = Developer(name=dev_name2, email=email_id2,
+                               institute=inst, discipline=discipline)
 
-        self.assertEqual(self.persistence_delegate.developer_exists(developer1), True)
+        self.assertEqual(self.persistence_delegate.\
+                             developer_exists(developer1), True)
         self.assertEqual(self.persistence_delegate.developer_exists\
                              (developer2), False)
 #+END_SRC
 
 
-***  Check if =Discipline= already exists
+*** Check if =Discipline= already exists
     This function checks if a discipline is already in the discipline-set of the =System=.
 #+NAME: persistence_discipline_exists
 #+BEGIN_SRC python
     def discipline_exists(self, discipline):
+        current_app.logger.debug("running check on the existence of"
+                                 " discipline = %s" % 
+                                 discipline.to_client())
         dis_id = discipline.get("dis_id")
+        current_app.logger.debug("completed check on the existence of"
+                                 " discipline with dis_id = %s"
+                                 % dis_id)
         return discipline == self.get_discipline(dis_id=dis_id)
 
 #+END_SRC
@@ -392,15 +503,23 @@ class TestPersistenceDelegate(TestCase):
   
     def test_discipline_exists(self):
         print "test_discipline_exists"
+
+        asset_type = "Image"
+        path = "vlabs.ac.in/images/static/logo.png"
+        asset = Asset(asset_type=asset_type, path=path)
+        asset.save()
+
         dis_name1="IIT Delhi"
         dis_id1="EEE08"
-        dis = Discipline(dis_name=dis_name1, dis_id=dis_id1)
+        dis = Discipline(dis_name=dis_name1, dis_id=dis_id1,
+                         assets=[asset])
 
         dis1 = self.persistence_delegate.add_discipline(dis)
 
         dis_name2="IIT Delhi"
         dis_id2="EEE09"
-        dis2 = Discipline(dis_name=dis_name2, dis_id=dis_id2)
+        dis2 = Discipline(dis_name=dis_name2, dis_id=dis_id2,
+                         assets=[asset])
 
         self.assertEqual(self.persistence_delegate.discipline_exists(dis1),
                             True)
@@ -412,36 +531,46 @@ class TestPersistenceDelegate(TestCase):
 #+END_SRC
    
 
-*** Check if =hostinginfo= already exists
-    This function checks if an hostinginfo is already in the hostinginfo-set of the =System=.
-#+NAME: persistence_hostinginfo_exists
+*** Check if =hosting_info= already exists
+    This function checks if an hosting_info is already in the hosting_info-set of the =System=.
+#+NAME: persistence_hosting_info_exists
 #+BEGIN_SRC python
-    def hostinginfo_exists(self, hostinginfo):
-        hosted_url = str(hostinginfo.get("hosted_url"))
-        return hostinginfo == self.get_hostinginfo(hosted_url=hosted_url)
-        
+    def hosting_info_exists(self, hosting_info):
+        current_app.logger.debug("running check on the existence of"
+                                 " hosting_info = %s" % 
+                                 hosting_info.to_client())
+        hosted_url = hosting_info.get("hosted_url")
+        current_app.logger.debug("completed check on the existence of" 
+                                 " hosting_info with hosted_url = %s"
+                                 % hosted_url)
+        return hosting_info == self.get_hosting_info(hosted_url=hosted_url)
+   
 #+END_SRC
 
 **** Tests
-#+NAME: test_persistence_hostinginfo_exists
+#+NAME: test_persistence_hosting_info_exists
 #+BEGIN_SRC python
-    def test_hostinginfo_exists(self):
-        print "test_hostinginfo_exists"
+    def test_hosting_info_exists(self):
+        print "test_hosting_info_exists"
         hosting_status1 = "hosted"
         hosted_url1 = "http://cse14-iiith.vlabs.ac.in"
         hosted_on1 = "cloud"
-        hostinginfo1 = HostingInfo(hosting_status=hosting_status1, hosted_url=hosted_url1, hosted_on=hosted_on1)
-        host1 = self.persistence_delegate.add_hostinginfo(hostinginfo1)
+        hosting_info1 = HostingInfo(hosting_status=hosting_status1,\
+                                        hosted_url=hosted_url1,\
+                                        hosted_on=hosted_on1)
+        host1 = self.persistence_delegate.add_hosting_info(hosting_info1)
 
         hosting_status2 = "not hosted"
         hosted_url2 = "http://iitkgp.vlab.co.in/"
         hosted_on2 = "server"
-        hostinginfo2 = HostingInfo(hosting_status=hosting_status2, hosted_url=hosted_url2, hosted_on=hosted_on2)
+        hosting_info2 = HostingInfo(hosting_status=hosting_status2,\
+                                        hosted_url=hosted_url2,\
+                                        hosted_on=hosted_on2)
         
-        self.assertEqual(self.persistence_delegate.hostinginfo_exists\
-                             (hostinginfo1), True)
-        self.assertEqual(self.persistence_delegate.hostinginfo_exists\
-                             (hostinginfo2), False)
+        self.assertEqual(self.persistence_delegate.hosting_info_exists\
+                             (hosting_info1), True)
+        self.assertEqual(self.persistence_delegate.hosting_info_exists\
+                             (hosting_info2), False)
 
 #+END_SRC
 
@@ -452,15 +581,21 @@ class TestPersistenceDelegate(TestCase):
 #+NAME: persistence_asset_exists
 #+BEGIN_SRC python
     def asset_exists(self, asset):
+        current_app.logger.debug("running check on the existence of"
+                                 " asset = %s" % asset.to_client())
         path = asset.get("path")
+        current_app.logger.debug("completed check on the existence of"
+                                 " asset with path = %s" % path)
         return asset == self.get_asset(path=path)
+  
 #+END_SRC
 
 **** Tests
 #+NAME: test_persistence_asset_exists
 #+BEGIN_SRC python
     def test_asset_exists(self):
-        print "test_asset_exists"
+        print "test_asset_exists"       
+
         asset_type1 = "Image"
         path1 = "vlabs.ac.in/static/images/logo.png"
         asset1 = Asset(asset_type=asset_type1, path=path1)
@@ -477,42 +612,58 @@ class TestPersistenceDelegate(TestCase):
 #+END_SRC
 
 
-*** Check if =integrationstatus= already exists
-    This function checks if an integrationstatus is already in the integrationstatus-set of the =System=.
-#+NAME: persistence_integrationstatus_exists
+*** Check if =integration_status= already exists
+    This function checks if an integration_status is already in the integration_status-set of the =System=.
+#+NAME: persistence_integration_status_exists
 #+BEGIN_SRC python
-    def integrationstatus_exists(self, integrationstatus):
-        integration_level = integrationstatus.get("integration_level")
-        return integrationstatus == self.get_integrationstatus(integration_level=integration_level)
+    def integration_status_exists(self, integration_status):
+        current_app.logger.debug("running check on the existence of"
+                                     " integration_status = %s"
+                                    % integration_status.to_client())
+        integration_level = integration_status.get("integration_level")
+
+        current_app.logger.debug("completed check on the existence of"
+                                 " integration_status"
+                                 " with integration_level = %s" % 
+                                 integration_level)
+        return integration_status == self.get_integration_status(
+                                     integration_level=integration_level)
         
 #+END_SRC
 
 **** Tests
-#+NAME: test_persistence_integrationstatus_exists
+#+NAME: test_persistence_integration_status_exists
 #+BEGIN_SRC python
-    def test_integrationstatus_exists(self):
-        print "test_integrationstatus_exists"
+    def test_integration_status_exists(self):
+        print "test_integration_status_exists"
         integration_level1 = 4
-        integrationstatus1 = IntegrationStatus(integration_level=integration_level1)
-        intstatus1 = self.persistence_delegate.add_integrationstatus(integrationstatus1)
+        integration_status1 = IntegrationStatus(integration_level=\
+                                                    integration_level1)
+        intstatus1 = self.persistence_delegate.add_integration_status\
+        (integration_status1)
 
         integration_level2 = 2
-        integrationstatus2 = IntegrationStatus(integration_level=integration_level2)
+        integration_status2 = IntegrationStatus(integration_level=\
+                                                    integration_level2)
         
-        self.assertEqual(self.persistence_delegate.integrationstatus_exists\
-                             (integrationstatus1), True)
-        self.assertEqual(self.persistence_delegate.integrationstatus_exists\
-                             (integrationstatus2), False)
+        self.assertEqual(self.persistence_delegate.integration_status_exists\
+                             (integration_status1), True)
+        self.assertEqual(self.persistence_delegate.integration_status_exists\
+                             (integration_status2), False)
 
 #+END_SRC
 
 
-***  Add lab to the system
+*** Add lab to the system
     This function adds lab to the system.
 #+NAME: persistence_add_lab
 #+BEGIN_SRC python
     def add_lab(self, lab):
+        current_app.logger.debug("running add lab to system operation"
+                                 " lab = %s" % lab.to_client())
         lab.save()
+        current_app.logger.debug("completed add lab to system operation"
+                                 " lab = %s" % lab.to_client())
         return lab
 
 #+END_SRC
@@ -522,53 +673,64 @@ class TestPersistenceDelegate(TestCase):
 #+BEGIN_SRC python
     def test_add_lab(self):
          print "test_add_lab"
-         exp_name = "Number Systems"
-         exp_id = "EE99777"
-         overview = "exp"
-         experiment = Experiment(exp_name=exp_name, exp_id=exp_id, \
-                                     overview=overview, sections=[])
-         experiment.save()
-         
+
          integration_level = 4
-         integrationstatus = IntegrationStatus(integration_level=integration_level)
-         integrationstatus.save()
-
-         inst_name = "IIT Kanpur"
-         inst_id = "IITK"
-         inst = Institute(inst_name=inst_name, inst_id=inst_id)
-         inst.save()
-
-         dis_name = "IIT Kanpur"
-         dis_id = "IITK"
-         discipline = Discipline(dis_name=dis_name, dis_id=dis_id)
-         discipline.save()
+         integration_status = IntegrationStatus(integration_level=\
+                                                    integration_level)
+         integration_status.save()
 
          asset_type = "Image"
          path = "vlabs.ac.in/images/static/logo.png"
          asset = Asset(asset_type=asset_type, path=path)
          asset.save()
 
+         inst_name = "IIT Kanpur"
+         inst_id = "IITK"
+         inst = Institute(inst_name=inst_name, inst_id=inst_id,\
+                              assets=[asset])
+         inst.save()
+
+         dis_name = "IIT Kanpur"
+         dis_id = "IITK"
+         discipline = Discipline(dis_name=dis_name, dis_id=dis_id,\
+                                     assets=[asset])
+         discipline.save()
+
          dev_name = Name(name="Mohit Tahiliani")
          dev_name.save()
          email_id = Email(email="mohit.tahiliani@gmail.com")
          email_id.save()
-         dev = Developer(name=dev_name, email=email_id)
+         dev = Developer(name=dev_name, email=email_id,
+                         institute=inst, discipline=discipline)
          dev.save()
 
          hosting_status = "hosted"
          hosted_url = "http://cse14-iiith.vlabs.ac.in"
          hosted_on = "cloud"
-         host = HostingInfo(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
+         host = HostingInfo(hosting_status=hosting_status,\
+                                hosted_url=hosted_url, hosted_on=hosted_on)
          host.save()
+
+         exp_name = "Number Systems"
+         exp_id = "EE99777"
+         overview = "exp"
+         experiment = Experiment(exp_name=exp_name, exp_id=exp_id, \
+                                  overview=overview, institute=inst, 
+                                  discipline=discipline,
+                                  integration_status=integration_status, 
+                                  sections=[], assets=[asset],
+                                  developers=[dev], hosting_info=[host])
+         experiment.save()
 
          lab_name1="Computer Programming"
          lab_id1="CSE01"
          overview="lab"
          lab1 = Lab(lab_name=lab_name1, lab_id=lab_id1, \
-                        institute=inst, discipline=discipline, assets=[asset], \
-                        overview=overview, experiments=[experiment], \
-                        integrationstatus=integrationstatus, developers=[dev],
-                        hostinginfo=host)
+                        institute=inst, discipline=discipline,\
+                        assets=[asset], overview=overview,\
+                        experiments=[experiment], \
+                        integration_status=integration_status,\
+                        developers=[dev], hosting_info=[host])
 
          lab1 = self.persistence_delegate.add_lab(lab1)
         
@@ -578,8 +740,8 @@ class TestPersistenceDelegate(TestCase):
 
          lab2 = Lab(lab_name=lab_name2, lab_id=lab_id2, overview=overview, 
                         institute=inst, discipline=discipline, assets=[asset],
-                        experiments=[], integrationstatus=integrationstatus,
-                        developers=[dev], hostinginfo=host)
+                        experiments=[], integration_status=integration_status,
+                        developers=[dev], hosting_info=[host])
 
          self.assertEqual(self.persistence_delegate.lab_exists(lab1),
                           True)
@@ -589,13 +751,17 @@ class TestPersistenceDelegate(TestCase):
 #+END_SRC
 
 
-***  Add experiment to the system
+*** Add experiment to the system
 
     This function adds experiment to the system.
 #+NAME: persistence_add_experiment
 #+BEGIN_SRC python
     def add_experiment(self, experiment):
+        current_app.logger.debug("running add experiment to system operation"
+                                 " experiment = %s" % experiment.to_client())
         experiment.save()
+        current_app.logger.debug("completed add experiment to system operation"
+                                 " experiment = %s" % experiment.to_client())
         return experiment
 
 #+END_SRC
@@ -605,35 +771,87 @@ class TestPersistenceDelegate(TestCase):
 #+BEGIN_SRC python
     def test_add_experiment(self):
          print "test_add_experiment"
+
+         asset_type = "Image"
+         path = "vlabs.ac.in/images/static/logo.png"
+         asset = Asset(asset_type=asset_type, path=path)
+         asset.save()
+
+         inst_name = "IIT Kanpur"
+         inst_id = "IITK"
+         inst = Institute(inst_name=inst_name, inst_id=inst_id, assets=[asset])
+         inst.save()
+
+         dis_name = "IIT Kanpur"
+         dis_id = "IITK"
+         discipline = Discipline(dis_name=dis_name, dis_id=dis_id,
+                                     assets=[asset])
+         discipline.save()
+
+         dev_name = Name(name="Mohit Tahiliani")
+         dev_name.save()
+         email_id = Email(email="mohit.tahiliani@gmail.com")
+         email_id.save()
+         dev = Developer(name=dev_name, email=email_id,
+                         institute=inst, discipline=discipline)
+         dev.save()
+
+         hosting_status = "hosted"
+         hosted_url = "http://cse14-iiith.vlabs.ac.in"
+         hosted_on = "cloud"
+         host = HostingInfo(hosting_status=hosting_status,
+                                hosted_url=hosted_url,
+                                hosted_on=hosted_on)
+         host.save()
+         
+         integration_level = 4
+         integration_status = IntegrationStatus(integration_level=
+                                                    integration_level)
+         integration_status.save()
+         
          exp_name1 = "Number Systems"
          exp_id1 = "EE99777"
          overview1 = "overview"
          experiment1 = Experiment(exp_name=exp_name1, exp_id=exp_id1, 
-                                      overview=overview1, sections=[])
+                                      overview=overview1, institute=inst, 
+                                      discipline=discipline, 
+                                      integration_status=integration_status, 
+                                      sections=[], assets=[asset],
+                                      developers=[dev], hosting_info=[host])
          experiment1 = self.persistence_delegate.add_experiment(experiment1)
+         experiment1.save()
          
          exp_name2="Transformations"
-         exp_id2="EE99870"
+         exp_id2="EE98747"
          overview2="overview"
          experiment2 = Experiment(exp_name=exp_name2, exp_id=exp_id2,
-                                      overview=overview2, sections=[])
-         
+                                      overview=overview2, sections=[],
+                                      institute=inst, discipline=discipline, 
+                                      integration_status=integration_status,
+                                      assets=[asset], developers=[dev], 
+                                      hosting_info=[host])    
          experiment = Experiment.get_by_id(1)
 
-         self.assertEqual(self.persistence_delegate.experiment_exists(experiment1),
+         self.assertEqual(self.persistence_delegate.
+                              experiment_exists(experiment1),
                           True)
-         self.assertEqual(self.persistence_delegate.experiment_exists(experiment2),
+         self.assertEqual(self.persistence_delegate.
+                              experiment_exists(experiment2),
                           False)
         
 #+END_SRC
 
 
-***  Add discipline to the system
+*** Add discipline to the system
     This function adds discipline to the system.
 #+NAME: persistence_add_discipline
 #+BEGIN_SRC python
     def add_discipline(self, discipline):
+        current_app.logger.debug("running add discipline to system operation"
+                                 " discipline = %s" % discipline.to_client())
         discipline.save()
+        current_app.logger.debug("completed add discipline to system operation"
+                                 " discipline = %s" % discipline.to_client())
         return discipline
 
 #+END_SRC
@@ -643,11 +861,20 @@ class TestPersistenceDelegate(TestCase):
 #+BEGIN_SRC python
     def test_add_discipline(self):
          print "test_add_discipline"
+
+         asset_type = "Image"
+         path = "vlabs.ac.in/images/static/logo.png"
+         asset = Asset(asset_type=asset_type, path=path)
+         asset.save()
+
          dis_name = "IIT Delhi"
          dis_id = "EEE08"
-         discipline = Discipline(dis_name=dis_name, dis_id=dis_id)
+         discipline = Discipline(dis_name=dis_name, dis_id=dis_id,
+                                     assets=[asset])
          discipline = self.persistence_delegate.add_discipline(discipline)
+
          discipline = discipline.get_by_id(1)
+
          self.assertEqual(discipline.get("dis_name"), dis_name)
          self.assertEqual(discipline.get("dis_id"), dis_id)
 
@@ -655,12 +882,16 @@ class TestPersistenceDelegate(TestCase):
 
 
 
-***  Add section to the system
+*** Add section to the system
     This function adds section to the system.
 #+NAME: persistence_add_section
 #+BEGIN_SRC python
     def add_section(self, section):
+        current_app.logger.debug("running add section to system operation"
+                                 " section = %s" % section.to_client())
         section.save()
+        current_app.logger.debug("completed add section to system operation"
+                                 " section = %s" % section.to_client())
         return section
 
 #+END_SRC
@@ -680,12 +911,16 @@ class TestPersistenceDelegate(TestCase):
 #+END_SRC
 
 
-***  Add name to the system
+*** Add name to the system
     This function adds name to the system.
 #+NAME: persistence_add_name
 #+BEGIN_SRC python
     def add_name(self, name):
+        current_app.logger.debug("running add name to system operation"
+                                 " name = %s" % name.to_client())
         name.save()
+        current_app.logger.debug("completed add name to system operation"
+                                 " name = %s" % name.to_client())
         return name
 
 #+END_SRC
@@ -705,12 +940,16 @@ class TestPersistenceDelegate(TestCase):
 #+END_SRC
 
 
-***  Add email to the system
+*** Add email to the system
     This function adds email to the system.
 #+NAME: persistence_add_email
 #+BEGIN_SRC python
     def add_email(self, email):
+        current_app.logger.debug("running add email to system operation"
+                                 " email = %s" % email.to_client())
         email.save()
+        current_app.logger.debug("completed add email to system operation"
+                                 " email = %s" % email.to_client())
         return email
 
 #+END_SRC
@@ -730,18 +969,34 @@ class TestPersistenceDelegate(TestCase):
 #+END_SRC
 
 
-***  Add developer to the system
+*** Add developer to the system
     This function adds developer to the system.
 #+NAME: persistence_add_developer
 #+BEGIN_SRC python
     def add_developer(self, developer):
+        current_app.logger.debug("running add developer to system"
+                                 " developer = %s" % developer.to_client())
         name = developer.get("name")
+        current_app.logger.debug("running add developer to system"
+                                 " with name = %s" % name)
         email = developer.get("email")
+        current_app.logger.debug("running add developer to system"
+                                 " with email = %s" % email)
+
         if not self.name_exists(name.get("name")):
             name.save()
+            current_app.logger.debug("completed add operation"
+                                    " to system with developer" 
+                                    " name = %s" % name)
         if not self.email_exists(email.get("email")):
             email.save()
+            current_app.logger.debug("completed add operation"
+                                    " to system with developer"
+                                    " email = %s" % email)
         developer.save()
+
+        current_app.logger.debug("completed add developer"
+                                 " operation = %s" % developer.to_client())
         return developer
 
 #+END_SRC
@@ -751,11 +1006,29 @@ class TestPersistenceDelegate(TestCase):
 #+BEGIN_SRC python
     def test_add_developer(self):
          print "test_add_developer"
+
+         asset_type = "Image"
+         path = "vlabs.ac.in/images/static/logo.png"
+         asset = Asset(asset_type=asset_type, path=path)
+         asset.save()
+
+         inst_name = "IIT Kanpur"
+         inst_id = "IITK"
+         inst = Institute(inst_name=inst_name, inst_id=inst_id, assets=[asset])
+         inst.save()
+
+         dis_name = "IIT Kanpur"
+         dis_id = "IITK"
+         discipline = Discipline(dis_name=dis_name, dis_id=dis_id,
+                                     assets=[asset])
+         discipline.save()
+
          dev_name = Name(name="Prof. S. Dharmaraja")
          dev_name.save()
          email = Email(email="dharmar@maths.iitd.ac.in")
          email.save()
-         dev = Developer(name=dev_name, email=email)
+         dev = Developer(name=dev_name, email=email,
+                         institute=inst, discipline=discipline)
          dev = self.persistence_delegate.add_developer(dev)
         
          self.assertEqual(self.persistence_delegate.developer_exists(dev),
@@ -763,10 +1036,28 @@ class TestPersistenceDelegate(TestCase):
 
     def test_add_developer_without_saving_name(self):
          print "test_add_developer_without_saving_name"
+
+         asset_type = "Image"
+         path = "vlabs.ac.in/images/static/logo.png"
+         asset = Asset(asset_type=asset_type, path=path)
+         asset.save()
+
+         inst_name = "IIT Kanpur"
+         inst_id = "IITK"
+         inst = Institute(inst_name=inst_name, inst_id=inst_id, assets=[asset])
+         inst.save()
+
+         dis_name = "IIT Kanpur"
+         dis_id = "IITK"
+         discipline = Discipline(dis_name=dis_name, dis_id=dis_id,
+                                     assets=[asset])
+         discipline.save()
+
          dev_name = Name(name="Prof. S. Dharmaraja")
          email = Email(email="dharmar@maths.iitd.ac.in")
          email.save()
-         dev = Developer(name=dev_name, email=email)
+         dev = Developer(name=dev_name, email=email,
+                         institute=inst, discipline=discipline)
          dev = self.persistence_delegate.add_developer(dev)
         
          self.assertEqual(self.persistence_delegate.developer_exists(dev),
@@ -774,10 +1065,28 @@ class TestPersistenceDelegate(TestCase):
 
     def test_add_developer_without_saving_email(self):
          print "test_add_developer_without_saving_email"
+
+         asset_type = "Image"
+         path = "vlabs.ac.in/images/static/logo.png"
+         asset = Asset(asset_type=asset_type, path=path)
+         asset.save()
+
+         inst_name = "IIT Kanpur"
+         inst_id = "IITK"
+         inst = Institute(inst_name=inst_name, inst_id=inst_id, assets=[asset])
+         inst.save()
+
+         dis_name = "IIT Kanpur"
+         dis_id = "IITK"
+         discipline = Discipline(dis_name=dis_name, dis_id=dis_id,
+                                     assets=[asset])
+         discipline.save()
+
          dev_name = Name(name="Prof. S. Dharmaraja")
          dev_name.save()
          email = Email(email="dharmar@maths.iitd.ac.in")
-         dev = Developer(name=dev_name, email=email)
+         dev = Developer(name=dev_name, email=email,
+                         institute=inst, discipline=discipline)
          dev = self.persistence_delegate.add_developer(dev)
         
          self.assertEqual(self.persistence_delegate.developer_exists(dev),
@@ -785,13 +1094,18 @@ class TestPersistenceDelegate(TestCase):
 
 #+END_SRC
 
+
 ***  Add institute to the system
 
     This function adds institute to the system.
 #+NAME: persistence_add_institute
 #+BEGIN_SRC python
     def add_institute(self, institute):
+        current_app.logger.debug("running add institute to system operation"
+                                 " institute = %s" % institute.to_client())
         institute.save()
+        current_app.logger.debug("completed add institute to system operation"
+                                 " institute = %s" % institute.to_client())
         return institute
 
 #+END_SRC
@@ -800,14 +1114,22 @@ class TestPersistenceDelegate(TestCase):
 #+BEGIN_SRC python
     def test_add_institute(self):
          print "test_add_institute"
+
+         asset_type = "Image"
+         path = "vlabs.ac.in/images/static/logo.png"
+         asset = Asset(asset_type=asset_type, path=path)
+         asset.save() 
+
          inst_name1 = "IIT Kanpur"
          inst_id1 = "IITK"
-         institute1 = Institute(inst_name=inst_name1, inst_id=inst_id1)                             
+         institute1 = Institute(inst_name=inst_name1, inst_id=inst_id1,
+                                    assets=[asset])  
          institute1 = self.persistence_delegate.add_institute(institute1)
          
          inst_name2= "IIT Kharagpur"
          inst_id2= "IITKgp"
-         institute2 = Institute(inst_name=inst_name2, inst_id=inst_id2) 
+         institute2 = Institute(inst_name=inst_name2, inst_id=inst_id2,
+                                    assets=[asset]) 
          
          institute = Institute.get_by_id(1)
 
@@ -816,41 +1138,53 @@ class TestPersistenceDelegate(TestCase):
          self.assertEqual(self.persistence_delegate.institute_exists\
                               (institute2), False)
         
-#+END_SRC
-
-
-***  Add hostinginfo to the system
-
-    This function adds hostinginfo to the system.
-#+NAME: persistence_add_hostinginfo
-#+BEGIN_SRC python
-    def add_hostinginfo(self, hostinginfo):
-        hostinginfo.save()
-        return hostinginfo
 
 #+END_SRC
-**** Tests
-#+NAME: test_persistence_add_hostinginfo
+
+
+***  Add hosting_info to the system
+
+    This function adds hosting_info to the system.
+#+NAME: persistence_add_hosting_info
 #+BEGIN_SRC python
-    def test_add_hostinginfo(self):
-         print "test_add_hostinginfo"
+    def add_hosting_info(self, hosting_info):
+        current_app.logger.debug("running add hosting_info to system operation"
+                                 " hosting_info = %s" % 
+                                 hosting_info.to_client())
+        hosting_info.save()
+        current_app.logger.debug("completed add hosting_info"
+                                 " to system operation"
+                                 " hosting_info = %s" % 
+                                 hosting_info.to_client())
+        return hosting_info
+
+#+END_SRC
+**** COMMENT Tests
+#+NAME: test_persistence_add_hosting_info
+#+BEGIN_SRC python
+    def test_add_hosting_info(self):
+         print "test_add_hosting_info"
          hosting_status1 = "hosted"
          hosted_url1 = "http://cse14-iiith.vlabs.ac.in"
          hosted_on1 = "cloud"
-         hostinginfo1 = HostingInfo(hosting_status=hosting_status1, hosted_url=hosted_url1, hosted_on=hosted_on1)
-         hostinginfo1 = self.persistence_delegate.add_hostinginfo(hostinginfo1)
+         hosting_info1 = HostingInfo(hosting_status=hosting_status1,\
+                                         hosted_url=hosted_url1,\
+                                         hosted_on=hosted_on1)
+         hosting_info1 = self.persistence_delegate.add_hosting_info(hosting_info1)
          
          hosting_status2 = "not hosted"
          hosted_url2 = "http://iitkgp.vlab.co.in/"
          hosted_on2 = "server"
-         hostinginfo2 = HostingInfo(hosting_status=hosting_status2, hosted_url=hosted_url2, hosted_on=hosted_on2)
+         hosting_info2 = HostingInfo(hosting_status=hosting_status2,\
+                                         hosted_url=hosted_url2,\
+                                         hosted_on=hosted_on2)
 
-         hostinginfo = HostingInfo.get_by_id(1)
+         hosting_info = HostingInfo.get_by_id(1)
 
-         self.assertEqual(self.persistence_delegate.hostinginfo_exists\
-                             (hostinginfo1), True)
-         self.assertEqual(self.persistence_delegate.hostinginfo_exists\
-                             (hostinginfo2), False)
+         self.assertEqual(self.persistence_delegate.hosting_info_exists\
+                             (hosting_info1), True)
+         self.assertEqual(self.persistence_delegate.hosting_info_exists\
+                             (hosting_info2), False)
         
 #+END_SRC
 
@@ -861,7 +1195,11 @@ class TestPersistenceDelegate(TestCase):
 #+NAME: persistence_add_asset
 #+BEGIN_SRC python
     def add_asset(self, asset):
+        current_app.logger.debug("running add asset to system operation"
+                                 " asset = %s" % asset.to_client())
         asset.save()
+        current_app.logger.debug("completed add asset to system operation"
+                                 " asset = %s" % asset.to_client())
         return asset
 
 #+END_SRC
@@ -871,6 +1209,7 @@ class TestPersistenceDelegate(TestCase):
 #+BEGIN_SRC python
     def test_add_asset(self):
          print "test_add_asset"
+
          asset_type1 = "Image"
          path1 = "vlabs.ac.in/static/images/logo.png"
          asset1 = Asset(asset_type=asset_type1, path=path1)
@@ -889,34 +1228,42 @@ class TestPersistenceDelegate(TestCase):
 #+END_SRC
 
 
-***  Add integrationstatus to the system
+***  Add integration_status to the system
 
-    This function adds integrationstatus to the system.
-#+NAME: persistence_add_integrationstatus
+    This function adds integration_status to the system.
+#+NAME: persistence_add_integration_status
 #+BEGIN_SRC python
-    def add_integrationstatus(self, integrationstatus):
-        integrationstatus.save()
-        return integrationstatus
+    def add_integration_status(self, integration_status):
+        current_app.logger.debug("running add integration_status to"
+                                 " system operation"
+                                 " integration_status = %s" % 
+                                 integration_status.to_client())
+        integration_status.save()
+        current_app.logger.debug("completed add integration_status to"
+                                 " system operation"
+                                 " integration_status = %s" % 
+                                 integration_status.to_client())
+        return integration_status
 
 #+END_SRC
 **** Tests
-#+NAME: test_persistence_add_integrationstatus
+#+NAME: test_persistence_add_integration_status
 #+BEGIN_SRC python
-    def test_add_integrationstatus(self):
-         print "test_add_integrationstatus"
+    def test_add_integration_status(self):
+         print "test_add_integration_status"
          integration_level1 = 4
-         integrationstatus1 = IntegrationStatus(integration_level=integration_level1)
-         integrationstatus1 = self.persistence_delegate.add_integrationstatus(integrationstatus1)
+         integration_status1 = IntegrationStatus(integration_level= integration_level1)
+         integration_status1 = self.persistence_delegate.add_integration_status(integration_status1)
          
          integration_level2= 2
-         integrationstatus2 = IntegrationStatus(integration_level=integration_level2)
+         integration_status2 = IntegrationStatus(integration_level= integration_level2)
          
-         integrationstatus = IntegrationStatus.get_by_id(1)
+         integration_status = IntegrationStatus.get_by_id(1)
 
-         self.assertEqual(self.persistence_delegate.integrationstatus_exists\
-                              (integrationstatus1), True)
-         self.assertEqual(self.persistence_delegate.integrationstatus_exists\
-                              (integrationstatus2), False)
+         self.assertEqual(self.persistence_delegate.integration_status_exists\
+                              (integration_status1), True)
+         self.assertEqual(self.persistence_delegate.integration_status_exists\
+                              (integration_status2), False)
         
 #+END_SRC
 
@@ -925,14 +1272,24 @@ class TestPersistenceDelegate(TestCase):
     This function updates existing lab.
 #+NAME: persistence_update_lab
 #+BEGIN_SRC python
-    def update_lab(self, lab, lab_name, overview):
-        lab.set(lab_name=lab_name, overview=overview)
+    def update_lab(self, lab, lab_name, overview, institute, discipline,
+                       integration_status, hosting_info, developers,
+                       assets, experiments):
+
+        current_app.logger.debug("running update lab operation")
+
+        lab.set(lab_name=lab_name, overview=overview, institute=institute, 
+                    discipline=discipline, hosting_info=hosting_info,
+                    integration_status=integration_status,
+                    developers=developers, assets=assets,
+                    experiments=experiments)
         lab.save()
+ 
+        current_app.logger.debug("completed update lab operation") 
+
         return lab
 
 #+END_SRC
-
-  
 **** Tests
 #+NAME: test_persistence_update_lab
 #+BEGIN_SRC python
@@ -943,64 +1300,167 @@ class TestPersistenceDelegate(TestCase):
          overview = "overview lab"
          experiments = []
 
-         inst_name = "IIT Kanpur"
-         inst_id = "IITK"
-         inst = Institute(inst_name=inst_name, inst_id=inst_id)
-         inst.save()
-
-         dis_name = "IIT Kanpur"
-         dis_id = "IITK"
-         discipline = Discipline(dis_name=dis_name, dis_id=dis_id)
-         discipline.save()
-
-         integration_level = 4
-         integrationstatus = IntegrationStatus(integration_level=integration_level)
-         integrationstatus.save()
-  
          asset_type = "Image"
          path = "vlabs.ac.in/images/static/logo.png"
          asset = Asset(asset_type=asset_type, path=path)
          asset.save()
 
+         inst_name = "IIT Kanpur"
+         inst_id = "IITK"
+         inst = Institute(inst_name=inst_name, inst_id=inst_id, assets=[asset])
+         inst.save()
+
+         dis_name = "Electronics & Communications"
+         dis_id = "ECE"
+         discipline = Discipline(dis_name=dis_name, dis_id=dis_id,
+                                     assets=[asset])
+         discipline.save()
+
+         integration_level = 4
+         integration_status = IntegrationStatus(integration_level=
+                                                    integration_level)
+         integration_status.save()
+      
          dev_name = Name(name="Mohit Tahiliani")
          dev_name.save()
          email_id = Email(email="mohit.tahiliani@gmail.com")
          email_id.save()
-         dev = Developer(name=dev_name, email=email_id)
+         dev = Developer(name=dev_name, email=email_id,
+                         institute=inst, discipline=discipline)
          dev.save()
 
          hosting_status = "hosted"
          hosted_url = "http://cse14-iiith.vlabs.ac.in"
          hosted_on = "cloud"
-         host = HostingInfo(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
+         host = HostingInfo(hosting_status=hosting_status,
+                                hosted_url=hosted_url,
+                                hosted_on=hosted_on)
          host.save()
 
+
+         exp_name = "Data Structures"
+         exp_id = "cse01"
+         overview = "overview"
+        
+         exp = Experiment(exp_name=exp_name, exp_id=exp_id, \
+                              overview=overview, sections=[],
+                              institute=inst, discipline=discipline, 
+                              integration_status=integration_status,
+                              assets=[asset], developers=[dev],
+                              hosting_info=[host])
+
+         exp1 = self.persistence_delegate.add_experiment(exp)
+
+
          lab = Lab(lab_name=lab_name, lab_id=lab_id, overview=overview, 
-                       institute=inst, discipline=discipline, hostinginfo=host, assets=[asset], 
-                       experiments=experiments, developers=[dev], 
-                       integrationstatus=integrationstatus) 
+                       institute=inst, discipline=discipline, 
+                       assets=[asset], hosting_info=[host],
+                       experiments=[exp1], developers=[dev], 
+                       integration_status=integration_status) 
 
          lab1 = self.persistence_delegate.add_lab(lab)
          lab_name1 = "Computer Programming"
          overview1 = "overview"
+
+         inst_name1 = "IIT Kharagpur"
+         inst_id1 = "IITKgp"
+         inst1 = Institute(inst_name=inst_name1, inst_id=inst_id1,
+                               assets=[asset])
+         inst1.save()
+
+         dis_name1 = "Computer Science & Engineering"
+         dis_id1 = "CSE"
+         discipline1 = Discipline(dis_name=dis_name1, dis_id=dis_id1,
+                                      assets=[asset])
+         discipline1.save()
+
+         integration_level1 = 2
+         integration_status1 = IntegrationStatus(integration_level=\
+                                                     integration_level1)
+         integration_status1.save()
+
+         hosting_status1 = "hosted"
+         hosted_url1 = "http://cse13-iiith.vlabs.ac.in"
+         hosted_on1 = "cloud"
+         host1 = HostingInfo(hosting_status=hosting_status1,
+                                 hosted_url=hosted_url1,
+                                 hosted_on=hosted_on1)
+         host1.save()
+
+         dev_name1 = Name(name="Tahiliani")
+         dev_name1.save()
+         email_id1 = Email(email="tahiliani@gmail.com")
+         email_id1.save()
+         dev1 = Developer(name=dev_name1, email=email_id1,
+                         institute=inst1, discipline=discipline1)
+         dev1.save()
+
+         asset_type1 = "Image"
+         path1 = "vlabs.ac.in/images/static/image.png"
+         asset1 = Asset(asset_type=asset_type1, path=path1)
+         asset1.save()
+
+         exp_name1 = "Computer Programming"
+         exp_id1 = "cse02"
+         overview1 = "computer overview"
+        
+         exp1 = Experiment(exp_name=exp_name1, exp_id=exp_id1, \
+                              overview=overview1, sections=[],
+                              institute=inst1, discipline=discipline1, 
+                              integration_status=integration_status,
+                              assets=[asset1], developers=[dev1],
+                              hosting_info=[host1])
+
+         exp2 = self.persistence_delegate.add_experiment(exp)
+
          lab2 = self.persistence_delegate.update_lab\
-           (lab1, lab_name1, overview=overview1),
+           (lab1, lab_name1, overview1, inst1, discipline1,
+                integration_status1, [host1], [dev1], [asset1], [exp2]),
+
          lab2 = Lab.get_by_id(1)
 
          self.assertEqual(lab2.get("lab_id"), lab_id)
          self.assertEqual(lab2.get("lab_name"), lab_name1)
          self.assertEqual(lab2.get("overview"), overview1)
+         self.assertEqual(lab2.get("institute").get("inst_id"), 
+                              inst1.get("inst_id"))
+         self.assertEqual(lab2.get("discipline").get("dis_id"), 
+                              discipline1.get("dis_id"))
+         self.assertEqual(lab2.get("integration_status").
+                              get("integration_level"), 
+                              integration_status1.get("integration_level"))
+
+         self.assertEqual(lab2.get("hosting_info")[0].get("hosted_url"), 
+                              hosted_url1)
+         self.assertEqual(lab2.get("developers")[0].get("email").get("email"), 
+                              email_id1.get("email"))
+         self.assertEqual(lab2.get("assets")[0].get("path"),
+                              asset1.get("path"))
+         self.assertEqual(lab2.get("experiments")[0].get("exp_id"),
+                              exp2.get("exp_id"))
+
 
 #+END_SRC
-
 
 ***  Update Experiment 
     This function updates existing experiment.
 #+NAME: persistence_update_experiment
 #+BEGIN_SRC python
-    def update_experiment(self, experiment, exp_name, overview):
-        experiment.set(exp_name=exp_name, overview=overview)
+    def update_experiment(self, experiment, exp_name, overview, institute, 
+                          discipline, integration_status, hosting_info,
+                          developers, assets, sections):
+        current_app.logger.debug("running update experiment operation")
+
+        experiment.set(exp_name=exp_name, overview=overview,
+                           institute=institute, discipline=discipline,
+                           integration_status=integration_status, 
+                           hosting_info=hosting_info, 
+                           developers=developers, assets=assets, 
+                           sections=sections)
         experiment.save()
+
+        current_app.logger.debug("completed update experiment operation")
+
         return experiment
 
 #+END_SRC
@@ -1010,20 +1470,130 @@ class TestPersistenceDelegate(TestCase):
 #+BEGIN_SRC python
     def test_update_experiment(self):
          print "test_update_experiment"
+
+         asset_type = "Image"
+         path = "vlabs.ac.in/images/static/logo.png"
+         asset = Asset(asset_type=asset_type, path=path)
+         asset.save()
+
+         inst_name = "IIT Kanpur"
+         inst_id = "IITK"
+         inst = Institute(inst_name=inst_name, inst_id=inst_id, assets=[asset])
+         inst.save()
+
+         dis_name = "computer science"
+         dis_id = "cse"
+         discipline = Discipline(dis_name=dis_name, dis_id=dis_id,
+                                     assets=[asset])
+         discipline.save()
+
+         dev_name = Name(name="Mohit Tahiliani")
+         dev_name.save()
+         email_id = Email(email="mohit.tahiliani@gmail.com")
+         email_id.save()
+         dev = Developer(name=dev_name, email=email_id,
+                         institute=inst, discipline=discipline)
+         dev.save()
+
+         hosting_status = "hosted"
+         hosted_url = "http://cse14-iiith.vlabs.ac.in"
+         hosted_on = "cloud"
+         host = HostingInfo(hosting_status=hosting_status,
+                                hosted_url=hosted_url, 
+                                hosted_on=hosted_on)
+         host.save()
+
          exp_name = "Data Structures"
          exp_id = "cse01"
          overview = "overview"
+
+         integration_level = 4
+         integration_status = IntegrationStatus(integration_level=
+                                                    integration_level)
+         integration_status.save()
+
+         name = "Theory"
+         section = Section(name=name)
+         section.save()
+        
          exp = Experiment(exp_name=exp_name, exp_id=exp_id, \
-                              overview=overview, sections=[])
+                              overview=overview, sections=[section],
+                              institute=inst, discipline=discipline, 
+                              integration_status=integration_status,
+                              assets=[asset], developers=[dev],
+                              hosting_info=[host] )
          exp1 = self.persistence_delegate.add_experiment(exp)
+
          exp_name1 = "Computer Programming"
          overview1 = "overveiw exp"
-         exp2 = self.persistence_delegate.update_experiment\
-           (exp1, exp_name1, overview1),
+
+         asset_type1 = "Video"
+         path1 = "vlabs.ac.in/images/video/logo.png"
+         asset1 = Asset(asset_type=asset_type1, path=path1)
+         asset1.save()
+
+         inst_name1 = "IIT Kharagpur"
+         inst_id1 = "IITKgp"
+         inst1 = Institute(inst_name=inst_name1, inst_id=inst_id1,
+                               assets=[asset1])
+         inst1.save()
+
+         dis_name1 = "Electronics and Communication"
+         dis_id1 = "ece"
+         discipline1 = Discipline(dis_name=dis_name1, dis_id=dis_id1,
+                                      assets=[asset1])
+         discipline1.save()
+
+         dev_name1 = Name(name="Palavi Pawar")
+         dev_name1.save()
+         email_id1 = Email(email="pallavipawar@gmail.com")
+         email_id1.save()
+         dev1 = Developer(name=dev_name1, email=email_id1,
+                         institute=inst1, discipline=discipline1)
+         dev1.save()
+
+         integration_level1 = 3
+         integration_status1 = IntegrationStatus(integration_level=
+                                                     integration_level1)
+         integration_status1.save()
+
+         hosting_status1 = "hosted"
+         hosted_url1 = "http://cse13-iiith.vlabs.ac.in"
+         hosted_on1 = "cloud"
+         host1 = HostingInfo(hosting_status=hosting_status1,
+                                 hosted_url=hosted_url1,
+                                 hosted_on=hosted_on1)
+         host1.save()
+         
+         name1 = "Procedure"
+         section1 = Section(name=name1)
+         section1.save()
+
+         exp2 = self.persistence_delegate.update_experiment(exp1, exp_name1,
+                                         overview1, inst1, discipline1,
+                                         integration_status1, [host1], 
+                                         [dev1], [asset1], [section1])
          exp2 = Experiment.get_by_id(1)
+
          self.assertEqual(exp2.get("exp_name"), exp_name1)
          self.assertEqual(exp2.get("overview"), overview1)
          self.assertEqual(exp2.get("exp_id"), exp_id)
+         self.assertEqual(exp2.get("institute").get("inst_id"), 
+                              inst1.get("inst_id"))
+         self.assertEqual(exp2.get("discipline").get("dis_id"), 
+                              discipline1.get("dis_id"))
+         self.assertEqual(exp2.get("integration_status").
+                              get("integration_level"), 
+                              integration_status1.get("integration_level"))
+         self.assertEqual(exp2.get("hosting_info")[0].get("hosted_url"), 
+                              hosted_url1)
+         self.assertEqual(exp2.get("developers")[0].get("email").get("email"), 
+                              email_id1.get("email"))
+         self.assertEqual(exp2.get("assets")[0].get("path"),
+                              asset1.get("path"))
+         self.assertEqual(exp2.get("sections")[0].get("name"),
+                              section1.get("name"))
+
 
 #+END_SRC
 
@@ -1032,9 +1602,13 @@ class TestPersistenceDelegate(TestCase):
     This function updates existing discipline.
 #+NAME: persistence_update_discipline
 #+BEGIN_SRC python
-    def update_discipline(self, discipline, dis_name):
-        discipline.set(dis_name=dis_name)
+    def update_discipline(self, discipline, dis_name, assets):
+        current_app.logger.debug("running update discipline operation")
+
+        discipline.set(dis_name=dis_name, assets=assets)
         discipline.save()
+       
+        current_app.logger.debug("completed update discipline operation")
         return discipline
 
 #+END_SRC
@@ -1044,17 +1618,31 @@ class TestPersistenceDelegate(TestCase):
 #+BEGIN_SRC python
     def test_update_discipline(self):
          print "test_update_discipline"
+
+         asset_type = "Image"
+         path = "vlabs.ac.in/images/static/logo.png"
+         asset = Asset(asset_type=asset_type, path=path)
+         asset.save()
+
          dis_name = "IIT Delhi"
          dis_id = "EEE08"
-         dis = Discipline(dis_name=dis_name, dis_id=dis_id)
+         dis = Discipline(dis_name=dis_name, dis_id=dis_id, assets=[asset])
          dis1 = self.persistence_delegate.add_discipline(dis)
+
+         asset_type1 = "Image"
+         path1 = "vlabs.ac.in/images/static/image.png"
+         asset1 = Asset(asset_type=asset_type1, path=path1)
+         asset1.save()
+
          dis_name1 = "IIT Bombay"
          dis_id1 = "EEE09"
          dis2 = self.persistence_delegate.update_discipline\
-           (dis1, dis_name1),
+           (dis1, dis_name1, [asset1]),
          dis2 = Discipline.get_by_id(1)
          self.assertEqual(dis2.get("dis_name"), dis_name1)
          self.assertEqual(dis2.get("dis_id"), dis_id)
+         self.assertEqual(dis2.get("assets")[0].get("path"),
+                              asset1.get("path"))
 
 #+END_SRC
 
@@ -1065,8 +1653,14 @@ class TestPersistenceDelegate(TestCase):
 #+NAME: persistence_update_section
 #+BEGIN_SRC python
     def update_section(self, section, name):
+        current_app.logger.debug("running update section operation"
+                                 " with section name = %s" % name)
+
         section.set(name=name)
         section.save()
+
+        current_app.logger.debug("completed update section operation"
+                                 " with section name = %s" % name)
         return section
 
 #+END_SRC
@@ -1088,14 +1682,19 @@ class TestPersistenceDelegate(TestCase):
 
 #+END_SRC
 
-
 ***  Update developer
     This function updates existing developer.
 #+NAME: persistence_update_developer
 #+BEGIN_SRC python
-    def update_developer(self, dev, dev_name):
-        dev.set(name=dev_name)
+    def update_developer(self, dev, dev_name, institute, discipline):
+
+        current_app.logger.debug("running update developer operation")
+
+        dev.set(name=dev_name, institute=institute, discipline=discipline)
         dev.save()
+
+        current_app.logger.debug("completed update developer operation")
+
         return dev
 
 #+END_SRC
@@ -1106,19 +1705,51 @@ class TestPersistenceDelegate(TestCase):
 #+BEGIN_SRC python
     def test_update_developer(self):
          print "test_update_developer"
+
+         asset_type = "Image"
+         path = "vlabs.ac.in/images/static/logo.png"
+         asset = Asset(asset_type=asset_type, path=path)
+         asset.save()
+
+         inst_name = "IIT Kanpur"
+         inst_id = "IITK"
+         inst = Institute(inst_name=inst_name, inst_id=inst_id, assets=[asset])
+         inst.save()
+
+         dis_name = "computer science"
+         dis_id = "cse"
+         discipline = Discipline(dis_name=dis_name, dis_id=dis_id,
+                                     assets=[asset])
+         discipline.save()
+
          dev_name = Name(name="Prof. S. Dharmaraja")
          dev_name.save()
          email_id = Email(email="dharmar@maths.iitd.ac.in")
          email_id.save()
-         dev = Developer(name=dev_name, email=email_id)
+         dev = Developer(name=dev_name, email=email_id,
+                         institute=inst, discipline=discipline)
          dev1 = self.persistence_delegate.add_developer(dev)
+
+         inst_name1 = "IIT Kharagpur"
+         inst_id1 = "IITKgp"
+         inst1 = Institute(inst_name=inst_name1, inst_id=inst_id1, assets=[asset])
+         inst1.save()
+
+         dis_name1 = "Computer Science & Engineering"
+         dis_id1 = "IIT Kharagpur"
+         discipline1 = Discipline(dis_name=dis_name1, dis_id=dis_id1, assets=[asset])
+         discipline1.save()
 
          dev_name1 = Name(name="Prof. S. raja")
          dev_name1.save()
 
-         dev2 = self.persistence_delegate.update_developer(dev1, dev_name1)
+         dev2 = self.persistence_delegate.update_developer(dev1, dev_name1, inst1, discipline1)
 
          self.assertEqual(dev1.get("name").get("name"), dev_name1.get("name"))
+         self.assertEqual(dev1.get("institute").get("inst_id"), 
+                              inst1.get("inst_id"))
+         self.assertEqual(dev1.get("discipline").get("dis_id"), 
+                              discipline1.get("dis_id"))
 
 #+END_SRC
 
@@ -1127,9 +1758,15 @@ class TestPersistenceDelegate(TestCase):
     This function updates existing institute.
 #+NAME: persistence_update_institute
 #+BEGIN_SRC python
-    def update_institute(self, institute, inst_name):
-        institute.set(inst_name=inst_name)
+    def update_institute(self, institute, inst_name, assets):
+
+        current_app.logger.debug("running update institute operation")
+
+        institute.set(inst_name=inst_name, assets=assets)
         institute.save()
+
+        current_app.logger.debug("completed update institute operation")
+
         return institute
 
 #+END_SRC
@@ -1139,55 +1776,78 @@ class TestPersistenceDelegate(TestCase):
 #+BEGIN_SRC python
     def test_update_institute(self):
          print "test_update_institute"
+
+         asset_type = "Image"
+         path = "vlabs.ac.in/images/static/logo.png"
+         asset = Asset(asset_type=asset_type, path=path)
+         asset.save()
+
          inst_name = "IIT Delhi"
          inst_id = "IITD"
-         institute = Institute(inst_name=inst_name, inst_id=inst_id)
+         institute = Institute(inst_name=inst_name, inst_id=inst_id,
+                                   assets=[asset])
          institute1 = self.persistence_delegate.add_institute(institute)
+
+         asset_type1 = "Image"
+         path1 = "vlabs.ac.in/images/static/image.png"
+         asset1 = Asset(asset_type=asset_type1, path=path1)
+         asset1.save()
 
          inst_name1 = "IIT Kanpur"
          institute2 = self.persistence_delegate.update_institute\
-           (institute1, inst_name1),
+           (institute1, inst_name1, [asset1]),
 
          institute = Institute.get_by_id(1)
 
          self.assertEqual(institute.get("inst_name"), inst_name1)
          self.assertEqual(institute.get("inst_id"), inst_id)
+         self.assertEqual(institute.get("assets")[0].get("path"),
+                              asset1.get("path"))
 
 #+END_SRC
 
 
 ***  Update HostingInfo 
-    This function updates existing hostinginfo.
-#+NAME: persistence_update_hostinginfo
+    This function updates existing hosting_info.
+#+NAME: persistence_update_hosting_info
 #+BEGIN_SRC python
-    def update_hostinginfo(self, hostinginfo, hosting_status, hosted_on):
-        hostinginfo.set(hosting_status=hosting_status, hosted_on=hosted_on)
-        hostinginfo.save()
-        return hostinginfo
+    def update_hosting_info(self, hosting_info, hosting_status, hosted_on):
+
+        current_app.logger.debug("running update hosting_info operation")
+
+        hosting_info.set(hosting_status=hosting_status, hosted_on=hosted_on)
+        hosting_info.save()
+
+        current_app.logger.debug("completed update hosting_info operation")
+
+        return hosting_info
 
 #+END_SRC
 
 **** Tests
-#+NAME: test_persistence_update_hostinginfo
+#+NAME: test_persistence_update_hosting_info
 #+BEGIN_SRC python
-    def test_update_hostinginfo(self):
-         print "test_update_hostinginfo"
+    def test_update_hosting_info(self):
+         print "test_update_hosting_info"
          hosting_status = "hosted"
          hosted_url = "http://cse14-iiith.vlabs.ac.in"
          hosted_on = "cloud"
-         hostinginfo = HostingInfo(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
-         hostinginfo1 = self.persistence_delegate.add_hostinginfo(hostinginfo)
+         hosting_info = HostingInfo(hosting_status=hosting_status,
+                                        hosted_url=hosted_url,
+                                        hosted_on=hosted_on)
+         hosting_info1 = self.persistence_delegate.add_hosting_info(
+             hosting_info)
 
          hosting_status1 = "not hosted"
          hosted_on1 = "server"
-         hostinginfo2 = self.persistence_delegate.update_hostinginfo\
-           (hostinginfo1, hosting_status1, hosted_on1),
+         hosting_info2 = self.persistence_delegate.update_hosting_info\
+           (hosting_info1, hosting_status1, hosted_on1),
 
-         hostinginfo = HostingInfo.get_by_id(1)
+         hosting_info = HostingInfo.get_by_id(1)
 
-         self.assertEqual(hostinginfo.get("hosting_status"), hosting_status1)
-         self.assertEqual(hostinginfo.get("hosted_url"), hosted_url)
-         self.assertEqual(hostinginfo.get("hosted_on"), hosted_on1)
+         self.assertEqual(hosting_info.get("hosting_status"), hosting_status1)
+         self.assertEqual(hosting_info.get("hosted_url"), hosted_url)
+         self.assertEqual(hosting_info.get("hosted_on"), hosted_on1)
 
 #+END_SRC
 
@@ -1197,8 +1857,12 @@ class TestPersistenceDelegate(TestCase):
 #+NAME: persistence_update_asset
 #+BEGIN_SRC python
     def update_asset(self, asset, asset_type):
+
+        current_app.logger.debug("running update asset operation")
         asset.set(asset_type=asset_type)
         asset.save()
+
+        current_app.logger.debug("completed update asset operation")
         return asset
 
 #+END_SRC
@@ -1208,6 +1872,7 @@ class TestPersistenceDelegate(TestCase):
 #+BEGIN_SRC python
     def test_update_asset(self):
          print "test_update_asset"
+
          asset_type = "Image"
          path = "vlabs.ac.in/static/images/logo.png"
          asset = Asset(asset_type=asset_type, path=path)
@@ -1234,10 +1899,16 @@ class TestPersistenceDelegate(TestCase):
             abort(404, 'No Lab with lab_id %s' % (lab_id))
         else:
             try:
+                current_app.logger.debug("running delete operation on"
+                                         " lab with lab_id = %s"
+                                         % lab_id)
                 record.delete()
                 #db.session.delete(record)
                 #db.session.commit()
             except Exception, e:
+                current_app.logger.debug("completed delete operation on"
+                                         " lab with lab_id = %s"
+                                         % lab_id)
                 print e
                 abort(500, str(e))
 
@@ -1254,41 +1925,49 @@ class TestPersistenceDelegate(TestCase):
          lab_id = "cse01"
          overview = "overview"
 
-         inst_name = "IIT Kanpur"
-         inst_id = "IITK"
-         inst = Institute(inst_name=inst_name, inst_id=inst_id)
-         inst.save()
-
-         integration_level = 4
-         integrationstatus = IntegrationStatus(integration_level=integration_level)                    
-         integrationstatus.save()
-
-         dis_name = "IIT Kanpur"
-         dis_id = "IITK"
-         discipline = Discipline(dis_name=dis_name, dis_id=dis_id)
-         discipline.save()
- 
          asset_type = "Image"
          path = "vlabs.ac.in/images/static/logo.png"
          asset = Asset(asset_type=asset_type, path=path)
          asset.save()
 
+         inst_name = "IIT Kanpur"
+         inst_id = "IITK"
+         inst = Institute(inst_name=inst_name, inst_id=inst_id,
+                              assets=[asset])
+         inst.save()
+
+         integration_level = 4
+         integration_status = IntegrationStatus(integration_level=
+                                                    integration_level)                    
+         integration_status.save()
+
+         dis_name = "IIT Kanpur"
+         dis_id = "IITK"
+         discipline = Discipline(dis_name=dis_name, dis_id=dis_id,
+                                     assets=[asset])
+         discipline.save()
+ 
          dev_name = Name(name="Mohit Tahiliani")
          dev_name.save()
          email_id = Email(email="mohit.tahiliani@gmail.com")
          email_id.save()
-         dev = Developer(name=dev_name, email=email_id)
+         dev = Developer(name=dev_name, email=email_id,
+                         institute=inst, discipline=discipline)
          dev.save()
 
          hosting_status = "hosted"
          hosted_url = "http://cse14-iiith.vlabs.ac.in"
          hosted_on = "cloud"
-         host = HostingInfo(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
+         host = HostingInfo(hosting_status=hosting_status,
+                                hosted_url=hosted_url,
+                                hosted_on=hosted_on)
          host.save()
 
          lab = Lab(lab_name=lab_name, lab_id=lab_id, overview=overview, 
-                       institute=inst, discipline=discipline, hostinginfo=host, assets=[asset],
-                       experiments=[], developers=[dev], integrationstatus=integrationstatus)
+                       institute=inst, discipline=discipline,
+                       hosting_info=[host],  assets=[asset],
+                       experiments=[], developers=[dev],
+                       integration_status=integration_status)
 
          lab1 = self.persistence_delegate.add_lab(lab)
 
@@ -1298,8 +1977,8 @@ class TestPersistenceDelegate(TestCase):
 
          lab1 = Lab(lab_name=lab_name1, lab_id=lab_id1, overview=overview,
                         institute=inst, discipline=discipline, assets=[asset], 
-                        experiments=[], integrationstatus=integrationstatus,
-                        developers=[dev], hostinginfo=host)
+                        experiments=[], integration_status=integration_status,
+                        developers=[dev], hosting_info=[host])
 
          lab2 = self.persistence_delegate.add_lab(lab1)
 
@@ -1320,10 +1999,16 @@ class TestPersistenceDelegate(TestCase):
             abort(404, 'No Experiment found with exp_id %s' % (exp_id))
         else:
             try:
+                current_app.logger.debug("running delete operation on"
+                                         " experiment with exp_id = %s"
+                                         % exp_id)
                 record.delete()
                 #db.session.delete(record)
                 #db.session.commit()
             except Exception, e:
+                current_app.logger.debug("completed delete operation on"
+                                         " experiment with exp_id = %s"
+                                         % exp_id)
                 print e
                 abort(500, str(e))
 
@@ -1336,18 +2021,64 @@ class TestPersistenceDelegate(TestCase):
 #+BEGIN_SRC python
     def test_delete_experiment(self):
          print "test_delete_experiment"
+
+         asset_type = "Image"
+         path = "vlabs.ac.in/images/static/logo.png"
+         asset = Asset(asset_type=asset_type, path=path)
+         asset.save()
+
+         inst_name = "IIT Kanpur"
+         inst_id = "IITK"
+         inst = Institute(inst_name=inst_name, inst_id=inst_id, assets=[asset])
+         inst.save()
+
+         dis_name = "IIT Kanpur"
+         dis_id = "IITK"
+         discipline = Discipline(dis_name=dis_name, dis_id=dis_id,
+                                     assets=[asset])
+         discipline.save()
+
+         dev_name = Name(name="Mohit Tahiliani")
+         dev_name.save()
+         email_id = Email(email="mohit.tahiliani@gmail.com")
+         email_id.save()
+         dev = Developer(name=dev_name, email=email_id,
+                         institute=inst, discipline=discipline)
+         dev.save()
+
+         hosting_status = "hosted"
+         hosted_url = "http://cse14-iiith.vlabs.ac.in"
+         hosted_on = "cloud"
+         host = HostingInfo(hosting_status=hosting_status,
+                                hosted_url=hosted_url,
+                                hosted_on=hosted_on)
+         host.save()
+         
+         integration_level = 4
+         integration_status = IntegrationStatus(integration_level=
+                                                    integration_level)
+         integration_status.save()
+        
          exp_name = "arrays"
-         exp_id = "cse01"
+         exp_id = "cse01" 
          overview = "overview"
          exp = Experiment(exp_name=exp_name, exp_id=exp_id, \
-                              overview=overview, sections=[])
+                              overview=overview, sections=[],
+                              institute=inst, discipline=discipline,
+                              integration_status=integration_status,
+                              assets=[asset], developers=[dev],
+                              hosting_info=[host])
          exp1 = self.persistence_delegate.add_experiment(exp)
 
          exp_name1 = "linked list"
          exp_id1 = "cse02"
          overview = "overview"
          exp1 = Experiment(exp_name=exp_name1, exp_id=exp_id1, \
-                               overview=overview, sections=[])
+                               overview=overview, sections=[],
+                               institute=inst, discipline=discipline,
+                               integration_status=integration_status,
+                               assets=[asset], developers=[dev],
+                               hosting_info=[host])
          exp2 = self.persistence_delegate.add_experiment(exp1)
 
          self.persistence_delegate.delete_experiment(exp_id)
@@ -1367,10 +2098,16 @@ class TestPersistenceDelegate(TestCase):
             abort(404, 'No Discipline  with dis_id %s' % (dis_id))
         else:
             try:
+                current_app.logger.debug("running delete operation on"
+                                         " discipline with dis_id = %s"
+                                         % dis_id)
                 record.delete()
                 #db.session.delete(record)
                 #db.session.commit()
             except Exception, e:
+                current_app.logger.debug("completed delete operation on"
+                                         " discipline with dis_id = %s"
+                                         % dis_id)
                 print e
                 abort(500, str(e))
 
@@ -1383,14 +2120,20 @@ class TestPersistenceDelegate(TestCase):
 #+BEGIN_SRC python
     def test_delete_discipline(self):
          print "test_delete_discipline"
+
+         asset_type = "Image"
+         path = "vlabs.ac.in/images/static/logo.png"
+         asset = Asset(asset_type=asset_type, path=path)
+         asset.save()
+
          dis_name = "IIT Delhi"
          dis_id = "EEE08"
-         dis = Discipline(dis_name=dis_name, dis_id=dis_id)
+         dis = Discipline(dis_name=dis_name, dis_id=dis_id, assets=[asset])
          dis1 = self.persistence_delegate.add_discipline(dis)
 
          dis_name1 = "IIT Kanpur"
          dis_id1 = "EEE10"
-         dis1 = Discipline (dis_name=dis_name1, dis_id=dis_id1)
+         dis1 = Discipline (dis_name=dis_name1, dis_id=dis_id1, assets=[asset])
          dis2 = self.persistence_delegate.add_discipline(dis1)
 
          self.persistence_delegate.delete_discipline("EEE08")
@@ -1410,10 +2153,13 @@ class TestPersistenceDelegate(TestCase):
             abort(404, 'No Section with id %s' % (e_id))
         else:
             try:
+                current_app.logger.debug("running delete operation on section")
                 record.delete()
                 #db.session.delete(record)
                 #db.session.commit()
             except Exception, e:
+                current_app.logger.debug("completed delete"
+                                         " operation on section")
                 print e
                 abort(500, str(e))
 
@@ -1445,20 +2191,24 @@ class TestPersistenceDelegate(TestCase):
     This function delete existing name.
 #+NAME: persistence_delete_name
 #+BEGIN_SRC python
-    def delete_name(self, name):
-        record = self.get_name(name=name.get("name"))
+    def delete_name(self, n_id):
+        current_app.logger.debug("running delete on developer name")
+        record = Name.get_by_id(n_id)
         if not record:
-            abort(404, 'No Name with id %s' % (name))
+            abort(404, 'No Name with id %s' % (n_id))
         else:
             try:
                 record.delete()
+                current_app.logger.debug("completed delete on developer"
+                                         " name")
                 #db.session.delete(record)
                 #db.session.commit()
             except Exception, e:
+                current_app.logger.error("Exception = %s" % str(e))
                 print e
                 abort(500, str(e))
 
-        return name
+        return n_id
 
 #+END_SRC
 
@@ -1475,7 +2225,7 @@ class TestPersistenceDelegate(TestCase):
          name2 = Name(name=name1)
          name2.save()
 
-         self.persistence_delegate.delete_name(name2)
+         self.persistence_delegate.delete_name(1)
 
          self.assertEqual(len(Name.get_all()), 1)
 
@@ -1488,14 +2238,19 @@ class TestPersistenceDelegate(TestCase):
 #+BEGIN_SRC python
     def delete_email(self, email_id):
         record = self.get_email(email=email_id.get("email"))
+        current_app.logger.debug("running delete on developer"
+                                 " email with email_id = %s" % email_id)
         if not record:
             abort(404, 'No Email with id %s' % (email_id))
         else:
-            try:
+            try:               
                 record.delete()
+                current_app.logger.debug("completed delete on developer"
+                                        " email with email_id = %s" % email_id)
                 #db.session.delete(record)
                 #db.session.commit()
             except Exception, e:
+                current_app.logger.error("Exception = %s" % str(etest_delete_developer))
                 print e
                 abort(500, str(e))
 
@@ -1527,12 +2282,18 @@ class TestPersistenceDelegate(TestCase):
     def delete_developer(self, email_id):
         record = self.get_developer(email=email_id)
         if not record:
+            current_app.logger.debug("running delete on developer"
+                                     " with email_id = %s" % email_id)
             abort(404, 'No Developer with id %s' % (email_id))
         else:
             try:
                 record.delete()
+                current_app.logger.debug("completed delete on developer"
+                                         " with email_id = %s" % email_id)
                 self.delete_email(email_id)
+               
             except Exception, e:
+                current_app.logger.error("Exception = %s" % str(e))
                 print e
                 abort(500, str(e))
 
@@ -1545,13 +2306,31 @@ class TestPersistenceDelegate(TestCase):
 #+BEGIN_SRC python
     def test_delete_developer(self):
          print "test_delete_developer"
+
+         asset_type = "Image"
+         path = "vlabs.ac.in/images/static/logo.png"
+         asset = Asset(asset_type=asset_type, path=path)
+         asset.save()
+
+         inst_name = "IIT Kanpur"
+         inst_id = "IITK"
+         inst = Institute(inst_name=inst_name, inst_id=inst_id, assets=[asset])
+         inst.save()
+
+         dis_name = "IIT Kanpur"
+         dis_id = "IITK"
+         discipline = Discipline(dis_name=dis_name, dis_id=dis_id,
+                                     assets=[asset])
+         discipline.save()
+
          dev_name = Name(name="Prof. S. Dharmaraja")
          dev_name.save()
 
          email_id = Email(email="dharmar@maths.iitd.ac.in")
          email_id.save()
 
-         dev = Developer(name=dev_name, email=email_id)
+         dev = Developer(name=dev_name, email=email_id,
+                         institute=inst, discipline=discipline)
          dev1 = self.persistence_delegate.add_developer(dev)
 
          dev_name1 = Name(name="Prof. S. Yamraja")
@@ -1559,7 +2338,8 @@ class TestPersistenceDelegate(TestCase):
          email_id1 = Email(email="yamraja@maths.iitd.ac.in")
          email_id1.save()
 
-         dev2 = Developer(name=dev_name1, email=email_id1)
+         dev2 = Developer(name=dev_name1, email=email_id1,
+                          institute=inst, discipline=discipline)
          dev3 = self.persistence_delegate.add_developer(dev2)
 
          self.persistence_delegate.delete_developer(dev3.get("email"))
@@ -1581,10 +2361,17 @@ class TestPersistenceDelegate(TestCase):
             abort(404, 'No Institute with id %s' % (inst_id))
         else:
             try:
+                current_app.logger.debug("running delete on institute"
+                                         " with inst_id = %s" % 
+                                         inst_id)
                 record.delete()
+                current_app.logger.debug("completed delete on institute"
+                                         " with inst_id = %s" % 
+                                         inst_id)
                 #db.session.delete(record)
                 #db.session.commit()
             except Exception, e:
+                current_app.logger.error("Exception = %s" % str(e))
                 print e
                 abort(500, str(e))
 
@@ -1597,14 +2384,22 @@ class TestPersistenceDelegate(TestCase):
 #+BEGIN_SRC python
     def test_delete_institute(self):
          print "test_delete_institute"
+
+         asset_type = "Image"
+         path = "vlabs.ac.in/images/static/logo.png"
+         asset = Asset(asset_type=asset_type, path=path)
+         asset.save()
+
          inst_name = "IIT Delhi"
          inst_id = "IITD"
-         institute = Institute(inst_name=inst_name, inst_id=inst_id)                    
+         institute = Institute(inst_name=inst_name, inst_id=inst_id,
+                                   assets=[asset])                    
          institute1 = self.persistence_delegate.add_institute(institute)
 
          inst_name1 = "IIT Kharagpur"
          inst_id1 = "IITKgp"
-         institute1 = Institute(inst_name=inst_name1, inst_id=inst_id1) 
+         institute1 = Institute(inst_name=inst_name1, inst_id=inst_id1,
+                                    assets=[asset]) 
          institute2 = self.persistence_delegate.add_institute(institute1)
 
          self.persistence_delegate.delete_institute("IITD")
@@ -1615,19 +2410,24 @@ class TestPersistenceDelegate(TestCase):
 
 
 ***  Delete HostingInfo 
-    This function deletes existing hostinginfo.
-#+NAME: persistence_delete_hostinginfo
+    This function deletes existing hosting_info.
+#+NAME: persistence_delete_hosting_info
 #+BEGIN_SRC python
-    def delete_hostinginfo(self, hosted_url):
-        record = self.get_hostinginfo(hosted_url=hosted_url)
+    def delete_hosting_info(self, hosted_url):
+        record = self.get_hosting_info(hosted_url=hosted_url)
         if not record:
             abort(404, 'No HostingInfo with id %s' % (hosted_url))
         else:
             try:
+                current_app.logger.debug("running delete on hosting_info"
+                                         " with hosted_url = %s" % hosted_url)
                 record.delete()
+                current_app.logger.debug("completed delete on hosting_info"
+                                         " with hosted_url = %s" % hosted_url)
                 #db.session.delete(record)
                 #db.session.commit()
             except Exception, e:
+                current_app.logger.error("Exception = %s" % str(e))
                 print e
                 abort(500, str(e))
 
@@ -1636,23 +2436,29 @@ class TestPersistenceDelegate(TestCase):
 #+END_SRC
 
 **** Tests
-#+NAME: test_persistence_delete_hostinginfo
+#+NAME: test_persistence_delete_hosting_info
 #+BEGIN_SRC python
-    def test_delete_hostinginfo(self):
-         print "test_delete_hostinginfo"
+    def test_delete_hosting_info(self):
+         print "test_delete_hosting_info"
          hosting_status = "hosted"
          hosted_url = "http://cse14-iiith.vlabs.ac.in"
          hosted_on = "cloud"
-         hostinginfo = HostingInfo(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
-         hostinginfo1 = self.persistence_delegate.add_hostinginfo(hostinginfo)
+         hosting_info = HostingInfo(hosting_status=hosting_status,
+                                        hosted_url=hosted_url,
+                                        hosted_on=hosted_on)
+         hosting_info = self.persistence_delegate.add_hosting_info(hosting_info)
 
          hosting_status1 = "not hosted"
          hosted_url1 = "http://iitkgp.vlab.co.in/"
          hosted_on1 = "server"
-         hostinginfo1 = HostingInfo(hosting_status=hosting_status1, hosted_url=hosted_url1, hosted_on=hosted_on1)
-         hostinginfo2 = self.persistence_delegate.add_hostinginfo(hostinginfo1)
+         hosting_info1 = HostingInfo(hosting_status=hosting_status1,
+                                         hosted_url=hosted_url1,
+                                         hosted_on=hosted_on1)
+         hosting_info2 = self.persistence_delegate.add_hosting_info(
+             hosting_info1)
 
-         self.persistence_delegate.delete_hostinginfo("http://cse14-iiith.vlabs.ac.in")
+         self.persistence_delegate.delete_hosting_info(
+             "http://cse14-iiith.vlabs.ac.in")
 
          self.assertEqual(len(HostingInfo.get_all()), 1)
 
@@ -1669,10 +2475,15 @@ class TestPersistenceDelegate(TestCase):
             abort(404, 'No Asset found with path %s' % (path))
         else:
             try:
+                current_app.logger.debug("running delete on asset"
+                                         " with path = %s" % path)
                 record.delete()
+                current_app.logger.debug("completed delete on asset"
+                                         " with path = %s" % path)
                 #db.session.delete(record)
                 #db.session.commit()
             except Exception, e:
+                current_app.logger.error("Exception = %s" % str(e))
                 print e
                 abort(500, str(e))
 
@@ -1685,14 +2496,17 @@ class TestPersistenceDelegate(TestCase):
 #+BEGIN_SRC python
     def test_delete_asset(self):
          print "test_delete_asset"
+
          asset_type = "Image"
          path = "vlabs.ac.in/static/images/logo.png"
          asset = Asset(asset_type=asset_type, path=path)
+
          asset1 = self.persistence_delegate.add_asset(asset)
 
          asset_type1 = "Icon"
          path1 = "vlabs.ac.in/static/images/icon.png"
          asset1 = Asset(asset_type=asset_type1, path=path1)
+
          asset2 = self.persistence_delegate.add_asset(asset1)
 
          self.persistence_delegate.delete_asset(path)
@@ -1703,19 +2517,26 @@ class TestPersistenceDelegate(TestCase):
 
 
 ***  Delete IntegrationStatus
-    This function deletes existing integrationstatus.
-#+NAME: persistence_delete_integrationstatus
+    This function deletes existing integration_status.
+#+NAME: persistence_delete_integration_status
 #+BEGIN_SRC python
-    def delete_integrationstatus(self, integration_level):
-        record = self.get_integrationstatus(integration_level=integration_level)
+    def delete_integration_status(self, integration_level):
+        record = self.get_integration_status(integration_level=integration_level)
         if not record:
             abort(404, 'No IntegrationStatus with id %s' % (integration_level))
         else:
             try:
+                current_app.logger.debug("running delete on integration_status"
+                                         " with integration_level = %s" 
+                                         % integration_level)
                 record.delete()
+                current_app.logger.debug("completed delete on integration_status"
+                                         " with integration_level = %s" 
+                                         % integration_level)
                 #db.session.delete(record)
                 #db.session.commit()
             except Exception, e:
+                current_app.logger.error("Exception = %s" % str(e))
                 print e
                 abort(500, str(e))
 
@@ -1723,19 +2544,23 @@ class TestPersistenceDelegate(TestCase):
 
 #+END_SRC
 **** Tests
-#+NAME: test_persistence_delete_integrationstatus
+#+NAME: test_persistence_delete_integration_status
 #+BEGIN_SRC python
-    def test_delete_integrationstatus(self):
-         print "test_delete_integrationstatus"
+    def test_delete_integration_status(self):
+         print "test_delete_integration_status"
          integration_level = 4
-         integrationstatus = IntegrationStatus(integration_level=integration_level)                    
-         integrationstatus1 = self.persistence_delegate.add_integrationstatus(integrationstatus)
+         integration_status = IntegrationStatus(integration_level=\
+                                                    integration_level)         
+         integration_status1 = self.persistence_delegate.add_integration_status\
+         (integration_status)
 
          integration_level1 = 2
-         integrationstatus1 = IntegrationStatus(integration_level=integration_level1)
-         integrationstatus2 = self.persistence_delegate.add_integrationstatus(integrationstatus1)
+         integration_status1 = IntegrationStatus(integration_level=\
+                                                     integration_level1)
+         integration_status2 = self.persistence_delegate.\
+           add_integration_status(integration_status1)
 
-         self.persistence_delegate.delete_integrationstatus(integration_level)
+         self.persistence_delegate.delete_integration_status(integration_level)
 
          self.assertEqual(len(IntegrationStatus.get_all()), 1)
 
@@ -1751,15 +2576,23 @@ class TestPersistenceDelegate(TestCase):
         lab = self.get_lab_by_id(labid)
         experiment_list = []
         for experiment in experiments:
+
+            current_app.logger.debug("running add experiments to a lab"
+                                     " operation with labid = %s" % labid)
+
             if self.experiment_exists(experiment):
-                experiment = self.get_experiment(exp_id=experiment.get('exp_id'),
-                                                 exp_name=experiment.get('exp_name'))
+                experiment = self.get_experiment(exp_id=experiment.
+                                                     get('exp_id'),
+                                                 exp_name=experiment.
+                                                     get('exp_name'))
             else:
                 experiment.save()
 
             experiment_list.append(experiment)
 
         lab.set(experiments=experiment_list)
+
+        current_app.logger.debug("completed add experiments to a lab operation")        
         return lab
 
 #+END_SRC
@@ -1774,41 +2607,48 @@ class TestPersistenceDelegate(TestCase):
          lab_id="CSE02"
          overview = "overview"
 
-         inst_name = "IIT Kanpur"
-         inst_id = "IITK"
-         inst = Institute(inst_name=inst_name, inst_id=inst_id)
-         inst.save()
-
-         dis_name = "IIT Kanpur"
-         dis_id = "IITK"
-         discipline = Discipline(dis_name=dis_name, dis_id=dis_id)
-         discipline.save()
-
          asset_type = "Image"
          path = "vlabs.ac.in/images/static/logo.png"
          asset = Asset(asset_type=asset_type, path=path)
          asset.save()
 
+         inst_name = "IIT Kanpur"
+         inst_id = "IITK"
+         inst = Institute(inst_name=inst_name, inst_id=inst_id, assets=[asset])
+         inst.save()
+
+         dis_name = "IIT Kanpur"
+         dis_id = "IITK"
+         discipline = Discipline(dis_name=dis_name, dis_id=dis_id,
+                                     assets=[asset])
+         discipline.save()
+
          integration_level = 4
-         integrationstatus = IntegrationStatus(integration_level=integration_level)
-         integrationstatus.save()
+         integration_status = IntegrationStatus(integration_level=
+                                                    integration_level)
+         integration_status.save()
 
          dev_name = Name(name="Mohit Tahiliani")
          dev_name.save()
          email_id = Email(email="mohit.tahiliani@gmail.com")
          email_id.save()
-         dev = Developer(name=dev_name, email=email_id)
+         dev = Developer(name=dev_name, email=email_id,
+                         institute=inst, discipline=discipline)
          dev.save()
 
          hosting_status = "hosted"
          hosted_url = "http://cse14-iiith.vlabs.ac.in"
          hosted_on = "cloud"
-         host = HostingInfo(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
+         host = HostingInfo(hosting_status=hosting_status,
+                                hosted_url=hosted_url,
+                                hosted_on=hosted_on)
          host.save()
 
          lab = Lab(lab_name=lab_name, lab_id=lab_id, overview=overview,
-                       institute=inst, discipline=discipline, hostinginfo=host, assets=[asset],
-                       experiments=[], developers=[dev], integrationstatus=integrationstatus)
+                       institute=inst, discipline=discipline,
+                       hosting_info=[host], assets=[asset],
+                       experiments=[], developers=[dev],
+                       integration_status=integration_status)
 
          lab.save()
 
@@ -1816,7 +2656,11 @@ class TestPersistenceDelegate(TestCase):
          exp_id = "EE99777"
          overview = "overview"
          experiment = Experiment(exp_name=exp_name, exp_id=exp_id, \
-                                     overview=overview, sections=[])
+                                     overview=overview, sections=[],
+                                     institute=inst, discipline=discipline, 
+                                     integration_status=integration_status,
+                                     assets=[asset], developers=[dev],
+                                     hosting_info=[host])
          experiment.save()
         
          lab1 = Lab.get_by_id(1)
@@ -1839,15 +2683,22 @@ class TestPersistenceDelegate(TestCase):
     def add_assets_to_lab(self, lab, assets):
         asset_list = []
         for asset in assets:
+
+            current_app.logger.debug("running add assets to a" 
+                                     " lab = %s" % lab.to_client())
             if self.asset_exists(asset):
                 asset = self.get_asset(path=asset.get('path'),
-                                                 asset_type=asset.get('asset_type'))
+                                           asset_type=asset.
+                                           get('asset_type'))
             else:
                 asset.save()
 
             asset_list.append(asset)
 
         lab.set(assets=asset_list)
+
+        current_app.logger.debug("completed add assets to a lab = %s"
+                                 % lab.to_client())
         return lab
 
 #+END_SRC
@@ -1862,35 +2713,59 @@ class TestPersistenceDelegate(TestCase):
          lab_id="CSE02"
          overview = "overview"
 
-         inst_name = "IIT Kanpur"
-         inst_id = "IITK"
-         inst = Institute(inst_name=inst_name, inst_id=inst_id)
-         inst.save()
-
-         dis_name = "IIT Kanpur"
-         dis_id = "IITK"
-         discipline = Discipline(dis_name=dis_name, dis_id=dis_id)
-         discipline.save()
-
          asset_type = "Image"
          path = "vlabs.ac.in/images/static/logo.png"
          asset = Asset(asset_type=asset_type, path=path)
          asset.save()
 
+         inst_name = "IIT Kanpur"
+         inst_id = "IITK"
+         inst = Institute(inst_name=inst_name, inst_id=inst_id, assets=[asset])
+         inst.save()
+
+         dis_name = "IIT Kanpur"
+         dis_id = "IITK"
+         discipline = Discipline(dis_name=dis_name, dis_id=dis_id,
+                                     assets=[asset])
+         discipline.save()
+
          integration_level = 4
-         integrationstatus = IntegrationStatus(integration_level=integration_level)
-         integrationstatus.save()
+         integration_status = IntegrationStatus(integration_level=
+                                                    integration_level)
+         integration_status.save()
+
+         dev_name = Name(name="Mohit Tahiliani")
+         dev_name.save()
+         email_id = Email(email="mohit.tahiliani@gmail.com")
+         email_id.save()
+         dev = Developer(name=dev_name, email=email_id)
+         dev.save()
+
+         hosting_status = "hosted"
+         hosted_url = "http://cse14-iiith.vlabs.ac.in"
+         hosted_on = "cloud"
+         host = HostingInfo(hosting_status=hosting_status,
+                                hosted_url=hosted_url,
+                                hosted_on=hosted_on)
+         host.save()
          
          lab = Lab(lab_name=lab_name, lab_id=lab_id, overview=overview,
-                       institute=inst, discipline=discipline, assets=[asset], 
-                       experiments=[], integrationstatus=integrationstatus)
+                       institute=inst, discipline=discipline,
+                       hosting_info=[host], assets=[asset],
+                       experiments=[], developers=[dev],
+                       integration_status=integration_status)
+
          lab.save()
 
          exp_name = "Number Systems"
          exp_id = "EE99777"
          overview = "overview"
          experiment = Experiment(exp_name=exp_name, exp_id=exp_id, \
-                                     overview=overview, sections=[])
+                                     overview=overview, 
+                                     integration_status=integration_status, 
+                                     sections=[], assets=[asset],
+                                     developers=[dev], hosting_info=[host], 
+                                     institute=inst, discipline=discipline)
          experiment.save()
         
          lab1 = Lab.get_by_id(1)
@@ -1914,6 +2789,8 @@ class TestPersistenceDelegate(TestCase):
         institute = self.get_institute_by_id(instituteid)
         lab_list = []
         for lab in labs:
+            current_app.logger.debug("running add labs to an institute with"
+                                     " instituteid = %s" % instituteid)
             if self.lab_exists(lab):
                 lab = self.get_lab(lab_id=lab.get('lab_id'),
                                                  lab_name=lab.get('lab_name'))
@@ -1923,6 +2800,9 @@ class TestPersistenceDelegate(TestCase):
             lab_list.append(lab)
 
         institute.set(labs=lab_list)
+
+        current_app.logger.debug("completed add labs to an institute with"
+                                 " instituteid = %s" % instituteid)
         return institute
 
 #+END_SRC
@@ -1933,27 +2813,30 @@ class TestPersistenceDelegate(TestCase):
     def test_add_saved_labs_to_institute(self):
          print "test_add_labs_to_institute_in_persistence_delegate"
 
-         inst_name="IIT Kanpur"
-         inst_id="IITK"
-         institute = Institute(inst_name=inst_name, inst_id=inst_id)
-         institute.save()
+         asset_type = "Image"
+         path = "vlabs.ac.in/images/static/logo.png"
+         asset = Asset(asset_type=asset_type, path=path)
+         asset.save()
         
          lab_name = "Data Structures"
          lab_id = "cse05"
          overview = "overview"
+
          inst_name = "IIT Kanpur"
          inst_id = "IITK"
-         inst = Institute(inst_name=inst_name, inst_id=inst_id)
+         inst = Institute(inst_name=inst_name, inst_id=inst_id, assets=[asset])
          inst.save()
 
          dis_name = "IIT Kanpur"
          dis_id = "IITK"
-         discipline = Discipline(dis_name=dis_name, dis_id=dis_id)
+         discipline = Discipline(dis_name=dis_name, dis_id=dis_id,
+                                     assets=[asset])
          discipline.save()
 
          integration_level = 4
-         integrationstatus = IntegrationStatus(integration_level=integration_level)
-         integrationstatus.save()
+         integration_status = IntegrationStatus(integration_level=
+                                                    integration_level)
+         integration_status.save()
 
          dev_name = Name(name="Mohit Tahiliani")
          dev_name.save()
@@ -1965,19 +2848,22 @@ class TestPersistenceDelegate(TestCase):
          hosting_status = "hosted"
          hosted_url = "http://cse14-iiith.vlabs.ac.in"
          hosted_on = "cloud"
-         host = HostingInfo(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
+         host = HostingInfo(hosting_status=hosting_status,
+                                hosted_url=hosted_url,
+                                hosted_on=hosted_on)
          host.save()
 
          lab = Lab(lab_name=lab_name, lab_id=lab_id, overview=overview, 
-                       institute=inst, discipline=discipline, hostinginfo=host, assets=[]
-                       experiments=[], developers=[dev], integrationstatus=integrationstatus)
+                       institute=inst, discipline=discipline,
+                       hosting_info=[host],  assets=[], experiments=[],
+                       developers=[dev], integration_status=integration_status)
 
          lab.save()
          
          institute1 = Lab.get_by_id(1)
 
-         institute1 = self.persistence_delegate.add_labs_to_institute(institute1.id, \
-                                                             [lab])
+         institute1 = self.persistence_delegate.add_labs_to_institute(
+             institute1.id, [lab])
         
          self.assertEqual(len(institute1.get("labs")), 1)
          self.assertEqual(institute1.get("labs")[0].get("lab_id"), lab_id)
@@ -1994,6 +2880,8 @@ class TestPersistenceDelegate(TestCase):
     def add_sections_to_experiment(self, experiment, sections):
         section_list = []
         for section in sections:
+            current_app.logger.debug("running add sections to an"
+                                   " experiment = %s" % experiment.to_client())
             if self.section_exists(section):
                 section = self.get_section(name=section.get('name'))
             else:
@@ -2002,6 +2890,9 @@ class TestPersistenceDelegate(TestCase):
             section_list.append(section)
 
         experiment.set(sections=section_list)
+
+        current_app.logger.debug("completed add sections to an"
+                                 " experiment = %s" % experiment.to_client())
         return experiment
 
 #+END_SRC
@@ -2012,11 +2903,52 @@ class TestPersistenceDelegate(TestCase):
     def test_add_saved_sections_to_experiment(self):
          print "test_add_sections_to_experiment_in_persistence_delegate"
 
+         asset_type = "Image"
+         path = "vlabs.ac.in/images/static/logo.png"
+         asset = Asset(asset_type=asset_type, path=path)
+         asset.save()
+
+         inst_name = "IIT Kanpur"
+         inst_id = "IITK"
+         inst = Institute(inst_name=inst_name, inst_id=inst_id, assets=[asset])
+         inst.save()
+
+         dis_name = "IIT Kanpur"
+         dis_id = "IITK"
+         discipline = Discipline(dis_name=dis_name, dis_id=dis_id,
+                                     assets=[asset])
+         discipline.save()
+
+         dev_name = Name(name="Mohit Tahiliani")
+         dev_name.save()
+         email_id = Email(email="mohit.tahiliani@gmail.com")
+         email_id.save()
+         dev = Developer(name=dev_name, email=email_id,
+                         institute=inst, discipline=discipline)
+         dev.save()
+
+         hosting_status = "hosted"
+         hosted_url = "http://cse14-iiith.vlabs.ac.in"
+         hosted_on = "cloud"
+         host = HostingInfo(hosting_status=hosting_status,
+                                hosted_url=hosted_url,
+                                hosted_on=hosted_on)
+         host.save()
+
+         integration_level = 4
+         integration_status = IntegrationStatus(integration_level=
+                                                    integration_level)
+         integration_status.save()
+         
          exp_name = "Number Systems"
          exp_id = "EE99777"
          overview = "overview"
          exp = Experiment(exp_name=exp_name, exp_id=exp_id, \
-                                     overview=overview, sections=[])
+                           overview=overview, institute=inst,
+                           discipline=discipline, 
+                           integration_status=integration_status, 
+                           sections=[], assets=[asset],
+                           developers=[dev], hosting_info=[host])
          exp.save()
         
          section1 = Section(name='Theory')
@@ -2057,6 +2989,9 @@ class TestPersistenceDelegate(TestCase):
 #+NAME: persistence_get_lab
 #+BEGIN_SRC python
     def get_lab(self, **kwargs):
+        current_app.logger.debug("running get lab operation")
+        current_app.logger.debug("completed get lab operation")
+
         return self.get_object(Lab, **kwargs)
 
 #+END_SRC
@@ -2069,41 +3004,49 @@ class TestPersistenceDelegate(TestCase):
          lab_name1 = "Computer Programming"
          lab_id1 = "CSE01"
          overview = "overview"
-         inst_name = "IIT Kanpur"
-         inst_id = "IITK"
-         inst = Institute(inst_name=inst_name, inst_id=inst_id)
-         inst.save()
-
-         dis_name = "IIT Kanpur"
-         dis_id = "IITK"
-         discipline = Discipline(dis_name=dis_name, dis_id=dis_id)
-         discipline.save()
 
          asset_type = "Image"
          path = "vlabs.ac.in/images/static/logo.png"
          asset = Asset(asset_type=asset_type, path=path)
          asset.save()
 
+         inst_name = "IIT Kanpur"
+         inst_id = "IITK"
+         inst = Institute(inst_name=inst_name, inst_id=inst_id, assets=[asset])
+         inst.save()
+
+         dis_name = "IIT Kanpur"
+         dis_id = "IITK"
+         discipline = Discipline(dis_name=dis_name, dis_id=dis_id,
+                                     assets=[asset])
+         discipline.save()
+
          integration_level = 4
-         integrationstatus = IntegrationStatus(integration_level=integration_level)
-         integrationstatus.save()
+         integration_status = IntegrationStatus(integration_level=
+                                                    integration_level)
+         integration_status.save()
 
          dev_name = Name(name="Mohit Tahiliani")
          dev_name.save()
          email_id = Email(email="mohit.tahiliani@gmail.com")
          email_id.save()
-         dev = Developer(name=dev_name, email=email_id)
+         dev = Developer(name=dev_name, email=email_id,
+                         institute=inst, discipline=discipline)
          dev.save()
 
          hosting_status = "hosted"
          hosted_url = "http://cse14-iiith.vlabs.ac.in"
          hosted_on = "cloud"
-         host = HostingInfo(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
+         host = HostingInfo(hosting_status=hosting_status,
+                                hosted_url=hosted_url,
+                                hosted_on=hosted_on)
          host.save()
 
          lab = Lab(lab_name=lab_name1, lab_id=lab_id1, overview=overview,
-                       institute=inst, discipline=discipline, hostinginfo=host, assets=[asset],
-                       experiments=[], developers=[dev], integrationstatus=integrationstatus)
+                       institute=inst, discipline=discipline, 
+                       hosting_info=[host], assets=[asset],
+                       experiments=[], developers=[dev], 
+                       integration_status=integration_status)
 
          lab.save()
 
@@ -2122,6 +3065,8 @@ class TestPersistenceDelegate(TestCase):
 #+NAME: persistence_get_section
 #+BEGIN_SRC python
     def get_section(self, **kwargs):
+        current_app.logger.debug("running get section operation")
+        current_app.logger.debug("completed get section operation")
         return self.get_object(Section, **kwargs)
 
 #+END_SRC
@@ -2150,6 +3095,8 @@ class TestPersistenceDelegate(TestCase):
 #+NAME: persistence_get_name
 #+BEGIN_SRC python
     def get_name(self, **kwargs):
+        current_app.logger.debug("running get developer's name operation")
+        current_app.logger.debug("completed get developer's name operation")
         return self.get_object(Name, **kwargs)
 
 #+END_SRC
@@ -2178,6 +3125,8 @@ class TestPersistenceDelegate(TestCase):
 #+NAME: persistence_get_email
 #+BEGIN_SRC python
     def get_email(self, **kwargs):
+        current_app.logger.debug("running get developer's email operation")
+        current_app.logger.debug("completed get developer's email operation")
         return self.get_object(Email, **kwargs)
 
 #+END_SRC
@@ -2206,6 +3155,8 @@ class TestPersistenceDelegate(TestCase):
 #+NAME: persistence_get_developer
 #+BEGIN_SRC python
     def get_developer(self, **kwargs):
+        current_app.logger.debug("running get developer operation")
+        current_app.logger.debug("completed get developer operation")
         return self.get_object(Developer, **kwargs)
 
 #+END_SRC
@@ -2215,15 +3166,35 @@ class TestPersistenceDelegate(TestCase):
 #+BEGIN_SRC python
     def test_get_developer(self):
          print "test_get_developer"
+
+         asset_type = "Image"
+         path = "vlabs.ac.in/images/static/logo.png"
+         asset = Asset(asset_type=asset_type, path=path)
+         asset.save()
+
+         inst_name = "IIT Kanpur"
+         inst_id = "IITK"
+         inst = Institute(inst_name=inst_name, inst_id=inst_id, assets=[asset])
+         inst.save()
+
+         dis_name = "IIT Kanpur"
+         dis_id = "IITK"
+         discipline = Discipline(dis_name=dis_name, dis_id=dis_id,
+                                     assets=[asset])
+         discipline.save()
+        
          dev_name = Name(name="Prof. S. Dharmaraja")
          dev_name.save()
          email_id = Email(email="dharmar@maths.iitd.ac.in")
          email_id.save()
-         dev = Developer(name=dev_name, email=email_id)
+         dev = Developer(name=dev_name, email=email_id,
+                         institute=inst, discipline=discipline)
          dev.save()
 
-         dev_obj = self.persistence_delegate.get_developer(email=dev.get("email"))
-         self.assertEqual(dev_obj.get("email").get("email"), email_id.get("email"))
+         dev_obj = self.persistence_delegate.get_developer(email=dev.
+                                                               get("email"))
+         self.assertEqual(dev_obj.get("email").get("email"), email_id.
+                              get("email"))
 
 #+END_SRC
 
@@ -2235,6 +3206,8 @@ class TestPersistenceDelegate(TestCase):
 #+NAME: persistence_get_experiment
 #+BEGIN_SRC python
     def get_experiment(self, **kwargs):
+        current_app.logger.debug("running get experiment operation")
+        current_app.logger.debug("completed get experiment operation")
         return self.get_object(Experiment, **kwargs)
 
 #+END_SRC
@@ -2245,11 +3218,53 @@ class TestPersistenceDelegate(TestCase):
     def test_get_experiment(self):
          print "test_get_experiment"
 
+         hosting_status = "hosted"
+         hosted_url = "http://cse14-iiith.vlabs.ac.in"
+         hosted_on = "cloud"
+         host = HostingInfo(hosting_status=hosting_status,
+                                hosted_url=hosted_url,
+                                hosted_on=hosted_on)
+         host.save()
+
+         asset_type = "Image"
+         path = "vlabs.ac.in/images/static/logo.png"
+         asset = Asset(asset_type=asset_type, path=path)
+         asset.save()
+
+         inst_name = "IIT Kanpur"
+         inst_id = "IITK"
+         inst = Institute(inst_name=inst_name, inst_id=inst_id, assets=[asset])
+         inst.save()
+
+         dis_name = "IIT Kanpur"
+         dis_id = "IITK"
+         discipline = Discipline(dis_name=dis_name, dis_id=dis_id,
+                                     assets=[asset])
+         discipline.save()
+
+         dev_name = Name(name="Mohit Tahiliani")
+         dev_name.save()
+         email_id = Email(email="mohit.tahiliani@gmail.com")
+         email_id.save()
+         dev = Developer(name=dev_name, email=email_id,
+                         institute=inst, discipline=discipline)
+         dev.save()
+
          exp_name = "Number Systems"
          exp_id = "EE99777"
          overview = "overview"
+
+         integration_level = 4
+         integration_status = IntegrationStatus(integration_level=
+                                                    integration_level)
+         integration_status.save()
+
          exp = Experiment(exp_name=exp_name, exp_id=exp_id,
-                              overview=overview, sections=[])
+                              overview=overview, sections=[],
+                              institute=inst, discipline=discipline, 
+                              integration_status=integration_status,
+                              assets=[asset], developers=[dev],
+                              hosting_info=[host])
          exp.save()
          exp_obj = self.persistence_delegate.get_experiment(exp_name=
                                                 exp.get("exp_name"))
@@ -2267,6 +3282,8 @@ class TestPersistenceDelegate(TestCase):
 #+NAME: persistence_get_institute
 #+BEGIN_SRC python
     def get_institute(self, **kwargs):
+        current_app.logger.debug("running get institute operation")
+        current_app.logger.debug("completed get institute operation")
         return self.get_object(Institute, **kwargs)
 
 #+END_SRC
@@ -2277,9 +3294,15 @@ class TestPersistenceDelegate(TestCase):
     def test_get_institute(self):
          print "test_get_institute"
 
+         asset_type = "Image"
+         path = "vlabs.ac.in/images/static/logo.png"
+         asset = Asset(asset_type=asset_type, path=path)
+         asset.save()
+
          inst_name = "IIT Delhi"
          inst_id = "IITD"
-         inst = Institute(inst_name=inst_name, inst_id=inst_id)                             
+         inst = Institute(inst_name=inst_name, inst_id=inst_id,
+                              assets=[asset]) 
          inst.save()
          inst_obj = self.persistence_delegate.get_institute(inst_name=
                                                 inst.get("inst_name"))
@@ -2299,6 +3322,8 @@ class TestPersistenceDelegate(TestCase):
 #+NAME: persistence_get_discipline 
 #+BEGIN_SRC python
     def get_discipline(self, **kwargs):
+        current_app.logger.debug("running get discipline operation")
+        current_app.logger.debug("completed get discipline operation")
         return self.get_object(Discipline, **kwargs)
 
 #+END_SRC
@@ -2310,9 +3335,14 @@ class TestPersistenceDelegate(TestCase):
     def test_get_discipline(self):
          print "test_get_discipline"
 
+         asset_type = "Image"
+         path = "vlabs.ac.in/images/static/logo.png"
+         asset = Asset(asset_type=asset_type, path=path)
+         asset.save()
+
          dis_name = "IIT Delhi"
          dis_id = "EEE08"
-         dis = Discipline(dis_name=dis_name, dis_id=dis_id)
+         dis = Discipline(dis_name=dis_name, dis_id=dis_id, assets=[asset])
          dis.save()
          dis_obj = self.persistence_delegate.get_discipline(dis_name=dis_name)
          dis_obj1 = self.persistence_delegate.get_discipline(dis_id=dis_id)
@@ -2329,6 +3359,8 @@ class TestPersistenceDelegate(TestCase):
 #+NAME: persistence_get_asset
 #+BEGIN_SRC python
     def get_asset(self, **kwargs):
+        current_app.logger.debug("running get asset operation")
+        current_app.logger.debug("completed get asset operation")
         return self.get_object(Asset, **kwargs)
 
 #+END_SRC
@@ -2362,8 +3394,11 @@ class TestPersistenceDelegate(TestCase):
         current_app.logger.debug("")
         ret_val = None
         try:
+            current_app.logger.debug("running operation get labs")
             ret_val = Lab.apply_filters(**kwargs)
+
         except NotFoundError as e:
+            current_app.logger.error("Exception = %s" % str(e))
             ret_val = None
         
         return ret_val
@@ -2379,41 +3414,48 @@ class TestPersistenceDelegate(TestCase):
          lab_id1="CSE01"
          overview="overview"
 
-         inst_name = "IIT Kanpur"
-         inst_id = "IITK"
-         inst = Institute(inst_name=inst_name, inst_id=inst_id)
-         inst.save()
-
-         dis_name = "IIT Kanpur"
-         dis_id = "IITK"
-         discipline = Discipline(dis_name=dis_name, dis_id=dis_id)
-         discipline.save()
-
          asset_type = "Image"
          path = "vlabs.ac.in/images/static/logo.png"
          asset = Asset(asset_type=asset_type, path=path)
          asset.save()
 
+         inst_name = "IIT Kanpur"
+         inst_id = "IITK"
+         inst = Institute(inst_name=inst_name, inst_id=inst_id, assets=[asset])
+         inst.save()
+
+         dis_name = "IIT Kanpur"
+         dis_id = "IITK"
+         discipline = Discipline(dis_name=dis_name, dis_id=dis_id,
+                                     assets=[asset])
+         discipline.save()
+
          integration_level = 4
-         integrationstatus = IntegrationStatus(integration_level=integration_level)
-         integrationstatus.save()
+         integration_status = IntegrationStatus(integration_level=
+                                                    integration_level)
+         integration_status.save()
 
          dev_name = Name(name="Mohit Tahiliani")
          dev_name.save()
          email_id = Email(email="mohit.tahiliani@gmail.com")
          email_id.save()
-         dev = Developer(name=dev_name, email=email_id)
+         dev = Developer(name=dev_name, email=email_id,
+                         institute=inst, discipline=discipline)
          dev.save()
 
          hosting_status = "hosted"
          hosted_url = "http://cse14-iiith.vlabs.ac.in"
          hosted_on = "cloud"
-         host = HostingInfo(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
+         host = HostingInfo(hosting_status=hosting_status,
+                                hosted_url=hosted_url,
+                                hosted_on=hosted_on)
          host.save()
 
          lab1 = Lab(lab_name=lab_name1, lab_id=lab_id1, overview=overview,
-                        institute=inst, discipline=discipline, hostinginfo=host, assets=[asset],
-                        experiments=[], developers=[dev], integrationstatus=integrationstatus)
+                        institute=inst, discipline=discipline, 
+                        hosting_info=[host], assets=[asset],
+                        experiments=[], developers=[dev], 
+                        integration_status=integration_status)
 
          lab1.save()
 
@@ -2421,9 +3463,9 @@ class TestPersistenceDelegate(TestCase):
          lab_id2="CSE02"
 
          lab2 = Lab(lab_name=lab_name2, lab_id=lab_id2, overview=overview, \
-                        institute=inst, discipline=discipline, assets=[asset], \
-                        experiments=[], integrationstatus=integrationstatus,
-                        developers=[dev], hostinginfo=host)
+                        institute=inst, discipline=discipline, assets=[asset],\
+                        experiments=[], integration_status=integration_status,
+                        developers=[dev], hosting_info=[host])
 
          lab2.save()
 
@@ -2438,41 +3480,48 @@ class TestPersistenceDelegate(TestCase):
          lab_id1="CSE01"
          overview="overview"
 
-         inst_name = "IIT Kanpur"
-         inst_id = "IITK"
-         inst = Institute(inst_name=inst_name, inst_id=inst_id)
-         inst.save()
-
-         dis_name = "IIT Kanpur"
-         dis_id = "IITK"
-         discipline = Discipline(dis_name=dis_name, dis_id=dis_id)
-         discipline.save()
-         
          asset_type = "Image"
          path = "vlabs.ac.in/images/static/logo.png"
          asset = Asset(asset_type=asset_type, path=path)
          asset.save()
 
+         inst_name = "IIT Kanpur"
+         inst_id = "IITK"
+         inst = Institute(inst_name=inst_name, inst_id=inst_id, assets=[asset])
+         inst.save()
+
+         dis_name = "IIT Kanpur"
+         dis_id = "IITK"
+         discipline = Discipline(dis_name=dis_name, dis_id=dis_id,
+                                     assets=[asset])
+         discipline.save()
+
          integration_level = 4
-         integrationstatus = IntegrationStatus(integration_level=integration_level)
-         integrationstatus.save()
+         integration_status = IntegrationStatus(integration_level=
+                                                    integration_level)
+         integration_status.save()
 
          dev_name = Name(name="Mohit Tahiliani")
          dev_name.save()
          email_id = Email(email="mohit.tahiliani@gmail.com")
          email_id.save()
-         dev = Developer(name=dev_name, email=email_id)
+         dev = Developer(name=dev_name, email=email_id,
+                         institute=inst, discipline=discipline)
          dev.save()
 
          hosting_status = "hosted"
          hosted_url = "http://cse14-iiith.vlabs.ac.in"
          hosted_on = "cloud"
-         host = HostingInfo(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
+         host = HostingInfo(hosting_status=hosting_status,
+                                hosted_url=hosted_url,
+                                hosted_on=hosted_on)
          host.save()
 
          lab1 = Lab(lab_name=lab_name1, lab_id=lab_id1, overview=overview,
-                        institute=inst, discipline=discipline, hostinginfo=host, assets=[asset],
-                        experiments=[], developers=[dev], integrationstatus=integrationstatus)
+                        institute=inst, discipline=discipline,
+                        hosting_info=[host], assets=[asset],
+                        experiments=[], developers=[dev],
+                        integration_status=integration_status)
 
          lab1.save()
 
@@ -2480,9 +3529,9 @@ class TestPersistenceDelegate(TestCase):
          lab_id2="CSE02"
 
          lab2 = Lab(lab_name=lab_name2, lab_id=lab_id2, overview=overview, \
-                        institute=inst, discipline=discipline, assets=[asset], \
-                        experiments=[], integrationstatus=integrationstatus, \
-                        developers=[dev],  hostinginfo=host)
+                        institute=inst, discipline=discipline, assets=[asset],\
+                        experiments=[], integration_status=integration_status,\
+                        developers=[dev],  hosting_info=[host])
 
          lab2.save()
 
@@ -2495,51 +3544,58 @@ class TestPersistenceDelegate(TestCase):
          lab_name1="Computer Programming"
          lab_id1="CSE01"
          overview="overview"
-         inst_name = "IIT Kanpur"
-         inst_id = "IITK"
-         inst = Institute(inst_name=inst_name, inst_id=inst_id)
-         inst.save()
-
-         dis_name = "IIT Kanpur"
-         dis_id = "IITK"
-         discipline = Discipline(dis_name=dis_name, dis_id=dis_id)
-         discipline.save()
 
          asset_type = "Image"
          path = "vlabs.ac.in/images/static/logo.png"
          asset = Asset(asset_type=asset_type, path=path)
          asset.save()
 
+         inst_name = "IIT Kanpur"
+         inst_id = "IITK"
+         inst = Institute(inst_name=inst_name, inst_id=inst_id, assets=[asset])
+         inst.save()
+
+         dis_name = "computer science"
+         dis_id = "cse"
+         discipline = Discipline(dis_name=dis_name, dis_id=dis_id,
+                                     assets=[asset])
+         discipline.save()
+
          integration_level = 4
-         integrationstatus = IntegrationStatus(integration_level=integration_level)
-         integrationstatus.save()
+         integration_status = IntegrationStatus(integration_level=
+                                                    integration_level)
+         integration_status.save()
 
          dev_name = Name(name="Mohit Tahiliani")
          dev_name.save()
          email_id = Email(email="mohit.tahiliani@gmail.com")
          email_id.save()
-         dev = Developer(name=dev_name, email=email_id)
+         dev = Developer(name=dev_name, email=email_id,
+                         institute=inst, discipline=discipline)
          dev.save()
 
          hosting_status = "hosted"
          hosted_url = "http://cse14-iiith.vlabs.ac.in"
          hosted_on = "cloud"
-         host = HostingInfo(hosting_status=hosting_status, hosted_url=hosted_url, 
-                hosted_on=hosted_on)
+         host = HostingInfo(hosting_status=hosting_status,
+                                hosted_url=hosted_url,
+                                hosted_on=hosted_on)
          host.save()
 
          lab1 = Lab(lab_name=lab_name1, lab_id=lab_id1, overview=overview,
-                        institute=inst, discipline=discipline, hostinginfo=host, assets=[asset],
-                        experiments=[], developers=[dev], integrationstatus=integrationstatus)
+                        institute=inst, discipline=discipline, 
+                        hosting_info=[host], assets=[asset],
+                        experiments=[], developers=[dev], 
+                        integration_status=integration_status)
          lab1.save()
 
          lab_name2="Data Structures"
          lab_id2="CSE02"
 
          lab2 = Lab(lab_name=lab_name2, lab_id=lab_id2, overview=overview, \
-                        institute=inst, discipline=discipline, assets=[asset], \
-                        experiments=[], integrationstatus=integrationstatus,
-                        developers=[dev], hostinginfo=host)
+                        institute=inst, discipline=discipline, assets=[asset],\
+                        experiments=[], integration_status=integration_status,
+                        developers=[dev], hosting_info=[host])
          lab2.save()
 
          labs_list = self.persistence_delegate.get_labs(lab_id=lab_id1,
@@ -2549,54 +3605,62 @@ class TestPersistenceDelegate(TestCase):
 
     def test_get_lab_with_given_institute(self):
          print "test_get_lab_with_given_institute"
+
          lab_name1="Computer Programming"
          lab_id1="CSE01"
          overview="overview"
 
-         inst_name = "IIT Kanpur"
-         inst_id = "IITK"
-         inst = Institute(inst_name=inst_name, inst_id=inst_id)
-         inst.save()
-
-         dis_name = "IIT Kanpur"
-         dis_id = "IITK"
-         discipline = Discipline(dis_name=dis_name, dis_id=dis_id)
-         discipline.save()
-    
          asset_type = "Image"
          path = "vlabs.ac.in/images/static/logo.png"
          asset = Asset(asset_type=asset_type, path=path)
          asset.save()
 
+         inst_name = "IIT Kanpur"
+         inst_id = "IITK"
+         inst = Institute(inst_name=inst_name, inst_id=inst_id, assets=[asset])
+         inst.save()
+
+         dis_name = "IIT Kanpur"
+         dis_id = "IITK"
+         discipline = Discipline(dis_name=dis_name, dis_id=dis_id,
+                                     assets=[asset])
+         discipline.save()
+
          integration_level = 4
-         integrationstatus = IntegrationStatus(integration_level=integration_level)
-         integrationstatus.save()
+         integration_status = IntegrationStatus(integration_level=
+                                                    integration_level)
+         integration_status.save()
 
          dev_name = Name(name="Mohit Tahiliani")
          dev_name.save()
          email_id = Email(email="mohit.tahiliani@gmail.com")
          email_id.save()
-         dev = Developer(name=dev_name, email=email_id)
+         dev = Developer(name=dev_name, email=email_id,
+                         institute=inst, discipline=discipline)
          dev.save()
 
          hosting_status = "hosted"
          hosted_url = "http://cse14-iiith.vlabs.ac.in"
          hosted_on = "cloud"
-         host = HostingInfo(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
+         host = HostingInfo(hosting_status=hosting_status,
+                                hosted_url=hosted_url,
+                                hosted_on=hosted_on)
          host.save()
 
          lab1 = Lab(lab_name=lab_name1, lab_id=lab_id1, overview=overview,
-                        institute=inst, discipline=discipline, hostinginfo=host, assets=[asset],
-                        experiments=[], developers=[dev], integrationstatus=integrationstatus)
+                        institute=inst, discipline=discipline, 
+                        hosting_info=[host], assets=[asset],
+                        experiments=[], developers=[dev], 
+                        integration_status=integration_status)
          lab1.save()
 
          lab_name2="Data Structures"
          lab_id2="CSE02"
 
          lab2 = Lab(lab_name=lab_name2, lab_id=lab_id2, overview=overview, \
-                        institute=inst, discipline=discipline, assets=[asset], \
-                        experiments=[], integrationstatus=integrationstatus,
-                        developers=[dev], hostinginfo=host)
+                        institute=inst, discipline=discipline, assets=[asset],\
+                        experiments=[], integration_status=integration_status,
+                        developers=[dev], hosting_info=[host])
          lab2.save()
 
          labs_list = self.persistence_delegate.get_labs(institute=inst)
@@ -2616,8 +3680,11 @@ class TestPersistenceDelegate(TestCase):
         current_app.logger.debug("")
         ret_val = None
         try:
+            current_app.logger.debug("running operation get institutes")
             ret_val = Institute.apply_filters(**kwargs)
+
         except NotFoundError as e:
+            current_app.logger.error("Exception = %s" % str(e))
             ret_val = None
         
         return ret_val
@@ -2630,9 +3697,15 @@ class TestPersistenceDelegate(TestCase):
     def test_get_institutes(self):
          print "test_get_institutes"
 
+         asset_type = "Image"
+         path = "vlabs.ac.in/images/static/logo.png"
+         asset = Asset(asset_type=asset_type, path=path)
+         asset.save()
+
          inst_name = "IIT Delhi"
          inst_id = "IITD"
-         inst = Institute(inst_name=inst_name, inst_id=inst_id)                             
+         inst = Institute(inst_name=inst_name, inst_id=inst_id,
+                              assets=[asset])                             
          inst.save()
          inst_obj = self.persistence_delegate.get_institute(inst_name=
                                                 inst.get("inst_name"))
@@ -2650,65 +3723,75 @@ class TestPersistenceDelegate(TestCase):
 
 
 ***  Get HostingInfo
-    This function returns hostinginfo if present in the database. If the hostinginfo is
+    This function returns hosting_info if present in the database. If the hosting_info is
     not present, =None= type is returned.
-#+NAME: persistence_get_hostinginfo
+#+NAME: persistence_get_hosting_info
 #+BEGIN_SRC python
-    def get_hostinginfo(self, **kwargs):
+    def get_hosting_info(self, **kwargs):
+        current_app.logger.debug("running get hostinginfo operation")
+        current_app.logger.debug("completed get hostinginfo operation")
         return self.get_object(HostingInfo, **kwargs)
 
 #+END_SRC
 **** Tests
 
-#+NAME: test_persistence_get_hostinginfo
+#+NAME: test_persistence_get_hosting_info
 #+BEGIN_SRC python
-    def test_get_hostinginfo(self):
-         print "test_get_hostinginfo"
+    def test_get_hosting_info(self):
+         print "test_get_hosting_info"
 
          hosting_status = "hosted"
          hosted_url = "http://cse14-iiith.vlabs.ac.in"
          hosted_on = "cloud"
-         host = HostingInfo(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
+         host = HostingInfo(hosting_status=hosting_status,
+                                hosted_url=hosted_url,
+                                hosted_on=hosted_on)
          host.save()
-         host_obj = self.persistence_delegate.get_hostinginfo(hosting_status=
+         host_obj = self.persistence_delegate.get_hosting_info(hosting_status=
                                                 host.get("hosting_status"))
 
-         host_obj1 = self.persistence_delegate.get_hostinginfo(hosted_url=
+         host_obj1 = self.persistence_delegate.get_hosting_info(hosted_url=
                                                 host.get("hosted_url"))
 
-         host_obj2 = self.persistence_delegate.get_hostinginfo(hosted_on=
+         host_obj2 = self.persistence_delegate.get_hosting_info(hosted_on=
                                                 host.get("hosted_on"))
 
-         self.assertEqual(host_obj.get("hosting_status"), host.get("hosting_status"))
-         self.assertEqual(host_obj1.get("hosted_url"), host.get("hosted_url"))
-         self.assertEqual(host_obj2.get("hosted_on"), host.get("hosted_on"))
+         self.assertEqual(host_obj.get("hosting_status"),
+                              host.get("hosting_status"))
+         self.assertEqual(host_obj1.get("hosted_url"), host.
+                              get("hosted_url"))
+         self.assertEqual(host_obj2.get("hosted_on"), host.
+                              get("hosted_on"))
 
 #+END_SRC
 
 
 ***  Get IntegrationStatus
-    This function returns integrationstatus if present in the database. If the integrationstatus is
+    This function returns integration_status if present in the database. If the integration_status is
     not present, =None= type is returned.
-#+NAME: persistence_get_integrationstatus
+#+NAME: persistence_get_integration_status
 #+BEGIN_SRC python
-    def get_integrationstatus(self, **kwargs):
+    def get_integration_status(self, **kwargs):
+        current_app.logger.debug("running get instegration status operation")
+        current_app.logger.debug("completed get integration status operation")
         return self.get_object(IntegrationStatus, **kwargs)
 
 #+END_SRC
 
 **** Tests
-#+NAME: test_persistence_get_integrationstatus
+#+NAME: test_persistence_get_integration_status
 #+BEGIN_SRC python
-    def test_get_integrationstatus(self):
-         print "test_get_integrationstatus"
+    def test_get_integration_status(self):
+         print "test_get_integration_status"
 
          integration_level = 4
-         intstatus = IntegrationStatus(integration_level=integration_level)                             
+         intstatus = IntegrationStatus(integration_level=integration_level)
          intstatus.save()
-         intstatus_obj = self.persistence_delegate.get_integrationstatus(integration_level=
-                                                intstatus.get("integration_level"))
+         intstatus_obj = self.persistence_delegate.get_integration_status\
+         (integration_level=intstatus.get("integration_level"))
 
-         self.assertEqual(intstatus_obj.get("integration_level"), intstatus.get("integration_level"))
+         self.assertEqual(intstatus_obj.get("integration_level"),
+                              intstatus.get("integration_level"))
 
 #+END_SRC
 
@@ -2722,8 +3805,10 @@ class TestPersistenceDelegate(TestCase):
         current_app.logger.debug("")
         ret_val = None
         try:
+            current_app.logger.debug("running operation get assets")
             ret_val = Asset.apply_filters(**kwargs)
         except NotFoundError as e:
+            current_app.logger.error("Exception = %s" % str(e))
             ret_val = None
         
         return ret_val
@@ -2738,7 +3823,7 @@ class TestPersistenceDelegate(TestCase):
 
          asset_type = "Image"
          path = "vlabs.ac.in/static/images/logo.png"
-         asset = Asset(path=path, asset_type=asset_type)                             
+         asset = Asset(path=path, asset_type=asset_type)     
          asset.save()
          asset_obj = self.persistence_delegate.get_asset(asset_type=
                                                 asset.get("asset_type"))
@@ -2763,6 +3848,8 @@ class TestPersistenceDelegate(TestCase):
     def get_lab_by_id(self, id):
         ret_val = None
         try:
+            current_app.logger.debug("running operation get"
+                                     " lab by ID = %s" % id)
             ret_val = Lab.get_by_id(id)
         except Exception as err:
             current_app.logger.error("Exception = %s" % str(err))
@@ -2781,41 +3868,49 @@ class TestPersistenceDelegate(TestCase):
          lab_name1="Computer Programming"
          lab_id1="CSE01"
          overview="overview"
-         inst_name = "IIT Kanpur"
-         inst_id = "IITK"
-         inst = Institute(inst_name=inst_name, inst_id=inst_id)
-         inst.save()
-
-         dis_name = "IIT Kanpur"
-         dis_id = "IITK"
-         discipline = Discipline(dis_name=dis_name, dis_id=dis_id)
-         discipline.save()
 
          asset_type = "Image"
          path = "vlabs.ac.in/images/static/logo.png"
          asset = Asset(asset_type=asset_type, path=path)
          asset.save()
 
+         inst_name = "IIT Kanpur"
+         inst_id = "IITK"
+         inst = Institute(inst_name=inst_name, inst_id=inst_id, assets=[asset])
+         inst.save()
+
+         dis_name = "IIT Kanpur"
+         dis_id = "IITK"
+         discipline = Discipline(dis_name=dis_name, dis_id=dis_id,
+                                     assets=[asset])
+         discipline.save()
+
          integration_level = 4
-         integrationstatus = IntegrationStatus(integration_level=integration_level)
-         integrationstatus.save()
+         integration_status = IntegrationStatus(integration_level=
+                                                    integration_level)
+         integration_status.save()
 
          dev_name = Name(name="Mohit Tahiliani")
          dev_name.save()
          email_id = Email(email="mohit.tahiliani@gmail.com")
          email_id.save()
-         dev = Developer(name=dev_name, email=email_id)
+         dev = Developer(name=dev_name, email=email_id,
+                         institute=inst, discipline=discipline)
          dev.save()
 
          hosting_status = "hosted"
          hosted_url = "http://cse14-iiith.vlabs.ac.in"
          hosted_on = "cloud"
-         host = HostingInfo(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
+         host = HostingInfo(hosting_status=hosting_status,
+                                hosted_url=hosted_url,
+                                hosted_on=hosted_on)
          host.save()
 
          lab = Lab(lab_name=lab_name1, lab_id=lab_id1, overview=overview, 
-                       institute=inst, discipline=discipline, hostinginfo=host, assets=[asset],
-                       experiments=[], developers=[dev], integrationstatus=integrationstatus)
+                       institute=inst, discipline=discipline, 
+                       hosting_info=[host], assets=[asset],
+                       experiments=[], developers=[dev], 
+                       integration_status=integration_status)
          lab.save()
 
          lab_obj = self.persistence_delegate.get_lab_by_id(1)
@@ -2836,6 +3931,8 @@ class TestPersistenceDelegate(TestCase):
     def get_experiment_by_id(self, id):
         ret_val = None
         try:
+            current_app.logger.debug("running operation get"
+                                     " experiment by ID = %s" % id)
             ret_val = Experiment.get_by_id(id)
         except Exception as err:
             current_app.logger.error("Exception = %s" % str(err))
@@ -2851,11 +3948,53 @@ class TestPersistenceDelegate(TestCase):
     def test_get_experiment_by_id(self):
          print "test_persistence_get_experiment_by_id"
 
+         hosting_status = "hosted"
+         hosted_url = "http://cse14-iiith.vlabs.ac.in"
+         hosted_on = "cloud"
+         host = HostingInfo(hosting_status=hosting_status,
+                                hosted_url=hosted_url,
+                                hosted_on=hosted_on)
+         host.save()
+
+         asset_type = "Image"
+         path = "vlabs.ac.in/images/static/logo.png"
+         asset = Asset(asset_type=asset_type, path=path)
+         asset.save()
+
+         inst_name = "IIT Kanpur"
+         inst_id = "IITK"
+         inst = Institute(inst_name=inst_name, inst_id=inst_id, assets=[asset])
+         inst.save()
+
+         dis_name = "IIT Kanpur"
+         dis_id = "IITK"
+         discipline = Discipline(dis_name=dis_name, dis_id=dis_id,
+                                     assets=[asset])
+         discipline.save()
+
+         dev_name = Name(name="Mohit Tahiliani")
+         dev_name.save()
+         email_id = Email(email="mohit.tahiliani@gmail.com")
+         email_id.save()
+         dev = Developer(name=dev_name, email=email_id,
+                         institute=inst, discipline=discipline)
+         dev.save()
+
          exp_name = "Number Systems"
          exp_id = "EE99777"
          overview = "overview"
+
+         integration_level = 4
+         integration_status = IntegrationStatus(integration_level=
+                                                    integration_level)
+         integration_status.save()
+        
          exp = Experiment(exp_name=exp_name, exp_id=exp_id,
-                              overview=overview, sections=[])
+                              overview=overview, sections=[],
+                         institute=inst, discipline=discipline, 
+                              integration_status=integration_status,
+                              assets=[asset], developers=[dev],
+                              hosting_info=[host])
          exp.save()
 
          exp_obj = self.persistence_delegate.get_experiment_by_id(1)
@@ -2875,6 +4014,8 @@ class TestPersistenceDelegate(TestCase):
     def get_institute_by_id(self, id):
         ret_val = None
         try:
+            current_app.logger.debug("running operation get"
+                                     " institute by ID = %s" % id)
             ret_val = Institute.get_by_id(id)
         except Exception as err:
             current_app.logger.error("Exception = %s" % str(err))
@@ -2890,9 +4031,15 @@ class TestPersistenceDelegate(TestCase):
     def test_get_institute_by_id(self):
          print "test_persistence_get_institute_by_id"
 
+         asset_type = "Image"
+         path = "vlabs.ac.in/images/static/logo.png"
+         asset = Asset(asset_type=asset_type, path=path)
+         asset.save()
+
          inst_name = "IIT Kanpur"
          inst_id = "IITK"
-         inst = Institute(inst_name=inst_name, inst_id=inst_id)                                         
+         inst = Institute(inst_name=inst_name, inst_id=inst_id,
+                              assets=[asset])      
          inst.save()
 
          inst_obj = self.persistence_delegate.get_institute_by_id(1)
@@ -2911,6 +4058,8 @@ class TestPersistenceDelegate(TestCase):
     def get_discipline_by_id(self, id):
         ret_val = None
         try:
+            current_app.logger.debug("running operation get"
+                                     " discipline by ID = %s" % id)
             ret_val = Discipline.get_by_id(id)
         except Exception as err:
             current_app.logger.error("Exception = %s" % str(err))
@@ -2926,9 +4075,14 @@ class TestPersistenceDelegate(TestCase):
     def test_get_discipline_by_id(self):
          print "test_persistence_get_discipline_by_id"
 
+         asset_type = "Image"
+         path = "vlabs.ac.in/images/static/logo.png"
+         asset = Asset(asset_type=asset_type, path=path)
+         asset.save()
+
          dis_name = "IIT Delhi"
          dis_id = "EEE08"
-         dis = Discipline(dis_name=dis_name, dis_id=dis_id)
+         dis = Discipline(dis_name=dis_name, dis_id=dis_id, assets=[asset])
          dis.save()
 
          dis_obj = self.persistence_delegate.get_discipline_by_id(1)
@@ -2936,6 +4090,35 @@ class TestPersistenceDelegate(TestCase):
          self.assertEqual(dis_obj.get("dis_name"), dis_name)
 
 #+END_SRC
+
+***  Update Name
+    This function updates existing name.
+#+NAME: persistence_update_name
+#+BEGIN_SRC python
+    def update_name(self, name, n_name):
+        name.set(name=n_name)
+        name.save()
+        return name
+
+#+END_SRC
+
+**** Tests
+
+#+NAME: test_persistence_update_name
+#+BEGIN_SRC python
+    def test_update_name(self):
+         print "test_update_name"
+         n_name = "Prof. Dharamraj"
+         name = Name(name=n_name)
+         name1 = self.persistence_delegate.add_name(name)
+         n_name1 = "Prof. Dharam"         
+         name2 = self.persistence_delegate.update_name\
+           (name1, n_name1)
+         name2 = Name.get_by_id(1)
+         self.assertEqual(name2.get("name"), n_name1)
+
+#+END_SRC
+
 
 
 * Infra                                                         :boilerplate:
@@ -2995,9 +4178,9 @@ if __name__ == '__main__':
 <<persistence_get_experiment>>
 <<persistence_get_institute>>
 <<persistence_get_discipline>>
-<<persistence_get_hostinginfo>>
+<<persistence_get_hosting_info>>
 <<persistence_get_asset>>
-<<persistence_get_integrationstatus>>
+<<persistence_get_integration_status>>
 <<persistence_discipline_exists>>
 <<persistence_add_discipline>>
 <<persistence_delete_discipline>>
@@ -3014,31 +4197,31 @@ if __name__ == '__main__':
 <<persistence_name_exists>>
 <<persistence_email_exists>>
 <<persistence_developer_exists>>
-<<persistence_hostinginfo_exists>>
+<<persistence_hosting_info_exists>>
 <<persistence_asset_exists>>
-<<persistence_integrationstatus_exists>>
+<<persistence_integration_status_exists>>
 
 <<persistence_add_lab>>
 <<persistence_add_experiment>>
 <<persistence_add_section>>
 <<persistence_add_institute>>
-<<persistence_add_hostinginfo>>
+<<persistence_add_hosting_info>>
 <<persistence_add_asset>>
-<<persistence_add_integrationstatus>>
+<<persistence_add_integration_status>>
 
 <<persistence_delete_lab>>
 <<persistence_delete_section>>
 <<persistence_delete_experiment>>
 <<persistence_delete_institute>>
-<<persistence_delete_hostinginfo>>
+<<persistence_delete_hosting_info>>
 <<persistence_delete_asset>>
-<<persistence_delete_integrationstatus>>
+<<persistence_delete_integration_status>>
 
 <<persistence_update_lab>>
 <<persistence_update_section>>
 <<persistence_update_experiment>>
 <<persistence_update_institute>>
-<<persistence_update_hostinginfo>>
+<<persistence_update_hosting_info>>
 <<persistence_update_asset>>
 
 <<persistence_get_lab_by_id>>
@@ -3065,6 +4248,8 @@ if __name__ == '__main__':
 <<persistence_get_name>>
 <<persistence_get_email>>
 <<persistence_get_developer>>
+<<persistence_update_name>>
+
 #+end_src
 
 
@@ -3078,9 +4263,9 @@ if __name__ == '__main__':
 <<test_persistence_get_experiment>>
 <<test_persistence_get_institute>>
 <<test_persistence_get_discipline>>
-<<test_persistence_get_hostinginfo>>
+<<test_persistence_get_hosting_info>>
 <<test_persistence_get_asset>>
-<<test_persistence_get_integrationstatus>>
+<<test_persistence_get_integration_status>>
 
 <<test_persistence_get_labs>>
 <<test_persistence_get_institutes>>
@@ -3094,34 +4279,34 @@ if __name__ == '__main__':
 <<test_persistence_developer_exists>>
 <<test_persistence_institute_exists>>
 <<test_persistence_discipline_exists>>
-<<test_persistence_hostinginfo_exists>>
+<<test_persistence_hosting_info_exists>>
 <<test_persistence_asset_exists>>
 
-<<test_persistence_integrationstatus_exists>>
+<<test_persistence_integration_status_exists>>
 <<test_persistence_add_lab>>
 <<test_persistence_add_section>>
 <<test_persistence_add_experiment>>
 <<test_persistence_add_institute>>
 <<test_persistence_add_discipline>>
-<<test_persistence_add_hostinginfo>>
+<<test_persistence_add_hosting_info>>
 <<test_persistence_add_asset>>
-<<test_persistence_add_integrationstatus>>
+<<test_persistence_add_integration_status>>
 
 <<test_persistence_delete_lab>>
 <<test_persistence_delete_section>>
 <<test_persistence_delete_experiment>>
 <<test_persistence_delete_institute>>
 <<test_persistence_delete_discipline>>
-<<test_persistence_delete_hostinginfo>>
+<<test_persistence_delete_hosting_info>>
 <<test_persistence_delete_asset>>
-<<test_persistence_delete_integrationstatus>>
+<<test_persistence_delete_integration_status>>
 
 <<test_persistence_update_lab>>
 <<test_persistence_update_experiment>>
 <<test_persistence_update_section>>
 <<test_persistence_update_institute>>
 <<test_persistence_update_discipline>>
-<<test_persistence_update_hostinginfo>>
+<<test_persistence_update_hosting_info>>
 <<test_persistence_update_asset>>
 
 <<test_persistence_get_lab_by_id>>
@@ -3148,6 +4333,7 @@ if __name__ == '__main__':
 <<test_persistence_get_name>>
 <<test_persistence_get_email>>
 <<test_persistence_get_developer>>
+<<test_persistence_update_name>>
 <<run_test_cases>>
 
 #+end_src

@@ -203,23 +203,30 @@ TYPE IntegrationStatus
 
 ;;; Relations with cardinality constraints
 
-[developer, lab]          : Developer +  > Lab +
-[discipline, lab]         : Discipline +  > Lab +
-[institute, lab]          : Institute !  > Lab +
-[experiment, lab]         : Experiment +  > Lab !
-[experiment, section]     : Experiment > Section
-[lab, name]               : Lab + > Name !
-[experiment name]         : Experiment + > Name !
-[institute, name]         : Institute ! > Name !
-[discipline, name]        : Discipline ! > Name !
-[developer, name]         : Developer + > Name !
-[developer, email]        : Developer ! > Email !
-[hostinginfo, lab]        : HostingInfo + > Lab !
-[asset, lab]              : Asset + > Lab !
-[asset, discipline]       : Asset + > Discipline +
-[asset, experiment]       : Asset + > Experiment !
-[asset, institute]        : Asset + > Institute !
-[integrationstatus, lab]  : IntegrationStatus ! > Lab *
+[developer, lab]                 : Developer +  > Lab +
+[discipline, lab]                : Discipline +  > Lab +
+[institute, lab]                 : Institute !  > Lab +
+[experiment, lab]                : Experiment +  > Lab !
+[hostinginfo, lab]               : HostingInfo + > Lab !
+[asset, lab]                     : Asset + > Lab !
+[integrationstatus, lab]         : IntegrationStatus ! > Lab *
+
+[discipline, experiment]         : Discipline + > Experiment +
+[institute, experiment]          : Institute ! > Experiment +
+[experiment, section]            : Experiment ! > Section +
+[experiment, developer]          : Experiment + > Developer +
+[experiment, hostinginfo]        : Experiment ! > HostingInfo +
+[asset, experiment]              : Asset + > Experiment !
+[experiment, integrationstatus]  : Experiment *  > IntegrationStatus !
+
+[developer, name]                : Developer + > Name !
+[developer, email]               : Developer ! > Email !
+[developer, discipline]          : Developer + > Discipline +
+[developer, institute]           : Developer + > Institute !
+
+[asset, discipline]              : Asset + > Discipline +
+[asset, institute]               : Asset + > Institute !
+
 
 #+END_SRC
 
@@ -299,6 +306,7 @@ Sets
   lab-id-set      : lab-set.lab_id             ; set of all lab_ids in the system
   exp-name-set    : experiment-set.exp_name    ; set of all exp-names in the system
   exp-id-set      : experiment-set.exp_id      ; set of all exp_ids in the system
+  section-set     : experiment-set.section     ; set of all sections in the system
   inst-name-set   : institute-set.inst_name    ; set of all inst-names in the system
   inst-id-set     : institute-set.inst_id      ; set of all inst_ids in the system
   disc-name-set   : discipline-set.disc_name   ; set of all disc-names in the system
@@ -318,13 +326,27 @@ Sets
 :CUSTOM_ID: referential_integrity_relations
 :END: 
 #+BEGIN_SRC spec :tangle spec.txt
-[disciplines, institutes]   :  institute-set +  > discipline-set +  
-[developers, institutes]    :  institute-set ! > developer-set +      
-[developers, labs]          :  lab-set + > developer-set + 
-[experiments, labs]         :  lab-set ! > experiment-set +
-[hostinginfo, labs]         :  lab-set + > hostinginfo-set +
-[asset, labs]               :  lab-set ! > asset-set +
-[integrationstatus, labs]   :  lab-set * > integrationstatus-set !
+
+[developers, labs]                :  lab-set + > developer-set + 
+[discipline, labs]                :  lab-set + > discipline-set +
+[institute, labs]                 :  lab-set + > institute-set !
+[experiments, labs]               :  lab-set ! > experiment-set +
+[hostinginfo, labs]               :  lab-set + > hostinginfo-set +
+[asset, labs]                     :  lab-set ! > asset-set +
+[integrationstatus, labs]         :  lab-set * > integrationstatus-set !
+[discipline, experiments]         :  experiment-set + > discipline-set +
+[institute, experiments]          :  experiment-set + > institute-set !
+[experiments, sections]           :  section-set + > experiment-set !
+[experiments, developers]         :  developer-set + > experiment-set +
+[experiments, hostinginfos]       :  hostinginfo-set + > experiment-set !
+[asset, experiments]              :  experiment-set ! > asset-set +
+[experiments, integrationstatus]  :  integrationstatus-set !  > experiment-set *
+[developer, name]                 :  name-set ! > developer-set +
+[developer, email]                :  email-set ! > developer-set !
+[developer, discipline]           :  discipline-set + > developer-set +
+[developers, institutes]          :  institute-set ! > developer-set + 
+[asset, discipline]               :  discipline-set + > asset-set +
+[asset, institute]                :  institute-set ! > asset-set +
 
 #+END_SRC
 
@@ -486,6 +508,114 @@ entity-set.   The operation may take additional parameters.
 #+END_SRC
 
 
+** Add Section
+  :PROPERTIES:
+  :CUSTOM_ID: add_section
+  :END: 
+*** Parameters
+  :PROPERTIES:
+  :CUSTOM_ID: parameters
+  :END: 
+#+BEGIN_SRC spec :tangle spec.txt
+    sec: Section, s: Session
+#+END_SRC   
+*** Actor credentials
+  :PROPERTIES:
+  :CUSTOM_ID: actor_credentials
+  :END: 
+#+BEGIN_SRC spec :tangle spec.txt
+    s.key == system configured key
+#+END_SRC   
+*** Referential Integrity
+  :PROPERTIES:
+  :CUSTOM_ID: referential_integrity
+  :END: 
+#+BEGIN_SRC spec :tangle spec.txt
+    sec: ~section-set
+#+END_SRC   
+*** Effect
+  :PROPERTIES:
+  :CUSTOM_ID: effect
+  :END: 
+#+BEGIN_SRC spec :tangle spec.txt
+    sec = new section
+    section-set = section-set U {sec}
+#+END_SRC   
+
+
+
+** Add Name
+  :PROPERTIES:
+  :CUSTOM_ID: add_name
+  :END: 
+*** Parameters
+  :PROPERTIES:
+  :CUSTOM_ID: parameters
+  :END: 
+#+BEGIN_SRC spec :tangle spec.txt
+    n: Name, s: Session
+#+END_SRC   
+*** Actor credentials
+  :PROPERTIES:
+  :CUSTOM_ID: actor_credentials
+  :END: 
+#+BEGIN_SRC spec :tangle spec.txt
+    s.key == system configured key
+#+END_SRC   
+*** Referential Integrity
+  :PROPERTIES:
+  :CUSTOM_ID: referential_integrity
+  :END: 
+#+BEGIN_SRC spec :tangle spec.txt
+    l: ~lab-set
+#+END_SRC   
+*** Effect
+  :PROPERTIES:
+  :CUSTOM_ID: effect
+  :END: 
+#+BEGIN_SRC spec :tangle spec.txt
+    n = new name
+    name-set = name-set U {n}
+#+END_SRC   
+
+
+
+** Add Email
+  :PROPERTIES:
+  :CUSTOM_ID: add_email
+  :END: 
+*** Parameters
+  :PROPERTIES:
+  :CUSTOM_ID: parameters
+  :END: 
+#+BEGIN_SRC spec :tangle spec.txt
+    e: Email, s: Session
+#+END_SRC   
+*** Actor credentials
+  :PROPERTIES:
+  :CUSTOM_ID: actor_credentials
+  :END: 
+#+BEGIN_SRC spec :tangle spec.txt
+    s.key == system configured key
+#+END_SRC   
+*** Referential Integrity
+  :PROPERTIES:
+  :CUSTOM_ID: referential_integrity
+  :END: 
+#+BEGIN_SRC spec :tangle spec.txt
+    e: ~email-set
+#+END_SRC   
+*** Effect
+  :PROPERTIES:
+  :CUSTOM_ID: effect
+  :END: 
+#+BEGIN_SRC spec :tangle spec.txt
+    e = new email
+    email-set = email-set U {e}
+#+END_SRC   
+
+
+
 ** Add Developer
   :PROPERTIES:
   :CUSTOM_ID: add_developer
@@ -636,7 +766,7 @@ entity-set.   The operation may take additional parameters.
   :CUSTOM_ID: update_lab_parameters
   :END: 
 #+BEGIN_SRC spec :tangle spec.txt
-    n: lab_name, lid: lab_id, l: Lab, s: Session
+    n: lab_name, lid: lab_id, l: Lab, e: Experiment, i: Institute, d: Discipline, r: Developer, h: HostingInfo, a: Asset, is: IntegrationStatu, s: Session
 #+END_SRC   
 *** Actor credentials
   :PROPERTIES:
@@ -650,10 +780,17 @@ entity-set.   The operation may take additional parameters.
   :CUSTOM_ID: update_lab_referential_integrity
   :END: 
 #+BEGIN_SRC spec :tangle spec.txt
-    l : lab-set
-    s : session-set
-    n : lab-name-set
-    lid: ~lab-id-set
+    l   : lab-set
+    s   : session-set
+    n   : lab-name-set
+    lid : ~lab-id-set
+    e   : experiment-set
+    i   : institute-set
+    d   : discipline-set
+    r   : developer-set
+    h   : hostinginfo-set
+    a   : asset-set
+    i   : integrationstatus-set
 
 #+END_SRC   
 *** Effect
@@ -674,7 +811,7 @@ entity-set.   The operation may take additional parameters.
   :CUSTOM_ID: update_experiment_parameters
   :END: 
 #+BEGIN_SRC spec :tangle spec.txt
-    n: exp_name, eid: exp_id, e: Experiment, s: Session
+    n: exp_name, eid: exp_id, e: Experiment, i: Institute, d: Discipline, r: Developer, h: HostingInfo, a: Asset, is: IntegrationStatu, s: Session
 #+END_SRC   
 *** Actor credentials
   :PROPERTIES:
@@ -688,10 +825,16 @@ entity-set.   The operation may take additional parameters.
   :CUSTOM_ID: update_experiment_referential_integrity
   :END: 
 #+BEGIN_SRC spec :tangle spec.txt
-    e : experiment-set
-    s : session-set
-    n : ~exp-name-set
-   eid: ~exp-id-set
+    e   : experiment-set
+    s   : session-set
+    n   : ~exp-name-set
+    eid : ~exp-id-set
+    i   : institute-set
+    d   : discipline-set
+    r   : developer-set
+    h   : hostinginfo-set
+    a   : asset-set
+    is  : integrationstatus-set
 
 #+END_SRC   
 *** Effect
@@ -712,7 +855,7 @@ entity-set.   The operation may take additional parameters.
   :CUSTOM_ID: update_institute_parameters
   :END: 
 #+BEGIN_SRC spec :tangle spec.txt
-    n: inst_name, iid: inst_id, i: Institute, s: Session
+    n: inst_name, iid: inst_id, i: Institute, a: Asset, s: Session
 #+END_SRC   
 *** Actor credentials
   :PROPERTIES:
@@ -726,10 +869,11 @@ entity-set.   The operation may take additional parameters.
   :CUSTOM_ID: update_institute_referential_integrity
   :END: 
 #+BEGIN_SRC spec :tangle spec.txt
-    i : institute-set
-    s : session-set
-    n : inst-name-set
-   iid: ~inst-id-set
+    i   : institute-set
+    s   : session-set
+    n   : inst-name-set
+    iid : ~inst-id-set
+    a   : asset-set
 
 #+END_SRC   
 *** Effect
@@ -750,7 +894,7 @@ entity-set.   The operation may take additional parameters.
   :CUSTOM_ID: update_discipline_parameters
   :END: 
 #+BEGIN_SRC spec :tangle spec.txt
-    n: disc_name, did: disc_id, d: Discipline, s: Session
+    n: disc_name, did: disc_id, d: Discipline, a: Asset, s: Session
 #+END_SRC   
 *** Actor credentials
   :PROPERTIES:
@@ -764,10 +908,11 @@ entity-set.   The operation may take additional parameters.
   :CUSTOM_ID: update_discipline_referential_integrity
   :END: 
 #+BEGIN_SRC spec :tangle spec.txt
-    d : discipline-set
-    s : session-set
-    n : disc-name-set
-   did: ~disc-id-set
+    d  : discipline-set
+    s  : session-set
+    n  : disc-name-set
+    did: ~disc-id-set
+    a  : asset-set
 
 #+END_SRC   
 *** Effect
@@ -788,7 +933,7 @@ entity-set.   The operation may take additional parameters.
   :CUSTOM_ID: update_developer_parameters
   :END: 
 #+BEGIN_SRC spec :tangle spec.txt
-    n: name, e: email_id, r: Developer, s: Session
+    n: name, e: email_id, r: Developer, i: Institute, d: Discipline, s: Session
 #+END_SRC   
 *** Actor credentials
   :PROPERTIES:
@@ -802,9 +947,11 @@ entity-set.   The operation may take additional parameters.
   :CUSTOM_ID: update_developer_referential_integrity
   :END: 
 #+BEGIN_SRC spec :tangle spec.txt
-    r : developer-set
-    n : name-set
-    e :~email-set
+    r   : developer-set
+    n   : name-set
+    e   :~email-set
+    i   : institute-set
+    d   : discipline-set
 
 #+END_SRC   
 *** Effect
@@ -891,43 +1038,6 @@ entity-set.   The operation may take additional parameters.
   :END:
 #+BEGIN_SRC spec :tangle spec.txt
     The Asset details are updated.
-#+END_SRC
-
-
-** Update IntegrationStatus
-  :PROPERTIES:
-  :CUSTOM_ID: update_integrationstatus
-  :END:
-*** Parameters
-  :PROPERTIES:
-  :CUSTOM_ID: update_integrationstatus_parameters
-  :END:
-#+BEGIN_SRC spec :tangle spec.txt
-    i: IntegrationStatus, l:Level, s: Session
-#+END_SRC
-*** Actor credentials
-  :PROPERTIES:
-  :CUSTOM_ID: update_integrationstatus_actor_credentials
-  :END:
-#+BEGIN_SRC spec :tangle spec.txt
-    s.key == system configured key
-#+END_SRC
-*** Referential Integrity
-  :PROPERTIES:
-  :CUSTOM_ID: update_integrationstatus_referential_integrity
-  :END:
-#+BEGIN_SRC spec :tangle spec.txt
-    i : integrationstatus-set
-    s : session-set
-    l : ~level-set
-
-#+END_SRC
-*** Effect
-  :PROPERTIES:
-  :CUSTOM_ID: update_integrationstatus_effect
-  :END:
-#+BEGIN_SRC spec :tangle spec.txt
-    The Integration Status details are updated.
 #+END_SRC
 
 
@@ -1079,6 +1189,117 @@ entity-set.   The operation may take additional parameters.
 #+END_SRC
 
 
+** Delete Section
+  :PROPERTIES:
+  :CUSTOM_ID: delete_section
+  :END: 
+*** Parameters
+  :PROPERTIES:
+  :CUSTOM_ID: delete_lab_parameters
+  :END: 
+#+BEGIN_SRC spec :tangle spec.txt
+    sec: Section, s: Session
+#+END_SRC   
+*** Actor credentials
+  :PROPERTIES:
+  :CUSTOM_ID: delete_section_actor_credentials
+  :END: 
+#+BEGIN_SRC spec :tangle spec.txt
+    s.key == system configured key
+#+END_SRC   
+*** Referential Integrity
+  :PROPERTIES:
+  :CUSTOM_ID: delete_section_referential_integrity
+  :END: 
+#+BEGIN_SRC spec :tangle spec.txt
+    sec : section-set
+    s : session-set
+
+#+END_SRC   
+*** Effect
+  :PROPERTIES:
+  :CUSTOM_ID: delete_section_effect
+  :END: 
+#+BEGIN_SRC spec :tangle spec.txt
+    section-set = section-set - {sec}
+
+#+END_SRC
+
+
+** Delete Name
+  :PROPERTIES:
+  :CUSTOM_ID: delete_name
+  :END: 
+*** Parameters
+  :PROPERTIES:
+  :CUSTOM_ID: delete_name_parameters
+  :END: 
+#+BEGIN_SRC spec :tangle spec.txt
+    n: Name, s: Session
+#+END_SRC   
+*** Actor credentials
+  :PROPERTIES:
+  :CUSTOM_ID: delete_name_actor_credentials
+  :END: 
+#+BEGIN_SRC spec :tangle spec.txt
+    s.key == system configured key
+#+END_SRC   
+*** Referential Integrity
+  :PROPERTIES:
+  :CUSTOM_ID: delete_name_referential_integrity
+  :END: 
+#+BEGIN_SRC spec :tangle spec.txt
+    n : name-set
+    s : session-set
+
+#+END_SRC   
+*** Effect
+  :PROPERTIES:
+  :CUSTOM_ID: delete_name_effect
+  :END: 
+#+BEGIN_SRC spec :tangle spec.txt
+    name-set = name-set - {n}
+
+#+END_SRC
+
+
+** Delete Email
+  :PROPERTIES:
+  :CUSTOM_ID: delete_email
+  :END: 
+*** Parameters
+  :PROPERTIES:
+  :CUSTOM_ID: delete_email_parameters
+  :END: 
+#+BEGIN_SRC spec :tangle spec.txt
+    e: Email, s: Session
+#+END_SRC   
+*** Actor credentials
+  :PROPERTIES:
+  :CUSTOM_ID: delete_email_actor_credentials
+  :END: 
+#+BEGIN_SRC spec :tangle spec.txt
+    s.key == system configured key
+#+END_SRC   
+*** Referential Integrity
+  :PROPERTIES:
+  :CUSTOM_ID: delete_email_referential_integrity
+  :END: 
+#+BEGIN_SRC spec :tangle spec.txt
+    e : email-set
+    s : session-set
+
+#+END_SRC   
+*** Effect
+  :PROPERTIES:
+  :CUSTOM_ID: delete_email_effect
+  :END: 
+#+BEGIN_SRC spec :tangle spec.txt
+    email-set = email-set - {e}
+
+#+END_SRC
+
+
 ** Delete Developer
   :PROPERTIES:
   :CUSTOM_ID: delete_developer
@@ -1198,7 +1419,7 @@ entity-set.   The operation may take additional parameters.
   :CUSTOM_ID: delete_integrationstatus_parameters
   :END:
 #+BEGIN_SRC spec :tangle spec.txt
-    i: IntegrationStatus, s: Session
+    is: IntegrationStatus, s: Session
 #+END_SRC
 *** Actor credentials
   :PROPERTIES:
@@ -1212,7 +1433,7 @@ entity-set.   The operation may take additional parameters.
   :CUSTOM_ID: delete_integrationstatus_referential_integrity
   :END:
 #+BEGIN_SRC spec :tangle spec.txt
-    i : integrationstatus-set
+    is : integrationstatus-set
     s : session-set
 
 #+END_SRC
