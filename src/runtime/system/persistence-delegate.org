@@ -2191,20 +2191,16 @@ class TestPersistenceDelegate(TestCase):
     This function delete existing name.
 #+NAME: persistence_delete_name
 #+BEGIN_SRC python
-    def delete_name(self, name):
-        record = self.get_name(name=name.get("name"))
-        current_app.logger.debug("running delete on developer"
-                                 " name = %s" % name)
-
     def delete_name(self, n_id):
+        current_app.logger.debug("running delete on developer name")
         record = Name.get_by_id(n_id)
         if not record:
             abort(404, 'No Name with id %s' % (n_id))
         else:
             try:
                 record.delete()
-                current_app.logger.debug("completed delete on developer" 
-                                         " name = %s" % name)
+                current_app.logger.debug("completed delete on developer"
+                                         " name")
                 #db.session.delete(record)
                 #db.session.commit()
             except Exception, e:
