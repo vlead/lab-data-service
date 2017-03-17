@@ -4514,7 +4514,6 @@ class TestUpdateLab(TestCase):
  
  #+END_SRC
 
-
 ** Update Experiment
 #+NAME: class_update_experiment
 #+begin_src python
@@ -4872,7 +4871,7 @@ class TestUpdateExperiment(TestCase):
                                     inst_name=inst_name, 
                                     session=session, assets=asset_list)
             current_app.logger.debug("completed operation update_institute")
-            return institute.to_client()
+            return institute
         except (ArityError, TypeError, NotAuthorizedError, StateError) as err:
             current_app.logger.error("Exception = %s" % str(err))
             raise err
@@ -4942,7 +4941,6 @@ class TestUpdateInstitute(TestCase):
                              data_dict1['assets'][0])
  #+END_SRC
 
-
 ** Update Section
 #+NAME: class_update_section
 #+begin_src python
@@ -4974,7 +4972,7 @@ class TestUpdateInstitute(TestCase):
             raise err
 #+end_src
 
-*** TestUpateSection
+*** TestUpdateSection
  #+NAME: test_class_update_Section
  #+BEGIN_SRC python
 class TestUpdateSection(TestCase):
@@ -5011,7 +5009,6 @@ class TestUpdateSection(TestCase):
 
  #+END_SRC
 
-
 ** Update Discipline
 #+NAME: class_update_discipline
 #+begin_src python       
@@ -5045,7 +5042,7 @@ class TestUpdateSection(TestCase):
                                     dis_name=dis_name, 
                                     session=session, assets=asset_list)
             current_app.logger.debug("completed operation update_discipline")
-            return discipline.to_client()
+            return discipline
         except (ArityError, TypeError, NotAuthorizedError, StateError) as err:
             current_app.logger.error("Exception = %s" % str(err))
             raise err
@@ -5202,7 +5199,7 @@ class TestUpdateHosting_Info(TestCase):
         developer_cls = System.delegate.entities['developer']
 
         session = session_cls(key=str(data_dict['key']))
-        email = email_cls(email=data_dict['email'])
+        email = email_cls(email=str(data_dict['email']))
         developer = System.do("get_developer", email=email)
 
         if 'name' not in data_dict:
@@ -5331,6 +5328,75 @@ class TestUpdateDeveloper(TestCase):
  #+END_SRC
 
  
+** Update Name
+#+NAME: class_update_name
+#+begin_src python
+    @staticmethod
+    def update_name(data_dict):
+        session_cls = System.delegate.entities['session']
+        name_cls = System.delegate.entities['name']
+
+        session = session_cls(key=data_dict['key'])
+        name = name_cls.get_by_id(data_dict['n_id'])
+
+        if 'name' not in data_dict:
+            n_name=str(name.get("name"))
+        else:
+            n_name=data_dict['name']
+
+        try:
+            current_app.logger.debug("running operation update_name")
+            name = System.do("update_name", name=name, n_name=n_name,\
+                                             session=session)
+            current_app.logger.debug("completed operation update_name")
+            return name.to_client()
+        except (ArityError, TypeError, NotAuthorizedError, StateError) as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+
+        except Exception as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+#+end_src
+
+*** TestUpdateName
+ #+NAME: test_class_update_Name
+ #+BEGIN_SRC python
+class TestUpdateName(TestCase):
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_update_name_in_system_interface(self):
+        print "test_update_name_in_system_interface"
+
+        data_dict = {
+                    'key' : KEY,
+                    'name': 'Prof. Dharamraj'
+                   }
+
+        data_dict1 = {
+                    'key' : KEY,
+                    'n_id': 1,
+                    'name': 'Prof. Dharam'
+                   }
+
+        name = SystemInterface.add_name(data_dict)
+        name1 = SystemInterface.update_name(data_dict1)
+        
+        self.assertEqual(name1.get("name"), data_dict1['name'])
+
+ #+END_SRC
+
+
 ** Delete Lab
 #+NAME: class_delete_lab
 #+begin_src python
@@ -5954,15 +6020,13 @@ class TestDeleteHosting_Info(TestCase):
 #+NAME: class_delete_name
 #+begin_src python
     @staticmethod
-    def delete_name(name, key):
+    def delete_name(id):
         session_cls = System.delegate.entities['session']
-        name_cls = System.delegate.entities['name']
 
-        session = session_cls(key=str(key))
-        name = name_cls(name=str(name))
+        session = session_cls(key=KEY)
         try:
             current_app.logger.debug("running operation delete_name")
-            name = System.do("delete_name", name=name, session=session)
+            name = System.do("delete_name", n_id=int(id), session=session)
             current_app.logger.debug("completed operation delete_name")
             return name
         except (ArityError, TypeError, NotAuthorizedError, StateError) as err:
@@ -6005,10 +6069,9 @@ class TestDeleteName(TestCase):
 
         name = SystemInterface.add_name(data_dict)
         name1 = SystemInterface.add_name(data_dict1)
-        name_id = SystemInterface.delete_name(data_dict1['name'],
-                                                  data_dict1['key'])
+        name_id = SystemInterface.delete_name(1)
 
-        self.assertEqual(name_id.get("name"), data_dict1["name"])
+        self.assertEqual(name_id, 1)
 
  #+END_SRC
 
@@ -7419,7 +7482,7 @@ if __name__ == '__main__':
 <<class_get_labs_by_lab_name>>
 <<class_get_labs_by_discipline>>
 #<<class_get_labs_by_asset>>
-
+<<class_update_Name>>
 <<class_get_sections>>
 <<class_update_developer>>
 <<class_get_names>>
@@ -7434,6 +7497,7 @@ if __name__ == '__main__':
 <<class_get_assets>>
 <<class_get_asset_by_path>>
 <<class_get_hosting_info_by_hosted_URL>>
+<<class_get_name_by_id>>
 #+end_src
 
 
@@ -7506,6 +7570,8 @@ if __name__ == '__main__':
 <<test_class_get_assets>>
 <<test_class_get_asset_by_path>>
 <<test_class_get_hosting_info_by_hosted_url>>
+<<test_class_update_Name>>
+<<test_class_get_name_by_id>>
 <<run_test_cases>>
 
 #+end_src
