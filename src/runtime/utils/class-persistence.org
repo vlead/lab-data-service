@@ -57,43 +57,87 @@
     def mk_persistent(cls, uk_list, **table_args):
         check_list(uk_list)
         setattr(cls, 'unique_key_list', uk_list)
-
+    
         check_dict(table_args)
         for key, value in table_args.iteritems():
             setattr(cls, key, value)
         '''http://stackoverflow.com/questions/9539052/how-to-dynamically-change-base-class-of-instances-at-runtime
 '''
+        cls.is_persistent = True
         cls = type(cls.__name__, (db.Model,), dict(cls.__dict__))
 
         cls.save = ClassPersistenceTemplate.mk_save(cls)
         cls.delete = ClassPersistenceTemplate.mk_delete(cls)
-        cls.set_state = ClassPersistenceTemplate.mk_set_state(cls)
         cls.get_by_id = ClassPersistenceTemplate.mk_get_by_id(cls)
         cls.get_all = ClassPersistenceTemplate.mk_get_all(cls)
         cls.apply_filters = ClassPersistenceTemplate.mk_apply_filters(cls)
+        cls.set_hidden_id = ClassPersistenceTemplate.mk_set_hidden_id(cls)
         ClassPersistenceTemplate.mk_save_handler(cls)
-        cls.custom_handlers['persistence'] = True
         return cls
 
     #+END_SRC
 
 
 *** Operations supporting persistence
-    Saving an object to a persistent store and retreiving object(s) from
+    Saving an object to a persistent store and retrieving object(s) from
     persistent store are provided to the new persistent class by using the
     functions provided by =db.Model=
 
 **** Save Object
      This function provides the class with the functionality to save the object
-     to the database.
+     to the database.  The save to persistence store happens:
+     1. Upon initial addition to the store and
+     2. Upon any further update on the stored object.
+
+     Both the cases are handled. Also, if any of the attributes is a db object,
+     but it not a proper sql alchemy object, such attributes are retrieved from
+     the db and set to the object that is saved.  This ensures inconsistencies
+     between sql alchemy object and =utils= object representation are removed. 
+
 #+NAME: save_method
 #+BEGIN_SRC python
     @staticmethod
     def mk_save(cls) :
-        def fn(obj):
-            for key, value in obj.state.iteritems():
-                setattr(obj, key, value)
+        def fn(obj, update=False, **args):
 
+            def db_object_and_not_retrieved_from_db(val):
+                return hasattr(val, 'id') and getattr(val, 'id') is None
+
+            def retrieve_from_db(value):
+                for unique_key in value.__class__.unique_key_list:
+                    args_dict = {}
+                    args_dict[unique_key] = value.get(unique_key)
+                
+                new_val = value.__class__.apply_filters(**args_dict)[0]
+                return new_val
+            
+            def setup_the_object(attributes_to_set):
+                for key, value in attributes_to_set.iteritems():
+                    new_val = None
+                    if is_list(value):
+                        new_val_list = []
+                        for item in value:
+                            if db_object_and_not_retrieved_from_db(item):
+                                new_val_list.append(retrieve_from_db(item))
+                            else:
+                                new_val_list.append(item)
+                            
+                        new_val = new_val_list
+                    else:
+                        if db_object_and_not_retrieved_from_db(value):
+                            new_val = retrieve_from_db(value)
+                        else:
+                            new_val = value
+                                
+                    setattr(obj, key, new_val)
+
+            if (update):
+                attributes_to_set = args
+            else:
+                attributes_to_set = obj.state
+            
+            setup_the_object(attributes_to_set)
+            
             db.session.autoflush = False
             db.session.add(obj)
             db.session.commit()
@@ -111,10 +155,11 @@
 #+BEGIN_SRC python
     @staticmethod
     def mk_save_handler(cls):
-        def fn(obj):
-            obj.save()
+        def fn(obj, **args):
+            obj.save(update=True, **args)
 
         cls.custom_handlers['save_handler'] = fn
+
 #+END_SRC
 
 **** Delete Object
@@ -145,29 +190,8 @@
 #+BEGIN_SRC python
     @staticmethod
     def mk_set_state(cls):
-        def fn(obj, level):
+        def fn(obj):
             obj.state = {}
-            for key in cls.sorted_state_vars:
-                value = getattr(obj, key)
-                
-                if value.__class__.__name__ is 'InstrumentedList' or \
-                  value.__class__.__name__ is'list':
-                    val_list = []
-                    for val in value:
-                        if hasattr(val.__class__, 'set_state') and \
-                          level <= 3:
-                            val.__class__.set_state(val, level+1)
-                            
-                        val_list.append(val)
-
-                    obj.state[key] = val_list
-               
-                else:
-                    if hasattr(value.__class__, 'set_state') and \
-                      level <= 3:
-                        value.__class__.set_state(value, level+1)
-                       
-                    obj.state[key] = value
 
         return staticmethod(fn)
 
@@ -183,8 +207,6 @@
         def fn(id):
             db.session.autoflush = False
             obj = cls.query.get(id)
-            if obj is not None:
-                cls.set_state(obj, 1)
             return obj
 
         return staticmethod(fn)
@@ -201,8 +223,6 @@
         def fn():
             db.session.autoflush = False
             lst = cls.query.all()
-            for obj in lst:
-                cls.set_state(obj, 1)
             return lst
 
         return staticmethod(fn)
@@ -243,9 +263,21 @@
             if not lst:
                 raise NotFoundError("The object is not found")
             else:
-                for obj in lst:
-                    cls.set_state(obj, 1)
                 return lst
+
+        return staticmethod(fn)
+
+#+END_SRC
+
+**** Set hidden ID
+     The function provides the class with the functionality to set an hidden
+     ID. 
+#+NAME: set_hidden_id
+#+BEGIN_SRC python
+    @staticmethod
+    def mk_set_hidden_id(cls):
+        def fn(obj, id):
+            obj.hide_id["id"] = id
 
         return staticmethod(fn)
 
@@ -271,6 +303,10 @@ class TestPersistence(TestCase):
 
     def testCreationOfAPersistentClass(self):
         print "testCreationOfAPersistentClass"
+        
+        Name = ClassTemplate.mk_class("Name")
+        Name.add_attributes(name=is_alphabetic_str)
+
         args = {"__tablename__": "names",
                 "id": db.Column(db.Integer, primary_key=True),
                 "name": db.Column(db.String(128), nullable=False)
@@ -324,11 +360,10 @@ class ClassPersistenceTemplate():
 import unittest
 from flask_testing import TestCase
 from datetime import datetime
-from type_utils import *
-from class_templates import *
+from runtime.utils.type_utils import *
+from runtime.utils.class_templates import *
 from class_persistence_template import *
 from runtime.rest.app import create_app
-from runtime.objects.entities import Answer as Name
 
 config = {
     'SQLALCHEMY_DATABASE_URI': ''
@@ -359,14 +394,16 @@ if __name__ == '__main__':
 <<get_by_id_method>>
 <<get_all_method>>
 <<apply_filters>>
+<<set_hidden_id>>
+
     #+end_src
 
 *** tests
-#+BEGIN_SRC python :tangle test_class_persistence_template.py :eval no :noweb yes
-#<<imports_for_tests>>
-#<<persistence_tests>>
-#<<run_test_cases>>
-#+end_src
+    #+BEGIN_SRC python :tangle test_class_persistence_template.py :eval no :noweb yes
+<<imports_for_tests>>
+<<persistence_tests>>
+<<run_test_cases>>
+    #+end_src
 
 
 

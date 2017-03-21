@@ -7,7 +7,7 @@
 * Introduction
   This module defines basic type predicates and type checks. 
 
-  
+
 * Type predicates
   A type predicate is a function that takes one argument and
   returns a boolean.
@@ -28,7 +28,9 @@ is_int = is_inst(int)
 is_bool = is_inst(bool)
 is_str = is_inst(str)
 is_dict = is_inst(dict)
-is_list = is_inst(list)
+is_normal_list = is_inst(list)
+is_instrumented_list = is_inst(InstrumentedList)
+is_list = lambda ls: is_normal_list(ls) or is_instrumented_list(ls)
 is_string = is_inst(str)
 is_unicode = is_inst(unicode)
 is_str_or_none = lambda str: is_str(str) or str == None
@@ -51,6 +53,7 @@ class TestIsInstance(TestCase):
         self.assertEqual(is_bool(10), False)
         self.assertEqual(is_str('hello world'), True)
         self.assertEqual(is_str(False), False)
+        self.assertEqual(is_str_or_none(None), True)
         self.assertEqual(is_dict({'email': 'xyz@g.com'}), True)
         self.assertEqual(is_dict("{'email': 'xyz@g.com'}"), False)
 
@@ -123,21 +126,6 @@ def jsonify_list(data):
 
 #+END_SRC
 
-** Url predicate
-    Following is the constructor for this class.
-
-    (We may want to instead use the =validate_url= package of Python.)
-
-#+NAME: def_is_url
-#+BEGIN_SRC python
-def is_url(url):
-    if re.search('http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+', url):
-        return True
-    else:
-        return False
-
-#+END_SRC
-
 
 * Checks
   All checks check on a predicate for a type.  
@@ -169,7 +157,6 @@ check_email_str = check_pred(is_email_str)
 check_string = check_pred(is_string)
 check_date = check_pred(is_date)
 check_int = check_pred(is_int)
-check_url = check_pred(is_url)
 
 #+END_SRC
 
@@ -278,21 +265,6 @@ class TestCheckInt(TestCase):
 
 #+END_SRC
 
-*** Tests for check_url
-#+NAME: class_TestCheckUrl
-#+BEGIN_SRC python
-
-class TestCheckUrl(TestCase):
-    TESTING = True
-    """Tests for Url"""
-    def test_check_url(self):
-        print "test_check_url"
-        self.assertEqual(check_url("http://cse14-iiith.vlabs.ac.in/Introduction.html?domain=Computer%20Science"),
-                             "http://cse14-iiith.vlabs.ac.in/Introduction.html?domain=Computer%20Science")
-        self.assertRaises(TypeError, check_url, "htp://abc-56/xyz")
-
-#+END_SRC
-
 ** =check_inst= 
 
    =check_inst= takes a class and returns a function that checks if its
@@ -368,7 +340,7 @@ import re
 import types
 import datetime
 import json
-
+from sqlalchemy.orm.collections import InstrumentedList
 from flask import make_response
 
 #+END_SRC
@@ -406,7 +378,6 @@ if __name__ == '__main__':
 <<def_is_string>>
 <<def_is_email_str>>
 <<def_is_date>>
-<<def_is_url>>
 <<def_is_none>>
 <<def_jsonify_list>>
 <<def_is_int>>
@@ -425,7 +396,6 @@ if __name__ == '__main__':
 <<class_TestCheckAlphabeticStr>>
 <<class_TestCheckString>>
 <<class_TestCheckDate>>
-<<class_TestCheckUrl>>
 <<class_TestCheckInt>>
 <<more-alphabetic_str-checks>>
 <<class_TestCheckEmailStr>>
