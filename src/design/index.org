@@ -15,433 +15,77 @@
   :PROPERTIES:
   :CUSTOM_ID: api
   :END: 
-
-** Add Discipline
-  :PROPERTIES:
-  :CUSTOM_ID: save_lab_specs
-  :END:    
-  - URL :: /disciplines
-
-  - Method :: POST
-
-  - URL Params ::  None
-
-  - Payload :: 
-#+BEGIN_EXAMPLE
-{
-"dis_id": "cse",
-"dis_name": "Computer Science",
-  "key": "defaultkey"
-}
-#+END_EXAMPLE	       
-
-  - Success Response
-    + Status_Code: 200
-    + Content: 
-#+BEGIN_EXAMPLE
-{
-  "dis_id": "cse", 
-  "dis_name": "Computer Science", 
-  "id": 1
-}
-
-#+END_EXAMPLE
-
-  - Error Response:
-    + Contents :
-                {"status" : "error"}
+  Please refer to [[../runtime/rest/api.org][API Documentation]] Section.
     
-  - Example:
-    [[http://localhost:5000/disciplines][example url]]
 
+* Specification
+  Every experiment and a lab has a specification. The specification provides a
+  unique ID, name, contents of an experiment and other meta information of
+  either a lab or experiment. This information includes: developer details, the
+  organization a lab belongs to, discipline details, hosting information
+  i.e. on which platform the lab/experiments are hosted, integration status of
+  labs and the assets associated with a lab/experiment. This specification is
+  different from the deployment specification of an experiment.
 
-** Add Institute
-  :PROPERTIES:
-  :CUSTOM_ID: save_lab_specs
-  :END:    
-  - URL :: /institutes
+** Experiment Specification
+   An experiment is a basic functional unit of virtual labs. An experiment is a
+   combination of static content and simulation. Each experiment is identified
+   by a unique id, name, institute, discipline, developer, hosting information,
+   integration status, assets etc.
 
-  - Method :: POST
-
-  - URL Params ::  None
-
-  - Payload :: 
-#+BEGIN_EXAMPLE
+#+begin_src
 {
-"inst_id": "iiith",
-"inst_name": "IIIT Hyderabad",
-"key": "defaultkey"
-}
-#+END_EXAMPLE	       
-
-  - Success Response
-    + Status_Code: 200
-    + Content: 
-#+BEGIN_EXAMPLE
-{
-  "id": 1, 
-  "inst_id": "iiith", 
-  "inst_name": "IIIT Hyderabad"
-}
-
-#+END_EXAMPLE
-
-  - Error Response:
-    + Contents :
-                {"status" : "error"}
-    
-  - Example:
-    [[http://localhost:5000/disciplines][example url]]
-
-
-** Add sections
-  :PROPERTIES:
-  :CUSTOM_ID: save_lab_specs
-  :END:    
-  - URL :: /sections
-
-  - Method :: POST
-
-  - URL Params ::  None
-
-  - Payload :: 
-#+BEGIN_EXAMPLE
-
-{
-  "key": "<key>",
-  "name" : "Theory"
-}
-
-#+END_EXAMPLE	       
-
-  - Success Response
-    + Status_Code: 200
-    + Content: 
-              {"status" : "successfully added records"}
-
-  - Error Response:
-    + Contents :
-                {"status" : "error"}
-    
-  - Example:
-    [[http://localhost:5000/save_lab_spec_data][example url]]
-
-
-** Add Experiment
-  :PROPERTIES:
-  :CUSTOM_ID: save_lab_specs
-  :END:    
-  - URL :: /experiments
-
-  - Method :: POST
-
-  - URL Params ::  None
-
-  - Payload :: 
-#+BEGIN_EXAMPLE
-{
-  "exp_id": "exp9", 
-  "exp_name": "arrays", 
-  "key":"defaultkey",
-  "overview": "overview", 
-  "sections": ["Theory", "Procedure"]
-}
-#+END_EXAMPLE	       
-
-  - Success Response
-    + Status_Code: 200
-    + Content: 
-#+BEGIN_EXAMPLE
-{
-  "exp_id": "exp9", 
-  "exp_name": "arrays", 
-  "id": 1, 
-  "overview": "overview", 
-  "sections": [
-    {
-      "id": 1, 
-      "name": "Theory"
-    }, 
-    {
-      "id": 2, 
-      "name": "Procedure"
-    }
-  ]
-}
-
-#+END_EXAMPLE
-
-  - Error Response:
-    + Contents :
-                {"status" : "error"}
-    
-  - Example:
-    [[http://localhost:5000/experiments][example url]]
-
-
-** Add Lab
-  :PROPERTIES:
-  :CUSTOM_ID: save_lab_specs
-  :END:    
-  - URL :: /labs
-
-  - Method :: POST
-
-  - URL Params ::  None
-
-  - Payload :: 
-#+BEGIN_EXAMPLE
-{
-  "experiments": ["exp9"], 
-  "lab_id": "cse09", 
-  "lab_name": "Data Structures", 
-  "overview": "overview",
-  "key": "defaultkey",
-  "inst_id": "iiith",
-  "dis_id": "cse"
-}
-#+END_EXAMPLE	       
-
-  - Success Response
-    + Status_Code: 200
-    + Content: 
-#+BEGIN_EXAMPLE
-{
-  "discipline": {
-    "dis_id": "cse", 
-    "dis_name": "Computer Science", 
-    "id": 1
-  }, 
-  "experiments": [
-    {
-      "exp_id": "exp9", 
-      "exp_name": "arrays", 
-      "id": 1, 
-      "overview": "overview", 
-      "sections": [
-        {
-          "id": 2, 
-          "name": "Procedure"
-        }, 
-        {
-          "id": 1, 
-          "name": "Theory"
-        }
-      ]
-    }
-  ], 
-  "id": 1, 
-  "institute": {
-    "id": 1, 
-    "inst_id": "iiith", 
-    "inst_name": "IIIT Hyderabad"
-  }, 
-  "lab_id": "cse09", 
-  "lab_name": "Data Structures", 
-  "overview": "overview"
-}
-
-#+END_EXAMPLE
-
-  - Error Response:
-    + Contents :
-                {"status" : "error"}
-    
-  - Example:
-    [[http://localhost:5000/labs][example url]]
-
-
-** Get all labs
-  :PROPERTIES:
-  :CUSTOM_ID: save_lab_specs
-  :END:    
-  - URL :: /labs
-
-  - Method :: GET
-
-  - URL Params ::  None
-
-  - Payload :: 
-
-  - Success Response
-    + Status_Code: 200
-      + Contents :
-
-#+BEGIN_EXAMPLE
-[
-  {
-    "discipline": {
-      "dis_id": "cse",
-      "id": 1,
-      "dis_name": "Computer Science"
-    },
-    "lab_id": "cse09",
-    "institute": {
-      "inst_name": "IIIT Hyderabad",
-      "id": 1,
-      "inst_id": "iiith"
-    },
-    "overview": "overview",
-    "lab_name": "Data Structures",
-    "experiments": [
+  "experiment": {
+    "id": "e99847",
+    "name": "Parallel and distributed processing",
+    "discipline_id": "CSE",
+    "institute_id": "IIITH",
+    "developers": [
       {
-        "overview": "overview",
-        "exp_name": "arrays",
-        "sections": [
-          {
-            "name": "Procedure",
-            "id": 2
-          },
-          {
-            "name": "Theory",
-            "id": 1
-          }
-        ],
-        "id": 1,
-        "exp_id": "exp9"
-      }
-    ],
-    "id": 1
-  }
-]
-#+END_EXAMPLE	       
-
-    
-  - Error Response:
-    + Contents :
-                {"status" : "error"}
-    
-  - Example:
-    [[http://localhost:5000/labs][example url]]
-
-
-** Get all experiments
-  :PROPERTIES:
-  :CUSTOM_ID: save_lab_specs
-  :END:    
-  - URL :: /experiments
-
-  - Method :: GET
-
-  - URL Params ::  None
-
-  - Payload :: 
-
-  - Success Response
-    + Status_Code: 200
-      + Contents :
-
-#+BEGIN_EXAMPLE
-
-[
-  {
-    "overview": "overview",
-    "exp_name": "arrays",
-    "sections": [
-      {
-        "name": "Procedure",
-        "id": 2
+        "name": "Dinesh Malviya",
+        "email": "xyz@gmail.com"
       },
       {
-        "name": "Theory",
-        "id": 1
+        "name": "Ashish Ahuja",
+        "email": "abc@gmail.com"
       }
     ],
-    "id": 1,
-    "exp_id": "exp9"
-  }
-]
-#+END_EXAMPLE	       
-
-    
-  - Error Response:
-    + Contents :
-                {"status" : "error"}
-    
-  - Example:
-    [[http://localhost:5000/experiments][example url]]
-
-
-** Get all Sections
-  :PROPERTIES:
-  :CUSTOM_ID: save_lab_specs
-  :END:    
-  - URL :: /sections
-
-  - Method :: GET
-
-  - URL Params ::  None
-
-  - Payload :: 
-
-  - Success Response
-    + Status_Code: 200
-      + Contents :
-
-#+BEGIN_EXAMPLE
-[
-  {
-    "overview": "overview",
-    "exp_name": "arrays",
-    "sections": [
+    "hosting_info": [
       {
-        "name": "Procedure",
-        "id": 2
+        "hosting_status": "hosted",
+        "hosted_on": "cloud",
+        "hosted_url": "http://cse14-iiith.vlabs.ac.in"
       },
       {
-        "name": "Theory",
-        "id": 1
+        "hosting_status": "hosted",
+        "hosted_on": "college-cloud",
+        "hosted_url": "http://cse14-iiith.ac.in"
       }
     ],
-    "id": 1,
-    "exp_id": "exp9"
-  }
-]
-#+END_EXAMPLE	       
-
-    
-  - Error Response:
-    + Contents :
-                {"status" : "error"}
-    
-  - Example:
-    [[http://localhost:5000/sections][example url]]
-
-
-** Get all Disciplines
-  :PROPERTIES:
-  :CUSTOM_ID: save_lab_specs
-  :END:    
-  - URL :: /disciplines
-
-  - Method :: GET
-
-  - URL Params ::  None
-
-  - Payload :: 
-
-  - Success Response
-    + Status_Code: 200
-      + Contents :
-
-#+BEGIN_EXAMPLE
-[
-  {
-    "overview": "overview",
-    "exp_name": "arrays",
-    "sections": [
+    "integration_level": "4",
+    "assets": [
       {
-        "name": "Procedure",
-        "id": 2
+        "asset_type": "image",
+        "path": "vlabs.ac.in/images/static/logo.png"
       },
       {
-        "name": "Theory",
-        "id": 1
+        "asset_type": "video",
+        "path": "vlabs.ac.in/video/abc.mkv"
       }
     ],
-    "id": 1,
-    "exp_id": "exp9"
+    "sections": [
+      "Introduction",
+      "Objective",
+      "Tutorial",
+      "Illustration",
+      "Procedure",
+      "Experiment",
+      "Observations",
+      "Assignment",
+      "References"
+    ]
   }
+<<<<<<< HEAD
 ]
 #+END_EXAMPLE	       
 
@@ -1029,6 +673,8 @@ Not yet implemented
   ],
   "sections": ["Theory", "Procedure"],
   "integration_level": 4
+=======
+>>>>>>> 7baef94f7b2c489da83d32ef37fafb70f5b1d2d9
 }
 #+end_src 
 
@@ -1040,6 +686,7 @@ Not yet implemented
    their respective ids.
 #+begin_src
 {
+<<<<<<< HEAD
   "lab_name": "Data Structures",
   "lab_id": "cse10",
   "institute_id": "iiith",
@@ -1083,25 +730,82 @@ Not yet implemented
   "overview": "overview",
   "experiments": ["cse02", "cse03", "cse04"],
   "integration_level": 4
+=======
+  "lab": {
+    "id": "cse02",
+    "name": "Computer Programming",
+    "discipline_id": "CSE",
+    "institute_id": "IIITH",
+    "developers": [
+      {
+        "name": "Dinesh Malviya",
+        "email": "xyz@gmail.com"
+      },
+      {
+        "name": "Ashish Ahuja",
+        "email": "abc@gmail.com"
+      }
+    ],
+    "hosting_info": [
+      {
+        "hosting_status": "hosted",
+        "hosted_on": "cloud",
+        "hosted_url": "http://cse14-iiith.vlabs.ac.in"
+      },
+      {
+        "hosting_status": "hosted",
+        "hosted_on": "college-cloud",
+        "hosted_url": "http://cse14-iiith.ac.in"
+      }
+    ],
+    "integration_level": "4",
+    "assets": [
+      {
+        "asset_type": "image",
+        "path": "vlabs.ac.in/images/static/logo.png"
+      },
+      {
+        "asset_type": "video",
+        "path": "vlabs.ac.in/video/abc.mkv"
+      }
+    ],
+    "sections": [
+      {
+        "name": "Introduction"
+      },
+      {
+        "experiments": [
+          "e100",
+          "e200"
+        ]
+      }
+    ]
+  }
+>>>>>>> 7baef94f7b2c489da83d32ef37fafb70f5b1d2d9
 }
 
 #+end_src
 
 ** Institute Specification
-   Each =Institute= is identified by a unique =inst_id=. 
+   Each =Institute= is identified by a unique =institute_id=. 
 #+BEGIN_SRC 
-{
-"inst_id": "IIITH",
-"inst_name": "IIIT Hyderabad"
-}
+[
+  {
+    "institute_id": "IIITH",
+    "institute_name": "IIIT Hyderabad"
+  }
+]
+
 #+END_SRC
 ** Discipline Specification
-   Each =Discipline= is identified by a unique =dis_id=. 
+   Each =Discipline= is identified by a unique =discipline_id=. 
 #+BEGIN_SRC 
-{
-  "dis_id": "CSE", 
-  "dis_name": "Computer Science and Engineering"
-}
+[
+  {
+    "discipline_id": "CSE",
+    "discipline_name": "Computer Science and Engineering"
+  }
+]
 
 #+END_SRC
 
@@ -1116,7 +820,7 @@ Not yet implemented
 <p align="center"> lab data service design diagram </p>
 #+END_HTML
 
-  To edit the lds relations image [[https://docs.google.com/drawings/d/1TAaHpf0UiCLvLRP_XfBBQki7pU624oWXRduxyz6e1NA/edit?ts=58415ec0][click here]]
+ [[https://docs.google.com/drawings/d/1TAaHpf0UiCLvLRP_XfBBQki7pU624oWXRduxyz6e1NA/edit?ts=58415ec0][click here]] to edit the diagram
 ** Process
 *** Get the lab's meta data
    :PROPERTIES:
@@ -1140,7 +844,8 @@ Not yet implemented
    :CUSTOM_ID: version_lab_specs
    :END: 
    
-   - All the lab spec files has to be checked into the single git repository.
+   - All the lab spec files has to be checked into the single git
+     repository.
 
 *** Parse lab spec files checked into git repo 
    :PROPERTIES:

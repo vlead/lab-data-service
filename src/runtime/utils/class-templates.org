@@ -53,7 +53,7 @@ methods.
 
 #+name: class_ValueClassTemplate
 #+BEGIN_SRC python
-from type_utils import *
+from runtime.utils.type_utils import *
 class ValueClassTemplate():
 
     @staticmethod
@@ -92,6 +92,7 @@ class ValueClassTemplate():
         cls.__eq__   = ValueClassTemplate.mk_eq()
         cls.__str__  = ValueClassTemplate.mk_str()
         return cls
+
 #+END_SRC
 ** Test cases
 #+name: class_TestValueClassTemplate
@@ -186,23 +187,18 @@ class ClassTemplate():
                 cls.state_var_type_checks[key](value)
 
             # invariant must be true on args
-#            check_inv(cls.inv,cls)args)
+            # check_inv(cls.inv,cls)args)
             if not obj.inv(args):
                 raise TypeError("invariant for class %s violated for init args %s" %(cls.__name__, args))
 
             # initialize the state
             for key, value in args.iteritems():
-                    obj.state[key] = value
+                obj.state[key] = value
 
-        return fn
 
-    @staticmethod
-    def mk_getter(cls):
-        def fn(obj,k):
-            if str(k) and (k in cls.sorted_state_vars):
-                return obj.state[k]
-            else:
-                raise TypeError("get: Invalid key %s" % k)
+            if cls.is_persistent:
+                setattr(obj, 'hide_id', {})
+
         return fn
 
     @staticmethod
@@ -212,8 +208,10 @@ class ClassTemplate():
             # args is a dictionary of new variable bindings
 
             check_dict(args)
+            if not hasattr(obj, 'state'):
+                obj.state = {}
             tmp = obj.state.copy()
-
+            
             for key, value in args.iteritems():
                 # arg variables should be a subset of those in the formal spec
                 if key in cls.sorted_state_vars:
@@ -222,7 +220,7 @@ class ClassTemplate():
                     # if so update tmp with the new bindings in args
                     tmp[key] = value
                 else:
-                    raise TypeError("set: Invalid field name %s" % key)
+                    raise TypeError("set: Invalid field name %s" % key)  
 
             # now check the invariant on tmp
             if not obj.inv(tmp):
@@ -232,7 +230,7 @@ class ClassTemplate():
             obj.state = tmp
 
             if 'save_handler' in (cls.custom_handlers):
-                cls.custom_handlers['save_handler'](obj)
+                cls.custom_handlers['save_handler'](obj, **args)
 
         return fn
 
@@ -246,10 +244,12 @@ class ClassTemplate():
     def mk_to_client(cls):
         def fn(obj, level=1):
             to_client_var = {}
-            for key, value in obj.state.iteritems():
-                if is_list(value):
-#                   value.__class__.__name__ is 'InstrumentedList'):
+            for key in cls.sorted_state_vars:
+                value = obj.get(key)
+
+                if is_instrumented_list(value) or is_list(value):    
                     to_client_var[key] = []
+
                     for item in value:
                         if level <= 2:
                             if hasattr(item, 'to_client'):
@@ -261,12 +261,15 @@ class ClassTemplate():
                             to_client_var[key].append("Not Printing")
                         
                 elif hasattr(value, 'to_client'):
-                    to_client_var[key] = value.to_client()
+                    to_client_var[key] = value.to_client(level=level+1)
                 else:
                     to_client_var[key] = value
 
-            if cls.custom_handlers['persistence']:
-                to_client_var["id"] = obj.id
+            if hasattr(obj, "id"):
+                to_client_var["id"] = str(obj.id)
+
+            if hasattr(obj, "hide_id") and 'id' in getattr(obj, "hide_id").keys():
+                to_client_var["id"] = str(getattr(obj, "hide_id")["id"])
 
             return to_client_var
 
@@ -290,6 +293,8 @@ class ClassTemplate():
             {k: check_pred(v) for k, v in cls.state_var_type_preds.items()}
 
         return staticmethod(fn)
+
+    <<mk_getter>>
 
     @staticmethod
     def mk_class(_name, **formals):
@@ -334,12 +339,12 @@ class ClassTemplate():
         # __init__
         cls.__init__ = ClassTemplate.mk_init(cls)
 
-        # get
-        cls.get = ClassTemplate.mk_getter(cls)
-
         # eq
         # to be done
 #       cls.__eq__ = ClassTemplate.mk_eq(cls)
+
+        # get
+        cls.get = ClassTemplate.mk_getter(cls)
 
         # set
         cls.set = ClassTemplate.mk_setter(cls)
@@ -348,11 +353,32 @@ class ClassTemplate():
         cls.to_client = ClassTemplate.mk_to_client(cls)
 
         cls.custom_handlers = {}
+        cls.is_persistent = False
         cls.custom_handlers['persistence'] = False
         return cls
 
 #+END_SRC
 
+*** The getter function
+    Provides the mechanism to access the attributes of an object.  For a
+    persistence object, all the attributes when retrieved from sql database
+    using orm, the attributes are saved to a different location.  
+#+NAME: mk_getter
+#+BEGIN_SRC python
+@staticmethod
+def mk_getter(cls):
+    def fn(obj,k):
+        if str(k) and (k in cls.sorted_state_vars):
+            if hasattr(obj, 'id') and getattr(obj, 'id') is not None:
+                return getattr(obj, k)
+            else:
+                return obj.state[k]
+        else:
+            raise TypeError("get: Invalid key %s" % k)
+
+    return fn
+
+#+END_SRC
 
 * Tests
 #+name: class_TestClassTemplate
@@ -426,7 +452,7 @@ class TestClassTemplate(TestCase):
 import unittest
 from unittest import TestCase
 from datetime import datetime
-from type_utils import *
+from runtime.utils.type_utils import *
 from class_templates import *
 #+end_src
 
@@ -447,11 +473,11 @@ if __name__ == '__main__':
 #+end_src
 *** tests
 #+BEGIN_SRC python :tangle test_class_templates.py :eval no :noweb yes
-#<<imports_for_tests>>
-#<<class_TestMeta>>
-#<<class_TestValueClassTemplate>>
-#<<class_TestClassTemplate>>
-#<<run_test_cases>>
+<<imports_for_tests>>
+<<class_TestMeta>>
+<<class_TestValueClassTemplate>>
+<<class_TestClassTemplate>>
+<<run_test_cases>>
 #+end_src
 
 
