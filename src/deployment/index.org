@@ -169,6 +169,43 @@ def labspec():
          print response.status_code
 if __name__ == "__main__":
     labspec()
+"""
+import json
+from glob import glob
+import os.path, requests, urllib
+
+def datadump():
+    pattern = os.path.join('/home/osboxes/Documents/spectest', '*.json')
+    for file_name in glob(pattern):
+        with open(file_name) as f:
+                print "************"
+                data=json.load(f)
+                data = data[0].keys()
+                print data
+                url = 'http://localhost:5000/'
+                print data
+                if 'lab' in data:
+                    print "***********************"
+                    param = urllib.urlencode({'labs'})
+                    url = url + param
+                    data[0]['key'] = 'defaultkey'
+                    print json.dumps(data[0])
+                    headers = {'Content-Type': 'application/json'}
+                    response = requests.post(url, data = json.dumps(data[0]),
+                                    headers=headers)
+                    print response.status_code
+                if 'experiment' in data:
+                    param = urllib.urlencode({'experiments'})
+                    url = url + param
+                    data[0]['key'] = 'defaultkey'
+                    print json.dumps(data[0])
+                    headers = {'Content-Type': 'application/json'}
+                    response = requests.post(url, data = json.dumps(data[0]),
+                                    headers=headers)
+                    print response.status_code
+if __name__ == "__main__":
+    datadump()
+"""
 #+END_SRC
 
 
