@@ -453,7 +453,7 @@ class TestAddLab(TestCase):
         session = session_cls(key=data_dict['key'])
         del(data_dict['key'])
 
-        sections = data_dict['sections']
+        sections = data_dict['experiment']['sections']
         section_list = []
         for section_x in sections:
             section = System.do("get_section", name=section_x)
@@ -462,17 +462,17 @@ class TestAddLab(TestCase):
                 section = System.do("add_section", section=section, session=session)
             section_list.append(section)
 
-        inst_id = data_dict['inst_id']
+        inst_id = data_dict['experiment']['institute_id']
         institute = System.do("get_institute", inst_id=inst_id)
 
-        dis_id = data_dict['dis_id']
+        dis_id = data_dict['experiment']['discipline_id']
         discipline = System.do("get_discipline", dis_id=dis_id)
 
-        integration_level = data_dict['integration_level']
+        integration_level = data_dict['experiment']['integration_level']
         integration_status = System.do("get_integration_status",
                                            integration_level=integration_level)
 
-        assets = data_dict['assets']
+        assets = data_dict['experiment']['assets']
         asset_list = []
         for asset_x in assets:
             asset = System.do("get_asset", path=asset_x['path'])
@@ -482,7 +482,7 @@ class TestAddLab(TestCase):
                 asset = System.do("add_asset", asset=asset, session=session)
             asset_list.append(asset)
 
-        developers = data_dict['developers']
+        developers = data_dict['experiment']['developers']
         developer_list = []
         for developer_x in developers:
             name = name_cls(name=developer_x['name'])
@@ -498,7 +498,7 @@ class TestAddLab(TestCase):
                                           session=session)
             developer_list.append(developer)
 
-        hosting_info = data_dict['hosting_info']
+        hosting_info = data_dict['experiment']['hosting_info']
         hosting_info_list = []
         for hosting_info_x in hosting_info:
             hosting_info = System.do("get_hosting_info", hosted_url=hosting_info_x['hosted_url'])
@@ -508,9 +508,9 @@ class TestAddLab(TestCase):
                 hosting_info = System.do("add_hosting_info", hosting_info=hosting_info, session=session)
             hosting_info_list.append(hosting_info)
 
-        experiment = experiment_cls(exp_name=data_dict['exp_name'],
-                                exp_id=data_dict['exp_id'],
-                                overview=data_dict['overview'],
+        experiment = experiment_cls(exp_name=data_dict['experiment']['name'],
+                                exp_id=data_dict['experiment']['id'],
+                                overview=data_dict['experiment']['overview'],
                                 sections=section_list,
                                 institute=institute,
                                 discipline=discipline,
@@ -610,7 +610,7 @@ class TestAddExperiment(TestCase):
                    }
 
         hosting_info = SystemInterface.add_hosting_info(data_dict)
-
+        """
         data_dict = {
                     'key' : KEY,
                     'exp_name': 'array',
@@ -637,7 +637,60 @@ class TestAddExperiment(TestCase):
                                     'hosted_on': 'server'}],
                     'sections': ['Theory']
                     }
-
+        """ 
+        data_dict = {
+                    "key" : KEY,
+		    "experiment": {
+		      "id": "e99847",
+		      "name": "Parallel and distributed processing",
+		      "discipline_id": "CSE",
+		      "institute_id": "IIITH",
+		      "developers": [
+			{
+			  "name": "Dinesh Malviya",
+			  "email": "xyz@gmail.com"
+			},
+			{
+			  "name": "Ashish Ahuja",
+			  "email": "abc@gmail.com"
+			}
+		      ],
+		      "hosting_info": [
+			{
+			  "hosting_status": "hosted",
+			  "hosted_on": "cloud",
+			  "hosted_url": "http://cse14-iiith.vlabs.ac.in"
+			},
+			{
+			  "hosting_status": "hosted",
+			  "hosted_on": "college-cloud",
+			  "hosted_url": "http://cse14-iiith.ac.in"
+			}
+		      ],
+		      "integration_level": "4",
+		      "assets": [
+			{
+			  "asset_type": "image",
+			  "path": "vlabs.ac.in/images/static/logo.png"
+			},
+			{
+			  "asset_type": "video",
+			  "path": "vlabs.ac.in/video/abc.mkv"
+			}
+		      ],
+		      "sections": [
+			"Introduction",
+			"Objective",
+			"Tutorial",
+			"Illustration",
+			"Procedure",
+			"Experiment",
+			"Observations",
+			"Assignment",
+			"References"
+		      ]
+		    }
+		  }
         experiment = SystemInterface.add_experiment(data_dict)
         
         self.assertEqual(experiment.get("exp_name"), 
@@ -719,31 +772,58 @@ class TestAddExperiment(TestCase):
         hosting_info = SystemInterface.add_hosting_info(data_dict)
 
         data_dict = {
-                    'key': KEY,
-                    'exp_name': 'cse02',
-                    'overview': 'overview',
-                    'integration_level': 4,
-                    'assets': [{'path':'vlabs.ac.in/images/static/logo.png',
-                                    'asset_type': 'image'},
-                                {'path':'vlabs.ac.in/images/static/image.png',
-                                    'asset_type': 'image'}], 
-                    'exp_id': 123,
-                    'sections': ["Theory", "Procedure"],
-                    'inst_id': 'IITK',
-                    'dis_id': 'CSE',
-                    'developers': [{'name':'Prof. Dharamaja',
-                                    'email': 'abc@gmail.com',
-                                    'inst_id': 'IITK', 'dis_id': 'CSE'},
-                                    {'name':'Prof. Pallavi Pawar',
-                                    'email': 'pallavi.pawar@gmail.com',
-                                    'inst_id': 'IITK', 'dis_id': 'CSE'}],
-                    'hosting_info': [{'hosted_url':'http://cse14-iiith.vlabs.ac.in',
-                                    'hosting_status': 'hosted',
-                                    'hosted_on': 'cloud'},
-                                    {'hosted_url':'http://iitkgp.vlab.co.in/',
-                                    'hosting_status': 'hosted',
-                                    'hosted_on': 'server'}],
+                    "key" : KEY,
+		    "experiment": {
+		      "id": 123,
+		      "name": "Parallel and distributed processing",
+		      "discipline_id": "CSE",
+		      "institute_id": "IIITH",
+		      "developers": [
+			{
+			  "name": "Dinesh Malviya",
+			  "email": "xyz@gmail.com"
+			},
+			{
+			  "name": "Ashish Ahuja",
+			  "email": "abc@gmail.com"
+			}
+		      ],
+		      "hosting_info": [
+			{
+			  "hosting_status": "hosted",
+			  "hosted_on": "cloud",
+			  "hosted_url": "http://cse14-iiith.vlabs.ac.in"
+			},
+			{
+			  "hosting_status": "hosted",
+			  "hosted_on": "college-cloud",
+			  "hosted_url": "http://cse14-iiith.ac.in"
+			}
+		      ],
+		      "integration_level": "4",
+		      "assets": [
+			{
+			  "asset_type": "image",
+			  "path": "vlabs.ac.in/images/static/logo.png"
+			},
+			{
+			  "asset_type": "video",
+			  "path": "vlabs.ac.in/video/abc.mkv"
+			}
+		      ],
+		      "sections": [
+			"Introduction",
+			"Objective",
+			"Tutorial",
+			"Illustration",
+			"Procedure",
+			"Experiment",
+			"Observations",
+			"Assignment",
+			"References"
+		      ]
 		    }
+		  } 
         with self.assertRaises(TypeError):
             SystemInterface.add_experiment(data_dict)
  #+END_SRC
@@ -808,7 +888,7 @@ class TestAddInstitute(TestCase):
                     'key' : KEY,
                     'asset_type': 'Image',
                     'path': 'vlabs.ac.in/images/static/logo.png'
-                   }
+                    }
 
         asset = SystemInterface.add_asset(data_dict)
 
@@ -818,7 +898,6 @@ class TestAddInstitute(TestCase):
                     'inst_id': 'IITK',
                     'assets': ['vlabs.ac.in/images/static/logo.png']
                     }
-
         institute = SystemInterface.add_institute(data_dict)
         institute_cls = System.delegate.entities['institute']
         institute = institute_cls.get_all()[0]
