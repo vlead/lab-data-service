@@ -127,8 +127,7 @@ class TestPersistentLab(TestCase):
         dev_name.save()
         email_id = Email(email="mohit.tahiliani@gmail.com")
         email_id.save()
-        dev = Developer(name=dev_name, email=email_id,
-                        institute=inst, discipline=discipline)
+        dev = Developer(name=dev_name, email=email_id)
         dev.save()
 
         hosting_status = "hosted"
@@ -330,8 +329,7 @@ class TestPersistenceExperiment(TestCase):
         dev_name.save()
         email_id = Email(email="mohit.tahiliani@gmail.com")
         email_id.save()
-        dev = Developer(name=dev_name, email=email_id,
-                        institute=inst, discipline=discipline)
+        dev = Developer(name=dev_name, email=email_id)
         dev.save()
 
         hosting_status = "hosted"
@@ -408,9 +406,7 @@ args = {"__tablename__": "institute",
         "experiments": db.relationship('Experiment', backref=\
                                            db.backref('institute')),
         "assets": db.relationship('Asset', secondary=institutes_assets,
-                                      backref='institutes'),
-        "developers": db.relationship('Developer', backref=\
-                                          db.backref('institute'))
+                                      backref='institutes')
        }
 
 Institute = ClassPersistenceTemplate.mk_persistent(Institute, ['inst_id'],\
@@ -482,9 +478,7 @@ args = {"__tablename__": "discipline",
         "experiments": db.relationship('Experiment', backref=\
                                            db.backref('discipline')),
         "assets": db.relationship('Asset', secondary=disciplines_assets,
-                                      backref='disciplines'),
-        "developers": db.relationship('Developer', backref=\
-                                          db.backref('discipline'))
+                                      backref='disciplines')
         }
 
 Discipline = ClassPersistenceTemplate.mk_persistent(Discipline, ['dis_id'],\
@@ -613,7 +607,7 @@ class TestPersistentName(TestCase):
         db.session.remove()
         db.drop_all()
 
-    def test_create_dev(self):
+    def test_create_persistent_name(self):
         print "test_persistent_name"
 
         name = "Mohit tahiliani"
@@ -676,22 +670,6 @@ class TestPersistentEmail(TestCase):
 * Developer
 =Developer= is a class with an attribute =name= of type alphabetic string and =email= of alphabetic string.
 
-#+NAME: class_exp_association_Table
-#+BEGIN_SRC python
-developers_institutes = db.Table('developers_institutes',
-		      db.Column('developer_id', db.Integer, 
-                            db.ForeignKey('developer.id')),
-		      db.Column('institute_id', db.Integer,
-                            db.ForeignKey('institute.id')))
-
-developers_disciplines = db.Table('developers_disciplines',
-		      db.Column('developer_id', db.Integer, 
-                            db.ForeignKey('developer.id')),
-		      db.Column('discipline_id', db.Integer,
-                            db.ForeignKey('discipline.id')))
-
-#+END_SRC
-
 #+NAME: class_Developer
 #+begin_src python
 args = {"__tablename__": "developer",
@@ -699,11 +677,7 @@ args = {"__tablename__": "developer",
         "name_id": db.Column(db.Integer, db.ForeignKey('name.id'),
                                  nullable=False),
         "email_id": db.Column(db.Integer,db.ForeignKey('email.id'),
-                                 unique=True, nullable=False),
-        "institute_id": db.Column(db.Integer, db.ForeignKey('institute.id'), 
-                                      unique=False, nullable=False),
-        "discipline_id": db.Column(db.Integer, db.ForeignKey('discipline.id'), 
-                                      unique=False, nullable=False)
+                                 unique=True, nullable=False)
         }
 
 Developer = ClassPersistenceTemplate.mk_persistent(Developer, [], **args)
@@ -734,33 +708,18 @@ class TestPersistentDeveloper(TestCase):
         asset = Asset(asset_type=asset_type, path=path)
         asset.save()
 
-        inst_name = "IIT Kanpur"
-        inst_id = "IITK"
-        inst = Institute(inst_name=inst_name, inst_id=inst_id, assets=[asset])
-        inst.save()
-
-        dis_name = "IIT Kanpur"
-        dis_id = "IITK"
-        discipline = Discipline(dis_name=dis_name, dis_id=dis_id,
-                                    assets=[asset])
-        discipline.save()
 
         dev_name = Name(name="Mohit Tahiliani")
         dev_name.save()
         email_id = Email(email="mohit.tahiliani@gmail.com")
         email_id.save()
-        dev = Developer(name=dev_name, email=email_id,
-                        institute=inst, discipline=discipline)
+        dev = Developer(name=dev_name, email=email_id)
         dev.save()
         
         dev = Developer.get_by_id(1)
 
         self.assertEqual(dev.get("name").get("name"), dev_name.get("name"))
         self.assertEqual(dev.get("email").get("email"), email_id.get("email"))
-        self.assertEqual(dev.get("institute").get("inst_name"), 
-                             inst.get("inst_name"))
-        self.assertEqual(dev.get("discipline").get("dis_name"), 
-                             discipline.get("dis_name"))
 
 #+END_SRC
 

@@ -145,8 +145,7 @@ class TestPersistenceDelegate(TestCase):
         dev_name.save()
         email_id = Email(email="mohit.tahiliani@gmail.com")
         email_id.save()
-        dev = Developer(name=dev_name, email=email_id,
-                        institute=inst, discipline=discipline)
+        dev = Developer(name=dev_name, email=email_id)
         dev.save()
 
         hosting_status = "hosted"
@@ -221,8 +220,7 @@ class TestPersistenceDelegate(TestCase):
         dev_name.save()
         email_id = Email(email="mohit.tahiliani@gmail.com")
         email_id.save()
-        dev = Developer(name=dev_name, email=email_id,
-                        institute=inst, discipline=discipline)
+        dev = Developer(name=dev_name, email=email_id)
         dev.save()
 
         hosting_status = "hosted"
@@ -463,16 +461,14 @@ class TestPersistenceDelegate(TestCase):
         dev_name1.save()
         email_id1 = Email(email="abc@gmail.com")
         email_id1.save()
-        developer1 = Developer(name=dev_name1, email=email_id1,
-                               institute=inst, discipline=discipline)
+        developer1 = Developer(name=dev_name1, email=email_id1)
         developer1.save()
 
         dev_name2 = Name(name="Prof. Raja")
         dev_name2.save()
         email_id2 = Email(email="xyz@gmail.com")
         email_id2.save()
-        developer2 = Developer(name=dev_name2, email=email_id2,
-                               institute=inst, discipline=discipline)
+        developer2 = Developer(name=dev_name2, email=email_id2)
 
         self.assertEqual(self.persistence_delegate.\
                              developer_exists(developer1), True)
@@ -700,8 +696,7 @@ class TestPersistenceDelegate(TestCase):
          dev_name.save()
          email_id = Email(email="mohit.tahiliani@gmail.com")
          email_id.save()
-         dev = Developer(name=dev_name, email=email_id,
-                         institute=inst, discipline=discipline)
+         dev = Developer(name=dev_name, email=email_id)
          dev.save()
 
          hosting_status = "hosted"
@@ -792,8 +787,7 @@ class TestPersistenceDelegate(TestCase):
          dev_name.save()
          email_id = Email(email="mohit.tahiliani@gmail.com")
          email_id.save()
-         dev = Developer(name=dev_name, email=email_id,
-                         institute=inst, discipline=discipline)
+         dev = Developer(name=dev_name, email=email_id)
          dev.save()
 
          hosting_status = "hosted"
@@ -1027,8 +1021,7 @@ class TestPersistenceDelegate(TestCase):
          dev_name.save()
          email = Email(email="dharmar@maths.iitd.ac.in")
          email.save()
-         dev = Developer(name=dev_name, email=email,
-                         institute=inst, discipline=discipline)
+         dev = Developer(name=dev_name, email=email)
          dev = self.persistence_delegate.add_developer(dev)
         
          self.assertEqual(self.persistence_delegate.developer_exists(dev),
@@ -1056,8 +1049,7 @@ class TestPersistenceDelegate(TestCase):
          dev_name = Name(name="Prof. S. Dharmaraja")
          email = Email(email="dharmar@maths.iitd.ac.in")
          email.save()
-         dev = Developer(name=dev_name, email=email,
-                         institute=inst, discipline=discipline)
+         dev = Developer(name=dev_name, email=email)
          dev = self.persistence_delegate.add_developer(dev)
         
          self.assertEqual(self.persistence_delegate.developer_exists(dev),
@@ -1085,8 +1077,7 @@ class TestPersistenceDelegate(TestCase):
          dev_name = Name(name="Prof. S. Dharmaraja")
          dev_name.save()
          email = Email(email="dharmar@maths.iitd.ac.in")
-         dev = Developer(name=dev_name, email=email,
-                         institute=inst, discipline=discipline)
+         dev = Developer(name=dev_name, email=email)
          dev = self.persistence_delegate.add_developer(dev)
         
          self.assertEqual(self.persistence_delegate.developer_exists(dev),
@@ -1325,8 +1316,7 @@ class TestPersistenceDelegate(TestCase):
          dev_name.save()
          email_id = Email(email="mohit.tahiliani@gmail.com")
          email_id.save()
-         dev = Developer(name=dev_name, email=email_id,
-                         institute=inst, discipline=discipline)
+         dev = Developer(name=dev_name, email=email_id)
          dev.save()
 
          hosting_status = "hosted"
@@ -1391,8 +1381,7 @@ class TestPersistenceDelegate(TestCase):
          dev_name1.save()
          email_id1 = Email(email="tahiliani@gmail.com")
          email_id1.save()
-         dev1 = Developer(name=dev_name1, email=email_id1,
-                         institute=inst1, discipline=discipline1)
+         dev1 = Developer(name=dev_name1, email=email_id1)
          dev1.save()
 
          asset_type1 = "Image"
@@ -1491,8 +1480,7 @@ class TestPersistenceDelegate(TestCase):
          dev_name.save()
          email_id = Email(email="mohit.tahiliani@gmail.com")
          email_id.save()
-         dev = Developer(name=dev_name, email=email_id,
-                         institute=inst, discipline=discipline)
+         dev = Developer(name=dev_name, email=email_id)
          dev.save()
 
          hosting_status = "hosted"
@@ -1548,8 +1536,7 @@ class TestPersistenceDelegate(TestCase):
          dev_name1.save()
          email_id1 = Email(email="pallavipawar@gmail.com")
          email_id1.save()
-         dev1 = Developer(name=dev_name1, email=email_id1,
-                         institute=inst1, discipline=discipline1)
+         dev1 = Developer(name=dev_name1, email=email_id1)
          dev1.save()
 
          integration_level1 = 3
@@ -1686,11 +1673,11 @@ class TestPersistenceDelegate(TestCase):
     This function updates existing developer.
 #+NAME: persistence_update_developer
 #+BEGIN_SRC python
-    def update_developer(self, dev, dev_name, institute, discipline):
+    def update_developer(self, dev, dev_name):
 
         current_app.logger.debug("running update developer operation")
 
-        dev.set(name=dev_name, institute=institute, discipline=discipline)
+        dev.set(name=dev_name)
         dev.save()
 
         current_app.logger.debug("completed update developer operation")
@@ -1706,50 +1693,19 @@ class TestPersistenceDelegate(TestCase):
     def test_update_developer(self):
          print "test_update_developer"
 
-         asset_type = "Image"
-         path = "vlabs.ac.in/images/static/logo.png"
-         asset = Asset(asset_type=asset_type, path=path)
-         asset.save()
-
-         inst_name = "IIT Kanpur"
-         inst_id = "IITK"
-         inst = Institute(inst_name=inst_name, inst_id=inst_id, assets=[asset])
-         inst.save()
-
-         dis_name = "computer science"
-         dis_id = "cse"
-         discipline = Discipline(dis_name=dis_name, dis_id=dis_id,
-                                     assets=[asset])
-         discipline.save()
-
          dev_name = Name(name="Prof. S. Dharmaraja")
          dev_name.save()
          email_id = Email(email="dharmar@maths.iitd.ac.in")
          email_id.save()
-         dev = Developer(name=dev_name, email=email_id,
-                         institute=inst, discipline=discipline)
+         dev = Developer(name=dev_name, email=email_id)
          dev1 = self.persistence_delegate.add_developer(dev)
-
-         inst_name1 = "IIT Kharagpur"
-         inst_id1 = "IITKgp"
-         inst1 = Institute(inst_name=inst_name1, inst_id=inst_id1, assets=[asset])
-         inst1.save()
-
-         dis_name1 = "Computer Science & Engineering"
-         dis_id1 = "IIT Kharagpur"
-         discipline1 = Discipline(dis_name=dis_name1, dis_id=dis_id1, assets=[asset])
-         discipline1.save()
 
          dev_name1 = Name(name="Prof. S. raja")
          dev_name1.save()
 
-         dev2 = self.persistence_delegate.update_developer(dev1, dev_name1, inst1, discipline1)
+         dev2 = self.persistence_delegate.update_developer(dev1, dev_name1)
 
          self.assertEqual(dev1.get("name").get("name"), dev_name1.get("name"))
-         self.assertEqual(dev1.get("institute").get("inst_id"), 
-                              inst1.get("inst_id"))
-         self.assertEqual(dev1.get("discipline").get("dis_id"), 
-                              discipline1.get("dis_id"))
 
 #+END_SRC
 
@@ -1951,8 +1907,7 @@ class TestPersistenceDelegate(TestCase):
          dev_name.save()
          email_id = Email(email="mohit.tahiliani@gmail.com")
          email_id.save()
-         dev = Developer(name=dev_name, email=email_id,
-                         institute=inst, discipline=discipline)
+         dev = Developer(name=dev_name, email=email_id)
          dev.save()
 
          hosting_status = "hosted"
@@ -2042,8 +1997,7 @@ class TestPersistenceDelegate(TestCase):
          dev_name.save()
          email_id = Email(email="mohit.tahiliani@gmail.com")
          email_id.save()
-         dev = Developer(name=dev_name, email=email_id,
-                         institute=inst, discipline=discipline)
+         dev = Developer(name=dev_name, email=email_id)
          dev.save()
 
          hosting_status = "hosted"
@@ -2307,30 +2261,13 @@ class TestPersistenceDelegate(TestCase):
     def test_delete_developer(self):
          print "test_delete_developer"
 
-         asset_type = "Image"
-         path = "vlabs.ac.in/images/static/logo.png"
-         asset = Asset(asset_type=asset_type, path=path)
-         asset.save()
-
-         inst_name = "IIT Kanpur"
-         inst_id = "IITK"
-         inst = Institute(inst_name=inst_name, inst_id=inst_id, assets=[asset])
-         inst.save()
-
-         dis_name = "IIT Kanpur"
-         dis_id = "IITK"
-         discipline = Discipline(dis_name=dis_name, dis_id=dis_id,
-                                     assets=[asset])
-         discipline.save()
-
          dev_name = Name(name="Prof. S. Dharmaraja")
          dev_name.save()
 
          email_id = Email(email="dharmar@maths.iitd.ac.in")
          email_id.save()
 
-         dev = Developer(name=dev_name, email=email_id,
-                         institute=inst, discipline=discipline)
+         dev = Developer(name=dev_name, email=email_id)
          dev1 = self.persistence_delegate.add_developer(dev)
 
          dev_name1 = Name(name="Prof. S. Yamraja")
@@ -2338,8 +2275,7 @@ class TestPersistenceDelegate(TestCase):
          email_id1 = Email(email="yamraja@maths.iitd.ac.in")
          email_id1.save()
 
-         dev2 = Developer(name=dev_name1, email=email_id1,
-                          institute=inst, discipline=discipline)
+         dev2 = Developer(name=dev_name1, email=email_id1)
          dev3 = self.persistence_delegate.add_developer(dev2)
 
          self.persistence_delegate.delete_developer(dev3.get("email"))
@@ -2632,8 +2568,7 @@ class TestPersistenceDelegate(TestCase):
          dev_name.save()
          email_id = Email(email="mohit.tahiliani@gmail.com")
          email_id.save()
-         dev = Developer(name=dev_name, email=email_id,
-                         institute=inst, discipline=discipline)
+         dev = Developer(name=dev_name, email=email_id)
          dev.save()
 
          hosting_status = "hosted"
@@ -2923,8 +2858,7 @@ class TestPersistenceDelegate(TestCase):
          dev_name.save()
          email_id = Email(email="mohit.tahiliani@gmail.com")
          email_id.save()
-         dev = Developer(name=dev_name, email=email_id,
-                         institute=inst, discipline=discipline)
+         dev = Developer(name=dev_name, email=email_id)
          dev.save()
 
          hosting_status = "hosted"
@@ -3030,8 +2964,7 @@ class TestPersistenceDelegate(TestCase):
          dev_name.save()
          email_id = Email(email="mohit.tahiliani@gmail.com")
          email_id.save()
-         dev = Developer(name=dev_name, email=email_id,
-                         institute=inst, discipline=discipline)
+         dev = Developer(name=dev_name, email=email_id)
          dev.save()
 
          hosting_status = "hosted"
@@ -3187,8 +3120,7 @@ class TestPersistenceDelegate(TestCase):
          dev_name.save()
          email_id = Email(email="dharmar@maths.iitd.ac.in")
          email_id.save()
-         dev = Developer(name=dev_name, email=email_id,
-                         institute=inst, discipline=discipline)
+         dev = Developer(name=dev_name, email=email_id)
          dev.save()
 
          dev_obj = self.persistence_delegate.get_developer(email=dev.
@@ -3246,8 +3178,7 @@ class TestPersistenceDelegate(TestCase):
          dev_name.save()
          email_id = Email(email="mohit.tahiliani@gmail.com")
          email_id.save()
-         dev = Developer(name=dev_name, email=email_id,
-                         institute=inst, discipline=discipline)
+         dev = Developer(name=dev_name, email=email_id)
          dev.save()
 
          exp_name = "Number Systems"
@@ -3439,8 +3370,7 @@ class TestPersistenceDelegate(TestCase):
          dev_name.save()
          email_id = Email(email="mohit.tahiliani@gmail.com")
          email_id.save()
-         dev = Developer(name=dev_name, email=email_id,
-                         institute=inst, discipline=discipline)
+         dev = Developer(name=dev_name, email=email_id)
          dev.save()
 
          hosting_status = "hosted"
@@ -3505,8 +3435,7 @@ class TestPersistenceDelegate(TestCase):
          dev_name.save()
          email_id = Email(email="mohit.tahiliani@gmail.com")
          email_id.save()
-         dev = Developer(name=dev_name, email=email_id,
-                         institute=inst, discipline=discipline)
+         dev = Developer(name=dev_name, email=email_id)
          dev.save()
 
          hosting_status = "hosted"
@@ -3570,8 +3499,7 @@ class TestPersistenceDelegate(TestCase):
          dev_name.save()
          email_id = Email(email="mohit.tahiliani@gmail.com")
          email_id.save()
-         dev = Developer(name=dev_name, email=email_id,
-                         institute=inst, discipline=discipline)
+         dev = Developer(name=dev_name, email=email_id)
          dev.save()
 
          hosting_status = "hosted"
@@ -3635,8 +3563,7 @@ class TestPersistenceDelegate(TestCase):
          dev_name.save()
          email_id = Email(email="mohit.tahiliani@gmail.com")
          email_id.save()
-         dev = Developer(name=dev_name, email=email_id,
-                         institute=inst, discipline=discipline)
+         dev = Developer(name=dev_name, email=email_id)
          dev.save()
 
          hosting_status = "hosted"
@@ -3894,8 +3821,7 @@ class TestPersistenceDelegate(TestCase):
          dev_name.save()
          email_id = Email(email="mohit.tahiliani@gmail.com")
          email_id.save()
-         dev = Developer(name=dev_name, email=email_id,
-                         institute=inst, discipline=discipline)
+         dev = Developer(name=dev_name, email=email_id)
          dev.save()
 
          hosting_status = "hosted"
@@ -3976,8 +3902,7 @@ class TestPersistenceDelegate(TestCase):
          dev_name.save()
          email_id = Email(email="mohit.tahiliani@gmail.com")
          email_id.save()
-         dev = Developer(name=dev_name, email=email_id,
-                         institute=inst, discipline=discipline)
+         dev = Developer(name=dev_name, email=email_id)
          dev.save()
 
          exp_name = "Number Systems"
