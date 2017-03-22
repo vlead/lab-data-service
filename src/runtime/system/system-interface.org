@@ -80,10 +80,8 @@ class SystemInterface ():
             name = name_cls(name=developer_x['name'])
             email = email_cls(email=developer_x['email'])
             developer = System.do("get_developer", email=email)
-            institute = System.do("get_institute", inst_id=developer_x['inst_id'])
-            discipline = System.do("get_discipline", dis_id=developer_x['dis_id'])
             if developer is None:
-                developer = developer_cls(name=name, email=email, institute=institute, discipline=discipline)
+                developer = developer_cls(name=name, email=email)
                 developer = System.do("add_developer", developer=developer, session=session)
             developer_list.append(developer)
 
@@ -220,51 +218,83 @@ class TestAddLab(TestCase):
 
        experiment = SystemInterface.add_experiment(data_dict)
 
-       data_dict = {'lab_name': 'data structure',
-		    'lab_id': 'cse02',
-		    'overview': 'overview',
-		    'key': KEY,
-		    'inst_id': 'IITK',
-		    'dis_id': 'CSE',
-		    'assets': [{'path':'vlabs.ac.in/images/static/logo.png',
-				   'asset_type': 'image'},
-			       {'path':'vlabs.ac.in/images/static/image.png',
-				   'asset_type': 'image'}],
-		    'developers': [{'name':'Prof. Dharamaja',
-				   'email': 'abc@gmail.com',
-				   'inst_id': 'IITK', 'dis_id': 'CSE'},
-				   {'name':'Prof. Pallavi Pawar',
-				   'email': 'pallavi.pawar@gmail.com',
-				   'inst_id': 'IITK', 'dis_id': 'CSE'}],
-		    'hosting_info': [{'hosted_url':'http://cse14-iiith.vlabs.ac.in',
-				   'hosting_status': 'hosted',
-				   'hosted_on': 'cloud'},
-				   {'hosted_url':'http://iitkgp.vlab.co.in/',
-				   'hosting_status': 'hosted',
-				   'hosted_on': 'server'}],
-		    'integration_level': 4,
-		    'experiments': ['exp123']
-		  }
+
+       data_dict = {           
+		   "key" : KEY,     
+                   "lab": {
+                     "id": "cse02",
+                     "name": "Computer Programming",
+                     "overview": "overview",
+                     "discipline_id": "CSE",
+                     "institute_id": "IITK",
+                     "developers": [
+                       {
+                         "name": "Dinesh Malviya",
+                         "email": "xyz@gmail.com"
+                       },
+                       {
+                         "name": "Ashish Ahuja",
+                         "email": "abc@gmail.com"
+                       }
+                     ],
+                     "hosting_info": [
+                       {
+                         "hosting_status": "hosted",
+                         "hosted_on": "cloud",
+                         "hosted_url": "http://cse14-iiith.vlabs.ac.in"
+                       },
+                       {
+                         "hosting_status": "hosted",
+                         "hosted_on": "college-cloud",
+                         "hosted_url": "http://cse14-iiith.ac.in"
+                       }
+                     ],
+                     "integration_level": 4,
+                     "assets": [
+                       {
+                         "asset_type": "image",
+                         "path": "vlabs.ac.in/images/static/logo.png"
+                       },
+                       {
+                         "asset_type": "video",
+                         "path": "vlabs.ac.in/video/abc.mkv"
+                       }
+                     ],
+                     "sections": [
+                       {
+                         "name": "Introduction"
+                       },
+                       {
+                         "experiments": [
+                           "exp123"
+                         ]
+                       }
+                     ]
+                   }
+                 }
 
        lab = SystemInterface.add_lab(data_dict)
        lab_cls = System.delegate.entities['lab']
        lab = lab_cls.get_all()[0]
 
-       self.assertEqual(lab.get("lab_name"), data_dict['lab_name'])
-       self.assertEqual(lab.get("lab_id"), data_dict['lab_id'])
+       self.assertEqual(lab.get("lab_name"), data_dict['lab']['name'])
+       self.assertEqual(lab.get("lab_id"), data_dict['lab']['id'])
        self.assertEqual(lab.get("institute").get("inst_id"),
-			    data_dict['inst_id'])
+			    data_dict['lab']['institute_id'])
        self.assertEqual(lab.get("integration_status").get("integration_level"),
-			    data_dict['integration_level'])
+			    data_dict['lab']['integration_level'])
        self.assertEqual(lab.get("discipline").get("dis_id"),
-			    data_dict['dis_id'])
+			    data_dict['lab']['discipline_id'])
        self.assertEqual(lab.get("assets")[0].get("path"), 
 			    'vlabs.ac.in/images/static/logo.png') 
        self.assertEqual(lab.get("hosting_info")[0].get("hosted_url"),
 			    'http://cse14-iiith.vlabs.ac.in')
        self.assertEqual(lab.get("experiments")[0].get("exp_name"), 'arrays')
        self.assertEqual(lab.get("experiments")[0].get("exp_id"), 'exp123')
-       self.assertEqual(lab.get("developers")[0].get("email").get("email"), 'abc@gmail.com')
+       self.assertEqual(lab.get("developers")[0].get("email").get("email"),
+                            'xyz@gmail.com')
+       self.assertEqual(lab.get("developers")[1].get("email").get("email"),
+                            'abc@gmail.com')
 
    def test_add_lab_raises_type_error_in_system_interface(self):
        print "test_add_lab_raises_type_error_in_system_interface"
@@ -314,9 +344,7 @@ class TestAddLab(TestCase):
        data_dict = {
 		   'key' : KEY,
 		   'name': 'Prof. Dharamaja',
-		   'email': 'abc@gmail.com',
-		   'inst_id': 'IITK',
-		   'dis_id': 'CSE'
+		   'email': 'abc@gmail.com'
 		  }
 
        developer = SystemInterface.add_developer(data_dict)
@@ -349,37 +377,12 @@ class TestAddLab(TestCase):
 		  }
 
        experiment = SystemInterface.add_experiment(data_dict)
-       """
-       data_dict = {'lab_name': 'data structure',
-		   'lab_id': 123,
-		   'overview': 'overview',
-		   'key': KEY,
-		   'inst_id': 'IITK',
-		   'dis_id': 'CSE',
-		   'assets': [{'path':'vlabs.ac.in/images/static/logo.png',
-				   'asset_type': 'image'},
-			       {'path':'vlabs.ac.in/images/static/image.png',
-				   'asset_type': 'image'}],
-		   'experiments': ['exp123'],
-		   'integration_level': 4,
-		   'developers': [{'name':'Prof. Dharamaja',
-				   'email': 'abc@gmail.com',
-				   'inst_id': 'IITK', 'dis_id': 'CSE'},
-				   {'name':'Prof. Pallavi Pawar',
-				   'email': 'pallavi.pawar@gmail.com',
-				   'inst_id': 'IITK', 'dis_id': 'CSE'}],
-		   'hosting_info': [{'hosted_url':'http://cse14-iiith.vlabs.ac.in',
-				   'hosting_status': 'hosted',
-				   'hosted_on': 'cloud'},
-				   {'hosted_url':'http://iitkgp.vlab.co.in/',
-				   'hosting_status': 'hosted',
-				   'hosted_on': 'server'}]
-		   }
-       """
        data_dict = {
+           "key" : KEY,     
 	   "lab": {
 	       "id": "cse02",
 	       "name": "Computer Programming",
+               "overview": "overview",
 	       "discipline_id": "CSE",
 	       "institute_id": "IIITH",
 	       "developers": [
@@ -488,12 +491,8 @@ class TestAddLab(TestCase):
             name = name_cls(name=developer_x['name'])
             email = email_cls(email=developer_x['email'])
             developer = System.do("get_developer", email=email)
-            institute = System.do("get_institute", inst_id=developer_x['inst_id'])
-            discipline = System.do("get_discipline", dis_id=developer_x['dis_id'])
             if developer is None:
-                developer = developer_cls(name=name, email=email,
-                                              institute=institute,
-                                              discipline=discipline)
+                developer = developer_cls(name=name, email=email)
                 developer = System.do("add_developer", developer=developer,
                                           session=session)
             developer_list.append(developer)
@@ -589,9 +588,7 @@ class TestAddExperiment(TestCase):
         data_dict = {
                     'key' : KEY,
                     'name': 'Prof. Dharamaja',
-                    'email': 'abc@gmail.com',
-                    'inst_id': 'IITK',
-                    'dis_id': 'CSE'
+                    'email': 'abc@gmail.com'
                    }
 
         developer = SystemInterface.add_developer(data_dict)
@@ -702,9 +699,7 @@ class TestAddExperiment(TestCase):
         data_dict = {
                     'key' : KEY,
                     'name': 'Prof. Dharamaja',
-                    'email': 'abc@gmail.com',
-                    'inst_id': 'IITK',
-                    'dis_id': 'CSE'
+                    'email': 'abc@gmail.com'
                    }
 
         developer = SystemInterface.add_developer(data_dict)
@@ -1235,14 +1230,7 @@ class TestAddEmail(TestCase):
         name = name_cls(name=str(data_dict['name']))
         email = email_cls(email=str(data_dict['email']))
 
-        inst_id = data_dict['inst_id']
-        institute = System.do("get_institute", inst_id=inst_id)
-
-        dis_id = data_dict['dis_id']
-        discipline = System.do("get_discipline", dis_id=dis_id)
-
-        developer = developer_cls(name=name, email=email,
-                                  institute=institute, discipline=discipline)
+        developer = developer_cls(name=name, email=email)
 
         try:
             current_app.logger.debug("running operation add_developer")
@@ -1309,9 +1297,7 @@ class TestAddDeveloper(TestCase):
         data_dict = {
                     'key' : KEY,
                     'name': 'Prof. Dharamaja',
-                    'email': 'abc@gmail.com',
-                    'inst_id': 'IITK',
-                    'dis_id': 'CSE'
+                    'email': 'abc@gmail.com'
                    }
 
         developer = SystemInterface.add_developer(data_dict)
@@ -1486,9 +1472,7 @@ class TestGetLabsByLabName(TestCase):
         data_dict = {
                     'key' : KEY,
                     'name': 'Prof. Dharamaja',
-                    'email': 'abc@gmail.com',
-                    'inst_id': 'IITK',
-                    'dis_id': 'CSE'
+                    'email': 'abc@gmail.com'
                    }
 
         developer = SystemInterface.add_developer(data_dict)
@@ -1500,11 +1484,10 @@ class TestGetLabsByLabName(TestCase):
                     'overview': 'overview', 
                     'sections': [],
                     'developers': [{'name':'Prof. Dharamaja',
-                                    'email': 'abc@gmail.com',
-                                    'inst_id': 'IITK', 'dis_id': 'CSE'},
+                                    'email': 'abc@gmail.com'},
                                     {'name':'Prof. Pallavi Pawar',
-                                    'email': 'pallavi.pawar@gmail.com',
-                                    'inst_id': 'IITK', 'dis_id': 'CSE'}],
+                                    'email': 'pallavi.pawar@gmail.com'}
+                                    ],
                     'hosting_info': [{'hosted_url':'http://cse14-iiith.vlabs.ac.in',
                                     'hosting_status': 'hosted',
                                     'hosted_on': 'cloud'},
@@ -1534,10 +1517,10 @@ class TestGetLabsByLabName(TestCase):
                                     'asset_type': 'image'}],
                     'developers': [{'name':'Prof. Dharamaja',
                                     'email': 'abc@gmail.com',
-                                    'inst_id': 'IITK', 'dis_id': 'CSE'},
+                                   },
                                     {'name':'Prof. Pallavi Pawar',
                                     'email': 'pallavi.pawar@gmail.com',
-                                    'inst_id': 'IITK', 'dis_id': 'CSE'}],
+                                    }],
                     'hosting_info': [{'hosted_url':'http://cse14-iiith.vlabs.ac.in',
                                     'hosting_status': 'hosted',
                                     'hosted_on': 'cloud'},
@@ -1681,9 +1664,7 @@ class TestGetLabsByKeywordLabName(TestCase):
         data_dict = {
                     'key' : KEY,
                     'name': 'Prof. Dharamaja',
-                    'email': 'abc@gmail.com',
-                    'inst_id': 'IITK',
-                    'dis_id': 'CSE'
+                    'email': 'abc@gmail.com'
                    }
 
         developer = SystemInterface.add_developer(data_dict)
@@ -1877,9 +1858,7 @@ class TestGetLabsByInstitute(TestCase):
         data_dict = {
                     'key' : KEY,
                     'name': 'Prof. Dharamaja',
-                    'email': 'abc@gmail.com',
-                    'inst_id': 'IITK',
-                    'dis_id': 'CSE'
+                    'email': 'abc@gmail.com'
                    }
 
         developer = SystemInterface.add_developer(data_dict)
@@ -2084,9 +2063,7 @@ class TestGetLabsByDiscipline(TestCase):
         data_dict = {
                     'key' : KEY,
                     'name': 'Prof. Dharamaja',
-                    'email': 'abc@gmail.com',
-                    'inst_id': 'IITK',
-                    'dis_id': 'CSE'
+                    'email': 'abc@gmail.com'
                    }
 
         developer = SystemInterface.add_developer(data_dict)
@@ -2274,9 +2251,7 @@ class TestGetLabsByLabName(TestCase):
         data_dict = {
                     'key' : KEY,
                     'name': 'Prof. Dharamaja',
-                    'email': 'abc@gmail.com',
-                    'inst_id': 'IITK',
-                    'dis_id': 'CSE'
+                    'email': 'abc@gmail.com'
                    }
 
         developer = SystemInterface.add_developer(data_dict)
@@ -2465,9 +2440,7 @@ class TestGetLabsByAssetType(TestCase):
         data_dict = {
                     'key' : KEY,
                     'name': 'Prof. Dharamaja',
-                    'email': 'abc@gmail.com',
-                    'inst_id': 'IITK',
-                    'dis_id': 'CSE'
+                    'email': 'abc@gmail.com'
                    }
 
         developer = SystemInterface.add_developer(data_dict)
@@ -2619,9 +2592,7 @@ class TestGetLabsByIntegration_Status(TestCase):
         data_dict = {
                     'key' : KEY,
                     'name': 'Prof. Dharamaja',
-                    'email': 'abc@gmail.com',
-                    'inst_id': 'IITK',
-                    'dis_id': 'CSE'
+                    'email': 'abc@gmail.com'
                    }
 
         developer = SystemInterface.add_developer(data_dict)
@@ -2814,9 +2785,7 @@ class TestGetExperiments(TestCase):
         data_dict = {
                     'key' : KEY,
                     'name': 'Prof. Dharamaja',
-                    'email': 'abc@gmail.com',
-                    'inst_id': 'IITK',
-                    'dis_id': 'CSE'
+                    'email': 'abc@gmail.com'
                    }
 
         developer = SystemInterface.add_developer(data_dict)
@@ -3445,8 +3414,6 @@ class TestGetDevelopers(TestCase):
 
         data_dict1 = {'name': 'Prof. Yamraja',
                       'email': 'xyz@gmail.com',
-                      'inst_id': 'IITKgp',
-                      'dis_id': 'ECE',
                       'key': KEY
                      }
 
@@ -3614,9 +3581,7 @@ class TestGetLabById(TestCase):
         data_dict = {
                     'key' : KEY,
                     'name': 'Prof. Dharamaja',
-                    'email': 'abc@gmail.com',
-                    'inst_id': 'IITK',
-                    'dis_id': 'CSE'
+                    'email': 'abc@gmail.com'
                    }
 
         developer = SystemInterface.add_developer(data_dict)
@@ -3891,9 +3856,7 @@ class TestGetExperimentById(TestCase):
         data_dict = {
                     'key' : KEY,
                     'name': 'Prof. Dharamaja',
-                    'email': 'abc@gmail.com',
-                    'inst_id': 'IITK',
-                    'dis_id': 'CSE'
+                    'email': 'abc@gmail.com'
                    }
 
         developer = SystemInterface.add_developer(data_dict)
@@ -4277,10 +4240,8 @@ class TestGetNameById(TestCase):
             name = name_cls(name=developer_x['name'])
             email = email_cls(email=developer_x['email'])
             developer = System.do("get_developer", email=email)
-            institute = System.do("get_institute", inst_id=developer_x['inst_id'])
-            discipline = System.do("get_discipline", dis_id=developer_x['dis_id'])
             if developer is None:
-                developer = developer_cls(name=name, email=email, institute=institute, discipline=discipline)
+                developer = developer_cls(name=name, email=email)
                 developer = System.do("add_developer", developer=developer, session=session)
             developer_list.append(developer)
 
@@ -4378,9 +4339,7 @@ class TestUpdateLab(TestCase):
         data_dict = {
                     'key' : KEY,
                     'name': 'Prof. Dharamaja',
-                    'email': 'abc@gmail.com',
-                    'inst_id': 'IITK',
-                    'dis_id': 'CSE'
+                    'email': 'abc@gmail.com'
                    }
 
         developer = SystemInterface.add_developer(data_dict)
@@ -4655,9 +4614,7 @@ class TestUpdateLab(TestCase):
             institute = System.do("get_institute", inst_id=developer_x['inst_id'])
             discipline = System.do("get_discipline", dis_id=developer_x['dis_id'])
             if developer is None:
-                developer = developer_cls(name=name, email=email,
-                                              institute=institute,
-                                              discipline=discipline)
+                developer = developer_cls(name=name, email=email)
                 developer = System.do("add_developer", developer=developer,
                                           session=session)
             developer_list.append(developer)
@@ -4758,9 +4715,7 @@ class TestUpdateExperiment(TestCase):
         data_dict = {
                     'key' : KEY,
                     'name': 'Prof. Dharamaja',
-                    'email': 'abc@gmail.com',
-                    'inst_id': 'IITK',
-                    'dis_id': 'CSE'
+                    'email': 'abc@gmail.com'
                    }
 
         developer = SystemInterface.add_developer(data_dict)
@@ -5337,9 +5292,7 @@ class TestUpdateDeveloper(TestCase):
         data_dict = {
                     'key' : KEY,
                     'name': 'Prof. Dharamaja',
-                    'email': 'abc@gmail.com',
-                    'inst_id': 'IITK',
-                    'dis_id': 'CSE'
+                    'email': 'abc@gmail.com'
                    }
 
         developer = SystemInterface.add_developer(data_dict)
@@ -5536,9 +5489,7 @@ class TestDeleteLab(TestCase):
         data_dict = {
                     'key' : KEY,
                     'name': 'Prof. Dharamaja',
-                    'email': 'abc@gmail.com',
-                    'inst_id': 'IITK',
-                    'dis_id': 'CSE'
+                    'email': 'abc@gmail.com'
                    }
 
         developer = SystemInterface.add_developer(data_dict)
@@ -5730,9 +5681,7 @@ class TestDeleteExperiment(TestCase):
         data_dict = {
                     'key' : KEY,
                     'name': 'Prof. Dharamaja',
-                    'email': 'abc@gmail.com',
-                    'inst_id': 'IITK',
-                    'dis_id': 'CSE'
+                    'email': 'abc@gmail.com'
                    }
 
         developer = SystemInterface.add_developer(data_dict)
@@ -6279,9 +6228,7 @@ class TestDeleteDeveloper(TestCase):
         data_dict1 = {
                     'key': KEY,
                     'name' : 'Prof. Raja',
-                    'email': 'xyz@gmail.com',
-                    'inst_id': 'IITK',
-                    'dis_id': 'CSE'
+                    'email': 'xyz@gmail.com'
                    }
 
         developer = SystemInterface.add_developer(data_dict)
@@ -6522,9 +6469,7 @@ class TestGetLabByLabId(TestCase):
                     'inst_id': 'IITK',
                     'assets': ['vlabs.ac.in/images/static/logo.png'],
                     'name': 'Prof. Dharamaja',
-                    'email': 'abc@gmail.com',
-                    'inst_id': 'IITK',
-                    'dis_id': 'CSE'
+                    'email': 'abc@gmail.com'
                    }
 
         developer = SystemInterface.add_developer(data_dict)
@@ -6695,9 +6640,7 @@ class TestGetExpByExpId(TestCase):
         data_dict = {
                     'key' : KEY,
                     'name': 'Prof. Dharamaja',
-                    'email': 'abc@gmail.com',
-                    'inst_id': 'IITK',
-                    'dis_id': 'CSE'
+                    'email': 'abc@gmail.com'
                    }
 
         developer = SystemInterface.add_developer(data_dict)
@@ -6931,9 +6874,7 @@ class TestGetDeveloperByEmail(TestCase):
         data_dict = {
                     'key' : KEY,
                     'name': 'Prof. Dharamaja',
-                    'email': 'abc@gmail.com',
-                    'inst_id': 'IITK',
-                    'dis_id': 'CSE'
+                    'email': 'abc@gmail.com'
                    }
 
         developer = SystemInterface.add_developer(data_dict)
