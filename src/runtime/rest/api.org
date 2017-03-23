@@ -8207,10 +8207,6 @@ class TestUpdateExperiment(TestCase):
 			{
 			  "name": "Prof. Dharamaja",
 			  "email": "abc@gmail.com"
-			},
-			{
-			  "name": "Ashish Ahuja",
-			  "email": "xyz@gmail.com"
 			}
 		      ],
 		      "hosting_info": [
@@ -8225,22 +8221,10 @@ class TestUpdateExperiment(TestCase):
 			{
 			  "asset_type": "image",
 			  "path": "vlabs.ac.in/images/static/logo.png"
-			},
-			{
-			  "asset_type": "video",
-			  "path": "vlabs.ac.in/video/abc.mkv"
 			}
 		      ],
 		      "sections": [
-			"Introduction",
-			"Objective",
-			"Tutorial",
-			"Illustration",
-			"Procedure",
-			"Experiment",
-			"Observations",
-			"Assignment",
-			"References"
+			"Procedure"	
 		      ]
 		    }
                   }
@@ -8250,58 +8234,92 @@ class TestUpdateExperiment(TestCase):
         response = self.client.post("/experiments", data=json.dumps(payload),
                                  headers=headers)
         
-        payload = {'integration_level': 3,
+        payload1 = {'integration_level': 3,
                     'key': KEY
                   }
         headers = {'Content-Type': 'application/json'}
 
-        response = self.client.post("/integration_status", data=json.dumps(payload),
+        response = self.client.post("/integration_status", data=json.dumps(payload1),
+                                 headers=headers)
+
+        payload1 = {'asset_type': 'Image',
+                   'path': 'vlabs.ac.in/images/static/image.png',
+                   'key': KEY}
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/assets", data=json.dumps(payload1),
+                                  headers=headers)
+
+        payload1 = {'name': 'Objective',
+                    'key': KEY
+                  }
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/sections", data=json.dumps(payload1),
+                                 headers=headers)
+
+        payload1 = {'inst_name': 'IIT Kharagpur',
+                   'inst_id': 'IITKgp',
+                   'assets': ['vlabs.ac.in/images/static/image.png'],
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/institutes", data=json.dumps(payload1),
+                                 headers=headers)
+
+        payload1 = {'dis_name': 'Electronic Communication',
+                   'dis_id': 'ECE',
+                   'assets': ['vlabs.ac.in/images/static/image.png'],
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/disciplines", data=json.dumps(payload1),
+                                 headers=headers)
+
+        payload1 = {'name': 'Prof. Pallavi Pawar',
+                   'email': 'pallavi.pawar@gmail.com',
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/developers", data=json.dumps(payload1),
+                                 headers=headers)
+
+        payload1 = {'hosting_status': 'hosted',
+                   'hosted_url': 'http://iitkgp.vlab.co.in/',
+                   'hosted_on': 'server',
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/hosting_info", data=json.dumps(payload1),
                                  headers=headers)
             
         payload1 = {"key" : KEY,
 		    "experiment": {
                       "overview": "overview",
 		      "name": "queue",
-		      "discipline_id": "CSE",
-		      "institute_id": "IITK",
+		      "discipline_id": "ECE",
+		      "institute_id": "IITKgp",
                       'integration_level': 3,
                       "sections": [
-			"Theory",
-			"Objective",
-			"Tutorial",
-			"Illustration",
-			"Procedure",
-			"Experiment",
-			"Observations",
-			"Assignment",
-			"References"
+			"Objective"
 		      ],
-                      "assets": [
-			{
-		     	  "asset_type": "image",
-			  "path": "vlabs.ac.in/images/static/logo.png"
-			},
+                      "assets": [			
 			{
 			  "asset_type": "video",
 			  "path": "vlabs.ac.in/images/static/image.png"
 			}
 		      ],
-                      "developers": [
-			{
-			  "name": "Prof. Dharamaja",
-			  "email": "abc@gmail.com"
-			},
+                      "developers": [			
 			{
 			  "name": "Prof. Pallavi Pawar",
 			  "email": "pallavi.pawar@gmail.com"
 			}
 		      ],
-                      "hosting_info": [
-			{
-			  "hosting_status": "hosted",
-			  "hosted_on": "cloud",
-			  "hosted_url": "http://cse14-iiith.ac.in"
-			},
+                      "hosting_info": [			
                         {
 			  "hosting_status": "hosted",
 			  "hosted_on": "server",
