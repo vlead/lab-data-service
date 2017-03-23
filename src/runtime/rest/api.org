@@ -1800,60 +1800,118 @@ class TestGetLab(TestCase):
         response = self.client.post("/developers", data=json.dumps(payload),
                                  headers=headers)
 
-        payload = {'exp_name': 'arrays',
-                   'exp_id': 'exp1',
-                   'overview' : 'overview',
-                   'sections': [],
-                   'inst_id': 'IITK',
-                   'integration_level': 4,
-                   'dis_id': 'CSE',
-                   'key': KEY,
-                   'assets': [{'path':'vlabs.ac.in/images/static/logo.png',
-                                    'asset_type': 'image'},
-                                {'path':'vlabs.ac.in/images/static/image.png',
-                                    'asset_type': 'image'}],
-                   'developers': [{'name':'Prof. Dharamaja',
-                                    'email': 'abc@gmail.com',
-                                    'inst_id': 'IITK', 'dis_id': 'CSE'},
-                                    {'name':'Prof. Pallavi Pawar',
-                                    'email': 'pallavi.pawar@gmail.com',
-                                    'inst_id': 'IITK', 'dis_id': 'CSE'}],
-                   'hosting_info': [{'hosted_url':'http://cse14-iiith.vlabs.ac.in',
-                                    'hosting_status': 'hosted',
-                                    'hosted_on': 'cloud'},
-                                    {'hosted_url':'http://iitkgp.vlab.co.in/',
-                                    'hosting_status': 'hosted',
-                                    'hosted_on': 'server'}]}
+        payload = {
+		   "key": KEY,
+                   "experiment": {
+                     "id": "exp123",
+                     "name": "arrays",
+                     "discipline_id": "CSE",
+                     "institute_id": "IITK",
+                     "developers": [
+                       {
+                         "name": "Dinesh Malviya",
+                         "email": "xyz@gmail.com"
+                       },
+                       {
+                         "name": "Ashish Ahuja",
+                         "email": "abc@gmail.com"
+                       }
+                     ],
+                     "hosting_info": [
+                       {
+                         "hosting_status": "hosted",
+                         "hosted_on": "cloud",
+                         "hosted_url": "http://cse14-iiith.vlabs.ac.in"
+                       },
+                       {
+                         "hosting_status": "hosted",
+                         "hosted_on": "college-cloud",
+                         "hosted_url": "http://cse14-iiith.ac.in"
+                       }
+                     ],
+                     "integration_level": 4,
+                     "overview": "This experiments describes about parallel and distributed processing",
+                     "assets": [
+                       {
+                         "asset_type": "image",
+                         "path": "vlabs.ac.in/images/static/logo.png"
+                       },
+                       {
+                         "asset_type": "video",
+                         "path": "vlabs.ac.in/video/abc.mkv"
+                       }
+                     ],
+                     "sections": [
+                       "Introduction",
+                       "Objective",
+                       "Tutorial",
+                       "Illustration",
+                       "Procedure",
+                       "Experiment",
+                       "Observations",
+                       "Assignment",
+                       "References"
+                     ]
+                   }
+                 }
         headers = {'Content-Type': 'application/json'}
 
         response = self.client.post("/experiments", data=json.dumps(payload),
                                  headers=headers)
 
-        payload = {'lab_name': 'Data Structures',
-                   'lab_id': 'cse01',
-                   'overview' : 'overview',
-                   'inst_id': 'IITK',
-                   'integration_level': 4,
-                   'dis_id': 'CSE',
-                   'assets': [{'path':'vlabs.ac.in/images/static/logo.png',
-                                    'asset_type': 'image'},
-                                {'path':'vlabs.ac.in/images/static/image.png',
-                                    'asset_type': 'image'}],
-                   'developers': [{'name':'Prof. Dharamaja',
-                                    'email': 'abc@gmail.com',
-                                    'inst_id': 'IITK', 'dis_id': 'CSE'},
-                                    {'name':'Prof. Pallavi Pawar',
-                                    'email': 'pallavi.pawar@gmail.com',
-                                    'inst_id': 'IITK', 'dis_id': 'CSE'}],
-                   'hosting_info': [{'hosted_url':'http://cse14-iiith.vlabs.ac.in',
-                                    'hosting_status': 'hosted',
-                                    'hosted_on': 'cloud'},
-                                    {'hosted_url':'http://iitkgp.vlab.co.in/',
-                                    'hosting_status': 'hosted',
-                                    'hosted_on': 'server'}],
-                   'key': KEY,
-                   'experiments': ['exp1']
-                  }
+        payload = {           
+		   "key" : KEY,     
+                   "lab": {
+                     "id": "cse02",
+                     "name": "Computer Programming",
+                     "overview": "overview",
+                     "discipline_id": "CSE",
+                     "institute_id": "IITK",
+                     "developers": [
+                       {
+                         "name": "Dinesh Malviya",
+                         "email": "xyz@gmail.com"
+                       },
+                       {
+                         "name": "Ashish Ahuja",
+                         "email": "abc@gmail.com"
+                       }
+                     ],
+                     "hosting_info": [
+                       {
+                         "hosting_status": "hosted",
+                         "hosted_on": "cloud",
+                         "hosted_url": "http://cse14-iiith.vlabs.ac.in"
+                       },
+                       {
+                         "hosting_status": "hosted",
+                         "hosted_on": "college-cloud",
+                         "hosted_url": "http://cse14-iiith.ac.in"
+                       }
+                     ],
+                     "integration_level": 4,
+                     "assets": [
+                       {
+                         "asset_type": "image",
+                         "path": "vlabs.ac.in/images/static/logo.png"
+                       },
+                       {
+                         "asset_type": "video",
+                         "path": "vlabs.ac.in/video/abc.mkv"
+                       }
+                     ],
+                     "sections": [
+                       {
+                         "name": "Introduction"
+                       },
+                       {
+                         "experiments": [
+                           "exp123"
+                         ]
+                       }
+                     ]
+                   }
+                 }
 
         headers = {'Content-Type': 'application/json'}
 
@@ -1943,61 +2001,118 @@ class TestGetLabbyLabId(TestCase):
         response = self.client.post("/developers", data=json.dumps(payload),
                                  headers=headers)
 
-        payload = {'exp_name': 'arrays',
-                   'exp_id': 'exp1',
-                   'overview' : 'overview',
-                   'sections': [],
-                   'inst_id': 'IITK',
-                   'integration_level': 4,
-                   'dis_id': 'CSE',
-                   'key': KEY,
-                   'assets': [{'path':'vlabs.ac.in/images/static/logo.png',
-                                    'asset_type': 'image'},
-                                {'path':'vlabs.ac.in/images/static/image.png',
-                                    'asset_type': 'image'}],
-                   'developers': [{'name':'Prof. Dharamaja',
-                                    'email': 'abc@gmail.com',
-                                    'inst_id': 'IITK', 'dis_id': 'CSE'},
-                                    {'name':'Prof. Pallavi Pawar',
-                                    'email': 'pallavi.pawar@gmail.com',
-                                    'inst_id': 'IITK', 'dis_id': 'CSE'}],
-                   'hosting_info': [{'hosted_url':'http://cse14-iiith.vlabs.ac.in',
-                                    'hosting_status': 'hosted',
-                                    'hosted_on': 'cloud'},
-                                    {'hosted_url':'http://iitkgp.vlab.co.in/',
-                                    'hosting_status': 'hosted',
-                                    'hosted_on': 'server'}]
+        payload = {
+		   "key": KEY,
+                   "experiment": {
+                     "id": "exp123",
+                     "name": "arrays",
+                     "discipline_id": "CSE",
+                     "institute_id": "IITK",
+                     "developers": [
+                       {
+                         "name": "Dinesh Malviya",
+                         "email": "xyz@gmail.com"
+                       },
+                       {
+                         "name": "Ashish Ahuja",
+                         "email": "abc@gmail.com"
+                       }
+                     ],
+                     "hosting_info": [
+                       {
+                         "hosting_status": "hosted",
+                         "hosted_on": "cloud",
+                         "hosted_url": "http://cse14-iiith.vlabs.ac.in"
+                       },
+                       {
+                         "hosting_status": "hosted",
+                         "hosted_on": "college-cloud",
+                         "hosted_url": "http://cse14-iiith.ac.in"
+                       }
+                     ],
+                     "integration_level": 4,
+                     "overview": "This experiments describes about parallel and distributed processing",
+                     "assets": [
+                       {
+                         "asset_type": "image",
+                         "path": "vlabs.ac.in/images/static/logo.png"
+                       },
+                       {
+                         "asset_type": "video",
+                         "path": "vlabs.ac.in/video/abc.mkv"
+                       }
+                     ],
+                     "sections": [
+                       "Introduction",
+                       "Objective",
+                       "Tutorial",
+                       "Illustration",
+                       "Procedure",
+                       "Experiment",
+                       "Observations",
+                       "Assignment",
+                       "References"
+                     ]
                    }
+                 }
         headers = {'Content-Type': 'application/json'}
 
         response = self.client.post("/experiments", data=json.dumps(payload),
                                  headers=headers)
 
-        payload = {'lab_name': 'Data Structures',
-                   'lab_id': 'cse01',
-                   'overview' : 'overview',
-                   'inst_id': 'IITK',
-                   'integration_level': 4,
-                   'dis_id': 'CSE',
-                   'assets': [{'path':'vlabs.ac.in/images/static/logo.png',
-                                    'asset_type': 'image'},
-                                {'path':'vlabs.ac.in/images/static/image.png',
-                                    'asset_type': 'image'}],
-                   'developers': [{'name':'Prof. Dharamaja',
-                                    'email': 'abc@gmail.com',
-                                    'inst_id': 'IITK', 'dis_id': 'CSE'},
-                                    {'name':'Prof. Pallavi Pawar',
-                                    'email': 'pallavi.pawar@gmail.com',
-                                    'inst_id': 'IITK', 'dis_id': 'CSE'}],
-                   'hosting_info': [{'hosted_url':'http://cse14-iiith.vlabs.ac.in',
-                                    'hosting_status': 'hosted',
-                                    'hosted_on': 'cloud'},
-                                    {'hosted_url':'http://iitkgp.vlab.co.in/',
-                                    'hosting_status': 'hosted',
-                                    'hosted_on': 'server'}],
-                   'key': KEY,
-                   'experiments': ['exp1']
-                  }
+        payload = {           
+		   "key" : KEY,     
+                   "lab": {
+                     "id": "cse02",
+                     "name": "Computer Programming",
+                     "overview": "overview",
+                     "discipline_id": "CSE",
+                     "institute_id": "IITK",
+                     "developers": [
+                       {
+                         "name": "Dinesh Malviya",
+                         "email": "xyz@gmail.com"
+                       },
+                       {
+                         "name": "Ashish Ahuja",
+                         "email": "abc@gmail.com"
+                       }
+                     ],
+                     "hosting_info": [
+                       {
+                         "hosting_status": "hosted",
+                         "hosted_on": "cloud",
+                         "hosted_url": "http://cse14-iiith.vlabs.ac.in"
+                       },
+                       {
+                         "hosting_status": "hosted",
+                         "hosted_on": "college-cloud",
+                         "hosted_url": "http://cse14-iiith.ac.in"
+                       }
+                     ],
+                     "integration_level": 4,
+                     "assets": [
+                       {
+                         "asset_type": "image",
+                         "path": "vlabs.ac.in/images/static/logo.png"
+                       },
+                       {
+                         "asset_type": "video",
+                         "path": "vlabs.ac.in/video/abc.mkv"
+                       }
+                     ],
+                     "sections": [
+                       {
+                         "name": "Introduction"
+                       },
+                       {
+                         "experiments": [
+                           "exp123"
+                         ]
+                       }
+                     ]
+                   }
+                 }
 
         headers = {'Content-Type': 'application/json'}
 
@@ -2083,59 +2198,117 @@ class TestGetLabsbyInstitute(TestCase):
         response = self.client.post("/developers", data=json.dumps(payload),
                                  headers=headers)
 
-        payload = {'exp_name': 'arrays',
-                   'exp_id': 'exp1',
-                   'overview' : 'overview',
-                   'sections': [],
-                   'inst_id': 'IITK',
-                   'integration_level': 4,
-                   'dis_id': 'CSE',
-                   'key': KEY,
-                   'assets': [{'path':'vlabs.ac.in/images/static/logo.png',
-                                    'asset_type': 'image'},
-                                {'path':'vlabs.ac.in/images/static/image.png',
-                                    'asset_type': 'image'}],
-                   'developers': [{'name':'Prof. Dharamaja',
-                                    'email': 'abc@gmail.com',
-                                    'inst_id': 'IITK', 'dis_id': 'CSE'},
-                                    {'name':'Prof. Pallavi Pawar',
-                                    'email': 'pallavi.pawar@gmail.com',
-                                    'inst_id': 'IITK', 'dis_id': 'CSE'}],
-                   'hosting_info': [{'hosted_url':'http://cse14-iiith.vlabs.ac.in',
-                                    'hosting_status': 'hosted',
-                                    'hosted_on': 'cloud'},
-                                    {'hosted_url':'http://iitkgp.vlab.co.in/',
-                                    'hosting_status': 'hosted',
-                                    'hosted_on': 'server'}]}
+        payload = {
+		   "key": KEY,
+                   "experiment": {
+                     "id": "exp123",
+                     "name": "arrays",
+                     "discipline_id": "CSE",
+                     "institute_id": "IITK",
+                     "developers": [
+                       {
+                         "name": "Dinesh Malviya",
+                         "email": "xyz@gmail.com"
+                       },
+                       {
+                         "name": "Ashish Ahuja",
+                         "email": "abc@gmail.com"
+                       }
+                     ],
+                     "hosting_info": [
+                       {
+                         "hosting_status": "hosted",
+                         "hosted_on": "cloud",
+                         "hosted_url": "http://cse14-iiith.vlabs.ac.in"
+                       },
+                       {
+                         "hosting_status": "hosted",
+                         "hosted_on": "college-cloud",
+                         "hosted_url": "http://cse14-iiith.ac.in"
+                       }
+                     ],
+                     "integration_level": 4,
+                     "overview": "This experiments describes about parallel and distributed processing",
+                     "assets": [
+                       {
+                         "asset_type": "image",
+                         "path": "vlabs.ac.in/images/static/logo.png"
+                       },
+                       {
+                         "asset_type": "video",
+                         "path": "vlabs.ac.in/video/abc.mkv"
+                       }
+                     ],
+                     "sections": [
+                       "Introduction",
+                       "Objective",
+                       "Tutorial",
+                       "Illustration",
+                       "Procedure",
+                       "Experiment",
+                       "Observations",
+                       "Assignment",
+                       "References"
+                     ]
+                   }
+                 }
 
         response = self.client.post("/experiments", data=json.dumps(payload),
                                  headers=headers)
 
-        payload = {'lab_name': 'Data Structures',
-                   'lab_id': 'cse01',
-                   'overview' : 'overview',
-                   'inst_id': 'IITK',
-                   'integration_level': 4,
-                   'dis_id': 'CSE',
-                   'assets': [{'path':'vlabs.ac.in/images/static/logo.png',
-                                    'asset_type': 'image'},
-                                {'path':'vlabs.ac.in/images/static/image.png',
-                                    'asset_type': 'image'}],
-                   'developers': [{'name':'Prof. Dharamaja',
-                                    'email': 'abc@gmail.com',
-                                    'inst_id': 'IITK', 'dis_id': 'CSE'},
-                                    {'name':'Prof. Pallavi Pawar',
-                                    'email': 'pallavi.pawar@gmail.com',
-                                    'inst_id': 'IITK', 'dis_id': 'CSE'}],
-                   'hosting_info': [{'hosted_url':'http://cse14-iiith.vlabs.ac.in',
-                                    'hosting_status': 'hosted',
-                                    'hosted_on': 'cloud'},
-                                    {'hosted_url':'http://iitkgp.vlab.co.in/',
-                                    'hosting_status': 'hosted',
-                                    'hosted_on': 'server'}],
-                   'key': KEY,
-                   'experiments': ['exp1']
-                  }
+        payload = {           
+		   "key" : KEY,     
+                   "lab": {
+                     "id": "cse02",
+                     "name": "Computer Programming",
+                     "overview": "overview",
+                     "discipline_id": "CSE",
+                     "institute_id": "IITK",
+                     "developers": [
+                       {
+                         "name": "Dinesh Malviya",
+                         "email": "xyz@gmail.com"
+                       },
+                       {
+                         "name": "Ashish Ahuja",
+                         "email": "abc@gmail.com"
+                       }
+                     ],
+                     "hosting_info": [
+                       {
+                         "hosting_status": "hosted",
+                         "hosted_on": "cloud",
+                         "hosted_url": "http://cse14-iiith.vlabs.ac.in"
+                       },
+                       {
+                         "hosting_status": "hosted",
+                         "hosted_on": "college-cloud",
+                         "hosted_url": "http://cse14-iiith.ac.in"
+                       }
+                     ],
+                     "integration_level": 4,
+                     "assets": [
+                       {
+                         "asset_type": "image",
+                         "path": "vlabs.ac.in/images/static/logo.png"
+                       },
+                       {
+                         "asset_type": "video",
+                         "path": "vlabs.ac.in/video/abc.mkv"
+                       }
+                     ],
+                     "sections": [
+                       {
+                         "name": "Introduction"
+                       },
+                       {
+                         "experiments": [
+                           "exp123"
+                         ]
+                       }
+                     ]
+                   }
+                 }
 
 
         response = self.client.post("/labs", data=json.dumps(payload),
@@ -2221,61 +2394,119 @@ class TestGetLabsbyDiscipline(TestCase):
         response = self.client.post("/hosting_info", data=json.dumps(payload),
                                  headers=headers)
 
-        payload = {'exp_name': 'arrays',
-                   'exp_id': 'exp1',
-                   'overview' : 'overview',
-                   'sections': [],
-                   'inst_id': 'IITK',
-                   'integration_level': 4,
-                   'dis_id': 'CSE',
-                   'key': KEY,
-                   'assets': [{'path':'vlabs.ac.in/images/static/logo.png',
-                                    'asset_type': 'image'},
-                                {'path':'vlabs.ac.in/images/static/image.png',
-                                    'asset_type': 'image'}],
-                   'developers': [{'name':'Prof. Dharamaja',
-                                    'email': 'abc@gmail.com',
-                                    'inst_id': 'IITK', 'dis_id': 'CSE'},
-                                    {'name':'Prof. Pallavi Pawar',
-                                    'email': 'pallavi.pawar@gmail.com',
-                                    'inst_id': 'IITK', 'dis_id': 'CSE'}],
-                   'hosting_info': [{'hosted_url':'http://cse14-iiith.vlabs.ac.in',
-                                    'hosting_status': 'hosted',
-                                    'hosted_on': 'cloud'},
-                                    {'hosted_url':'http://iitkgp.vlab.co.in/',
-                                    'hosting_status': 'hosted',
-                                    'hosted_on': 'server'}]}
+        payload = {
+		   "key": KEY,
+                   "experiment": {
+                     "id": "exp123",
+                     "name": "arrays",
+                     "discipline_id": "CSE",
+                     "institute_id": "IITK",
+                     "developers": [
+                       {
+                         "name": "Dinesh Malviya",
+                         "email": "xyz@gmail.com"
+                       },
+                       {
+                         "name": "Ashish Ahuja",
+                         "email": "abc@gmail.com"
+                       }
+                     ],
+                     "hosting_info": [
+                       {
+                         "hosting_status": "hosted",
+                         "hosted_on": "cloud",
+                         "hosted_url": "http://cse14-iiith.vlabs.ac.in"
+                       },
+                       {
+                         "hosting_status": "hosted",
+                         "hosted_on": "college-cloud",
+                         "hosted_url": "http://cse14-iiith.ac.in"
+                       }
+                     ],
+                     "integration_level": 4,
+                     "overview": "This experiments describes about parallel and distributed processing",
+                     "assets": [
+                       {
+                         "asset_type": "image",
+                         "path": "vlabs.ac.in/images/static/logo.png"
+                       },
+                       {
+                         "asset_type": "video",
+                         "path": "vlabs.ac.in/video/abc.mkv"
+                       }
+                     ],
+                     "sections": [
+                       "Introduction",
+                       "Objective",
+                       "Tutorial",
+                       "Illustration",
+                       "Procedure",
+                       "Experiment",
+                       "Observations",
+                       "Assignment",
+                       "References"
+                     ]
+                   }
+                 }
 
         headers = {'Content-Type': 'application/json'}
 
         response = self.client.post("/experiments", data=json.dumps(payload),
                                  headers=headers)
 
-        payload = {'lab_name': 'Data Structures',
-                   'lab_id': 'cse01',
-                   'overview' : 'overview',
-                   'inst_id': 'IITK',
-                   'integration_level': 4,
-                   'dis_id': 'CSE',
-                   'assets': [{'path':'vlabs.ac.in/images/static/logo.png',
-                                    'asset_type': 'image'},
-                                {'path':'vlabs.ac.in/images/static/image.png',
-                                    'asset_type': 'image'}],
-                   'developers': [{'name':'Prof. Dharamaja',
-                                    'email': 'abc@gmail.com',
-                                    'inst_id': 'IITK', 'dis_id': 'CSE'},
-                                    {'name':'Prof. Pallavi Pawar',
-                                    'email': 'pallavi.pawar@gmail.com',
-                                    'inst_id': 'IITK', 'dis_id': 'CSE'}],
-                   'hosting_info': [{'hosted_url':'http://cse14-iiith.vlabs.ac.in',
-                                    'hosting_status': 'hosted',
-                                    'hosted_on': 'cloud'},
-                                    {'hosted_url':'http://iitkgp.vlab.co.in/',
-                                    'hosting_status': 'hosted',
-                                    'hosted_on': 'server'}],
-                   'key': KEY,
-                   'experiments': ['exp1']
-                  }
+        payload = {           
+		   "key" : KEY,     
+                   "lab": {
+                     "id": "cse02",
+                     "name": "Computer Programming",
+                     "overview": "overview",
+                     "discipline_id": "CSE",
+                     "institute_id": "IITK",
+                     "developers": [
+                       {
+                         "name": "Dinesh Malviya",
+                         "email": "xyz@gmail.com"
+                       },
+                       {
+                         "name": "Ashish Ahuja",
+                         "email": "abc@gmail.com"
+                       }
+                     ],
+                     "hosting_info": [
+                       {
+                         "hosting_status": "hosted",
+                         "hosted_on": "cloud",
+                         "hosted_url": "http://cse14-iiith.vlabs.ac.in"
+                       },
+                       {
+                         "hosting_status": "hosted",
+                         "hosted_on": "college-cloud",
+                         "hosted_url": "http://cse14-iiith.ac.in"
+                       }
+                     ],
+                     "integration_level": 4,
+                     "assets": [
+                       {
+                         "asset_type": "image",
+                         "path": "vlabs.ac.in/images/static/logo.png"
+                       },
+                       {
+                         "asset_type": "video",
+                         "path": "vlabs.ac.in/video/abc.mkv"
+                       }
+                     ],
+                     "sections": [
+                       {
+                         "name": "Introduction"
+                       },
+                       {
+                         "experiments": [
+                           "exp123"
+                         ]
+                       }
+                     ]
+                   }
+                 }
 
         response = self.client.post("/labs", data=json.dumps(payload),
                                  headers=headers)
@@ -2361,59 +2592,117 @@ class TestGetLabsbyLabName(TestCase):
         response = self.client.post("/hosting_info", data=json.dumps(payload),
                                  headers=headers)
 
-        payload = {'exp_name': 'arrays',
-                   'exp_id': 'exp1',
-                   'overview' : 'overview',
-                   'sections': [],
-                   'inst_id': 'IITK',
-                   'integration_level': 4,
-                   'dis_id': 'CSE',
-                   'key': KEY,
-                   'assets': [{'path':'vlabs.ac.in/images/static/logo.png',
-                                    'asset_type': 'image'},
-                                {'path':'vlabs.ac.in/images/static/image.png',
-                                    'asset_type': 'image'}],
-                   'developers': [{'name':'Prof. Dharamaja',
-                                    'email': 'abc@gmail.com',
-                                    'inst_id': 'IITK', 'dis_id': 'CSE'},
-                                    {'name':'Prof. Pallavi Pawar',
-                                    'email': 'pallavi.pawar@gmail.com',
-                                    'inst_id': 'IITK', 'dis_id': 'CSE'}],
-                   'hosting_info': [{'hosted_url':'http://cse14-iiith.vlabs.ac.in',
-                                    'hosting_status': 'hosted',
-                                    'hosted_on': 'cloud'},
-                                    {'hosted_url':'http://iitkgp.vlab.co.in/',
-                                    'hosting_status': 'hosted',
-                                    'hosted_on': 'server'}]}
+        payload = {
+		   "key": KEY,
+                   "experiment": {
+                     "id": "exp123",
+                     "name": "arrays",
+                     "discipline_id": "CSE",
+                     "institute_id": "IITK",
+                     "developers": [
+                       {
+                         "name": "Dinesh Malviya",
+                         "email": "xyz@gmail.com"
+                       },
+                       {
+                         "name": "Ashish Ahuja",
+                         "email": "abc@gmail.com"
+                       }
+                     ],
+                     "hosting_info": [
+                       {
+                         "hosting_status": "hosted",
+                         "hosted_on": "cloud",
+                         "hosted_url": "http://cse14-iiith.vlabs.ac.in"
+                       },
+                       {
+                         "hosting_status": "hosted",
+                         "hosted_on": "college-cloud",
+                         "hosted_url": "http://cse14-iiith.ac.in"
+                       }
+                     ],
+                     "integration_level": 4,
+                     "overview": "This experiments describes about parallel and distributed processing",
+                     "assets": [
+                       {
+                         "asset_type": "image",
+                         "path": "vlabs.ac.in/images/static/logo.png"
+                       },
+                       {
+                         "asset_type": "video",
+                         "path": "vlabs.ac.in/video/abc.mkv"
+                       }
+                     ],
+                     "sections": [
+                       "Introduction",
+                       "Objective",
+                       "Tutorial",
+                       "Illustration",
+                       "Procedure",
+                       "Experiment",
+                       "Observations",
+                       "Assignment",
+                       "References"
+                     ]
+                   }
+                 }
 
         response = self.client.post("/experiments", data=json.dumps(payload),
                                  headers=headers)
 
-        payload = {'lab_name': 'Data Structures',
-                   'lab_id': 'cse01',
-                   'overview' : 'overview',
-                   'inst_id': 'IITK',
-                   'integration_level': 4,
-                   'dis_id': 'CSE',
-                   'assets': [{'path':'vlabs.ac.in/images/static/logo.png',
-                                    'asset_type': 'image'},
-                                {'path':'vlabs.ac.in/images/static/image.png',
-                                    'asset_type': 'image'}],
-                   'developers': [{'name':'Prof. Dharamaja',
-                                    'email': 'abc@gmail.com',
-                                    'inst_id': 'IITK', 'dis_id': 'CSE'},
-                                    {'name':'Prof. Pallavi Pawar',
-                                    'email': 'pallavi.pawar@gmail.com',
-                                    'inst_id': 'IITK', 'dis_id': 'CSE'}],
-                   'hosting_info': [{'hosted_url':'http://cse14-iiith.vlabs.ac.in',
-                                    'hosting_status': 'hosted',
-                                    'hosted_on': 'cloud'},
-                                    {'hosted_url':'http://iitkgp.vlab.co.in/',
-                                    'hosting_status': 'hosted',
-                                    'hosted_on': 'server'}],
-                   'key': KEY,
-                   'experiments': ['exp1']
-                  }
+        payload = {           
+		   "key" : KEY,     
+                   "lab": {
+                     "id": "cse02",
+                     "name": "Computer Programming",
+                     "overview": "overview",
+                     "discipline_id": "CSE",
+                     "institute_id": "IITK",
+                     "developers": [
+                       {
+                         "name": "Dinesh Malviya",
+                         "email": "xyz@gmail.com"
+                       },
+                       {
+                         "name": "Ashish Ahuja",
+                         "email": "abc@gmail.com"
+                       }
+                     ],
+                     "hosting_info": [
+                       {
+                         "hosting_status": "hosted",
+                         "hosted_on": "cloud",
+                         "hosted_url": "http://cse14-iiith.vlabs.ac.in"
+                       },
+                       {
+                         "hosting_status": "hosted",
+                         "hosted_on": "college-cloud",
+                         "hosted_url": "http://cse14-iiith.ac.in"
+                       }
+                     ],
+                     "integration_level": 4,
+                     "assets": [
+                       {
+                         "asset_type": "image",
+                         "path": "vlabs.ac.in/images/static/logo.png"
+                       },
+                       {
+                         "asset_type": "video",
+                         "path": "vlabs.ac.in/video/abc.mkv"
+                       }
+                     ],
+                     "sections": [
+                       {
+                         "name": "Introduction"
+                       },
+                       {
+                         "experiments": [
+                           "exp123"
+                         ]
+                       }
+                     ]
+                   }
+                 }
 
 
         response = self.client.post("/labs", data=json.dumps(payload),
@@ -2502,60 +2791,118 @@ class TestGetLabsbyAsset(TestCase):
         response = self.client.post("/hosting_info", data=json.dumps(payload),
                                  headers=headers)
 
-        payload = {'exp_name': 'arrays',
-                   'exp_id': 'exp1',
-                   'overview': 'overview',
-                   'sections': [],
-                   'inst_id': 'IITK',
-                   'integration_level': 4,
-                   'dis_id': 'CSE',
-                   'key': KEY}
-                   'assets': [{'path':'vlabs.ac.in/images/static/logo.png',
-                                    'asset_type': 'image'},
-                                {'path':'vlabs.ac.in/images/static/image.png',
-                                    'asset_type': 'image'}],
-                   'developers': [{'name':'Prof. Dharamaja',
-                                    'email': 'abc@gmail.com',
-                                    'inst_id': 'IITK', 'dis_id': 'CSE'},
-                                    {'name':'Prof. Pallavi Pawar',
-                                    'email': 'pallavi.pawar@gmail.com',
-                                    'inst_id': 'IITK', 'dis_id': 'CSE'}],
-                   'hosting_info': [{'hosted_url':'http://cse14-iiith.vlabs.ac.in',
-                                    'hosting_status': 'hosted',
-                                    'hosted_on': 'cloud'},
-                                    {'hosted_url':'http://iitkgp.vlab.co.in/',
-                                    'hosting_status': 'hosted',
-                                    'hosted_on': 'server'}]}
+        payload = {
+		   "key": KEY,
+                   "experiment": {
+                     "id": "exp123",
+                     "name": "arrays",
+                     "discipline_id": "CSE",
+                     "institute_id": "IITK",
+                     "developers": [
+                       {
+                         "name": "Dinesh Malviya",
+                         "email": "xyz@gmail.com"
+                       },
+                       {
+                         "name": "Ashish Ahuja",
+                         "email": "abc@gmail.com"
+                       }
+                     ],
+                     "hosting_info": [
+                       {
+                         "hosting_status": "hosted",
+                         "hosted_on": "cloud",
+                         "hosted_url": "http://cse14-iiith.vlabs.ac.in"
+                       },
+                       {
+                         "hosting_status": "hosted",
+                         "hosted_on": "college-cloud",
+                         "hosted_url": "http://cse14-iiith.ac.in"
+                       }
+                     ],
+                     "integration_level": 4,
+                     "overview": "This experiments describes about parallel and distributed processing",
+                     "assets": [
+                       {
+                         "asset_type": "image",
+                         "path": "vlabs.ac.in/images/static/logo.png"
+                       },
+                       {
+                         "asset_type": "video",
+                         "path": "vlabs.ac.in/video/abc.mkv"
+                       }
+                     ],
+                     "sections": [
+                       "Introduction",
+                       "Objective",
+                       "Tutorial",
+                       "Illustration",
+                       "Procedure",
+                       "Experiment",
+                       "Observations",
+                       "Assignment",
+                       "References"
+                     ]
+                   }
+                 }
         headers = {'Content-Type': 'application/json'}
 
         response = self.client.post("/experiments", data=json.dumps(payload),
                                  headers=headers)
 
-        payload = {'lab_name': 'Data Structures',
-                   'lab_id': 'cse01',
-                   'overview' : 'overview',
-                   'inst_id': 'IITK',
-                   'integration_level': 4,
-                   'dis_id': 'CSE',
-                   'assets': [{'path':'vlabs.ac.in/images/static/logo.png',
-                                    'asset_type': 'image'},
-                                {'path':'vlabs.ac.in/images/static/image.png',
-                                    'asset_type': 'image'}],
-                   'developers': [{'name':'Prof. Dharamaja',
-                                    'email': 'abc@gmail.com',
-                                    'inst_id': 'IITK', 'dis_id': 'CSE'},
-                                    {'name':'Prof. Pallavi Pawar',
-                                    'email': 'pallavi.pawar@gmail.com',
-                                    'inst_id': 'IITK', 'dis_id': 'CSE'}],
-                   'hosting_info': [{'hosted_url':'http://cse14-iiith.vlabs.ac.in',
-                                    'hosting_status': 'hosted',
-                                    'hosted_on': 'cloud'},
-                                    {'hosted_url':'http://iitkgp.vlab.co.in/',
-                                    'hosting_status': 'hosted',
-                                    'hosted_on': 'server'}],
-                   'key': KEY,
-                   'experiments': ['exp1']
-                  }
+        payload = {           
+		   "key" : KEY,     
+                   "lab": {
+                     "id": "cse02",
+                     "name": "Computer Programming",
+                     "overview": "overview",
+                     "discipline_id": "CSE",
+                     "institute_id": "IITK",
+                     "developers": [
+                       {
+                         "name": "Dinesh Malviya",
+                         "email": "xyz@gmail.com"
+                       },
+                       {
+                         "name": "Ashish Ahuja",
+                         "email": "abc@gmail.com"
+                       }
+                     ],
+                     "hosting_info": [
+                       {
+                         "hosting_status": "hosted",
+                         "hosted_on": "cloud",
+                         "hosted_url": "http://cse14-iiith.vlabs.ac.in"
+                       },
+                       {
+                         "hosting_status": "hosted",
+                         "hosted_on": "college-cloud",
+                         "hosted_url": "http://cse14-iiith.ac.in"
+                       }
+                     ],
+                     "integration_level": 4,
+                     "assets": [
+                       {
+                         "asset_type": "image",
+                         "path": "vlabs.ac.in/images/static/logo.png"
+                       },
+                       {
+                         "asset_type": "video",
+                         "path": "vlabs.ac.in/video/abc.mkv"
+                       }
+                     ],
+                     "sections": [
+                       {
+                         "name": "Introduction"
+                       },
+                       {
+                         "experiments": [
+                           "exp123"
+                         ]
+                       }
+                     ]
+                   }
+                 }
 
         headers = {'Content-Type': 'application/json'}
 
@@ -2624,11 +2971,60 @@ class TestGetLabbyLabNameKeyWord(TestCase):
         response = self.client.post("/disciplines", data=json.dumps(payload),
                                  headers=headers)
 
-        payload = {'exp_name': 'arrays',
-                   'exp_id': 'exp1',
-                   'overview' : 'overview',
-                   'sections': [],
-                   'key': KEY}
+        payload = {
+		   "key": KEY,
+                   "experiment": {
+                     "id": "exp123",
+                     "name": "arrays",
+                     "discipline_id": "CSE",
+                     "institute_id": "IITK",
+                     "developers": [
+                       {
+                         "name": "Dinesh Malviya",
+                         "email": "xyz@gmail.com"
+                       },
+                       {
+                         "name": "Ashish Ahuja",
+                         "email": "abc@gmail.com"
+                       }
+                     ],
+                     "hosting_info": [
+                       {
+                         "hosting_status": "hosted",
+                         "hosted_on": "cloud",
+                         "hosted_url": "http://cse14-iiith.vlabs.ac.in"
+                       },
+                       {
+                         "hosting_status": "hosted",
+                         "hosted_on": "college-cloud",
+                         "hosted_url": "http://cse14-iiith.ac.in"
+                       }
+                     ],
+                     "integration_level": 4,
+                     "overview": "This experiments describes about parallel and distributed processing",
+                     "assets": [
+                       {
+                         "asset_type": "image",
+                         "path": "vlabs.ac.in/images/static/logo.png"
+                       },
+                       {
+                         "asset_type": "video",
+                         "path": "vlabs.ac.in/video/abc.mkv"
+                       }
+                     ],
+                     "sections": [
+                       "Introduction",
+                       "Objective",
+                       "Tutorial",
+                       "Illustration",
+                       "Procedure",
+                       "Experiment",
+                       "Observations",
+                       "Assignment",
+                       "References"
+                     ]
+                   }
+                 }
 
         headers = {'Content-Type': 'application/json'}
 
@@ -2657,31 +3053,59 @@ class TestGetLabbyLabNameKeyWord(TestCase):
         response = self.client.post("/developers", data=json.dumps(payload),
                                  headers=headers)
 
-        payload = {'lab_name': 'Data Structures',
-                   'lab_id': 'cse01',
-                   'overview' : 'overview',
-                   'inst_id': 'IITK',
-                   'integration_level': 4,
-                   'dis_id': 'CSE',
-                   'assets': [{'path':'vlabs.ac.in/images/static/logo.png',
-                                    'asset_type': 'image'},
-                                {'path':'vlabs.ac.in/images/static/image.png',
-                                    'asset_type': 'image'}],
-                   'developers': [{'name':'Prof. Dharamaja',
-                                    'email': 'abc@gmail.com',
-                                    'inst_id': 'IITK', 'dis_id': 'CSE'},
-                                    {'name':'Prof. Pallavi Pawar',
-                                    'email': 'pallavi.pawar@gmail.com',
-                                    'inst_id': 'IITK', 'dis_id': 'CSE'}],
-                   'hosting_info': [{'hosted_url':'http://cse14-iiith.vlabs.ac.in',
-                                    'hosting_status': 'hosted',
-                                    'hosted_on': 'cloud'},
-                                    {'hosted_url':'http://iitkgp.vlab.co.in/',
-                                    'hosting_status': 'hosted',
-                                    'hosted_on': 'server'}],
-                   'key': KEY,
-                   'experiments': ['exp1']
-                  }
+        payload = {           
+		   "key" : KEY,     
+                   "lab": {
+                     "id": "cse02",
+                     "name": "Computer Programming",
+                     "overview": "overview",
+                     "discipline_id": "CSE",
+                     "institute_id": "IITK",
+                     "developers": [
+                       {
+                         "name": "Dinesh Malviya",
+                         "email": "xyz@gmail.com"
+                       },
+                       {
+                         "name": "Ashish Ahuja",
+                         "email": "abc@gmail.com"
+                       }
+                     ],
+                     "hosting_info": [
+                       {
+                         "hosting_status": "hosted",
+                         "hosted_on": "cloud",
+                         "hosted_url": "http://cse14-iiith.vlabs.ac.in"
+                       },
+                       {
+                         "hosting_status": "hosted",
+                         "hosted_on": "college-cloud",
+                         "hosted_url": "http://cse14-iiith.ac.in"
+                       }
+                     ],
+                     "integration_level": 4,
+                     "assets": [
+                       {
+                         "asset_type": "image",
+                         "path": "vlabs.ac.in/images/static/logo.png"
+                       },
+                       {
+                         "asset_type": "video",
+                         "path": "vlabs.ac.in/video/abc.mkv"
+                       }
+                     ],
+                     "sections": [
+                       {
+                         "name": "Introduction"
+                       },
+                       {
+                         "experiments": [
+                           "exp123"
+                         ]
+                       }
+                     ]
+                   }
+                 }
 
         headers = {'Content-Type': 'application/json'}
 
@@ -3082,61 +3506,119 @@ class TestAddLab(TestCase):
         response = self.client.post("/hosting_info", data=json.dumps(payload),
                                  headers=headers)
 
-        payload = {'exp_name': 'arrays',
-                   'exp_id': 'exp1',
-                   'overview' : 'overview',
-                   'sections': [],
-                   'inst_id': 'IITK',
-                   'integration_level': 4,
-                   'dis_id': 'CSE',
-                   'key': KEY,
-                   'assets': [{'path':'vlabs.ac.in/images/static/logo.png',
-                                    'asset_type': 'image'},
-                                {'path':'vlabs.ac.in/images/static/image.png',
-                                    'asset_type': 'image'}],
-                   'developers': [{'name':'Prof. Dharamaja',
-                                    'email': 'abc@gmail.com',
-                                    'inst_id': 'IITK', 'dis_id': 'CSE'},
-                                    {'name':'Prof. Pallavi Pawar',
-                                    'email': 'pallavi.pawar@gmail.com',
-                                    'inst_id': 'IITK', 'dis_id': 'CSE'}],
-                   'hosting_info': [{'hosted_url':'http://cse14-iiith.vlabs.ac.in',
-                                    'hosting_status': 'hosted',
-                                    'hosted_on': 'cloud'},
-                                    {'hosted_url':'http://iitkgp.vlab.co.in/',
-                                    'hosting_status': 'hosted',
-                                    'hosted_on': 'server'}],}
+        payload = {
+		   "key": KEY,
+                   "experiment": {
+                     "id": "exp123",
+                     "name": "arrays",
+                     "discipline_id": "CSE",
+                     "institute_id": "IITK",
+                     "developers": [
+                       {
+                         "name": "Dinesh Malviya",
+                         "email": "xyz@gmail.com"
+                       },
+                       {
+                         "name": "Ashish Ahuja",
+                         "email": "abc@gmail.com"
+                       }
+                     ],
+                     "hosting_info": [
+                       {
+                         "hosting_status": "hosted",
+                         "hosted_on": "cloud",
+                         "hosted_url": "http://cse14-iiith.vlabs.ac.in"
+                       },
+                       {
+                         "hosting_status": "hosted",
+                         "hosted_on": "college-cloud",
+                         "hosted_url": "http://cse14-iiith.ac.in"
+                       }
+                     ],
+                     "integration_level": 4,
+                     "overview": "This experiments describes about parallel and distributed processing",
+                     "assets": [
+                       {
+                         "asset_type": "image",
+                         "path": "vlabs.ac.in/images/static/logo.png"
+                       },
+                       {
+                         "asset_type": "video",
+                         "path": "vlabs.ac.in/video/abc.mkv"
+                       }
+                     ],
+                     "sections": [
+                       "Introduction",
+                       "Objective",
+                       "Tutorial",
+                       "Illustration",
+                       "Procedure",
+                       "Experiment",
+                       "Observations",
+                       "Assignment",
+                       "References"
+                     ]
+                   }
+                 }
 
         headers = {'Content-Type': 'application/json'}
 
         response = self.client.post("/experiments", data=json.dumps(payload),
                                  headers=headers)
 
-        payload = {'lab_name': 'Data Structures',
-                   'lab_id': 'cse01',
-                   'key': KEY,
-                   'inst_id': 'IITK',
-                   'integration_level': 4,
-                   'dis_id': 'CSE',
-                   'assets': [{'path':'vlabs.ac.in/images/static/logo.png',
-                                    'asset_type': 'image'},
-                                {'path':'vlabs.ac.in/images/static/image.png',
-                                    'asset_type': 'image'}],
-                   'developers': [{'name':'Prof. Dharamaja',
-                                    'email': 'abc@gmail.com',
-                                    'inst_id': 'IITK', 'dis_id': 'CSE'},
-                                    {'name':'Prof. Pallavi Pawar',
-                                    'email': 'pallavi.pawar@gmail.com',
-                                    'inst_id': 'IITK', 'dis_id': 'CSE'}],
-                   'hosting_info': [{'hosted_url':'http://cse14-iiith.vlabs.ac.in',
-                                    'hosting_status': 'hosted',
-                                    'hosted_on': 'cloud'},
-                                    {'hosted_url':'http://iitkgp.vlab.co.in/',
-                                    'hosting_status': 'hosted',
-                                    'hosted_on': 'server'}],
-                   'overview' : 'overview',
-                   'experiments': ['exp1']
-                  }
+        payload = {           
+		   "key" : KEY,     
+                   "lab": {
+                     "id": "cse02",
+                     "name": "Computer Programming",
+                     "overview": "overview",
+                     "discipline_id": "CSE",
+                     "institute_id": "IITK",
+                     "developers": [
+                       {
+                         "name": "Dinesh Malviya",
+                         "email": "xyz@gmail.com"
+                       },
+                       {
+                         "name": "Ashish Ahuja",
+                         "email": "abc@gmail.com"
+                       }
+                     ],
+                     "hosting_info": [
+                       {
+                         "hosting_status": "hosted",
+                         "hosted_on": "cloud",
+                         "hosted_url": "http://cse14-iiith.vlabs.ac.in"
+                       },
+                       {
+                         "hosting_status": "hosted",
+                         "hosted_on": "college-cloud",
+                         "hosted_url": "http://cse14-iiith.ac.in"
+                       }
+                     ],
+                     "integration_level": 4,
+                     "assets": [
+                       {
+                         "asset_type": "image",
+                         "path": "vlabs.ac.in/images/static/logo.png"
+                       },
+                       {
+                         "asset_type": "video",
+                         "path": "vlabs.ac.in/video/abc.mkv"
+                       }
+                     ],
+                     "sections": [
+                       {
+                         "name": "Introduction"
+                       },
+                       {
+                         "experiments": [
+                           "exp123"
+                         ]
+                       }
+                     ]
+                   }
+                 }
 
         headers = {'Content-Type': 'application/json'}
 
@@ -6912,61 +7394,119 @@ class TestUpdateLab(TestCase):
         response = self.client.post("/hosting_info", data=json.dumps(payload),
                                  headers=headers)
 
-        payload = {'exp_name': 'arrays',
-                   'exp_id': 'exp1',
-                   'overview' : 'overview',
-                   'sections': [],
-                   'inst_id': 'IITK',
-                   'integration_level': 4,
-                   'dis_id': 'CSE',
-                   'key': KEY,
-                   'assets': [{'path':'vlabs.ac.in/images/static/logo.png',
-                                    'asset_type': 'image'},
-                                {'path':'vlabs.ac.in/images/static/image.png',
-                                    'asset_type': 'image'}],
-                   'developers': [{'name':'Prof. Dharamaja',
-                                    'email': 'abc@gmail.com',
-                                    'inst_id': 'IITK', 'dis_id': 'CSE'},
-                                    {'name':'Prof. Pallavi Pawar',
-                                    'email': 'pallavi.pawar@gmail.com',
-                                    'inst_id': 'IITK', 'dis_id': 'CSE'}],
-                   'hosting_info': [{'hosted_url':'http://cse14-iiith.vlabs.ac.in',
-                                    'hosting_status': 'hosted',
-                                    'hosted_on': 'cloud'},
-                                    {'hosted_url':'http://iitkgp.vlab.co.in/',
-                                    'hosting_status': 'hosted',
-                                    'hosted_on': 'server'}],}
+        payload = {
+		   "key": KEY,
+                   "experiment": {
+                     "id": "exp123",
+                     "name": "arrays",
+                     "discipline_id": "CSE",
+                     "institute_id": "IITK",
+                     "developers": [
+                       {
+                         "name": "Dinesh Malviya",
+                         "email": "xyz@gmail.com"
+                       },
+                       {
+                         "name": "Ashish Ahuja",
+                         "email": "abc@gmail.com"
+                       }
+                     ],
+                     "hosting_info": [
+                       {
+                         "hosting_status": "hosted",
+                         "hosted_on": "cloud",
+                         "hosted_url": "http://cse14-iiith.vlabs.ac.in"
+                       },
+                       {
+                         "hosting_status": "hosted",
+                         "hosted_on": "college-cloud",
+                         "hosted_url": "http://cse14-iiith.ac.in"
+                       }
+                     ],
+                     "integration_level": 4,
+                     "overview": "This experiments describes about parallel and distributed processing",
+                     "assets": [
+                       {
+                         "asset_type": "image",
+                         "path": "vlabs.ac.in/images/static/logo.png"
+                       },
+                       {
+                         "asset_type": "video",
+                         "path": "vlabs.ac.in/video/abc.mkv"
+                       }
+                     ],
+                     "sections": [
+                       "Introduction",
+                       "Objective",
+                       "Tutorial",
+                       "Illustration",
+                       "Procedure",
+                       "Experiment",
+                       "Observations",
+                       "Assignment",
+                       "References"
+                     ]
+                   }
+                 }
 
         headers = {'Content-Type': 'application/json'}
 
         response = self.client.post("/experiments", data=json.dumps(payload),
                                  headers=headers)
 
-        payload = {'lab_name': 'Data Structures',
-                   'lab_id': 'cse01',
-                   'key': KEY,
-                   'inst_id': 'IITK',
-                   'integration_level': 4,
-                   'dis_id': 'CSE',
-                   'assets': [{'path':'vlabs.ac.in/images/static/logo.png',
-                                    'asset_type': 'image'},
-                                {'path':'vlabs.ac.in/images/static/image.png',
-                                    'asset_type': 'image'}],
-                   'developers': [{'name':'Prof. Dharamaja',
-                                    'email': 'abc@gmail.com',
-                                    'inst_id': 'IITK', 'dis_id': 'CSE'},
-                                    {'name':'Prof. Pallavi Pawar',
-                                    'email': 'pallavi.pawar@gmail.com',
-                                    'inst_id': 'IITK', 'dis_id': 'CSE'}],
-                   'hosting_info': [{'hosted_url':'http://cse14-iiith.vlabs.ac.in',
-                                    'hosting_status': 'hosted',
-                                    'hosted_on': 'cloud'},
-                                    {'hosted_url':'http://iitkgp.vlab.co.in/',
-                                    'hosting_status': 'hosted',
-                                    'hosted_on': 'server'}],
-                   'overview' : 'overview',
-                   'experiments': ['exp1']
-                  }
+        payload = {           
+		   "key" : KEY,     
+                   "lab": {
+                     "id": "cse02",
+                     "name": "Computer Programming",
+                     "overview": "overview",
+                     "discipline_id": "CSE",
+                     "institute_id": "IITK",
+                     "developers": [
+                       {
+                         "name": "Dinesh Malviya",
+                         "email": "xyz@gmail.com"
+                       },
+                       {
+                         "name": "Ashish Ahuja",
+                         "email": "abc@gmail.com"
+                       }
+                     ],
+                     "hosting_info": [
+                       {
+                         "hosting_status": "hosted",
+                         "hosted_on": "cloud",
+                         "hosted_url": "http://cse14-iiith.vlabs.ac.in"
+                       },
+                       {
+                         "hosting_status": "hosted",
+                         "hosted_on": "college-cloud",
+                         "hosted_url": "http://cse14-iiith.ac.in"
+                       }
+                     ],
+                     "integration_level": 4,
+                     "assets": [
+                       {
+                         "asset_type": "image",
+                         "path": "vlabs.ac.in/images/static/logo.png"
+                       },
+                       {
+                         "asset_type": "video",
+                         "path": "vlabs.ac.in/video/abc.mkv"
+                       }
+                     ],
+                     "sections": [
+                       {
+                         "name": "Introduction"
+                       },
+                       {
+                         "experiments": [
+                           "exp123"
+                         ]
+                       }
+                     ]
+                   }
+                 }
 
         headers = {'Content-Type': 'application/json'}
 
@@ -7001,32 +7541,59 @@ class TestUpdateLab(TestCase):
 
         response = self.client.post("/disciplines", data=json.dumps(payload1),
                                  headers=headers)
-
-        payload1 = {'lab_name': 'Computer Programming',
-                   'key': KEY,
-                   'overview' : 'cp overview',
-                   'inst_id': 'IITKgp',
-                   'integration_level': 4,
-                   'dis_id': 'ECE',
-                   'assets': [{'path':'vlabs.ac.in/images/static/logo.png',
-                                    'asset_type': 'image'},
-                                {'path':'vlabs.ac.in/images/static/image.png',
-                                    'asset_type': 'image'}],
-                   'developers': [{'name':'Prof. Dharamaja',
-                                    'email': 'abc@gmail.com',
-                                    'inst_id': 'IITK', 'dis_id': 'CSE'},
-                                    {'name':'Prof. Pallavi Pawar',
-                                    'email': 'pallavi.pawar@gmail.com',
-                                    'inst_id': 'IITK', 'dis_id': 'CSE'}],
-                   'hosting_info': [{'hosted_url':'http://cse13-iiith.vlabs.ac.in',
-                                    'hosting_status': 'hosted',
-                                    'hosted_on': 'cloud'},
-                                    {'hosted_url':'http://iitk.vlab.co.in/',
-                                    'hosting_status': 'hosted',
-                                    'hosted_on': 'server'}],
-                   'experiments':['exp1']
+        payload1 = {           
+		   "key" : KEY,     
+                   "lab": {
+                     "id": "cse03",
+                     "name": "Computer Programming",
+                     "overview": "cp overview",
+                     "discipline_id": "ECE",
+                     "institute_id": "IITKgh",
+                     "developers": [
+                       {
+                         "name": "Prof. Dharamaja",
+                         "email": "abc@gmail.com"
+                       },
+                       {
+                         "name": "Prof. Pallavi Pawar",
+                         "email": "pallavi.pawar@gmail.com"
+                       }
+                     ],
+                     "hosting_info": [
+                       {
+                         "hosting_status": "hosted",
+                         "hosted_on": "cloud",
+                         "hosted_url": "http://cse13-iiith.vlabs.ac.in"
+                       },
+                       {
+                         "hosting_status": "hosted",
+                         "hosted_on": "server",
+                         "hosted_url": "http://iitk.vlab.co.in/"
+                       }
+                     ],
+                     "integration_level": 4,
+                     "assets": [
+                       {
+                         "asset_type": "image",
+                         "path": "vlabs.ac.in/images/static/logo.png"
+                       },
+                       {
+                         "asset_type": "image",
+                         "path": "vlabs.ac.in/images/static/image.png"
+                       }
+                     ],
+                     "sections": [
+                       {
+                         "name": "Introduction"
+                       },
+                       {
+                         "experiments": [
+                           "exp123"
+                         ]
+                       }
+                     ]
                    }
-
+                 }
 
         response = self.client.put("/labs?lab_id=cse01", 
                                        data=json.dumps(payload1),
@@ -7193,60 +7760,118 @@ class TestDeleteLab(TestCase):
         response = self.client.post("/hosting_info", data=json.dumps(payload),
                                  headers=headers)
 
-        payload = {'exp_name': 'arrays',
-                   'exp_id': 'exp1',
-                   'overview' : 'overview',
-                   'integration_level': 4,
-                   'inst_id': 'IITK',
-                   'dis_id': 'CSE',
-                   'sections': [],
-                   'key': KEY,
-                   'assets': [{'path':'vlabs.ac.in/images/static/logo.png',
-                                    'asset_type': 'image'},
-                                {'path':'vlabs.ac.in/images/static/image.png',
-                                    'asset_type': 'image'}],
-                   'developers': [{'name':'Prof. Dharamaja',
-                                    'email': 'abc@gmail.com',
-                                    'inst_id': 'IITK', 'dis_id': 'CSE'},
-                                    {'name':'Prof. Pallavi Pawar',
-                                    'email': 'pallavi.pawar@gmail.com',
-                                    'inst_id': 'IITK', 'dis_id': 'CSE'}],
-                   'hosting_info': [{'hosted_url':'http://cse14-iiith.vlabs.ac.in',
-                                    'hosting_status': 'hosted',
-                                    'hosted_on': 'cloud'},
-                                    {'hosted_url':'http://iitkgp.vlab.co.in/',
-                                    'hosting_status': 'hosted',
-                                    'hosted_on': 'server'}],}
+        payload = {
+		   "key": KEY,
+                   "experiment": {
+                     "id": "exp123",
+                     "name": "arrays",
+                     "discipline_id": "CSE",
+                     "institute_id": "IITK",
+                     "developers": [
+                       {
+                         "name": "Dinesh Malviya",
+                         "email": "xyz@gmail.com"
+                       },
+                       {
+                         "name": "Ashish Ahuja",
+                         "email": "abc@gmail.com"
+                       }
+                     ],
+                     "hosting_info": [
+                       {
+                         "hosting_status": "hosted",
+                         "hosted_on": "cloud",
+                         "hosted_url": "http://cse14-iiith.vlabs.ac.in"
+                       },
+                       {
+                         "hosting_status": "hosted",
+                         "hosted_on": "college-cloud",
+                         "hosted_url": "http://cse14-iiith.ac.in"
+                       }
+                     ],
+                     "integration_level": 4,
+                     "overview": "This experiments describes about parallel and distributed processing",
+                     "assets": [
+                       {
+                         "asset_type": "image",
+                         "path": "vlabs.ac.in/images/static/logo.png"
+                       },
+                       {
+                         "asset_type": "video",
+                         "path": "vlabs.ac.in/video/abc.mkv"
+                       }
+                     ],
+                     "sections": [
+                       "Introduction",
+                       "Objective",
+                       "Tutorial",
+                       "Illustration",
+                       "Procedure",
+                       "Experiment",
+                       "Observations",
+                       "Assignment",
+                       "References"
+                     ]
+                   }
+                 }
 
         headers = {'Content-Type': 'application/json'}
         response = self.client.post("/experiments", data=json.dumps(payload),
                                  headers=headers)        
 
-        payload = {'lab_name': 'Data Structures',
-                   'lab_id': 'cse01',
-                   'overview' : 'overview',
-                   'inst_id': 'IITK',
-                   'integration_level': 4,
-                   'dis_id': 'CSE',
-                   'assets': [{'path':'vlabs.ac.in/images/static/logo.png',
-                                    'asset_type': 'image'},
-                                {'path':'vlabs.ac.in/images/static/image.png',
-                                    'asset_type': 'image'}],
-                   'developers': [{'name':'Prof. Dharamaja',
-                                    'email': 'abc@gmail.com',
-                                    'inst_id': 'IITK', 'dis_id': 'CSE'},
-                                    {'name':'Prof. Pallavi Pawar',
-                                    'email': 'pallavi.pawar@gmail.com',
-                                    'inst_id': 'IITK', 'dis_id': 'CSE'}],
-                   'hosting_info': [{'hosted_url':'http://cse14-iiith.vlabs.ac.in',
-                                    'hosting_status': 'hosted',
-                                    'hosted_on': 'cloud'},
-                                    {'hosted_url':'http://iitkgp.vlab.co.in/',
-                                    'hosting_status': 'hosted',
-                                    'hosted_on': 'server'}],
-                   'experiments':['exp1'],
-                   'key': KEY
+        payload = {           
+		   "key" : KEY,     
+                   "lab": {
+                     "id": "cse02",
+                     "name": "Computer Programming",
+                     "overview": "overview",
+                     "discipline_id": "CSE",
+                     "institute_id": "IITK",
+                     "developers": [
+                       {
+                         "name": "Dinesh Malviya",
+                         "email": "xyz@gmail.com"
+                       },
+                       {
+                         "name": "Ashish Ahuja",
+                         "email": "abc@gmail.com"
+                       }
+                     ],
+                     "hosting_info": [
+                       {
+                         "hosting_status": "hosted",
+                         "hosted_on": "cloud",
+                         "hosted_url": "http://cse14-iiith.vlabs.ac.in"
+                       },
+                       {
+                         "hosting_status": "hosted",
+                         "hosted_on": "college-cloud",
+                         "hosted_url": "http://cse14-iiith.ac.in"
+                       }
+                     ],
+                     "integration_level": 4,
+                     "assets": [
+                       {
+                         "asset_type": "image",
+                         "path": "vlabs.ac.in/images/static/logo.png"
+                       },
+                       {
+                         "asset_type": "video",
+                         "path": "vlabs.ac.in/video/abc.mkv"
+                       }
+                     ],
+                     "sections": [
+                       {
+                         "name": "Introduction"
+                       },
+                       {
+                         "experiments": [
+                           "exp123"
+                         ]
+                       }
+                     ]
                    }
+                 }
         headers = {'Content-Type': 'application/json'}
         response = self.client.post("/labs", data=json.dumps(payload),
                                  headers=headers)
