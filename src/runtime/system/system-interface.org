@@ -42,6 +42,7 @@ class SystemInterface ():
         email_cls = System.delegate.entities['email']
         developer_cls = System.delegate.entities['developer']
         asset_cls = System.delegate.entities['asset']
+        section_cls = System.delegate.entities['section']
         hosting_info_cls = System.delegate.entities['hosting_info']
 
         session = session_cls(key=data_dict['key'])
@@ -74,6 +75,15 @@ class SystemInterface ():
                 asset = System.do("add_asset", asset=asset, session=session)
             asset_list.append(asset)
 
+        sections = data_dict['lab']['sections']
+        section_list = []
+        for section_x in sections:
+            section = System.do("get_section", name=section_x['name'])
+            if section is None:
+                section = section_cls(name=str(section_x['name']))
+                section = System.do("add_section", section=section, session=session)
+            section_list.append(section)
+
         developers = data_dict['lab']['developers']
         developer_list = []
         for developer_x in developers:
@@ -104,6 +114,7 @@ class SystemInterface ():
                                 assets=asset_list,
                                 experiments=exp_list,
                                 developers=developer_list,
+                                section=section_list,
                                 hosting_info=hosting_info_list)
         try:
             current_app.logger.debug("running operation add_lab")
@@ -191,6 +202,13 @@ class TestAddLab(TestCase):
 		  }
 
        developer = SystemInterface.add_developer(data_dict)
+
+       data_dict = {
+		   'key' : KEY,
+		   'name': 'Procedure'
+		  }
+
+       section = SystemInterface.add_section(data_dict)
 
        data_dict = {
 		   "key": KEY,
@@ -294,7 +312,7 @@ class TestAddLab(TestCase):
                      ],
                      "sections": [
                        {
-                         "name": "Introduction"
+                         "name": "Procedure"
                        },
                        {
                          "experiments": [
@@ -327,6 +345,8 @@ class TestAddLab(TestCase):
                             'xyz@gmail.com')
        self.assertEqual(lab.get("developers")[1].get("email").get("email"),
                             'abc@gmail.com')
+       self.assertEqual(lab.get("sections")[0].get("name"), 
+			    'Procedure')
 
    def test_add_lab_raises_type_error_in_system_interface(self):
        print "test_add_lab_raises_type_error_in_system_interface"
@@ -380,6 +400,13 @@ class TestAddLab(TestCase):
 		  }
 
        developer = SystemInterface.add_developer(data_dict)
+       
+       data_dict = {
+		   'key' : KEY,
+		   'name': 'Procedure'
+		  }
+
+       section = SystemInterface.add_section(data_dict)
 
        data_dict = {
 		   "key": KEY,
@@ -481,7 +508,7 @@ class TestAddLab(TestCase):
 	       ],
 	       "sections": [
 		   {
-		       "name": "Introduction"
+		       "name": "Procedure"
 		   },
 		   {
 		       "experiments": [
@@ -1591,6 +1618,13 @@ class TestGetLabs(TestCase):
         developer = SystemInterface.add_developer(data_dict)
 
         data_dict = {
+		   'key' : KEY,
+		   'name': 'Procedure'
+		  }
+
+        section = SystemInterface.add_section(data_dict)
+
+        data_dict = {
                     "key" : KEY,
 		    "experiment": {
 		      "id": "exp123",
@@ -1685,7 +1719,7 @@ class TestGetLabs(TestCase):
                      ],
                      "sections": [
                        {
-                         "name": "Introduction"
+                         "name": "Procedure"
                        },
                        {
                          "experiments": [
@@ -1853,6 +1887,13 @@ class TestGetLabsByKeywordLabName(TestCase):
                    }
 
         discipline = SystemInterface.add_discipline(data_dict)
+        
+        data_dict = {
+		   'key' : KEY,
+		   'name': 'Procedure'
+		  }
+
+        section = SystemInterface.add_section(data_dict)
 
         data_dict = {
                     'key' : KEY,
@@ -2166,7 +2207,14 @@ class TestGetLabsByInstitute(TestCase):
                     'path': 'vlabs.ac.in/images/static/icon.png',
                     }
 
-        asset2 = SystemInterface.add_asset(data_dict)
+        asset = SystemInterface.add_asset(data_dict)
+
+        data_dict = {
+		   'key' : KEY,
+		   'name': 'Procedure'
+		  }
+
+        section = SystemInterface.add_section(data_dict)
 
         data_dict = {
                     "key" : KEY,
@@ -2442,6 +2490,14 @@ class TestGetLabsByDiscipline(TestCase):
                    }
 
         developer = SystemInterface.add_developer(data_dict)
+
+        data_dict = {
+		   'key' : KEY,
+		   'name': 'Procedure'
+		  }
+
+        section = SystemInterface.add_section(data_dict)
+
         data_dict = {
                     "key" : KEY,
 		    "experiment": {
@@ -2705,6 +2761,13 @@ class TestGetLabsByLabName(TestCase):
                    }
 
         developer = SystemInterface.add_developer(data_dict)
+        
+        data_dict = {
+		   'key' : KEY,
+		   'name': 'Procedure'
+		  }
+
+        section = SystemInterface.add_section(data_dict)
 
         data_dict = {
                     "key" : KEY,
@@ -2970,6 +3033,13 @@ class TestGetLabsByAssetType(TestCase):
 
         developer = SystemInterface.add_developer(data_dict)
 
+        data_dict = {
+		   'key' : KEY,
+		   'name': 'Procedure'
+		  }
+
+        section = SystemInterface.add_section(data_dict)
+
 
         data_dict = {
                     "key" : KEY,
@@ -3214,6 +3284,13 @@ class TestGetLabsByIntegration_Status(TestCase):
                     }
 
         asset2 = SystemInterface.add_asset(data_dict)
+
+        data_dict = {
+		   'key' : KEY,
+		   'name': 'Procedure'
+		  }
+
+        section = SystemInterface.add_section(data_dict)
 
         data_dict = {
                     "key" : KEY,
@@ -4325,6 +4402,13 @@ class TestGetLabById(TestCase):
         asset2 = SystemInterface.add_asset(data_dict)
 
         data_dict = {
+		   'key' : KEY,
+		   'name': 'Procedure'
+		  }
+
+        section = SystemInterface.add_section(data_dict)
+
+        data_dict = {
                     "key" : KEY,
 		    "experiment": {
 		      "id": "exp123",
@@ -5034,6 +5118,7 @@ class TestGetNameById(TestCase):
         developer_cls = System.delegate.entities['developer']
         name_cls = System.delegate.entities['name']
         email_cls = System.delegate.entities['email']
+        section_cls = System.delegate.entities['section']
 
         session = session_cls(key=data_dict['key'])
 
@@ -5089,6 +5174,15 @@ class TestGetNameById(TestCase):
                                       path=str(asset_x['path']))
                 asset = System.do("add_asset", asset=asset, session=session)
             asset_list.append(asset)
+
+        sections = data_dict['lab']['sections']
+        section_list = []
+        for sction_x in sections:
+            section = System.do("get_section", name=section_x['name'])
+            if section is None:
+                section = section_cls(name=str(section_x['name']))
+                section = System.do("add_section", section=section, session=session)
+            section_list.append(section)
 
         developers = data_dict['lab']['developers']
         developer_list = []
@@ -5200,6 +5294,13 @@ class TestUpdateLab(TestCase):
                    }
 
         developer = SystemInterface.add_developer(data_dict)
+
+        data_dict = {
+		   'key' : KEY,
+		   'name': 'Procedure'
+		  }
+
+        section = SystemInterface.add_section(data_dict)
 
         data_dict = {
                     "key" : KEY,
@@ -5337,6 +5438,13 @@ class TestUpdateLab(TestCase):
                     }
 
         integration_status = SystemInterface.add_integration_status(data_dict1)
+        
+        data_dict = {
+		   'key' : KEY,
+		   'name': 'Procedure'
+		  }
+
+        section = SystemInterface.add_section(data_dict)
 
         data_dict1 = {
            "key" : KEY,
@@ -5462,7 +5570,8 @@ class TestUpdateLab(TestCase):
                              data_dict1['lab']['developers'][1]['email'])
         self.assertEqual(lab1.get("assets")[0].get("path"), 
                              data_dict1['lab']['assets'][0]['path'])
-
+        self.assertEqual(lab.get("sections")[0].get("name"), 
+			    'Procedure')
         self.assertEqual(lab1.get("developers")[0].get("email").get("email"), 
                             data_dict1['lab']['developers'][0].get("email"))
         self.assertEqual(lab1.get("assets")[0].get("path"), 
@@ -6435,6 +6544,13 @@ class TestDeleteLab(TestCase):
                     }
 
         integration_status = SystemInterface.add_integration_status(data_dict)
+        
+        data_dict = {
+		   'key' : KEY,
+		   'name': 'Procedure'
+		  }
+
+        section = SystemInterface.add_section(data_dict)
 
         data_dict = {
                     'key' : KEY,
@@ -7556,6 +7672,13 @@ class TestGetLabByLabId(TestCase):
         hosting_info = SystemInterface.add_hosting_info(data_dict)
 
         data_dict = {
+		   'key' : KEY,
+		   'name': 'Procedure'
+		  }
+
+        section = SystemInterface.add_section(data_dict)
+
+        data_dict = {
                     'key' : KEY,
                     'inst_name': 'IIT Kanpur',
                     'inst_id': 'IITK',
@@ -7574,10 +7697,7 @@ class TestGetLabByLabId(TestCase):
         discipline = SystemInterface.add_discipline(data_dict)
 
         data_dict = {
-                    'key' : KEY,
-                    'inst_name': 'IIT Kanpur',
-                    'inst_id': 'IITK',
-                    'assets': ['vlabs.ac.in/images/static/logo.png'],
+                    'key' : KEY,                    
                     'name': 'Prof. Dharamaja',
                     'email': 'abc@gmail.com'
                    }
