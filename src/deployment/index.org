@@ -150,6 +150,29 @@ if __name__ == "__main__":
 
 #+END_SRC
 
+* Program to populate lab and experiment data from lab spects 
+#+BEGIN_SRC python :tangle dunp_json_to_lds.py :eval no 
+import json
+import requests
+
+def labspec():
+     with open("testexp.json") as json_file:
+         data = json.load(json_file)
+         print type(data)
+         url = 'http://localhost:5000/experiments'
+         data[0]['key'] = 'defaultkey'
+         print json.dumps(data[0])
+         headers = {'Content-Type': 'application/json'}
+        
+         response = requests.post(url, data = json.dumps(data[0]),
+                                  headers=headers)
+         print response.status_code
+if __name__ == "__main__":
+    labspec()
+#+END_SRC
+
+
+
 * Install all dependencies and setup the software
   Install all dependencies, including the OS related packages, Python packages,
   setup the database, configure the webserver, and finally deploy the
