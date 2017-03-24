@@ -1521,10 +1521,10 @@ class TestAddIntegration_Status(TestCase):
             raise err
 #+end_src
 
-*** TestGetLabsByKeywordLabName
- #+NAME: test_class_get_labs_by_keyword_lab_name
+*** TestGetLabs
+ #+NAME: test_class_get_labs
  #+BEGIN_SRC python
-class TestGetLabsByLabName(TestCase):
+class TestGetLabs(TestCase):
     TESTING = True
     def create_app(self):
         app = create_app(config)
@@ -1640,6 +1640,8 @@ class TestGetLabsByLabName(TestCase):
 		    }
 		  }
 
+        experiment = SystemInterface.add_experiment(data_dict)
+
         data_dict = {           
 		   "key" : KEY,     
                    "lab": {
@@ -1693,6 +1695,7 @@ class TestGetLabsByLabName(TestCase):
                      ]
                    }
                  }
+
         data_dict1 = {           
 		   "key" : KEY,     
                    "lab": {
@@ -1750,18 +1753,18 @@ class TestGetLabsByLabName(TestCase):
         lab1 = SystemInterface.add_lab(data_dict)
         lab2 = SystemInterface.add_lab(data_dict1)
 
-        labs_list = SystemInterface.get_labs_by_keyword_lab_name("data")
+        lab_list = SystemInterface.get_labs()
         
-        self.assertEqual(labs_list[0].get("lab_name"), data_dict['lab_name'])
-        self.assertEqual(labs_list[1].get("lab_name"), data_dict1['lab_name'])
-        self.assertEqual(labs_list[0].get("lab_id"), 
-                             data_dict['lab_id'])
-        self.assertEqual(labs_list[1].get("lab_id"), 
-                             data_dict1['lab_id'])
+        self.assertEqual(lab_list[0].get("lab_name"), data_dict['lab']['name'])
+        self.assertEqual(lab_list[1].get("lab_name"), data_dict1['lab']['name'])
+        self.assertEqual(lab_list[0].get("lab_id"), 
+                             data_dict['lab']['id'])
+        self.assertEqual(lab_list[1].get("lab_id"), 
+                             data_dict1['lab']['id'])
 
  #+END_SRC
 
-
+ 
 ** Get Labs by Keyword Lab Name
 #+NAME: class_get_labs_by_keyword_lab_name
 #+begin_src python
@@ -2864,9 +2867,9 @@ class TestGetLabsByLabName(TestCase):
         lab = SystemInterface.add_lab(data_dict)
         lab1 = SystemInterface.add_lab(data_dict1)
 
-        labs = SystemInterface.get_labs_by_lab_name(data_dict['lab_name'])
+        labs = SystemInterface.get_labs_by_lab_name(data_dict['lab']['name'])
 
-        self.assertEqual(labs[0]['lab_name'], data_dict['lab_name'])
+        self.assertEqual(labs[0]['lab_name'], data_dict['lab']['name'])
 
  #+END_SRC
 
