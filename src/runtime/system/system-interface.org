@@ -47,7 +47,13 @@ class SystemInterface ():
 
         session = session_cls(key=data_dict['key'])
         del(data_dict['key'])
-        experiments = data_dict['lab']['sections'][1]['experiments']
+
+        section_list=[]
+        for section in data_dict['lab']['sections']:
+            if 'experiments' in section.keys():
+                experiments = section['experiments']
+            else:
+                section_list.append(section)
 
         exp_list = []
         for e_id in experiments:
@@ -75,14 +81,8 @@ class SystemInterface ():
                 asset = System.do("add_asset", asset=asset, session=session)
             asset_list.append(asset)
 
-        sections = data_dict['lab']['sections']
-        section_list = []
-        for section_x in sections:
-            section = System.do("get_section", name=section_x['name'])
-            if section is None:
-                section = section_cls(name=str(section_x['name']))
-                section = System.do("add_section", section=section, session=session)
-            section_list.append(section)
+        section = data_dict['lab']['sections'][0]['name']
+        section_list = [section]
 
         developers = data_dict['lab']['developers']
         developer_list = []
@@ -114,7 +114,7 @@ class SystemInterface ():
                                 assets=asset_list,
                                 experiments=exp_list,
                                 developers=developer_list,
-                                section=section_list,
+                                sections=section_list,
                                 hosting_info=hosting_info_list)
         try:
             current_app.logger.debug("running operation add_lab")
