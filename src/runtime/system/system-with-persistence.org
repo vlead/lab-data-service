@@ -1,4 +1,3 @@
-`
 #+TITLE: Test System with Persistence
 #+AUTHOR: VLEAD
 #+DATE: [2016-06-07 Tue]
@@ -37,6 +36,7 @@ class TestAddLab(TestCase):
         print "test_add_lab_in_system_persistence"
 
         session_cls = System.delegate.entities['session']
+        section_cls = System.delegate.entities['section']
         lab_cls = System.delegate.entities['lab']
         institute_cls = System.delegate.entities['institute']
         discipline_cls = System.delegate.entities['discipline']
@@ -96,10 +96,14 @@ class TestAddLab(TestCase):
         key = KEY
         overview = "overview"
         session = session_cls(key=key)
+        name = "Theory"
+        section = section_cls(name=name)
+        section.save()
+
         lab = lab_cls(lab_id=lab_id1, lab_name=lab_name1,        
                           institute=inst, discipline=discipline, assets=[asset],                
                           overview=overview,  integration_status=integration_status, 
-                          experiments=[experiment], developers=[dev], hosting_info=[host])
+                          experiments=[experiment], sections=[section], developers=[dev], hosting_info=[host])
 
         lab1 = System.do("add_lab", lab=lab, session=session)
         new_lab = lab_cls.get_by_id(1)
@@ -660,6 +664,7 @@ class TestUpdateLabt(TestCase):
         
         print "test_update_lab_in_system_persistence"
         session_cls = System.delegate.entities['session']
+        section_cls = System.delegate.entities['section']
         exp_cls = System.delegate.entities['experiment']
         integration_status_cls = System.delegate.entities['integration_status']
         asset_cls = System.delegate.entities['asset']
@@ -720,12 +725,15 @@ class TestUpdateLabt(TestCase):
         lab_name = "Computer Programming"
         lab_id = "CSE01"
         overview = "overview"
+        name = "Theory"
+        section = section_cls(name=name)
+        section.save()
         lab = lab_cls(lab_id=lab_id, lab_name=lab_name,        
                           institute=inst, discipline=discipline,
                           assets=[asset], overview=overview, 
                           integration_status=integration_status, 
                           experiments=[experiment], developers=[dev], 
-                          hosting_info=[host])
+                          hosting_info=[host], sections=[section])
         lab.save()
 
         lab_name1 = "two dimentional arrays"
@@ -1459,6 +1467,7 @@ class TestDeleteLab(TestCase):
         
         print "test_delete_lab_in_system_persistence"
         session_cls = System.delegate.entities['session']
+        section_cls = System.delegate.entities['section']
         lab_cls = System.delegate.entities['lab']
         institute_cls = System.delegate.entities['institute']
         discipline_cls = System.delegate.entities['discipline']
@@ -1519,12 +1528,15 @@ class TestDeleteLab(TestCase):
         key = KEY
         overview = "overview"
         session = session_cls(key=key)
+        name="Theory"
+        section = section_cls(name=name)
+        section.save()
 
         lab = lab_cls(lab_id=lab_id1, lab_name=lab_name1, 
                       institute=inst, discipline=discipline, assets=[asset],
                       overview=overview, integration_status=integration_status, 
                       experiments=[experiment], developers=[dev],
-                      hosting_info=[host])
+                      hosting_info=[host], sections=[section])
         lab.save()
         lab_id = System.do("delete_lab", lab_id = lab_id1,
                                   session=session)
@@ -1779,6 +1791,7 @@ class TestGetLab(TestCase):
         asset_cls = System.delegate.entities['asset']
         name_cls = System.delegate.entities['name']
         email_cls = System.delegate.entities['email']
+        section_cls = System.delegate.entities['section']
         developer_cls = System.delegate.entities['developer']
         hosting_info_cls = System.delegate.entities['hosting_info']
 
@@ -1819,11 +1832,14 @@ class TestGetLab(TestCase):
                                    hosted_url=hosted_url, hosted_on=hosted_on)
         host.save()
 
+        name="Theory"
+        section = section_cls(name=name)
+        section.save()
 
         lab = lab_cls(lab_id=lab_id1, lab_name=lab_name1,
                           institute=inst, discipline=discipline, assets=[asset],
                           overview=overview, experiments=[], developers=[dev], 
-                          hosting_info=[host], integration_status=integration_status)
+                          hosting_info=[host], sections=[section], integration_status=integration_status)
 
         lab.save()
 
@@ -2750,6 +2766,7 @@ class TestAddAssetsToLab(TestCase):
         print "test_add_assets_to_lab_in_system_persistence"
 
         session_cls = System.delegate.entities['session']
+        section_cls = System.delegate.entities['section']
         lab_cls = System.delegate.entities['lab']
         institute_cls = System.delegate.entities['institute']
         discipline_cls = System.delegate.entities['discipline']
@@ -2789,10 +2806,12 @@ class TestAddAssetsToLab(TestCase):
         key = KEY
         overview = "overview"
         session = session_cls(key=key)
-
+        name="Theory"
+        section = section_cls(name=name)
+        section.save()
         lab = lab_cls(lab_id=lab_id1, lab_name=lab_name1,        
                           institute=inst, discipline=discipline, assets=[asset],                
-                          overview=overview, integration_status=integration_status, 
+                          overview=overview, sections=[section], integration_status=integration_status, 
                           experiments=[experiment])
         lab.save()
 
