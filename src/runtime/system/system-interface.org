@@ -5494,13 +5494,12 @@ class TestUpdateLab(TestCase):
 
         exp_id=str(data_dict['experiment']['id'])
         experiment = System.do("get_experiment", exp_id=exp_id)
-
-        if 'exp_name' not in data_dict:
+        if 'name' not in data_dict['experiment']:
             exp_name=str(experiment.get("exp_name"))
         else:
             exp_name=data_dict['experiment']['name']
 
-        if 'overview' not in data_dict:
+        if 'overview' not in data_dict['experiment']:
             overview=str(experiment.get("overview"))
         else:
             overview=data_dict['experiment']['overview']
@@ -5517,7 +5516,7 @@ class TestUpdateLab(TestCase):
             disc= System.do("get_discipline", dis_id=
                                 data_dict['experiment']['discipline_id'])
 
-        if 'integration_level' not in data_dict:
+        if 'integration_level' not in data_dict['experiment']:
             integration_status=str(experiment.get("integration_status"))
         else:
             integration_status= System.do("get_integration_status_by_IL", 
@@ -5768,83 +5767,83 @@ class TestUpdateExperiment(TestCase):
 
 
         data_dict1 = {"key" : KEY,
-		    "experiment": {
-                      "overview": "overview",
-		      "name": "queue",
-		      "id": "exp123",
-		      "discipline_id": "CSE",
-		      "institute_id": "IITK",
-                      'integration_level': 3,
-                      "sections": [
-			"Theory",
-			"Objective",
-			"Tutorial",
-			"Illustration",
-			"Procedure",
-			"Experiment",
-			"Observations",
-			"Assignment",
-			"References"
-		      ],
-                      "assets": [
-			{
-		     	  "asset_type": "image",
-			  "path": "vlabs.ac.in/images/static/logo.png"
-			},
-			{
-			  "asset_type": "video",
-			  "path": "vlabs.ac.in/images/static/image.png"
-			}
-		      ],
-                      "developers": [
-			{
-			  "name": "Prof. Dharamaja",
-			  "email": "abc@gmail.com"
-			},
-			{
-			  "name": "Prof. Pallavi Pawar",
-			  "email": "pallavi.pawar@gmail.com"
-			}
-		      ],
-                      "hosting_info": [
-			{
-			  "hosting_status": "hosted",
-			  "hosted_on": "cloud",
-			  "hosted_url": "http://cse14-iiith.ac.in"
-			},
-                        {
-			  "hosting_status": "hosted",
-			  "hosted_on": "server",
-			  "hosted_url": "http://iitkgp.vlab.co.in/"
-			}
-		      ]
+                      "experiment": {
+                         "overview": "overview",
+                         "name": "queue",
+                         "id": "exp123",
+                         "discipline_id": "CSE",
+                         "institute_id": "IITK",
+                         'integration_level': 3,
+                         "sections": [
+                            "Theory",
+                            "Objective",
+                            "Tutorial",
+                            "Illustration",
+                            "Procedure",
+                            "Experiment",
+                            "Observations",
+                            "Assignment",
+                            "References"
+                         ],
+                         "assets": [
+                            {
+                               "asset_type": "image",
+                               "path": "vlabs.ac.in/images/static/logo.png"
+                            },
+                            {
+                               "asset_type": "Video",
+                               "path": "vlabs.ac.in/images/video/image.png"
+                            }
+                         ],
+                         "developers": [
+                            {
+                               "name": "Prof. Dharamaja",
+                               "email": "abc@gmail.com"
+                            },
+                            {
+                               "name": "Prof. Pallavi Pawar",
+                               "email": "pallavi.pawar@gmail.com"
+                            }
+                         ],
+                         "hosting_info": [
+                            {
+                               "hosting_status": "hosted",
+                               "hosted_on": "cloud",
+                               "hosted_url": "http://cse14-iiith.ac.in"
+                            },
+                            {
+                               "hosting_status": "hosted",
+                               "hosted_on": "server",
+                               "hosted_url": "http://iitkgp.vlab.co.in/"
+                            }
+                         ]
+                      }
                    }
-        }
-
-        exp1 = SystemInterface.update_experiment(data_dict1)
         
+        exp1 = SystemInterface.update_experiment(data_dict1)
         self.assertEqual(exp1.get("exp_name"), data_dict1['experiment']['name'])
-        self.assertEqual(exp1.get("overview"), data_dict1['overview'])
+        self.assertEqual(exp1.get("overview"), data_dict1['experiment']['overview'])
         self.assertEqual(exp1.get("exp_id"), data_dict1['experiment']['id'])
         self.assertEqual(exp1.get("institute").get("inst_id"),
-                             data_dict1['institute_id'])
+                             data_dict1['experiment']['institute_id'])
         self.assertEqual(exp1.get("discipline").get("dis_id"),
-                             data_dict1['discipline_id'])
+                             data_dict1['experiment']['discipline_id'])
         self.assertEqual(exp1.get("integration_status").\
                              get("integration_level"),
-                             data_dict1['integration_level'])
+                             data_dict1['experiment']['integration_level'])
         self.assertEqual(exp1.get("hosting_info")[0].get("hosted_url"), 
-                             data_dict1['hosting_info'][0]['hosted_url'])
+                             data_dict1['experiment']['hosting_info'][0]['hosted_url'])
         self.assertEqual(exp1.get("hosting_info")[1].get("hosted_url"), 
-                             data_dict1['hosting_info'][1]['hosted_url'])
+                             data_dict1['experiment']['hosting_info'][1]['hosted_url'])
         self.assertEqual(exp1.get("developers")[0].get("email").get("email"), 
-                             data_dict1['developers'][0]['email'])
+                             data_dict1['experiment']['developers'][0]['email'])
         self.assertEqual(exp1.get("developers")[1].get("email").get("email"), 
-                             data_dict1['developers'][1]['email'])
+                             data_dict1['experiment']['developers'][1]['email'])
         self.assertEqual(exp1.get("assets")[0].get("path"), 
-                             data_dict1['assets'][0]['path'])
+                             data_dict1['experiment']['assets'][0]['path'])
         self.assertEqual(exp1.get("sections")[0].get("name"), 
-                             data_dict1['sections'][0])
+                             data_dict1['experiment']['sections'][1])
+
 
  #+END_SRC
 
@@ -6215,7 +6214,7 @@ class TestUpdateHosting_Info(TestCase):
         if 'name' not in data_dict:
             name=developer.get("name")
         else:
-            name=name_cls(name=str(data_dict['name']))
+            name=name_cls(email=str(data_dict['name']))
 
         try:
             current_app.logger.debug("running operation update_developer")
