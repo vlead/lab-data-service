@@ -795,7 +795,7 @@ class TestUpdateLabt(TestCase):
                              discipline=discipline1, hosting_info=[host1],
                              integration_status=integration_status1,
                              session=session, developers=[dev1], 
-                             assets=[asset1], experiments=[experiment1])
+                             assets=[asset1], sections=[section], experiments=[experiment1])
 
         new_lab = lab_cls.get_by_id(1)
 
@@ -1873,6 +1873,7 @@ class TestGetLabByInstitute(TestCase):
 
         print "test_get_labs_by_institute_in_system_persistence"
         lab_cls = System.delegate.entities['lab']
+        section_cls = System.delegate.entities['section']
         institute_cls = System.delegate.entities['institute']
         discipline_cls = System.delegate.entities['discipline']
         integration_status_cls = System.delegate.entities['integration_status']
@@ -1917,9 +1918,11 @@ class TestGetLabByInstitute(TestCase):
         hosted_on = "cloud"
         host = hosting_info_cls(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
         host.save()
-
+        name = "Theory"
+        section = section_cls(name=name)
+        section.save()
         lab = lab_cls(lab_id=lab_id1, lab_name=lab_name1,
-                          institute=inst, discipline=discipline, assets=[asset],
+                          institute=inst, discipline=discipline, sections=[section], assets=[asset],
                           overview=overview, experiments=[], integration_status=integration_status, 
                           hosting_info=[host], developers=[dev])
 
@@ -1955,6 +1958,7 @@ class TestGetLabByDiscipline(TestCase):
 
         print "test_get_labs_by_discipline_in_system_persistence"
         lab_cls = System.delegate.entities['lab']
+        section_cls = System.delegate.entities['section']
         institute_cls = System.delegate.entities['institute']
         discipline_cls = System.delegate.entities['discipline']
         integration_status_cls = System.delegate.entities['integration_status']
@@ -1999,9 +2003,11 @@ class TestGetLabByDiscipline(TestCase):
         hosted_on = "cloud"
         host = hosting_info_cls(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
         host.save()
-
+        name="Theory"
+        section=section_cls(name=name)
+        section.save()
         lab = lab_cls(lab_id=lab_id1, lab_name=lab_name1,
-                          institute=inst, discipline=discipline, 
+                          institute=inst, discipline=discipline, sections=[section],
                           hosting_info=[host], assets=[asset],
                           overview=overview, experiments=[], developers=[dev], 
                           integration_status=integration_status)
@@ -2039,6 +2045,7 @@ class TestGetLabByLabName(TestCase):
 
         print "test_get_labs_by_lab_name_in_system_persistence"
         lab_cls = System.delegate.entities['lab']
+        section_cls = System.delegate.entities['section']
         institute_cls = System.delegate.entities['institute']
         discipline_cls = System.delegate.entities['discipline']
         integration_status_cls = System.delegate.entities['integration_status']
@@ -2084,10 +2091,12 @@ class TestGetLabByLabName(TestCase):
         host = hosting_info_cls(hosting_status=hosting_status,
                                    hosted_url=hosted_url, hosted_on=hosted_on)
         host.save()
-
+        name = "Theory"
+        section = section_cls(name=name)
+        section.save()
         lab = lab_cls(lab_id=lab_id1, lab_name=lab_name1, 
                           integration_status=integration_status,
-                          institute=inst, discipline=discipline, 
+                          institute=inst, discipline=discipline, sections=[section],
                           hosting_info=[host], assets=[asset],
                           overview=overview, experiments=[], developers=[dev])
 
@@ -2954,8 +2963,6 @@ if __name__ == '__main__':
 <<test_delete_developer>>
 <<test_delete_integration_status>>
 <<test_add_hosting_info>>
-<<test_update_lab>>
-<<test_update_experiment>>
 <<test_update_institute>>
 <<test_update_discipline>>
 <<test_update_hosting_info>>
