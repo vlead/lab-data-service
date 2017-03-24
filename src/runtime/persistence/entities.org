@@ -40,6 +40,12 @@ lab_hosting_info = db.Table('lab_hosting_info',
 		 db.Column('hosting_infoid', db.Integer,
                        db.ForeignKey('hosting_info.id')))
 
+labs_sections = db.Table('labs_sections',
+		      db.Column('labid', db.Integer, 
+                            db.ForeignKey('lab.id')),
+		      db.Column('section_id', db.Integer,
+                            db.ForeignKey('section.id')))
+
 #+END_SRC
 
 #+NAME: class_Lab
@@ -71,7 +77,11 @@ args = {"__tablename__": "lab",
                     backref='labs'),
         "hosting_info": db.relationship('HostingInfo',
                     secondary=lab_hosting_info, 
+                    backref='labs'),
+        "sections": db.relationship('Section',
+                    secondary=labs_sections, 
                     backref='labs')
+
        }
 
 Lab = ClassPersistenceTemplate.mk_persistent(Lab, ['lab_id'],\
@@ -148,13 +158,17 @@ class TestPersistentLab(TestCase):
                                     developers=[dev])
         experiment.save()
 
+        name = "Theory"
+        section = Section(name=name)
+        section.save()
+
         lab_name1="Computer Programming"
         lab_id1="CSE01"
         overview1 = "This is data structures lab which deals about array,stack"
         " and ques..etc"
         lab1 = Lab(lab_name=lab_name1, lab_id=lab_id1, overview=overview1,
                        experiments=[experiment], institute=inst,
-                       integration_status=intstatus,
+                       integration_status=intstatus, sections=[section],
                        assets=[asset], discipline=discipline, 
                        developers=[dev], hosting_info=[host])
         lab1.save()
@@ -166,7 +180,8 @@ class TestPersistentLab(TestCase):
 
         lab2 = Lab(lab_name=lab_name2, lab_id=lab_id2, overview=overview2,
                        experiments=[], institute=inst, discipline=discipline, 
-                       developers=[], hosting_info=[host], assets=[asset], 
+                       developers=[], hosting_info=[host], assets=[asset],
+                       sections=[section], 
                        integration_status=intstatus)
         lab2.save()
 
@@ -185,6 +200,8 @@ class TestPersistentLab(TestCase):
                              asset.get("asset_type"))
         self.assertEqual(lab1.get("experiments")[0].get("exp_name"), 
                              experiment.get("exp_name"))
+        self.assertEqual(lab1.get("sections")[0].get("name"), 
+                             section.get("name"))
         self.assertEqual(lab1.get("integration_status").\
                              get("integration_level"), 
                              intstatus.get("integration_level"))
