@@ -1510,6 +1510,7 @@ def get_lab():
             try:
                 current_app.logger.debug("running operation get_lab")
                 lab = SystemInterface.get_lab(lab_id)
+                current_app.logger.debug("completed operation get_lab")
                 return jsonify(lab)
 
             except TypeError as e:
@@ -1582,6 +1583,7 @@ def get_lab():
             try:
                 current_app.logger.debug("running operation get_labs_by_institute")
                 labs = SystemInterface.get_labs_by_institute(institute_name)
+                current_app.logger.debug("completed operation get_labs_by_institute")
                 return jsonify_list(labs)
                 
             except TypeError as e:
@@ -1618,6 +1620,7 @@ def get_lab():
             try:
                 current_app.logger.debug("running operation get_labs_by_discipline")
                 labs = SystemInterface.get_labs_by_discipline(discipline_name)
+                current_app.logger.debug("completed operation get_labs_by_discipline")
                 return jsonify_list(labs)
                 
             except TypeError as e:
@@ -1654,6 +1657,7 @@ def get_lab():
             try:
                 current_app.logger.debug("running operation get_labs_by_asset")
                 labs = SystemInterface.get_labs_by_asset(asset_type)
+                current_app.logger.debug("completed operation get_labs_by_asset")
                 return jsonify_list(labs)
 
             except TypeError as e:
@@ -1691,6 +1695,8 @@ def get_lab():
                 current_app.logger.debug("running operation get_labs"
                                          " _by_keyword_lab_name")
                 labs = SystemInterface.get_labs_by_keyword_lab_name(keyword)
+                current_app.logger.debug("completed operation get_labs_by_"
+                                         " keyword_lab_name")
                 return jsonify_list(labs)
 
             except TypeError as e:
@@ -1724,8 +1730,9 @@ def get_lab():
 
         else:
             try:
-                current_app.logger.debug("running operation get_labs")
+                current_app.logger.debug("running operation get_labs")                
                 labs = SystemInterface.get_labs()
+                current_app.logger.debug("completed operation get_labs")
                 return jsonify_list(labs)
 
             except TypeError as e:
@@ -3400,6 +3407,7 @@ def add_lab():
             return_data["data"] = lab
             return_data["status"] = "success"
             return_data["status_code"] = 200
+            current_app.logger.debug("completed operation add_labs")
             return jsonify(return_data)
 
         except NotAuthorizedError as e:
@@ -3811,9 +3819,9 @@ def get_institute():
        if 'inst_id' in request.args:
            inst_id  = request.args['inst_id']
            try:
+               current_app.logger.debug("running operation get_institute")
                institute = SystemInterface.get_institute(inst_id)
-               current_app.logger.debug("running operation get_institute"
-                                        " = %s" % institute.to_client())
+               current_app.logger.debug("completed operation get_institute")
                return jsonify(institute)
 
            except TypeError as e:
@@ -3848,9 +3856,9 @@ def get_institute():
 
        else:
            try:
+               current_app.logger.debug("running operation get_institutes")
                institutes = SystemInterface.get_institutes()
-               current_app.logger.debug("running operation get_institutes"
-                                        " = %s" % institutes.to_client())
+               current_app.logger.debug("completed operation get_institutes")
                return jsonify_list(institutes)
 
            except TypeError as e:
@@ -4035,9 +4043,9 @@ def add_institute():
             abort(500, "the request does not contain data in json")
 
         try:
+            current_app.logger.debug("running operation add_institute")
             institute = SystemInterface.add_institute(data_dict)
-            current_app.logger.debug("running operation add_institute"
-                                     " = %s" % institute.to_client())
+            current_app.logger.debug("completed operation add_institute")
             return jsonify(institute)
 
         except NotAuthorizedError as e:
@@ -4303,9 +4311,9 @@ def get_discipline():
         if 'dis_id' in request.args:
             dis_id  = request.args['dis_id']
             try:
+                current_app.logger.debug("running operation get_discipline")
                 discipline = SystemInterface.get_discipline(dis_id)
-                current_app.logger.debug("running operation get_discipline"
-                                        " = %s" % discipline.to_client())
+                current_app.logger.debug("completed operation get_discipline")
                 return jsonify(discipline)
             
             except TypeError as e:
@@ -4341,9 +4349,9 @@ def get_discipline():
         else:
 
             try:
-                disciplines = SystemInterface.get_disciplines()
-                current_app.logger.debug("running operation get_disciplines"
-                                        " = %s" % disciplines.to_client())
+                current_app.logger.debug("running operation get_disciplines")
+                disciplines = SystemInterface.get_disciplines()               
+                current_app.logger.debug("completed operation get_disciplines")
                 return jsonify_list(disciplines)
             
             except TypeError as e:
@@ -4529,9 +4537,9 @@ def add_discipline():
             abort(500, "the request does not contain data in json")
 
         try:
-            dis = SystemInterface.add_discipline(data_dict)
-            current_app.logger.debug("running operation add_discipline"
-                                     " = %s" % dis.to_client())
+            current_app.logger.debug("running operation add_discipline")
+            dis = SystemInterface.add_discipline(data_dict)           
+            current_app.logger.debug("completed operation add_discipline")
             return jsonify(dis)
 
         except NotAuthorizedError as e:
@@ -8689,10 +8697,13 @@ http://localhost:5000/sections/1
 def update_and_delete_section(id):
     if request.method == 'GET':
         try:
+            current_app.logger.debug("running operation get_section_by_id")
             section = SystemInterface.get_section_by_id(id)
+            current_app.logger.debug("completed operation get_section_by_id")
             return jsonify(section)
 
         except NotAuthorizedError as e:
+            current_app.logger.error("Exception = %s" % str(e))
             err_str = str(e)
             msg = {"status": "failure",
                     "status code": 401,
@@ -8700,18 +8711,21 @@ def update_and_delete_section(id):
             abort(401, msg)
 
         except TypeError as e:
+            current_app.logger.error("Exception = %s" % str(e))
             err_str = str(e)
             msg = {"status": "failure",
                        "msg": err_str }
             abort(500, msg)
 
         except StateError as e:
+            current_app.logger.error("Exception = %s" % str(e))
             err_str = str(e)
             msg = {"status": "failure",
                        "msg": err_str}
             abort(500, msg)
 
         except NotFoundError as e:
+            current_app.logger.error("Exception = %s" % str(e))
             err_str = str(e)
             msg = {"status": "failure",
                        "status code": 404,
@@ -8719,6 +8733,7 @@ def update_and_delete_section(id):
             abort(404, msg)
 
         except Exception as e:
+            current_app.logger.error("Exception = %s" % str(e))
             err_str = str(e)
             msg = {"status": "failure",
                        "msg": err_str}
@@ -8733,10 +8748,13 @@ def update_and_delete_section(id):
             abort(500, "the request does not contain data in json")
 
         try:
+            current_app.logger.debug("running operation update_section")
             section = SystemInterface.update_section(data_dict)
+            current_app.logger.debug("completed operation update_section")
             return jsonify(section)
 
         except NotAuthorizedError as e:
+            current_app.logger.error("Exception = %s" % str(e))
             err_str = str(e)
             msg = {"status": "failure",
                     "status code": 401,
@@ -8744,18 +8762,21 @@ def update_and_delete_section(id):
             abort(401, msg)
 
         except TypeError as e:
+            current_app.logger.error("Exception = %s" % str(e))
             err_str = str(e)
             msg = {"status": "failure",
                        "msg": err_str }
             abort(500, msg)
 
         except StateError as e:
+            current_app.logger.error("Exception = %s" % str(e))
             err_str = str(e)
             msg = {"status": "failure",
                        "msg": err_str}
             abort(500, msg)
 
         except NotFoundError as e:
+            current_app.logger.error("Exception = %s" % str(e))
             err_str = str(e)
             msg = {"status": "failure",
                        "status code": 404,
@@ -8763,6 +8784,7 @@ def update_and_delete_section(id):
             abort(404, msg)
 
         except Exception as e:
+            current_app.logger.error("Exception = %s" % str(e))
             err_str = str(e)
             msg = {"status": "failure",
                        "msg": err_str}
@@ -8771,10 +8793,13 @@ def update_and_delete_section(id):
     if request.method == 'DELETE':
 
         try:
+            current_app.logger.debug("running operation delete_section")
             section = SystemInterface.delete_section(id)
+            current_app.logger.debug("completed operation delete_section")
             return jsonify({"status":"sucess"})
 
         except NotAuthorizedError as e:
+            current_app.logger.error("Exception = %s" % str(e))
             err_str = str(e)
             msg = {"status": "failure",
                     "status code": 401,
@@ -8782,18 +8807,21 @@ def update_and_delete_section(id):
             abort(401, msg)
 
         except TypeError as e:
+            current_app.logger.error("Exception = %s" % str(e))
             err_str = str(e)
             msg = {"status": "failure",
                        "msg": err_str }
             abort(500, msg)
 
         except StateError as e:
+            current_app.logger.error("Exception = %s" % str(e))
             err_str = str(e)
             msg = {"status": "failure",
                        "msg": err_str}
             abort(500, msg)
 
         except NotFoundError as e:
+            current_app.logger.error("Exception = %s" % str(e))
             err_str = str(e)
             msg = {"status": "failure",
                        "status code": 404,
@@ -8801,6 +8829,7 @@ def update_and_delete_section(id):
             abort(404, msg)
 
         except Exception as e:
+            current_app.logger.error("Exception = %s" % str(e))
             err_str = str(e)
             msg = {"status": "failure",
                        "msg": err_str}
@@ -8973,10 +9002,13 @@ def update_institute():
             abort(500, "Please provide the 'inst_id' to update the institute")
         
         try:
+            current_app.logger.debug("running operation update_institute")
             institute = SystemInterface.update_institute(data_dict)
+            current_app.logger.debug("completed operation update_institute")
             return jsonify(institute.to_client())
 
         except NotAuthorizedError as e:
+            current_app.logger.error("Exception = %s" % str(e))
             err_str = str(e)
             msg = {"status": "failure",
                     "status code": 401,
@@ -8984,18 +9016,21 @@ def update_institute():
             abort(401, msg)
 
         except TypeError as e:
+            current_app.logger.error("Exception = %s" % str(e))
             err_str = str(e)
-            msg = {"status": "failure",
+            msg = {"status": "failure",  
                        "msg": err_str }
             abort(500, msg)
 
         except StateError as e:
+            current_app.logger.error("Exception = %s" % str(e))
             err_str = str(e)
             msg = {"status": "failure",
                        "msg": err_str}
             abort(500, msg)
 
         except NotFoundError as e:
+            current_app.logger.error("Exception = %s" % str(e))
             err_str = str(e)
             msg = {"status": "failure",
                        "status code": 404,
@@ -9003,6 +9038,7 @@ def update_institute():
             abort(404, msg)
 
         except Exception as e:
+            current_app.logger.error("Exception = %s" % str(e))
             err_str = str(e)
             msg = {"status": "failure",
                        "msg": err_str}
@@ -9116,10 +9152,13 @@ def delete_institute():
             key = request.args['key']
 
             try:
+                current_app.logger.debug("running operation delete_institute")
                 institute = SystemInterface.delete_institute(inst_id, key)
+                current_app.logger.debug("completed operation delete_institute")
                 return jsonify({"status":"sucess"})
 
             except NotAuthorizedError as e:
+                current_app.logger.error("Exception = %s" % str(e))
                 err_str = str(e)
                 msg = {"status": "failure",
                         "status code": 401,
@@ -9127,18 +9166,21 @@ def delete_institute():
                 abort(401, msg)
             
             except TypeError as e:
+                current_app.logger.error("Exception = %s" % str(e))
                 err_str = str(e)
                 msg = {"status": "failure",
                         "msg": err_str }
                 abort(500, msg)
             
             except StateError as e:
+                current_app.logger.error("Exception = %s" % str(e))
                 err_str = str(e)
                 msg = {"status": "failure",
                         "msg": err_str}
                 abort(500, msg)
             
             except NotFoundError as e:
+                current_app.logger.error("Exception = %s" % str(e))
                 err_str = str(e)
                 msg = {"status": "failure",
                         "status code": 404,
@@ -9146,6 +9188,7 @@ def delete_institute():
                 abort(404, msg)
             
             except Exception as e:
+                current_app.logger.error("Exception = %s" % str(e))
                 err_str = str(e)
                 msg = {"status": "failure",
                         "msg": err_str}
@@ -9267,10 +9310,13 @@ def update_discipline():
             abort(500, "Please provide the 'dis_id' to update the institute")
         
         try:
+            current_app.logger.debug("running operation update_discipline")
             discipline = SystemInterface.update_discipline(data_dict)
+            current_app.logger.debug("completed operation update_discipline")
             return jsonify(discipline.to_client())
         
         except NotAuthorizedError as e:
+            current_app.logger.error("Exception = %s" % str(e))
             err_str = str(e)
             msg = {"status": "failure",
                     "status code": 401,
@@ -9278,18 +9324,21 @@ def update_discipline():
             abort(401, msg)
 
         except TypeError as e:
+            current_app.logger.error("Exception = %s" % str(e))
             err_str = str(e)
             msg = {"status": "failure",
                        "msg": err_str }
             abort(500, msg)
 
         except StateError as e:
+            current_app.logger.error("Exception = %s" % str(e))
             err_str = str(e)
             msg = {"status": "failure",
                        "msg": err_str}
             abort(500, msg)
 
         except NotFoundError as e:
+            current_app.logger.error("Exception = %s" % str(e))
             err_str = str(e)
             msg = {"status": "failure",
                        "status code": 404,
@@ -9297,6 +9346,7 @@ def update_discipline():
             abort(404, msg)
 
         except Exception as e:
+            current_app.logger.error("Exception = %s" % str(e))
             err_str = str(e)
             msg = {"status": "failure",
                        "msg": err_str}
@@ -9405,10 +9455,13 @@ def delete_discipline():
             key = request.args['key']
 
             try:
+                current_app.logger.debug("running operation delete_discipline")
                 discipline = SystemInterface.delete_discipline(dis_id, key)
+                current_app.logger.debug("completed operation delete_discipline")
                 return jsonify({"status":"sucess"})
             
             except NotAuthorizedError as e:
+                current_app.logger.error("Exception = %s" % str(e))
                 err_str = str(e)
                 msg = {"status": "failure",
                         "status code": 401,
@@ -9416,18 +9469,21 @@ def delete_discipline():
                 abort(401, msg)
 
             except TypeError as e:
+                current_app.logger.error("Exception = %s" % str(e))
                 err_str = str(e)
                 msg = {"status": "failure",
                         "msg": err_str }
                 abort(500, msg)
             
             except StateError as e:
+                current_app.logger.error("Exception = %s" % str(e))
                 err_str = str(e)
                 msg = {"status": "failure",
                         "msg": err_str}
                 abort(500, msg)
             
             except NotFoundError as e:
+                current_app.logger.error("Exception = %s" % str(e))
                 err_str = str(e)
                 msg = {"status": "failure",
                         "status code": 404,
@@ -9435,6 +9491,7 @@ def delete_discipline():
                 abort(404, msg)
 
             except Exception as e:
+                current_app.logger.error("Exception = %s" % str(e))
                 err_str = str(e)
                 msg = {"status": "failure",
                         "msg": err_str}
@@ -9552,10 +9609,13 @@ def update_hosting_info():
             abort(500, "Please provide the 'hosted_url' to update the hosting_info")
         
         try:
+            current_app.logger.debug("running operation update_hosting_info")
             hosting_info = SystemInterface.update_hosting_info(data_dict)
+            current_app.logger.debug("completed operation update_hosting_info")
             return jsonify(hosting_info)
 
         except NotAuthorizedError as e:
+            current_app.logger.error("Exception = %s" % str(e))
             err_str = str(e)
             msg = {"status": "failure",
                     "status code": 401,
@@ -9563,18 +9623,21 @@ def update_hosting_info():
             abort(401, msg)
 
         except TypeError as e:
+            current_app.logger.error("Exception = %s" % str(e))
             err_str = str(e)
             msg = {"status": "failure",
                        "msg": err_str }
             abort(500, msg)
 
         except StateError as e:
+            current_app.logger.error("Exception = %s" % str(e))
             err_str = str(e)
             msg = {"status": "failure",
                        "msg": err_str}
             abort(500, msg)
 
         except NotFoundError as e:
+            current_app.logger.error("Exception = %s" % str(e))
             err_str = str(e)
             msg = {"status": "failure",
                        "status code": 404,
@@ -9582,6 +9645,7 @@ def update_hosting_info():
             abort(404, msg)
 
         except Exception as e:
+            current_app.logger.error("Exception = %s" % str(e))
             err_str = str(e)
             msg = {"status": "failure",
                        "msg": err_str}
@@ -9692,11 +9756,13 @@ def update_developer():
             abort(500, "Please provide the 'email' to update the developer")
         
         try:
+            current_app.logger.debug("running operation update_developer")
             developer = SystemInterface.update_developer(data_dict)
-            
+            current_app.logger.debug("completed operation update_developer")
             return jsonify(developer.to_client())
 
         except NotAuthorizedError as e:
+            current_app.logger.error("Exception = %s" % str(e))
             err_str = str(e)
             msg = {"status": "failure",
                     "status code": 401,
@@ -9704,18 +9770,21 @@ def update_developer():
             abort(401, msg)
 
         except TypeError as e:
+            current_app.logger.error("Exception = %s" % str(e))
             err_str = str(e)
             msg = {"status": "failure",
                        "msg": err_str }
             abort(500, msg)
 
         except StateError as e:
+            current_app.logger.error("Exception = %s" % str(e))
             err_str = str(e)
             msg = {"status": "failure",
                        "msg": err_str}
             abort(500, msg)
 
         except NotFoundError as e:
+            current_app.logger.error("Exception = %s" % str(e))
             err_str = str(e)
             msg = {"status": "failure",
                        "status code": 404,
@@ -9723,6 +9792,7 @@ def update_developer():
             abort(404, msg)
 
         except Exception as e:
+            current_app.logger.error("Exception = %s" % str(e))
             err_str = str(e)
             msg = {"status": "failure",
                        "msg": err_str}
@@ -9861,10 +9931,13 @@ def delete_hosting_info():
             key = request.args['key']
 
             try:
+                current_app.logger.debug("running operation delete_hosting_info")
                 hosting_info = SystemInterface.delete_hosting_info(hosted_url, key)
+                current_app.logger.debug("completed operation delete_hosting_info")
                 return jsonify({"status":"sucess"})
 
             except NotAuthorizedError as e:
+                current_app.logger.error("Exception = %s" % str(e))
                 err_str = str(e)
                 msg = {"status": "failure",
                         "status code": 401,
@@ -9872,18 +9945,21 @@ def delete_hosting_info():
                 abort(401, msg)
             
             except TypeError as e:
+                current_app.logger.error("Exception = %s" % str(e))
                 err_str = str(e)
                 msg = {"status": "failure",
                         "msg": err_str }
                 abort(500, msg)
             
             except StateError as e:
+                current_app.logger.error("Exception = %s" % str(e))
                 err_str = str(e)
                 msg = {"status": "failure",
                         "msg": err_str}
                 abort(500, msg)
             
             except NotFoundError as e:
+                current_app.logger.error("Exception = %s" % str(e))
                 err_str = str(e)
                 msg = {"status": "failure",
                         "status code": 404,
@@ -9891,6 +9967,7 @@ def delete_hosting_info():
                 abort(404, msg)
             
             except Exception as e:
+                current_app.logger.error("Exception = %s" % str(e))
                 err_str = str(e)
                 msg = {"status": "failure",
                         "msg": err_str}
@@ -9981,10 +10058,13 @@ def delete_integration_status():
             key = request.args['key']
 
             try:
+                current_app.logger.debug("running operation delete_integration_status")
                 integration_status = SystemInterface.delete_integration_status(integration_level, key)
+                current_app.logger.debug("completed operation delete_integration_status")
                 return jsonify({"status":"sucess"})
 
             except NotAuthorizedError as e:
+                current_app.logger.error("Exception = %s" % str(e))
                 err_str = str(e)
                 msg = {"status": "failure",
                         "status code": 401,
@@ -9992,18 +10072,21 @@ def delete_integration_status():
                 abort(401, msg)
 
             except TypeError as e:
+                current_app.logger.error("Exception = %s" % str(e))
                 err_str = str(e)
                 msg = {"status": "failure",
                         "msg": err_str }
                 abort(500, msg)
             
             except StateError as e:
+                current_app.logger.error("Exception = %s" % str(e))
                 err_str = str(e)
                 msg = {"status": "failure",
                         "msg": err_str}
                 abort(500, msg)
             
             except NotFoundError as e:
+                current_app.logger.error("Exception = %s" % str(e))
                 err_str = str(e)
                 msg = {"status": "failure",
                         "status code": 404,
@@ -10011,6 +10094,7 @@ def delete_integration_status():
                 abort(404, msg)
             
             except Exception as e:
+                current_app.logger.error("Exception = %s" % str(e))
                 err_str = str(e)
                 msg = {"status": "failure",
                         "msg": err_str}
@@ -10099,9 +10183,13 @@ def delete_email():
             key = request.args['key']
 
             try:
+                current_app.logger.debug("running operation delete_email")
                 email = SystemInterface.delete_email(email, key)
+                current_app.logger.debug("completed operation delete_email")
                 return jsonify({"status":"sucess"})
+
             except NotAuthorizedError as e:
+                current_app.logger.error("Exception = %s" % str(e))
                 err_str = str(e)
                 msg = {"status": "failure",
                         "status code": 401,
@@ -10109,18 +10197,21 @@ def delete_email():
                 abort(401, msg)
 
             except TypeError as e:
+                current_app.logger.error("Exception = %s" % str(e))
                 err_str = str(e)
                 msg = {"status": "failure",
                        "msg": err_str }
                 abort(500, msg)
 
             except StateError as e:
+                current_app.logger.error("Exception = %s" % str(e))
                 err_str = str(e)
                 msg = {"status": "failure",
                        "msg": err_str}
                 abort(500, msg)
 
             except NotFoundError as e:
+                current_app.logger.error("Exception = %s" % str(e))
                 err_str = str(e)
                 msg = {"status": "failure",
                        "status code": 404,
@@ -10128,6 +10219,7 @@ def delete_email():
                 abort(404, msg)
 
             except Exception as e:
+                current_app.logger.error("Exception = %s" % str(e))
                 err_str = str(e)
                 msg = {"status": "failure",
                        "msg": err_str}
@@ -10279,10 +10371,13 @@ http://localhost:5000/names/1
 def update_and_delete_name(id):
     if request.method == 'GET':
         try:
+            current_app.logger.debug("running operation get_name_by_id")
             name = SystemInterface.get_name_by_id(id)
+            current_app.logger.debug("completed operation get_name_by_id")
             return jsonify(name)
 
         except NotAuthorizedError as e:
+            current_app.logger.error("Exception = %s" % str(e))
             err_str = str(e)
             msg = {"status": "failure",
                     "status code": 401,
@@ -10290,18 +10385,21 @@ def update_and_delete_name(id):
             abort(401, msg)
 
         except TypeError as e:
+            current_app.logger.error("Exception = %s" % str(e))
             err_str = str(e)
             msg = {"status": "failure",
                        "msg": err_str }
             abort(500, msg)
 
         except StateError as e:
+            current_app.logger.error("Exception = %s" % str(e))
             err_str = str(e)
             msg = {"status": "failure",
                        "msg": err_str}
             abort(500, msg)
 
         except NotFoundError as e:
+            current_app.logger.error("Exception = %s" % str(e))
             err_str = str(e)
             msg = {"status": "failure",
                        "status code": 404,
@@ -10309,6 +10407,7 @@ def update_and_delete_name(id):
             abort(404, msg)
 
         except Exception as e:
+            current_app.logger.error("Exception = %s" % str(e))
             err_str = str(e)
             msg = {"status": "failure",
                        "msg": err_str}
@@ -10323,10 +10422,13 @@ def update_and_delete_name(id):
             abort(500, "the request does not contain data in json")
 
         try:
+            current_app.logger.debug("running operation update_name")
             name = SystemInterface.update_name(data_dict)
+            current_app.logger.debug("completed operation update_name")
             return jsonify(name)
 
         except NotAuthorizedError as e:
+            current_app.logger.error("Exception = %s" % str(e))
             err_str = str(e)
             msg = {"status": "failure",
                     "status code": 401,
@@ -10334,18 +10436,21 @@ def update_and_delete_name(id):
             abort(401, msg)
 
         except TypeError as e:
+            current_app.logger.error("Exception = %s" % str(e))
             err_str = str(e)
             msg = {"status": "failure",
                        "msg": err_str }
             abort(500, msg)
 
         except StateError as e:
+            current_app.logger.error("Exception = %s" % str(e))
             err_str = str(e)
             msg = {"status": "failure",
                        "msg": err_str}
             abort(500, msg)
 
         except NotFoundError as e:
+            current_app.logger.error("Exception = %s" % str(e))
             err_str = str(e)
             msg = {"status": "failure",
                        "status code": 404,
@@ -10353,6 +10458,7 @@ def update_and_delete_name(id):
             abort(404, msg)
 
         except Exception as e:
+            current_app.logger.error("Exception = %s" % str(e))
             err_str = str(e)
             msg = {"status": "failure",
                        "msg": err_str}
@@ -10361,10 +10467,13 @@ def update_and_delete_name(id):
     if request.method == 'DELETE':
 
         try:
+            current_app.logger.debug("running operation delete_name")
             name = SystemInterface.delete_name(id)
+            current_app.logger.debug("completed operation delete_name")
             return jsonify({"status":"sucess"})
 
         except NotAuthorizedError as e:
+            current_app.logger.error("Exception = %s" % str(e))
             err_str = str(e)
             msg = {"status": "failure",
                     "status code": 401,
@@ -10372,18 +10481,21 @@ def update_and_delete_name(id):
             abort(401, msg)
 
         except TypeError as e:
+            current_app.logger.error("Exception = %s" % str(e))
             err_str = str(e)
             msg = {"status": "failure",
                        "msg": err_str }
             abort(500, msg)
 
         except StateError as e:
+            current_app.logger.error("Exception = %s" % str(e))
             err_str = str(e)
             msg = {"status": "failure",
                        "msg": err_str}
             abort(500, msg)
 
         except NotFoundError as e:
+            current_app.logger.error("Exception = %s" % str(e))
             err_str = str(e)
             msg = {"status": "failure",
                        "status code": 404,
@@ -10391,6 +10503,7 @@ def update_and_delete_name(id):
             abort(404, msg)
 
         except Exception as e:
+            current_app.logger.error("Exception = %s" % str(e))
             err_str = str(e)
             msg = {"status": "failure",
                        "msg": err_str}
@@ -10546,10 +10659,13 @@ def delete_developer():
             key = request.args['key']
 
             try:
+                current_app.logger.debug("running operation delete_developer")
                 developer = SystemInterface.delete_developer(email, key)
+                current_app.logger.debug("completed operation delete_developer")
                 return jsonify({"status":"sucess"})
 
             except NotAuthorizedError as e:
+                current_app.logger.error("Exception = %s" % str(e))
                 err_str = str(e)
                 msg = {"status": "failure",
                         "status code": 401,
@@ -10557,18 +10673,21 @@ def delete_developer():
                 abort(401, msg)
 
             except TypeError as e:
+                current_app.logger.error("Exception = %s" % str(e))
                 err_str = str(e)
                 msg = {"status": "failure",
                        "msg": err_str }
                 abort(500, msg)
 
             except StateError as e:
+                current_app.logger.error("Exception = %s" % str(e))
                 err_str = str(e)
                 msg = {"status": "failure",
                        "msg": err_str}
                 abort(500, msg)
 
             except NotFoundError as e:
+                current_app.logger.error("Exception = %s" % str(e))
                 err_str = str(e)
                 msg = {"status": "failure",
                        "status code": 404,
@@ -10576,6 +10695,7 @@ def delete_developer():
                 abort(404, msg)
 
             except Exception as e:
+                current_app.logger.error("Exception = %s" % str(e))
                 err_str = str(e)
                 msg = {"status": "failure",
                        "msg": err_str}
@@ -10663,10 +10783,13 @@ def delete_experiment():
             exp_id  = request.args['exp_id']
             key = request.args['key']
             try:
+                current_app.logger.debug("running operation delete_experiment")
                 exp_id = SystemInterface.delete_experiment(exp_id, key)
+                current_app.logger.debug("completed operation delete_experiment")
                 return jsonify({"status":"sucess"})
             
             except NotAuthorizedError as e:
+                current_app.logger.error("Exception = %s" % str(e))
                 err_str = str(e)
                 msg = {"status": "failure",
                         "status code": 401,
@@ -10674,18 +10797,21 @@ def delete_experiment():
                 abort(401, msg)
             
             except TypeError as e:
+                current_app.logger.error("Exception = %s" % str(e))
                 err_str = str(e)
                 msg = {"status": "failure",
                         "msg": err_str }
                 abort(500, msg)
             
             except StateError as e:
+                current_app.logger.error("Exception = %s" % str(e))
                 err_str = str(e)
                 msg = {"status": "failure",
                         "msg": err_str}
                 abort(500, msg)
             
             except NotFoundError as e:
+                current_app.logger.error("Exception = %s" % str(e))
                 err_str = str(e)
                 msg = {"status": "failure",
                         "status code": 404,
@@ -10693,6 +10819,7 @@ def delete_experiment():
                 abort(404, msg)
             
             except Exception as e:
+                current_app.logger.error("Exception = %s" % str(e))
                 err_str = str(e)
                 msg = {"status": "failure",
                         "msg": err_str}
@@ -10918,22 +11045,27 @@ def get_asset():
        if 'path' in request.args:
            path  = request.args['path']
            try:
+               current_app.logger.debug("running operation get_asset_by_path")
                asset = SystemInterface.get_asset_by_path(path)
+               current_app.logger.debug("completed operation get_asset_by_path")
                return jsonify(asset)
 
            except TypeError as e:
+               current_app.logger.error("Exception = %s" % str(e))
                err_str = str(e)
                msg = {"status": "failure",
                         "msg": err_str }
                abort(500, msg)
            
            except StateError as e:
+               current_app.logger.error("Exception = %s" % str(e))
                err_str = str(e)
                msg = {"status": "failure",
                         "msg": err_str}
                abort(500, msg)
            
            except NotFoundError as e:
+               current_app.logger.error("Exception = %s" % str(e))
                err_str = str(e)
                msg = {"status": "failure",
                         "status code": 404,
@@ -10941,28 +11073,34 @@ def get_asset():
                abort(404, msg)
            
            except Exception as e:
+               current_app.logger.error("Exception = %s" % str(e))
                err_str = str(e)
                msg = {"status": "failure",
                         "msg": err_str}
                abort(500, msg)
        else:
            try:
+               current_app.logger.debug("running operation get_assets")
                assets = SystemInterface.get_assets()
+               current_app.logger.debug("completed operation get_assets")
                return jsonify_list(assets)
         
            except TypeError as e:
+               current_app.logger.error("Exception = %s" % str(e))
                err_str = str(e)
                msg = {"status": "failure",
                         "msg": err_str }
                abort(500, msg)
            
            except StateError as e:
+               current_app.logger.error("Exception = %s" % str(e))
                err_str = str(e)
                msg = {"status": "failure",
                         "msg": err_str}
                abort(500, msg)
            
            except NotFoundError as e:
+               current_app.logger.error("Exception = %s" % str(e))
                err_str = str(e)
                msg = {"status": "failure",
                         "status code": 404,
@@ -10970,6 +11108,7 @@ def get_asset():
                abort(404, msg)
            
            except Exception as e:
+               current_app.logger.error("Exception = %s" % str(e))
                err_str = str(e)
                msg = {"status": "failure",
                         "msg": err_str}
@@ -11101,10 +11240,13 @@ def add_asset():
             abort(500, "the request does not contain data in json")
 
         try:
+            current_app.logger.debug("running operation add_asset")
             asset = SystemInterface.add_asset(data_dict)
+            current_app.logger.debug("completed operation add_asset")
             return jsonify(asset)
 
         except NotAuthorizedError as e:
+            current_app.logger.error("Exception = %s" % str(e))
             err_str = str(e)
             msg = {"status": "failure",
                     "status code": 401,
@@ -11112,18 +11254,21 @@ def add_asset():
             abort(401, msg)
 
         except TypeError as e:
+            current_app.logger.error("Exception = %s" % str(e))
             err_str = str(e)
             msg = {"status": "failure",
                        "msg": err_str }
             abort(500, msg)
 
         except StateError as e:
+            current_app.logger.error("Exception = %s" % str(e))
             err_str = str(e)
             msg = {"status": "failure",
                        "msg": err_str}
             abort(500, msg)
 
         except NotFoundError as e:
+            current_app.logger.error("Exception = %s" % str(e))
             err_str = str(e)
             msg = {"status": "failure",
                        "status code": 404,
@@ -11131,6 +11276,7 @@ def add_asset():
             abort(404, msg)
 
         except Exception as e:
+            current_app.logger.error("Exception = %s" % str(e))
             err_str = str(e)
             msg = {"status": "failure",
                        "msg": err_str}
@@ -11231,10 +11377,13 @@ def update_asset():
             abort(500, "Please provide the 'path' to update the asset")
         
         try:
+            current_app.logger.debug("running operation update_asset")
             asset = SystemInterface.update_asset(data_dict)
+            current_app.logger.debug("completed operation update_asset")
             return jsonify(asset)
         
         except NotAuthorizedError as e:
+            current_app.logger.error("Exception = %s" % str(e))
             err_str = str(e)
             msg = {"status": "failure",
                     "status code": 401,
@@ -11242,18 +11391,21 @@ def update_asset():
             abort(401, msg)
 
         except TypeError as e:
+            current_app.logger.error("Exception = %s" % str(e))
             err_str = str(e)
             msg = {"status": "failure",
                        "msg": err_str }
             abort(500, msg)
 
         except StateError as e:
+            current_app.logger.error("Exception = %s" % str(e))
             err_str = str(e)
             msg = {"status": "failure",
                        "msg": err_str}
             abort(500, msg)
 
         except NotFoundError as e:
+            current_app.logger.error("Exception = %s" % str(e))
             err_str = str(e)
             msg = {"status": "failure",
                        "status code": 404,
@@ -11261,6 +11413,7 @@ def update_asset():
             abort(404, msg)
 
         except Exception as e:
+            current_app.logger.error("Exception = %s" % str(e))
             err_str = str(e)
             msg = {"status": "failure",
                        "msg": err_str}
@@ -11352,10 +11505,13 @@ def delete_asset():
             key = request.args['key']
 
             try:
+                current_app.logger.debug("running operation delete_asset")
                 asset = SystemInterface.delete_asset(path, key)
+                current_app.logger.debug("completed operation delete_asset")
                 return jsonify({"status":"sucess"})
             
             except NotAuthorizedError as e:
+                current_app.logger.error("Exception = %s" % str(e))
                 err_str = str(e)
                 msg = {"status": "failure",
                         "status code": 401,
@@ -11363,18 +11519,21 @@ def delete_asset():
                 abort(401, msg)
             
             except TypeError as e:
+                current_app.logger.error("Exception = %s" % str(e))
                 err_str = str(e)
                 msg = {"status": "failure",
                         "msg": err_str }
                 abort(500, msg)
 
             except StateError as e:
+                current_app.logger.error("Exception = %s" % str(e))
                 err_str = str(e)
                 msg = {"status": "failure",
                         "msg": err_str}
                 abort(500, msg)
 
             except NotFoundError as e:
+                current_app.logger.error("Exception = %s" % str(e))
                 err_str = str(e)
                 msg = {"status": "failure",
                         "status code": 404,
@@ -11382,6 +11541,7 @@ def delete_asset():
                 abort(404, msg)
             
             except Exception as e:
+                current_app.logger.error("Exception = %s" % str(e))
                 err_str = str(e)
                 msg = {"status": "failure",
                         "msg": err_str}
