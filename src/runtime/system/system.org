@@ -669,7 +669,7 @@ class UpdateSection():
 #+NAME: class_update_Discipline
 #+begin_src python
 class UpdateDiscipline():
-    arg_types = {"discipline": is_discipline, "dis_name": is_str_or_none,
+    arg_types = {"discipline": is_discipline, "discipline_name": is_str_or_none,
                      "session": is_session, "assets": are_assets}
     arity_and_type_checks_needed = True
 
@@ -689,9 +689,9 @@ class UpdateDiscipline():
     @staticmethod
     def action(args):
         discipline = args["discipline"]
-        dis_name=args["dis_name"]
+        discipline_name=args["discipline_name"]
         assets = args["assets"]
-        dis = System.delegate.update_discipline(discipline, dis_name, assets)
+        dis = System.delegate.update_discipline(discipline, discipline_name, assets)
         return dis
 
 #+end_src
@@ -702,7 +702,7 @@ class UpdateDiscipline():
 #+NAME: class_update_institute
 #+begin_src python
 class UpdateInstitute():
-    arg_types = {"institute": is_institute, "inst_name": is_str_or_none, 
+    arg_types = {"institute": is_institute, "institute_name": is_str_or_none, 
                        "session": is_session, "assets": are_assets}
     arity_and_type_checks_needed = True
 
@@ -722,10 +722,10 @@ class UpdateInstitute():
 
     @staticmethod
     def action(args):
-        inst_name = args["inst_name"]
+        institute_name = args["institute_name"]
         institute = args["institute"]       
         assets = args["assets"]
-        institute = System.delegate.update_institute(institute, inst_name, assets)
+        institute = System.delegate.update_institute(institute, institute_name, assets)
         return institute
 
 #+end_src
@@ -933,7 +933,7 @@ class DeleteExperiment():
 #+NAME: class_delete_discipline
 #+begin_src python
 class DeleteDiscipline():
-    arg_types = {"dis_id": is_str, "session": is_session}
+    arg_types = {"discipline_id": is_str, "session": is_session}
     arity_and_type_checks_needed = True
 
     @staticmethod
@@ -944,17 +944,17 @@ class DeleteDiscipline():
 
     @staticmethod
     def state_check(args):
-        dis_id = args['dis_id']
-        discipline = System.delegate.get_discipline(dis_id=dis_id)    
+        discipline_id = args['discipline_id']
+        discipline = System.delegate.get_discipline(discipline_id=discipline_id)    
         if not System.delegate.discipline_exists(discipline):
             raise StateError("discipline %s does not exists in System"
                                  % discipline.to_client())
 
     @staticmethod
     def action(args):
-        dis_id = args["dis_id"]
-        dis_id = System.delegate.delete_discipline(dis_id)
-        return dis_id
+        discipline_id = args["discipline_id"]
+        discipline_id = System.delegate.delete_discipline(discipline_id)
+        return discipline_id
 
 #+end_src
 
@@ -965,7 +965,7 @@ class DeleteDiscipline():
 #+NAME: class_delete_institute
 #+begin_src python
 class DeleteInstitute():
-    arg_types = {"inst_id": is_str, "session": is_session}
+    arg_types = {"institute_id": is_str, "session": is_session}
     arity_and_type_checks_needed = True
 
     @staticmethod
@@ -976,17 +976,17 @@ class DeleteInstitute():
 
     @staticmethod
     def state_check(args):
-        inst_id = args['inst_id']
-        institute = System.delegate.get_institute(inst_id=inst_id)    
+        institute_id = args['institute_id']
+        institute = System.delegate.get_institute(institute_id=institute_id)    
         if not System.delegate.institute_exists(institute):
             raise StateError("institute %s does not exists in System"
                                  % institute.to_client())
 
     @staticmethod
     def action(args):
-        inst_id = args["inst_id"]
-        inst_id = System.delegate.delete_institute(inst_id)
-        return inst_id
+        institute_id = args["institute_id"]
+        institute_id = System.delegate.delete_institute(institute_id)
+        return institute_id
         
 #+end_src
 
@@ -1228,7 +1228,7 @@ class GetExperiment():
 #+NAME: class_get_institute
 #+begin_src python
 class GetInstitute():
-    arg_types = {"inst_id": is_str}
+    arg_types = {"institute_id": is_str}
     arity_and_type_checks_needed = True
 
     @staticmethod
@@ -1241,8 +1241,8 @@ class GetInstitute():
         
     @staticmethod
     def action(args):
-        inst_id = args["inst_id"]
-        institute = System.delegate.get_institute(inst_id=inst_id)
+        institute_id = args["institute_id"]
+        institute = System.delegate.get_institute(institute_id=institute_id)
         return institute
 
 #+end_src
@@ -1254,7 +1254,7 @@ class GetInstitute():
 #+NAME: class_get_institute_by_institute_name
 #+begin_src python
 class GetInstituteByInstituteName():
-    arg_types = {"inst_name": is_str}
+    arg_types = {"institute_name": is_str}
     arity_and_type_checks_needed = True
 
     @staticmethod
@@ -1267,8 +1267,8 @@ class GetInstituteByInstituteName():
 
     @staticmethod
     def action(args):
-        inst_name = args["inst_name"]
-        institute = System.delegate.get_institute(inst_name=inst_name)
+        institute_name = args["institute_name"]
+        institute = System.delegate.get_institute(institute_name=institute_name)
         return institute
 
 #+end_src
@@ -1280,7 +1280,7 @@ class GetInstituteByInstituteName():
 #+NAME: class_get_discipline_by_discipline_name
 #+begin_src python
 class GetDisciplineByDisciplineName():
-    arg_types = {"dis_name": is_str}
+    arg_types = {"discipline_name": is_str}
     arity_and_type_checks_needed = True
 
     @staticmethod
@@ -1293,8 +1293,8 @@ class GetDisciplineByDisciplineName():
 
     @staticmethod
     def action(args):
-        dis_name = args["dis_name"]
-        discipline = System.delegate.get_discipline(dis_name=dis_name)
+        discipline_name = args["discipline_name"]
+        discipline = System.delegate.get_discipline(discipline_name=discipline_name)
         return discipline
 
 #+end_src
@@ -1304,7 +1304,7 @@ class GetDisciplineByDisciplineName():
 #+NAME: class_get_discipline
 #+begin_src python
 class GetDiscipline():
-    arg_types = {"dis_id": is_str}
+    arg_types = {"discipline_id": is_str}
     arity_and_type_checks_needed = True
 
     @staticmethod
@@ -1317,8 +1317,8 @@ class GetDiscipline():
 
     @staticmethod
     def action(args):
-        dis_id = args["dis_id"]
-        discipline = System.delegate.get_discipline(dis_id=dis_id)
+        discipline_id = args["discipline_id"]
+        discipline = System.delegate.get_discipline(discipline_id=discipline_id)
         return discipline
 
 #+end_src
