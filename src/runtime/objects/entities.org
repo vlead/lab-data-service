@@ -218,6 +218,7 @@ Lab.add_attributes(lab_name=is_str,
                     integration_status=is_integration_status,
                     experiments=are_experiments,
                     developers=are_developers,
+                    sections=are_sections,                    
                     hosting_info=are_hosting_info)
 
 Lab.__eq__ = lambda self, other: \
@@ -228,6 +229,7 @@ Lab.__eq__ = lambda self, other: \
                   self.get("institute") == other.get("institute") and \
                   self.get("discipline") == other.get("discipline") and \
                   self.get("assets") == other.get("assets") and \
+                  self.get("sections") == other.get("sections") and \
                   self.get("integration_status") == other.get("integration_status") and \
                   self.get("experiments") == other.get("experiments") and \
                   self.get("developers") == other.get("developers") and \
@@ -287,7 +289,7 @@ class TestLab(TestCase):
         lab = Lab(lab_name=lab_name, lab_id=lab_id, overview=overview,
                       institute=inst, discipline=discipline, assets=[asset],
                       integration_status=integration_status, developers=[dev],
-                      hosting_info=[host], experiments=[experiment])
+                      hosting_info=[host], sections=[], experiments=[experiment])
 
         self.assertEqual(lab.get("lab_name"), lab_name)
         self.assertEqual(lab.get("lab_id"), lab_id)
@@ -305,6 +307,7 @@ class TestLab(TestCase):
                              experiment.get("exp_name"))
         self.assertEqual(lab.get("developers")[0].get("email").get("email"),
                              email_id.get("email"))
+        self.assertEqual(lab.get("sections"), [])
         self.assertEqual(lab.get("hosting_info")[0].get("hosting_status"), 
                              host.get("hosting_status"))
 

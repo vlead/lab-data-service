@@ -156,18 +156,24 @@ class TestPersistenceDelegate(TestCase):
                                hosted_on=hosted_on)
         host.save()
 
+        name = "Theory"
+        section = Section(name=name)
+        section.save()
+
+
         lab = Lab(lab_name=lab_name1, lab_id=lab_id1, overview=overview1,
                       institute=inst, discipline=discipline, assets=[asset],
                       experiments=[], integration_status=integration_status,
-                      developers=[dev], hosting_info=[host])
+                      developers=[dev], sections=[section],hosting_info=[host])
 
         lab1 = self.persistence_delegate.add_lab(lab)
 
         lab_name2="Data Structures"
         lab_id2="CSE02"
         overview2 = "overview"
+
         lab2 = Lab(lab_name=lab_name2, lab_id=lab_id2, overview=overview2,
-                       integration_status=integration_status,               
+                       integration_status=integration_status, sections=[section],               
                        institute=inst, discipline=discipline, assets=[asset],
                        experiments=[], developers=[dev], hosting_info=[host])
 
@@ -720,10 +726,15 @@ class TestPersistenceDelegate(TestCase):
          lab_name1="Computer Programming"
          lab_id1="CSE01"
          overview="lab"
+
+         name = "Theory"
+         section = Section(name=name)
+         section.save()
+
          lab1 = Lab(lab_name=lab_name1, lab_id=lab_id1, \
                         institute=inst, discipline=discipline,\
                         assets=[asset], overview=overview,\
-                        experiments=[experiment], \
+                        experiments=[experiment], sections=[section], \
                         integration_status=integration_status,\
                         developers=[dev], hosting_info=[host])
 
@@ -736,7 +747,7 @@ class TestPersistenceDelegate(TestCase):
          lab2 = Lab(lab_name=lab_name2, lab_id=lab_id2, overview=overview, 
                         institute=inst, discipline=discipline, assets=[asset],
                         experiments=[], integration_status=integration_status,
-                        developers=[dev], hosting_info=[host])
+                        developers=[dev], sections=[section], hosting_info=[host])
 
          self.assertEqual(self.persistence_delegate.lab_exists(lab1),
                           True)
@@ -1264,13 +1275,13 @@ class TestPersistenceDelegate(TestCase):
 #+NAME: persistence_update_lab
 #+BEGIN_SRC python
     def update_lab(self, lab, lab_name, overview, institute, discipline,
-                       integration_status, hosting_info, developers,
+                       sections, integration_status, hosting_info, developers,
                        assets, experiments):
 
         current_app.logger.debug("running update lab operation")
 
         lab.set(lab_name=lab_name, overview=overview, institute=institute, 
-                    discipline=discipline, hosting_info=hosting_info,
+                    discipline=discipline, sections=sections, hosting_info=hosting_info,
                     integration_status=integration_status,
                     developers=developers, assets=assets,
                     experiments=experiments)
@@ -1341,10 +1352,13 @@ class TestPersistenceDelegate(TestCase):
 
          exp1 = self.persistence_delegate.add_experiment(exp)
 
+         name = "Theory"
+         section = Section(name=name)
+         section.save()
 
          lab = Lab(lab_name=lab_name, lab_id=lab_id, overview=overview, 
                        institute=inst, discipline=discipline, 
-                       assets=[asset], hosting_info=[host],
+                       assets=[asset], hosting_info=[host], sections=[section],
                        experiments=[exp1], developers=[dev], 
                        integration_status=integration_status) 
 
@@ -1403,7 +1417,7 @@ class TestPersistenceDelegate(TestCase):
          exp2 = self.persistence_delegate.add_experiment(exp)
 
          lab2 = self.persistence_delegate.update_lab\
-           (lab1, lab_name1, overview1, inst1, discipline1,
+           (lab1, lab_name1, overview1, inst1, discipline1, [section],
                 integration_status1, [host1], [dev1], [asset1], [exp2]),
 
          lab2 = Lab.get_by_id(1)
@@ -1918,10 +1932,14 @@ class TestPersistenceDelegate(TestCase):
                                 hosted_on=hosted_on)
          host.save()
 
+         name = "Theory"
+         section = Section(name=name)
+         section.save()
+
          lab = Lab(lab_name=lab_name, lab_id=lab_id, overview=overview, 
                        institute=inst, discipline=discipline,
                        hosting_info=[host],  assets=[asset],
-                       experiments=[], developers=[dev],
+                       experiments=[], developers=[dev], sections=[section],
                        integration_status=integration_status)
 
          lab1 = self.persistence_delegate.add_lab(lab)
@@ -1933,7 +1951,7 @@ class TestPersistenceDelegate(TestCase):
          lab1 = Lab(lab_name=lab_name1, lab_id=lab_id1, overview=overview,
                         institute=inst, discipline=discipline, assets=[asset], 
                         experiments=[], integration_status=integration_status,
-                        developers=[dev], hosting_info=[host])
+                        developers=[dev], hosting_info=[host], sections=[section])
 
          lab2 = self.persistence_delegate.add_lab(lab1)
 
@@ -2579,10 +2597,14 @@ class TestPersistenceDelegate(TestCase):
                                 hosted_on=hosted_on)
          host.save()
 
+         name = "Theory"
+         section = Section(name=name)
+         section.save()
+
          lab = Lab(lab_name=lab_name, lab_id=lab_id, overview=overview,
                        institute=inst, discipline=discipline,
                        hosting_info=[host], assets=[asset],
-                       experiments=[], developers=[dev],
+                       experiments=[], developers=[dev], sections=[section],
                        integration_status=integration_status)
 
          lab.save()
@@ -2683,11 +2705,15 @@ class TestPersistenceDelegate(TestCase):
                                 hosted_url=hosted_url,
                                 hosted_on=hosted_on)
          host.save()
-         
+
+         name = "Theory"
+         section = Section(name=name)
+         section.save()
+
          lab = Lab(lab_name=lab_name, lab_id=lab_id, overview=overview,
                        institute=inst, discipline=discipline,
                        hosting_info=[host], assets=[asset],
-                       experiments=[], developers=[dev],
+                       experiments=[], developers=[dev], sections=[section],
                        integration_status=integration_status)
 
          lab.save()
@@ -2788,8 +2814,12 @@ class TestPersistenceDelegate(TestCase):
                                 hosted_on=hosted_on)
          host.save()
 
+         name = "Theory"
+         section = Section(name=name)
+         section.save()
+
          lab = Lab(lab_name=lab_name, lab_id=lab_id, overview=overview, 
-                       institute=inst, discipline=discipline,
+                       institute=inst, discipline=discipline,sections=[section],
                        hosting_info=[host],  assets=[], experiments=[],
                        developers=[dev], integration_status=integration_status)
 
@@ -2975,10 +3005,14 @@ class TestPersistenceDelegate(TestCase):
                                 hosted_on=hosted_on)
          host.save()
 
+         name = "Theory"
+         section = Section(name=name)
+         section.save()
+
          lab = Lab(lab_name=lab_name1, lab_id=lab_id1, overview=overview,
                        institute=inst, discipline=discipline, 
                        hosting_info=[host], assets=[asset],
-                       experiments=[], developers=[dev], 
+                       experiments=[], developers=[dev], sections=[section], 
                        integration_status=integration_status)
 
          lab.save()
@@ -3381,10 +3415,14 @@ class TestPersistenceDelegate(TestCase):
                                 hosted_on=hosted_on)
          host.save()
 
+         name = "Theory"
+         section = Section(name=name)
+         section.save()
+
          lab1 = Lab(lab_name=lab_name1, lab_id=lab_id1, overview=overview,
                         institute=inst, discipline=discipline, 
                         hosting_info=[host], assets=[asset],
-                        experiments=[], developers=[dev], 
+                        experiments=[], developers=[dev], sections=[section], 
                         integration_status=integration_status)
 
          lab1.save()
@@ -3392,10 +3430,11 @@ class TestPersistenceDelegate(TestCase):
          lab_name2="Data Structures"
          lab_id2="CSE02"
 
+
          lab2 = Lab(lab_name=lab_name2, lab_id=lab_id2, overview=overview, \
                         institute=inst, discipline=discipline, assets=[asset],\
                         experiments=[], integration_status=integration_status,
-                        developers=[dev], hosting_info=[host])
+                        developers=[dev], hosting_info=[host], sections=[section])
 
          lab2.save()
 
@@ -3446,10 +3485,14 @@ class TestPersistenceDelegate(TestCase):
                                 hosted_on=hosted_on)
          host.save()
 
+         name = "Theory"
+         section = Section(name=name)
+         section.save()
+
          lab1 = Lab(lab_name=lab_name1, lab_id=lab_id1, overview=overview,
                         institute=inst, discipline=discipline,
                         hosting_info=[host], assets=[asset],
-                        experiments=[], developers=[dev],
+                        experiments=[], developers=[dev], sections=[section],
                         integration_status=integration_status)
 
          lab1.save()
@@ -3460,7 +3503,7 @@ class TestPersistenceDelegate(TestCase):
          lab2 = Lab(lab_name=lab_name2, lab_id=lab_id2, overview=overview, \
                         institute=inst, discipline=discipline, assets=[asset],\
                         experiments=[], integration_status=integration_status,\
-                        developers=[dev],  hosting_info=[host])
+                        developers=[dev], sections=[section], hosting_info=[host])
 
          lab2.save()
 
@@ -3510,10 +3553,14 @@ class TestPersistenceDelegate(TestCase):
                                 hosted_on=hosted_on)
          host.save()
 
+         name = "Theory"
+         section = Section(name=name)
+         section.save()
+
          lab1 = Lab(lab_name=lab_name1, lab_id=lab_id1, overview=overview,
                         institute=inst, discipline=discipline, 
                         hosting_info=[host], assets=[asset],
-                        experiments=[], developers=[dev], 
+                        experiments=[], developers=[dev], sections=[section], 
                         integration_status=integration_status)
          lab1.save()
 
@@ -3523,7 +3570,7 @@ class TestPersistenceDelegate(TestCase):
          lab2 = Lab(lab_name=lab_name2, lab_id=lab_id2, overview=overview, \
                         institute=inst, discipline=discipline, assets=[asset],\
                         experiments=[], integration_status=integration_status,
-                        developers=[dev], hosting_info=[host])
+                        developers=[dev], sections=[section], hosting_info=[host])
          lab2.save()
 
          labs_list = self.persistence_delegate.get_labs(lab_id=lab_id1,
@@ -3574,10 +3621,14 @@ class TestPersistenceDelegate(TestCase):
                                 hosted_on=hosted_on)
          host.save()
 
+         name = "Theory"
+         section = Section(name=name)
+         section.save()
+
          lab1 = Lab(lab_name=lab_name1, lab_id=lab_id1, overview=overview,
                         institute=inst, discipline=discipline, 
                         hosting_info=[host], assets=[asset],
-                        experiments=[], developers=[dev], 
+                        experiments=[], developers=[dev], sections=[section], 
                         integration_status=integration_status)
          lab1.save()
 
@@ -3587,7 +3638,7 @@ class TestPersistenceDelegate(TestCase):
          lab2 = Lab(lab_name=lab_name2, lab_id=lab_id2, overview=overview, \
                         institute=inst, discipline=discipline, assets=[asset],\
                         experiments=[], integration_status=integration_status,
-                        developers=[dev], hosting_info=[host])
+                        developers=[dev], sections=[section], hosting_info=[host])
          lab2.save()
 
          labs_list = self.persistence_delegate.get_labs(institute=inst)
@@ -3832,10 +3883,14 @@ class TestPersistenceDelegate(TestCase):
                                 hosted_on=hosted_on)
          host.save()
 
+         name = "Theory"
+         section = Section(name=name)
+         section.save()
+
          lab = Lab(lab_name=lab_name1, lab_id=lab_id1, overview=overview, 
                        institute=inst, discipline=discipline, 
                        hosting_info=[host], assets=[asset],
-                       experiments=[], developers=[dev], 
+                       experiments=[], developers=[dev],sections=[section], 
                        integration_status=integration_status)
          lab.save()
 
