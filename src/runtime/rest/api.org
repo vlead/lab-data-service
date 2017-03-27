@@ -356,11 +356,11 @@ http://localhost:5000/labs?institute_name=IIIT Hyderabad
 
   - URL Params ::  None
 
-  - Payload :: None
-
   - Success Response
     + Status_Code: 200
       + Contents :
+
+  - Payload :: None
 
 #+BEGIN_EXAMPLE
 [
@@ -1134,6 +1134,7 @@ def get_lab():
             try:
                 labs = SystemInterface.get_labs_by_asset(asset_type)
                 return jsonify_list(labs)
+
             except TypeError as e:
                 err_str = str(e)
                 msg = {"status": "failure",
@@ -2231,8 +2232,8 @@ class TestGetLabsbyAsset(TestCase):
         db.session.remove()
         db.drop_all()
 
-    def test_get_labs_by_discipline(self):
-        print "test_get_labs_by_discipline_in_rest"
+    def test_get_labs_by_asset(self):
+        print "test_get_labs_by_asset_in_rest"
 
         payload = {'asset_type': 'Image',
                    'path': 'vlabs.ac.in/images/static/logo.png',
@@ -2260,7 +2261,7 @@ class TestGetLabsbyAsset(TestCase):
         headers = {'Content-Type': 'application/json'}
 
         response = self.client.post("/integration_status", data=json.dumps(payload),
-                                 headers=headers
+                                 headers=headers)
 
         payload = {'discipline_name': 'Computer Science',
                    'discipline_id': 'CSE',
@@ -2408,7 +2409,7 @@ class TestGetLabsbyAsset(TestCase):
         response = self.client.post("/labs", data=json.dumps(payload),
                                  headers=headers)
 
-        response = self.client.get("/labs?discipline_name=Computer Science",
+        response = self.client.get("/labs?asset_type=image",
                                        headers=headers)
         self.assertEqual(response.status_code, 200)
 
@@ -2768,12 +2769,12 @@ def add_lab():
 
         try:
             lab = SystemInterface.add_lab(data_dict)
-            return_data = {}
-            return_data["data"] = lab
-            return_data["status"] = "success"
-            return_data["status_code"] = 200
-            return jsonify(return_data)
-
+            return jsonify(lab)
+#            return_data["data"] = lab
+#            return_data["status"] = "success"
+#            return_data["status_code"] = 200
+#            return jsonify(return_data)
+ 
         except NotAuthorizedError as e:
             err_str = str(e)
             msg = {"status": "failure",
@@ -3966,146 +3967,110 @@ class TestAddDiscipline(TestCase):
 
 #+BEGIN_EXAMPLE
 [
-    {
-        "discipline": {
-            "discipline_id": "cse",
-            "id": 1,
-            "discipline_name": "Computer Science"
-        },
-        "assets": [
-            {
-                "path": "vlabs.ac.in/images/static/logo.png",
-                "asset_type": "Image",
-                "id": 1
-            }
-        ],
-        "institute": {
-            "institute_name": "IIIT Hyderabad",
-            "id": 1,
-            "institute_id": "iiith"
-        },
-        "exp_name": "stack",
-        "hostinginfos": [
-            {
-                "hosting_status": "hosted",
-                "hosted_url": "http://cse14-iiith.vlabs.ac.in",
-                "hosted_on": "cloud",
-                "id": 1
-            }
-        ],
-        "integrationstatus": {
-            "integration_level": 4,
-            "id": 1
-        },
-        "overview": "overview",
-        "exp_id": "ece01",
-        "developers": [
-            {
-                "id": 1,
-                "name": {
-                    "name": "Prof. Dharamraj",
-                    "id": 4
-                },
-                "email": {
-                    "email": "dharamraj@gmail.com",
-                    "id": 4
-                }
-            }
-        ],
-        "sections": [
-            {
-                "name": "Procedure",
-                "id": 2
-            },
-            {
-                "name": "Theory",
-                "id": 1
-            }
-        ],
-        "id": 2
+  {
+    "discipline": {
+      "id": "6",
+      "discipline_name": "Computer Science and Engineering",
+      "assets": [],
+      "discipline_id": "cse"
     },
-    {
-        "discipline": {
-            "discipline_id": "cse",
-            "id": 1,
-            "discipline_name": "Computer Science"
-        },
-        "assets": [],
-        "institute": {
-            "institute_name": "IIIT Hyderabad",
-            "id": 1,
-            "institute_id": "iiith"
-        },
-        "exp_name": "stack",
-        "hostinginfos": [],
-        "integrationstatus": {
-            "integration_level": 4,
-            "id": 1
-        },
-        "overview": "overview",
-        "exp_id": "ece02",
-        "developers": [],
-        "sections": [],
-        "id": 4
+    "hosting_info": [
+      {
+        "hosting_status": "hosted",
+        "hosted_url": "http://cse14-iiith.ac.in",
+        "hosted_on": "college-cloud",
+        "id": "2"
+      }
+    ],
+    "assets": [
+      {
+        "path": "vlabs.ac.in/images/static/logo.png",
+        "asset_type": "image",
+        "id": "1"
+      },
+      {
+        "path": "vlabs.ac.in/video/abc.mkv",
+        "asset_type": "video",
+        "id": "2"
+      }
+    ],
+    "institute": {
+      "id": "8",
+      "institute_name": "IIT Kanpur",
+      "assets": [],
+      "institute_id": "iitk"
     },
-    {
-        "discipline": {
-            "discipline_id": "cse",
-            "id": 1,
-            "discipline_name": "Computer Science"
+    "overview": "overview",
+    "exp_name": "Parallel and distributed processing",
+    "exp_id": "e99847",
+    "developers": [
+      {
+        "id": "1",
+        "name": {
+          "name": "Dinesh Malviya",
+          "id": "1"
         },
-        "assets": [
-            {
-                "path": "vlabs.ac.in/images/static/logo.png",
-                "asset_type": "Image",
-                "id": 1
-            }
-        ],
-        "institute": {
-            "institute_name": "IIIT Hyderabad",
-            "id": 1,
-            "institute_id": "iiith"
+        "email": {
+          "email": "xyz@gmail.com",
+          "id": "1"
+        }
+      },
+      {
+        "id": "2",
+        "name": {
+          "name": "Ashish Ahuja",
+          "id": "2"
         },
-        "exp_name": "stack",
-        "hostinginfos": [
-            {
-                "hosting_status": "hosted",
-                "hosted_url": "http://cse14-iiith.vlabs.ac.in",
-                "hosted_on": "cloud",
-                "id": 1
-            }
-        ],
-        "integrationstatus": {
-            "integration_level": 4,
-            "id": 1
-        },
-        "overview": "overview",
-        "exp_id": "cse03",
-        "developers": [
-            {
-                "id": 1,
-                "name": {
-                    "name": "Prof. Dharamraj",
-                    "id": 4
-                },
-                "email": {
-                    "email": "dharamraj@gmail.com",
-                    "id": 4
-                }
-            }
-        ],
-        "sections": [
-            {
-                "name": "Procedure",
-                "id": 2
-            },
-            {
-                "name": "Theory",
-                "id": 1
-            }
-        ],
-        "id": 6
+        "email": {
+          "email": "abc@gmail.com",
+          "id": "2"
+        }
+      }
+    ],
+    "sections": [
+      {
+        "name": "Introduction",
+        "id": "1"
+      },
+      {
+        "name": "Objective",
+        "id": "2"
+      },
+      {
+        "name": "Tutorial",
+        "id": "3"
+      },
+      {
+        "name": "Illustration",
+        "id": "4"
+      },
+      {
+        "name": "Procedure",
+        "id": "5"
+      },
+      {
+        "name": "Experiment",
+        "id": "6"
+      },
+      {
+        "name": "Observations",
+        "id": "7"
+      },
+      {
+        "name": "Assignment",
+        "id": "8"
+      },
+      {
+        "name": "References",
+        "id": "9"
+      }
+    ],
+    "id": "1",
+    "integration_status": {
+      "integration_level": 4,
+      "id": "5"
     }
+  }
 ]
 #+END_EXAMPLE	       
 
@@ -4137,110 +4102,108 @@ http://localhost:5000/experiments
 
 #+BEGIN_EXAMPLE
 {
-    "assets": [
-        {
-            "asset_type": "Image",
-            "id": 1,
-            "path": "vlabs.ac.in/images/static/logo.png"
-        },
-        {
-            "asset_type": "image",
-            "id": 2,
-            "path": "vlabs.ac.in/images/static/image.png"
-        }
-    ],
-    "developers": [
-        {
-            "discipline": {
-                "assets": [],
-                "discipline_id": "cse",
-                "discipline_name": "Computer Science and Engineering",
-                "id": 6
-            },
-            "email": {
-                "email": "abc@gmail.com",
-                "id": 6
-            },
-            "id": 3,
-            "institute": {
-                "assets": [],
-                "id": 8,
-                "institute_id": "iitk",
-                "institute_name": "IIT Kanpur"
-            },
-            "name": {
-                "id": 6,
-                "name": "Prof. Dharamaja"
-            }
-        },
-        {
-            "discipline": {
-                "assets": [],
-                "discipline_id": "cse",
-                "discipline_name": "Computer Science and Engineering",
-                "id": 6
-            },
-            "email": {
-                "email": "pallavi.pawar@gmail.com",
-                "id": 7
-            },
-            "id": 4,
-            "institute": {
-                "assets": [],
-                "id": 8,
-                "institute_id": "iitk",
-                "institute_name": "IIT Kanpur"
-            },
-            "name": {
-                "id": 7,
-                "name": "Prof. Pallavi Pawar"
-            }
-        }
-    ],
-    "discipline": {
-        "assets": [],
-        "discipline_id": "cse",
-        "discipline_name": "Computer Science and Engineering",
-        "id": 6
-    },
-    "exp_id": "cse01",
-    "exp_name": "stack",
-    "hosting_info": [
-        {
-            "hosted_on": "cloud",
-            "hosted_url": "http://cse14-iiith.vlabs.ac.in",
-            "hosting_status": "hosted",
-            "id": 4
-        },
-        {
-            "hosted_on": "server",
-            "hosted_url": "http://iitkgp.vlab.co.in/",
-            "hosting_status": "hosted",
-            "id": 5
-        }
-    ],
-    "id": 1,
-    "institute": {
-        "assets": [],
-        "id": 8,
-        "institute_id": "iitk",
-        "institute_name": "IIT Kanpur"
-    },
-    "integration_status": {
-        "id": 5,
-        "integration_level": 4
-    },
-    "overview": "overview",
-    "sections": [
-        {
-            "id": 3,
-            "name": "Procedure"
-        },
-        {
-            "id": 2,
-            "name": "Theory"
-        }
-    ]
+  "assets": [
+    {
+      "asset_type": "image", 
+      "id": "1", 
+      "path": "vlabs.ac.in/images/static/logo.png"
+    }, 
+    {
+      "asset_type": "video", 
+      "id": "2", 
+      "path": "vlabs.ac.in/video/abc.mkv"
+    }
+  ], 
+  "developers": [
+    {
+      "email": {
+        "email": "xyz@gmail.com", 
+        "id": "1"
+      }, 
+      "id": "1", 
+      "name": {
+        "id": "1", 
+        "name": "Dinesh Malviya"
+      }
+    }, 
+    {
+      "email": {
+        "email": "abc@gmail.com", 
+        "id": "2"
+      }, 
+      "id": "2", 
+      "name": {
+        "id": "2", 
+        "name": "Ashish Ahuja"
+      }
+    }
+  ], 
+  "discipline": {
+    "assets": [], 
+    "discipline_id": "cse", 
+    "discipline_name": "Computer Science and Engineering", 
+    "id": "6"
+  }, 
+  "exp_id": "e99847", 
+  "exp_name": "Parallel and distributed processing", 
+  "hosting_info": [
+    {
+      "hosted_on": "college-cloud", 
+      "hosted_url": "http://cse14-iiith.ac.in", 
+      "hosting_status": "hosted", 
+      "id": "2"
+    }
+  ], 
+  "id": "1", 
+  "institute": {
+    "assets": [], 
+    "id": "8", 
+    "institute_id": "iitk", 
+    "institute_name": "IIT Kanpur"
+  }, 
+  "integration_status": {
+    "id": "5", 
+    "integration_level": 4
+  }, 
+  "overview": "overview", 
+  "sections": [
+    {
+      "id": "1", 
+      "name": "Introduction"
+    }, 
+    {
+      "id": "2", 
+      "name": "Objective"
+    }, 
+    {
+      "id": "3", 
+      "name": "Tutorial"
+    }, 
+    {
+      "id": "4", 
+      "name": "Illustration"
+    }, 
+    {
+      "id": "5", 
+      "name": "Procedure"
+    }, 
+    {
+      "id": "6", 
+      "name": "Experiment"
+    }, 
+    {
+      "id": "7", 
+      "name": "Observations"
+    }, 
+    {
+      "id": "8", 
+      "name": "Assignment"
+    }, 
+    {
+      "id": "9", 
+      "name": "References"
+    }
+  ]
 }
 #+END_EXAMPLE	       
 
@@ -4251,7 +4214,7 @@ http://localhost:5000/experiments
     
   - Example:
 #+BEGIN_EXAMPLE
-http://localhost:5000/experiments?exp_id=exp9
+http://localhost:5000/experiments?exp_id=e99847
 #+END_EXAMPLE
 
 *** Implementation
@@ -4623,24 +4586,56 @@ class TestGetExp(TestCase):
 
   - Payload :: 
 #+BEGIN_EXAMPLE
-{"exp_name": "stack", 
-"exp_id": "cse02",
-"institute_id": "iiith",
-"discipline_id": "cse",
-"overview" : "overview",
-"assets": [{"path":"vlabs.ac.in/images/static/logo.png","asset_type": "image"},
- {"path":"vlabs.ac.in/images/static/image.png", "asset_type": "image"}],
-"developers": [{"name":"Prof. Dharamaja", "email": "abc@gmail.com", 
-"institute_id": "IITK", "discipline_id": "CSE"}, {"name":"Prof. Pallavi Pawar", 
-"email": "pallavi.pawar@gmail.com", "institute_id": "IITK", "discipline_id": "CSE"}],
-"hosting_info": [{"hosted_url":"http://cse14-iiith.vlabs.ac.in",
- "hosting_status": "hosted", "hosted_on": "cloud"},
- {"hosted_url":"http://iitkgp.vlab.co.in/", "hosting_status": "hosted", 
-"hosted_on": "server"}],
-"sections": ["Theory", "Procedure"],
-"integration_level": 4,
-"key": "<key>"
-}              
+{
+                    "key" : "defaultkey",
+		    "experiment": {
+		      "id": "e99847",
+                      "overview": "overview",
+		      "name": "Parallel and distributed processing",
+		      "discipline_id": "CSE",
+		      "institute_id": "IITK",
+		      "developers": [
+			{
+			  "name": "Dinesh Malviya",
+			  "email": "xyz@gmail.com"
+			},
+			{
+			  "name": "Ashish Ahuja",
+			  "email": "abc@gmail.com"
+			}
+		      ],
+		      "hosting_info": [
+			{
+			  "hosting_status": "hosted",
+			  "hosted_on": "college-cloud",
+			  "hosted_url": "http://cse14-iiith.ac.in"
+			}
+		      ],
+		      "integration_level": 4,
+		      "assets": [
+			{
+			  "asset_type": "image",
+			  "path": "vlabs.ac.in/images/static/logo.png"
+			},
+			{
+			  "asset_type": "video",
+			  "path": "vlabs.ac.in/video/abc.mkv"
+			}
+		      ],
+		      "sections": [
+			"Introduction",
+			"Objective",
+			"Tutorial",
+			"Illustration",
+			"Procedure",
+			"Experiment",
+			"Observations",
+			"Assignment",
+			"References"
+		      ]
+		    }
+                  }
+
 #+END_EXAMPLE	       
 
   - Success Response
@@ -4648,111 +4643,110 @@ class TestGetExp(TestCase):
     + Content: 
 #+BEGIN_EXAMPLE
 {
-    "assets": [
-        {
-            "asset_type": "Image",
-            "id": 1,
-            "path": "vlabs.ac.in/images/static/logo.png"
-        },
-        {
-            "asset_type": "image",
-            "id": 2,
-            "path": "vlabs.ac.in/images/static/image.png"
-        }
-    ],
-    "developers": [
-        {
-            "discipline": {
-                "assets": [],
-                "discipline_id": "cse",
-                "discipline_name": "Computer Science and Engineering",
-                "id": 6
-            },
-            "email": {
-                "email": "abc@gmail.com",
-                "id": 6
-            },
-            "id": 3,
-            "institute": {
-                "assets": [],
-                "id": 8,
-                "institute_id": "iitk",
-                "institute_name": "IIT Kanpur"
-            },
-            "name": {
-                "id": 6,
-                "name": "Prof. Dharamaja"
-            }
-        },
-        {
-            "discipline": {
-                "assets": [],
-                "discipline_id": "cse",
-                "discipline_name": "Computer Science and Engineering",
-                "id": 6
-            },
-            "email": {
-                "email": "pallavi.pawar@gmail.com",
-                "id": 7
-            },
-            "id": 4,
-            "institute": {
-                "assets": [],
-                "id": 8,
-                "institute_id": "iitk",
-                "institute_name": "IIT Kanpur"
-            },
-            "name": {
-                "id": 7,
-                "name": "Prof. Pallavi Pawar"
-            }
-        }
-    ],
-    "discipline": {
-        "assets": [],
-        "discipline_id": "cse",
-        "discipline_name": "Computer Science and Engineering",
-        "id": 6
-    },
-    "exp_id": "cse02",
-    "exp_name": "stack",
-    "hosting_info": [
-        {
-            "hosted_on": "cloud",
-            "hosted_url": "http://cse14-iiith.vlabs.ac.in",
-            "hosting_status": "hosted",
-            "id": 4
-        },
-        {
-            "hosted_on": "server",
-            "hosted_url": "http://iitkgp.vlab.co.in/",
-            "hosting_status": "hosted",
-            "id": 5
-        }
-    ],
-    "id": 3,
-    "institute": {
-        "assets": [],
-        "id": 8,
-        "institute_id": "iitk",
-        "institute_name": "IIT Kanpur"
-    },
-    "integration_status": {
-        "id": 5,
-        "integration_level": 4
-    },
-    "overview": "overview",
-    "sections": [
-        {
-            "id": 2,
-            "name": "Theory"
-        },
-        {
-            "id": 3,
-            "name": "Procedure"
-        }
-    ]
+  "assets": [
+    {
+      "asset_type": "image", 
+      "id": "1", 
+      "path": "vlabs.ac.in/images/static/logo.png"
+    }, 
+    {
+      "asset_type": "video", 
+      "id": "2", 
+      "path": "vlabs.ac.in/video/abc.mkv"
+    }
+  ], 
+  "developers": [
+    {
+      "email": {
+        "email": "xyz@gmail.com", 
+        "id": "1"
+      }, 
+      "id": "1", 
+      "name": {
+        "id": "1", 
+        "name": "Dinesh Malviya"
+      }
+    }, 
+    {
+      "email": {
+        "email": "abc@gmail.com", 
+        "id": "2"
+      }, 
+      "id": "2", 
+      "name": {
+        "id": "2", 
+        "name": "Ashish Ahuja"
+      }
+    }
+  ], 
+  "discipline": {
+    "assets": [], 
+    "discipline_id": "cse", 
+    "discipline_name": "Computer Science and Engineering", 
+    "id": "6"
+  }, 
+  "exp_id": "e99847", 
+  "exp_name": "Parallel and distributed processing", 
+  "hosting_info": [
+    {
+      "hosted_on": "college-cloud", 
+      "hosted_url": "http://cse14-iiith.ac.in", 
+      "hosting_status": "hosted", 
+      "id": "2"
+    }
+  ], 
+  "id": "1", 
+  "institute": {
+    "assets": [], 
+    "id": "8", 
+    "institute_id": "iitk", 
+    "institute_name": "IIT Kanpur"
+  }, 
+  "integration_status": {
+    "id": "5", 
+    "integration_level": 4
+  }, 
+  "overview": "overview", 
+  "sections": [
+    {
+      "id": "1", 
+      "name": "Introduction"
+    }, 
+    {
+      "id": "2", 
+      "name": "Objective"
+    }, 
+    {
+      "id": "3", 
+      "name": "Tutorial"
+    }, 
+    {
+      "id": "4", 
+      "name": "Illustration"
+    }, 
+    {
+      "id": "5", 
+      "name": "Procedure"
+    }, 
+    {
+      "id": "6", 
+      "name": "Experiment"
+    }, 
+    {
+      "id": "7", 
+      "name": "Observations"
+    }, 
+    {
+      "id": "8", 
+      "name": "Assignment"
+    }, 
+    {
+      "id": "9", 
+      "name": "References"
+    }
+  ]
 }
+
 #+END_EXAMPLE
 
   - Error Response:
@@ -4969,7 +4963,7 @@ class TestAddExperiment(TestCase):
     + Status_Code: 200
       + Contents :
 #+BEGIN_EXAMPLE
-[{"name": "Theory", "id": 1}]
+[{"name": "Assignment", "id": "8"}, {"name": "Experiment", "id": "6"}, {"name": "Illustration", "id": "4"}, {"name": "Introduction", "id": "1"}, {"name": "Objective", "id": "2"}, {"name": "Observations", "id": "7"}, {"name": "Procedure", "id": "5"}, {"name": "References", "id": "9"}, {"name": "Theory", "id": "10"}, {"name": "Tutorial", "id": "3"}]
 #+END_EXAMPLE    
   - Error Response:
     + Contents :
@@ -5213,7 +5207,7 @@ http://localhost:5000/hosting_info
   :PROPERTIES:
   :CUSTOM_ID: api_get_hosting_info_by_hosted_url
   :END:    
-  - URL :: /hosting_infos?hosted_url=<hosted_url>
+  - URL :: /hosting_info?hosted_url=<hosted_url>
 
   - Method :: GET
 
@@ -5241,7 +5235,7 @@ http://localhost:5000/hosting_info
     
   - Example:
 #+BEGIN_EXAMPLE
-http://localhost:5000/assets?path=http://cse14-iiith.vlabs.ac.in
+http://localhost:5000/hosting_info?hosted_url=http://cse14-iiith.ac.in
 #+END_EXAMPLE
 *** Implementation
 REST API to get all hosting_info.
@@ -5589,6 +5583,40 @@ class TestAddHosting_Info(TestCase):
 http://localhost:5000/integration_status
 #+END_EXAMPLE
 
+**** Get IntegrationStatus by integration_level
+  :PROPERTIES:
+  :CUSTOM_ID: api_get_integration_status_by_integration_level
+  :END:    
+
+  - URL :: /integration_status?integration_level=<integration_level>
+
+  - Method :: GET
+
+  - URL Params ::  None
+
+  - Payload :: None
+
+  - Success Response
+    + Status_Code: 200
+      + Contents :
+
+#+BEGIN_EXAMPLE
+{
+  "id": "6", 
+  "integration_level": 5
+}
+
+#+END_EXAMPLE	       
+
+    
+  - Error Response:
+    + Contents :
+                {"status" : "error"}
+    
+  - Example:
+#+BEGIN_EXAMPLE
+http://localhost:5000/integration_status?integration_level=5
+#+END_EXAMPLE
 *** Implementation
 REST API to get all integration_status.
 #+NAME: get_integration_status
@@ -8546,700 +8574,6 @@ class TestUpdateDiscipline(TestCase):
  #+END_SRC
    
 
-** Delete Discipline
-*** API Design
-**** Delete discipline by discipline_id
-  :PROPERTIES:
-  :CUSTOM_ID: delete_discipline_by_discipline_id
-  :END:    
-  - URL :: /disciplines?<discipline_id>&key=<key>
-
-  - Method :: DELETE
-
-  - URL Params ::  None
-
-  - Payload :: None
-
-  - Success Response
-    + Status_Code: 200
-      + Contents :
-#+BEGIN_EXAMPLE
-{
-  "status": "sucess"
-}
-
-#+END_EXAMPLE
-    
-  - Error Response:
-    + Contents :
-                {"status" : "error"}
-    
-  - Example:
-#+BEGIN_EXAMPLE
-    http://localhost:5000/disciplines?discipline_id=cse&key=<key>
-#+END_EXAMPLE
-
-*** Implementation
-#+NAME: delete_discipline
-#+BEGIN_SRC python
-@api.route('/disciplines', methods=['DELETE'])
-def delete_discipline():
-    if request.method == 'DELETE':
-        if 'discipline_id' in request.args and 'key' in request.args:
-            discipline_id  = request.args['discipline_id']
-            key = request.args['key']
-
-            try:
-                discipline = SystemInterface.delete_discipline(discipline_id, key)
-                return jsonify({"status":"sucess"})
-            
-            except NotAuthorizedError as e:
-                err_str = str(e)
-                msg = {"status": "failure",
-                        "status code": 401,
-                        "msg": err_str}
-                abort(401, msg)
-
-            except TypeError as e:
-                err_str = str(e)
-                msg = {"status": "failure",
-                        "msg": err_str }
-                abort(500, msg)
-            
-            except StateError as e:
-                err_str = str(e)
-                msg = {"status": "failure",
-                        "msg": err_str}
-                abort(500, msg)
-            
-            except NotFoundError as e:
-                err_str = str(e)
-                msg = {"status": "failure",
-                        "status code": 404,
-                        "msg": err_str}
-                abort(404, msg)
-
-            except Exception as e:
-                err_str = str(e)
-                msg = {"status": "failure",
-                        "msg": err_str}
-                abort(500, msg)            
-            
-            
-#+END_SRC
-
-*** Test Cases
-**** TestDeleteDiscipline
- #+NAME: test_delete_discipline
- #+BEGIN_SRC python
-class TestDeleteDiscipline(TestCase):
-    TESTING = True
-    def create_app(self):
-        app = create_app(config)
-        return app
-
-    def setUp(self):
-        db.create_all()
-
-    def tearDown(self):
-        db.session.remove()
-        db.drop_all()
-
-    def test_delete_discipline(self):
-        print "test_delete_discipline"
-
-        payload = {'asset_type': 'Image',
-                   'path': 'vlabs.ac.in/images/static/logo.png',
-                   'key': KEY}
-
-        headers = {'Content-Type': 'application/json'}
-
-        response = self.client.post("/assets", data=json.dumps(payload),
-                                 headers=headers)
-
-        payload = {'discipline_name': 'Computer Science',
-                   'discipline_id': 'CSE',
-                   'assets': ['vlabs.ac.in/images/static/logo.png'],
-                   'key': KEY}
-
-        headers = {'Content-Type': 'application/json'}
-
-        response = self.client.post("/disciplines", data=json.dumps(payload),
-                                 headers=headers)
-
-        response = self.client.delete("/disciplines?discipline_id=CSE&key=defaultkey", 
-                                          headers=headers)
-
-        self.assertEqual(response.status_code, 200)
-
- #+END_SRC
-   
-
-** Update Hosting_Info
-*** API Design
-**** Update hosting_info by hosted_url
-  :PROPERTIES:
-  :CUSTOM_ID: update_hosting_info_by_hosted_url
-  :END:    
-  - URL :: /hosting_info/<hosted_url>
-
-  - Method :: PUT
-
-  - URL Params ::  None
-
-  - Payload :: 
-#+BEGIN_EXAMPLE
-{
-"hosting_status": "hosted",
-"hosted_on": "cloud",
-"key": "<key>"
-}
-
-#+END_EXAMPLE
-  - Success Response
-    + Status_Code: 200
-      + Contents :
-#+BEGIN_EXAMPLE
-{
-  "id": 1, 
-  "hosted_url": "http://cse14-iiith.vlabs.ac.in",
-  "hosting_status": "hosted",
-  "hosted_on": "cloud"
-}
-
-#+END_EXAMPLE
-
-    
-  - Error Response:
-    + Contents :
-                {"status" : "error"}
-    
-  - Example:
-#+BEGIN_EXAMPLE
-    http://localhost:5000/hosting_info?hosted_url=http://cse14-iiith.vlabs.ac.in
-#+END_EXAMPLE
-
-*** Implementation
-#+NAME: update_hosting_info
-#+BEGIN_SRC python
-@api.route('/hosting_info', methods=['PUT'])
-def update_hosting_info():
-    if request.method == 'PUT':
-        if request.is_json:
-            data_json = json.dumps(request.get_json())
-            data_dict = yaml.safe_load(data_json)
-        else:
-            abort(500, "the request does not contain data in json")
-
-        if 'hosted_url' in request.args:
-            data_dict['hosted_url']  = request.args['hosted_url']
-        else:
-            abort(500, "Please provide the 'hosted_url' to update the hosting_info")
-        
-        try:
-            hosting_info = SystemInterface.update_hosting_info(data_dict)
-            return jsonify(hosting_info)
-
-        except NotAuthorizedError as e:
-            err_str = str(e)
-            msg = {"status": "failure",
-                    "status code": 401,
-                       "msg": err_str}
-            abort(401, msg)
-
-        except TypeError as e:
-            err_str = str(e)
-            msg = {"status": "failure",
-                       "msg": err_str }
-            abort(500, msg)
-
-        except StateError as e:
-            err_str = str(e)
-            msg = {"status": "failure",
-                       "msg": err_str}
-            abort(500, msg)
-
-        except NotFoundError as e:
-            err_str = str(e)
-            msg = {"status": "failure",
-                       "status code": 404,
-                       "msg": err_str}
-            abort(404, msg)
-
-        except Exception as e:
-            err_str = str(e)
-            msg = {"status": "failure",
-                       "msg": err_str}
-            abort(500, msg)
-
-#+END_SRC
-
-*** Test Cases
-**** TestUpdateHosting_Info 
- #+NAME: test_update_hosting_info
- #+BEGIN_SRC python
-class TestUpdateHosting_Info(TestCase):
-    TESTING = True
-    def create_app(self):
-        app = create_app(config)
-        return app
-
-    def setUp(self):
-        db.create_all()
-
-    def tearDown(self):
-        db.session.remove()
-        db.drop_all()
-
-    def test_update_hosting_info(self):
-        print "test_update_hosting_info"
-
-        payload = {'hosting_status': 'hosted',
-                   'hosted_url': 'http://cse14-iiith.vlabs.ac.in',
-                   'hosted_on': 'cloud',
-                   'key': KEY}
-
-        headers = {'Content-Type': 'application/json'}
-
-        response = self.client.post("/hosting_info", data=json.dumps(payload),
-                                 headers=headers)
-
-        payload1 = {'hosting_status': 'not hosted', 
-                    'hosted_on': 'server', 
-                    'key': KEY}
-    
-
-        response = self.client.put("/hosting_info?hosted_url=http://cse14-iiith.vlabs.ac.in", data=json.dumps(payload1),
-                                 headers=headers)
-
-        self.assertEqual(response.status_code, 200)
-
- #+END_SRC
-   
- 
-** Update Developer
-*** API Design
-**** Update developers by email_id
-  :PROPERTIES:
-  :CUSTOM_ID: api_update_developers_by_email_id
-  :END:    
-  - URL :: /developers?email=<email_id>
-
-  - Method :: PUT
-
-  - URL Params ::  None
-
-  - Payload :: 
-#+BEGIN_EXAMPLE
-{
-  "dev_name": "Prof. Dharamraj",
-  "key": "<key>"
-}
-
-#+END_EXAMPLE
-  - Success Response
-    + Status_Code: 200
-      + Contents :
-#+BEGIN_EXAMPLE
-{
-  "id": 1, 
-  "dev_name": "Prof. Dharamraj",
-  "email_id": "dharamraj@gmail.com",
-}
-
-#+END_EXAMPLE
-
-    
-  - Error Response:
-    + Contents :
-                {"status" : "error"}
-    
-  - Example:
-#+BEGIN_EXAMPLE
-    http://localhost:5000/developers?email_id=dharamraj@gmail.com
-#+END_EXAMPLE
-
-*** Implementation
-#+NAME: update_developer
-#+BEGIN_SRC python
-@api.route('/developers', methods=['PUT'])
-def update_developer():
-    if request.method == 'PUT':
-        if request.is_json:
-            data_json = json.dumps(request.get_json())
-            data_dict = yaml.safe_load(data_json)
-        else:
-            abort(500, "the request does not contain data in json")
-
-        if 'email' in request.args:
-            data_dict['email']  = request.args['email']
-        else:
-            abort(500, "Please provide the 'email' to update the developer")
-        
-        try:
-            developer = SystemInterface.update_developer(data_dict)
-            
-            return jsonify(developer.to_client())
-
-        except NotAuthorizedError as e:
-            err_str = str(e)
-            msg = {"status": "failure",
-                    "status code": 401,
-                       "msg": err_str}
-            abort(401, msg)
-
-        except TypeError as e:
-            err_str = str(e)
-            msg = {"status": "failure",
-                       "msg": err_str }
-            abort(500, msg)
-
-        except StateError as e:
-            err_str = str(e)
-            msg = {"status": "failure",
-                       "msg": err_str}
-            abort(500, msg)
-
-        except NotFoundError as e:
-            err_str = str(e)
-            msg = {"status": "failure",
-                       "status code": 404,
-                       "msg": err_str}
-            abort(404, msg)
-
-        except Exception as e:
-            err_str = str(e)
-            msg = {"status": "failure",
-                       "msg": err_str}
-            abort(500, msg)
-
-#+END_SRC
-
-*** Test Cases
-**** TestUpdateDeveloper 
- #+NAME: test_update_developer
- #+BEGIN_SRC python
-class TestUpdateDeveloper(TestCase):
-    TESTING = True
-    def create_app(self):
-        app = create_app(config)
-        return app
-
-    def setUp(self):
-        db.create_all()
-
-    def tearDown(self):
-        db.session.remove()
-        db.drop_all()
-
-    def test_update_developer(self):
-        print "test_update_developer"
-
-        payload = {'asset_type': 'Image',
-                   'path': 'vlabs.ac.in/images/static/logo.png',
-                   'key': KEY}
-
-        headers = {'Content-Type': 'application/json'}
-
-        response = self.client.post("/assets", data=json.dumps(payload),
-                                 headers=headers)
-
-        payload = {'institute_name': 'IIT Kanpur',
-                   'institute_id': 'IITK',
-                   'assets': ['vlabs.ac.in/images/static/logo.png'],
-                   'key': KEY}
-
-        headers = {'Content-Type': 'application/json'}
-
-        response = self.client.post("/institutes", data=json.dumps(payload),
-                                 headers=headers)
-
-        payload = {'discipline_name': 'Computer Science',
-                   'discipline_id': 'CSE',
-                   'assets': ['vlabs.ac.in/images/static/logo.png'],
-                   'key': KEY}
-
-        headers = {'Content-Type': 'application/json'}
-
-        response = self.client.post("/disciplines", data=json.dumps(payload),
-                                 headers=headers)
-
-        payload = {'name': 'Prof.Dharamraj',
-                   'email': 'dharamraj@gmail.com',
-                   'key': KEY}
-        headers = {'Content-Type': 'application/json'}
-
-        response = self.client.post("/developers", data=json.dumps(payload),
-                                 headers=headers)
-
-        payload1 = {'institute_name': 'IIT Kharagpur',
-                    'institute_id': 'IITKgp',
-                    'assets': ['vlabs.ac.in/images/video/logo.png'],
-                    'key': KEY}
-
-        headers = {'Content-Type': 'application/json'}
-
-        response = self.client.post("/institutes", data=json.dumps(payload),
-                                 headers=headers)
-
-        payload1 = {'discipline_name': 'Electronics & Comuunication Engg.',
-                    'discipline_id': 'ECE',
-                    'assets': ['vlabs.ac.in/images/video/logo.png'],
-                    'key': KEY}
-
-
-        response = self.client.post("/disciplines", data=json.dumps(payload),
-                                 headers=headers)
-
-        payload1 = {'name': 'Prof.Raj', 'key': KEY}
-
-        response = self.client.put("/developers?email=dharamraj@gmail.com",
-                                       data=json.dumps(payload1),
-                                    headers=headers)
-
-        self.assertEqual(response.status_code, 200)
-
- #+END_SRC
-   
-
-** Delete Hosting_Info
-*** API Design
-**** Delete hosting_info by hosted_url
-  :PROPERTIES:
-  :CUSTOM_ID: delete_hosting_info_by_hosted_url
-  :END:    
-  - URL :: /hosting_info?<hosted_url>&key=<key>
-
-  - Method :: DELETE
-
-  - URL Params ::  None
-
-  - Payload :: None
-
-  - Success Response
-    + Status_Code: 200
-      + Contents :
-#+BEGIN_EXAMPLE
-{
-  "status": "sucess"
-}
-
-#+END_EXAMPLE
-    
-  - Error Response:
-    + Contents :
-                {"status" : "error"}
-    
-  - Example:
-#+BEGIN_EXAMPLE
-    http://localhost:5000/hosting_info?hosted_url=http://cse14-iiith.vlabs.ac.in&key=<key>
-#+END_EXAMPLE
-
-*** Implementation
-#+NAME: delete_hosting_info
-#+BEGIN_SRC python
-@api.route('/hosting_info', methods=['DELETE'])
-def delete_hosting_info():
-    if request.method == 'DELETE':
-        if 'hosted_url' in request.args and 'key' in request.args:
-            hosted_url  = request.args['hosted_url']
-            key = request.args['key']
-
-            try:
-                hosting_info = SystemInterface.delete_hosting_info(hosted_url, key)
-                return jsonify({"status":"sucess"})
-
-            except NotAuthorizedError as e:
-                err_str = str(e)
-                msg = {"status": "failure",
-                        "status code": 401,
-                        "msg": err_str}
-                abort(401, msg)
-            
-            except TypeError as e:
-                err_str = str(e)
-                msg = {"status": "failure",
-                        "msg": err_str }
-                abort(500, msg)
-            
-            except StateError as e:
-                err_str = str(e)
-                msg = {"status": "failure",
-                        "msg": err_str}
-                abort(500, msg)
-            
-            except NotFoundError as e:
-                err_str = str(e)
-                msg = {"status": "failure",
-                        "status code": 404,
-                       "msg": err_str}
-                abort(404, msg)
-            
-            except Exception as e:
-                err_str = str(e)
-                msg = {"status": "failure",
-                        "msg": err_str}
-                abort(500, msg)
-            
-            
-#+END_SRC
-
-*** Test Cases
-**** TestDeleteHosting_Info
- #+NAME: test_delete_hosting_info
- #+BEGIN_SRC python
-class TestDeleteHosting_Info(TestCase):
-    TESTING = True
-    def create_app(self):
-        app = create_app(config)
-        return app
-
-    def setUp(self):
-        db.create_all()
-
-    def tearDown(self):
-        db.session.remove()
-        db.drop_all()
-
-    def test_delete_hosting_info(self):
-        print "test_delete_hosting_info"
-
-        payload = {'hosting_status': 'hosted',
-                   'hosted_url': 'http://cse14-iiith.vlabs.ac.in',
-                   'hosted_on': 'cloud',
-                   'key': KEY}
-
-        headers = {'Content-Type': 'application/json'}
-
-        response = self.client.post("/hosting_info", data=json.dumps(payload),
-                                 headers=headers)
-
-        response = self.client.delete("/hosting_info?hosted_url=http://cse14-iiith.vlabs.ac.in&key=defaultkey",
-                                          headers=headers)
-
-        self.assertEqual(response.status_code, 200)
-
- #+END_SRC
-   
-
-** Delete Integration_Status
-*** API Design
-**** Delete integration_status by integration_level
-  :PROPERTIES:
-  :CUSTOM_ID: api_delete_integration_status_by_integration_level
-  :END:    
-  - URL :: /integration_status?integration_level=<integration_level>&key=<key>
-
-  - Method :: DELETE
-
-  - URL Params ::  None
-
-  - Payload :: None
-
-  - Success Response
-    + Status_Code: 200
-      + Contents :
-#+BEGIN_EXAMPLE
-{
-  "status": "sucess"
-}
-
-#+END_EXAMPLE
-    
-  - Error Response:
-    + Contents :
-                {"status" : "error"}
-    
-  - Example:
-#+BEGIN_EXAMPLE
-    http://localhost:5000/integration_status?integration_level=4&key=<key>
-#+END_EXAMPLE
-
-*** Implementation
-#+NAME: delete_integration_status
-#+BEGIN_SRC python
-@api.route('/integration_status', methods=['DELETE'])
-def delete_integration_status():
-    if request.method == 'DELETE':
-        if 'integration_level' in request.args and 'key' in request.args:
-            integration_level  = request.args['integration_level']
-            key = request.args['key']
-
-            try:
-                integration_status = SystemInterface.delete_integration_status(integration_level, key)
-                return jsonify({"status":"sucess"})
-
-            except NotAuthorizedError as e:
-                err_str = str(e)
-                msg = {"status": "failure",
-                        "status code": 401,
-                        "msg": err_str}
-                abort(401, msg)
-
-            except TypeError as e:
-                err_str = str(e)
-                msg = {"status": "failure",
-                        "msg": err_str }
-                abort(500, msg)
-            
-            except StateError as e:
-                err_str = str(e)
-                msg = {"status": "failure",
-                        "msg": err_str}
-                abort(500, msg)
-            
-            except NotFoundError as e:
-                err_str = str(e)
-                msg = {"status": "failure",
-                        "status code": 404,
-                       "msg": err_str}
-                abort(404, msg)
-            
-            except Exception as e:
-                err_str = str(e)
-                msg = {"status": "failure",
-                        "msg": err_str}
-                abort(500, msg)
-            
-            
-#+END_SRC
-
-*** Test Cases
-**** TestDeleteIntegration_Status
- #+NAME: test_delete_integration_status
- #+BEGIN_SRC python
-class TestDeleteIntegration_Status(TestCase):
-    TESTING = True
-    def create_app(self):
-        app = create_app(config)
-        return app
-
-    def setUp(self):
-        db.create_all()
-
-    def tearDown(self):
-        db.session.remove()
-        db.drop_all()
-
-    def test_delete_integration_status(self):
-        print "test_delete_integration_status"
-
-        payload = {'integration_level': 4,
-                   'key': KEY}
-
-        headers = {'Content-Type': 'application/json'}
-
-        response = self.client.post("/integration_status", data=json.dumps(payload),
-                                 headers=headers)
-
-        response = self.client.delete("/integration_status?integration_level=4&key=defaultkey",
-                                          headers=headers)
-
-        self.assertEqual(response.status_code, 200)
-
- #+END_SRC
-   
-
 ** Delete Email
 *** API Design
 **** Delete email
@@ -10726,6 +10060,7 @@ if __name__ == '__main__':
 <<test_get_labs_by_lab_name>>
 <<test_get_labs_by_discipline>>
 <<test_get_lab_by_labname_keyword>>
+#<<test_get_labs_by_asset>>
 <<test_get_exp_by_expid>>
 <<test_get_discipline_by_disid>>
 <<test_add_experiment>>
