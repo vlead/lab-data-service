@@ -13,7 +13,7 @@
   This document illustrates building of the REST API.
 
 
-
+  
 * REST
 
 ** Get Labs, Get Lab, Get Labs by institute, lab_name, discipline and asset and Get labs by passing lab_name as keyword
@@ -3061,6 +3061,578 @@ class TestAddLab(TestCase):
 
 
  #+END_SRC
+
+
+** Update Lab 
+*** API Design
+**** Update lab by labid
+  :PROPERTIES:
+  :CUSTOM_ID: api_update_lab_by_labid
+  :END:    
+  - URL :: /labs/<lab_id>
+
+  - Method :: PUT
+
+  - URL Params ::  None
+
+  - Payload :: 
+#+BEGIN_EXAMPLE
+{           
+		   "key" : KEY,     
+                   "lab": {
+                     "name": "Computer Programming",
+                     "overview": "cp overview",
+                     "discipline_id": "ECE",
+                     "institute_id": "IITKgp",
+                     "developers": [                    
+                       {
+                         "name": "Prof. Pallavi Pawar",
+                         "email": "pallavi.pawar@gmail.com"
+                       }
+                     ],
+                     "hosting_info": [
+                       {                       
+                         "hosting_status": "hosted",
+                         "hosted_on": "server",
+                         "hosted_url": "http://iitk.vlab.co.in/"
+                       }
+                     ],
+                     "integration_level": 3,
+                     "assets": [
+                       {
+                         "asset_type": "image",
+                         "path": "vlabs.ac.in/images/video/icon.png"
+                       }
+                     ],
+                     "sections": [
+                       {
+                         "name": "Theory"
+                       },
+                       {
+                         "experiments": [
+                           
+                         ]
+                       }
+                     ]
+                   }
+                 }
+
+#+END_EXAMPLE
+  - Success Response
+    + Status_Code: 200
+      + Contents :
+#+BEGIN_EXAMPLE
+{
+  "assets": [
+    {
+      "asset_type": "image", 
+      "id": "4", 
+      "path": "vlabs.ac.in/images/video/icon.png"
+    }
+  ], 
+  "developers": [
+    {
+      "email": {
+        "email": "pallavi.pawar@gmail.com", 
+        "id": "8"
+      }, 
+      "id": "7", 
+      "name": {
+        "id": "8", 
+        "name": "Prof. Pallavi Pawar"
+      }
+    }
+  ], 
+  "discipline": {
+    "assets": [], 
+    "discipline_id": "ece", 
+    "discipline_name": "Electronics and Communication", 
+    "id": "8"
+  }, 
+  "experiments": [
+    {
+      "assets": [
+        {
+          "asset_type": "Image", 
+          "id": "2", 
+          "path": "vlabs.ac.in/images/static/logo.png"
+        }, 
+        {
+          "asset_type": "video", 
+          "id": "3", 
+          "path": "vlabs.ac.in/video/abc.mkv"
+        }
+      ], 
+      "developers": [
+        {
+          "email": {
+            "email": "xyz@gmail.com", 
+            "id": "6"
+          }, 
+          "id": "5", 
+          "name": {
+            "id": "6", 
+            "name": "Dinesh Malviya"
+          }
+        }, 
+        {
+          "email": {
+            "email": "abc@gmail.com", 
+            "id": "7"
+          }, 
+          "id": "6", 
+          "name": {
+            "id": "7", 
+            "name": "Ashish Ahuja"
+          }
+        }
+      ], 
+      "discipline": {
+        "assets": [], 
+        "discipline_id": "cse", 
+        "discipline_name": "Computer Science and Engineering", 
+        "id": "6"
+      }, 
+      "exp_id": "exp123", 
+      "exp_name": "Parallel and distributed processing", 
+      "hosting_info": [
+        {
+          "hosted_on": "college-cloud", 
+          "hosted_url": "http://cse14-iiith.ac.in", 
+          "hosting_status": "hosted", 
+          "id": "1"
+        }
+      ], 
+      "id": "1", 
+      "institute": {
+        "assets": [], 
+        "id": "8", 
+        "institute_id": "iitk", 
+        "institute_name": "IIT Kanpur"
+      }, 
+      "integration_status": {
+        "id": "5", 
+        "integration_level": 4
+      }, 
+      "overview": "overview", 
+      "sections": [
+        {
+          "id": "2", 
+          "name": "Introduction"
+        }, 
+        {
+          "id": "3", 
+          "name": "Objective"
+        }, 
+        {
+          "id": "4", 
+          "name": "Tutorial"
+        }, 
+        {
+          "id": "5", 
+          "name": "Illustration"
+        }, 
+        {
+          "id": "6", 
+          "name": "Procedure"
+        }, 
+        {
+          "id": "7", 
+          "name": "Experiment"
+        }, 
+        {
+          "id": "8", 
+          "name": "Observations"
+        }, 
+        {
+          "id": "9", 
+          "name": "Assignment"
+        }, 
+        {
+          "id": "10", 
+          "name": "References"
+        }
+      ]
+    }
+  ], 
+  "hosting_info": [
+    {
+      "hosted_on": "server", 
+      "hosted_url": "http://iitk.vlab.co.in/", 
+      "hosting_status": "hosted", 
+      "id": "2"
+    }
+  ], 
+  "id": "1", 
+  "institute": {
+    "assets": [], 
+    "id": "9", 
+    "institute_id": "iitkgp", 
+    "institute_name": "IIT Kharagpur"
+  }, 
+  "integration_status": {
+    "id": "4", 
+    "integration_level": 3
+  }, 
+  "lab_id": "cse02", 
+  "lab_name": "Computer Programmingg", 
+  "overview": "cp overview", 
+  "sections": []
+}
+
+#+END_EXAMPLE
+
+    
+  - Error Response:
+    + Contents :
+                {"status" : "error"}
+    
+  - Example:
+#+BEGIN_EXAMPLE
+ http://localhost:5000/labs?lab_id=cse02
+#+END_EXAMPLE
+   
+*** Implementation
+#+NAME: update_lab
+#+BEGIN_SRC python
+@api.route('/labs', methods=['PUT'])
+def update():
+    if request.method == 'PUT':
+        if request.is_json:
+            data_json = json.dumps(request.get_json())
+            data_dict = yaml.safe_load(data_json)
+        else:
+            abort(500, "the request does not contain data in json")
+
+        if 'lab_id' in request.args:
+            data_dict['lab']['id']  = request.args['lab_id']
+        else:
+            abort(500, "Please provide the 'lab_id' to update the lab")
+        
+        try:
+            current_app.logger.debug("execute update_lab")
+            lab = SystemInterface.update_lab(data_dict)
+            current_app.logger.debug("executed update_lab")
+            return jsonify(lab)
+
+        except NotAuthorizedError as e:
+            current_app.logger.error("Exception = %s" % str(e))
+            err_str = str(e)
+            msg = {"status": "failure",
+                    "status code": 401,
+                       "msg": err_str}
+            abort(401, msg)
+
+        except TypeError as e:
+            current_app.logger.error("Exception = %s" % str(e))
+            err_str = str(e)
+            msg = {"status": "failure",
+                       "msg": err_str }
+            abort(500, msg)
+
+        except StateError as e:
+            current_app.logger.error("Exception = %s" % str(e))
+            err_str = str(e)
+            msg = {"status": "failure",
+                       "msg": err_str}
+            abort(500, msg)
+
+        except NotFoundError as e:
+            current_app.logger.error("Exception = %s" % str(e))
+            err_str = str(e)
+            msg = {"status": "failure",
+                       "status code": 404,
+                       "msg": err_str}
+            abort(404, msg)
+
+        except Exception as e:
+            current_app.logger.error("Exception = %s" % str(e))
+            err_str = str(e)
+            msg = {"status": "failure",
+                       "msg": err_str}
+            abort(500, msg)
+
+#+END_SRC
+*** Test Cases
+**** TestUpdateLab
+#+NAME: test_update_lab
+#+BEGIN_SRC python
+class TestUpdateLab(TestCase):
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_update_lab(self):
+        print "test_update_lab"
+        payload = {'asset_type': 'Image',
+                   'path': 'vlabs.ac.in/images/static/logo.png',
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/assets", data=json.dumps(payload),
+                                 headers=headers)
+
+        payload = {'institute_name': 'IIT Kanpur',
+                   'institute_id': 'IITK',
+                   'assets': ['vlabs.ac.in/images/static/logo.png'],
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/institutes", data=json.dumps(payload),
+                                 headers=headers)
+
+        payload = {'integration_level': 4,
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/integration_status", data=json.dumps(payload),
+                                 headers=headers)
+
+        payload = {'discipline_name': 'Computer Science',
+                   'discipline_id': 'CSE',
+                   'assets': ['vlabs.ac.in/images/static/logo.png'],
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/disciplines", data=json.dumps(payload),
+                                 headers=headers)
+
+        payload = {'name': 'Prof. Dharamaja',
+                   'email': 'abc@gmail.com',
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/developers", data=json.dumps(payload),
+                                 headers=headers)
+
+        payload = {'name': 'Introduction',
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/sections", data=json.dumps(payload),
+                                 headers=headers)
+
+        payload = {'hosting_status': 'hosted',
+                   'hosted_url': 'http://cse14-iiith.vlabs.ac.in',
+                   'hosted_on': 'cloud',
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/hosting_info", data=json.dumps(payload),
+                                 headers=headers)
+
+        payload = {
+		   "key": KEY,
+                   "experiment": {
+                     "id": "exp123",
+                     "name": "arrays",
+                     "discipline_id": "CSE",
+                     "institute_id": "IITK",
+                     "developers": [
+                       {
+                         "name": "Prof. Dharamaja",
+                         "email": "abc@gmail.com"
+                       }
+                     ],
+                     "hosting_info": [
+                       {
+                         "hosting_status": "hosted",
+                         "hosted_on": "cloud",
+                         "hosted_url": "http://cse14-iiith.vlabs.ac.in"
+                       }
+                     ],
+                     "integration_level": 4,
+                     "overview": "This experiments describes about parallel and distributed processing",
+                     "assets": [
+                       {
+                         "asset_type": "image",
+                         "path": "vlabs.ac.in/images/static/logo.png"
+                       }
+                     ],
+                     "sections": [
+                       "Introduction"
+                     ]
+                   }
+                 }
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/experiments", data=json.dumps(payload),
+                                 headers=headers)
+
+        payload = {           
+		   "key" : KEY,     
+                   "lab": {
+                     "id": "cse02",
+                     "name": "Computer Programming",
+                     "overview": "overview",
+                     "discipline_id": "CSE",
+                     "institute_id": "IITK",
+                     "developers": [
+                       {
+                         "name": "Prof. Dharamaja",
+                         "email": "abc@gmail.com"
+
+                       }
+                     ],
+                     "hosting_info": [
+                       {
+                         "hosting_status": "hosted",
+                         "hosted_on": "cloud",
+                         "hosted_url": "http://cse14-iiith.vlabs.ac.in"
+                       }
+                     ],
+                     "integration_level": 4,
+                     "assets": [
+                       {
+                         "asset_type": "image",
+                         "path": "vlabs.ac.in/images/static/logo.png"
+                       }
+                     ],
+                     "sections": [
+                       {
+                         "name": "Introduction"
+                       },
+                       {
+                         "experiments": [
+                           "exp123"
+                         ]
+                       }
+                     ]
+                   }
+                 }
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/labs", data=json.dumps(payload),
+                                 headers=headers)
+
+
+        payload1 = {'asset_type': 'Video',
+                   'path': 'vlabs.ac.in/images/video/icon.png',
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/assets", data=json.dumps(payload1),
+                                 headers=headers)
+
+        payload1 = {'institute_name': 'IIT Kharagpur',
+                    'institute_id': 'IITKgp',
+                    'assets': ['vlabs.ac.in/images/video/icon.png'],
+                    'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/institutes", data=json.dumps(payload1),
+                                 headers=headers)
+
+        payload1 = {'discipline_name': 'Electronics & Comuunication Engg.',
+                    'discipline_id': 'ECE',
+                    'assets': ['vlabs.ac.in/images/video/icon.png'],
+                    'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/disciplines", data=json.dumps(payload1),
+                                 headers=headers)
+
+        payload1 = {'name': 'Prof. Pallavi Pawar',
+                   'email': 'pallavi.pawar@gmail.com',
+                   'key': KEY}
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/developers", data=json.dumps(payload1),
+                                 headers=headers)
+
+        payload1 = {'name': 'Theory',
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/sections", data=json.dumps(payload1),
+                                 headers=headers)
+                          
+        payload1 = {'integration_level': 3,
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/integration_status", data=json.dumps(payload1),
+                                 headers=headers)
+
+        payload1 = {'hosting_status': 'hosted',
+                   'hosted_url': 'http://iitk.vlab.co.in/',
+                   'hosted_on': 'server',
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/hosting_info", data=json.dumps(payload1),
+                                 headers=headers)
+
+        payload1 = {           
+		   "key" : KEY,     
+                   "lab": {
+                     "name": "Computer Programming",
+                     "overview": "cp overview",
+                     "discipline_id": "ECE",
+                     "institute_id": "IITKgp",
+                     "developers": [                    
+                       {
+                         "name": "Prof. Pallavi Pawar",
+                         "email": "pallavi.pawar@gmail.com"
+                       }
+                     ],
+                     "hosting_info": [
+                       {                       
+                         "hosting_status": "hosted",
+                         "hosted_on": "server",
+                         "hosted_url": "http://iitk.vlab.co.in/"
+                       }
+                     ],
+                     "integration_level": 3,
+                     "assets": [
+                       {
+                         "asset_type": "image",
+                         "path": "vlabs.ac.in/images/video/icon.png"
+                       }
+                     ],
+                     "sections": [
+                       {
+                         "name": "Theory"
+                       },
+                       {
+                         "experiments": [
+                           "exp123"
+                         ]
+                       }
+                     ]
+                   }
+                 }
+
+        response = self.client.put("/labs?lab_id=cse02", 
+                                       data=json.dumps(payload1),
+                                       headers=headers)
+
+        self.assertEqual(response.status_code, 200)
+
+ #+END_SRC
    
 
 ** Get Institutes and Get Institute
@@ -3419,22 +3991,23 @@ class TestGetInstitute(TestCase):
     + Content: 
 #+BEGIN_EXAMPLE
 {
-    "assets": [
-        {
-            "asset_type": "Image",
-            "id": 1,
-            "path": "vlabs.ac.in/images/static/logo.png"
-        }
-    ],
-    "id": 13,
-    "institute_id": " IITH",
-    "institute_name": "IIT Hyderabad"
+  "assets": [
+    {
+      "asset_type": "Image", 
+      "id": "2", 
+      "path": "vlabs.ac.in/images/static/logo.png"
+    }
+  ], 
+  "id": "14", 
+  "institute_id": " IITK", 
+  "institute_name": "IIT Hyderabad"
 }
+
 #+END_EXAMPLE
 
   - Error Response:
     + Contents :
-                {"status" : "error"}
+      {"status" : "error"}
     
   - Example:
 #+BEGIN_EXAMPLE
@@ -3541,7 +4114,7 @@ class TestAddInstitute(TestCase):
         self.assertEqual(response.status_code, 200)
 
  #+END_SRC
-   
+
 
 ** Get Disciplines and Get Discipline
 *** API Design
@@ -3883,7 +4456,7 @@ class TestGetDisciplineByDisId(TestCase):
         self.assertEqual(response.status_code, 200)
 
  #+END_SRC
-   
+
 
 ** Add Discipline
 *** API Design
@@ -4035,7 +4608,7 @@ class TestAddDiscipline(TestCase):
         self.assertEqual(response.status_code, 200)
 
  #+END_SRC
-   
+
 
 ** Get Experiments and Get Experiment
 *** API Designs
@@ -5088,7 +5661,7 @@ class TestAddExperiment(TestCase):
         self.assertEqual(response.status_code, 200)
 
  #+END_SRC
-   
+
 
 ** Get Sections
 *** API Design
@@ -5195,7 +5768,7 @@ class TestGetSections(TestCase):
         self.assertEqual(response.status_code, 200)
 
  #+END_SRC
-   
+
 
 ** Add Section
 *** API Design
@@ -5326,7 +5899,7 @@ class TestAddSection(TestCase):
         self.assertEqual(response.status_code, 200)
 
  #+END_SRC
-   
+
 
 ** Get Hosting_Info and Get HostingInfo
 *** API Design
@@ -5558,1728 +6131,8 @@ class TestGetAssetByPath(TestCase):
         self.assertEqual(response.status_code, 200)
 
  #+END_SRC
-
-
-** Add Hosting_Info
-*** API Design
-**** Add Hosting_Info
-  :PROPERTIES:
-  :CUSTOM_ID: api_add_hosting_info
-  :END:    
-  - URL :: /hosting_info
-
-  - Method :: POST
-
-  - URL Params ::  None
-
-  - Payload :: 
-#+BEGIN_EXAMPLE
-{
-"hosted_url": "http://cse14-iiith.vlabs.ac.in",
-"hosting_status": "hosted",
-"hosted_on": "cloud",
-"key": "<key>"
-}
-#+END_EXAMPLE	       
-
-  - Success Response
-    + Status_Code: 200
-    + Content: 
-#+BEGIN_EXAMPLE
-{
-  "hosted_on": "cloud", 
-  "hosted_url": "http://cse14-iiith.vlabs.ac.in", 
-  "hosting_status": "hosted", 
-  "id": 1
-}
-
-#+END_EXAMPLE
-
-  - Error Response:
-    + Contents :
-                {"status" : "error"}
-    
-  - Example:
-#+BEGIN_EXAMPLE
-http://localhost:5000/hosting_info
-#+END_EXAMPLE
-    
-*** Implementation
-REST API to add an hosting_info.
-#+NAME: add_hosting_info
-#+BEGIN_SRC python
-@api.route('/hosting_info', methods=['POST'])
-def add_hosting_info():
-    if request.method == 'POST':
-        if request.is_json:
-            data_json = json.dumps(request.get_json())
-            data_dict = yaml.safe_load(data_json)
-        else:
-            abort(500, "the request does not contain data in json")
-
-        try:
-            current_app.logger.debug("execute add_hosting_info")
-            hosting_info = SystemInterface.add_hosting_info(data_dict)
-            current_app.logger.debug("executed add_hosting_info")
-            return jsonify(hosting_info)
-
-        except NotAuthorizedError as e:
-            current_app.logger.error("Exception = %s" % str(e))
-            err_str = str(e)
-            msg = {"status": "failure",
-                    "status code": 401,
-                       "msg": err_str}
-            abort(401, msg)
-
-        except TypeError as e:
-            current_app.logger.error("Exception = %s" % str(e))
-            err_str = str(e)
-            msg = {"status": "failure",
-                       "msg": err_str }
-            abort(500, msg)
-
-        except StateError as e:
-            current_app.logger.error("Exception = %s" % str(e))
-            err_str = str(e)
-            msg = {"status": "failure",
-                       "msg": err_str}
-            abort(500, msg)
-
-        except NotFoundError as e:
-            current_app.logger.error("Exception = %s" % str(e))
-            err_str = str(e)
-            msg = {"status": "failure",
-                       "status code": 404,
-                       "msg": err_str}
-            abort(404, msg)
-
-        except Exception as e:
-            current_app.logger.error("Exception = %s" % str(e))
-            err_str = str(e)
-            msg = {"status": "failure",
-                       "msg": err_str}
-            abort(500, msg)
-            
-#+END_SRC
-
-*** Test Cases
-**** TestAddHosting_Info
- #+NAME: test_add_hosting_info
- #+BEGIN_SRC python
-class TestAddHosting_Info(TestCase):
-    TESTING = True
-    def create_app(self):
-        app = create_app(config)
-        return app
-
-    def setUp(self):
-        db.create_all()
-
-    def tearDown(self):
-        db.session.remove()
-        db.drop_all()
-
-    def test_add_hosting_info(self):
-        print "test_add_hosting_info_in_rest"
-        payload = {'hosting_status': 'hosted',
-                   'hosted_url': 'http://cse14-iiith.vlabs.ac.in',
-                   'hosted_on': 'cloud',
-                   'key': KEY}
-
-        headers = {'Content-Type': 'application/json'}
-
-        response = self.client.post("/hosting_info", data=json.dumps(payload),
-                                 headers=headers)
-
-        self.assertEqual(response.status_code, 200)
-
- #+END_SRC
-   
-
-** Get Integration_Status and Get IntegrationStatus
-*** API Design
-**** Get all Integration_Status
-  :PROPERTIES:
-  :CUSTOM_ID: api_get_all_integration_status
-  :END:    
-  - URL :: /integration_status
-
-  - Method :: GET
-
-  - URL Params ::  None
-
-  - Payload :: None
-
-  - Success Response
-    + Status_Code: 200
-      + Contents :
-
-#+BEGIN_EXAMPLE
-[
-    {
-        "integration_level": 0,
-        "id": 1
-    },
-    {
-        "integration_level": 1,
-        "id": 2
-    },
-    {
-        "integration_level": 2,
-        "id": 3
-    },
-    {
-        "integration_level": 3,
-        "id": 4
-    },
-    {
-        "integration_level": 4,
-        "id": 5
-    },
-    {
-        "integration_level": 5,
-        "id": 6
-    },
-    {
-        "integration_level": 6,
-        "id": 7
-    },
-    {
-        "integration_level": 9,
-        "id": 8
-    }
-]
-#+END_EXAMPLE	       
-
-    
-  - Error Response:
-    + Contents :
-                {"status" : "error"}
-    
-  - Example:
-#+BEGIN_EXAMPLE
-http://localhost:5000/integration_status
-#+END_EXAMPLE
-
-*** Implementation
-REST API to get all integration_status.
-#+NAME: get_integration_status
-#+BEGIN_SRC python
-@api.route('/integration_status', methods=['GET'])
-def get_integration_status():
-    if request.method == 'GET':
-       if 'integration_level' in request.args:
-           integration_level  = request.args['integration_level']
-           try:
-               current_app.logger.debug("execute get_integration_status_by_IL")
-               integration_status = SystemInterface.get_integration_status_by_IL\
-                 (integration_level)
-               current_app.logger.debug("executed get_integration_status_by_IL")
-               return jsonify(integration_status.to_client())
-
-           except NotAuthorizedError as e:
-               current_app.logger.error("Exception = %s" % str(e))
-               err_str = str(e)
-               msg = {"status": "failure",
-                    "status code": 401,
-                       "msg": err_str}
-               abort(401, msg)
-
-           except TypeError as e:
-               current_app.logger.error("Exception = %s" % str(e))
-               err_str = str(e)
-               msg = {"status": "failure",
-                       "msg": err_str }
-               abort(500, msg)
-
-           except StateError as e:
-               current_app.logger.error("Exception = %s" % str(e))
-               err_str = str(e)
-               msg = {"status": "failure",
-                       "msg": err_str}
-               abort(500, msg)
-
-           except NotFoundError as e:
-               current_app.logger.error("Exception = %s" % str(e))
-               err_str = str(e)
-               msg = {"status": "failure",
-                       "status code": 404,
-                        "msg": err_str}
-               abort(404, msg)
-
-           except Exception as e:
-               current_app.logger.error("Exception = %s" % str(e))
-               err_str = str(e)
-               msg = {"status": "failure",
-                       "msg": err_str}
-               abort(500, msg)
-
-       else:
-           try:
-               current_app.logger.debug("execute get_integration_status")
-               integration_status = SystemInterface.get_integration_status()
-               current_app.logger.debug("executed get_integration_status")
-               return jsonify_list(integration_status)
-
-           except NotAuthorizedError as e:
-               current_app.logger.error("Exception = %s" % str(e))
-               err_str = str(e)
-               msg = {"status": "failure",
-                    "status code": 401,
-                       "msg": err_str}
-               abort(401, msg)
-
-           except TypeError as e:
-               current_app.logger.error("Exception = %s" % str(e))
-               err_str = str(e)
-               msg = {"status": "failure",
-                       "msg": err_str }
-               abort(500, msg)
-
-           except StateError as e:
-               current_app.logger.error("Exception = %s" % str(e))
-               err_str = str(e)
-               msg = {"status": "failure",
-                       "msg": err_str}
-               abort(500, msg)
-
-           except NotFoundError as e:
-               current_app.logger.error("Exception = %s" % str(e))
-               err_str = str(e)
-               msg = {"status": "failure",
-                       "status code": 404,
-                       "msg": err_str}
-               abort(404, msg)
-
-           except Exception as e:
-               current_app.logger.error("Exception = %s" % str(e))
-               err_str = str(e)
-               msg = {"status": "failure",
-                       "msg": err_str}
-               abort(500, msg)
-#+END_SRC
-
-*** Test Cases
-**** TestGetIntegration_Status 
- #+NAME: test_get_Integration_Status
- #+BEGIN_SRC python
-class TestGetIntegration_Status(TestCase):
-    TESTING = True
-    def create_app(self):
-        app = create_app(config)
-        return app
-
-    def setUp(self):
-        db.create_all()
-
-    def tearDown(self):
-        db.session.remove()
-        db.drop_all()
-
-    def test_get_integration_status(self):
-        print "test_get_integration_status_in_rest"
-
-        payload = {'integration_level': 4,
-                   'key': KEY}
-
-        headers = {'Content-Type': 'application/json'}
-
-        response = self.client.post("/integration_status", data=json.dumps(payload),
-                                 headers=headers)
-
-        response = self.client.get("/integration_status", headers=headers)
-        self.assertEqual(response.status_code, 200)
-
- #+END_SRC
-   
-
-** Add Integration_Status 
-*** API Design
-**** Add Integration_Status
-  :PROPERTIES:
-  :CUSTOM_ID: api_add_integration_status
-  :END:    
-  - URL :: /integration_status
-
-  - Method :: POST
-
-  - URL Params ::  None
-
-  - Payload :: 
-#+BEGIN_EXAMPLE
-{
-"integration_level": 9,
-"key": "<key>"
-}
-#+END_EXAMPLE	       
-
-  - Success Response
-    + Status_Code: 200
-    + Content: 
-#+BEGIN_EXAMPLE
-{
-  "id": 1, 
-  "integration_level": 4
-}
-
-#+END_EXAMPLE
-
-  - Error Response:
-    + Contents :
-                {"status" : "error"}
-    
-  - Example:
-#+BEGIN_EXAMPLE
-http://localhost:5000/integration_status
-#+END_EXAMPLE
-    
-*** Implementation
-REST API to add an integration_status.
-#+NAME: add_integration_status
-#+BEGIN_SRC python
-@api.route('/integration_status', methods=['POST'])
-def add_integration_status():
-    if request.method == 'POST':
-        if request.is_json:
-            data_json = json.dumps(request.get_json())
-            data_dict = yaml.safe_load(data_json)
-        else:
-            abort(500, "the request does not contain data in json")
-
-        try:
-            current_app.logger.debug("execute add_integration_status")
-            integration_status = SystemInterface.add_integration_status(data_dict)
-            current_app.logger.debug("executed add_integration_status")
-            return jsonify(integration_status)
-
-        except NotAuthorizedError as e:
-            current_app.logger.error("Exception = %s" % str(e))
-            err_str = str(e)
-            msg = {"status": "failure",
-                    "status code": 401,
-                       "msg": err_str}
-            abort(401, msg)
-
-        except TypeError as e:
-            current_app.logger.error("Exception = %s" % str(e))
-            err_str = str(e)
-            msg = {"status": "failure",
-                       "msg": err_str }
-            abort(500, msg)
-
-        except StateError as e:
-            current_app.logger.error("Exception = %s" % str(e))
-            err_str = str(e)
-            msg = {"status": "failure",
-                       "msg": err_str}
-            abort(500, msg)
-
-        except NotFoundError as e:
-            current_app.logger.error("Exception = %s" % str(e))
-            err_str = str(e)
-            msg = {"status": "failure",
-                       "status code": 404,
-                       "msg": err_str}
-            abort(404, msg)
-
-        except Exception as e:
-            current_app.logger.error("Exception = %s" % str(e))
-            err_str = str(e)
-            msg = {"status": "failure",
-                       "msg": err_str}
-            abort(500, msg)
-            
-#+END_SRC
-
-*** Test Cases
-**** TestAddIntegration_Status 
- #+NAME: test_add_integration_status
- #+BEGIN_SRC python
-class TestAddIntegration_Status(TestCase):
-    TESTING = True
-    def create_app(self):
-        app = create_app(config)
-        return app
-
-    def setUp(self):
-        db.create_all()
-
-    def tearDown(self):
-        db.session.remove()
-        db.drop_all()
-
-    def test_add_integration_status(self):
-        print "test_add_integration_status_in_rest"
-        payload = {'integration_level': 4,
-                   'key': KEY}
-
-        headers = {'Content-Type': 'application/json'}
-
-        response = self.client.post("/integration_status", data=json.dumps(payload),
-                                 headers=headers)
-
-        self.assertEqual(response.status_code, 200)
-
- #+END_SRC
-   
-
-** Get Emails
-*** API Design
-**** Get all Emails
-  :PROPERTIES:
-  :CUSTOM_ID: api_get_all_emails
-  :END:    
-  - URL :: /emails
-
-  - Method :: GET
-
-  - URL Params ::  None
-
-  - Payload :: None
-
-  - Success Response
-    + Status_Code: 200
-      + Contents :
-
-#+BEGIN_EXAMPLE
-[{"email": "dharamraj@gmail.com", "id": 1}]
-#+END_EXAMPLE	       
-    
-  - Error Response:
-    + Contents :
-      {"status" : "error"}
-    
-  - Example:
-#+BEGIN_EXAMPLE
-http://localhost:5000/emails
-#+END_EXAMPLE
-
-*** Implementation
-REST API to get all emails.
-#+NAME: get_email
-#+BEGIN_SRC python
-@api.route('/emails', methods=['GET'])
-def get_email():
-    if request.method == 'GET':
-       if 'email' in request.args:
-           email  = request.args['email']
-           try:
-               current_app.logger.debug("execute get_email")
-               email = SystemInterface.get_email(email)
-               current_app.logger.debug("executed get_email")
-               return jsonify(email)
-
-           except TypeError as e:
-               current_app.logger.error("Exception = %s" % str(e))
-               err_str = str(e)
-               msg = {"status": "failure",
-                       "msg": err_str }
-               abort(500, msg)
-
-           except StateError as e:
-               current_app.logger.error("Exception = %s" % str(e))
-               err_str = str(e)
-               msg = {"status": "failure",
-                        "msg": err_str}
-               abort(500, msg)
-
-           except NotFoundError as e:
-               current_app.logger.error("Exception = %s" % str(e))
-               err_str = str(e)
-               msg = {"status": "failure",
-                       "status code": 404,
-                       "msg": err_str}
-               abort(404, msg)
-
-           except Exception as e:
-               current_app.logger.error("Exception = %s" % str(e))
-               err_str = str(e)
-               msg = {"status": "failure",
-                       "msg": err_str}
-               abort(500, msg)
-
-       else:
-           try:
-               current_app.logger.debug("execute get_emails")
-               emails = SystemInterface.get_emails()
-               current_app.logger.debug("executed get_emails")
-               return jsonify_list(emails)
-
-           except TypeError as e:
-               current_app.logger.error("Exception = %s" % str(e))
-               err_str = str(e)
-               msg = {"status": "failure",
-                       "msg": err_str }
-               abort(500, msg)
-
-           except StateError as e:
-               current_app.logger.error("Exception = %s" % str(e))
-               err_str = str(e)
-               msg = {"status": "failure",
-                       "msg": err_str}
-               abort(500, msg)
-
-           except NotFoundError as e:
-               current_app.logger.error("Exception = %s" % str(e))
-               err_str = str(e)
-               msg = {"status": "failure",
-                       "status code": 404,
-                       "msg": err_str}
-               abort(404, msg)
-
-           except Exception as e:
-               current_app.logger.error("Exception = %s" % str(e))
-               err_str = str(e)
-               msg = {"status": "failure",
-                       "msg": err_str}
-               abort(500, msg)
-#+END_SRC
-
-*** Test Cases
-**** TestGetEmail
- #+NAME: test_get_Email
- #+BEGIN_SRC python
-class TestGetEmail(TestCase):
-    TESTING = True
-    def create_app(self):
-        app = create_app(config)
-        return app
-
-    def setUp(self):
-        db.create_all()
-
-    def tearDown(self):
-        db.session.remove()
-        db.drop_all()
-
-    def test_get_emails(self):
-        print "test_get_emails_in_rest"
-
-        payload = {'email': 'dharamraj@gmail.com',
-                   'key': KEY}
-
-        headers = {'Content-Type': 'application/json'}
-
-        response = self.client.post("/emails", data=json.dumps(payload),
-                                 headers=headers)
-
-        response = self.client.get("/emails", headers=headers)
-        self.assertEqual(response.status_code, 200)
-
- #+END_SRC
-   
-
-** Add Email
-*** API Design
-**** Add Email
-  :PROPERTIES:
-  :CUSTOM_ID: api_add_email
-  :END:    
-  - URL :: /emails
-
-  - Method :: POST
-
-  - URL Params ::  None
-
-  - Payload :: 
-#+BEGIN_EXAMPLE
-{
-"email": "dharamraj@gmail.com",
-"key": "<key>"
-}
-#+END_EXAMPLE	       
-
-  - Success Response
-    + Status_Code: 200
-    + Content: 
-#+BEGIN_EXAMPLE
-{
-  "email": "dharamraj@gmail.com", 
-  "id": 1
-}
-
-#+END_EXAMPLE
-
-  - Error Response:
-    + Contents :
-                {"status" : "error"}
-    
-  - Example:
-#+BEGIN_EXAMPLE
-http://localhost:5000/emails
-#+END_EXAMPLE
-    
-*** Implementation
-REST API to add an email.
-#+NAME: add_email
-#+BEGIN_SRC python
-@api.route('/emails', methods=['POST'])
-def add_email():
-    if request.method == 'POST':
-        if request.is_json:
-            data_json = json.dumps(request.get_json())
-            data_dict = yaml.safe_load(data_json)
-        else:
-            abort(500, "the request does not contain data in json")
-
-        try:
-            current_app.logger.debug("execute add_email")
-            email = SystemInterface.add_email(data_dict)
-            current_app.logger.debug("executed add_email")
-            return jsonify(email)
-
-        except NotAuthorizedError as e:
-            current_app.logger.error("Exception = %s" % str(e))
-            err_str = str(e)
-            msg = {"status": "failure",
-                    "status code": 401,
-                       "msg": err_str}
-            abort(401, msg)
-
-        except TypeError as e:
-            current_app.logger.error("Exception = %s" % str(e))
-            err_str = str(e)
-            msg = {"status": "failure",
-                       "msg": err_str }
-            abort(500, msg)
-
-        except StateError as e:
-            current_app.logger.error("Exception = %s" % str(e))
-            err_str = str(e)
-            msg = {"status": "failure",
-                       "msg": err_str}
-            abort(500, msg)
-
-        except NotFoundError as e:
-            current_app.logger.error("Exception = %s" % str(e))
-            err_str = str(e)
-            msg = {"status": "failure",
-                       "status code": 404,
-                       "msg": err_str}
-            abort(404, msg)
-
-        except Exception as e:
-            current_app.logger.error("Exception = %s" % str(e))
-            err_str = str(e)
-            msg = {"status": "failure",
-                       "msg": err_str}
-            abort(500, msg)
-            
-#+END_SRC
-
-*** Test Cases
-**** TestAddEmail
- #+NAME: test_add_email
- #+BEGIN_SRC python
-class TestAddEmail(TestCase):
-    TESTING = True
-    def create_app(self):
-        app = create_app(config)
-        return app
-
-    def setUp(self):
-        db.create_all()
-
-    def tearDown(self):
-        db.session.remove()
-        db.drop_all()
-
-    def test_add_email(self):
-        print "test_add_email_in_rest"
-        payload = {'email': 'dharamraj@gmail.com',
-                   'key': KEY}
-
-        headers = {'Content-Type': 'application/json'}
-
-        response = self.client.post("/emails", data=json.dumps(payload),
-                                 headers=headers)
-
-        self.assertEqual(response.status_code, 200)
-
- #+END_SRC
-   
-
-** Get Names
-*** API Design
-**** Get all names
-  :PROPERTIES:
-  :CUSTOM_ID: api_get_all_sections
-  :END:    
-  - URL :: /names
-
-  - Method :: GET
-
-  - URL Params ::  None
-
-  - Payload :: None
-
-  - Success Response
-    + Status_Code: 200
-      + Contents :
-#+BEGIN_EXAMPLE
-[{"name" : "Prof. Dharamraj", "id": 1}]
-#+END_EXAMPLE    
-  - Error Response:
-    + Contents :
-                {"status" : "error"}
-    
-  - Example:
-#+BEGIN_EXAMPLE
-http://localhost:5000/names
-#+END_EXAMPLE
-    
-*** Implementation 
-REST API to get Names.
-#+NAME: get_names
-#+BEGIN_SRC python
-@api.route('/names', methods=['GET'])
-def get_names():
-    if request.method == 'GET':
-        try:
-            current_app.logger.debug("execute get_names")
-            names = SystemInterface.get_names()
-            current_app.logger.debug("executed get_names")
-            return jsonify_list(names)
-
-        except TypeError as e:
-            current_app.logger.error("Exception = %s" % str(e))
-            err_str = str(e)
-            msg = {"status": "failure",
-                       "msg": err_str }
-            abort(500, msg)
-
-        except StateError as e:
-            current_app.logger.error("Exception = %s" % str(e))
-            err_str = str(e)
-            msg = {"status": "failure",
-                       "msg": err_str}
-            abort(500, msg)
-
-        except NotFoundError as e:
-            current_app.logger.error("Exception = %s" % str(e))
-            err_str = str(e)
-            msg = {"status": "failure",
-                       "status code": 404,
-                       "msg": err_str}
-            abort(404, msg)
-
-        except Exception as e:
-            current_app.logger.error("Exception = %s" % str(e))
-            err_str = str(e)
-            msg = {"status": "failure",
-                       "msg": err_str}
-            abort(500, msg)
-            
-#+END_SRC
-
-*** Test Cases
-**** TestGetNames
- #+NAME: test_get_names
- #+BEGIN_SRC python
-class TestGetNames(TestCase):
-    TESTING = True
-    def create_app(self):
-        app = create_app(config)
-        return app
-
-    def setUp(self):
-        db.create_all()
-
-    def tearDown(self):
-        db.session.remove()
-        db.drop_all()
-
-    def test_get_names(self):
-        print "test_get_names_in_rest"
-
-        payload = {'name': 'Prof. Dharamraj',
-                   'key': KEY}
-
-        headers = {'Content-Type': 'application/json'}
-
-        response = self.client.post("/names", data=json.dumps(payload),
-                                 headers=headers)
-
-        response = self.client.get("/names", headers=headers)
-        self.assertEqual(response.status_code, 200)
-
- #+END_SRC
-   
- 
-** Add Name
-*** API Design
-**** Add names
-  :PROPERTIES:
-  :CUSTOM_ID: api_add_names
-  :END:    
-  - URL :: /names
-
-  - Method :: POST
-
-  - URL Params ::  None
-
-  - Payload :: 
-#+BEGIN_EXAMPLE
-
-{
-  "key": "<key>",
-  "name" : "Prof. Dharamraj"
-}
-
-#+END_EXAMPLE	       
-
-  - Success Response
-    + Status_Code: 200
-    + Content: 
-#+BEGIN_EXAMPLE
-{
-  "id": 1, 
-  "name": "Prof. Dharamraj"
-}
-#+END_EXAMPLE
-
-  - Error Response:
-    + Contents :
-                {"status" : "error"}
-    
-  - Example:
-#+BEGIN_EXAMPLE
-http://localhost:5000/names
-#+END_EXAMPLE 
-
-*** Implementation 
-REST API to  add Name.
-#+NAME: add_name
-#+BEGIN_SRC python
-@api.route('/names', methods=['POST'])
-def add_name():
-    if request.method == 'POST':
-        if request.is_json:
-            data_json = json.dumps(request.get_json())
-            data_dict = yaml.safe_load(data_json)
-        else:
-            abort(500, "the request does not contain data in json")
-
-        try:
-            current_app.logger.debug("execute add_name")
-            name = SystemInterface.add_name(data_dict)
-            current_app.logger.debug("executed add_name")
-            return jsonify(name)
-
-        except NotAuthorizedError as e:
-            current_app.logger.error("Exception = %s" % str(e))
-            err_str = str(e)
-            msg = {"status": "failure",
-                    "status code": 401,
-                       "msg": err_str}
-            abort(401, msg)
-
-        except TypeError as e:
-            current_app.logger.error("Exception = %s" % str(e))
-            err_str = str(e)
-            msg = {"status": "failure",
-                       "msg": err_str }
-            abort(500, msg)
-
-        except StateError as e:
-            current_app.logger.error("Exception = %s" % str(e))
-            err_str = str(e)
-            msg = {"status": "failure",
-                       "msg": err_str}
-            abort(500, msg)
-
-        except NotFoundError as e:
-            current_app.logger.error("Exception = %s" % str(e))
-            err_str = str(e)
-            msg = {"status": "failure",
-                       "status code": 404,
-                       "msg": err_str}
-            abort(404, msg)
-
-        except Exception as e:
-            current_app.logger.error("Exception = %s" % str(e))
-            err_str = str(e)
-            msg = {"status": "failure",
-                       "msg": err_str}
-            abort(500, msg)
-            
-#+END_SRC
-
-*** Test Cases
-**** TestAddName
- #+NAME: test_add_name
- #+BEGIN_SRC python
-class TestAddName(TestCase):
-    TESTING = True
-    def create_app(self):
-        app = create_app(config)
-        return app
-
-    def setUp(self):
-        db.create_all()
-
-    def tearDown(self):
-        db.session.remove()
-        db.drop_all()
-
-    def test_add_name(self):
-        print "test_add_name_in_rest"
-        payload = {'name': 'Prof. Dharamraj',
-                   'key': KEY}
-
-        headers = {'Content-Type': 'application/json'}
-
-        response = self.client.post("/names", data=json.dumps(payload),
-                                 headers=headers)
-
-        self.assertEqual(response.status_code, 200)
-
- #+END_SRC
-   
-
-** Get Developers
-*** API Design
-**** Get all Developers
-  :PROPERTIES:
-  :CUSTOM_ID: api_get_all_developers
-  :END:    
-  - URL :: /developers
-
-  - Method :: GET
-
-  - URL Params ::  None
-
-  - Payload :: None
-
-  - Success Response
-    + Status_Code: 200
-      + Contents :
-
-#+BEGIN_EXAMPLE
-[
-    {
-        "id": 1,
-        "name": {
-            "name": "Prof. Dharamrajiiiiii",
-            "id": 4
-        },
-        "email": {
-            "email": "dharamrajiiiiii@gmail.com",
-            "id": 4
-        }
-    },
-    {
-        "id": 2,
-        "name": {
-            "name": "Prof. Dharam",
-            "id": 5
-        },
-        "email": {
-            "email": "dharam@gmail.com",
-            "id": 5
-        }
-    }
-]
-#+END_EXAMPLE	       
-
-    
-  - Error Response:
-    + Contents :
-      {"status" : "error"}
-    
-  - Example:
-#+BEGIN_EXAMPLE
-http://localhost:5000/developers
-#+END_EXAMPLE
-
-*** Implementation
-REST API to get all developers.
-#+NAME: get_developer
-#+BEGIN_SRC python
-@api.route('/developers', methods=['GET'])
-def get_developer():
-    if request.method == 'GET':
-       if 'email' in request.args:
-           email  = request.args['email']
-           try:
-               current_app.logger.debug("execute get_developer")
-               developer = SystemInterface.get_developer(email)
-               current_app.logger.debug("executed get_developer")
-               return jsonify(developer)
-           
-           except TypeError as e:
-               current_app.logger.error("Exception = %s" % str(e))
-               err_str = str(e)
-               msg = {"status": "failure",
-                        "msg": err_str }
-               abort(500, msg)
-
-           except StateError as e:
-               current_app.logger.error("Exception = %s" % str(e))
-               err_str = str(e)
-               msg = {"status": "failure",
-                        "msg": err_str}
-               abort(500, msg)
-           
-           except NotFoundError as e:
-               current_app.logger.error("Exception = %s" % str(e))
-               err_str = str(e)
-               msg = {"status": "failure",
-                        "status code": 404,
-                        "msg": err_str}
-               abort(404, msg)
-           
-           except Exception as e:
-               current_app.logger.error("Exception = %s" % str(e))
-               err_str = str(e)
-               msg = {"status": "failure",
-                        "msg": err_str}
-               abort(500, msg)
-           
-       else:
-           try:
-               current_app.logger.debug("execute get_developers")
-               developers = SystemInterface.get_developers()
-               current_app.logger.debug("executed get_developers")
-               return jsonify_list(developers)
-
-           except TypeError as e:
-               current_app.logger.error("Exception = %s" % str(e))
-               err_str = str(e)
-               msg = {"status": "failure",
-                        "msg": err_str }
-               abort(500, msg)
-           
-           except StateError as e:
-               current_app.logger.error("Exception = %s" % str(e))
-               err_str = str(e)
-               msg = {"status": "failure",
-                        "msg": err_str}
-               abort(500, msg)
-           
-           except NotFoundError as e:
-               current_app.logger.error("Exception = %s" % str(e))
-               err_str = str(e)
-               msg = {"status": "failure",
-                        "status code": 404,
-                        "msg": err_str}
-               abort(404, msg)
-           
-           except Exception as e:
-               current_app.logger.error("Exception = %s" % str(e))
-               err_str = str(e)
-               msg = {"status": "failure",
-                        "msg": err_str}
-               abort(500, msg)
-#+END_SRC
-
-*** Test Cases
-**** TestGetDeveloper
- #+NAME: test_get_Developer
- #+BEGIN_SRC python
-class TestGetDeveloper(TestCase):
-    TESTING = True
-    def create_app(self):
-        app = create_app(config)
-        return app
-
-    def setUp(self):
-        db.create_all()
-
-    def tearDown(self):
-        db.session.remove()
-        db.drop_all()
-
-    def test_get_developers(self):
-        print "test_get_developers_in_rest"
-
-        payload = {'dev_name': 'Prof. Dharamraj',
-                   'email_id': 'dharamraj@gmail.com',
-                   'key': KEY}
-
-        headers = {'Content-Type': 'application/json'}
-
-        response = self.client.post("/developers", data=json.dumps(payload),
-                                 headers=headers)
-
-        response = self.client.get("/developers", headers=headers)
-        self.assertEqual(response.status_code, 200)
-
- #+END_SRC
-   
-
-** Add Developer
-*** API Design
-**** Add Developer
-  :PROPERTIES:
-  :CUSTOM_ID: api_add_developer
-  :END:    
-  - URL :: /developers
-
-  - Method :: POST
-
-  - URL Params ::  None
-
-  - Payload :: 
-#+BEGIN_EXAMPLE
-{
-"name": "Prof. Dharam",
-"email": "joy@gmail.com",
-"assets": ["vlabs.ac.in/static/images/logo.png"],
-"key": "<key>"
-}
-#+END_EXAMPLE	       
-
-  - Success Response
-    + Status_Code: 200
-    + Content: 
-#+BEGIN_EXAMPLE
-{
-  "email": {
-    "email": "joy@gmail.com", 
-    "id": "5"
-  }, 
-  "id": "4", 
-  "name": {
-    "id": "5", 
-    "name": "Prof. Dharam"
-  }
-}
-
-#+END_EXAMPLE
-
-  - Error Response:
-    + Contents :
-      {"status" : "error"}
-    
-  - Example:
-#+BEGIN_EXAMPLE
-http://localhost:5000/developers
-#+END_EXAMPLE
-    
-*** Implementation
-REST API to add an developer.
-#+NAME: add_developer
-#+BEGIN_SRC python
-@api.route('/developers', methods=['POST'])
-def add_developer():
-    if request.method == 'POST':
-        if request.is_json:
-            data_json = json.dumps(request.get_json())
-            data_dict = yaml.safe_load(data_json)
-        else:
-            abort(500, "the request does not contain data in json")
-
-        try:
-            current_app.logger.debug("execute add_developer")
-            developer = SystemInterface.add_developer(data_dict)
-            current_app.logger.debug("executed add_developer")
-            return jsonify(developer.to_client())
-
-        except NotAuthorizedError as e:
-            current_app.logger.error("Exception = %s" % str(e))
-            err_str = str(e)
-            msg = {"status": "failure",
-                    "status code": 401,
-                       "msg": err_str}
-            abort(401, msg)
-
-        except TypeError as e:
-            current_app.logger.error("Exception = %s" % str(e))
-            err_str = str(e)
-            msg = {"status": "failure",
-                       "msg": err_str }
-            abort(500, msg)
-
-        except StateError as e:
-            current_app.logger.error("Exception = %s" % str(e))
-            err_str = str(e)
-            msg = {"status": "failure",
-                       "msg": err_str}
-            abort(500, msg)
-
-        except NotFoundError as e:
-            current_app.logger.error("Exception = %s" % str(e))
-            err_str = str(e)
-            msg = {"status": "failure",
-                       "status code": 404,
-                       "msg": err_str}
-            abort(404, msg)
-
-        except Exception as e:
-            current_app.logger.error("Exception = %s" % str(e))
-            err_str = str(e)
-            msg = {"status": "failure",
-                       "msg": err_str}
-            abort(500, msg)
-            
-#+END_SRC
-
-*** Test Cases
-**** TestAddDeveloper
- #+NAME: test_add_developer
- #+BEGIN_SRC python
-class TestAddDeveloper(TestCase):
-    TESTING = True
-    def create_app(self):
-        app = create_app(config)
-        return app
-
-    def setUp(self):
-        db.create_all()
-
-    def tearDown(self):
-        db.session.remove()
-        db.drop_all()
-
-    def test_add_developer(self):
-        print "test_add_developer_in_rest"
-
-        payload = {'name': 'Prof. Dharamraj',
-                   'email': 'dharamraj@gmail.com',
-                   'key': KEY}
-
-        headers = {'Content-Type': 'application/json'}
-
-        response = self.client.post("/developers", data=json.dumps(payload),
-                                 headers=headers)
-
-        self.assertEqual(response.status_code, 200)
-
- #+END_SRC
-   
-
-** Update Lab 
-*** API Design
-**** Update lab by labid
-  :PROPERTIES:
-  :CUSTOM_ID: api_update_lab_by_labid
-  :END:    
-  - URL :: /labs/<lab_id>
-
-  - Method :: PUT
-
-  - URL Params ::  None
-
-  - Payload :: 
-#+BEGIN_EXAMPLE
-{"lab_name": "Computer Programming",
-"experiments":["exp1"],
-"lab_id": "cse03",
-"institute_id": "iiith",
-"discipline_id": "cse",
-"assets": [{"path":"vlabs.ac.in/images/static/logo.png","asset_type": "image"},
-{"path":"vlabs.ac.in/images/static/image.png", "asset_type": "image"}],
-"developers": [{"name":"Prof. Dharamaja", "email": "abc@gmail.com", 
-"institute_id": "IITK", "discipline_id": "CSE"}, {"name":"Prof. Pallavi Pawar", 
-"email": "pallavi.pawar@gmail.com", "institute_id": "IITK", "discipline_id": "CSE"}],
-"hosting_info": [{"hosted_url":"http://cse14-iiith.vlabs.ac.in",
-"hosting_status": "hosted", "hosted_on": "cloud"},
-{"hosted_url":"http://iitkgp.vlab.co.in/", "hosting_status": "hosted", 
-"hosted_on": "server"}],
-"overview" : "overview",
-"experiments":["cse01"],
-"integration_level": 4,
-"key": "<key>"
-}
-
-#+END_EXAMPLE
-  - Success Response
-    + Status_Code: 200
-      + Contents :
-#+BEGIN_EXAMPLE
-{
-  "assets": [
-    {
-      "asset_type": "Image", 
-      "id": 1, 
-      "path": "vlabs.ac.in/images/static/logo.png"
-    }
-  ], 
-  "developers": [], 
-  "discipline": {
-    "discipline_id": "cse", 
-    "discipline_name": "Computer Science", 
-    "id": 1
-  }, 
-  "experiments": [], 
-  "hosting_info": {
-    "hosted_on": "cloud", 
-    "hosted_url": "http://cse14-iiith.vlabs.ac.in", 
-    "hosting_status": "hosted", 
-    "id": 1
-  }, 
-  "id": 2, 
-  "institute": {
-    "id": 1, 
-    "institute_id": "iiith", 
-    "institute_name": "IIIT Hyderabad"
-  }, 
-  "integration_status": {
-    "id": 2, 
-    "integration_level": 4
-  }, 
-  "lab_id": "cse02", 
-  "lab_name": "Computer Programming", 
-  "overview": "cp overview"
-}
-
-#+END_EXAMPLE
-
-    
-  - Error Response:
-    + Contents :
-                {"status" : "error"}
-    
-  - Example:
-#+BEGIN_EXAMPLE
- http://localhost:5000/labs?lab_id=cse02
-#+END_EXAMPLE
-   
-*** Implementation
-#+NAME: update_lab
-#+BEGIN_SRC python
-@api.route('/labs', methods=['PUT'])
-def update():
-    if request.method == 'PUT':
-        if request.is_json:
-            data_json = json.dumps(request.get_json())
-            data_dict = yaml.safe_load(data_json)
-        else:
-            abort(500, "the request does not contain data in json")
-
-        if 'lab_id' in request.args:
-            data_dict['lab']['id']  = request.args['lab_id']
-        else:
-            abort(500, "Please provide the 'lab_id' to update the lab")
-        
-        try:
-            current_app.logger.debug("execute update_lab")
-            lab = SystemInterface.update_lab(data_dict)
-            current_app.logger.debug("executed update_lab")
-            return jsonify(lab)
-
-        except NotAuthorizedError as e:
-            current_app.logger.error("Exception = %s" % str(e))
-            err_str = str(e)
-            msg = {"status": "failure",
-                    "status code": 401,
-                       "msg": err_str}
-            abort(401, msg)
-
-        except TypeError as e:
-            current_app.logger.error("Exception = %s" % str(e))
-            err_str = str(e)
-            msg = {"status": "failure",
-                       "msg": err_str }
-            abort(500, msg)
-
-        except StateError as e:
-            current_app.logger.error("Exception = %s" % str(e))
-            err_str = str(e)
-            msg = {"status": "failure",
-                       "msg": err_str}
-            abort(500, msg)
-
-        except NotFoundError as e:
-            current_app.logger.error("Exception = %s" % str(e))
-            err_str = str(e)
-            msg = {"status": "failure",
-                       "status code": 404,
-                       "msg": err_str}
-            abort(404, msg)
-
-        except Exception as e:
-            current_app.logger.error("Exception = %s" % str(e))
-            err_str = str(e)
-            msg = {"status": "failure",
-                       "msg": err_str}
-            abort(500, msg)
-
-#+END_SRC
-*** Test Cases
-**** TestUpdateLab
-#+NAME: test_update_lab
-#+BEGIN_SRC python
-class TestUpdateLab(TestCase):
-    TESTING = True
-    def create_app(self):
-        app = create_app(config)
-        return app
-
-    def setUp(self):
-        db.create_all()
-
-    def tearDown(self):
-        db.session.remove()
-        db.drop_all()
-
-    def test_update_lab(self):
-        print "test_update_lab"
-        payload = {'asset_type': 'Image',
-                   'path': 'vlabs.ac.in/images/static/logo.png',
-                   'key': KEY}
-
-        headers = {'Content-Type': 'application/json'}
-
-        response = self.client.post("/assets", data=json.dumps(payload),
-                                 headers=headers)
-
-        payload = {'institute_name': 'IIT Kanpur',
-                   'institute_id': 'IITK',
-                   'assets': ['vlabs.ac.in/images/static/logo.png'],
-                   'key': KEY}
-
-        headers = {'Content-Type': 'application/json'}
-
-        response = self.client.post("/institutes", data=json.dumps(payload),
-                                 headers=headers)
-
-        payload = {'integration_level': 4,
-                   'key': KEY}
-
-        headers = {'Content-Type': 'application/json'}
-
-        response = self.client.post("/integration_status", data=json.dumps(payload),
-                                 headers=headers)
-
-        payload = {'discipline_name': 'Computer Science',
-                   'discipline_id': 'CSE',
-                   'assets': ['vlabs.ac.in/images/static/logo.png'],
-                   'key': KEY}
-
-        headers = {'Content-Type': 'application/json'}
-
-        response = self.client.post("/disciplines", data=json.dumps(payload),
-                                 headers=headers)
-
-        payload = {'name': 'Prof. Dharamaja',
-                   'email': 'abc@gmail.com',
-                   'key': KEY}
-
-        headers = {'Content-Type': 'application/json'}
-
-        response = self.client.post("/developers", data=json.dumps(payload),
-                                 headers=headers)
-
-        payload = {'name': 'Introduction',
-                   'key': KEY}
-
-        headers = {'Content-Type': 'application/json'}
-
-        response = self.client.post("/sections", data=json.dumps(payload),
-                                 headers=headers)
-
-        payload = {'hosting_status': 'hosted',
-                   'hosted_url': 'http://cse14-iiith.vlabs.ac.in',
-                   'hosted_on': 'cloud',
-                   'key': KEY}
-
-        headers = {'Content-Type': 'application/json'}
-
-        response = self.client.post("/hosting_info", data=json.dumps(payload),
-                                 headers=headers)
-
-        payload = {
-		   "key": KEY,
-                   "experiment": {
-                     "id": "exp123",
-                     "name": "arrays",
-                     "discipline_id": "CSE",
-                     "institute_id": "IITK",
-                     "developers": [
-                       {
-                         "name": "Prof. Dharamaja",
-                         "email": "abc@gmail.com"
-                       }
-                     ],
-                     "hosting_info": [
-                       {
-                         "hosting_status": "hosted",
-                         "hosted_on": "cloud",
-                         "hosted_url": "http://cse14-iiith.vlabs.ac.in"
-                       }
-                     ],
-                     "integration_level": 4,
-                     "overview": "This experiments describes about parallel and distributed processing",
-                     "assets": [
-                       {
-                         "asset_type": "image",
-                         "path": "vlabs.ac.in/images/static/logo.png"
-                       }
-                     ],
-                     "sections": [
-                       "Introduction"
-                     ]
-                   }
-                 }
-
-        headers = {'Content-Type': 'application/json'}
-
-        response = self.client.post("/experiments", data=json.dumps(payload),
-                                 headers=headers)
-
-        payload = {           
-		   "key" : KEY,     
-                   "lab": {
-                     "id": "cse02",
-                     "name": "Computer Programming",
-                     "overview": "overview",
-                     "discipline_id": "CSE",
-                     "institute_id": "IITK",
-                     "developers": [
-                       {
-                         "name": "Prof. Dharamaja",
-                         "email": "abc@gmail.com"
-
-                       }
-                     ],
-                     "hosting_info": [
-                       {
-                         "hosting_status": "hosted",
-                         "hosted_on": "cloud",
-                         "hosted_url": "http://cse14-iiith.vlabs.ac.in"
-                       }
-                     ],
-                     "integration_level": 4,
-                     "assets": [
-                       {
-                         "asset_type": "image",
-                         "path": "vlabs.ac.in/images/static/logo.png"
-                       }
-                     ],
-                     "sections": [
-                       {
-                         "name": "Introduction"
-                       },
-                       {
-                         "experiments": [
-                           "exp123"
-                         ]
-                       }
-                     ]
-                   }
-                 }
-
-        headers = {'Content-Type': 'application/json'}
-
-        response = self.client.post("/labs", data=json.dumps(payload),
-                                 headers=headers)
-
-
-        payload1 = {'asset_type': 'Video',
-                   'path': 'vlabs.ac.in/images/video/icon.png',
-                   'key': KEY}
-
-        headers = {'Content-Type': 'application/json'}
-
-        response = self.client.post("/assets", data=json.dumps(payload1),
-                                 headers=headers)
-
-        payload1 = {'institute_name': 'IIT Kharagpur',
-                    'institute_id': 'IITKgp',
-                    'assets': ['vlabs.ac.in/images/video/icon.png'],
-                    'key': KEY}
-
-        headers = {'Content-Type': 'application/json'}
-
-        response = self.client.post("/institutes", data=json.dumps(payload1),
-                                 headers=headers)
-
-        payload1 = {'discipline_name': 'Electronics & Comuunication Engg.',
-                    'discipline_id': 'ECE',
-                    'assets': ['vlabs.ac.in/images/video/icon.png'],
-                    'key': KEY}
-
-        headers = {'Content-Type': 'application/json'}
-
-        response = self.client.post("/disciplines", data=json.dumps(payload1),
-                                 headers=headers)
-
-        payload1 = {'name': 'Prof. Pallavi Pawar',
-                   'email': 'pallavi.pawar@gmail.com',
-                   'key': KEY}
-        headers = {'Content-Type': 'application/json'}
-
-        response = self.client.post("/developers", data=json.dumps(payload1),
-                                 headers=headers)
-
-        payload1 = {'name': 'Theory',
-                   'key': KEY}
-
-        headers = {'Content-Type': 'application/json'}
-
-        response = self.client.post("/sections", data=json.dumps(payload1),
-                                 headers=headers)
-                          
-        payload1 = {'integration_level': 3,
-                   'key': KEY}
-
-        headers = {'Content-Type': 'application/json'}
-
-        response = self.client.post("/integration_status", data=json.dumps(payload1),
-                                 headers=headers)
-
-        payload1 = {'hosting_status': 'hosted',
-                   'hosted_url': 'http://iitk.vlab.co.in/',
-                   'hosted_on': 'server',
-                   'key': KEY}
-
-        headers = {'Content-Type': 'application/json'}
-
-        response = self.client.post("/hosting_info", data=json.dumps(payload1),
-                                 headers=headers)
-
-        payload1 = {           
-		   "key" : KEY,     
-                   "lab": {
-                     "name": "Computer Programming",
-                     "id" : "cse02",
-                     "overview": "cp overview",
-                     "discipline_id": "ECE",
-                     "institute_id": "IITKgp",
-                     "developers": [                    
-                       {
-                         "name": "Prof. Pallavi Pawar",
-                         "email": "pallavi.pawar@gmail.com"
-                       }
-                     ],
-                     "hosting_info": [
-                       {                       
-                         "hosting_status": "hosted",
-                         "hosted_on": "server",
-                         "hosted_url": "http://iitk.vlab.co.in/"
-                       }
-                     ],
-                     "integration_level": 3,
-                     "assets": [
-                       {
-                         "asset_type": "image",
-                         "path": "vlabs.ac.in/images/video/icon.png"
-                       }
-                     ],
-                     "sections": [
-                       {
-                         "name": "Theory"
-                       },
-                       {
-                         "experiments": [
-                           "exp123"
-                         ]
-                       }
-                     ]
-                   }
-                 }
-
-        response = self.client.put("/labs?lab_id=cse02", 
-                                       data=json.dumps(payload1),
-                                       headers=headers)
-
-        self.assertEqual(response.status_code, 200)
-
- #+END_SRC
-   
      
+
 ** Delete Lab
 *** API Design
 **** Delete lab by lab_id
@@ -7564,7 +6417,1296 @@ class TestDeleteLab(TestCase):
         self.assertEqual(response.status_code, 200)
 
  #+END_SRC
-   
+
+
+** Add Hosting_Info
+*** API Design
+**** Add Hosting_Info
+  :PROPERTIES:
+  :CUSTOM_ID: api_add_hosting_info
+  :END:    
+  - URL :: /hosting_info
+
+  - Method :: POST
+
+  - URL Params ::  None
+
+  - Payload :: 
+#+BEGIN_EXAMPLE
+{
+"hosted_url": "http://cse14-iiith.vlabs.ac.in",
+"hosting_status": "hosted",
+"hosted_on": "cloud",
+"key": "<key>"
+}
+#+END_EXAMPLE	       
+
+  - Success Response
+    + Status_Code: 200
+    + Content: 
+#+BEGIN_EXAMPLE
+{
+  "hosted_on": "cloud", 
+  "hosted_url": "http://cse14-iiith.vlabs.ac.in", 
+  "hosting_status": "hosted", 
+  "id": 1
+}
+
+#+END_EXAMPLE
+
+  - Error Response:
+    + Contents :
+                {"status" : "error"}
+    
+  - Example:
+#+BEGIN_EXAMPLE
+http://localhost:5000/hosting_info
+#+END_EXAMPLE
+    
+*** Implementation
+REST API to add an hosting_info.
+#+NAME: add_hosting_info
+#+BEGIN_SRC python
+@api.route('/hosting_info', methods=['POST'])
+def add_hosting_info():
+    if request.method == 'POST':
+        if request.is_json:
+            data_json = json.dumps(request.get_json())
+            data_dict = yaml.safe_load(data_json)
+        else:
+            abort(500, "the request does not contain data in json")
+
+        try:
+            current_app.logger.debug("execute add_hosting_info")
+            hosting_info = SystemInterface.add_hosting_info(data_dict)
+            current_app.logger.debug("executed add_hosting_info")
+            return jsonify(hosting_info)
+
+        except NotAuthorizedError as e:
+            current_app.logger.error("Exception = %s" % str(e))
+            err_str = str(e)
+            msg = {"status": "failure",
+                    "status code": 401,
+                       "msg": err_str}
+            abort(401, msg)
+
+        except TypeError as e:
+            current_app.logger.error("Exception = %s" % str(e))
+            err_str = str(e)
+            msg = {"status": "failure",
+                       "msg": err_str }
+            abort(500, msg)
+
+        except StateError as e:
+            current_app.logger.error("Exception = %s" % str(e))
+            err_str = str(e)
+            msg = {"status": "failure",
+                       "msg": err_str}
+            abort(500, msg)
+
+        except NotFoundError as e:
+            current_app.logger.error("Exception = %s" % str(e))
+            err_str = str(e)
+            msg = {"status": "failure",
+                       "status code": 404,
+                       "msg": err_str}
+            abort(404, msg)
+
+        except Exception as e:
+            current_app.logger.error("Exception = %s" % str(e))
+            err_str = str(e)
+            msg = {"status": "failure",
+                       "msg": err_str}
+            abort(500, msg)
+            
+#+END_SRC
+
+*** Test Cases
+**** TestAddHosting_Info
+ #+NAME: test_add_hosting_info
+ #+BEGIN_SRC python
+class TestAddHosting_Info(TestCase):
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_add_hosting_info(self):
+        print "test_add_hosting_info_in_rest"
+        payload = {'hosting_status': 'hosted',
+                   'hosted_url': 'http://cse14-iiith.vlabs.ac.in',
+                   'hosted_on': 'cloud',
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/hosting_info", data=json.dumps(payload),
+                                 headers=headers)
+
+        self.assertEqual(response.status_code, 200)
+
+ #+END_SRC
+
+
+** Get Integration_Status and Get IntegrationStatus
+*** API Design
+**** Get all Integration_Status
+  :PROPERTIES:
+  :CUSTOM_ID: api_get_all_integration_status
+  :END:    
+  - URL :: /integration_status
+
+  - Method :: GET
+
+  - URL Params ::  None
+
+  - Payload :: None
+
+  - Success Response
+    + Status_Code: 200
+      + Contents :
+
+#+BEGIN_EXAMPLE
+[
+    {
+        "integration_level": 0,
+        "id": 1
+    },
+    {
+        "integration_level": 1,
+        "id": 2
+    },
+    {
+        "integration_level": 2,
+        "id": 3
+    },
+    {
+        "integration_level": 3,
+        "id": 4
+    },
+    {
+        "integration_level": 4,
+        "id": 5
+    },
+    {
+        "integration_level": 5,
+        "id": 6
+    },
+    {
+        "integration_level": 6,
+        "id": 7
+    },
+    {
+        "integration_level": 9,
+        "id": 8
+    }
+]
+#+END_EXAMPLE	       
+
+    
+  - Error Response:
+    + Contents :
+                {"status" : "error"}
+    
+  - Example:
+#+BEGIN_EXAMPLE
+http://localhost:5000/integration_status
+#+END_EXAMPLE
+
+*** Implementation
+REST API to get all integration_status.
+#+NAME: get_integration_status
+#+BEGIN_SRC python
+@api.route('/integration_status', methods=['GET'])
+def get_integration_status():
+    if request.method == 'GET':
+       if 'integration_level' in request.args:
+           integration_level  = request.args['integration_level']
+           try:
+               current_app.logger.debug("execute get_integration_status_by_IL")
+               integration_status = SystemInterface.get_integration_status_by_IL\
+                 (integration_level)
+               current_app.logger.debug("executed get_integration_status_by_IL")
+               return jsonify(integration_status.to_client())
+
+           except NotAuthorizedError as e:
+               current_app.logger.error("Exception = %s" % str(e))
+               err_str = str(e)
+               msg = {"status": "failure",
+                    "status code": 401,
+                       "msg": err_str}
+               abort(401, msg)
+
+           except TypeError as e:
+               current_app.logger.error("Exception = %s" % str(e))
+               err_str = str(e)
+               msg = {"status": "failure",
+                       "msg": err_str }
+               abort(500, msg)
+
+           except StateError as e:
+               current_app.logger.error("Exception = %s" % str(e))
+               err_str = str(e)
+               msg = {"status": "failure",
+                       "msg": err_str}
+               abort(500, msg)
+
+           except NotFoundError as e:
+               current_app.logger.error("Exception = %s" % str(e))
+               err_str = str(e)
+               msg = {"status": "failure",
+                       "status code": 404,
+                        "msg": err_str}
+               abort(404, msg)
+
+           except Exception as e:
+               current_app.logger.error("Exception = %s" % str(e))
+               err_str = str(e)
+               msg = {"status": "failure",
+                       "msg": err_str}
+               abort(500, msg)
+
+       else:
+           try:
+               current_app.logger.debug("execute get_integration_status")
+               integration_status = SystemInterface.get_integration_status()
+               current_app.logger.debug("executed get_integration_status")
+               return jsonify_list(integration_status)
+
+           except NotAuthorizedError as e:
+               current_app.logger.error("Exception = %s" % str(e))
+               err_str = str(e)
+               msg = {"status": "failure",
+                    "status code": 401,
+                       "msg": err_str}
+               abort(401, msg)
+
+           except TypeError as e:
+               current_app.logger.error("Exception = %s" % str(e))
+               err_str = str(e)
+               msg = {"status": "failure",
+                       "msg": err_str }
+               abort(500, msg)
+
+           except StateError as e:
+               current_app.logger.error("Exception = %s" % str(e))
+               err_str = str(e)
+               msg = {"status": "failure",
+                       "msg": err_str}
+               abort(500, msg)
+
+           except NotFoundError as e:
+               current_app.logger.error("Exception = %s" % str(e))
+               err_str = str(e)
+               msg = {"status": "failure",
+                       "status code": 404,
+                       "msg": err_str}
+               abort(404, msg)
+
+           except Exception as e:
+               current_app.logger.error("Exception = %s" % str(e))
+               err_str = str(e)
+               msg = {"status": "failure",
+                       "msg": err_str}
+               abort(500, msg)
+#+END_SRC
+
+*** Test Cases
+**** TestGetIntegration_Status 
+ #+NAME: test_get_Integration_Status
+ #+BEGIN_SRC python
+class TestGetIntegration_Status(TestCase):
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_get_integration_status(self):
+        print "test_get_integration_status_in_rest"
+
+        payload = {'integration_level': 4,
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/integration_status", data=json.dumps(payload),
+                                 headers=headers)
+
+        response = self.client.get("/integration_status", headers=headers)
+        self.assertEqual(response.status_code, 200)
+
+ #+END_SRC
+
+
+** Add Integration_Status 
+*** API Design
+**** Add Integration_Status
+  :PROPERTIES:
+  :CUSTOM_ID: api_add_integration_status
+  :END:    
+  - URL :: /integration_status
+
+  - Method :: POST
+
+  - URL Params ::  None
+
+  - Payload :: 
+#+BEGIN_EXAMPLE
+{
+"integration_level": 9,
+"key": "<key>"
+}
+#+END_EXAMPLE	       
+
+  - Success Response
+    + Status_Code: 200
+    + Content: 
+#+BEGIN_EXAMPLE
+{
+  "id": 1, 
+  "integration_level": 4
+}
+
+#+END_EXAMPLE
+
+  - Error Response:
+    + Contents :
+                {"status" : "error"}
+    
+  - Example:
+#+BEGIN_EXAMPLE
+http://localhost:5000/integration_status
+#+END_EXAMPLE
+    
+*** Implementation
+REST API to add an integration_status.
+#+NAME: add_integration_status
+#+BEGIN_SRC python
+@api.route('/integration_status', methods=['POST'])
+def add_integration_status():
+    if request.method == 'POST':
+        if request.is_json:
+            data_json = json.dumps(request.get_json())
+            data_dict = yaml.safe_load(data_json)
+        else:
+            abort(500, "the request does not contain data in json")
+
+        try:
+            current_app.logger.debug("execute add_integration_status")
+            integration_status = SystemInterface.add_integration_status(data_dict)
+            current_app.logger.debug("executed add_integration_status")
+            return jsonify(integration_status)
+
+        except NotAuthorizedError as e:
+            current_app.logger.error("Exception = %s" % str(e))
+            err_str = str(e)
+            msg = {"status": "failure",
+                    "status code": 401,
+                       "msg": err_str}
+            abort(401, msg)
+
+        except TypeError as e:
+            current_app.logger.error("Exception = %s" % str(e))
+            err_str = str(e)
+            msg = {"status": "failure",
+                       "msg": err_str }
+            abort(500, msg)
+
+        except StateError as e:
+            current_app.logger.error("Exception = %s" % str(e))
+            err_str = str(e)
+            msg = {"status": "failure",
+                       "msg": err_str}
+            abort(500, msg)
+
+        except NotFoundError as e:
+            current_app.logger.error("Exception = %s" % str(e))
+            err_str = str(e)
+            msg = {"status": "failure",
+                       "status code": 404,
+                       "msg": err_str}
+            abort(404, msg)
+
+        except Exception as e:
+            current_app.logger.error("Exception = %s" % str(e))
+            err_str = str(e)
+            msg = {"status": "failure",
+                       "msg": err_str}
+            abort(500, msg)
+            
+#+END_SRC
+
+*** Test Cases
+**** TestAddIntegration_Status 
+ #+NAME: test_add_integration_status
+ #+BEGIN_SRC python
+class TestAddIntegration_Status(TestCase):
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_add_integration_status(self):
+        print "test_add_integration_status_in_rest"
+        payload = {'integration_level': 4,
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/integration_status", data=json.dumps(payload),
+                                 headers=headers)
+
+        self.assertEqual(response.status_code, 200)
+
+ #+END_SRC
+
+
+** Get Emails
+*** API Design
+**** Get all Emails
+  :PROPERTIES:
+  :CUSTOM_ID: api_get_all_emails
+  :END:    
+  - URL :: /emails
+
+  - Method :: GET
+
+  - URL Params ::  None
+
+  - Payload :: None
+
+  - Success Response
+    + Status_Code: 200
+      + Contents :
+
+#+BEGIN_EXAMPLE
+[{"email": "dharamraj@gmail.com", "id": 1}]
+#+END_EXAMPLE	       
+    
+  - Error Response:
+    + Contents :
+      {"status" : "error"}
+    
+  - Example:
+#+BEGIN_EXAMPLE
+http://localhost:5000/emails
+#+END_EXAMPLE
+
+*** Implementation
+REST API to get all emails.
+#+NAME: get_email
+#+BEGIN_SRC python
+@api.route('/emails', methods=['GET'])
+def get_email():
+    if request.method == 'GET':
+       if 'email' in request.args:
+           email  = request.args['email']
+           try:
+               current_app.logger.debug("execute get_email")
+               email = SystemInterface.get_email(email)
+               current_app.logger.debug("executed get_email")
+               return jsonify(email)
+
+           except TypeError as e:
+               current_app.logger.error("Exception = %s" % str(e))
+               err_str = str(e)
+               msg = {"status": "failure",
+                       "msg": err_str }
+               abort(500, msg)
+
+           except StateError as e:
+               current_app.logger.error("Exception = %s" % str(e))
+               err_str = str(e)
+               msg = {"status": "failure",
+                        "msg": err_str}
+               abort(500, msg)
+
+           except NotFoundError as e:
+               current_app.logger.error("Exception = %s" % str(e))
+               err_str = str(e)
+               msg = {"status": "failure",
+                       "status code": 404,
+                       "msg": err_str}
+               abort(404, msg)
+
+           except Exception as e:
+               current_app.logger.error("Exception = %s" % str(e))
+               err_str = str(e)
+               msg = {"status": "failure",
+                       "msg": err_str}
+               abort(500, msg)
+
+       else:
+           try:
+               current_app.logger.debug("execute get_emails")
+               emails = SystemInterface.get_emails()
+               current_app.logger.debug("executed get_emails")
+               return jsonify_list(emails)
+
+           except TypeError as e:
+               current_app.logger.error("Exception = %s" % str(e))
+               err_str = str(e)
+               msg = {"status": "failure",
+                       "msg": err_str }
+               abort(500, msg)
+
+           except StateError as e:
+               current_app.logger.error("Exception = %s" % str(e))
+               err_str = str(e)
+               msg = {"status": "failure",
+                       "msg": err_str}
+               abort(500, msg)
+
+           except NotFoundError as e:
+               current_app.logger.error("Exception = %s" % str(e))
+               err_str = str(e)
+               msg = {"status": "failure",
+                       "status code": 404,
+                       "msg": err_str}
+               abort(404, msg)
+
+           except Exception as e:
+               current_app.logger.error("Exception = %s" % str(e))
+               err_str = str(e)
+               msg = {"status": "failure",
+                       "msg": err_str}
+               abort(500, msg)
+#+END_SRC
+
+*** Test Cases
+**** TestGetEmail
+ #+NAME: test_get_Email
+ #+BEGIN_SRC python
+class TestGetEmail(TestCase):
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_get_emails(self):
+        print "test_get_emails_in_rest"
+
+        payload = {'email': 'dharamraj@gmail.com',
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/emails", data=json.dumps(payload),
+                                 headers=headers)
+
+        response = self.client.get("/emails", headers=headers)
+        self.assertEqual(response.status_code, 200)
+
+ #+END_SRC
+
+
+** Add Email
+*** API Design
+**** Add Email
+  :PROPERTIES:
+  :CUSTOM_ID: api_add_email
+  :END:    
+  - URL :: /emails
+
+  - Method :: POST
+
+  - URL Params ::  None
+
+  - Payload :: 
+#+BEGIN_EXAMPLE
+{
+"email": "dharamraj@gmail.com",
+"key": "<key>"
+}
+#+END_EXAMPLE	       
+
+  - Success Response
+    + Status_Code: 200
+    + Content: 
+#+BEGIN_EXAMPLE
+{
+  "email": "dharamraj@gmail.com", 
+  "id": 1
+}
+
+#+END_EXAMPLE
+
+  - Error Response:
+    + Contents :
+                {"status" : "error"}
+    
+  - Example:
+#+BEGIN_EXAMPLE
+http://localhost:5000/emails
+#+END_EXAMPLE
+    
+*** Implementation
+REST API to add an email.
+#+NAME: add_email
+#+BEGIN_SRC python
+@api.route('/emails', methods=['POST'])
+def add_email():
+    if request.method == 'POST':
+        if request.is_json:
+            data_json = json.dumps(request.get_json())
+            data_dict = yaml.safe_load(data_json)
+        else:
+            abort(500, "the request does not contain data in json")
+
+        try:
+            current_app.logger.debug("execute add_email")
+            email = SystemInterface.add_email(data_dict)
+            current_app.logger.debug("executed add_email")
+            return jsonify(email)
+
+        except NotAuthorizedError as e:
+            current_app.logger.error("Exception = %s" % str(e))
+            err_str = str(e)
+            msg = {"status": "failure",
+                    "status code": 401,
+                       "msg": err_str}
+            abort(401, msg)
+
+        except TypeError as e:
+            current_app.logger.error("Exception = %s" % str(e))
+            err_str = str(e)
+            msg = {"status": "failure",
+                       "msg": err_str }
+            abort(500, msg)
+
+        except StateError as e:
+            current_app.logger.error("Exception = %s" % str(e))
+            err_str = str(e)
+            msg = {"status": "failure",
+                       "msg": err_str}
+            abort(500, msg)
+
+        except NotFoundError as e:
+            current_app.logger.error("Exception = %s" % str(e))
+            err_str = str(e)
+            msg = {"status": "failure",
+                       "status code": 404,
+                       "msg": err_str}
+            abort(404, msg)
+
+        except Exception as e:
+            current_app.logger.error("Exception = %s" % str(e))
+            err_str = str(e)
+            msg = {"status": "failure",
+                       "msg": err_str}
+            abort(500, msg)
+            
+#+END_SRC
+
+*** Test Cases
+**** TestAddEmail
+ #+NAME: test_add_email
+ #+BEGIN_SRC python
+class TestAddEmail(TestCase):
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_add_email(self):
+        print "test_add_email_in_rest"
+        payload = {'email': 'dharamraj@gmail.com',
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/emails", data=json.dumps(payload),
+                                 headers=headers)
+
+        self.assertEqual(response.status_code, 200)
+
+ #+END_SRC
+
+
+** Get Names
+*** API Design
+**** Get all names
+  :PROPERTIES:
+  :CUSTOM_ID: api_get_all_sections
+  :END:    
+  - URL :: /names
+
+  - Method :: GET
+
+  - URL Params ::  None
+
+  - Payload :: None
+
+  - Success Response
+    + Status_Code: 200
+      + Contents :
+#+BEGIN_EXAMPLE
+[{"name" : "Prof. Dharamraj", "id": 1}]
+#+END_EXAMPLE    
+  - Error Response:
+    + Contents :
+                {"status" : "error"}
+    
+  - Example:
+#+BEGIN_EXAMPLE
+http://localhost:5000/names
+#+END_EXAMPLE
+    
+*** Implementation 
+REST API to get Names.
+#+NAME: get_names
+#+BEGIN_SRC python
+@api.route('/names', methods=['GET'])
+def get_names():
+    if request.method == 'GET':
+        try:
+            current_app.logger.debug("execute get_names")
+            names = SystemInterface.get_names()
+            current_app.logger.debug("executed get_names")
+            return jsonify_list(names)
+
+        except TypeError as e:
+            current_app.logger.error("Exception = %s" % str(e))
+            err_str = str(e)
+            msg = {"status": "failure",
+                       "msg": err_str }
+            abort(500, msg)
+
+        except StateError as e:
+            current_app.logger.error("Exception = %s" % str(e))
+            err_str = str(e)
+            msg = {"status": "failure",
+                       "msg": err_str}
+            abort(500, msg)
+
+        except NotFoundError as e:
+            current_app.logger.error("Exception = %s" % str(e))
+            err_str = str(e)
+            msg = {"status": "failure",
+                       "status code": 404,
+                       "msg": err_str}
+            abort(404, msg)
+
+        except Exception as e:
+            current_app.logger.error("Exception = %s" % str(e))
+            err_str = str(e)
+            msg = {"status": "failure",
+                       "msg": err_str}
+            abort(500, msg)
+            
+#+END_SRC
+
+*** Test Cases
+**** TestGetNames
+ #+NAME: test_get_names
+ #+BEGIN_SRC python
+class TestGetNames(TestCase):
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_get_names(self):
+        print "test_get_names_in_rest"
+
+        payload = {'name': 'Prof. Dharamraj',
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/names", data=json.dumps(payload),
+                                 headers=headers)
+
+        response = self.client.get("/names", headers=headers)
+        self.assertEqual(response.status_code, 200)
+
+ #+END_SRC
+ 
+
+** Add Name
+*** API Design
+**** Add names
+  :PROPERTIES:
+  :CUSTOM_ID: api_add_names
+  :END:    
+  - URL :: /names
+
+  - Method :: POST
+
+  - URL Params ::  None
+
+  - Payload :: 
+#+BEGIN_EXAMPLE
+
+{
+  "key": "<key>",
+  "name" : "Prof. Dharamraj"
+}
+
+#+END_EXAMPLE	       
+
+  - Success Response
+    + Status_Code: 200
+    + Content: 
+#+BEGIN_EXAMPLE
+{
+  "id": 1, 
+  "name": "Prof. Dharamraj"
+}
+#+END_EXAMPLE
+
+  - Error Response:
+    + Contents :
+                {"status" : "error"}
+    
+  - Example:
+#+BEGIN_EXAMPLE
+http://localhost:5000/names
+#+END_EXAMPLE 
+
+*** Implementation 
+REST API to  add Name.
+#+NAME: add_name
+#+BEGIN_SRC python
+@api.route('/names', methods=['POST'])
+def add_name():
+    if request.method == 'POST':
+        if request.is_json:
+            data_json = json.dumps(request.get_json())
+            data_dict = yaml.safe_load(data_json)
+        else:
+            abort(500, "the request does not contain data in json")
+
+        try:
+            current_app.logger.debug("execute add_name")
+            name = SystemInterface.add_name(data_dict)
+            current_app.logger.debug("executed add_name")
+            return jsonify(name)
+
+        except NotAuthorizedError as e:
+            current_app.logger.error("Exception = %s" % str(e))
+            err_str = str(e)
+            msg = {"status": "failure",
+                    "status code": 401,
+                       "msg": err_str}
+            abort(401, msg)
+
+        except TypeError as e:
+            current_app.logger.error("Exception = %s" % str(e))
+            err_str = str(e)
+            msg = {"status": "failure",
+                       "msg": err_str }
+            abort(500, msg)
+
+        except StateError as e:
+            current_app.logger.error("Exception = %s" % str(e))
+            err_str = str(e)
+            msg = {"status": "failure",
+                       "msg": err_str}
+            abort(500, msg)
+
+        except NotFoundError as e:
+            current_app.logger.error("Exception = %s" % str(e))
+            err_str = str(e)
+            msg = {"status": "failure",
+                       "status code": 404,
+                       "msg": err_str}
+            abort(404, msg)
+
+        except Exception as e:
+            current_app.logger.error("Exception = %s" % str(e))
+            err_str = str(e)
+            msg = {"status": "failure",
+                       "msg": err_str}
+            abort(500, msg)
+            
+#+END_SRC
+
+*** Test Cases
+**** TestAddName
+ #+NAME: test_add_name
+ #+BEGIN_SRC python
+class TestAddName(TestCase):
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_add_name(self):
+        print "test_add_name_in_rest"
+        payload = {'name': 'Prof. Dharamraj',
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/names", data=json.dumps(payload),
+                                 headers=headers)
+
+        self.assertEqual(response.status_code, 200)
+
+ #+END_SRC
+
+
+** Get Developers
+*** API Design
+**** Get all Developers
+  :PROPERTIES:
+  :CUSTOM_ID: api_get_all_developers
+  :END:    
+  - URL :: /developers
+
+  - Method :: GET
+
+  - URL Params ::  None
+
+  - Payload :: None
+
+  - Success Response
+    + Status_Code: 200
+      + Contents :
+
+#+BEGIN_EXAMPLE
+[
+    {
+        "id": 1,
+        "name": {
+            "name": "Prof. Dharamrajiiiiii",
+            "id": 4
+        },
+        "email": {
+            "email": "dharamrajiiiiii@gmail.com",
+            "id": 4
+        }
+    },
+    {
+        "id": 2,
+        "name": {
+            "name": "Prof. Dharam",
+            "id": 5
+        },
+        "email": {
+            "email": "dharam@gmail.com",
+            "id": 5
+        }
+    }
+]
+#+END_EXAMPLE	       
+
+    
+  - Error Response:
+    + Contents :
+      {"status" : "error"}
+    
+  - Example:
+#+BEGIN_EXAMPLE
+http://localhost:5000/developers
+#+END_EXAMPLE
+
+*** Implementation
+REST API to get all developers.
+#+NAME: get_developer
+#+BEGIN_SRC python
+@api.route('/developers', methods=['GET'])
+def get_developer():
+    if request.method == 'GET':
+       if 'email' in request.args:
+           email  = request.args['email']
+           try:
+               current_app.logger.debug("execute get_developer")
+               developer = SystemInterface.get_developer(email)
+               current_app.logger.debug("executed get_developer")
+               return jsonify(developer)
+           
+           except TypeError as e:
+               current_app.logger.error("Exception = %s" % str(e))
+               err_str = str(e)
+               msg = {"status": "failure",
+                        "msg": err_str }
+               abort(500, msg)
+
+           except StateError as e:
+               current_app.logger.error("Exception = %s" % str(e))
+               err_str = str(e)
+               msg = {"status": "failure",
+                        "msg": err_str}
+               abort(500, msg)
+           
+           except NotFoundError as e:
+               current_app.logger.error("Exception = %s" % str(e))
+               err_str = str(e)
+               msg = {"status": "failure",
+                        "status code": 404,
+                        "msg": err_str}
+               abort(404, msg)
+           
+           except Exception as e:
+               current_app.logger.error("Exception = %s" % str(e))
+               err_str = str(e)
+               msg = {"status": "failure",
+                        "msg": err_str}
+               abort(500, msg)
+           
+       else:
+           try:
+               current_app.logger.debug("execute get_developers")
+               developers = SystemInterface.get_developers()
+               current_app.logger.debug("executed get_developers")
+               return jsonify_list(developers)
+
+           except TypeError as e:
+               current_app.logger.error("Exception = %s" % str(e))
+               err_str = str(e)
+               msg = {"status": "failure",
+                        "msg": err_str }
+               abort(500, msg)
+           
+           except StateError as e:
+               current_app.logger.error("Exception = %s" % str(e))
+               err_str = str(e)
+               msg = {"status": "failure",
+                        "msg": err_str}
+               abort(500, msg)
+           
+           except NotFoundError as e:
+               current_app.logger.error("Exception = %s" % str(e))
+               err_str = str(e)
+               msg = {"status": "failure",
+                        "status code": 404,
+                        "msg": err_str}
+               abort(404, msg)
+           
+           except Exception as e:
+               current_app.logger.error("Exception = %s" % str(e))
+               err_str = str(e)
+               msg = {"status": "failure",
+                        "msg": err_str}
+               abort(500, msg)
+#+END_SRC
+
+*** Test Cases
+**** TestGetDeveloper
+ #+NAME: test_get_Developer
+ #+BEGIN_SRC python
+class TestGetDeveloper(TestCase):
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_get_developers(self):
+        print "test_get_developers_in_rest"
+
+        payload = {'dev_name': 'Prof. Dharamraj',
+                   'email_id': 'dharamraj@gmail.com',
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/developers", data=json.dumps(payload),
+                                 headers=headers)
+
+        response = self.client.get("/developers", headers=headers)
+        self.assertEqual(response.status_code, 200)
+
+ #+END_SRC
+
+
+** Add Developer
+*** API Design
+**** Add Developer
+  :PROPERTIES:
+  :CUSTOM_ID: api_add_developer
+  :END:    
+  - URL :: /developers
+
+  - Method :: POST
+
+  - URL Params ::  None
+
+  - Payload :: 
+#+BEGIN_EXAMPLE
+{
+"name": "Prof. Dharam",
+"email": "joy@gmail.com",
+"assets": ["vlabs.ac.in/static/images/logo.png"],
+"key": "<key>"
+}
+#+END_EXAMPLE	       
+
+  - Success Response
+    + Status_Code: 200
+    + Content: 
+#+BEGIN_EXAMPLE
+{
+  "email": {
+    "email": "joy@gmail.com", 
+    "id": "5"
+  }, 
+  "id": "4", 
+  "name": {
+    "id": "5", 
+    "name": "Prof. Dharam"
+  }
+}
+
+#+END_EXAMPLE
+
+  - Error Response:
+    + Contents :
+      {"status" : "error"}
+    
+  - Example:
+#+BEGIN_EXAMPLE
+http://localhost:5000/developers
+#+END_EXAMPLE
+    
+*** Implementation
+REST API to add an developer.
+#+NAME: add_developer
+#+BEGIN_SRC python
+@api.route('/developers', methods=['POST'])
+def add_developer():
+    if request.method == 'POST':
+        if request.is_json:
+            data_json = json.dumps(request.get_json())
+            data_dict = yaml.safe_load(data_json)
+        else:
+            abort(500, "the request does not contain data in json")
+
+        try:
+            current_app.logger.debug("execute add_developer")
+            developer = SystemInterface.add_developer(data_dict)
+            current_app.logger.debug("executed add_developer")
+            return jsonify(developer.to_client())
+
+        except NotAuthorizedError as e:
+            current_app.logger.error("Exception = %s" % str(e))
+            err_str = str(e)
+            msg = {"status": "failure",
+                    "status code": 401,
+                       "msg": err_str}
+            abort(401, msg)
+
+        except TypeError as e:
+            current_app.logger.error("Exception = %s" % str(e))
+            err_str = str(e)
+            msg = {"status": "failure",
+                       "msg": err_str }
+            abort(500, msg)
+
+        except StateError as e:
+            current_app.logger.error("Exception = %s" % str(e))
+            err_str = str(e)
+            msg = {"status": "failure",
+                       "msg": err_str}
+            abort(500, msg)
+
+        except NotFoundError as e:
+            current_app.logger.error("Exception = %s" % str(e))
+            err_str = str(e)
+            msg = {"status": "failure",
+                       "status code": 404,
+                       "msg": err_str}
+            abort(404, msg)
+
+        except Exception as e:
+            current_app.logger.error("Exception = %s" % str(e))
+            err_str = str(e)
+            msg = {"status": "failure",
+                       "msg": err_str}
+            abort(500, msg)
+            
+#+END_SRC
+
+*** Test Cases
+**** TestAddDeveloper
+ #+NAME: test_add_developer
+ #+BEGIN_SRC python
+class TestAddDeveloper(TestCase):
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_add_developer(self):
+        print "test_add_developer_in_rest"
+
+        payload = {'name': 'Prof. Dharamraj',
+                   'email': 'dharamraj@gmail.com',
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/developers", data=json.dumps(payload),
+                                 headers=headers)
+
+        self.assertEqual(response.status_code, 200)
+
+ #+END_SRC
+
 
 ** Update Experiment
 *** API Design
@@ -7580,24 +7722,7 @@ class TestDeleteLab(TestCase):
 
   - Payload :: 
 #+BEGIN_EXAMPLE
-{"exp_name": "2D Array", 
-"exp_id": "cse02",
-"institute_id": "iiith",
-"discipline_id": "cse",
-"overview" : "overview",
-"assets": [{"path":"vlabs.ac.in/images/static/logo.png","asset_type": "image"},
- {"path":"vlabs.ac.in/images/static/image.png", "asset_type": "image"}],
-"developers": [{"name":"Prof. Dharamaja", "email": "abc@gmail.com", 
-"institute_id": "IITK", "discipline_id": "CSE"}, {"name":"Prof. Pallavi Pawar", 
-"email": "pallavi.pawar@gmail.com", "institute_id": "IITK", "discipline_id": "CSE"}],
-"hosting_info": [{"hosted_url":"http://cse14-iiith.vlabs.ac.in",
- "hosting_status": "hosted", "hosted_on": "cloud"},
- {"hosted_url":"http://iitkgp.vlab.co.in/", "hosting_status": "hosted", 
-"hosted_on": "server"}],
-"sections": ["Theory", "Procedure"],
-"integration_level": 4,
-"key":"<key>"
-}
+
 
 #+END_EXAMPLE	       
 
@@ -9593,7 +9718,7 @@ class TestDeleteIntegration_Status(TestCase):
     
   - Error Response:
     + Contents :
-                {"status" : "error"}
+      {"status" : "error"}
     
   - Example:
 #+BEGIN_EXAMPLE
@@ -9726,7 +9851,7 @@ class TestDeleteEmail(TestCase):
     
   - Error Response:
     + Contents :
-                {"status" : "error"}
+      {"status" : "error"}
 
     
   - Example:
@@ -9753,7 +9878,7 @@ http://localhost:5000/names/1
     
   - Error Response:
     + Contents :
-                {"status" : "error"}
+      {"status" : "error"}
     
   - Example:
 #+BEGIN_EXAMPLE
@@ -9785,7 +9910,7 @@ http://localhost:5000/names/2
     
   - Error Response:
     + Contents :
-                {"status" : "error"}
+      {"status" : "error"}
     
   - Example:
 #+BEGIN_EXAMPLE
