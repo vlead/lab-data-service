@@ -114,14 +114,14 @@ class TestPersistentLab(TestCase):
         asset = Asset(asset_type=asset_type, path=path)
         asset.save()
 
-        inst_name = "IIT Kanpur"
-        inst_id = "IITK"
-        inst = Institute(inst_name=inst_name, inst_id=inst_id, assets=[asset])
+        institute_name = "IIT Kanpur"
+        institute_id = "IITK"
+        inst = Institute(institute_name=institute_name, institute_id=institute_id, assets=[asset])
         inst.save()
 
-        dis_name = "IIT Kanpur"
-        dis_id = "IITK"
-        discipline = Discipline(dis_name=dis_name, dis_id=dis_id,
+        discipline_name = "IIT Kanpur"
+        discipline_id = "IITK"
+        discipline = Discipline(discipline_name=discipline_name, discipline_id=discipline_id,
                                     assets=[asset])
         discipline.save()
 
@@ -192,10 +192,10 @@ class TestPersistentLab(TestCase):
         self.assertEqual(lab1.get("lab_name"), lab_name1)
         self.assertEqual(lab1.get("lab_id"), lab_id1)
         self.assertEqual(lab1.get("overview"), overview1)
-        self.assertEqual(lab1.get("institute").get("inst_name"), 
-                             inst.get("inst_name"))
-        self.assertEqual(lab1.get("discipline").get("dis_name"), 
-                             discipline.get("dis_name"))
+        self.assertEqual(lab1.get("institute").get("institute_name"), 
+                             inst.get("institute_name"))
+        self.assertEqual(lab1.get("discipline").get("discipline_name"), 
+                             discipline.get("discipline_name"))
         self.assertEqual(lab1.get("assets")[0].get("asset_type"), 
                              asset.get("asset_type"))
         self.assertEqual(lab1.get("experiments")[0].get("exp_name"), 
@@ -215,10 +215,10 @@ class TestPersistentLab(TestCase):
         self.assertEqual(lab2.get("lab_name"), lab_name2)
         self.assertEqual(lab2.get("lab_id"), lab_id2)
         self.assertEqual(lab2.get("overview"), overview2)
-        self.assertEqual(lab2.get("institute").get("inst_name"), 
-                             inst.get("inst_name"))
-        self.assertEqual(lab2.get("discipline").get("dis_name"), 
-                             discipline.get("dis_name"))
+        self.assertEqual(lab2.get("institute").get("institute_name"), 
+                             inst.get("institute_name"))
+        self.assertEqual(lab2.get("discipline").get("discipline_name"), 
+                             discipline.get("discipline_name"))
         self.assertEqual(lab2.get("hosting_info")[0].get("hosting_status"), 
                              host.get("hosting_status"))
         self.assertEqual(lab2.get("experiments"), [])
@@ -331,14 +331,14 @@ class TestPersistenceExperiment(TestCase):
         asset = Asset(asset_type=asset_type, path=path)
         asset.save()
         
-        inst_name = "IIT Kanpur"
-        inst_id = "IITK"
-        inst = Institute(inst_name=inst_name, inst_id=inst_id, assets=[asset])
+        institute_name = "IIT Kanpur"
+        institute_id = "IITK"
+        inst = Institute(institute_name=institute_name, institute_id=institute_id, assets=[asset])
         inst.save()
 
-        dis_name = "IIT Kanpur"
-        dis_id = "IITK"
-        discipline = Discipline(dis_name=dis_name, dis_id=dis_id,
+        discipline_name = "IIT Kanpur"
+        discipline_id = "IITK"
+        discipline = Discipline(discipline_name=discipline_name, discipline_id=discipline_id,
                                     assets=[asset])
         discipline.save()      
 
@@ -375,10 +375,10 @@ class TestPersistenceExperiment(TestCase):
         self.assertEqual(experiment.get("exp_name"), exp_name)
         self.assertEqual(experiment.get("exp_id"), exp_id)
         self.assertEqual(experiment.get("overview"), overview)
-        self.assertEqual(experiment.get("institute").get("inst_name"), 
-                             inst.get("inst_name"))
-        self.assertEqual(experiment.get("discipline").get("dis_name"), 
-                             discipline.get("dis_name"))
+        self.assertEqual(experiment.get("institute").get("institute_name"), 
+                             inst.get("institute_name"))
+        self.assertEqual(experiment.get("discipline").get("discipline_name"), 
+                             discipline.get("discipline_name"))
         self.assertEqual(experiment.get("integration_status").\
                              get("integration_level"), 
                              intstatus.get("integration_level"))
@@ -396,7 +396,7 @@ class TestPersistenceExperiment(TestCase):
 
 * Institute
 
-  =Institute= is a class with attributes =inst_name= and =inst_id= of type =is_email_str=.
+  =Institute= is a class with attributes =institute_name= and =institute_id= of type =is_email_str=.
 
 #+NAME: class_association_Table1
 #+BEGIN_SRC python
@@ -417,8 +417,8 @@ institutes_assets = db.Table('institutes_assets',
 #+begin_src python
 args = {"__tablename__": "institute",
         "id": db.Column(db.Integer, primary_key=True),
-        "inst_name": db.Column(db.String(255), unique=False, nullable=True),
-        "inst_id": db.Column(db.String(255), unique=True, nullable=False),
+        "institute_name": db.Column(db.String(255), unique=False, nullable=True),
+        "institute_id": db.Column(db.String(255), unique=True, nullable=False),
         "labs": db.relationship('Lab', backref=db.backref('institute')),
         "experiments": db.relationship('Experiment', backref=\
                                            db.backref('institute')),
@@ -426,7 +426,7 @@ args = {"__tablename__": "institute",
                                       backref='institutes')
        }
 
-Institute = ClassPersistenceTemplate.mk_persistent(Institute, ['inst_id'],\
+Institute = ClassPersistenceTemplate.mk_persistent(Institute, ['institute_id'],\
                                                        ,**args)
 
 #+end_src
@@ -456,14 +456,14 @@ class TestPersistenceInstitute(TestCase):
         asset = Asset(asset_type=asset_type, path=path)
         asset.save() 
 
-        inst_name = "IIT Kanpur"
-        inst_id = "IITK"
-        inst = Institute(inst_name=inst_name, inst_id=inst_id, assets=[asset])
+        institute_name = "IIT Kanpur"
+        institute_id = "IITK"
+        inst = Institute(institute_name=institute_name, institute_id=institute_id, assets=[asset])
         inst.save()
         institute = Institute.get_by_id(1)
         institute1 = Institute.get_by_id(2)
-        self.assertEqual(institute.get("inst_name"), inst_name)
-        self.assertEqual(institute.get("inst_id"), inst_id)   
+        self.assertEqual(institute.get("institute_name"), institute_name)
+        self.assertEqual(institute.get("institute_id"), institute_id)   
         self.assertEqual(institute.get("assets")[0].get("asset_type"), 
                              asset.get("asset_type"))    
         self.assertEqual(institute1,None)
@@ -472,7 +472,7 @@ class TestPersistenceInstitute(TestCase):
 
 
 * Discipline
-  =Discipline= is a class with attributes =dis_name= and =dis_id= of type
+  =Discipline= is a class with attributes =discipline_name= and =discipline_id= of type
   =is_email_str=.
 
 #+NAME: class_asset_association_Table
@@ -489,8 +489,8 @@ disciplines_assets = db.Table('disciplines_assets',
 #+begin_src python
 args = {"__tablename__": "discipline",
         "id": db.Column(db.Integer, primary_key=True),
-        "dis_name": db.Column(db.String(255), unique=False, nullable=True),
-        "dis_id": db.Column(db.String(255), unique=True, nullable=False),
+        "discipline_name": db.Column(db.String(255), unique=False, nullable=True),
+        "discipline_id": db.Column(db.String(255), unique=True, nullable=False),
         "labs": db.relationship('Lab', backref=db.backref('discipline')),
         "experiments": db.relationship('Experiment', backref=\
                                            db.backref('discipline')),
@@ -498,7 +498,7 @@ args = {"__tablename__": "discipline",
                                       backref='disciplines')
         }
 
-Discipline = ClassPersistenceTemplate.mk_persistent(Discipline, ['dis_id'],\
+Discipline = ClassPersistenceTemplate.mk_persistent(Discipline, ['discipline_id'],\
                                                         ,**args)
 
 #+end_src
@@ -529,14 +529,14 @@ class TestPersistenceDiscipline(TestCase):
         asset = Asset(asset_type=asset_type, path=path)
         asset.save()
 
-        dis_name = "IIT Delhi"
-        dis_id = "ECE08"
-        dis = Discipline(dis_name=dis_name, dis_id=dis_id, assets=[asset])
+        discipline_name = "IIT Delhi"
+        discipline_id = "ECE08"
+        dis = Discipline(discipline_name=discipline_name, discipline_id=discipline_id, assets=[asset])
         dis.save()
 
         discipline = Discipline.get_by_id(1)
-        self.assertEqual(discipline.get("dis_name"), dis_name)
-        self.assertEqual(discipline.get("dis_id"), dis_id)
+        self.assertEqual(discipline.get("discipline_name"), discipline_name)
+        self.assertEqual(discipline.get("discipline_id"), discipline_id)
         self.assertEqual(discipline.get("assets")[0].get("asset_type"), 
                              asset.get("asset_type"))
 
