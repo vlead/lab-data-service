@@ -1,4 +1,4 @@
-#SHELL := /bin/bash
+SHELL := /bin/bash
 
 CODE_DIR=build/code
 DOC_DIR=build/docs
