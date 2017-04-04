@@ -152,62 +152,48 @@ if __name__ == "__main__":
 
 * Program to populate lab and experiment data from lab spects 
 #+BEGIN_SRC python :tangle dunp_json_to_lds.py :eval no 
+import os
+import os.path
 import json
 import requests
 
-def labspec():
-     with open("testexp.json") as json_file:
-         data = json.load(json_file)
-         print type(data)
-         url = 'http://localhost:5000/experiments'
-         data[0]['key'] = 'defaultkey'
-         print json.dumps(data[0])
-         headers = {'Content-Type': 'application/json'}
-        
-         response = requests.post(url, data = json.dumps(data[0]),
-                                  headers=headers)
-         print response.status_code
-if __name__ == "__main__":
-    labspec()
-"""
-import json
-from glob import glob
-import os.path, requests, urllib
+URL= 'http://localhost:5000'
+json_path_list = []
 
-def datadump():
-    pattern = os.path.join('/home/osboxes/Documents/spectest', '*.json')
-    for file_name in glob(pattern):
-        with open(file_name) as f:
-                print "************"
-                data=json.load(f)
-                data = data[0].keys()
-                print data
-                url = 'http://localhost:5000/'
-                print data
-                if 'lab' in data:
-                    print "***********************"
-                    param = urllib.urlencode({'labs'})
-                    url = url + param
-                    data[0]['key'] = 'defaultkey'
-                    print json.dumps(data[0])
-                    headers = {'Content-Type': 'application/json'}
-                    response = requests.post(url, data = json.dumps(data[0]),
-                                    headers=headers)
-                    print response.status_code
-                if 'experiment' in data:
-                    param = urllib.urlencode({'experiments'})
-                    url = url + param
-                    data[0]['key'] = 'defaultkey'
-                    print json.dumps(data[0])
-                    headers = {'Content-Type': 'application/json'}
-                    response = requests.post(url, data = json.dumps(data[0]),
-                                    headers=headers)
-                    print response.status_code
-if __name__ == "__main__":
-    datadump()
-"""
+def post_lab_spec(file_path):
+
+    with open(file_path) as json_file:
+        data = json.load(json_file)
+        if 'lab' in data.keys():
+            data['lab']['integration_level'] = int(data['lab']['integration_level'])
+            end_point = "/labs"
+        if 'experiment' in data.keys():
+            data['experiment']['integration_level'] = int(data['experiment']['integration_level'])
+            end_point = "/experiments"
+
+        data['key'] = 'defaultkey'
+        APP_URL = URL + end_point
+        headers = {'Content-Type': 'application/json'}
+        try:
+            response = requests.post(APP_URL, data = json.dumps(data),
+                                     headers=headers)
+            if response.status_code == 200:
+                print "Added json data : " + file_path
+            else:
+                print "Errore in adding json file " + file_path + " due to " + response.text
+        except Exception as e:
+            print str(e)
+try:
+    for dirpath, dirnames, filenames in os.walk(os.getcwd()):
+        for filename in [f for f in filenames if f.endswith(".json")]:
+            json_path_list.append(os.path.join(dirpath, filename))
+except Exception as e:
+    print str(e)
+
+for file_path in json_path_list:
+    post_lab_spec(file_path)
+
 #+END_SRC
-
 
 
 * Install all dependencies and setup the software
