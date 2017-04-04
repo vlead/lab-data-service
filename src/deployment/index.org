@@ -151,11 +151,12 @@ if __name__ == "__main__":
 #+END_SRC
 
 * Program to populate lab and experiment data from lab spects 
-#+BEGIN_SRC python :tangle dunp_json_to_lds.py :eval no 
+#+BEGIN_SRC python :tangle dump_json_to_lds.py :eval no 
 import os
 import os.path
 import json
 import requests
+import glob
 
 URL= 'http://localhost:5000'
 json_path_list = []
@@ -163,12 +164,11 @@ json_path_list = []
 def post_lab_spec(file_path):
 
     with open(file_path) as json_file:
+        print file_path
         data = json.load(json_file)
         if 'lab' in data.keys():
-            data['lab']['integration_level'] = int(data['lab']['integration_level'])
             end_point = "/labs"
         if 'experiment' in data.keys():
-            data['experiment']['integration_level'] = int(data['experiment']['integration_level'])
             end_point = "/experiments"
 
         data['key'] = 'defaultkey'
@@ -184,14 +184,17 @@ def post_lab_spec(file_path):
         except Exception as e:
             print str(e)
 try:
-    for dirpath, dirnames, filenames in os.walk(os.getcwd()):
-        for filename in [f for f in filenames if f.endswith(".json")]:
-            json_path_list.append(os.path.join(dirpath, filename))
+    exp_file_list = glob.glob(os.getcwd() + "/e9*.json")
+    lab_file_list = glob.glob(os.getcwd() + "/[!e9]*.json")
+
+    for filename in exp_file_list:
+        json_path_list.append(filename)
 except Exception as e:
     print str(e)
 
 for file_path in json_path_list:
     post_lab_spec(file_path)
+post_lab_spec(lab_file_list[0])
 
 #+END_SRC
 
