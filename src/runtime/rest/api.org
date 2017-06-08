@@ -11020,8 +11020,8 @@ class TestDeleteAsset(TestCase):
         self.assertEqual(response.status_code, 200)
 
  #+END_SRC
-   
-
+     
+     
 ** Get Resource to ID map
 *** API Design
 **** Get Resource to ID map
@@ -11106,9 +11106,175 @@ def generate_experiment_resource_map():
 #+END_SRC
 
 *** Test Cases
+**** TestResourceById
+ #+NAME: test_get_resource_by_id
+#+BEGIN_SRC python
+class TestResourceById(TestCase):
+    TESTING = True
 
+    def create_app(self):
+        app = create_app(config)
+        return app
 
+    def setUp(self):
+        db.create_all()
 
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_get_resource_by_id(self):
+        print "test_get_resource_by_id"
+
+        payload = {'asset_type': 'Image',
+                   'path': 'vlabs.ac.in/images/static/logo.png',
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/assets", data=json.dumps(payload),
+                                    headers=headers)
+
+        payload = {'institute_name': 'IIT Kanpur',
+                   'institute_id': 'IITK',
+                   'assets': ['vlabs.ac.in/images/static/logo.png'],
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/institutes", data=json.dumps(payload),
+                                    headers=headers)
+
+        payload = {'discipline_name': 'Computer Science',
+                   'discipline_id': 'CSE',
+                   'assets': ['vlabs.ac.in/images/static/logo.png'],
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/disciplines", data=json.dumps(payload),
+                                    headers=headers)
+
+        payload = {'integration_level': 4,
+                   'key': KEY
+                   }
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/integration_status", data=json.dumps(payload),
+                                    headers=headers)
+
+        payload = {'name': 'Prof. Dharamaja',
+                   'email': 'abc@gmail.com',
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/developers", data=json.dumps(payload),
+                                    headers=headers)
+
+        payload = {'hosting_status': 'hosted',
+                   'hosted_url': 'http://cse14-iiith.vlabs.ac.in',
+                   'hosted_on': 'cloud',
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/hosting_info", data=json.dumps(payload),
+                                    headers=headers)
+
+        payload = {
+            "key": KEY,
+            "experiment": {
+                "id": "e99847",
+                "overview": "overview",
+                "name": "Parallel and distributed processing",
+                      "discipline_id": "CSE",
+                      "institute_id": "IITK",
+                      "developers": [
+                          {
+                              "name": "Dinesh Malviya",
+                              "email": "xyz@gmail.com"
+                          },
+                          {
+                              "name": "Ashish Ahuja",
+                              "email": "abc@gmail.com"
+                          }
+                      ],
+                "hosting_info": [
+                          {
+                              "hosting_status": "hosted",
+                              "hosted_on": "college-cloud",
+                              "hosted_url": "http://cse14-iiith.ac.in"
+                          }
+                      ],
+                "integration_level": 4,
+                "assets": [
+                          {
+                              "asset_type": "image",
+                              "path": "vlabs.ac.in/images/static/logo.png"
+                          },
+                          {
+                              "asset_type": "video",
+                              "path": "vlabs.ac.in/video/abc.mkv"
+                          }
+                      ],
+                "sections": [
+                          "Introduction",
+                          "Objective",
+                          "Tutorial",
+                          "Illustration",
+                          "Procedure",
+                          "Experiment",
+                          "Observations",
+                          "Assignment",
+                          "References"
+                      ]
+            }
+        }
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/experiments", data=json.dumps(payload),
+                                    headers=headers)
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.get("/map?exp_id=e99847", data=json.dumps(payload),
+                                    headers=headers)
+
+        self.assertEqual(response.status_code, 200)
+
+#+END_SRC
+**** TestResourceByIdNotFound
+ #+NAME: test_get_resource_by_id_not_found
+#+BEGIN_SRC python
+class TestResourceByIdNotFound(TestCase):
+    TESTING = True
+
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_get_resource_by_id_not_found(self):
+        print "test_get_resource_by_id_not_found"
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.get("/map?exp_id=e99847",
+                                    headers=headers)
+
+        self.assertEqual(response.status_code, 500)
+
+#+END_SRC
+     
+     
 * Infra                                                         :boilerplate:
 
 ** sources
