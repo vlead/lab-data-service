@@ -263,17 +263,19 @@ class TestLab(TestCase):
         exp_id = "EE99777"
         overview = "This is array exp"
 
-        asset_type = "Image"
+        asset_type = AssetType(asset_type="Image")
         path = "vlabs.ac.in/images/static/logo.png"
         asset = Asset(asset_type=asset_type, path=path)
 
         institute_name = "IIIT Hyderabad"
         institute_id = "IIIT-H"
-        inst = Institute(institute_name=institute_name, institute_id=institute_id, assets=[asset])
+        inst = Institute(institute_name=institute_name,
+                             institute_id=institute_id, assets=[asset])
 
         discipline_name = "IIT Kanpur"
         discipline_id = "IITK"
-        discipline = Discipline(discipline_name=discipline_name, discipline_id=discipline_id,
+        discipline = Discipline(discipline_name=discipline_name,
+                                    discipline_id=discipline_id,
                                     assets=[asset])
 
         integration_level = 4
@@ -304,7 +306,8 @@ class TestLab(TestCase):
         lab = Lab(lab_name=lab_name, lab_id=lab_id, overview=overview,
                       institute=inst, discipline=discipline, assets=[asset],
                       integration_status=integration_status, developers=[dev],
-                      hosting_info=[host], sections=[], experiments=[experiment])
+                      hosting_info=[host], sections=[],
+                      experiments=[experiment])
 
         self.assertEqual(lab.get("lab_name"), lab_name)
         self.assertEqual(lab.get("lab_id"), lab_id)
@@ -313,8 +316,9 @@ class TestLab(TestCase):
                              inst.get("institute_name"))
         self.assertEqual(lab.get("discipline").get("discipline_name"), 
                              discipline.get("discipline_name"))
-        self.assertEqual(lab.get("assets")[0].get("asset_type"), 
-                             asset.get("asset_type"))
+        self.assertEqual(lab.get("assets")[0].get("asset_type").\
+                             get("asset_type"), 
+                             asset.get("asset_type").get("asset_type"))
         self.assertEqual(lab.get("integration_status").\
                              get("integration_level"), integration_status.\
                              get("integration_level"))
@@ -352,19 +356,21 @@ class TestInstitute(TestCase):
     def test_object_institute(self):
         print "test_object_institute"
 
-        asset_type = "Image"
+        asset_type = AssetType(asset_type="Image")
         path = "vlabs.ac.in/images/static/logo.png"
         asset = Asset(asset_type=asset_type, path=path)
 
         institute_name = "IIIT Hyderabad"
         institute_id = "IIIT-H"
-        institute = Institute(institute_name=institute_name, institute_id=institute_id,
+        institute = Institute(institute_name=institute_name,
+                                  institute_id=institute_id,
                                   assets=[asset])
                                               
         self.assertEqual(institute.get("institute_name"), institute_name)
         self.assertEqual(institute.get("institute_id"), institute_id)
-        self.assertEqual(institute.get("assets")[0].get("asset_type"), 
-                             asset.get("asset_type"))
+        self.assertEqual(institute.get("assets")[0].get("asset_type")\
+                             .get("asset_type"), 
+                             asset.get("asset_type").get("asset_type"))
        
 #+END_SRC
 
@@ -408,17 +414,19 @@ class TestExperiment(TestCase):
     def test_object_experiment(self):
         print "test_object_experiment"
 
-        asset_type = "Image"
+        asset_type = AssetType(asset_type="Image")
         path = "vlabs.ac.in/images/static/logo.png"
         asset = Asset(asset_type=asset_type, path=path)
 
         institute_name = "IIIT Hyderabad"
         institute_id = "IIIT-H"
-        inst = Institute(institute_name=institute_name, institute_id=institute_id, assets=[asset])
+        inst = Institute(institute_name=institute_name,
+                             institute_id=institute_id, assets=[asset])
 
         discipline_name = "IIT Kanpur"
         discipline_id = "IITK"
-        discipline = Discipline(discipline_name=discipline_name, discipline_id=discipline_id,
+        discipline = Discipline(discipline_name=discipline_name,
+                                    discipline_id=discipline_id,
                                     assets=[asset])  
 
         exp_name = "Number Systems"
@@ -451,8 +459,9 @@ class TestExperiment(TestCase):
         self.assertEqual(experiment.get("integration_status").\
                              get("integration_level"), \
                              integration_status.get("integration_level"))
-        self.assertEqual(experiment.get("assets")[0].get("asset_type"), 
-                             asset.get("asset_type"))       
+        self.assertEqual(experiment.get("assets")[0].get("asset_type")\
+                             .get("asset_type"), 
+                             asset.get("asset_type").get("asset_type"))       
         self.assertEqual(experiment.get("exp_id"), exp_id)
         self.assertEqual(experiment.get("sections"), [])
         self.assertEqual(experiment.get("institute").get("institute_name"), 
@@ -611,19 +620,21 @@ class TestDiscipline(TestCase):
     def test_object_discipline(self):
         print "test_object_discipline"
 
-        asset_type = "Image"
+        asset_type = AssetType(asset_type="Image")
         path = "vlabs.ac.in/images/static/logo.png"
         asset = Asset(asset_type=asset_type, path=path)
 
         discipline_name = "IIT Delhi"
         discipline_id = "ECE08"
-        discipline = Discipline(discipline_name=discipline_name, discipline_id=discipline_id,
+        discipline = Discipline(discipline_name=discipline_name,
+                                    discipline_id=discipline_id,
                                     assets=[asset])
 
         self.assertEqual(discipline.get("discipline_name"), discipline_name)
         self.assertEqual(discipline.get("discipline_id"), discipline_id)
-        self.assertEqual(discipline.get("assets")[0].get("asset_type"), 
-                             asset.get("asset_type"))
+        self.assertEqual(discipline.get("assets")[0].get("asset_type").\
+                             get("asset_type"), 
+                             asset.get("asset_type").get("asset_type"))
 
 #+END_SRC
 
@@ -649,10 +660,6 @@ class TestDev(TestCase):
     TESTING = True
     def test_object_dev(self):
         print "test_object_dev"
-
-        asset_type = "Image"
-        path = "vlabs.ac.in/images/static/logo.png"
-        asset = Asset(asset_type=asset_type, path=path)
 
         dev_name = Name(name="Mohit Tahiliani")
         email_id = Email(email="mohit.tahiliani@gmail.com")
@@ -706,7 +713,7 @@ class TestAssetType(TestCase):
 #+NAME: class_Asset
 #+begin_src python
 Asset.add_attributes(path=is_str,
-                    asset_type=is_str)
+                    asset_type=is_asset_type)
 
 Asset.__eq__ = lambda self, other: \
                   isinstance(other, self.__class__) and \
@@ -724,12 +731,13 @@ class TestAsset(TestCase):
         print "test_object_asset"
 
         path = "vlabs.ac.in/static/images/logo.png"
-        asset_type = "Image"
+        asset_type1 = AssetType(asset_type="video")
 
-        asset = Asset(path=path, asset_type=asset_type)
+        asset = Asset(path=path, asset_type=asset_type1)
                                               
         self.assertEqual(asset.get("path"), path)
-        self.assertEqual(asset.get("asset_type"), asset_type)
+        self.assertEqual(asset.get("asset_type").get("asset_type"),
+                             asset_type1.get("asset_type"))
     
 #+end_src
 
