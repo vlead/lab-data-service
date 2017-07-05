@@ -44,6 +44,7 @@ Email = ClassTemplate.mk_class("Email")
 Developer = ClassTemplate.mk_class("Developer")
 Institute = ClassTemplate.mk_class("Institute")
 Asset = ClassTemplate.mk_class("Asset")
+AssetType = ClassTemplate.mk_class("AssetType")
 HostingInfo = ClassTemplate.mk_class("HostingInfo")
 IntegrationStatus = ClassTemplate.mk_class("IntegrationStatus")
 
@@ -149,8 +150,22 @@ check_email = check_pred(is_email)
 def are_emails(emails):
     ret_val = True
     if is_list(emails):
-        for dev in emails:
+        for email in emails:
             if not is_email(email):
+                ret_val = False
+    else:
+        ret_val = False
+
+    return ret_val
+
+is_asset_type = is_inst(AssetType)
+check_asset_type = check_pred(is_asset_type)
+
+def are_asset_types(asset_types):
+    ret_val = True
+    if is_list(asset_types):
+        for asset_type in asset_types:
+            if not is_asset_type(asset_type):
                 ret_val = False
     else:
         ret_val = False
@@ -535,7 +550,7 @@ class TestName(TestCase):
 
 
 * Email
-   =Email= is an entity that has a field =email= with type =is_email_str=
+   =Email= is an entity that has a field =email= with type =is_email=
 #+NAME: class_Email
 #+begin_src python
 
@@ -645,6 +660,43 @@ class TestDev(TestCase):
 
         self.assertEqual(dev.get("name").get("name"), dev_name.get("name"))
         self.assertEqual(dev.get("email").get("email"), email_id.get("email"))
+
+#+END_SRC
+
+
+* AssetType
+   =AssetType= is an entity that has a field =asset_type= with type =is_asset_type=
+#+NAME: class_AssetType
+#+begin_src python
+
+AssetType.add_attributes(asset_type=is_str)
+
+AssetType.__eq__ = lambda self, other: \
+                  isinstance(other, self.__class__) and \
+                  self.get("asset_type") == other.get("asset_type")
+#+end_src
+
+*** Test AssetType
+#+NAME: class_TestAssetType
+#+BEGIN_SRC python
+class TestAssetType(TestCase):
+    TESTING = True
+
+    def test_instantiate_asset_type(self):
+        print "test_instantiate_asset_type"
+        self.assertEqual(is_asset_type(AssetType(asset_type="image")),
+                             True)
+        self.assertEqual(AssetType(asset_type="image").get("asset_type"),
+                         "image")
+        self.assertRaises(TypeError, AssetType, asset_type=123)
+
+    def test_object_asset_type(self):
+        print "test_object_asset_type"
+        asset_type1 = AssetType(asset_type="video")
+        self.assertEqual(asset_type1 == asset_type1, True)
+
+        asset_type2 = AssetType(asset_type="image")
+        self.assertEqual(asset_type1 == asset_type2, False)
 
 #+END_SRC
 
@@ -798,6 +850,7 @@ if __name__ == '__main__':
 <<class_Email>>
 <<class_Developer>>
 <<class_Institute>>
+<<class_AssetType>>
 <<class_Asset>>
 <<class_HostingInfo>>
 <<class_IntegrationStatus>>
@@ -816,6 +869,7 @@ if __name__ == '__main__':
 <<class_TestEmail>>
 <<class_TestDeveloper>>
 <<class_TestInstitute>>
+<<class_TestAssetType>>
 <<class_TestAsset>>
 <<class_TestHostingInfo>>
 <<class_TestIntegrationStatus>>
