@@ -31,6 +31,7 @@ class PersistenceDelegate():
                          'discipline' : Discipline,
                          'hosting_info': HostingInfo,
                          'asset' : Asset,
+                         'asset_type': AssetType,
                          'integration_status': IntegrationStatus,
                          'name' : Name,
                          'email' : Email,
@@ -120,19 +121,22 @@ class TestPersistenceDelegate(TestCase):
         lab_id1="CSE01"
         overview1 = "overview"
 
-        asset_type = "Image"
+        asset_type = AssetType(asset_type="Image")
+        asset_type.save()
         path = "vlabs.ac.in/images/static/logo.png"
         asset = Asset(asset_type=asset_type, path=path)
         asset.save()
 
         institute_name = "IIT Kanpur"
         institute_id = "IITK"
-        inst = Institute(institute_name=institute_name, institute_id=institute_id, assets=[asset])
+        inst = Institute(institute_name=institute_name,
+                             institute_id=institute_id, assets=[asset])
         inst.save()
 
         discipline_name = "IIT Kanpur"
         discipline_id = "IITK"
-        discipline = Discipline(discipline_name=discipline_name, discipline_id=discipline_id,\
+        discipline = Discipline(discipline_name=discipline_name,
+                                    discipline_id=discipline_id,\
                                     assets=[asset])
         discipline.save()
         
@@ -206,19 +210,23 @@ class TestPersistenceDelegate(TestCase):
     def test_experiment_exists(self):
         print "test_experiment_exists"
 
-        asset_type = "Image"
+        asset_type = AssetType(asset_type="Image")
+        asset_type.save()
+
         path = "vlabs.ac.in/images/static/logo.png"
         asset = Asset(asset_type=asset_type, path=path)
         asset.save()
 
         institute_name = "IIT Kanpur"
         institute_id = "IITK"
-        inst = Institute(institute_name=institute_name, institute_id=institute_id, assets=[asset])
+        inst = Institute(institute_name=institute_name,
+                             institute_id=institute_id, assets=[asset])
         inst.save()
 
         discipline_name = "IIT Kanpur"
         discipline_id = "IITK"
-        discipline = Discipline(discipline_name=discipline_name, discipline_id=discipline_id,\
+        discipline = Discipline(discipline_name=discipline_name,
+                                    discipline_id=discipline_id,\
                                     assets=[asset])
         discipline.save()
  
@@ -324,21 +332,25 @@ class TestPersistenceDelegate(TestCase):
     def test_institute_exists(self):
         print "test_institute_exists"
 
-        asset_type = "Image"
+        asset_type = AssetType(asset_type="Image")
+        asset_type.save()
+
         path = "vlabs.ac.in/images/static/logo.png"
         asset = Asset(asset_type=asset_type, path=path)
         asset.save()
 
         institute_name1 = "IIT Kanpur"
         institute_id1 = "IITK"
-        institute1 = Institute(institute_name=institute_name1, institute_id=institute_id1,
-                               assets=[asset]) 
+        institute1 = Institute(institute_name=institute_name1,
+                                   institute_id=institute_id1,
+                                   assets=[asset]) 
         inst1 = self.persistence_delegate.add_institute(institute1)
 
         institute_name2 = "IIT Kharagpur"
         institute_id2 = "IITKgp"
-        institute2 = Institute(institute_name=institute_name2, institute_id=institute_id2,
-                               assets=[asset]) 
+        institute2 = Institute(institute_name=institute_name2,
+                                   institute_id=institute_id2,
+                                   assets=[asset]) 
         
         self.assertEqual(self.persistence_delegate.institute_exists\
                              (institute1), True)
@@ -447,22 +459,6 @@ class TestPersistenceDelegate(TestCase):
     def test_developer_exists(self):
         print "test_developer_exists"
 
-        asset_type = "Image"
-        path = "vlabs.ac.in/images/static/logo.png"
-        asset = Asset(asset_type=asset_type, path=path)
-        asset.save()
-
-        institute_name = "IIT Kanpur"
-        institute_id = "IITK"
-        inst = Institute(institute_name=institute_name, institute_id=institute_id, assets=[asset])
-        inst.save()
-
-        discipline_name = "IIT Kanpur"
-        discipline_id = "IITK"
-        discipline = Discipline(discipline_name=discipline_name, discipline_id=discipline_id,\
-                                    assets=[asset])
-        discipline.save()
-
         dev_name1 = Name(name="Prof. Dharmaraj")
         dev_name1.save()
         email_id1 = Email(email="abc@gmail.com")
@@ -506,22 +502,26 @@ class TestPersistenceDelegate(TestCase):
     def test_discipline_exists(self):
         print "test_discipline_exists"
 
-        asset_type = "Image"
+        asset_type = AssetType(asset_type="Image")
+        asset_type.save()
+
         path = "vlabs.ac.in/images/static/logo.png"
         asset = Asset(asset_type=asset_type, path=path)
         asset.save()
 
         discipline_name1="IIT Delhi"
         discipline_id1="EEE08"
-        dis = Discipline(discipline_name=discipline_name1, discipline_id=discipline_id1,
-                         assets=[asset])
+        dis = Discipline(discipline_name=discipline_name1,
+                             discipline_id=discipline_id1,
+                             assets=[asset])
 
         dis1 = self.persistence_delegate.add_discipline(dis)
 
         discipline_name2="IIT Delhi"
         discipline_id2="EEE09"
-        dis2 = Discipline(discipline_name=discipline_name2, discipline_id=discipline_id2,
-                         assets=[asset])
+        dis2 = Discipline(discipline_name=discipline_name2,
+                              discipline_id=discipline_id2,
+                              assets=[asset])
 
         self.assertEqual(self.persistence_delegate.discipline_exists(dis1),
                             True)
@@ -598,12 +598,16 @@ class TestPersistenceDelegate(TestCase):
     def test_asset_exists(self):
         print "test_asset_exists"       
 
-        asset_type1 = "Image"
+        asset_type1 = AssetType(asset_type="Image")
+        asset_type1.save()
+
         path1 = "vlabs.ac.in/static/images/logo.png"
         asset1 = Asset(asset_type=asset_type1, path=path1)
         asst1 = self.persistence_delegate.add_asset(asset1)
 
-        asset_type2 = "Icon"
+        asset_type2 = AssetType(asset_type="Icon")
+        asset_type2.save()
+
         path2 = "vlabs.ac.in/static/images/icon.png"
         asset2 = Asset(asset_type=asset_type2, path=path2)
 
@@ -681,20 +685,24 @@ class TestPersistenceDelegate(TestCase):
                                                     integration_level)
          integration_status.save()
 
-         asset_type = "Image"
+         asset_type = AssetType(asset_type="Image")
+         asset_type.save()
+
          path = "vlabs.ac.in/images/static/logo.png"
          asset = Asset(asset_type=asset_type, path=path)
          asset.save()
 
          institute_name = "IIT Kanpur"
          institute_id = "IITK"
-         inst = Institute(institute_name=institute_name, institute_id=institute_id,\
+         inst = Institute(institute_name=institute_name,
+                              institute_id=institute_id,\
                               assets=[asset])
          inst.save()
 
          discipline_name = "IIT Kanpur"
          discipline_id = "IITK"
-         discipline = Discipline(discipline_name=discipline_name, discipline_id=discipline_id,\
+         discipline = Discipline(discipline_name=discipline_name,
+                                     discipline_id=discipline_id,\
                                      assets=[asset])
          discipline.save()
 
@@ -778,19 +786,23 @@ class TestPersistenceDelegate(TestCase):
     def test_add_experiment(self):
          print "test_add_experiment"
 
-         asset_type = "Image"
+         asset_type = AssetType(asset_type="Image")
+         asset_type.save()
+
          path = "vlabs.ac.in/images/static/logo.png"
          asset = Asset(asset_type=asset_type, path=path)
          asset.save()
 
          institute_name = "IIT Kanpur"
          institute_id = "IITK"
-         inst = Institute(institute_name=institute_name, institute_id=institute_id, assets=[asset])
+         inst = Institute(institute_name=institute_name,
+                              institute_id=institute_id, assets=[asset])
          inst.save()
 
          discipline_name = "IIT Kanpur"
          discipline_id = "IITK"
-         discipline = Discipline(discipline_name=discipline_name, discipline_id=discipline_id,
+         discipline = Discipline(discipline_name=discipline_name,
+                                     discipline_id=discipline_id,
                                      assets=[asset])
          discipline.save()
 
@@ -867,14 +879,17 @@ class TestPersistenceDelegate(TestCase):
     def test_add_discipline(self):
          print "test_add_discipline"
 
-         asset_type = "Image"
+         asset_type = AssetType(asset_type="Image")
+         asset_type.save()
+
          path = "vlabs.ac.in/images/static/logo.png"
          asset = Asset(asset_type=asset_type, path=path)
          asset.save()
 
          discipline_name = "IIT Delhi"
          discipline_id = "EEE08"
-         discipline = Discipline(discipline_name=discipline_name, discipline_id=discipline_id,
+         discipline = Discipline(discipline_name=discipline_name,
+                                     discipline_id=discipline_id,
                                      assets=[asset])
          discipline = self.persistence_delegate.add_discipline(discipline)
 
@@ -1012,19 +1027,23 @@ class TestPersistenceDelegate(TestCase):
     def test_add_developer(self):
          print "test_add_developer"
 
-         asset_type = "Image"
+         asset_type = AssetType(asset_type="Image")
+         asset_type.save()
+
          path = "vlabs.ac.in/images/static/logo.png"
          asset = Asset(asset_type=asset_type, path=path)
          asset.save()
 
          institute_name = "IIT Kanpur"
          institute_id = "IITK"
-         inst = Institute(institute_name=institute_name, institute_id=institute_id, assets=[asset])
+         inst = Institute(institute_name=institute_name,
+                              institute_id=institute_id, assets=[asset])
          inst.save()
 
          discipline_name = "IIT Kanpur"
          discipline_id = "IITK"
-         discipline = Discipline(discipline_name=discipline_name, discipline_id=discipline_id,
+         discipline = Discipline(discipline_name=discipline_name,
+                                     discipline_id=discipline_id,
                                      assets=[asset])
          discipline.save()
 
@@ -1041,19 +1060,23 @@ class TestPersistenceDelegate(TestCase):
     def test_add_developer_without_saving_name(self):
          print "test_add_developer_without_saving_name"
 
-         asset_type = "Image"
+         asset_type = AssetType(asset_type="Image")
+         asset_type.save()
+
          path = "vlabs.ac.in/images/static/logo.png"
          asset = Asset(asset_type=asset_type, path=path)
          asset.save()
 
          institute_name = "IIT Kanpur"
          institute_id = "IITK"
-         inst = Institute(institute_name=institute_name, institute_id=institute_id, assets=[asset])
+         inst = Institute(institute_name=institute_name,
+                              institute_id=institute_id, assets=[asset])
          inst.save()
 
          discipline_name = "IIT Kanpur"
          discipline_id = "IITK"
-         discipline = Discipline(discipline_name=discipline_name, discipline_id=discipline_id,
+         discipline = Discipline(discipline_name=discipline_name,
+                                     discipline_id=discipline_id,
                                      assets=[asset])
          discipline.save()
 
@@ -1069,19 +1092,23 @@ class TestPersistenceDelegate(TestCase):
     def test_add_developer_without_saving_email(self):
          print "test_add_developer_without_saving_email"
 
-         asset_type = "Image"
+         asset_type = AssetType(asset_type="Image")
+         asset_type.save()
+
          path = "vlabs.ac.in/images/static/logo.png"
          asset = Asset(asset_type=asset_type, path=path)
          asset.save()
 
          institute_name = "IIT Kanpur"
          institute_id = "IITK"
-         inst = Institute(institute_name=institute_name, institute_id=institute_id, assets=[asset])
+         inst = Institute(institute_name=institute_name,
+                              institute_id=institute_id, assets=[asset])
          inst.save()
 
          discipline_name = "IIT Kanpur"
          discipline_id = "IITK"
-         discipline = Discipline(discipline_name=discipline_name, discipline_id=discipline_id,
+         discipline = Discipline(discipline_name=discipline_name,
+                                     discipline_id=discipline_id,
                                      assets=[asset])
          discipline.save()
 
@@ -1117,20 +1144,24 @@ class TestPersistenceDelegate(TestCase):
     def test_add_institute(self):
          print "test_add_institute"
 
-         asset_type = "Image"
+         asset_type = AssetType(asset_type="Image")
+         asset_type.save()
+
          path = "vlabs.ac.in/images/static/logo.png"
          asset = Asset(asset_type=asset_type, path=path)
          asset.save() 
 
          institute_name1 = "IIT Kanpur"
          institute_id1 = "IITK"
-         institute1 = Institute(institute_name=institute_name1, institute_id=institute_id1,
+         institute1 = Institute(institute_name=institute_name1,
+                                    institute_id=institute_id1,
                                     assets=[asset])  
          institute1 = self.persistence_delegate.add_institute(institute1)
          
          institute_name2= "IIT Kharagpur"
          institute_id2= "IITKgp"
-         institute2 = Institute(institute_name=institute_name2, institute_id=institute_id2,
+         institute2 = Institute(institute_name=institute_name2,
+                                    institute_id=institute_id2,
                                     assets=[asset]) 
          
          institute = Institute.get_by_id(1)
@@ -1212,12 +1243,16 @@ class TestPersistenceDelegate(TestCase):
     def test_add_asset(self):
          print "test_add_asset"
 
-         asset_type1 = "Image"
+         asset_type1 = AssetType(asset_type="Image")
+         asset_type1.save()
+
          path1 = "vlabs.ac.in/static/images/logo.png"
          asset1 = Asset(asset_type=asset_type1, path=path1)
          asset1 = self.persistence_delegate.add_asset(asset1)
          
-         asset_type2 = "Video"
+         asset_type2 = AssetType(asset_type="Video")
+         asset_type2.save()
+
          path2 = "vlabs.ac.in/static/images/icon.png"
          asset2 = Asset(asset_type=asset_type2, path=path2)
          
@@ -1302,19 +1337,23 @@ class TestPersistenceDelegate(TestCase):
          overview = "overview lab"
          experiments = []
 
-         asset_type = "Image"
+         asset_type = AssetType(asset_type="Logo")
+         asset_type.save()
+
          path = "vlabs.ac.in/images/static/logo.png"
          asset = Asset(asset_type=asset_type, path=path)
          asset.save()
 
          institute_name = "IIT Kanpur"
          institute_id = "IITK"
-         inst = Institute(institute_name=institute_name, institute_id=institute_id, assets=[asset])
+         inst = Institute(institute_name=institute_name,
+                              institute_id=institute_id, assets=[asset])
          inst.save()
 
          discipline_name = "Electronics & Communications"
          discipline_id = "ECE"
-         discipline = Discipline(discipline_name=discipline_name, discipline_id=discipline_id,
+         discipline = Discipline(discipline_name=discipline_name,
+                                     discipline_id=discipline_id,
                                      assets=[asset])
          discipline.save()
 
@@ -1368,13 +1407,15 @@ class TestPersistenceDelegate(TestCase):
 
          institute_name1 = "IIT Kharagpur"
          institute_id1 = "IITKgp"
-         inst1 = Institute(institute_name=institute_name1, institute_id=institute_id1,
+         inst1 = Institute(institute_name=institute_name1,
+                               institute_id=institute_id1,
                                assets=[asset])
          inst1.save()
 
          discipline_name1 = "Computer Science & Engineering"
          discipline_id1 = "CSE"
-         discipline1 = Discipline(discipline_name=discipline_name1, discipline_id=discipline_id1,
+         discipline1 = Discipline(discipline_name=discipline_name1,
+                                      discipline_id=discipline_id1,
                                       assets=[asset])
          discipline1.save()
 
@@ -1398,7 +1439,9 @@ class TestPersistenceDelegate(TestCase):
          dev1 = Developer(name=dev_name1, email=email_id1)
          dev1.save()
 
-         asset_type1 = "Image"
+         asset_type1 = AssetType(asset_type="Image")
+         asset_type1.save()
+
          path1 = "vlabs.ac.in/images/static/image.png"
          asset1 = Asset(asset_type=asset_type1, path=path1)
          asset1.save()
@@ -1474,19 +1517,23 @@ class TestPersistenceDelegate(TestCase):
     def test_update_experiment(self):
          print "test_update_experiment"
 
-         asset_type = "Image"
+         asset_type = AssetType(asset_type="Image")
+         asset_type.save()
+
          path = "vlabs.ac.in/images/static/logo.png"
          asset = Asset(asset_type=asset_type, path=path)
          asset.save()
 
          institute_name = "IIT Kanpur"
          institute_id = "IITK"
-         inst = Institute(institute_name=institute_name, institute_id=institute_id, assets=[asset])
+         inst = Institute(institute_name=institute_name,
+                              institute_id=institute_id, assets=[asset])
          inst.save()
 
          discipline_name = "computer science"
          discipline_id = "cse"
-         discipline = Discipline(discipline_name=discipline_name, discipline_id=discipline_id,
+         discipline = Discipline(discipline_name=discipline_name,
+                                     discipline_id=discipline_id,
                                      assets=[asset])
          discipline.save()
 
@@ -1529,7 +1576,9 @@ class TestPersistenceDelegate(TestCase):
          exp_name1 = "Computer Programming"
          overview1 = "overveiw exp"
 
-         asset_type1 = "Video"
+         asset_type1 = AssetType(asset_type="Video")
+         asset_type1.save()
+
          path1 = "vlabs.ac.in/images/video/logo.png"
          asset1 = Asset(asset_type=asset_type1, path=path1)
          asset1.save()
@@ -1620,17 +1669,21 @@ class TestPersistenceDelegate(TestCase):
     def test_update_discipline(self):
          print "test_update_discipline"
 
-         asset_type = "Image"
+         asset_type = AssetType(asset_type="Logo")
+         asset_type.save()
+
          path = "vlabs.ac.in/images/static/logo.png"
          asset = Asset(asset_type=asset_type, path=path)
          asset.save()
 
          discipline_name = "IIT Delhi"
          discipline_id = "EEE08"
-         dis = Discipline(discipline_name=discipline_name, discipline_id=discipline_id, assets=[asset])
+         dis = Discipline(discipline_name=discipline_name,
+                              discipline_id=discipline_id, assets=[asset])
          dis1 = self.persistence_delegate.add_discipline(dis)
 
-         asset_type1 = "Image"
+         asset_type1 = AssetType(asset_type="Image")
+         asset_type1.save()
          path1 = "vlabs.ac.in/images/static/image.png"
          asset1 = Asset(asset_type=asset_type1, path=path1)
          asset1.save()
@@ -1747,7 +1800,9 @@ class TestPersistenceDelegate(TestCase):
     def test_update_institute(self):
          print "test_update_institute"
 
-         asset_type = "Image"
+         asset_type = AssetType(asset_type="Logo")
+         asset_type.save()
+
          path = "vlabs.ac.in/images/static/logo.png"
          asset = Asset(asset_type=asset_type, path=path)
          asset.save()
@@ -1758,7 +1813,9 @@ class TestPersistenceDelegate(TestCase):
                                    assets=[asset])
          institute1 = self.persistence_delegate.add_institute(institute)
 
-         asset_type1 = "Image"
+         asset_type1 = AssetType(asset_type="Image")
+         asset_type1.save()
+
          path1 = "vlabs.ac.in/images/static/image.png"
          asset1 = Asset(asset_type=asset_type1, path=path1)
          asset1.save()
@@ -1843,17 +1900,22 @@ class TestPersistenceDelegate(TestCase):
     def test_update_asset(self):
          print "test_update_asset"
 
-         asset_type = "Image"
+         asset_type = AssetType(asset_type="Image")
+         asset_type.save()
+
          path = "vlabs.ac.in/static/images/logo.png"
          asset = Asset(asset_type=asset_type, path=path)
          asst1 = self.persistence_delegate.add_asset(asset)
 
-         asset_type1 = "Video"
+         asset_type1 = AssetType(asset_type="Video")
+         asset_type1.save()
+
          path1 = "vlabs.ac.in/static/images/icon.png"
          asst2 = self.persistence_delegate.update_asset\
            (asst1, asset_type1),
          asst2 = Asset.get_by_id(1)
-         self.assertEqual(asst2.get("asset_type"), asset_type1)
+         self.assertEqual(asst2.get("asset_type").get("asset_type"),
+                              asset_type1.get("asset_type"))
          self.assertEqual(asst2.get("path"), path)
 
 #+END_SRC
@@ -1895,7 +1957,9 @@ class TestPersistenceDelegate(TestCase):
          lab_id = "cse01"
          overview = "overview"
 
-         asset_type = "Image"
+         asset_type = AssetType(asset_type="Image")
+         asset_type.save()
+
          path = "vlabs.ac.in/images/static/logo.png"
          asset = Asset(asset_type=asset_type, path=path)
          asset.save()
@@ -1995,7 +2059,9 @@ class TestPersistenceDelegate(TestCase):
     def test_delete_experiment(self):
          print "test_delete_experiment"
 
-         asset_type = "Image"
+         asset_type = AssetType(asset_type="Image")
+         asset_type.save()
+
          path = "vlabs.ac.in/images/static/logo.png"
          asset = Asset(asset_type=asset_type, path=path)
          asset.save()
@@ -2093,7 +2159,9 @@ class TestPersistenceDelegate(TestCase):
     def test_delete_discipline(self):
          print "test_delete_discipline"
 
-         asset_type = "Image"
+         asset_type = AssetType(asset_type="Image")
+         asset_type.save()
+
          path = "vlabs.ac.in/images/static/logo.png"
          asset = Asset(asset_type=asset_type, path=path)
          asset.save()
@@ -2339,7 +2407,9 @@ class TestPersistenceDelegate(TestCase):
     def test_delete_institute(self):
          print "test_delete_institute"
 
-         asset_type = "Image"
+         asset_type = AssetType(asset_type="Image")
+         asset_type.save()
+
          path = "vlabs.ac.in/images/static/logo.png"
          asset = Asset(asset_type=asset_type, path=path)
          asset.save()
@@ -2451,13 +2521,17 @@ class TestPersistenceDelegate(TestCase):
     def test_delete_asset(self):
          print "test_delete_asset"
 
-         asset_type = "Image"
+         asset_type = AssetType(asset_type="Image")
+         asset_type.save()
+
          path = "vlabs.ac.in/static/images/logo.png"
          asset = Asset(asset_type=asset_type, path=path)
 
          asset1 = self.persistence_delegate.add_asset(asset)
 
-         asset_type1 = "Icon"
+         asset_type1 = AssetType(asset_type="Icon")
+         asset_type1.save()
+
          path1 = "vlabs.ac.in/static/images/icon.png"
          asset1 = Asset(asset_type=asset_type1, path=path1)
 
@@ -2561,7 +2635,10 @@ class TestPersistenceDelegate(TestCase):
          lab_id="CSE02"
          overview = "overview"
 
-         asset_type = "Image"
+         asset_type = AssetType(asset_type="Image")
+         asset_type.save()
+
+
          path = "vlabs.ac.in/images/static/logo.png"
          asset = Asset(asset_type=asset_type, path=path)
          asset.save()
@@ -2670,7 +2747,9 @@ class TestPersistenceDelegate(TestCase):
          lab_id="CSE02"
          overview = "overview"
 
-         asset_type = "Image"
+         asset_type = AssetType(asset_type="Image")
+         asset_type.save()
+
          path = "vlabs.ac.in/images/static/logo.png"
          asset = Asset(asset_type=asset_type, path=path)
          asset.save()
@@ -2774,7 +2853,9 @@ class TestPersistenceDelegate(TestCase):
     def test_add_saved_labs_to_institute(self):
          print "test_add_labs_to_institute_in_persistence_delegate"
 
-         asset_type = "Image"
+         asset_type = AssetType(asset_type="Image")
+         asset_type.save()
+
          path = "vlabs.ac.in/images/static/logo.png"
          asset = Asset(asset_type=asset_type, path=path)
          asset.save()
@@ -2868,7 +2949,9 @@ class TestPersistenceDelegate(TestCase):
     def test_add_saved_sections_to_experiment(self):
          print "test_add_sections_to_experiment_in_persistence_delegate"
 
-         asset_type = "Image"
+         asset_type = AssetType(asset_type="Image")
+         asset_type.save()
+
          path = "vlabs.ac.in/images/static/logo.png"
          asset = Asset(asset_type=asset_type, path=path)
          asset.save()
@@ -2969,7 +3052,9 @@ class TestPersistenceDelegate(TestCase):
          lab_id1 = "CSE01"
          overview = "overview"
 
-         asset_type = "Image"
+         asset_type = AssetType(asset_type="Image")
+         asset_type.save()
+
          path = "vlabs.ac.in/images/static/logo.png"
          asset = Asset(asset_type=asset_type, path=path)
          asset.save()
@@ -3134,7 +3219,9 @@ class TestPersistenceDelegate(TestCase):
     def test_get_developer(self):
          print "test_get_developer"
 
-         asset_type = "Image"
+         asset_type = AssetType(asset_type="Image")
+         asset_type.save()
+
          path = "vlabs.ac.in/images/static/logo.png"
          asset = Asset(asset_type=asset_type, path=path)
          asset.save()
@@ -3192,7 +3279,9 @@ class TestPersistenceDelegate(TestCase):
                                 hosted_on=hosted_on)
          host.save()
 
-         asset_type = "Image"
+         asset_type = AssetType(asset_type="Image")
+         asset_type.save()
+
          path = "vlabs.ac.in/images/static/logo.png"
          asset = Asset(asset_type=asset_type, path=path)
          asset.save()
@@ -3259,7 +3348,9 @@ class TestPersistenceDelegate(TestCase):
     def test_get_institute(self):
          print "test_get_institute"
 
-         asset_type = "Image"
+         asset_type = AssetType(asset_type="Image")
+         asset_type.save()
+
          path = "vlabs.ac.in/images/static/logo.png"
          asset = Asset(asset_type=asset_type, path=path)
          asset.save()
@@ -3300,7 +3391,9 @@ class TestPersistenceDelegate(TestCase):
     def test_get_discipline(self):
          print "test_get_discipline"
 
-         asset_type = "Image"
+         asset_type = AssetType(asset_type="Image")
+         asset_type.save()
+
          path = "vlabs.ac.in/images/static/logo.png"
          asset = Asset(asset_type=asset_type, path=path)
          asset.save()
@@ -3336,7 +3429,9 @@ class TestPersistenceDelegate(TestCase):
     def test_get_asset(self):
          print "test_get_asset"
 
-         asset_type = "Image"
+         asset_type = AssetType(asset_type="Image")
+         asset_type.save()
+
          path = "vlabs.ac.in/static/images/logo.png"
          asset = Asset(asset_type=asset_type, path=path)
          asset.save()
@@ -3379,7 +3474,9 @@ class TestPersistenceDelegate(TestCase):
          lab_id1="CSE01"
          overview="overview"
 
-         asset_type = "Image"
+         asset_type = AssetType(asset_type="Image")
+         asset_type.save()
+
          path = "vlabs.ac.in/images/static/logo.png"
          asset = Asset(asset_type=asset_type, path=path)
          asset.save()
@@ -3449,7 +3546,9 @@ class TestPersistenceDelegate(TestCase):
          lab_id1="CSE01"
          overview="overview"
 
-         asset_type = "Image"
+         asset_type = AssetType(asset_type="Image")
+         asset_type.save()
+
          path = "vlabs.ac.in/images/static/logo.png"
          asset = Asset(asset_type=asset_type, path=path)
          asset.save()
@@ -3517,7 +3616,9 @@ class TestPersistenceDelegate(TestCase):
          lab_id1="CSE01"
          overview="overview"
 
-         asset_type = "Image"
+         asset_type = AssetType(asset_type="Image")
+         asset_type.save()
+
          path = "vlabs.ac.in/images/static/logo.png"
          asset = Asset(asset_type=asset_type, path=path)
          asset.save()
@@ -3585,7 +3686,9 @@ class TestPersistenceDelegate(TestCase):
          lab_id1="CSE01"
          overview="overview"
 
-         asset_type = "Image"
+         asset_type = AssetType(asset_type="Image")
+         asset_type.save()
+
          path = "vlabs.ac.in/images/static/logo.png"
          asset = Asset(asset_type=asset_type, path=path)
          asset.save()
@@ -3675,7 +3778,9 @@ class TestPersistenceDelegate(TestCase):
     def test_get_institutes(self):
          print "test_get_institutes"
 
-         asset_type = "Image"
+         asset_type = AssetType(asset_type="Image")
+         asset_type.save()
+
          path = "vlabs.ac.in/images/static/logo.png"
          asset = Asset(asset_type=asset_type, path=path)
          asset.save()
@@ -3799,7 +3904,9 @@ class TestPersistenceDelegate(TestCase):
     def test_get_assets(self):
          print "test_get_assets"
 
-         asset_type = "Image"
+         asset_type = AssetType(asset_type="Image")
+         asset_type.save()
+
          path = "vlabs.ac.in/static/images/logo.png"
          asset = Asset(path=path, asset_type=asset_type)     
          asset.save()
@@ -3847,7 +3954,9 @@ class TestPersistenceDelegate(TestCase):
          lab_id1="CSE01"
          overview="overview"
 
-         asset_type = "Image"
+         asset_type = AssetType(asset_type="Image")
+         asset_type.save()
+
          path = "vlabs.ac.in/images/static/logo.png"
          asset = Asset(asset_type=asset_type, path=path)
          asset.save()
@@ -3937,7 +4046,9 @@ class TestPersistenceDelegate(TestCase):
                                 hosted_on=hosted_on)
          host.save()
 
-         asset_type = "Image"
+         asset_type = AssetType(asset_type="Image")
+         asset_type.save()
+
          path = "vlabs.ac.in/images/static/logo.png"
          asset = Asset(asset_type=asset_type, path=path)
          asset.save()
@@ -4011,7 +4122,9 @@ class TestPersistenceDelegate(TestCase):
     def test_get_institute_by_id(self):
          print "test_persistence_get_institute_by_id"
 
-         asset_type = "Image"
+         asset_type = AssetType(asset_type="Image")
+         asset_type.save()
+
          path = "vlabs.ac.in/images/static/logo.png"
          asset = Asset(asset_type=asset_type, path=path)
          asset.save()
@@ -4055,14 +4168,17 @@ class TestPersistenceDelegate(TestCase):
     def test_get_discipline_by_id(self):
          print "test_persistence_get_discipline_by_id"
 
-         asset_type = "Image"
+         asset_type = AssetType(asset_type="Image")
+         asset_type.save()
+
          path = "vlabs.ac.in/images/static/logo.png"
          asset = Asset(asset_type=asset_type, path=path)
          asset.save()
 
          discipline_name = "IIT Delhi"
          discipline_id = "EEE08"
-         dis = Discipline(discipline_name=discipline_name, discipline_id=discipline_id, assets=[asset])
+         dis = Discipline(discipline_name=discipline_name,
+                              discipline_id=discipline_id, assets=[asset])
          dis.save()
 
          dis_obj = self.persistence_delegate.get_discipline_by_id(1)
