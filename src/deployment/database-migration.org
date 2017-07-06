@@ -1,0 +1,68 @@
+#+TITLE: Running Lab Data Service on Developement Environment
+#+Author: VLEAD
+#+Date: [2017-07-05 Wed]
+#+PROPERTY: results output
+#+PROPERTY: exports code
+#+SETUPFILE: ./org-templates/level-0.org
+#+options: ^:nil
+
+* Creation of database 
+  Create empty database <lds> in mysql.
+  - Login to mysql
+    #+BEGIN_EXAMPLE
+    mysql -u <username> -p<password>
+    #+END_EXAMPLE
+  - Show all databases
+    #+BEGIN_EXAMPLE
+    show databases;
+    #+END_EXAMPLE
+  - If <lds> database is not present, create it
+    #+BEGIN_EXAMPLE
+    create database lds;
+    #+END_EXAMPLE
+    Exit out of the mysql console
+    
+
+* Load <lds> database from 
+  Load <lds> database from [[http://files.vlabs.ac.in/lds/ldsdump.sql?][mysqldump]] 
+    #+BEGIN_EXAMPLE
+    mysql -u <username> -p<password> lds < ldsdump.sql
+    #+END_EXAMPLE
+
+
+* Creation of <lds> database in mongodb 
+
+  Create empty database <lds> in mongodb
+  #+BEGIN_EXAMPLE
+  use lds;
+  #+END_EXAMPLE
+
+
+* Mongify Installation 
+  #+BEGIN_EXAMPLE
+  gem install mongify
+  #+END_EXAMPLE
+
+
+* Configuration file to connect mysql database with mongodb
+  Run [[https://github.com/vlead/lab-data-service/blob/nosql/src/deployment/database.config][database.config]] file to create let mysql and mongodb communicate with
+  each other
+  #+BEGIN_EXAMPLE
+  mongify check database.config
+  #+END_EXAMPLE
+
+
+* Process to convert mysql database to mongodb database 
+  Run [[https://github.com/vlead/lab-data-service/blob/nosql/src/deployment/translation.rb][translation]] file to convert mysql <lds> database to mongodb <lds> database.
+  #+BEGIN_EXAMPLE
+  mongify process database.config translation.rb 
+  #+END_EXAMPLE
+  
+
+* mongodb dump 
+  Dump the mongodb <lds> database 
+  #+BEGIN_EXAMPLE
+  mongodump --db lds
+  #+END_EXAMPLE
+
+
