@@ -1222,6 +1222,41 @@ class TestPersistenceDelegate(TestCase):
 #+END_SRC
 
 
+***  Add asset type to the system
+
+    This function adds asset to the system.
+#+NAME: persistence_add_asset_type
+#+BEGIN_SRC python
+    def add_asset_type(self, asset_type):
+        current_app.logger.debug("running add asset type to system operation"
+                                 " asset = %s" % asset_type.to_client())
+        asset_type.save()
+        current_app.logger.debug("completed add asset to system operation"
+                                 " asset = %s" % asset_type.to_client())
+        return asset_type
+
+#+END_SRC
+
+**** Tests
+#+NAME: test_persistence_add_asset_type
+#+BEGIN_SRC python
+    def test_add_asset_type(self):
+         print "test_add_asset_type"
+
+         asset_type1 = AssetType(asset_type="Image")
+         asset1 = self.persistence_delegate.add_asset_type(asset_type1)
+         
+         asset_type2 = AssetType(asset_type="Video")
+         
+         asset_type1 = AssetType.get_by_id(1)
+
+         self.assertEqual(self.persistence_delegate.asset_exists(asset_type1),
+                          True)
+         self.assertEqual(self.persistence_delegate.asset_exists(asset_type2),
+                          False)
+#+END_SRC
+
+
 ***  Add asset to the system
 
     This function adds asset to the system.
@@ -1487,6 +1522,7 @@ class TestPersistenceDelegate(TestCase):
 
 
 #+END_SRC
+
 
 ***  Update Experiment 
     This function updates existing experiment.
@@ -4302,6 +4338,7 @@ if __name__ == '__main__':
 <<persistence_add_section>>
 <<persistence_add_institute>>
 <<persistence_add_hosting_info>>
+<<persistence_add_asset_type>>
 <<persistence_add_asset>>
 <<persistence_add_integration_status>>
 
@@ -4386,6 +4423,7 @@ if __name__ == '__main__':
 <<test_persistence_add_discipline>>
 <<test_persistence_add_hosting_info>>
 <<test_persistence_add_asset>>
+<<test_persistence_add_asset_type>>
 <<test_persistence_add_integration_status>>
 
 <<test_persistence_delete_lab>>

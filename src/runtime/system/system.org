@@ -1643,6 +1643,65 @@ class GetIntegration_Status():
 
 
 
+** =AddAssetType=
+#+NAME: class_add_asset_type
+#+begin_src python
+class AddAssetType():
+    arg_types = {"asset_type": is_asset_type, "session": is_session}
+    arity_and_type_checks_needed = True
+
+    @staticmethod
+    def auth_check(args):
+        session = args['session']
+        if not System.is_session_valid(session):
+            raise NotAuthorizedError("Not Authorized to perform this action")
+
+    @staticmethod
+    def state_check(args):
+        asset = args["asset"]
+        if System.delegate.asset_type_exists(asset_type):
+            raise StateError("asset %s already exists in System"
+                                 % asset_type.to_client())
+
+    @staticmethod
+    def action(args):
+        asset_type = args["asset_type"]
+        asset_type = System.delegate.add_asset_type(asset_type)
+        return asset_type
+
+#+end_src
+
+
+
+** =DeleteAssetType=
+#+NAME: class_delete_asset_type
+#+begin_src python
+class DeleteAssetType():
+    arg_types = {"asset_type": is_str, "session": is_session}
+    arity_and_type_checks_needed = True
+
+    @staticmethod
+    def auth_check(args):
+        session = args['session']
+        if not System.is_session_valid(session):
+            raise NotAuthorizedError("Not Authorized to perform this action")
+
+    @staticmethod
+    def state_check(args):
+        asset_type = System.delegate.get_asset_type(asset_type=asset_type)
+        if not System.delegate.asset_type_exists(asset_type):
+            raise StateError("asset type %s does not exist in System"
+                                 % asset_type.to_client())
+
+    @staticmethod
+    def action(args):
+        asset_type = args["asset_type"]
+        path = System.delegate.delete_asset(path)
+        return path
+        
+#+end_src
+
+
 ** =AddAsset=
 #+NAME: class_add_asset
 #+begin_src python
@@ -1952,7 +2011,7 @@ from runtime.objects.entities import is_str, is_lab, are_labs,\
      are_experiments, are_sections, is_name, is_email, is_developer,\
      is_institute, are_institutes, is_discipline, are_disciplines,\
      is_url, is_hosting_info, is_integration_status, is_asset, are_assets,\
-     are_hosting_info, are_developers
+     is_asset_type, are_hosting_info, are_developers
 
 from runtime.utils.type_utils import is_str_or_none
 from runtime.config.system_config import KEY
@@ -2042,6 +2101,7 @@ if __name__ == '__main__':
 <<class_get_labs_by_institute>>
 <<class_get_labs_by_lab_name>>
 <<class_get_labs_by_discipline>>
+<<class_add_asset_type>>
 <<class_add_asset>>
 <<class_get_asset>>
 <<class_update_asset>>
