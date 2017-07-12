@@ -189,6 +189,97 @@ class TestPersistenceDelegate(TestCase):
 #+END_SRC
 
 
+*** Check if =asset_type= already exists
+    This function checks if a asset_type is already in the asset-type-set of the =System=.
+#+NAME: persistence_asset_type_exists
+#+BEGIN_SRC python
+    def asset_type_exists(self, asset_type):
+        current_app.logger.debug("running check on the existence of"
+                                 " asset_type = %s" % asset_type)
+        asset_type = asset_type.get("asset_type")
+        current_app.logger.debug("completed check on the existence of"
+                                 " asset_type with type as = %s" % asset_type)
+        return asset_type == self.get_asset_type(asset_type=asset_type)
+        
+#+END_SRC
+
+**** Tests
+#+NAME: test_persistence_asset_type_exists
+#+BEGIN_SRC python
+    def test_lab_exists(self):
+        print "test_lab_exists"
+        lab_name1="Computer Programming"
+        lab_id1="CSE01"
+        overview1 = "overview"
+
+        asset_type = AssetType(asset_type="Image")
+        asset_type.save()
+        path = "vlabs.ac.in/images/static/logo.png"
+        asset = Asset(asset_type=asset_type, path=path)
+        asset.save()
+
+        institute_name = "IIT Kanpur"
+        institute_id = "IITK"
+        inst = Institute(institute_name=institute_name,
+                             institute_id=institute_id, assets=[asset])
+        inst.save()
+
+        discipline_name = "IIT Kanpur"
+        discipline_id = "IITK"
+        discipline = Discipline(discipline_name=discipline_name,
+                                    discipline_id=discipline_id,\
+                                    assets=[asset])
+        discipline.save()
+        
+        integration_level = 4
+        integration_status = IntegrationStatus(integration_level=\
+                                                   integration_level)
+        integration_status.save()
+         
+        dev_name = Name(name="Mohit Tahiliani")
+        dev_name.save()
+        email_id = Email(email="mohit.tahiliani@gmail.com")
+        email_id.save()
+        dev = Developer(name=dev_name, email=email_id)
+        dev.save()
+
+        hosting_status = "hosted"
+        hosted_url = "http://cse14-iiith.vlabs.ac.in"
+        hosted_on = "cloud"
+        host = HostingInfo(hosting_status=hosting_status,
+                               hosted_url=hosted_url, 
+                               hosted_on=hosted_on)
+        host.save()
+
+        name = "Theory"
+        section = Section(name=name)
+        section.save()
+
+
+        lab = Lab(lab_name=lab_name1, lab_id=lab_id1, overview=overview1,
+                      institute=inst, discipline=discipline, assets=[asset],
+                      experiments=[], integration_status=integration_status,
+                      developers=[dev], sections=[section],hosting_info=[host])
+
+        lab1 = self.persistence_delegate.add_lab(lab)
+
+        lab_name2="Data Structures"
+        lab_id2="CSE02"
+        overview2 = "overview"
+
+        lab2 = Lab(lab_name=lab_name2, lab_id=lab_id2, overview=overview2,
+                       integration_status=integration_status, sections=[section],               
+                       institute=inst, discipline=discipline, assets=[asset],
+                       experiments=[], developers=[dev], hosting_info=[host])
+
+        self.assertEqual(self.persistence_delegate.lab_exists(lab1),
+                            True)
+        self.assertEqual(self.persistence_delegate.lab_exists(lab2),
+                            False)
+
+#+END_SRC
+
+
 *** Check if =experiment= already exists
 
     This function checks if a user is already in the user-set of the =System=.
@@ -1244,15 +1335,15 @@ class TestPersistenceDelegate(TestCase):
          print "test_add_asset_type"
 
          asset_type1 = AssetType(asset_type="Image")
-         asset1 = self.persistence_delegate.add_asset_type(asset_type1)
+         asset_type1 = self.persistence_delegate.add_asset_type(asset_type1)
          
          asset_type2 = AssetType(asset_type="Video")
          
          asset_type1 = AssetType.get_by_id(1)
 
-         self.assertEqual(self.persistence_delegate.asset_exists(asset_type1),
+         self.assertEqual(self.persistence_delegate.asset_type_exists(asset_type1),
                           True)
-         self.assertEqual(self.persistence_delegate.asset_exists(asset_type2),
+         self.assertEqual(self.persistence_delegate.asset_type_exists(asset_type2),
                           False)
 #+END_SRC
 
@@ -1265,6 +1356,16 @@ class TestPersistenceDelegate(TestCase):
     def add_asset(self, asset):
         current_app.logger.debug("running add asset to system operation"
                                  " asset = %s" % asset.to_client())
+        asset_type = asset.get("asset_type")
+        current_app.logger.debug("running add asset to system"
+                                 " with asset type = %s" % asset_type)
+
+        if not self.asset_type_exists(asset_type):
+            asset_type.save()
+            current_app.logger.debug("completed add operation"
+                                    " to system with asset" 
+                                    " type = %s" % asset_type)
+
         asset.save()
         current_app.logger.debug("completed add asset to system operation"
                                  " asset = %s" % asset.to_client())
@@ -1286,7 +1387,6 @@ class TestPersistenceDelegate(TestCase):
          asset1 = self.persistence_delegate.add_asset(asset1)
          
          asset_type2 = AssetType(asset_type="Video")
-         asset_type2.save()
 
          path2 = "vlabs.ac.in/static/images/icon.png"
          asset2 = Asset(asset_type=asset_type2, path=path2)
@@ -3147,6 +3247,86 @@ class TestPersistenceDelegate(TestCase):
 
 
 
+***  Get AssetType
+    This function returns a lab if present in the database.  If the lab is
+    not present, =None= type is returned.
+#+NAME: persistence_get_asset_type
+#+BEGIN_SRC python
+    def get_asset_type(self, **kwargs):
+        current_app.logger.debug("running get asset_type operation")
+        current_app.logger.debug("completed get asset_type operation")
+
+        return self.get_object(AssetType, **kwargs)
+
+#+END_SRC
+
+**** Tests
+#+NAME: test_persistence_get_lab
+#+BEGIN_SRC python
+    def test_get_lab(self):
+         print "test_get_lab"
+         lab_name1 = "Computer Programming"
+         lab_id1 = "CSE01"
+         overview = "overview"
+
+         asset_type = AssetType(asset_type="Image")
+         asset_type.save()
+
+         path = "vlabs.ac.in/images/static/logo.png"
+         asset = Asset(asset_type=asset_type, path=path)
+         asset.save()
+
+         institute_name = "IIT Kanpur"
+         institute_id = "IITK"
+         inst = Institute(institute_name=institute_name, institute_id=institute_id, assets=[asset])
+         inst.save()
+
+         discipline_name = "IIT Kanpur"
+         discipline_id = "IITK"
+         discipline = Discipline(discipline_name=discipline_name, discipline_id=discipline_id,
+                                     assets=[asset])
+         discipline.save()
+
+         integration_level = 4
+         integration_status = IntegrationStatus(integration_level=
+                                                    integration_level)
+         integration_status.save()
+
+         dev_name = Name(name="Mohit Tahiliani")
+         dev_name.save()
+         email_id = Email(email="mohit.tahiliani@gmail.com")
+         email_id.save()
+         dev = Developer(name=dev_name, email=email_id)
+         dev.save()
+
+         hosting_status = "hosted"
+         hosted_url = "http://cse14-iiith.vlabs.ac.in"
+         hosted_on = "cloud"
+         host = HostingInfo(hosting_status=hosting_status,
+                                hosted_url=hosted_url,
+                                hosted_on=hosted_on)
+         host.save()
+
+         name = "Theory"
+         section = Section(name=name)
+         section.save()
+
+         lab = Lab(lab_name=lab_name1, lab_id=lab_id1, overview=overview,
+                       institute=inst, discipline=discipline, 
+                       hosting_info=[host], assets=[asset],
+                       experiments=[], developers=[dev], sections=[section], 
+                       integration_status=integration_status)
+
+         lab.save()
+
+         lab_obj = self.persistence_delegate.get_lab(lab_name=
+                                                lab.get("lab_name"))
+         self.assertEqual(lab_obj.get("lab_name"), lab.get("lab_name"))
+         self.assertEqual(lab_obj.get("lab_id"), lab.get("lab_id"))
+
+#+END_SRC
+
+
 ***  Get Section
     This function returns a section if present in the database.  If the lab is
     not present, =None= type is returned.
@@ -4323,6 +4503,7 @@ if __name__ == '__main__':
 <<persistence_get_assets>>
 
 <<persistence_lab_exists>>
+<<persistence_asset_type_exists>>
 <<persistence_section_exists>>
 <<persistence_experiment_exists>>
 <<persistence_institute_exists>>
@@ -4381,6 +4562,7 @@ if __name__ == '__main__':
 <<persistence_get_name>>
 <<persistence_get_email>>
 <<persistence_get_developer>>
+<<persistence_get_asset_type>>
 <<persistence_update_name>>
 
 #+end_src
@@ -4423,7 +4605,7 @@ if __name__ == '__main__':
 <<test_persistence_add_discipline>>
 <<test_persistence_add_hosting_info>>
 <<test_persistence_add_asset>>
-<<test_persistence_add_asset_type>>
+#<<test_persistence_add_asset_type>>
 <<test_persistence_add_integration_status>>
 
 <<test_persistence_delete_lab>>

@@ -41,6 +41,7 @@ class SystemInterface ():
         email_cls = System.delegate.entities['email']
         developer_cls = System.delegate.entities['developer']
         asset_cls = System.delegate.entities['asset']
+        asset_type_cls = System.delegate.entities['asset_type']
         section_cls = System.delegate.entities['section']
         hosting_info_cls = System.delegate.entities['hosting_info']
 
@@ -77,17 +78,19 @@ class SystemInterface ():
         discipline_id = data_dict['lab']['discipline_id']
         discipline = System.do("get_discipline", discipline_id=discipline_id)
 
-
         assets = data_dict['lab']['assets']
         asset_list = []
         for asset_x in assets:
+            asset_type = asset_type_cls(asset_type=str(asset_x['asset_type']))
             asset = System.do("get_asset", path=asset_x['path'])
             if asset is None:
-                asset = asset_cls(asset_type=str(asset_x['asset_type']), \
+                asset_type = asset_type_cls(asset_type=\
+                                                str(data_dict['asset_type']))
+                asset = asset_cls(asset_type=asset_type, \
                                       path=str(asset_x['path']))
                 asset = System.do("add_asset", asset=asset, session=session)
             asset_list.append(asset)
-
+ 
         developers = data_dict['lab']['developers']
         developer_list = []
         for developer_x in developers:
@@ -522,7 +525,7 @@ class TestAddLab(TestCase):
 
  #+END_SRC
 
-
+ 
 ** Add Experiment
 #+NAME: class_add_experiment
 #+begin_src python
@@ -538,6 +541,7 @@ class TestAddLab(TestCase):
         email_cls = System.delegate.entities['email']
         hosting_info_cls = System.delegate.entities['hosting_info']
         asset_cls = System.delegate.entities['asset']
+        asset_type_cls = System.delegate.entities['asset_type']
         session = session_cls(key=data_dict['key'])
         del(data_dict['key'])
 
@@ -565,7 +569,9 @@ class TestAddLab(TestCase):
         for asset_x in assets:
             asset = System.do("get_asset", path=asset_x['path'])
             if asset is None:
-                asset = asset_cls(asset_type=str(asset_x['asset_type']), \
+                asset_type = asset_type_cls(asset_type=\
+                                                str(data_dict['asset_type']))
+                asset = asset_cls(asset_type=asset_type, \
                                       path=str(asset_x['path']))
                 asset = System.do("add_asset", asset=asset, session=session)
             asset_list.append(asset)
@@ -890,15 +896,24 @@ class TestAddExperiment(TestCase):
         session_cls = System.delegate.entities['session']       
         institute_cls = System.delegate.entities['institute']
         asset_cls = System.delegate.entities['asset']
+        asset_type_cls = System.delegate.entities['asset_type']
 
         session = session_cls(key=data_dict['key'])
         del(data_dict['key'])
 
         assets = data_dict['assets']
         asset_list = []
-        for asset in assets:
-            asset = System.do("get_asset", path=asset)
+        for asset_x in assets:
+            asset = System.do("get_asset", path=asset_x['path'])
+            if asset is None:
+                asset_type = asset_type_cls(asset_type=\
+                                                str(data_dict['asset_type']))
+                asset = asset_cls(asset_type=asset_type, \
+                                      path=str(asset_x['path']))
+                asset = System.do("add_asset", asset=asset, session=session)
+
             asset_list.append(asset)
+
         institute = institute_cls(institute_name=str(data_dict['institute_name']),
                                   institute_id=str(data_dict['institute_id']),
                                   assets=asset_list)
@@ -997,8 +1012,15 @@ class TestAddInstitute(TestCase):
 
         assets = data_dict['assets']
         asset_list = []
-        for asset in assets:
-            asset = System.do("get_asset", path=asset)
+        for asset_x in assets:
+            asset = System.do("get_asset", path=asset_x['path'])
+            if asset is None:
+                asset_type = asset_type_cls(asset_type=\
+                                                str(data_dict['asset_type']))
+                asset = asset_cls(asset_type=asset_type, \
+                                      path=str(asset_x['path']))
+                asset = System.do("add_asset", asset=asset, session=session)
+
             asset_list.append(asset)
  
         discipline = discipline_cls(discipline_name=data_dict['discipline_name'],
@@ -2456,7 +2478,7 @@ class TestGetLabsByDiscipline(TestCase):
 
         data_dict = {
                     'key' : KEY,
-                    'asset_type': 'Image',
+                    'asset_type': 'Video',
                     'path': 'vlabs.ac.in/images/static/icon.png'
                     }
 
@@ -5112,6 +5134,7 @@ class TestGetNameById(TestCase):
         discipline_cls = System.delegate.entities['discipline']
         hosting_info_cls = System.delegate.entities['hosting_info']
         asset_cls = System.delegate.entities['asset']
+        asset_type_cls = System.delegate.entities['asset_type']
         developer_cls = System.delegate.entities['developer']
         name_cls = System.delegate.entities['name']
         email_cls = System.delegate.entities['email']
@@ -5164,10 +5187,14 @@ class TestGetNameById(TestCase):
 
         assets = data_dict['lab']['assets']
         asset_list = []
+
+
         for asset_x in assets:
             asset = System.do("get_asset", path=asset_x['path'])
             if asset is None:
-                asset = asset_cls(asset_type=str(asset_x['asset_type']), \
+                asset_type = asset_type_cls(asset_type=\
+                                                str(data_dict['asset_type']))
+                asset = asset_cls(asset_type=asset_type, \
                                       path=str(asset_x['path']))
                 asset = System.do("add_asset", asset=asset, session=session)
             asset_list.append(asset)
@@ -5587,6 +5614,7 @@ class TestUpdateLab(TestCase):
         hosting_info_cls = System.delegate.entities['hosting_info']
         developer_cls = System.delegate.entities['developer']
         asset_cls = System.delegate.entities['asset']
+        asset_type_cls = System.delegate.entities['asset_type']
         name_cls = System.delegate.entities['name']
         email_cls = System.delegate.entities['email']
         section_cls = System.delegate.entities['section']
@@ -5649,7 +5677,9 @@ class TestUpdateLab(TestCase):
         for asset_x in assets:
             asset = System.do("get_asset", path=asset_x['path'])
             if asset is None:
-                asset = asset_cls(asset_type=str(asset_x['asset_type']), \
+                asset_type = asset_type_cls(asset_type=\
+                                                str(data_dict['asset_type']))
+                asset = asset_cls(asset_type=asset_type, \
                                       path=str(asset_x['path']))
                 asset = System.do("add_asset", asset=asset, session=session)
             asset_list.append(asset)
@@ -5962,9 +5992,11 @@ class TestUpdateExperiment(TestCase):
         assets = data_dict['assets']
         asset_list = []
         for asset_x in assets:
-            asset = System.do("get_asset", path=asset_x)
+            asset = System.do("get_asset", path=asset_x['path'])
             if asset is None:
-                asset = asset_cls(asset_type=str(asset_x['asset_type']), \
+                asset_type = asset_type_cls(asset_type=\
+                                                str(data_dict['asset_type']))
+                asset = asset_cls(asset_type=asset_type, \
                                       path=str(asset_x['path']))
                 asset = System.do("add_asset", asset=asset, session=session)
             asset_list.append(asset)
@@ -6050,6 +6082,7 @@ class TestUpdateInstitute(TestCase):
                              data_dict1['assets'][0])
  #+END_SRC
 
+
 ** Update Section
 #+NAME: class_update_section
 #+begin_src python
@@ -6118,6 +6151,7 @@ class TestUpdateSection(TestCase):
 
  #+END_SRC
 
+
 ** Update Discipline
 #+NAME: class_update_discipline
 #+begin_src python       
@@ -6133,9 +6167,11 @@ class TestUpdateSection(TestCase):
         assets = data_dict['assets']
         asset_list = []
         for asset_x in assets:
-            asset = System.do("get_asset", path=asset_x)
+            asset = System.do("get_asset", path=asset_x['path'])
             if asset is None:
-                asset = asset_cls(asset_type=str(asset_x['asset_type']), \
+                asset_type = asset_type_cls(asset_type=\
+                                                str(data_dict['asset_type']))
+                asset = asset_cls(asset_type=asset_type, \
                                       path=str(asset_x['path']))
                 asset = System.do("add_asset", asset=asset, session=session)
             asset_list.append(asset)
@@ -8300,12 +8336,13 @@ class TestGetIntegration_StatusByIL(TestCase):
     def add_asset(data_dict):
         session_cls = System.delegate.entities['session']       
         asset_cls = System.delegate.entities['asset']
+        asset_type_cls = System.delegate.entities['asset_type']
     
         session = session_cls(key=data_dict['key'])
         del(data_dict['key'])
 
-        asset = asset_cls(asset_type=str(data_dict['asset_type']),
-                                  path=str(data_dict['path']))
+        asset_type = asset_type_cls(asset_type=str(data_dict['asset_type']))
+        asset = asset_cls(asset_type=asset_type, path=str(data_dict['path']))
 
         try:
             current_app.logger.debug("running operation add_asset")
@@ -8353,7 +8390,7 @@ class TestAddAsset(TestCase):
         asset_cls = System.delegate.entities['asset']
         asset = asset_cls.get_all()[0]
 
-        self.assertEqual(asset.get("asset_type"), 
+        self.assertEqual(asset.get("asset_type").get("asset_type"), 
                              data_dict['asset_type'])
         self.assertEqual(asset.get("path"), data_dict['path'])
         
@@ -8556,8 +8593,10 @@ class TestGetAssets(TestCase):
         
         asset_dict_list = SystemInterface.get_assets()
         
-        self.assertEqual(asset_dict_list[0].get("asset_type"), data_dict['asset_type'])
-        self.assertEqual(asset_dict_list[1].get("asset_type"), data_dict1['asset_type'])
+        self.assertEqual(asset_dict_list[0].get("asset_type")["asset_type"],
+                             data_dict['asset_type'])
+        self.assertEqual(asset_dict_list[1].get("asset_type")["asset_type"],
+                             data_dict1['asset_type'])
         self.assertEqual(asset_dict_list[0].get("path"), 
                              data_dict['path'])
         self.assertEqual(asset_dict_list[1].get("path"), 
@@ -8657,7 +8696,9 @@ class TestGetAssetByPath(TestCase):
         self.assertEqual(asset_data_one.get("path"), data_dict['path'])
  #+END_SRC
 
+
 ** Get Hosting_Info_by_hosted_URL
+
 #+NAME: class_get_hosting_info_by_hosted_URL
 #+begin_src python
     @staticmethod
