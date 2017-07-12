@@ -4414,7 +4414,7 @@ class TestGetLabById(TestCase):
 
         data_dict = {
                     'key' : KEY,
-                    'asset_type': 'Image',
+                    'asset_type': 'Icon',
                     'path': 'vlabs.ac.in/images/static/icon.png'
                    }
 
@@ -4513,11 +4513,11 @@ class TestGetLabById(TestCase):
 	       "integration_level": 4,
 	       "assets": [
 		   {
-		       "asset_type": "image",
+		       "asset_type": "logo",
 		       "path": "vlabs.ac.in/images/static/logo.png"
 		   },
 		   {
-		       "asset_type": "video",
+		       "asset_type": "video1",
 		       "path": "vlabs.ac.in/video/abc.mkv"
 		   }
 	       ],
@@ -4568,11 +4568,11 @@ class TestGetLabById(TestCase):
                "integration_level": 4,
                "assets": [
                {
-                   "asset_type": "image",
+                   "asset_type": "logo1",
                    "path": "vlabs.ac.in/images/static/logo.png"
                },
                {
-                   "asset_type": "video",
+                   "asset_type": "video2",
                    "path": "vlabs.ac.in/video/abc.mkv"
                }
                ],
@@ -5863,7 +5863,7 @@ class TestUpdateExperiment(TestCase):
 
         data_dict1 = {
                     'key' : KEY,
-                    'asset_type': 'Video',
+                    'asset_type': 'Video1',
                     'path': 'vlabs.ac.in/images/video/icon.png'
                    }
 
@@ -5918,10 +5918,6 @@ class TestUpdateExperiment(TestCase):
                             {
                                "asset_type": "image",
                                "path": "vlabs.ac.in/images/static/logo.png"
-                            },
-                            {
-                               "asset_type": "Video",
-                               "path": "vlabs.ac.in/images/video/image.png"
                             }
                          ],
                          "developers": [
@@ -8403,14 +8399,17 @@ class TestAddAsset(TestCase):
     def update_asset(data_dict):
         session_cls = System.delegate.entities['session']
         session = session_cls(key=str(data_dict['key']))
-   
+        asset_type_cls = System.delegate.entities['asset_type']
+        
         path = str(data_dict['path'])
         asset = System.do("get_asset", path=path)
 
         if 'asset_type' not in data_dict:
             asset_type=str(asset.get("asset_type"))
         else:
-            asset_type=data_dict['asset_type']
+            asset_type = asset_type_cls(asset_type=\
+                                            str(data_dict['asset_type']))
+
 
         try:
             current_app.logger.debug("running operation update_asset")
