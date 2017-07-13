@@ -904,7 +904,7 @@ class TestAddExperiment(TestCase):
         assets = data_dict['assets']
         asset_list = []
         for asset_x in assets:
-            asset = System.do("get_asset", path=asset_x)
+            asset = System.do("get_asset", path=asset_x['path'])
             if asset is None:
                 asset_type = asset_type_cls(asset_type=\
                                                 str(data_dict['asset_type']))
@@ -954,17 +954,14 @@ class TestAddInstitute(TestCase):
 
         data_dict = {
                     'key' : KEY,
-                    'asset_type': 'Image',
-                    'path': 'vlabs.ac.in/images/static/logo.png'
-                    }
-
-        asset = SystemInterface.add_asset(data_dict)
-
-        data_dict = {
-                    'key' : KEY,
                     'institute_name': 'IIT Kanpur',
                     'institute_id': 'IITK',
-                    'assets': ['vlabs.ac.in/images/static/logo.png']
+		    "assets": [
+			{
+			  "asset_type": "image",
+			  "path": "vlabs.ac.in/images/static/logo.png"
+			}
+		      ]
                     }
         institute = SystemInterface.add_institute(data_dict)
         institute_cls = System.delegate.entities['institute']
@@ -1007,13 +1004,14 @@ class TestAddInstitute(TestCase):
         session_cls = System.delegate.entities['session']
         discipline_cls = System.delegate.entities['discipline']
         asset_cls = System.delegate.entities['asset']
+        asset_type_cls = System.delegate.entities['asset_type']
 
         session = session_cls(key=data_dict['key'])
 
         assets = data_dict['assets']
         asset_list = []
         for asset_x in assets:
-            asset = System.do("get_asset", path=asset_x)
+            asset = System.do("get_asset", path=asset_x['path'])
             if asset is None:
                 asset_type = asset_type_cls(asset_type=\
                                                 str(data_dict['asset_type']))
@@ -1065,17 +1063,14 @@ class TestAddDiscipline(TestCase):
 
         data_dict = {
                     'key' : KEY,
-                    'asset_type': 'Image',
-                    'path': 'vlabs.ac.in/images/static/logo.png'
-                   }
-
-        asset = SystemInterface.add_asset(data_dict)
-
-        data_dict = {
-                    'key' : KEY,
                     'discipline_name': 'array',
                     'discipline_id': 'cse02',
-                    'assets': ['vlabs.ac.in/images/static/logo.png']
+		    "assets": [
+			{
+			  "asset_type": "image",
+			  "path": "vlabs.ac.in/images/static/logo.png"
+			}
+		      ]
                    }
 
         discipline = SystemInterface.add_discipline(data_dict)
@@ -1091,17 +1086,15 @@ class TestAddDiscipline(TestCase):
 
         data_dict = {
                     'key' : KEY,
-                    'asset_type': 'Image',
-                    'path': 'vlabs.ac.in/images/static/logo.png'
-                   }
-
-        asset = SystemInterface.add_asset(data_dict)
-
-        data_dict = {
-                    'key' : KEY,
                     'discipline_name': 'cse02',
                     'discipline_id': 123,
-                    'assets': ['vlabs.ac.in/images/static/logo.png']
+		    "assets": [
+			{
+			  "asset_type": "image",
+			  "path": "vlabs.ac.in/images/static/logo.png"
+			}
+		      ]
+
 		    }
         with self.assertRaises(TypeError):
             SystemInterface.add_discipline(data_dict)
@@ -1439,7 +1432,13 @@ class TestAddDeveloper(TestCase):
                     'key' : KEY,
                     'institute_name': 'IIT Kanpur',
                     'institute_id': 'IITK',
-                    'assets': ['vlabs.ac.in/images/static/logo.png']
+		    "assets": [
+			{
+			  "asset_type": "image",
+			  "path": "vlabs.ac.in/images/static/logo.png"
+			}
+		      ]
+
                     }
 
         institute = SystemInterface.add_institute(data_dict)
@@ -1448,7 +1447,13 @@ class TestAddDeveloper(TestCase):
                     'key' : KEY,
                     'discipline_name': 'computer science',
                     'discipline_id': 'CSE',
-                    'assets': ['vlabs.ac.in/images/static/logo.png']
+		    "assets": [
+			{
+			  "asset_type": "video",
+			  "path": "vlabs.ac.in/images/static/icon.png"
+			}
+		      ]
+
                    }
 
         discipline = SystemInterface.add_discipline(data_dict)
@@ -1614,7 +1619,7 @@ class TestGetLabs(TestCase):
                     'key' : KEY,
                     'institute_name': 'IIT Kanpur',
                     'institute_id': 'IITK',
-                    'assets': ['vlabs.ac.in/images/static/logo.png']
+
                     }
 
         institute = SystemInterface.add_institute(data_dict)
@@ -1623,7 +1628,13 @@ class TestGetLabs(TestCase):
                     'key' : KEY,
                     'discipline_name': 'computer science',
                     'discipline_id': 'CSE',
-                    'assets': ['vlabs.ac.in/images/static/logo.png']
+		    "assets": [
+			{
+			  "asset_type": "image",
+			  "path": "vlabs.ac.in/images/static/logo.png"
+			}
+		      ]
+
                    }
 
         discipline = SystemInterface.add_discipline(data_dict)
@@ -1632,6 +1643,12 @@ class TestGetLabs(TestCase):
                     'key' : KEY,
                     'name': 'Prof. Dharamaja',
                     'email': 'abc@gmail.com'
+		    "assets": [
+			{
+			  "asset_type": "video",
+			  "path": "vlabs.ac.in/images/static/icon.png"
+			}
+		      ]
                    }
 
         developer = SystemInterface.add_developer(data_dict)
@@ -1893,7 +1910,13 @@ class TestGetLabsByKeywordLabName(TestCase):
                     'key' : KEY,
                     'institute_name': 'IIT Kanpur',
                     'institute_id': 'IITK',
-                    'assets': ['vlabs.ac.in/images/static/logo.png']
+		    "assets": [
+			{
+			  "asset_type": "video",
+			  "path": "vlabs.ac.in/images/static/icon.png"
+			}
+		      ]
+
                     }
 
         institute = SystemInterface.add_institute(data_dict)
@@ -1902,7 +1925,13 @@ class TestGetLabsByKeywordLabName(TestCase):
                     'key' : KEY,
                     'discipline_name': 'computer science',
                     'discipline_id': 'CSE',
-                    'assets': ['vlabs.ac.in/images/static/logo.png']
+		    "assets": [
+			{
+			  "asset_type": "image",
+			  "path": "vlabs.ac.in/images/static/logo.png"
+			}
+		      ]
+
                    }
 
         discipline = SystemInterface.add_discipline(data_dict)
@@ -2198,7 +2227,13 @@ class TestGetLabsByInstitute(TestCase):
                     'key' : KEY,
                     'institute_name': 'IIT Kanpur',
                     'institute_id': 'IITK',
-                    'assets': ['vlabs.ac.in/images/static/logo.png']
+		    "assets": [
+			{
+			  "asset_type": "icon",
+			  "path": "vlabs.ac.in/images/static/icon.png"
+			}
+		      ]
+
                     }
 
         institute = SystemInterface.add_institute(data_dict)
@@ -2207,7 +2242,13 @@ class TestGetLabsByInstitute(TestCase):
                     'key' : KEY,
                     'discipline_name': 'computer science',
                     'discipline_id': 'CSE',
-                    'assets': ['vlabs.ac.in/images/static/logo.png']
+		    "assets": [
+			{
+			  "asset_type": "image",
+			  "path": "vlabs.ac.in/images/static/logo.png"
+			}
+		      ]
+
                    }
 
         discipline = SystemInterface.add_discipline(data_dict)
@@ -2220,13 +2261,6 @@ class TestGetLabsByInstitute(TestCase):
 
         developer = SystemInterface.add_developer(data_dict)
 
-        data_dict = {
-                    'key' : KEY,
-                    'asset_type': 'Image',
-                    'path': 'vlabs.ac.in/images/static/icon.png',
-                    }
-
-        asset = SystemInterface.add_asset(data_dict)
 
         data_dict = {
 		   'key' : KEY,
@@ -2468,27 +2502,18 @@ class TestGetLabsByDiscipline(TestCase):
 
         integration_status = SystemInterface.add_integration_status(data_dict)
 
-        data_dict = {
-                    'key' : KEY,
-                    'asset_type': 'Image',
-                    'path': 'vlabs.ac.in/images/static/logo.png'
-                    }
-
-        asset = SystemInterface.add_asset(data_dict)
-
-        data_dict = {
-                    'key' : KEY,
-                    'asset_type': 'Video',
-                    'path': 'vlabs.ac.in/images/static/icon.png'
-                    }
-
-        asset2 = SystemInterface.add_asset(data_dict)
 
         data_dict = {
                     'key' : KEY,
                     'institute_name': 'IIT Kanpur',
                     'institute_id': 'IITK',
-                    'assets': ['vlabs.ac.in/images/static/logo.png']
+		    "assets": [
+			{
+			  "asset_type": "icon",
+			  "path": "vlabs.ac.in/images/static/icon.png"
+			}
+		      ]
+
                     }
 
         institute = SystemInterface.add_institute(data_dict)
@@ -2497,7 +2522,13 @@ class TestGetLabsByDiscipline(TestCase):
                     'key' : KEY,
                     'discipline_name': 'Computer Science',
                     'discipline_id': 'CSE',
-                    'assets': ['vlabs.ac.in/images/static/logo.png']
+		    "assets": [
+			{
+			  "asset_type": "image",
+			  "path": "vlabs.ac.in/images/static/logo.png"
+			}
+		      ]
+
                    }
 
         discipline = SystemInterface.add_discipline(data_dict)
@@ -2749,17 +2780,15 @@ class TestGetLabsByLabName(TestCase):
 
         data_dict = {
                     'key' : KEY,
-                    'asset_type': 'Image',
-                    'path': 'vlabs.ac.in/images/static/logo.png'
-                   }
-
-        asset = SystemInterface.add_asset(data_dict)
-
-        data_dict = {
-                    'key' : KEY,
                     'institute_name': 'IIT Kanpur',
                     'institute_id': 'IITK',
-                    'assets': ['vlabs.ac.in/images/static/logo.png']
+		    "assets": [
+			{
+			  "asset_type": "image",
+			  "path": "vlabs.ac.in/images/static/logo.png"
+			}
+		      ]
+
                     }
 
         institute = SystemInterface.add_institute(data_dict)
@@ -2768,7 +2797,13 @@ class TestGetLabsByLabName(TestCase):
                     'key' : KEY,
                     'discipline_name': 'computer science',
                     'discipline_id': 'CSE',
-                    'assets': ['vlabs.ac.in/images/static/logo.png']
+		    "assets": [
+			{
+			  "asset_type": "Icon",
+			  "path": "vlabs.ac.in/images/static/icon.png"
+			}
+		      ]
+
                    }
 
         discipline = SystemInterface.add_discipline(data_dict)
@@ -5022,24 +5057,29 @@ class TestGetDisciplineById(TestCase):
     def test_get_discipline_by_id_in_system_interface(self):
         print "test_get_discipline_by_id_in_system_interface"
 
-        data_dict = {
-                    'key' : KEY,
-                    'asset_type': 'Image',
-                    'path': 'vlabs.ac.in/images/static/logo.png'
-                   }
-
-        asset = SystemInterface.add_asset(data_dict)
-
+  
         data_dict = {'discipline_name': 'data structure',
                     'discipline_id': 'cse01',
                     'key' : KEY,
-                    'assets': ['vlabs.ac.in/images/static/logo.png']
+		    "assets": [
+			{
+			  "asset_type": "image",
+			  "path": "vlabs.ac.in/images/static/logo.png"
+			}
+		      ]
+
                    }
 
         data_dict1 = {'discipline_name': "Automata",
                       'discipline_id': 'DFA',
                       'key' : KEY,
-                      'assets': ['vlabs.ac.in/images/static/logo.png']
+		      "assets": [
+			{
+			  "asset_type": "Icon",
+			  "path": "vlabs.ac.in/images/static/icon.png"
+			}
+		      ]
+
                      }
 
         dis = SystemInterface.add_discipline(data_dict)
@@ -5704,7 +5744,6 @@ class TestUpdateLab(TestCase):
                 section = System.do("add_section", section=section, session=session)
             section_list.append(section)
 
-
         try:
             current_app.logger.debug("running operation update_experiment")
             exp = System.do("update_experiment", exp_name=exp_name, 
@@ -5764,17 +5803,15 @@ class TestUpdateExperiment(TestCase):
 
         data_dict = {
                     'key' : KEY,
-                    'asset_type': 'Logo',
-                    'path': 'vlabs.ac.in/images/static/logo.png'
-                   }
-
-        asset = SystemInterface.add_asset(data_dict)      
-
-        data_dict = {
-                    'key' : KEY,
                     'institute_name': 'IIT Kanpur',
                     'institute_id': 'IITK',
-                    'assets': ['vlabs.ac.in/images/static/logo.png']
+		    "assets": [
+			{
+			  "asset_type": "image",
+			  "path": "vlabs.ac.in/images/static/image.png"
+			}
+		      ]
+
                     }
 
         institute = SystemInterface.add_institute(data_dict)
@@ -5783,7 +5820,13 @@ class TestUpdateExperiment(TestCase):
                     'key' : KEY,
                     'discipline_name': 'computer science',
                     'discipline_id': 'CSE',
-                    'assets': ['vlabs.ac.in/images/static/logo.png']
+		    "assets": [
+			{
+			  "asset_type": "logo",
+			  "path": "vlabs.ac.in/images/static/logo.png"
+			}
+		      ]
+
                    }
 
         discipline = SystemInterface.add_discipline(data_dict)
@@ -5980,6 +6023,7 @@ class TestUpdateExperiment(TestCase):
     def update_institute(data_dict):
         session_cls = System.delegate.entities['session']
         asset_cls = System.delegate.entities['asset']
+        asset_type_cls = System.delegate.entities['asset_type']
         session = session_cls(key=str(data_dict['key']))
 
         institute = System.do("get_institute", institute_id=str(data_dict['institute_id']))
@@ -5987,7 +6031,7 @@ class TestUpdateExperiment(TestCase):
         assets = data_dict['assets']
         asset_list = []
         for asset_x in assets:
-            asset = System.do("get_asset", path=asset_x)
+            asset = System.do("get_asset", path=asset_x['path'])
             if asset is None:
                 asset_type = asset_type_cls(asset_type=\
                                                 str(data_dict['asset_type']))
@@ -6038,35 +6082,29 @@ class TestUpdateInstitute(TestCase):
 
         data_dict = {
                     'key' : KEY,
-                    'asset_type': 'Image',
-                    'path': 'vlabs.ac.in/images/static/logo.png'
-                   }
-
-        asset = SystemInterface.add_asset(data_dict)
-
-        data_dict = {
-                    'key' : KEY,
                     'institute_name': 'IIT Kanpur',
                     'institute_id': 'IITK',
                     'overview' : 'overview',
-                    'assets': ['vlabs.ac.in/images/static/logo.png']
+		    "assets": [
+			{
+			  "asset_type": "image",
+			  "path": "vlabs.ac.in/images/static/logo.png"
+			}
+		      ]
                     }
 
         institute = SystemInterface.add_institute(data_dict)
 
         data_dict1 = {
                     'key' : KEY,
-                    'asset_type': 'Video',
-                    'path': 'vlabs.ac.in/images/video/icon.png'
-                     }
-
-        asset = SystemInterface.add_asset(data_dict1)
-
-        data_dict1 = {
-                    'key' : KEY,
                     'institute_name': 'IIT Delhi',
                     'institute_id': 'IITK',
-                    'assets': ['vlabs.ac.in/images/video/icon.png']
+		    "assets": [
+			{
+			  "asset_type": "video",
+			  "path": "vlabs.ac.in/images/static/icon.png"
+			}
+		      ]
                    }
 
 
@@ -6154,6 +6192,7 @@ class TestUpdateSection(TestCase):
     def update_discipline(data_dict):
         session_cls = System.delegate.entities['session']
         asset_cls = System.delegate.entities['asset']
+        asset_type_cls = System.delegate.entities['asset_type']
         session = session_cls(key=data_dict['key'])
 
         discipline_id = str(data_dict['discipline_id'])
@@ -6162,7 +6201,7 @@ class TestUpdateSection(TestCase):
         assets = data_dict['assets']
         asset_list = []
         for asset_x in assets:
-            asset = System.do("get_asset", path=asset_x)
+            asset = System.do("get_asset", path=asset_x['path'])
             if asset is None:
                 asset_type = asset_type_cls(asset_type=\
                                                 str(data_dict['asset_type']))
@@ -6211,31 +6250,26 @@ class TestUpdateDiscipline(TestCase):
     def test_update_discipline_name_in_system_interface(self):
         print "test_update_discipline_name_in_system_interface"
  
-        data_dict = {
-                    'key' : KEY,
-                    'asset_type': 'Image',
-                    'path': 'vlabs.ac.in/images/static/logo.png'
-                   }
-
-        asset = SystemInterface.add_asset(data_dict)
-
         data_dict = {'discipline_name': 'Computer Science',
                     'discipline_id': 'CSE',
                     'key' : KEY,
-                    'assets': ['vlabs.ac.in/images/static/logo.png']
+		    "assets": [
+			{
+			  "asset_type": "image",
+			  "path": "vlabs.ac.in/images/static/logo.png"
+			}
+		      ]
+
                    }
-
-        data_dict1 = {
-                    'key' : KEY,
-                    'asset_type': 'Video',
-                    'path': 'vlabs.ac.in/images/video/icon.png'
-                     }
-
-        asset = SystemInterface.add_asset(data_dict1)
 
         data_dict1 = {'discipline_name': 'Computer Science and Engineering',
                       'discipline_id': 'CSE',
-                      'assets': ['vlabs.ac.in/images/static/logo.png'],
+		      "assets": [
+			{
+			  "asset_type": "video",
+			  "path": "vlabs.ac.in/images/static/icon.png"
+			}
+		      ]
                       'key' : KEY
                      }
 
@@ -7041,24 +7075,26 @@ class TestDeleteInstitute(TestCase):
 
         data_dict = {
                     'key' : KEY,
-                    'asset_type': 'Image',
-                    'path': 'vlabs.ac.in/images/static/logo.png'
-                   }
-
-        asset = SystemInterface.add_asset(data_dict)
-
-        data_dict = {
-                    'key' : KEY,
                     'institute_name': 'IIT Kanpur',
                     'institute_id': 'IITK',
-                    'assets': ['vlabs.ac.in/images/static/logo.png']
+		    "assets": [
+			{
+			  "asset_type": "image",
+			  "path": "vlabs.ac.in/images/static/logo.png"
+			}
+		      ]
                     }
 
         data_dict1 = {
                     'key' : KEY,
                     'institute_name': 'IIT Kharagpur',
                     'institute_id': 'IITKgp',
-                    'assets': ['vlabs.ac.in/images/static/logo.png']
+		    "assets": [
+			{
+			  "asset_type": "video",
+			  "path": "vlabs.ac.in/images/static/icon.png"
+			}
+		      ]
                      }
 
         institute = SystemInterface.add_institute(data_dict)
@@ -7173,24 +7209,26 @@ class TestDeleteDiscipline(TestCase):
     def test_delete_discipline_name_in_system_interface(self):
         print "test_update_discipline_name_in_system_interface"
 
-        data_dict = {
-                    'key' : KEY,
-                    'asset_type': 'Image',
-                    'path': 'vlabs.ac.in/images/static/logo.png'
-                    }
-
-        asset = SystemInterface.add_asset(data_dict)
-
         data_dict = {'discipline_name': 'Computer Science',
                     'discipline_id': 'CSE',
                     'key' : KEY,
-                    'assets': ['vlabs.ac.in/images/static/logo.png']
+		    "assets": [
+			{
+			  "asset_type": "image",
+			  "path": "vlabs.ac.in/images/static/logo.png"
+			}
+		      ]
                     }
 
         data_dict1 = {'discipline_name': 'Electronics and Communication',
                     'discipline_id': 'ECE',
                     'key' : KEY,
-                    'assets': ['vlabs.ac.in/images/static/logo.png']
+		    "assets": [
+			{
+			  "asset_type": "video",
+			  "path": "vlabs.ac.in/images/static/icon.png"
+			}
+		      ]
                     }
 
         dis = SystemInterface.add_discipline(data_dict)
@@ -7440,18 +7478,14 @@ class TestDeleteDeveloper(TestCase):
 
         data_dict = {
                     'key' : KEY,
-                    'asset_type': 'Image',
-                    'path': 'vlabs.ac.in/images/static/logo.png'
-                   }
-
-        asset = SystemInterface.add_asset(data_dict)
-
-
-        data_dict = {
-                    'key' : KEY,
                     'institute_name': 'IIT Kanpur',
                     'institute_id': 'IITK',
-                    'assets': ['vlabs.ac.in/images/static/logo.png']
+		    "assets": [
+			{
+			  "asset_type": "image",
+			  "path": "vlabs.ac.in/images/static/logo.png"
+			}
+		      ]
                     }
 
         institute = SystemInterface.add_institute(data_dict)
@@ -7460,7 +7494,12 @@ class TestDeleteDeveloper(TestCase):
                     'key' : KEY,
                     'discipline_name': 'computer science',
                     'discipline_id': 'CSE',
-                    'assets': ['vlabs.ac.in/images/static/logo.png']
+		    "assets": [
+			{
+			  "asset_type": "video",
+			  "path": "vlabs.ac.in/images/static/icon.png"
+			}
+		      ]
                    }
 
         discipline = SystemInterface.add_discipline(data_dict)
@@ -8460,7 +8499,7 @@ class TestUpdateAsset(TestCase):
         asset = SystemInterface.add_asset(data_dict)
         asset1 = SystemInterface.update_asset(data_dict1)
         
-        self.assertEqual(asset1.get("asset_type"), data_dict1['asset_type'])
+        self.assertEqual(asset1.get("asset_type")["asset_type"], data_dict1['asset_type'])
 
 #+END_SRC
 

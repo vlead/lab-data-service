@@ -490,6 +490,7 @@ class AddDeveloper():
 
 #+end_src
 
+
 ** =AddIntegration_Status=
 #+NAME: class_add_integration_status
 #+begin_src python
@@ -1755,7 +1756,10 @@ class UpdateAsset():
     @staticmethod
     def action(args):
         asset = args["asset"]
-        asset_type=args["asset_type"]
+        if not "asset_type" in args:
+           asset_type = asset.get("asset_type")
+        else:
+           asset_type=args["asset_type"]
         asst = System.delegate.update_asset(asset, asset_type)
         return asst
 
