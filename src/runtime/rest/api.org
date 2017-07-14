@@ -1459,13 +1459,11 @@ class TestGetLab(TestCase):
                      "sections": [
                        {
                          "name": "Introduction"
-                       },
-                       {
-                         "experiments": [
+                       }                       
+                     ],
+                     "experiments": [
                            "exp123"
                          ]
-                       }
-                     ]
                    }
                  }
 
@@ -1670,13 +1668,13 @@ class TestGetLabbyLabId(TestCase):
                      "sections": [
                        {
                          "name": "Introduction"
-                       },
-                       {
+                       }
+                                              
+                     ],
                          "experiments": [
                            "exp123"
                          ]
-                       }
-                     ]
+
                    }
                  }
 
@@ -1876,13 +1874,13 @@ class TestGetLabsbyInstitute(TestCase):
                      "sections": [
                        {
                          "name": "Introduction"
-                       },
-                       {
+                       }
+                                              
+                     ],
                          "experiments": [
                            "exp123"
                          ]
-                       }
-                     ]
+
                    }
                  }
 
@@ -2084,13 +2082,12 @@ class TestGetLabsbyDiscipline(TestCase):
                      "sections": [
                        {
                          "name": "Introduction"
-                       },
-                       {
+                       }                                              
+                     ],
                          "experiments": [
                            "exp123"
                          ]
-                       }
-                     ]
+
                    }
                  }
 
@@ -2301,13 +2298,13 @@ class TestGetLabsbyLabName(TestCase):
                      "sections": [
                        {
                          "name": "Introduction"
-                       },
-                       {
+                       }
+                                             
+                     ],
                          "experiments": [
                            "exp123"
                          ]
-                       }
-                     ]
+
                    }
                  }
 
@@ -2511,13 +2508,13 @@ class TestGetLabsbyAsset(TestCase):
                      "sections": [
                        {
                          "name": "Introduction"
-                       },
-                       {
+                       }
+                                              
+                     ],
                          "experiments": [
                            "exp123"
                          ]
-                       }
-                     ]
+
                    }
                  }
 
@@ -2696,13 +2693,12 @@ class TestGetLabbyLabNameKeyWord(TestCase):
                      "sections": [
                        {
                          "name": "Introduction"
-                       },
-                       {
+                       }                                              
+                     ],
                          "experiments": [
                            "exp123"
                          ]
-                       }
-                     ]
+
                    }
                  }
 
@@ -2776,11 +2772,9 @@ class TestGetLabbyLabNameKeyWord(TestCase):
     "sections": [
       {
         "name": "Introduction"
-      },
-      {
+      }     
+    ],
         "experiments": []
-      }
-    ]
   }
 }
 
@@ -3138,13 +3132,13 @@ class TestAddLab(TestCase):
                      "sections": [
                        {
                          "name": "Introduction"
-                       },
-                       {
-                         "experiments": [
-                           "exp123"
-                         ]
                        }
+                                             
+                     ],
+                     "experiments": [
+                     "exp123"
                      ]
+
                    }
                  }
 
@@ -3203,13 +3197,13 @@ class TestAddLab(TestCase):
                      "sections": [
                        {
                          "name": "Theory"
-                       },
-                       {
+                       }
+                                              
+                     ],
                          "experiments": [
                            
                          ]
-                       }
-                     ]
+
                    }
                  }
 
@@ -3510,13 +3504,13 @@ class TestUpdateLab(TestCase):
                      "sections": [
                        {
                          "name": "Introduction"
-                       },
-                       {
+                       }
+
+                     ],
                          "experiments": [
                            "exp123"
                          ]
-                       }
-                     ]
+
                    }
                  }
 
@@ -3631,13 +3625,12 @@ class TestUpdateLab(TestCase):
                      "sections": [
                        {
                          "name": "Theory"
-                       },
-                       {
+                       }                                              
+                     ],
                          "experiments": [
                            "exp123"
                          ]
-                       }
-                     ]
+
                    }
                  }
 
@@ -6497,13 +6490,13 @@ class TestDeleteLab(TestCase):
                      "sections": [
                        {
                          "name": "Introduction"
-                       },
-                       {
+                       }                       
+                       
+                     ],
                          "experiments": [
                            "exp123"
                          ]
-                       }
-                     ]
+
                    }
                  }
         headers = {'Content-Type': 'application/json'}
@@ -9510,24 +9503,28 @@ class TestUpdateDeveloper(TestCase):
         db.session.remove()
         db.drop_all()
 
+class TestUpdateDeveloper(TestCase):
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
     def test_update_developer(self):
         print "test_update_developer"
 
-        payload = {'asset_type': 'Image',
-                   'path': 'vlabs.ac.in/images/static/logo.png',
-                   'key': KEY}
-
-        headers = {'Content-Type': 'application/json'}
-
-        response = self.client.post("/assets", data=json.dumps(payload),
-                                 headers=headers)
-
         payload = {'institute_name': 'IIT Kanpur',
                    'institute_id': 'IITK',
-                   		    "assets": [
+                   "assets": [
 			{
 			  "asset_type": "image",
-			  "path": "vlabs.ac.in/images/static/logo.png"
+			  "path": "vlabs.ac.in/images/static/image.png"
 			}
 		      ],
 
@@ -9542,8 +9539,8 @@ class TestUpdateDeveloper(TestCase):
                    'discipline_id': 'CSE',
                    		    "assets": [
 			{
-			  "asset_type": "image",
-			  "path": "vlabs.ac.in/images/static/logo.png"
+			  "asset_type": "video",
+			  "path": "vlabs.ac.in/images/static/video.png"
 			}
 		      ],
 
@@ -9564,7 +9561,12 @@ class TestUpdateDeveloper(TestCase):
 
         payload1 = {'institute_name': 'IIT Kharagpur',
                     'institute_id': 'IITKgp',
-                    'assets': ['vlabs.ac.in/images/video/logo.png'],
+                    "assets": [
+                        {
+                "asset_type": "Icon",
+                "path": "vlabs.ac.in/images/static/icon.png"
+                }],
+
                     'key': KEY}
 
         headers = {'Content-Type': 'application/json'}
@@ -9574,8 +9576,13 @@ class TestUpdateDeveloper(TestCase):
 
         payload1 = {'discipline_name': 'Electronics & Comuunication Engg.',
                     'discipline_id': 'ECE',
-                    'assets': ['vlabs.ac.in/images/video/logo.png'],
-                    'key': KEY}
+                    "assets": [
+                        {
+                "asset_type": "logo",
+                "path": "vlabs.ac.in/images/static/logo.png"
+                }],
+                        'key': KEY
+                        }
 
 
         response = self.client.post("/disciplines", data=json.dumps(payload),

@@ -48,21 +48,16 @@ class SystemInterface ():
         session = session_cls(key=data_dict['key'])
         del(data_dict['key'])
 
-        section_list=[]
-        for section in data_dict['lab']['sections']:
-            if 'experiments' in section.keys():
-                experiments = section['experiments']
-            else:
-                section_list.append(section['name'])
-
+        section_list=data_dict['lab']['sections']        
         section_obj_list=[]
         for section_x in section_list:
-            section = System.do("get_section", name=section_x)
+            section = System.do("get_section", name=section_x['name'])
             if section is None:
                 section = section_cls(name=str(section_x))
                 section = System.do("add_section", section=section, session=session)
             section_obj_list.append(section)
 
+        experiments=data_dict['lab']['experiments']
         exp_list = []
         for e_id in experiments:
             experiment = System.do("get_experiment", exp_id=e_id)
@@ -322,14 +317,12 @@ class TestAddLab(TestCase):
                          "path": "vlabs.ac.in/video/abc.mkv"
                        }
                      ],
+                     "experiments": [
+                           "exp123"
+                         ],
                      "sections": [
                        {
                          "name": "Procedure"
-                       },
-                       {
-                         "experiments": [
-                           "exp123"
-                         ]
                        }
                      ]
                    }
@@ -530,15 +523,16 @@ class TestAddLab(TestCase):
 		       "path": "vlabs.ac.in/video/abc.mkv"
 		   }
 	       ],
+	       "experiments": [
+		       "exp123"
+	       ],
+
 	       "sections": [
 		   {
 		       "name": "Procedure"
-		   },
-		   {
-		       "experiments": [
-			   "exp123"
-		       ]
 		   }
+		   
+		   
 	       ]
 	   }
        }
@@ -1814,13 +1808,12 @@ class TestGetLabs(TestCase):
                      "sections": [
                        {
                          "name": "Procedure"
-                       },
-                       {
+                       }                       
+                     ],
                          "experiments": [
                            "exp123"
                          ]
-                       }
-                     ]
+
                    }
                  }
 
@@ -1868,13 +1861,13 @@ class TestGetLabs(TestCase):
                      "sections": [
                        {
                          "name": "Introduction"
-                       },
-                       {
+                       }
+                                              
+                     ],
                          "experiments": [
                            "exp123"
                          ]
-                       }
-                     ]
+
                    }
                  }
 
@@ -2123,13 +2116,13 @@ class TestGetLabsByKeywordLabName(TestCase):
                      "sections": [
                        {
                          "name": "Introduction"
-                       },
-                       {
+                       }
+                                              
+                     ],
                          "experiments": [
                            "exp123"
                          ]
-                       }
-                     ]
+
                    }
                  }
 
@@ -2173,13 +2166,13 @@ class TestGetLabsByKeywordLabName(TestCase):
                      "sections": [
                        {
                          "name": "Introduction"
-                       },
-                       {
+                       }
+                                              
+                     ],
                          "experiments": [
                            "exp123"
                          ]
-                       }
-                     ]
+
                    }
                  }
 
@@ -2412,13 +2405,13 @@ class TestGetLabsByInstitute(TestCase):
                "sections": [
                {
                    "name": "Introduction"
-               },
-               {
+               }
+                              
+               ],
                    "experiments": [
                    "exp123"
                    ]
-               }
-               ]
+
            }
            }
 
@@ -2466,13 +2459,13 @@ class TestGetLabsByInstitute(TestCase):
                    "sections": [
                        {
                            "name": "Introduction"
-                       },
-                       {
-                           "experiments": [
-                               "exp123"
-                           ]
                        }
+                       
+                   ],
+                   "experiments": [
+                   "exp123"
                    ]
+
                }
            }
 
@@ -2689,13 +2682,13 @@ class TestGetLabsByDiscipline(TestCase):
                      "sections": [
                        {
                          "name": "Introduction"
-                       },
-                       {
-                         "experiments": [
-                           "exp123"
-                         ]
                        }
+                       
+                     ],
+                     "experiments": [
+                     "exp123"
                      ]
+
                    }
                  }
 
@@ -2743,13 +2736,11 @@ class TestGetLabsByDiscipline(TestCase):
                      "sections": [
                        {
                          "name": "Introduction"
-                       },
-                       {
+                       }                       
+                     ],
                          "experiments": [
                            "exp123"
                          ]
-                       }
-                     ]
                    }
                  }
 
@@ -2964,13 +2955,12 @@ class TestGetLabsByLabName(TestCase):
                      "sections": [
                        {
                          "name": "Introduction"
-                       },
-                       {
-                         "experiments": [
-                           "exp123"
-                         ]
                        }
+                     ],
+                     "experiments": [
+                     "exp123"
                      ]
+
                    }
                  }
 
@@ -3018,13 +3008,11 @@ class TestGetLabsByLabName(TestCase):
                      "sections": [
                        {
                          "name": "Introduction"
-                       },
-                       {
-                         "experiments": [
-                           "exp123"
-                         ]
                        }
-                     ]
+                       ],
+                       "experiments": [
+                         "exp123"
+                         ]
                    }
                  }
         lab = SystemInterface.add_lab(data_dict)
@@ -3249,13 +3237,12 @@ class TestGetLabsByAssetType(TestCase):
 	       "sections": [
 		   {
 		       "name": "Introduction"
-		   },
-		   {
-		       "experiments": [
-			   "exp123"
-		       ]
 		   }
+	       ],
+	       "experiments": [
+	       "exp123"
 	       ]
+
 	   }
        }
 
@@ -3303,13 +3290,13 @@ class TestGetLabsByAssetType(TestCase):
 	       "sections": [
 		   {
 		       "name": "Introduction"
-		   },
-		   {
-		       "experiments": [
-			   "exp123"
-		       ]
 		   }
+		   		   
+	       ],
+	       "experiments": [
+	       "exp123"
 	       ]
+
 	   }
        }
         lab = SystemInterface.add_lab(data_dict)
@@ -3513,13 +3500,13 @@ class TestGetLabsByIntegration_Status(TestCase):
 	       "sections": [
 		   {
 		       "name": "Introduction"
-		   },
-		   {
+		   }
+		  		   
+	       ],
 		       "experiments": [
 			   "exp123"
 		       ]
-		   }
-	       ]
+
 	   }
        }
 
@@ -3567,13 +3554,13 @@ class TestGetLabsByIntegration_Status(TestCase):
 	       "sections": [
 		   {
 		       "name": "Introduction"
-		   },
-		   {
+		   }
+		  		   
+	       ],
 		       "experiments": [
 			   "exp123"
 		       ]
-		   }
-	       ]
+
 	   }
        }
 
@@ -4694,14 +4681,12 @@ class TestGetLabById(TestCase):
 		       "path": "vlabs.ac.in/video/abc.mkv"
 		   }
 	       ],
+	       "experiments": [
+			   "exp123"
+		       ],
 	       "sections": [
 		   {
 		       "name": "Introduction"
-		   },
-		   {
-		       "experiments": [
-			   "exp123"
-		       ]
 		   }
 	       ]
 	   }
@@ -4752,13 +4737,13 @@ class TestGetLabById(TestCase):
                "sections": [
                {
                    "name": "Introduction"
-               },
-               {
-                   "experiments": [
+               }
+               
+               ],
+               "experiments": [
                    "exp123"
                    ]
-               }
-               ]
+
            }
            }
 
@@ -5438,7 +5423,7 @@ class TestGetNameById(TestCase):
                 developer = System.do("add_developer", developer=developer, session=session)
             developer_list.append(developer)
 
-        experiments = data_dict['lab']['sections'][1]['experiments']
+        experiments = data_dict['lab']['experiments']
 
         exp_list = []
         for e_id in experiments:
@@ -5645,13 +5630,13 @@ class TestUpdateLab(TestCase):
 	       "sections": [
 		   {
 		       "name": "Introduction"
-		   },
-		   {
+		   }
+		   
+	       ],
 		       "experiments": [
 			   "exp123"
 		       ]
-		   }
-	       ]
+
 	   }
         }
         lab = SystemInterface.add_lab(data_dict)
@@ -5785,13 +5770,11 @@ class TestUpdateLab(TestCase):
 	       "sections": [
 		   {
 		       "name": "Introduction"
-		   },
-		   {
+		   }
+	       ],
                       "experiments": [
                          "exp1234", "exp123"
                       ]
-		   }
-	       ]
 	   }
         }
 
@@ -6969,13 +6952,13 @@ class TestDeleteLab(TestCase):
 	       "sections": [
 		   {
 		       "name": "Introduction"
-		   },
-		   {
+		   }
+		   		   
+	       ],
 		       "experiments": [
 			   "exp123"
 		       ]
-		   }
-	       ]
+
 	   }
        }
 
@@ -7024,13 +7007,13 @@ class TestDeleteLab(TestCase):
                    "sections": [
                        {
                            "name": "Introduction"
-                       },
-                       {
-                           "experiments": [
-                               "exp123"
-                           ]
                        }
+                                              
+                   ],
+                   "experiments": [
+                   "exp123"
                    ]
+
                }
            }
 
@@ -8095,13 +8078,13 @@ class TestGetLabByLabId(TestCase):
                    "sections": [
                        {
                            "name": "Introduction"
-                       },
-                       {
-                           "experiments": [
+                       }
+                                              
+                   ],
+                       "experiments": [
                                "exp123"
                            ]
-                       }
-                   ]
+
                }
            }
 
@@ -8149,13 +8132,13 @@ class TestGetLabByLabId(TestCase):
                    "sections": [
                        {
                            "name": "Introduction"
-                       },
-                       {
-                           "experiments": [
-                               "exp123"
-                           ]
                        }
+                                              
+                   ],
+                   "experiments": [
+                   "exp123"
                    ]
+
                }
            }
         lab = SystemInterface.add_lab(data_dict)
