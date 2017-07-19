@@ -8244,13 +8244,12 @@ class TestUpdateExperiment(TestCase):
 #+END_SRC
    
 
-** Update, Delete and Get Section by ID
+** Update section 
 *** API Design
-**** Update section by id
   :PROPERTIES:
   :CUSTOM_ID: update_section_by_id
   :END:    
-  - URL :: /sections/<id>
+  - URL :: /sections?s_id=<id>
 
   - Method :: PUT
 
@@ -8284,14 +8283,116 @@ class TestUpdateExperiment(TestCase):
     
   - Example:
 #+BEGIN_EXAMPLE
-http://localhost:5000/sections/1
+http://localhost:5000/sections?s_id=1
 #+END_EXAMPLE
 
-**** Delete section by id
+*** Implementation
+#+NAME: update_section
+#+BEGIN_SRC python
+@api.route('/sections', methods=['PUT'])
+def update_section():
+    if request.method == 'PUT':
+        if request.is_json:
+            data_json = json.dumps(request.get_json())
+            data_dict = yaml.safe_load(data_json)
+        else:
+            abort(500, "the request does not contain data in json")
+
+        if 's_id' in request.args:
+            data_dict['s_id']  = request.args['s_id']
+        else:
+            abort(500, "Please provide the 's_id' to update the section")
+        
+        try:
+            current_app.logger.debug("running operation update_section")
+            section = SystemInterface.update_section(data_dict)
+            current_app.logger.debug("completed operation update_section")
+            return jsonify(section)
+
+        except NotAuthorizedError as e:
+            current_app.logger.error("Exception = %s" % str(e))
+            err_str = str(e)
+            msg = {"status": "failure",
+                       "status code": 401,
+                       "msg": err_str}
+            abort(401, msg)
+            
+        except TypeError as e:
+            current_app.logger.error("Exception = %s" % str(e))
+            err_str = str(e)
+            msg = {"status": "failure",
+                       "msg": err_str }
+            abort(500, msg)
+            
+        except StateError as e:
+            current_app.logger.error("Exception = %s" % str(e))
+            err_str = str(e)
+            msg = {"status": "failure",
+                       "msg": err_str}
+            abort(500, msg)
+
+        except NotFoundError as e:
+            current_app.logger.error("Exception = %s" % str(e))
+            err_str = str(e)
+            msg = {"status": "failure",
+                       "status code": 404,
+                       "msg": err_str}
+            abort(404, msg)
+
+        except Exception as e:
+            current_app.logger.error("Exception = %s" % str(e))
+            err_str = str(e)
+            msg = {"status": "failure",
+                       "msg": err_str}
+            abort(500, msg)
+        
+#+END_SRC
+
+*** Test Cases
+**** TestUpdateSection
+ #+NAME: test_update_section
+ #+BEGIN_SRC python
+class TestUpdateSection(TestCase):
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_update_section(self):
+        print "test_update_section"
+        payload = {'name': 'Theory',
+                   'key': KEY}
+
+        payload1 = {'name': 'Procedure',
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/sections", data=json.dumps(payload),
+                                 headers=headers)
+
+        response = self.client.put("/sections?s_id=1",
+                                       data=json.dumps(payload1),
+                                    headers=headers)
+
+        self.assertEqual(response.status_code, 200)
+
+ #+END_SRC
+   
+
+** Delete section 
+*** API Design
   :PROPERTIES:
   :CUSTOM_ID: delete_section_by_id
   :END:    
-  - URL :: /sections/<id>
+  - URL :: /sections?s_id=<id>&key=<key>
            
   - Method :: DELETE
 
@@ -8315,10 +8416,101 @@ http://localhost:5000/sections/1
     
   - Example:
 #+BEGIN_EXAMPLE
-http://localhost:5000/sections/2
+http://localhost:5000/sections?s_id=1&key=defaultkey
 #+END_EXAMPLE
 
-**** Get section by id
+*** Implementation
+#+NAME: delete_section
+#+BEGIN_SRC python
+@api.route('/sections', methods=['DELETE'])
+def delete_section():
+    if request.method == 'DELETE':
+         if 's_id' in request.args and 'key' in request.args:
+            s_id  = request.args['s_id']
+            key = request.args['key']
+            try:
+                current_app.logger.debug("running operation delete_section")
+                section = SystemInterface.delete_section(s_id, key)
+                current_app.logger.debug("completed operation delete_section")
+                return jsonify({"status":"sucess"})
+
+            except NotAuthorizedError as e:
+                current_app.logger.error("Exception = %s" % str(e))
+                err_str = str(e)
+                msg = {"status": "failure",
+                        "status code": 401,
+                        "msg": err_str}
+                abort(401, msg)
+
+            except TypeError as e:
+                current_app.logger.error("Exception = %s" % str(e))
+                err_str = str(e)
+                msg = {"status": "failure",
+                       "msg": err_str }
+                abort(500, msg)
+
+            except StateError as e:
+                current_app.logger.error("Exception = %s" % str(e))
+                err_str = str(e)
+                msg = {"status": "failure",
+                       "msg": err_str}
+                abort(500, msg)
+
+            except NotFoundError as e:
+                current_app.logger.error("Exception = %s" % str(e))
+                err_str = str(e)
+                msg = {"status": "failure",
+                       "status code": 404,
+                       "msg": err_str}
+                abort(404, msg)
+
+            except Exception as e:
+                current_app.logger.error("Exception = %s" % str(e))
+                err_str = str(e)
+                msg = {"status": "failure",
+                       "msg": err_str}
+                abort(500, msg)
+#+END_SRC
+
+*** Test Cases
+**** TestDeleteSection
+ #+NAME: test_delete_section
+ #+BEGIN_SRC python
+class TestDeleteSection(TestCase):
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_delete_section(self):
+        print "test_delete_section"
+
+        payload = {'name': 'Theory',
+                   'key': KEY
+                  }
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/sections", data=json.dumps(payload),
+                                 headers=headers)
+
+        response = self.client.delete("/sections?s_id=1&key=defaultkey",
+                                          headers=headers)
+
+        self.assertEqual(response.status_code, 200)
+
+ #+END_SRC
+   
+
+** Get section 
+*** API Design
       :PROPERTIES:
       :CUSTOM_ID: api_get_section_by_id
       :END:    
@@ -8351,224 +8543,62 @@ http://localhost:5000/sections/1
 #+END_EXAMPLE
 
 *** Implementation
-#+NAME: update_and_delete_section
+#+NAME: get_section
 #+BEGIN_SRC python
-@api.route('/sections/<id>', methods=['GET', 'PUT', 'DELETE'])
-def update_and_delete_section(id):
+@api.route('/sections', methods=['GET'])
+def get_section():
     if request.method == 'GET':
-        try:
-            current_app.logger.debug("running operation get_section_by_id")
-            section = SystemInterface.get_section_by_id(id)
-            current_app.logger.debug("completed operation get_section_by_id")
-            return jsonify(section)
+       if 's_id' in request.args:
+           s_id  = request.args['s_id']
+           try:
+               current_app.logger.debug("running operation get_section")
+               section = SystemInterface.get_section_by_id(id)
+               current_app.logger.debug("completed operation get_section")
+               return jsonify(section)
 
-        except NotAuthorizedError as e:
-            current_app.logger.error("Exception = %s" % str(e))
-            err_str = str(e)
-            msg = {"status": "failure",
-                    "status code": 401,
-                       "msg": err_str}
-            abort(401, msg)
+           except NotAuthorizedError as e:
+               current_app.logger.error("Exception = %s" % str(e))
+               err_str = str(e)
+               msg = {"status": "failure",
+                        "status code": 401,
+                        "msg": err_str}
+               abort(401, msg)
 
-        except TypeError as e:
-            current_app.logger.error("Exception = %s" % str(e))
-            err_str = str(e)
-            msg = {"status": "failure",
-                       "msg": err_str }
-            abort(500, msg)
+           except TypeError as e:
+               current_app.logger.error("Exception = %s" % str(e))
+               err_str = str(e)
+               msg = {"status": "failure",
+                        "msg": err_str }
+               abort(500, msg)
 
-        except StateError as e:
-            current_app.logger.error("Exception = %s" % str(e))
-            err_str = str(e)
-            msg = {"status": "failure",
-                       "msg": err_str}
-            abort(500, msg)
+           except StateError as e:
+               current_app.logger.error("Exception = %s" % str(e))
+               err_str = str(e)
+               msg = {"status": "failure",
+                        "msg": err_str}
+               abort(500, msg)
 
-        except NotFoundError as e:
-            current_app.logger.error("Exception = %s" % str(e))
-            err_str = str(e)
-            msg = {"status": "failure",
-                       "status code": 404,
-                       "msg": err_str}
-            abort(404, msg)
+           except NotFoundError as e:
+               current_app.logger.error("Exception = %s" % str(e))
+               err_str = str(e)
+               msg = {"status": "failure",
+                        "status code": 404,
+                        "msg": err_str}
+               abort(404, msg)
 
-        except Exception as e:
-            current_app.logger.error("Exception = %s" % str(e))
-            err_str = str(e)
-            msg = {"status": "failure",
-                       "msg": err_str}
-            abort(500, msg)
+           except Exception as e:
+               current_app.logger.error("Exception = %s" % str(e))
+               err_str = str(e)
+               msg = {"status": "failure",
+                        "msg": err_str}
+               abort(500, msg)
     
-    if request.method == 'PUT':
-        if request.is_json:
-            data_json = json.dumps(request.get_json())
-            data_dict = yaml.safe_load(data_json)
-            data_dict['s_id']=id
-        else:
-            abort(500, "the request does not contain data in json")
-
-        try:
-            current_app.logger.debug("running operation update_section")
-            section = SystemInterface.update_section(data_dict)
-            current_app.logger.debug("completed operation update_section")
-            return jsonify(section)
-
-        except NotAuthorizedError as e:
-            current_app.logger.error("Exception = %s" % str(e))
-            err_str = str(e)
-            msg = {"status": "failure",
-                    "status code": 401,
-                       "msg": err_str}
-            abort(401, msg)
-
-        except TypeError as e:
-            current_app.logger.error("Exception = %s" % str(e))
-            err_str = str(e)
-            msg = {"status": "failure",
-                       "msg": err_str }
-            abort(500, msg)
-
-        except StateError as e:
-            current_app.logger.error("Exception = %s" % str(e))
-            err_str = str(e)
-            msg = {"status": "failure",
-                       "msg": err_str}
-            abort(500, msg)
-
-        except NotFoundError as e:
-            current_app.logger.error("Exception = %s" % str(e))
-            err_str = str(e)
-            msg = {"status": "failure",
-                       "status code": 404,
-                       "msg": err_str}
-            abort(404, msg)
-
-        except Exception as e:
-            current_app.logger.error("Exception = %s" % str(e))
-            err_str = str(e)
-            msg = {"status": "failure",
-                       "msg": err_str}
-            abort(500, msg)
-        
-    if request.method == 'DELETE':
-
-        try:
-            current_app.logger.debug("running operation delete_section")
-            section = SystemInterface.delete_section(id)
-            current_app.logger.debug("completed operation delete_section")
-            return jsonify({"status":"sucess"})
-
-        except NotAuthorizedError as e:
-            current_app.logger.error("Exception = %s" % str(e))
-            err_str = str(e)
-            msg = {"status": "failure",
-                    "status code": 401,
-                       "msg": err_str}
-            abort(401, msg)
-
-        except TypeError as e:
-            current_app.logger.error("Exception = %s" % str(e))
-            err_str = str(e)
-            msg = {"status": "failure",
-                       "msg": err_str }
-            abort(500, msg)
-
-        except StateError as e:
-            current_app.logger.error("Exception = %s" % str(e))
-            err_str = str(e)
-            msg = {"status": "failure",
-                       "msg": err_str}
-            abort(500, msg)
-
-        except NotFoundError as e:
-            current_app.logger.error("Exception = %s" % str(e))
-            err_str = str(e)
-            msg = {"status": "failure",
-                       "status code": 404,
-                       "msg": err_str}
-            abort(404, msg)
-
-        except Exception as e:
-            current_app.logger.error("Exception = %s" % str(e))
-            err_str = str(e)
-            msg = {"status": "failure",
-                       "msg": err_str}
-            abort(500, msg)
 #+END_SRC
+
 *** Test Cases
-**** TestUpdateSection
- #+NAME: test_update_section
- #+BEGIN_SRC python
-class TestUpdateSection(TestCase):
-    TESTING = True
-    def create_app(self):
-        app = create_app(config)
-        return app
-
-    def setUp(self):
-        db.create_all()
-
-    def tearDown(self):
-        db.session.remove()
-        db.drop_all()
-
-    def test_update_section(self):
-        print "test_update_section"
-        payload = {'name': 'Theory',
-                   'key': KEY}
-
-        payload1 = {'name': 'Theory',
-                   'key': KEY}
-
-        headers = {'Content-Type': 'application/json'}
-
-        response = self.client.post("/sections", data=json.dumps(payload),
-                                 headers=headers)
-
-        response = self.client.put("/sections/1", data=json.dumps(payload1),
-                                 headers=headers)
-
-        self.assertEqual(response.status_code, 200)
-
- #+END_SRC
-   
-**** TestDeleteSection
- #+NAME: test_delete_section
- #+BEGIN_SRC python
-class TestDeleteSection(TestCase):
-    TESTING = True
-    def create_app(self):
-        app = create_app(config)
-        return app
-
-    def setUp(self):
-        db.create_all()
-
-    def tearDown(self):
-        db.session.remove()
-        db.drop_all()
-
-    def test_delete_section(self):
-        print "test_delete_section"
-
-        payload = {'name': 'Theory',
-                   'key': KEY
-                  }
-
-        headers = {'Content-Type': 'application/json'}
-
-        response = self.client.post("/sections", data=json.dumps(payload),
-                                 headers=headers)
-
-        response = self.client.delete("/sections/1", headers=headers)
-
-        self.assertEqual(response.status_code, 200)
-
- #+END_SRC
-   
 **** TestGetSectionById
- #+NAME: test_get_section_by_id
- #+BEGIN_SRC python
+#+NAME: test_get_section_by_id
+#+BEGIN_SRC python
 class TestGetSectionbyid(TestCase):
     TESTING = True
     def create_app(self):
@@ -8594,13 +8624,15 @@ class TestGetSectionbyid(TestCase):
         response = self.client.post("/sections", data=json.dumps(payload),
                                  headers=headers)
 
-        response = self.client.delete("/sections/1", headers=headers)
+        response = self.client.get("/sections?s_id=1", headers=headers)
 
         self.assertEqual(response.status_code, 200)
 
  #+END_SRC
    
 
+
+ 
 ** Update Institute
 *** API Design
 **** Update institutes by instid
@@ -8787,7 +8819,7 @@ class TestUpdateInstitute(TestCase):
 
  #+END_SRC
    
-
+ 
 ** Delete Institute
 *** API Design
 **** Delete institute by institute_id
@@ -11402,9 +11434,11 @@ if __name__ == '__main__':
 <<add_discipline>>
 <<update_experiment>>
 <<delete_experiment>>
-<<update_and_delete_section>>
+<<update_section>>
 <<get_sections>>
 <<add_section>>
+<<get_section>>
+<<delete_section>>
 <<update_institute>>
 <<delete_institute>>
 <<update_discipline>>

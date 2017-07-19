@@ -7311,10 +7311,10 @@ class TestDeleteInstitute(TestCase):
 #+NAME: class_delete_section
 #+begin_src python
     @staticmethod
-    def delete_section(s_id):
+    def delete_section(s_id, key):
         session_cls = System.delegate.entities['session']
 
-        session = session_cls(key=KEY)
+        session = session_cls(key=str(key))
         try:
             current_app.logger.debug("running operation delete_section")
             section = System.do("delete_section", s_id=int(s_id),
@@ -7361,7 +7361,7 @@ class TestDeleteSection(TestCase):
 
         exp = SystemInterface.add_section(data_dict)
         exp1 = SystemInterface.add_section(data_dict1)
-        s_id = SystemInterface.delete_section(1)
+        s_id = SystemInterface.delete_section(1, data_dict1['key'])
         
         self.assertEqual(s_id, 1)
 
@@ -9175,7 +9175,7 @@ if __name__ == '__main__':
 #+BEGIN_SRC python :tangle test_system_interface.py :eval no :noweb yes
 <<imports_for_tests>>
 
-<<test_class_add_lab>>
+#<<test_class_add_lab>>
 <<test_class_add_experiment>>
 <<test_class_add_institute>>
 <<test_class_add_discipline>>
