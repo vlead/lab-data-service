@@ -210,7 +210,66 @@ post_lab_spec(lab_file_list[0])
 
 #+END_SRC
 
+* program to add 'asset_type' entity
+#+BEGIN_SRC python :tangle migrate.py :eval no 
+#!/usr/bin/python
+import MySQLdb
+import sys
+from runtime.rest.app import create_app
+from runtime.config import flask_app_config as config
+from runtime.utils.class_persistence_template import db
+from runtime.persistence.entities import *
+import requests
 
+def populate_assets():
+    print "Populating assets table.."
+    cursor1.execute("select * from asset")
+    data = cursor1.fetchall()
+
+    asset_type1 = AssetType(asset_type="image")
+    asset_type1.save()
+    asset_type2 = AssetType(asset_type="sources")
+    asset_type2.save()
+    asset_type3 = AssetType(asset_type="videos")
+    asset_type3.save()
+
+    for row in data:
+        if row[1] == "image" or row[1] == "Image":
+            path = row[2];
+            asset_type1 = AssetType(asset_type="image")
+            asset = Asset(path=path, asset_type=asset_type1)
+            asset.save()
+        elif row[1] == "sources":
+            asset_type1 = AssetType(asset_type=row[1])
+            asset = Asset(path=path, asset_type=asset_type1)
+            asset.save()
+        elif row[1] == "videos":
+            asset_type1 = AssetType(asset_type=row[1])
+            asset = Asset(path=path, asset_type=asset_type1)
+            asset.save()
+        else:
+            continue
+
+if __name__ == "__main__":
+    connection1 = MySQLdb.connect(host="localhost", user="root",
+                                  passwd="root", db="lds_old")
+    cursor1 = connection1.cursor()
+
+    db.create_all(app=create_app(config))
+    populate_assets()
+
+    cursor1.close()
+    connection1.close()
+
+#+END_SRC
+#+BEGIN_EXAMPLE
+drop table asset_type
+create table asset_type(id int(11) auto_increment, asset_type varchar(255) unique, primary key(id));
+select distinct asset_type from asset;
+insert into asset_type (asset_type) values("image");
+insert into asset_type (asset_type) values("sources");
+insert into asset_type (asset_type) values("videos");
+#+END_EXAMPLE
 * Install all dependencies and setup the software
   Install all dependencies, including the OS related packages, Python packages,
   setup the database, configure the webserver, and finally deploy the
@@ -413,6 +472,7 @@ from runtime.config import flask_app_config as config
 application = create_app(config)
 
 #+END_SRC
+
 
 * Tangle                                       :boilerplate:
 #+BEGIN_SRC python :eval no :tangle __init__.py
