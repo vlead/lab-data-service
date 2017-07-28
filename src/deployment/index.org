@@ -212,6 +212,7 @@ post_lab_spec(lab_file_list[0])
 
 * program to add 'asset_type' entity
 #+BEGIN_SRC python :tangle migrate.py :eval no 
+
 #!/usr/bin/python
 import MySQLdb
 import sys
@@ -220,46 +221,87 @@ from runtime.config import flask_app_config as config
 from runtime.utils.class_persistence_template import db
 from runtime.persistence.entities import *
 import requests
+import json
 
+asset_url = "http://localhost:5000"
+KEY= "defaultkey"
 def populate_assets():
     print "Populating assets table.."
     cursor1.execute("select * from asset")
     data = cursor1.fetchall()
 
-    asset_type1 = AssetType(asset_type="image")
-    asset_type1.save()
-    asset_type2 = AssetType(asset_type="sources")
-    asset_type2.save()
-    asset_type3 = AssetType(asset_type="videos")
-    asset_type3.save()
-
     for row in data:
         if row[1] == "image" or row[1] == "Image":
-            path = row[2];
-            asset_type1 = AssetType(asset_type="image")
-            asset = Asset(path=path, asset_type=asset_type1)
-            asset.save()
+            payload = {'asset_type': 'Image',
+                    'path': row[2],
+                    'key': KEY}
+
+            headers = {'Content-Type': 'application/json'}
+#            print payload
+            print asset_url+"/assets"
+            response = requests.post(asset_url+"/assets",
+                                         data=json.dumps(payload),
+                                         headers=headers)
+            print response.status_code
         elif row[1] == "sources":
-            asset_type1 = AssetType(asset_type=row[1])
-            asset = Asset(path=path, asset_type=asset_type1)
-            asset.save()
+            payload = {'asset_type': 'sources',
+                    'path': row[2],
+                    'key': KEY}
+
+            headers = {'Content-Type': 'application/json'}
+            print payload
+            print asset_url+"/assets"
+            response = requests.post(asset_url+"/assets",
+                                         data=json.dumps(payload),
+                                         headers=headers)
+            print response.status_code
+
         elif row[1] == "videos":
-            asset_type1 = AssetType(asset_type=row[1])
-            asset = Asset(path=path, asset_type=asset_type1)
-            asset.save()
+            payload = {'asset_type': 'videos',
+                    'path': row[2],
+                    'key': KEY}
+
+            headers = {'Content-Type': 'application/json'}
+            print payload
+            print asset_url+"/assets"
+            response = requests.post(asset_url+"/assets",
+                                         data=json.dumps(payload),
+                                         headers=headers)
+            print response.status_code
+
         else:
             continue
+
+def populate_institute():
+    print "Populating institute table.."
+    cursor1.execute("select * from institute")
+    data = cursor1.fetchall()
+    for row in data:
+        print "inserting........"
+        cursor2.execute("insert into institute (institute_name, institute_id)"
+                            "values('%s','%s')" %(row[1], row[2]));
+        print "done"
+    cursor2.execute("select * from institute")
+    data2 = cursor2.fetchall()
+    for row in data2:
+        print row
+
 
 if __name__ == "__main__":
     connection1 = MySQLdb.connect(host="localhost", user="root",
                                   passwd="root", db="lds_old")
     cursor1 = connection1.cursor()
+    connection2 = MySQLdb.connect(host="localhost", user="root",
+                                  passwd="root", db="lds")
+    cursor2 = connection2.cursor()
 
     db.create_all(app=create_app(config))
     populate_assets()
-
+    populate_institute()
     cursor1.close()
     connection1.close()
+    cursor2.close()
+    connection2.close()
 
 #+END_SRC
 #+BEGIN_EXAMPLE

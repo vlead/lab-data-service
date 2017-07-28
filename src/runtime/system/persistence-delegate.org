@@ -194,13 +194,22 @@ class TestPersistenceDelegate(TestCase):
 #+NAME: persistence_asset_type_exists
 #+BEGIN_SRC python
     def asset_type_exists(self, asset_type):
-        current_app.logger.debug("running check on the existence of"
-                                 " asset_type = %s" % asset_type)
-        asset_type = asset_type.get("asset_type")
-        current_app.logger.debug("completed check on the existence of"
+        ret_val = False
+        try:
+            current_app.logger.debug("running check on the existence of"
+                                 " asset_type = %s" % asset_type.to_client())
+
+            if self.get_asset_type(asset_type=asset_type.get("asset_type")) is not None:
+                ret_val = True
+            current_app.logger.debug("completed check on the existence of"
                                  " asset_type with type as = %s" % asset_type)
-        return asset_type == self.get_asset_type(asset_type=asset_type)
-        
+
+        except Exception as e:
+            current_app.logger.error("Error in returning the email")
+            pass
+
+        return ret_val
+       
 #+END_SRC
 
 **** Tests
@@ -278,7 +287,6 @@ class TestPersistenceDelegate(TestCase):
                             False)
 
 #+END_SRC
-
 
 *** Check if =experiment= already exists
 
