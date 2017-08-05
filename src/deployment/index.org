@@ -272,20 +272,127 @@ def populate_assets():
         else:
             continue
 
-def populate_institute():
+def populate_data():
     print "Populating institute table.."
     cursor1.execute("select * from institute")
     data = cursor1.fetchall()
     for row in data:
-        print "inserting........"
         cursor2.execute("insert into institute (institute_name, institute_id)"
                             "values('%s','%s')" %(row[1], row[2]));
-        print "done"
     cursor2.execute("select * from institute")
     connection2.commit()
     data2 = cursor2.fetchall()
     for row in data2:
         print row
+
+    print "Populating discipline table.."
+    cursor1.execute("select * from discipline")
+    data = cursor1.fetchall()
+    for row in data:
+        cursor2.execute("insert into discipline (discipline_name, discipline_id)"
+                            "values('%s', '%s')" %(row[1], row[2]));
+    cursor2.execute("select * from discipline")
+    connection2.commit()
+    data2 = cursor2.fetchall()
+    for row in data2:
+        print row
+
+    print "Populating name table.."
+    cursor1.execute("select * from name")
+    data = cursor1.fetchall()
+    for row in data:
+        cursor2.execute("insert into name (name)"
+                            "values('%s')" %(row[1]));
+    cursor2.execute("select * from name")
+    connection2.commit()
+    data2 = cursor2.fetchall()
+    for row in data2:
+        print row
+
+    print "Populating email table.."
+    cursor1.execute("select * from email")
+    data = cursor1.fetchall()
+    for row in data:
+        cursor2.execute("insert into email (email)"
+                            "values('%s')" %(row[1]));
+    cursor2.execute("select * from email")
+    connection2.commit()
+    data2 = cursor2.fetchall()
+    for row in data2:
+        print row
+
+    print "Populating developer table.."
+    cursor1.execute("select * from developer")
+    data = cursor1.fetchall()
+    for row in data:
+        cursor2.execute("insert into developer (name_id, email_id)"
+                            "values(%d, %d)" %(row[1], row[2]));
+    cursor2.execute("select * from developer")
+    connection2.commit()
+    data2 = cursor2.fetchall()
+    for row in data2:
+        print row
+
+    print "Populating hosting_info table.."
+    cursor1.execute("select * from hosting_info")
+    data = cursor1.fetchall()
+    for row in data:
+        cursor2.execute("insert into hosting_info(hosting_status, hosted_url, hosted_on)"
+                            "values('%s', '%s', '%s')" %(row[1], row[2], row[3]));
+    cursor2.execute("select * from hosting_info")
+    connection2.commit()
+    data2 = cursor2.fetchall()
+    for row in data2:
+        print row
+
+    print "Populating integration_status table.."
+    cursor1.execute("select * from integration_status")
+    data = cursor1.fetchall()
+    for row in data:
+        cursor2.execute("insert into integration_status(integration_level)"
+                            "values(%d)" %(row[1]));
+    cursor2.execute("select * from integration_status")
+    connection2.commit()
+    data2 = cursor2.fetchall()
+    for row in data2:
+        print row
+
+
+    print "Populating experiment table.."
+    cursor1.execute("select * from experiment")
+    data = cursor1.fetchall()
+    for row in data:
+        cursor2.execute("insert into experiment(exp_name, exp_id, overview, "
+                            "intstatus_id, lb_id, institute_id,"
+                            "discipline_id)"
+                            "values('%s', '%s', '%s', %d, '%s', %d, %d)"
+                            %(row[1], row[2], row[3], row[4], row[5],
+                                  row[6], row[7] ));
+    cursor2.execute("select * from experiment")
+    connection2.commit()
+    data2 = cursor2.fetchall()
+    for row in data2:
+        print row
+
+'''
+    print "Populating section table.."
+    cursor1.execute("select * from section")
+    data = cursor1.fetchall()
+    for row in data:
+        name = row[1].strip("");
+        print name
+
+        cursor2.execute("insert into section(name)"
+                            "values(%s)" %(name));
+
+    cursor2.execute("select * from section")
+    connection2.commit()
+    data2 = cursor2.fetchall()
+    for row in data2:
+        print row
+
+'''
+
 
 
 if __name__ == "__main__":
@@ -298,7 +405,7 @@ if __name__ == "__main__":
 
     db.create_all(app=create_app(config))
     populate_assets()
-    populate_institute()
+    populate_data()
     cursor1.close()
     connection1.close()
     cursor2.close()
