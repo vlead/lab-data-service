@@ -1541,12 +1541,17 @@ class TestAddDeveloper(TestCase):
 
         session = session_cls(key=data_dict['key'])
         del(data_dict['key'])
+        IL = data_dict['integration_level']
 
-        integration_status = integration_status_cls(integration_level=data_dict['integration_level'])
+        if IL in range(0, 6):
+            int_status = integration_status_cls(integration_level=IL)
+        else:
+            current_app.logger.error("Integration Level= %d is not in range 0 to 6" % IL)
+            abort(500, "Integration Level is not in range 0 to 6")
 
         try:
             current_app.logger.debug("running operation add_integration_status")
-            integration_status = System.do("add_integration_status", integration_status=integration_status,
+            integration_status = System.do("add_integration_status", integration_status=int_status,
                                     session=session)
             current_app.logger.debug("completed operation add_integration_status")
             return integration_status.to_client()
@@ -9059,7 +9064,7 @@ class TestGetHosting_Info_by_hosted_url(TestCase):
 # -*- coding: utf-8 -*-
 from runtime.system.system import *
 import datetime
-from flask import current_app
+from flask import current_app, abort
 from runtime.config.system_config import KEY
 
 #+end_src
