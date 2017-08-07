@@ -211,6 +211,47 @@ post_lab_spec(lab_file_list[0])
 #+END_SRC
 
 * program to add 'asset_type' entity
+** Migration Steps
+1) create database lds_old
+2) restoring the dump
+#+BEGIN_SRC 
+mysql -u root -p lds_old < lds.sql
+#+END_SRC
+3) create the schema
+#+BEGIN_SRC 
+create table asset_type(id int(11) auto_increment, asset_type varchar(255) unique, primary key(id));
+select distinct asset_type from asset;
+insert into asset_type (asset_type) values("image");
+insert into asset_type (asset_type) values("sources");
+insert into asset_type (asset_type) values("videos");
+rename table asset to assetold;
+create table asset(id int(11) auto_increment, path varchar(255) unique, asset_type_id int, primary key(id), foreign key (asset_type_id) references asset_type(id));
+FOREIGN KEY (PersonID) REFERENCES Persons(PersonID)
+alter table experiment drop column lb_id;
+#+END_SRC
+4) update config file with lds_old database
+#+BEGIN_SRC 
+SQLALCHEMY_DATABASE_URI = 'mysql+oursql://root:root@localhost/lds_old'
+#+END_SRC
+5) run the app
+#+BEGIN_SRC 
+cd build/code/runtime/rest
+python app.py
+#+END_SRC
+6) run the migration script
+#+BEGIN_SRC 
+cd build/code/deployment
+python migration.py
+#+END_SRC
+7) drop table asset_old
+#+BEGIN_SRC 
+drop table asset_old
+#+END_SRC
+8) backup the new mysql dump
+#+BEGIN_SRC 
+mysqldump -u root -proot lds_old > lds.sql
+#+END_SRC
+** Migration Script
 #+BEGIN_SRC python :tangle migrate.py :eval no 
 
 #!/usr/bin/python
@@ -227,7 +268,7 @@ asset_url = "http://localhost:5000"
 KEY= "defaultkey"
 def populate_assets():
     print "Populating assets table.."
-    cursor1.execute("select * from asset")
+    cursor1.execute("select * from assetold")
     data = cursor1.fetchall()
 
     for row in data:
@@ -249,7 +290,6 @@ def populate_assets():
                     'key': KEY}
 
             headers = {'Content-Type': 'application/json'}
-            print payload
             print asset_url+"/assets"
             response = requests.post(asset_url+"/assets",
                                          data=json.dumps(payload),
@@ -262,7 +302,6 @@ def populate_assets():
                     'key': KEY}
 
             headers = {'Content-Type': 'application/json'}
-            print payload
             print asset_url+"/assets"
             response = requests.post(asset_url+"/assets",
                                          data=json.dumps(payload),
@@ -272,154 +311,18 @@ def populate_assets():
         else:
             continue
 
-def populate_data():
-    print "Populating institute table.."
-    cursor1.execute("select * from institute")
-    data = cursor1.fetchall()
-    for row in data:
-        cursor2.execute("insert into institute (institute_name, institute_id)"
-                            "values('%s','%s')" %(row[1], row[2]));
-    cursor2.execute("select * from institute")
-    connection2.commit()
-    data2 = cursor2.fetchall()
-    for row in data2:
-        print row
-
-    print "Populating discipline table.."
-    cursor1.execute("select * from discipline")
-    data = cursor1.fetchall()
-    for row in data:
-        cursor2.execute("insert into discipline (discipline_name, discipline_id)"
-                            "values('%s', '%s')" %(row[1], row[2]));
-    cursor2.execute("select * from discipline")
-    connection2.commit()
-    data2 = cursor2.fetchall()
-    for row in data2:
-        print row
-
-    print "Populating name table.."
-    cursor1.execute("select * from name")
-    data = cursor1.fetchall()
-    for row in data:
-        cursor2.execute("insert into name (name)"
-                            "values('%s')" %(row[1]));
-    cursor2.execute("select * from name")
-    connection2.commit()
-    data2 = cursor2.fetchall()
-    for row in data2:
-        print row
-
-    print "Populating email table.."
-    cursor1.execute("select * from email")
-    data = cursor1.fetchall()
-    for row in data:
-        cursor2.execute("insert into email (email)"
-                            "values('%s')" %(row[1]));
-    cursor2.execute("select * from email")
-    connection2.commit()
-    data2 = cursor2.fetchall()
-    for row in data2:
-        print row
-
-    print "Populating developer table.."
-    cursor1.execute("select * from developer")
-    data = cursor1.fetchall()
-    for row in data:
-        cursor2.execute("insert into developer (name_id, email_id)"
-                            "values(%d, %d)" %(row[1], row[2]));
-    cursor2.execute("select * from developer")
-    connection2.commit()
-    data2 = cursor2.fetchall()
-    for row in data2:
-        print row
-
-    print "Populating hosting_info table.."
-    cursor1.execute("select * from hosting_info")
-    data = cursor1.fetchall()
-    for row in data:
-        cursor2.execute("insert into hosting_info(hosting_status, hosted_url, hosted_on)"
-                            "values('%s', '%s', '%s')" %(row[1], row[2], row[3]));
-    cursor2.execute("select * from hosting_info")
-    connection2.commit()
-    data2 = cursor2.fetchall()
-    for row in data2:
-        print row
-
-    print "Populating integration_status table.."
-    cursor1.execute("select * from integration_status")
-    data = cursor1.fetchall()
-    for row in data:
-        cursor2.execute("insert into integration_status(integration_level)"
-                            "values(%d)" %(row[1]));
-    cursor2.execute("select * from integration_status")
-    connection2.commit()
-    data2 = cursor2.fetchall()
-    for row in data2:
-        print row
-
-
-    print "Populating experiment table.."
-    cursor1.execute("select * from experiment")
-    data = cursor1.fetchall()
-    for row in data:
-        cursor2.execute("insert into experiment(exp_name, exp_id, overview, "
-                            "intstatus_id, lb_id, institute_id,"
-                            "discipline_id)"
-                            "values('%s', '%s', '%s', %d, '%s', %d, %d)"
-                            %(row[1], row[2], row[3], row[4], row[5],
-                                  row[6], row[7] ));
-    cursor2.execute("select * from experiment")
-    connection2.commit()
-    data2 = cursor2.fetchall()
-    for row in data2:
-        print row
-
-'''
-    print "Populating section table.."
-    cursor1.execute("select * from section")
-    data = cursor1.fetchall()
-    for row in data:
-        name = row[1].strip("");
-        print name
-
-        cursor2.execute("insert into section(name)"
-                            "values(%s)" %(name));
-
-    cursor2.execute("select * from section")
-    connection2.commit()
-    data2 = cursor2.fetchall()
-    for row in data2:
-        print row
-
-'''
-
-
 
 if __name__ == "__main__":
     connection1 = MySQLdb.connect(host="localhost", user="root",
                                   passwd="root", db="lds_old")
     cursor1 = connection1.cursor()
-    connection2 = MySQLdb.connect(host="localhost", user="root",
-                                  passwd="root", db="lds")
-    cursor2 = connection2.cursor()
 
     db.create_all(app=create_app(config))
     populate_assets()
-    populate_data()
     cursor1.close()
     connection1.close()
-    cursor2.close()
-    connection2.close()
 
 #+END_SRC
-#+BEGIN_EXAMPLE
-drop table asset_type
-create table asset_type(id int(11) auto_increment, asset_type varchar(255) unique, primary key(id));
-select distinct asset_type from asset;
-insert into asset_type (asset_type) values("image");
-insert into asset_type (asset_type) values("sources");
-insert into asset_type (asset_type) values("videos");
-#+END_EXAMPLE
 * Install all dependencies and setup the software
   Install all dependencies, including the OS related packages, Python packages,
   setup the database, configure the webserver, and finally deploy the
