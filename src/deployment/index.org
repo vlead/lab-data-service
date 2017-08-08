@@ -14,7 +14,8 @@
   Here we use the =setuptools= module from the standard lib, to make a
   =setup.py= file, which will install all the python library dependencies.
 
-#+BEGIN_SRC python :tangle setup.py :eval no
+# python :tangle setup.py :eval no
+#+BEGIN_SRC python
 from setuptools import setup
 
 requires = [
@@ -36,7 +37,8 @@ setup(
 #+END_SRC
 
 * Program to set up the database
-#+BEGIN_SRC python :tangle db_setup.py :eval no
+# python :tangle db_setup.py :eval no
+#+BEGIN_SRC python 
 
 from runtime.rest.app import create_app
 from runtime.config import flask_app_config as config
@@ -163,6 +165,7 @@ if __name__ == "__main__":
 #+END_SRC
 
 * Program to populate lab and experiment data from lab spects 
+# python :tangle dump_json_to_lds.py :eval no 
 #+BEGIN_SRC python :tangle dump_json_to_lds.py :eval no 
 import os
 import os.path
@@ -327,8 +330,8 @@ if __name__ == "__main__":
   Install all dependencies, including the OS related packages, Python packages,
   setup the database, configure the webserver, and finally deploy the
   application.
-
-#+BEGIN_SRC sh :tangle setup.sh :eval no
+# sh :tangle setup.sh :eval no
+#+BEGIN_SRC sh 
 #!/bin/bash
 # Shell script to install deb package dependencies as well as python package
 # dependencies for dataservice.
@@ -413,7 +416,8 @@ exit 0
   to use WSGI and use the application scripts, and finally calls the database
   setup scripts to actually setup the database with tables.
 
-#+BEGIN_SRC sh :tangle configure.sh :eval no
+# sh :tangle configure.sh :eval no
+#+BEGIN_SRC sh
 #!/bin/bash
 # Configure the application in the deployment environment
 # 1. Update the config.py file with appropriate values
@@ -507,6 +511,193 @@ export PYTHONPATH="/var/www"
 setup_db
 exit 0;
 #+END_SRC
+
+* Auto Deployment steps using nginx server
+** setup.py 
+   Here we use the =setuptools= module from the standard lib, to make a
+   =setup.py= file, which will install all the python library dependencies.
+
+#+BEGIN_SRC python :tangle setup.py :eval no
+from setuptools import setup
+
+requires = [
+    'flask',
+    'Flask-SQLAlchemy',
+    'oursql',
+    'flask-cors',
+    'flask-testing',
+    'requests',
+    'pyyaml'
+    'GitPython',
+    'gunicorn'
+]
+setup(
+    name='lds',
+    version='2.0',
+    install_requires=requires
+)
+
+#+END_SRC
+** wsgi configuration
+
+#+BEGIN_SRC python :tangle wsgi.py :eval no
+
+import sys, os
+
+sys.path.insert(0, "/usr/share/nginx/html/")
+from runtime.rest.app import create_app
+from runtime.config import flask_app_config as config
+
+application = create_app(config)
+
+#+END_SRC
+
+** make LDS as service
+
+#+BEGIN_SRC python :tangle lds.conf :eval no
+
+description "Gunicorn application server running lab-data-service"
+
+start on runlevel [2345]
+stop on runlevel [!2345]
+
+respawn
+setuid root
+setgid www-data
+
+chdir /usr/share/nginx/html/deployment
+exec gunicorn --workers 3 --bind unix:lds.sock -m 007 wsgi
+
+#+END_SRC
+
+** nginx socket configuration
+
+#+BEGIN_SRC python :tangle lds :eval no
+
+server {
+    listen 80;
+    server_name localhost;
+
+    location / {
+        include proxy_params;
+        proxy_pass http://unix:/usr/share/nginx/html/deployment/lds.sock;
+    }
+}
+
+#+END_SRC
+
+** tangle 							:boilerplate:
+#+BEGIN_SRC python :eval no :tangle __init__.py
+print "deployment package"
+#+END_SRC
+
+* Manual deployment using nginx server
+** Install dependencies
+   First, refresh your apt package index and then install the Python
+   development libraries and headers, the pip Python package manager, and
+   the Nginx web server and reverse proxy
+#+BEGIN_EXAMPLE
+sudo su -
+apt-get update
+apt-get install python-dev python-pip nginx
+#+END_EXAMPLE
+** Create Virtual environement
+   Once the package installation is complete, you will have access to
+   the pip Python package manager. We can use this to install the
+   virtualenv package, which we will use to isolate our application's
+   Python environment from any others that may exist on the system
+#+BEGIN_EXAMPLE
+pip install virtualenv
+git clone https://github.com/vlead/lab-data-service
+cd lab-data-service
+git checkout develop
+make
+rsync -avz --progress build/code/ /var/www/lds
+cd /var/www/lds
+virtualenv venv
+source venv/bin/activate
+ 
+#+END_EXAMPLE
+** Install wsgi and flask
+#+BEGIN_EXAMPLE
+pip install uwsgi flask requests pyyml flask_cors
+#+END_EXAMPLE
+** Create a WSGI Application =emacs /var/www/lds/wsgi.py=
+   
+#+BEGIN_EXAMPLE
+import sys
+sys.path.insert(0, "/var/www/lds")
+
+from runtime.rest.app import create_app
+from runtime.config import flask_app_config as config
+
+application = create_app(config)
+
+#+END_EXAMPLE
+** Configure a uWSGI Config File =emacs /var/www/lds/ci.ini=
+#+BEGIN_EXAMPLE
+[uwsgi]
+module = wsgi:application
+
+master = true
+processes = 5
+
+socket = lds.sock
+chmod-socket = 664
+vacuum = true
+
+die-on-term = true
+#+END_EXAMPLE
+** Create an Upstart File to Manage the App =emacs /etc/init/lds.conf=
+#+BEGIN_EXAMPLE
+description "uWSGI instance to serve lds"
+
+start on runlevel [2345]
+stop on runlevel [!2345]
+
+setuid root
+setgid www-data
+
+script
+    cd /var/www/lds
+    . venv/bin/activate
+    uwsgi --ini ci.ini
+end script
+#+END_EXAMPLE
+ - Now, we can start the service by typing:
+#+BEGIN_EXAMPLE
+sudo start lds
+#+END_EXAMPLE
+
+** Configure Nginx to Proxy to uWSGI =emacs /etc/nginx/sites-available/lds=
+#+BEGIN_EXAMPLE
+server {
+    listen 80;
+    server_name localhost;
+
+    location / {
+        include         uwsgi_params;
+        uwsgi_pass      unix:/var/www/lds/lds.sock;
+    }
+}
+
+#+END_EXAMPLE
+- Enable the server configuration we just made by linking it to the sites-enabled directory:
+#+BEGIN_EXAMPLE
+ln -s /etc/nginx/sites-available/lds /etc/nginx/sites-enabled
+#+END_EXAMPLE
+ - Check the configuration file for syntax errors:
+#+BEGIN_EXAMPLE
+service nginx configtest
+#+END_EXAMPLE
+ - Restart nginx server
+#+BEGIN_EXAMPLE
+service nginx restart
+#+END_EXAMPLE
+ - Access the application
+#+BEGIN_EXAMPLE
+http://localhost
+#+END_EXAMPLE
 
 * Deploying the application
 
