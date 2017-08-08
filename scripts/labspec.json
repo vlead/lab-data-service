@@ -71,10 +71,10 @@
             "cd ../;make build"
           ],
           "post_build": [
-            "cp -R ../build/code/* /var/www/",
-            "chmod -R 755 /var/www",
-            "mkdir /var/www/logs",
-            "chmod -R 777 /var/www/logs"
+	    "cp -R ../build/code/* /usr/share/nginx/html/",
+            "chmod -R 755 /usr/share/nginx/html/",
+            "mkdir /usr/share/nginx/html/logs",
+            "chmod -R 777 /usr/share/nginx/html/logs"
           ],
           "status": []
         }
@@ -95,10 +95,17 @@
           "min_required": "10gb"
         },
         "installer": [
-          "bash /var/www/deployment/setup.sh",
-          "python /var/www/deployment/setup.py install",
-          "bash /var/www/deployment/configure.sh",
-          "PYTHONPATH=/var/www python /var/www/deployment/db_setup.py"
+	  "apt-get update -y",
+	  "apt-get install python-pip python-dev nginx",
+	  "python /usr/share/nginx/html/deployment/setup.py install",
+	  "cp /usr/share/nginx/html/deployment/lds.conf /etc/init/",
+	  "start lds",
+	  "cp /usr/share/nginx/html/deployment/lds /etc/nginx/sites-available/",
+	  "ln -s /etc/nginx/sites-available/lds /etc/nginx/sites-enabled",
+	  "rm -v /etc/nginx/sites-enabled/default",
+	  "nginx -t",
+	  "service nginx restart"
+       
         ],
         "lab_actions": {
           "init"    : [],
