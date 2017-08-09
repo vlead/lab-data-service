@@ -24,21 +24,6 @@
             "office_number": ""
           }
         },
-	{
-          "name": "Sripathi",
-          "title": "",
-          "role": "Software Engineer",
-          "organization": "VLEAD",
-          "institute": "IIIT Hyderabad",
-          "web": "",
-          "department": "Software Engg Research Lab (SERL)",
-          "contact": {
-            "email": "sripathi@vlabs.ac.in",
-            "alternate_email": "",
-            "mobile_number": "",
-            "office_number": ""
-          }
-        },
         {
           "name": "Madhavi Puliraju",
           "title": "",
@@ -59,7 +44,7 @@
     "build_requirements": {
       "platform": {
         "os": "ubuntu",
-        "osVersion": "12",
+        "osVersion": "14.04",
         "arch": "x64",
         "service_pack": "",
         "installer": [
@@ -71,6 +56,10 @@
             "cd ../;make build"
           ],
           "post_build": [
+            "cp -R ../build/code/* /usr/share/nginx/html/",
+            "chmod -R 755 /usr/share/nginx/html/",
+            "mkdir /usr/share/nginx/html/logs",
+            "chmod -R 777 /usr/share/nginx/html/logs"
           ],
           "status": []
         }
@@ -79,7 +68,7 @@
     "runtime_requirements": {
       "platform": {
         "os": "ubuntu",
-        "osVersion": "12",
+        "osVersion": "14.04",
         "arch": "x64",
         "servicepack": "",
         "hosting": "dedicated",
@@ -91,12 +80,9 @@
           "min_required": "10gb"
         },
         "installer": [
+          
 	  "apt-get update -y",
 	  "apt-get install python-pip python-dev nginx",
-	  "cp -R ../build/code/* /usr/share/nginx/html/",
-          "chmod -R 755 /usr/share/nginx/html/",
-          "mkdir /usr/share/nginx/html/logs",
-          "chmod -R 777 /usr/share/nginx/html/logs",
 	  "python /usr/share/nginx/html/deployment/setup.py install",
 	  "cp /usr/share/nginx/html/deployment/lds.conf /etc/init/",
 	  "start lds",
