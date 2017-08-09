@@ -331,7 +331,7 @@ if __name__ == "__main__":
   setup the database, configure the webserver, and finally deploy the
   application.
 # sh :tangle setup.sh :eval no
-#+BEGIN_SRC sh 
+#+BEGIN_SRC sh :tangle setup.sh :eval no
 #!/bin/bash
 # Shell script to install deb package dependencies as well as python package
 # dependencies for dataservice.
@@ -339,7 +339,7 @@ if __name__ == "__main__":
 # if any proxy server
 #PROXY=""
 # file to store the generated password
-DB_PASS_FILE="db_pass.txt"
+DB_PASS="db_pass.txt"
 
 if [[ `id -u` -ne 0 ]]; then
   echo "You have to execute this script as super user!"
@@ -378,13 +378,6 @@ echo "Installing pre-requisite dependencies.."
 apt-get install -y python-dev libmysqld-dev python-setuptools apache2 libapache2-mod-wsgi
 if [[ $? -ne 0 ]]; then
   echo "FATAL: Installing pre-requisite dependencies failed!"
-  exit 1;
-fi
-
-echo "Enabling the mod WSGI on apache"
-a2enmod wsgi
-if [[ $? -ne 0 ]]; then
-  echo "FATAL: Unable to enable mod wsgi!"
   exit 1;
 fi
 
@@ -433,7 +426,7 @@ ABS_PATH_DS=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 update_app_config () {
   CONFIG_FILE="../runtime/config/flask_app_config.py"
   DB_USER="root"
-  DB_PASS=$(cat db_pass.txt)
+  DB_PASS="root"
   DB_NAME="lds"
   DB_SERVER="localhost"
 
@@ -499,13 +492,14 @@ if [[ $? -ne 0 ]]; then
   echo "FATAL: Failed to update application flask_app_config.py"
   exit 1;
 fi
-update_apache_config
-if [[ $? -ne 0 ]]; then
-  echo "FATAL: Failed to update apache config"
-  exit 1;
-fi
+#update_apache_config
+#if [[ $? -ne 0 ]]; then
+#  echo "FATAL: Failed to update apache config"
+#  exit 1;
+#fi
 
-service apache2 restart
+#service apache2 restart
+service nginx restart
 export PYTHONPATH="/var/www"
 setup_db
 exit 0;
@@ -633,7 +627,7 @@ from runtime.config import flask_app_config as config
 application = create_app(config)
 
 #+END_EXAMPLE
-** Configure a uWSGI Config File =emacs /var/www/lds/ci.ini=
+** Configure a uWSGI Config File =emacs /var/www/lds/lds.ini=
 #+BEGIN_EXAMPLE
 [uwsgi]
 module = wsgi:application
