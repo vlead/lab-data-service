@@ -358,7 +358,7 @@ echo "Installing MySQL database.."
 if [ ! -f $DB_PASS_FILE ]; then
   # generate a random password for the database and store it in the $DB_PASS_FILE
   # file
-#  DBPASS=$(date +%s | sha256sum | head -c 32)
+  #  DBPASS=$(date +%s | sha256sum | head -c 32)
   DBPASS="root"
   echo $DBPASS > $DB_PASS_FILE
 fi
@@ -413,8 +413,6 @@ exit 0
 #!/bin/bash
 # Configure the application in the deployment environment
 # 1. Update the config.py file with appropriate values
-# 2. Update the apache config to server via WSGI
-# 3. Run the database setup scripts to setup the database
 
 if [[ `id -u` -ne 0 ]]; then
   echo "You have to execute this script as super user!"
@@ -426,7 +424,7 @@ ABS_PATH_DS=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 update_app_config () {
   CONFIG_FILE="../runtime/config/flask_app_config.py"
   DB_USER="root"
-  DB_PASS="root"
+  DB_PASS=$(cat db_pass.txt)
   DB_NAME="lds"
   DB_SERVER="localhost"
 
@@ -454,29 +452,6 @@ update_app_config () {
   # necessary
 }
 
-update_apache_config() {
-  PROC_NAME="lds"
-  WSGI_SCRIPT="lds.wsgi"
-  APACHE_VHOST_FILE="/etc/apache2/sites-available/default"
-
-  sed -i "/<\/VirtualHost>/i \
-    WSGIScriptAlias / $ABS_PATH_DS/$WSGI_SCRIPT
-  " $APACHE_VHOST_FILE
-
-  #sed -i '/<\/VirtualHost>/i \
-  #  WSGIDaemonProcess $PROC_NAME user=www-data group=www-data threads=5
-  #  WSGIScriptAlias / $ABS_PATH_DS/$WSGI_SCRIPT
-
-  #  <Directory $ABS_PATH_DS>
-  #    WSGIProcessGroup $PROC_NAME
-  #    WSGIApplicationGroup %{GLOBAL}
-  #    Order deny,allow
-  #    Allow from all
-  #  </Directory>
-  #' $APACHE_VHOST_FILE
-
-}
-
 setup_db() {
   echo "Creating database: $DB_NAME"
   mysql -u $DB_USER -p$DB_PASS -Bse "create database $DB_NAME;"
@@ -500,7 +475,7 @@ fi
 
 #service apache2 restart
 service nginx restart
-export PYTHONPATH="/var/www"
+export PYTHONPATH="/usr/share/nginx/html/"
 setup_db
 exit 0;
 #+END_SRC
