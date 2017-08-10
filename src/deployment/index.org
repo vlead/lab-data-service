@@ -1,6 +1,6 @@
 #+TITLE: Deploying the application on a server
-#+AUTHOR: VLEAD
 #+DATE: [2016-06-07 Tue]
+#+AUTHOR: VLEAD
 #+SETUPFILE: ../org-templates/level-1.org
 #+TAGS: boilerplate(b)
 #+EXCLUDE_TAGS: boilerplate
@@ -37,8 +37,8 @@ setup(
 #+END_SRC
 
 * Program to set up the database
-# python :tangle db_setup.py :eval no
-#+BEGIN_SRC python 
+
+#+BEGIN_SRC python :tangle db_setup.py :eval no
 
 from runtime.rest.app import create_app
 from runtime.config import flask_app_config as config
@@ -425,7 +425,7 @@ ABS_PATH_DS=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 update_app_config () {
   CONFIG_FILE="../runtime/config/flask_app_config.py"
   DB_USER="root"
-  DB_PASS=$(cat db_pass.txt)
+  DB_PASS="root"
   DB_NAME="lds"
   DB_SERVER="localhost"
 
@@ -438,7 +438,7 @@ update_app_config () {
   echo "Updating config.py.."
   # Update parts of the DB URI
   sed -i "s/<userid>/$DB_USER/" $ABS_PATH_DS/$CONFIG_FILE
-  sed -i "s/<password>/$DB_PASS/" $ABS_PATH_DS/$CONFIG_FILE
+  sed -i "s/<password>/root/" $ABS_PATH_DS/$CONFIG_FILE
   sed -i "s/<servername>/$DB_SERVER/" $ABS_PATH_DS/$CONFIG_FILE
   sed -i "s/<db_name>/$DB_NAME/" $ABS_PATH_DS/$CONFIG_FILE
   # update SQLALCHEMY_ECHO
