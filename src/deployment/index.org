@@ -406,14 +406,14 @@ exit 0
 #+END_SRC
 
 * Configuring the application and its deployment
-  The following program configures the application, configures the web server
-  to use WSGI and use the application scripts, and finally calls the database
+  The following program configures the application, and calls the database
   setup scripts to actually setup the database with tables.
 
 #+BEGIN_SRC sh :tangle configure.sh :eval no
 #!/bin/bash
 # Configure the application in the deployment environment
 # 1. Update the config.py file with appropriate values
+# 2. Run the database setup scripts to setup the database
 
 if [[ `id -u` -ne 0 ]]; then
   echo "You have to execute this script as super user!"
@@ -425,7 +425,7 @@ ABS_PATH_DS=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 update_app_config () {
   CONFIG_FILE="../runtime/config/flask_app_config.py"
   DB_USER="root"
-  DB_PASS="root"
+  DB_PASS=$(cat db_pass.txt)
   DB_NAME="lds"
   DB_SERVER="localhost"
 
@@ -438,7 +438,7 @@ update_app_config () {
   echo "Updating config.py.."
   # Update parts of the DB URI
   sed -i "s/<userid>/$DB_USER/" $ABS_PATH_DS/$CONFIG_FILE
-  sed -i "s/<password>/root/" $ABS_PATH_DS/$CONFIG_FILE
+  sed -i "s/<password>/$DB_PASS/" $ABS_PATH_DS/$CONFIG_FILE
   sed -i "s/<servername>/$DB_SERVER/" $ABS_PATH_DS/$CONFIG_FILE
   sed -i "s/<db_name>/$DB_NAME/" $ABS_PATH_DS/$CONFIG_FILE
   # update SQLALCHEMY_ECHO
@@ -468,17 +468,11 @@ if [[ $? -ne 0 ]]; then
   echo "FATAL: Failed to update application flask_app_config.py"
   exit 1;
 fi
-#update_apache_config
-#if [[ $? -ne 0 ]]; then
-#  echo "FATAL: Failed to update apache config"
-#  exit 1;
-#fi
 
-#service apache2 restart
-service nginx restart
-export PYTHONPATH="/usr/share/nginx/html/"
+export PYTHONPATH="/usr/share/nginx/html"
 setup_db
 exit 0;
+
 #+END_SRC
 
 * Auto Deployment steps using nginx server
