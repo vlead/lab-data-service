@@ -1,0 +1,100 @@
+#+TITLE: Reading a collection from mongodb database (lds) using pymongo
+#+Author: VLEAD
+#+Date: [2017-07-20 Thursday]
+#+PROPERTY: results output
+#+PROPERTY: exports code
+#+SETUPFILE: ./org-templates/level-0.org
+#+options: ^:nil
+
+* Introduction
+  This document illustrates the how read operation (from mongodb database) is
+  implemented using pymongo. This module illustrates how to read a document or
+  entire collection using pymongo.
+
+** Importing necessary packages
+   For interaction with mongodb database importing the necessary packages.
+#+BEGIN_SRC python : tangle : runtime/mongo_read.py
+import json
+import pymongo
+from bson.objectid import ObjectId
+from bson.json_util import loads
+from bson.json_util import dumps
+#+END_SRC
+
+** Connecting with mongodb database
+   This method is used to establish connection with mongodb backend
+#+BEGIN_SRC python : tangle : runtime/mongo_read.py
+def get_db(): 
+  from pymongo import MongoClient 
+  client = MongoClient('localhost:27017') 
+  db = client.lds 
+  return db
+#+END_SRC
+
+** Searching a record using object_id from a given collection_name
+   This method takes 3 arguments as input (db : database connection,
+   collection_name : name of the collection where given id is to be 
+   searched,  id : unique id (mongo_id) to be searched from collection 
+   collection_name)
+#+BEGIN_SRC python : tangle : runtime/mongo_read.py
+def searchUsingId(db,id,collection_name):
+  if(collection_name=='intstatus'):
+    collection_name='integration_status'
+  if(collection_name=='exp'):
+    collection_name='experiment'
+  collection=db[collection_name]
+  result=[i for i in collection.find({"_id": ObjectId(id) },{'_id':False})]
+  return result[0]
+#+END_SRC
+
+** Read one record from database
+   This method takes 2 arguments as input (db : database connection, 
+   jsonData : input record)
+   This method iteratively searches all the object id's in the input record 
+   and replace object id by the data it refers to
+#+BEGIN_SRC python : tangle : runtime/mongo_read.py
+def getOneRecord(db,jsonData):
+  for key in jsonData:
+    if(str(type(jsonData[key]))=="<class 'bson.objectid.ObjectId'>"):
+      x=key.split('_id')[0]
+      x=x.split('id')[0]
+      value=getOneRecord(db,searchUsingId(db,jsonData[key],x))
+      jsonData[key]=value
+  return jsonData
+#+END_SRC
+
+** Saving the collection content to json file
+   This method is to used to save all the records in the
+   given collection in json format
+#+BEGIN_SRC python : tangle : runtime/mongo_read.py
+def saveCollectionToJSON(db,collection_name):
+  record1=db[collection_name]
+  cursor=record1.find({},{'_id':False})
+  mylist=[]
+  for doc in cursor:
+    jsonData=getOneRecord(db,doc)
+    mylist.append(jsonData)
+  import json
+  with open('output/'+collection_name, 'w') as fout:
+    json.dump(mylist, fout, indent=4, sort_keys=True)
+#+END_SRC
+
+** Retrieving all collections name in database
+   This method is used to return all collection names
+   in database
+#+BEGIN_SRC python : tangle : runtime/mongo_read.py
+def get_allcollections(db):
+  return db.collection_names(include_system_collections=False)
+#+END_SRC
+
+** Main method to get all collections content
+   This is the main method which reads all the collections from
+   database and saves all their content to json file
+#+BEGIN_SRC python : tangle : runtime/mongo_read.py
+if __name__=="__main__":
+  db = get_db()
+  collections=get_allcollections(db)
+  for collection in collections:
+    saveCollectionToJSON(db,collection)
+#+END_SEC
+
