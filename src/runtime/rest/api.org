@@ -18,6 +18,43 @@
 
 ** Get Labs, Get Lab, Get Labs by institute, lab_name, discipline and asset and Get labs by passing lab_name as keyword
 *** API Designs 
+**** Pagination Design
+- This function will allow us to enable pagination of out REST APIs. It is supposed to take in four arguments that will be total object list
+  provied along with the starting integer and a limiting integer. 
+- This is supposed to check for size conditions and generate a previous data and next available data link too.
+
+#+NAME: pagination
+#+BEGIN_EXAMPLE python
+def pagination(klass, url, start, limit):
+    data = {}
+    count = len(klass)
+
+    data['start'] = start
+    data['limit'] = limit
+    data['count'] = count
+    
+    if count < start:
+        data['result'] = None
+        data['previous'] = url + '?start=%d&limit=%d' % (count-limit,limit)
+        return data
+
+    if start == 1:
+        data['previous'] = None
+    else:
+        prev_start = max(1, start - limit)
+        prev_limit = start - 1
+        data['previous'] = url + 'start=%d&limit=%d' % (prev_start, prev_limit)
+
+    if start + limit > count:
+        data['next'] = None
+    else:
+        next_start = start + limit
+        data['next'] = url + 'start=%d&limit=%d' % (next_start, limit)
+
+    data['results'] = klass[(start - 1):(start - 1 + limit)]
+    return data  
+#+END_EXAMPLE  
+
 **** Get all labs
   :PROPERTIES:
   :CUSTOM_ID: api_get_all_labs
@@ -1004,6 +1041,7 @@ http://localhost:5000/labs?keyword_lab_name=data
 #+BEGIN_SRC python
 @api.route('/labs', methods=['GET'])
 def get_lab():
+    print request.args
     if request.method == 'GET':
         if 'lab_id' in request.args:
             lab_id  = request.args['lab_id']
@@ -1047,7 +1085,13 @@ def get_lab():
             try:
                 current_app.logger.debug("running operation get_labs_by_lab_name")
                 labs = SystemInterface.get_labs_by_lab_name(lab_name)
-                return jsonify(labs)
+                return jsonify(pagination(
+                    labs, 
+                    '/labs?lab_name='+lab_name+'&',
+                    start=int(request.args.get('start', 1)), 
+                    limit=int(request.args.get('limit', 1))
+                )) 
+                #return jsonify(labs)
                 
             except TypeError as e:
                 current_app.logger.error("Exception = %s" % str(e))
@@ -1084,7 +1128,13 @@ def get_lab():
                 current_app.logger.debug("running operation get_labs_by_institute")
                 labs = SystemInterface.get_labs_by_institute(institute_name)
                 current_app.logger.debug("completed operation get_labs_by_institute")
-                return jsonify_list(labs)
+                return jsonify(pagination(
+                    labs, 
+                    '/labs?institute_name='+institute_name+'&',
+                    start=int(request.args.get('start', 1)), 
+                    limit=int(request.args.get('limit', 1))
+                )) 
+                #return jsonify_list(labs)
                 
             except TypeError as e:
                 current_app.logger.error("Exception = %s" % str(e))
@@ -1121,7 +1171,13 @@ def get_lab():
                 current_app.logger.debug("running operation get_labs_by_discipline")
                 labs = SystemInterface.get_labs_by_discipline(discipline_name)
                 current_app.logger.debug("completed operation get_labs_by_discipline")
-                return jsonify_list(labs)
+                return jsonify(pagination(
+                    labs, 
+                    '/labs?discipline_name='+discipline_name+'&',
+                    start=int(request.args.get('start', 1)), 
+                    limit=int(request.args.get('limit', 1))
+                )) 
+                #return jsonify_list(labs)
                 
             except TypeError as e:
                 current_app.logger.error("Exception = %s" % str(e))
@@ -1158,7 +1214,13 @@ def get_lab():
                 current_app.logger.debug("running operation get_labs_by_asset")
                 labs = SystemInterface.get_labs_by_asset(asset_type)
                 current_app.logger.debug("completed operation get_labs_by_asset")
-                return jsonify_list(labs)
+                return jsonify(pagination(
+                    labs, 
+                    '/labs?asset_type='+asset_type+'&',
+                    start=int(request.args.get('start', 1)), 
+                    limit=int(request.args.get('limit', 1))
+                ))                
+                #return jsonify_list(labs)
 
             except TypeError as e:
                 current_app.logger.error("Exception = %s" % str(e))
@@ -1197,7 +1259,13 @@ def get_lab():
                 labs = SystemInterface.get_labs_by_keyword_lab_name(keyword)
                 current_app.logger.debug("completed operation get_labs_by_"
                                          " keyword_lab_name")
-                return jsonify_list(labs)
+                return jsonify(pagination(
+                    labs, 
+                    '/labs?keyword_lab_name='+keyword+'&',
+                    start=int(request.args.get('start', 1)), 
+                    limit=int(request.args.get('limit', 1))
+                ))
+                #return jsonify_list(labs)
 
             except TypeError as e:
                 current_app.logger.error("Exception = %s" % str(e))
@@ -1230,10 +1298,16 @@ def get_lab():
 
         else:
             try:
-                current_app.logger.debug("running operation get_labs")                
+                current_app.logger.debug("running operation get_labs")
                 labs = SystemInterface.get_labs()
                 current_app.logger.debug("completed operation get_labs")
-                return jsonify_list(labs)
+                return jsonify(pagination(
+                    labs, 
+                    '/labs?',
+                    start=int(request.args.get('start', 1)), 
+                    limit=int(request.args.get('limit', 1))
+                ))
+                #return jsonify_list(labs)
 
             except TypeError as e:
                 current_app.logger.error("Exception = %s" % str(e))
@@ -11424,6 +11498,7 @@ if __name__ == '__main__':
 ** sources
 #+BEGIN_SRC python :tangle api.py :eval no :noweb yes
 <<imports_for_sources>>
+<<pagination>>
 <<get_lab>>
 <<add_lab>>
 <<update_lab>>
