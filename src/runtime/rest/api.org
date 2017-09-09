@@ -11,49 +11,52 @@
   :CUSTOM_ID: introduction
   :END: 
   This document illustrates building of the REST API.
-
-
   
-* REST
 
-** Get Labs, Get Lab, Get Labs by institute, lab_name, discipline and asset and Get labs by passing lab_name as keyword
-*** API Designs 
-**** Pagination Design
+* REST
+** Pagination support for Get Request
+*** Function Design
 - This function will allow us to enable pagination of out REST APIs. It is supposed to take in four arguments that will be total object list
   provied along with the starting integer and a limiting integer. 
 - This is supposed to check for size conditions and generate a previous data and next available data link too.
 
+*** Function Definition
  #+NAME: test_get_names
  #+BEGIN_SRC python
 def pagination(klass, url, start, limit):
     data = {}
     count = len(klass)
-
-    data['start'] = start
-    data['limit'] = limit
-    data['count'] = count
+    data['currentPage'] = start
+    data['pageSize'] = limit
+    data['totalCount'] = count
     
     if count < start:
-        data['result'] = None
-        data['previous'] = url + '?start=%d&limit=%d' % (count-limit,limit)
-        return data
-
-    if start == 1:
-        data['previous'] = None
+        data['nextPageLink'] = None
+        data['previousPageLink'] = url + 'page=%d' % (count-limit)
+        response = make_response(jsonify(None))
     else:
-        prev_start = max(1, start - limit)
-        prev_limit = start - 1
-        data['previous'] = url + 'start=%d&limit=%d' % (prev_start, prev_limit)
+        if start == 1:
+            data['previousPageLink'] = None
+        else:
+            prev_start = max(1, start - limit)
+            data['previousPageLink'] = url + 'page=%d' % (prev_start)
 
-    if start + limit > count:
-        data['next'] = None
-    else:
-        next_start = start + limit
-        data['next'] = url + 'start=%d&limit=%d' % (next_start, limit)
+        if start + limit > count:
+            data['nextPageLink'] = None
+        else:
+            data['nextPageLink'] = url + 'page=%d' % (start + limit)
 
-    data['results'] = klass[(start - 1):(start - 1 + limit)]
-    return data  
+        response = make_response(jsonify(klass[(start - 1):(start - 1 + limit)]))
+    
+    response.headers['X-Pagination'] = data
+    return response
+
+  
 #+END_SRC 
+
+
+** Get Labs, Get Lab, Get Labs by institute, lab_name, discipline and asset and Get labs by passing lab_name as keyword
+*** API Designs 
 
 **** Get all labs
   :PROPERTIES:
@@ -1041,7 +1044,7 @@ http://localhost:5000/labs?keyword_lab_name=data
 #+BEGIN_SRC python
 @api.route('/labs', methods=['GET'])
 def get_lab():
-    print request.args
+
     if request.method == 'GET':
         if 'lab_id' in request.args:
             lab_id  = request.args['lab_id']
@@ -1085,13 +1088,12 @@ def get_lab():
             try:
                 current_app.logger.debug("running operation get_labs_by_lab_name")
                 labs = SystemInterface.get_labs_by_lab_name(lab_name)
-                return jsonify(pagination(
+                return pagination(
                     labs, 
                     '/labs?lab_name='+lab_name+'&',
-                    start=int(request.args.get('start', 1)), 
-                    limit=int(request.args.get('limit', 1))
-                )) 
-                #return jsonify(labs)
+                    start=int(request.args.get('page', 1)), 
+                    limit=int(request.args.get('pageSize', 25))
+                )
                 
             except TypeError as e:
                 current_app.logger.error("Exception = %s" % str(e))
@@ -1128,13 +1130,13 @@ def get_lab():
                 current_app.logger.debug("running operation get_labs_by_institute")
                 labs = SystemInterface.get_labs_by_institute(institute_name)
                 current_app.logger.debug("completed operation get_labs_by_institute")
-                return jsonify(pagination(
+                
+                return pagination(
                     labs, 
                     '/labs?institute_name='+institute_name+'&',
-                    start=int(request.args.get('start', 1)), 
-                    limit=int(request.args.get('limit', 1))
-                )) 
-                #return jsonify_list(labs)
+                    start=int(request.args.get('page', 1)), 
+                    limit=int(request.args.get('pageSize', 25))
+                )
                 
             except TypeError as e:
                 current_app.logger.error("Exception = %s" % str(e))
@@ -1171,13 +1173,12 @@ def get_lab():
                 current_app.logger.debug("running operation get_labs_by_discipline")
                 labs = SystemInterface.get_labs_by_discipline(discipline_name)
                 current_app.logger.debug("completed operation get_labs_by_discipline")
-                return jsonify(pagination(
+                return pagination(
                     labs, 
                     '/labs?discipline_name='+discipline_name+'&',
-                    start=int(request.args.get('start', 1)), 
-                    limit=int(request.args.get('limit', 1))
-                )) 
-                #return jsonify_list(labs)
+                    start=int(request.args.get('page', 1)), 
+                    limit=int(request.args.get('pageSize', 25))
+                )
                 
             except TypeError as e:
                 current_app.logger.error("Exception = %s" % str(e))
@@ -1214,13 +1215,12 @@ def get_lab():
                 current_app.logger.debug("running operation get_labs_by_asset")
                 labs = SystemInterface.get_labs_by_asset(asset_type)
                 current_app.logger.debug("completed operation get_labs_by_asset")
-                return jsonify(pagination(
+                return pagination(
                     labs, 
                     '/labs?asset_type='+asset_type+'&',
-                    start=int(request.args.get('start', 1)), 
-                    limit=int(request.args.get('limit', 1))
-                ))                
-                #return jsonify_list(labs)
+                    start=int(request.args.get('page', 1)), 
+                    limit=int(request.args.get('pageSize', 25))
+                )
 
             except TypeError as e:
                 current_app.logger.error("Exception = %s" % str(e))
@@ -1259,13 +1259,12 @@ def get_lab():
                 labs = SystemInterface.get_labs_by_keyword_lab_name(keyword)
                 current_app.logger.debug("completed operation get_labs_by_"
                                          " keyword_lab_name")
-                return jsonify(pagination(
+                return pagination(
                     labs, 
                     '/labs?keyword_lab_name='+keyword+'&',
-                    start=int(request.args.get('start', 1)), 
-                    limit=int(request.args.get('limit', 1))
-                ))
-                #return jsonify_list(labs)
+                    start=int(request.args.get('page', 1)), 
+                    limit=int(request.args.get('pageSize', 25))
+                )
 
             except TypeError as e:
                 current_app.logger.error("Exception = %s" % str(e))
@@ -1301,13 +1300,13 @@ def get_lab():
                 current_app.logger.debug("running operation get_labs")
                 labs = SystemInterface.get_labs()
                 current_app.logger.debug("completed operation get_labs")
-                return jsonify(pagination(
-                    labs, 
-                    '/labs?',
-                    start=int(request.args.get('start', 1)), 
-                    limit=int(request.args.get('limit', 1))
-                ))
-                #return jsonify_list(labs)
+
+                return pagination(
+                        labs, 
+                        '/labs?',
+                        start=int(request.args.get('page', 1)), 
+                        limit=int(request.args.get('pageSize', 25))
+                )
 
             except TypeError as e:
                 current_app.logger.error("Exception = %s" % str(e))
@@ -3922,10 +3921,15 @@ def get_institute():
 
        else:
            try:
-               current_app.logger.debug("running operation get_institutes")
-               institutes = SystemInterface.get_institutes()
-               current_app.logger.debug("completed operation get_institutes")
-               return jsonify_list(institutes)
+                current_app.logger.debug("running operation get_institutes")
+                institutes = SystemInterface.get_institutes()
+                current_app.logger.debug("completed operation get_institutes")
+                return pagination(
+                        institutes, 
+                        '/institutes?',
+                        start=int(request.args.get('page', 1)), 
+                        limit=int(request.args.get('pageSize', 25))
+                )
 
            except TypeError as e:
                current_app.logger.error("Exception = %s" % str(e))
@@ -3955,6 +3959,7 @@ def get_institute():
                msg = {"status": "failure",
                        "msg": err_str}
                abort(500, msg)
+            
             
 #+END_SRC
 
@@ -4442,7 +4447,12 @@ def get_discipline():
                 current_app.logger.debug("running operation get_disciplines")
                 disciplines = SystemInterface.get_disciplines()               
                 current_app.logger.debug("completed operation get_disciplines")
-                return jsonify_list(disciplines)
+                return pagination(
+                        disciplines, 
+                        '/disciplines?',
+                        start=int(request.args.get('page', 1)), 
+                        limit=int(request.args.get('pageSize', 25))
+                )
             
             except TypeError as e:
                 current_app.logger.error("Exception = %s" % str(e))
@@ -4472,6 +4482,8 @@ def get_discipline():
                 msg = {"status": "failure",
                        "msg": err_str}
                 abort(500, msg)
+
+
 #+END_SRC
 
 *** Test Cases
@@ -5094,7 +5106,12 @@ def get_experiment():
                 current_app.logger.debug("execute get_experiments")
                 experiments = SystemInterface.get_experiments()
                 current_app.logger.debug("executed get_experiments")
-                return jsonify_list(experiments)
+                return pagination(
+                        experiments, 
+                        '/experiments?',
+                        start=int(request.args.get('page', 1)), 
+                        limit=int(request.args.get('pageSize', 25))
+                )
 
             except NotAuthorizedError as e:
                 current_app.logger.error("Exception = %s" % str(e))
@@ -5132,6 +5149,7 @@ def get_experiment():
                 msg = {"status": "failure",
                         "msg": err_str}
                 abort(500, msg)
+
                 
 #+END_SRC
 
@@ -5867,7 +5885,12 @@ def get_sections():
             current_app.logger.debug("execute get_sections")
             sections = SystemInterface.get_sections()
             current_app.logger.debug("executed get_sections")
-            return jsonify_list(sections)
+            return pagination(
+                    sections, 
+                    '/sections?',
+                    start=int(request.args.get('page', 1)), 
+                    limit=int(request.args.get('pageSize', 25))
+            )
 
         except TypeError as e:
             current_app.logger.error("Exception = %s" % str(e))
@@ -6643,57 +6666,101 @@ http://localhost:5000/hosting_info
 REST API to add an hosting_info.
 #+NAME: add_hosting_info
 #+BEGIN_SRC python
-@api.route('/hosting_info', methods=['POST'])
-def add_hosting_info():
-    if request.method == 'POST':
-        if request.is_json:
-            data_json = json.dumps(request.get_json())
-            data_dict = yaml.safe_load(data_json)
-        else:
-            abort(500, "the request does not contain data in json")
+@api.route('/hosting_info', methods=['GET'])
+def get_hosting_info():
+    if request.method == 'GET':
+       if 'hosted_url' in request.args:
+           hosted_url  = request.args['hosted_url']
+           try:
+               current_app.logger.debug("execute get_hosting_info_by_hosted_url")
+               hosting_info = SystemInterface.get_hosting_info_by_hosted_url(hosted_url)
+               current_app.logger.debug("executed get_hosting_info_by_hosted_url")
+               return jsonify(hosting_info)
 
-        try:
-            current_app.logger.debug("execute add_hosting_info")
-            hosting_info = SystemInterface.add_hosting_info(data_dict)
-            current_app.logger.debug("executed add_hosting_info")
-            return jsonify(hosting_info)
-
-        except NotAuthorizedError as e:
-            current_app.logger.error("Exception = %s" % str(e))
-            err_str = str(e)
-            msg = {"status": "failure",
+           except NotAuthorizedError as e:
+               current_app.logger.error("Exception = %s" % str(e))
+               err_str = str(e)
+               msg = {"status": "failure",
                     "status code": 401,
                        "msg": err_str}
-            abort(401, msg)
+               abort(401, msg)
 
-        except TypeError as e:
-            current_app.logger.error("Exception = %s" % str(e))
-            err_str = str(e)
-            msg = {"status": "failure",
+           except TypeError as e:
+               current_app.logger.error("Exception = %s" % str(e))
+               err_str = str(e)
+               msg = {"status": "failure",
                        "msg": err_str }
-            abort(500, msg)
+               abort(500, msg)
 
-        except StateError as e:
-            current_app.logger.error("Exception = %s" % str(e))
-            err_str = str(e)
-            msg = {"status": "failure",
+           except StateError as e:
+               current_app.logger.error("Exception = %s" % str(e))
+               err_str = str(e)
+               msg = {"status": "failure",
                        "msg": err_str}
-            abort(500, msg)
+               abort(500, msg)
 
-        except NotFoundError as e:
-            current_app.logger.error("Exception = %s" % str(e))
-            err_str = str(e)
-            msg = {"status": "failure",
+           except NotFoundError as e:
+               current_app.logger.error("Exception = %s" % str(e))
+               err_str = str(e)
+               msg = {"status": "failure",
                        "status code": 404,
                        "msg": err_str}
-            abort(404, msg)
+               abort(404, msg)
 
-        except Exception as e:
-            current_app.logger.error("Exception = %s" % str(e))
-            err_str = str(e)
-            msg = {"status": "failure",
+           except Exception as e:
+               current_app.logger.error("Exception = %s" % str(e))
+               err_str = str(e)
+               msg = {"status": "failure",
                        "msg": err_str}
-            abort(500, msg)
+               abort(500, msg)
+       else:
+           try:
+                current_app.logger.debug("execute get_hosting_info")
+                hosting_info = SystemInterface.get_hosting_info()
+                current_app.logger.debug("executed get_hosting_info")
+                return pagination(
+                        hosting_info, 
+                        '/hosting_info?',
+                        start=int(request.args.get('page', 1)), 
+                        limit=int(request.args.get('pageSize', 25))
+                )
+
+           except NotAuthorizedError as e:
+                current_app.logger.error("Exception = %s" % str(e))
+                err_str = str(e)
+                msg = {"status": "failure",
+                    "status code": 401,
+                       "msg": err_str}
+                abort(401, msg)
+
+           except TypeError as e:
+               current_app.logger.error("Exception = %s" % str(e))
+               err_str = str(e)
+               msg = {"status": "failure",
+                       "msg": err_str }
+               abort(500, msg)
+
+           except StateError as e:
+               current_app.logger.error("Exception = %s" % str(e))
+               err_str = str(e)
+               msg = {"status": "failure",
+                       "msg": err_str}
+               abort(500, msg)
+
+           except NotFoundError as e:
+               current_app.logger.error("Exception = %s" % str(e))
+               err_str = str(e)
+               msg = {"status": "failure",
+                       "status code": 404,
+                       "msg": err_str}
+               abort(404, msg)
+
+           except Exception as e:
+               current_app.logger.error("Exception = %s" % str(e))
+               err_str = str(e)
+               msg = {"status": "failure",
+                       "msg": err_str}
+               abort(500, msg)
             
 #+END_SRC
 
@@ -6851,11 +6918,15 @@ def get_integration_status():
 
        else:
            try:
-               current_app.logger.debug("execute get_integration_status")
-               integration_status = SystemInterface.get_integration_status()
-               current_app.logger.debug("executed get_integration_status")
-               return jsonify_list(integration_status)
-
+                current_app.logger.debug("execute get_integration_status")
+                integration_status = SystemInterface.get_integration_status()
+                current_app.logger.debug("executed get_integration_status")
+                return pagination(
+                        integration_status, 
+                        '/integration_status?',
+                        start=int(request.args.get('page', 1)), 
+                        limit=int(request.args.get('pageSize', 25))
+                )
            except NotAuthorizedError as e:
                current_app.logger.error("Exception = %s" % str(e))
                err_str = str(e)
@@ -6892,6 +6963,7 @@ def get_integration_status():
                msg = {"status": "failure",
                        "msg": err_str}
                abort(500, msg)
+
 #+END_SRC
 
 *** Test Cases
@@ -7057,7 +7129,7 @@ class TestAddIntegration_Status(TestCase):
 
  #+END_SRC
 
-
+     
 ** Get Emails
 *** API Design
 **** Get all Emails
@@ -7135,10 +7207,15 @@ def get_email():
 
        else:
            try:
-               current_app.logger.debug("execute get_emails")
-               emails = SystemInterface.get_emails()
-               current_app.logger.debug("executed get_emails")
-               return jsonify_list(emails)
+                current_app.logger.debug("execute get_emails")
+                emails = SystemInterface.get_emails()
+                current_app.logger.debug("executed get_emails")
+                return pagination(
+                        emails, 
+                        '/emails?',
+                        start=int(request.args.get('page', 1)), 
+                        limit=int(request.args.get('pageSize', 25))
+                )
 
            except TypeError as e:
                current_app.logger.error("Exception = %s" % str(e))
@@ -7168,6 +7245,7 @@ def get_email():
                msg = {"status": "failure",
                        "msg": err_str}
                abort(500, msg)
+
 #+END_SRC
 
 *** Test Cases
@@ -7374,7 +7452,12 @@ def get_names():
             current_app.logger.debug("execute get_names")
             names = SystemInterface.get_names()
             current_app.logger.debug("executed get_names")
-            return jsonify_list(names)
+            return pagination(
+                    names, 
+                    '/names?',
+                    start=int(request.args.get('page', 1)), 
+                    limit=int(request.args.get('pageSize', 25))
+            )
 
         except TypeError as e:
             current_app.logger.error("Exception = %s" % str(e))
@@ -7405,6 +7488,7 @@ def get_names():
                        "msg": err_str}
             abort(500, msg)
             
+
 #+END_SRC
 
 *** Test Cases
@@ -7673,10 +7757,15 @@ def get_developer():
            
        else:
            try:
-               current_app.logger.debug("execute get_developers")
-               developers = SystemInterface.get_developers()
-               current_app.logger.debug("executed get_developers")
-               return jsonify_list(developers)
+                current_app.logger.debug("execute get_developers")
+                developers = SystemInterface.get_developers()
+                current_app.logger.debug("executed get_developers")
+                return pagination(
+                        developers, 
+                        '/developers?',
+                        start=int(request.args.get('page', 1)), 
+                        limit=int(request.args.get('pageSize', 25))
+                )
 
            except TypeError as e:
                current_app.logger.error("Exception = %s" % str(e))
@@ -7706,6 +7795,8 @@ def get_developer():
                msg = {"status": "failure",
                         "msg": err_str}
                abort(500, msg)
+
+
 #+END_SRC
 
 *** Test Cases
@@ -10934,10 +11025,15 @@ def get_asset():
                abort(500, msg)
        else:
            try:
-               current_app.logger.debug("running operation get_assets")
-               assets = SystemInterface.get_assets()
-               current_app.logger.debug("completed operation get_assets")
-               return jsonify_list(assets)
+                current_app.logger.debug("running operation get_assets")
+                assets = SystemInterface.get_assets()
+                current_app.logger.debug("completed operation get_assets")
+                return pagination(
+                        assets, 
+                        '/assets?',
+                        start=int(request.args.get('page', 1)), 
+                        limit=int(request.args.get('pageSize', 25))
+                )
         
            except TypeError as e:
                current_app.logger.error("Exception = %s" % str(e))
@@ -10967,6 +11063,8 @@ def get_asset():
                msg = {"status": "failure",
                         "msg": err_str}
                abort(500, msg)
+
+
 #+END_SRC
 
 *** Test Cases
@@ -11492,7 +11590,7 @@ if __name__ == '__main__':
 
 #+END_SRC
 
-
+    
 * Tangle                                                        :boilerplate:
   
 ** sources
