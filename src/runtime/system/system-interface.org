@@ -6236,16 +6236,19 @@ class TestUpdateExperiment(TestCase):
 
         institute = System.do("get_institute", institute_id=str(data_dict['institute_id']))
 
-        assets = data_dict['assets']
-        asset_list = []
-        for asset_x in assets:
-            asset = System.do("get_asset", path=asset_x['path'])
-            if asset is None:
-                asset_type = asset_type_cls(asset_type=asset_x['asset_type'])
-                asset = asset_cls(asset_type=asset_type, \
-                                      path=str(asset_x['path']))
-                asset = System.do("add_asset", asset=asset, session=session)
-            asset_list.append(asset)
+        if 'assets' not in data_dict:
+            asset_list = institute.get("assets")
+        else:
+            assets = data_dict['assets']
+            asset_list = []
+            for asset_x in assets:
+                asset = System.do("get_asset", path=asset_x['path'])
+                if asset is None:
+                    asset_type = asset_type_cls(asset_type=asset_x['asset_type'])
+                    asset = asset_cls(asset_type=asset_type, \
+                                        path=str(asset_x['path']))
+                    asset = System.do("add_asset", asset=asset, session=session)
+                asset_list.append(asset)
 
         if 'institute_name' not in data_dict:
             institute_name=str(institute.get("institute_name"))
@@ -6322,7 +6325,6 @@ class TestUpdateInstitute(TestCase):
                              data_dict1['assets'][0]['path'])
  #+END_SRC
 
-
 ** Update Section
 #+NAME: class_update_section
 #+begin_src python
@@ -6391,7 +6393,6 @@ class TestUpdateSection(TestCase):
 
  #+END_SRC
 
-
 ** Update Discipline
 #+NAME: class_update_discipline
 #+begin_src python       
@@ -6405,16 +6406,19 @@ class TestUpdateSection(TestCase):
         discipline_id = str(data_dict['discipline_id'])
         discipline = System.do("get_discipline", discipline_id=discipline_id)
 
-        assets = data_dict['assets']
-        asset_list = []
-        for asset_x in assets:
-            asset = System.do("get_asset", path=asset_x['path'])
-            if asset is None:
-                asset_type = asset_type_cls(asset_type=asset_x['asset_type'])
-                asset = asset_cls(asset_type=asset_type, \
-                                      path=str(asset_x['path']))
-                asset = System.do("add_asset", asset=asset, session=session)
-            asset_list.append(asset)
+        if 'assets' not in data_dict:
+            asset_list = discipline.get("assets")
+        else:
+            assets = data_dict['assets']
+            asset_list = []
+            for asset_x in assets:
+                asset = System.do("get_asset", path=asset_x['path'])
+                if asset is None:
+                    asset_type = asset_type_cls(asset_type=asset_x['asset_type'])
+                    asset = asset_cls(asset_type=asset_type, \
+                                        path=str(asset_x['path']))
+                    asset = System.do("add_asset", asset=asset, session=session)
+                asset_list.append(asset)
 
         if "discipline_name" not in data_dict:
             discipline_name=str(discipline.get("discipline_name"))
@@ -6487,7 +6491,6 @@ class TestUpdateDiscipline(TestCase):
                              data_dict1['assets'][0]['path'])
 
  #+END_SRC
-
 
 ** Update Hosting_Info
 #+NAME: class_update_hosting_info
@@ -6566,7 +6569,6 @@ class TestUpdateHosting_Info(TestCase):
         self.assertEqual(hosting_info1.get("hosted_on"), data_dict1['hosted_on'])
 
  #+END_SRC
-
 
 ** Update Developer
 #+NAME: class_update_developer
