@@ -40,6 +40,7 @@ Discipline =  ClassTemplate.mk_class("Discipline")
 Session = ClassTemplate.mk_class("Session")
 Section = ClassTemplate.mk_class("Section")
 Name = ClassTemplate.mk_class("Name")
+Phase = ClassTemplate.mk_class("Phase")
 Email = ClassTemplate.mk_class("Email")
 Developer = ClassTemplate.mk_class("Developer")
 Institute = ClassTemplate.mk_class("Institute")
@@ -96,6 +97,20 @@ def are_sections(sections):
     if is_list(sections):
         for section in sections:
             if not is_section(section):
+                ret_val = False
+    else:
+        ret_val = False
+
+    return ret_val
+
+is_phase = is_inst(Phase)
+check_phase = check_pred(is_phase)
+
+def are_phase(phase):
+    ret_val = True
+    if is_list(phase):
+        for phase_x in phase:
+            if not is_phase(phase_x):
                 ret_val = False
     else:
         ret_val = False
@@ -229,6 +244,7 @@ Lab.add_attributes(lab_name=is_str,
                     overview=is_str,
                     institute=is_institute,
                     discipline=is_discipline,
+                    phase=are_phase,
                     assets=are_assets,
                     integration_status=is_integration_status,
                     experiments=are_experiments,
@@ -242,6 +258,7 @@ Lab.__eq__ = lambda self, other: \
                   self.get("lab_id") == other.get("lab_id") and \
                   self.get("overview") == other.get("overview") and \
                   self.get("institute") == other.get("institute") and \
+                  self.get("phase") == other.get("phase") and \
                   self.get("discipline") == other.get("discipline") and \
                   self.get("assets") == other.get("assets") and \
                   self.get("sections") == other.get("sections") and \
@@ -286,6 +303,8 @@ class TestLab(TestCase):
         email_id = Email(email="mohit.tahiliani@gmail.com")
         dev = Developer(name=dev_name, email=email_id)
 
+        phase1=Phase(phase_id=1)
+
         hosting_status = "hosted"
         hosted_url = "http://cse14-iiith.vlabs.ac.in"
         hosted_on = "cloud"
@@ -306,7 +325,7 @@ class TestLab(TestCase):
         lab = Lab(lab_name=lab_name, lab_id=lab_id, overview=overview,
                       institute=inst, discipline=discipline, assets=[asset],
                       integration_status=integration_status, developers=[dev],
-                      hosting_info=[host], sections=[],
+                      hosting_info=[host], sections=[], phase=[phase1],
                       experiments=[experiment])
 
         self.assertEqual(lab.get("lab_name"), lab_name)
@@ -528,6 +547,34 @@ class TestSession(TestCase):
 
 #+END_SRC
     
+
+
+* Phase
+   =Phase= is an entity that has a field =phase_id= which is integer
+#+NAME: class_Phase
+#+begin_src python
+
+Phase.add_attributes(phase_id=is_int)
+
+Phase.__eq__ = lambda self, other: \
+                  isinstance(other, self.__class__) and \
+                  self.get("phase_id") == other.get("phase_id")
+#+end_src
+
+*** Test Phase
+#+NAME: class_TestPhase
+#+BEGIN_SRC python
+class TestPhase(TestCase):
+    TESTING = True
+
+    def test_object_phase(self):
+        print "test_object_phase"
+        phase1=Phase(phase_id=1)
+        self.assertEqual(is_phase(Phase(phase_id=1)), True)
+        self.assertEqual(phase1.get("phase_id"), 1)
+        self.assertRaises(TypeError, Phase, phase="Jimi 123 Hendrix")
+
+#+END_SRC
 
 
 * Name
@@ -862,6 +909,7 @@ if __name__ == '__main__':
 <<class_Asset>>
 <<class_HostingInfo>>
 <<class_IntegrationStatus>>
+<<class_Phase>>
 #+end_src
 
 
@@ -870,6 +918,7 @@ if __name__ == '__main__':
 <<imports_for_tests>>
 <<class_TestSession>>
 <<class_TestLab>>
+<<class_TestPhase>>
 <<class_TestExperiment>>
 <<class_TestDiscipline>>
 <<class_TestSection>>
