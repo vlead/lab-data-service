@@ -48,6 +48,7 @@ class TestAddLab(TestCase):
         email_cls = System.delegate.entities['email']
         developer_cls = System.delegate.entities['developer']
         hosting_info_cls = System.delegate.entities['hosting_info']
+        phase_cls = System.delegate.entities['phase']
 
         integration_level = 4
         integration_status = integration_status_cls(integration_level=integration_level)
@@ -59,6 +60,9 @@ class TestAddLab(TestCase):
         path = "vlabs.ac.in/images/static/logo.png"
         asset = asset_cls(asset_type=asset_type, path=path)
         asset.save()
+
+        phase = phase_cls(phase_id=1)
+        phase.save()
 
         institute_name = "IIT Kanpur"
         institute_id = "IITK"
@@ -415,6 +419,7 @@ class TestAddLabsToInstitute(TestCase):
         session_cls = System.delegate.entities['session']
         lab_cls = System.delegate.entities['lab']
         institute_cls = System.delegate.entities['institute']
+        phase_cls = System.delegate.entities['phase']
 
         asset_type = asset_type_cls(asset_type="Image")
         asset_type.save()
@@ -422,6 +427,9 @@ class TestAddLabsToInstitute(TestCase):
         path = "vlabs.ac.in/images/static/logo.png"
         asset = asset_cls(asset_type=asset_type, path=path)
         asset.save()
+
+        phase = phase_cls(phase_id=1)
+        phase.save()
 
         institute_name = "arrays"
         institute_id = "cse02"
@@ -511,6 +519,38 @@ class TestAddName(TestCase):
         name = System.do("add_name", name=name, session=session)
         new_name = name_cls.get_by_id(1)
         self.assertEqual(new_name.get("name"), "Prof. S. Dharmaraja")
+            
+#+END_SRC
+
+
+* Test Addphase_cls
+#+NAME: test_add_phase
+#+BEGIN_SRC python
+class TestAddphase_cls(TestCase):
+    TESTING = True
+
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_add_phase_in_system_persistence(self):
+        
+        print "test_add_phase_in_system_persistence"
+        session_cls = System.delegate.entities['session']
+        phase_cls = System.delegate.entities['phase']
+
+        phase = phase_cls(phase_id=1)
+        session = session_cls(key=KEY)
+        phase = System.do("add_phase", phase=phase, session=session)
+        new_phase = phase_cls.get_by_id(1)
+        self.assertEqual(new_phase.get("phase_id"), 1)
             
 #+END_SRC
 
@@ -694,11 +734,15 @@ class TestUpdateLabt(TestCase):
         experiment_cls = System.delegate.entities['experiment']
         discipline_cls = System.delegate.entities['discipline']
         lab_cls = System.delegate.entities['lab']
+        phase_cls = System.delegate.entities['phase']
 
         session = session_cls(key=KEY)
 
         asset_type = asset_type_cls(asset_type="Image")
         asset_type.save()
+
+        phase = phase_cls(phase_id=1)
+        phase.save()
 
         path = "vlabs.ac.in/images/static/logo.png"
         asset = asset_cls(asset_type=asset_type, path=path)
@@ -706,7 +750,8 @@ class TestUpdateLabt(TestCase):
 
         institute_name = "IIT Kanpur"
         institute_id = "IITK"
-        inst = institute_cls(institute_name=institute_name, institute_id=institute_id, assets=[asset])
+        inst = institute_cls(institute_name=institute_name, 
+            institute_id=institute_id, assets=[asset])
         inst.save()
 
         integration_level = 4
@@ -749,11 +794,15 @@ class TestUpdateLabt(TestCase):
         section = section_cls(name=name)
         section.save()
         lab = lab_cls(lab_id=lab_id, lab_name=lab_name,        
-                          institute=inst, discipline=discipline,
+                          institute=inst,
+                          discipline=discipline,
                           assets=[asset], overview=overview, 
-                          integration_status=integration_status, 
-                          experiments=[experiment], developers=[dev], 
-                          hosting_info=[host], sections=[section])
+                          integration_status=integration_status,
+                          phase=[phase],
+                          experiments=[experiment],
+                          developers=[dev], 
+                          hosting_info=[host],
+                          sections=[section])
         lab.save()
 
         lab_name1 = "two dimentional arrays"
@@ -816,7 +865,7 @@ class TestUpdateLabt(TestCase):
                              overview=overview1, institute=inst1,
                              discipline=discipline1, hosting_info=[host1],
                              integration_status=integration_status1,
-                             session=session, developers=[dev1], 
+                             session=session, developers=[dev1], phase=[phase], 
                              assets=[asset1], sections=[section], experiments=[experiment1])
 
         new_lab = lab_cls.get_by_id(1)
@@ -1491,6 +1540,45 @@ class TestDeleteName(TestCase):
 #+END_SRC
 
 
+* Test Deletephase_cls 
+#+NAME:  test_delete_phase 
+#+BEGIN_SRC python
+class TestDeletephase_cls(TestCase):
+
+    TESTING = True
+
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_delete_phase(self):
+        print "test_delete_phase_in_system_persistence"
+        session_cls = System.delegate.entities['session']
+        phase_cls = System.delegate.entities['phase']
+
+        key = KEY
+        session = session_cls(key=key)
+        phase1 = phase_cls(phase_id=1)
+        phase1.save()
+
+        phase2 = phase_cls(phase_id=2)
+        phase2.save()
+
+        phase = System.do("delete_phase", phase_id=1,
+                              session=session)
+
+        self.assertEqual(len(phase_cls.get_all()), 1)
+
+#+END_SRC
+
+
 * Test DeleteLab
 #+NAME:  test_delete_lab 
 #+BEGIN_SRC python
@@ -1524,6 +1612,7 @@ class TestDeleteLab(TestCase):
         email_cls = System.delegate.entities['email']
         developer_cls = System.delegate.entities['developer']
         hosting_info_cls = System.delegate.entities['hosting_info']
+        phase_cls = System.delegate.entities['phase']
 
         integration_level = 4
         integration_status = integration_status_cls(integration_level=integration_level)
@@ -1535,6 +1624,9 @@ class TestDeleteLab(TestCase):
         path = "vlabs.ac.in/images/static/logo.png"
         asset = asset_cls(asset_type=asset_type, path=path)
         asset.save()
+
+        phase = phase_cls(phase_id=1)
+        phase.save()
 
         institute_name = "IIT Kanpur"
         institute_id = "IITK"
@@ -1849,6 +1941,7 @@ class TestGetLab(TestCase):
         developer_cls = System.delegate.entities['developer']
         hosting_info_cls = System.delegate.entities['hosting_info']
         asset_type_cls = System.delegate.entities['asset_type']
+        phase_cls = System.delegate.entities['phase']
 
         lab_name1="Computer Programming"
         lab_id1="CSE01"
@@ -1860,6 +1953,9 @@ class TestGetLab(TestCase):
         path = "vlabs.ac.in/images/static/logo.png"
         asset = asset_cls(asset_type=asset_type, path=path)
         asset.save()
+
+        phase = phase_cls(phase_id=1)
+        phase.save()
 
         institute_name = "IIT Kanpur"
         institute_id = "IITK"
@@ -1940,6 +2036,7 @@ class TestGetLabByInstitute(TestCase):
         developer_cls = System.delegate.entities['developer']
         hosting_info_cls = System.delegate.entities['hosting_info']
         asset_type_cls = System.delegate.entities['asset_type']
+        phase_cls = System.delegate.entities['phase']
 
         lab_name1="Computer Programming"
         lab_id1="CSE01"
@@ -1947,6 +2044,9 @@ class TestGetLabByInstitute(TestCase):
 
         asset_type = asset_type_cls(asset_type="Image")
         asset_type.save()
+
+        phase = phase_cls(phase_id=1)
+        phase.save()
 
         path = "vlabs.ac.in/images/static/logo.png"
         asset = asset_cls(asset_type=asset_type, path=path)
@@ -1982,9 +2082,12 @@ class TestGetLabByInstitute(TestCase):
         section = section_cls(name=name)
         section.save()
         lab = lab_cls(lab_id=lab_id1, lab_name=lab_name1,
-                          institute=inst, discipline=discipline, sections=[section], assets=[asset],
-                          overview=overview, experiments=[], integration_status=integration_status, 
-                          hosting_info=[host], developers=[dev])
+                    institute=inst, discipline=discipline, 
+                    sections=[section], assets=[asset],
+                    overview=overview, experiments=[], 
+                    integration_status=integration_status,
+                    phase=[phase],
+                    hosting_info=[host], developers=[dev])
 
         lab.save()
 
@@ -2028,6 +2131,7 @@ class TestGetLabByDiscipline(TestCase):
         email_cls = System.delegate.entities['email']
         developer_cls = System.delegate.entities['developer']
         hosting_info_cls = System.delegate.entities['hosting_info']
+        phase_cls = System.delegate.entities['phase']
 
         lab_name1="Computer Programming"
         lab_id1="CSE01"
@@ -2067,11 +2171,16 @@ class TestGetLabByDiscipline(TestCase):
         host = hosting_info_cls(hosting_status=hosting_status, hosted_url=hosted_url, hosted_on=hosted_on)
         host.save()
         name="Theory"
+
         section=section_cls(name=name)
         section.save()
+
+        phase = phase_cls(phase_id=1)
+        phase.save()
+
         lab = lab_cls(lab_id=lab_id1, lab_name=lab_name1,
                           institute=inst, discipline=discipline, sections=[section],
-                          hosting_info=[host], assets=[asset],
+                          hosting_info=[host], assets=[asset], phase=[phase],
                           overview=overview, experiments=[], developers=[dev], 
                           integration_status=integration_status)
 
@@ -2118,10 +2227,14 @@ class TestGetLabByLabName(TestCase):
         email_cls = System.delegate.entities['email']
         developer_cls = System.delegate.entities['developer']
         hosting_info_cls = System.delegate.entities['hosting_info']
+        phase_cls = System.delegate.entities['phase']
 
         lab_name1="Computer Programming"
         lab_id1="CSE01"
         overview = "overview"
+
+        phase = phase_cls(phase_id=1)
+        phase.save()
 
         asset_type = asset_type_cls(asset_type="Image")
         asset_type.save()
@@ -2161,9 +2274,9 @@ class TestGetLabByLabName(TestCase):
         section = section_cls(name=name)
         section.save()
         lab = lab_cls(lab_id=lab_id1, lab_name=lab_name1, 
-                          integration_status=integration_status,
+                          integration_status=integration_status, phase=[phase],
                           institute=inst, discipline=discipline, sections=[section],
-                          hosting_info=[host], assets=[asset],
+                          hosting_info=[host], assets=[asset], 
                           overview=overview, experiments=[], developers=[dev])
 
 
@@ -2203,10 +2316,14 @@ class TestGetLabByAsset(TestCase):
         asset_cls = System.delegate.entities['asset']
         asset_type_cls = System.delegate.entities['asset_type']
         integration_status_cls = System.delegate.entities['integration_status']
+        phase_cls = System.delegate.entities['phase']
 
         lab_name1="Computer Programming"
         lab_id1="CSE01"
         overview = "overview"
+
+        phase = phase_cls(phase_id=1)
+        phase.save()
 
         asset_type = asset_type_cls(asset_type="Image")
         asset_type.save()
@@ -2243,7 +2360,7 @@ class TestGetLabByAsset(TestCase):
                                    hosted_url=hosted_url, hosted_on=hosted_on)
         host.save()
 
-        lab = lab_cls(lab_id=lab_id1, lab_name=lab_name1, 
+        lab = lab_cls(lab_id=lab_id1, lab_name=lab_name1, phase=[phase],
                           integration_status=integration_status,
                           institute=inst, discipline=discipline, 
                           hosting_info=[host], assets=[asset],
@@ -2330,6 +2447,42 @@ class TestGetName(TestCase):
         name2 = System.do("get_name", name=name, session=session)
 
         self.assertEqual(name2.get("name"), name1)
+#+END_SRC
+
+
+* Test Getphase_cls
+#+NAME: test_get_phase
+#+BEGIN_SRC python
+class TestGetphase_cls(TestCase):
+    TESTING = True
+
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_get_phase(self):
+
+        print "test_get_phase_in_system_persistence"
+        session_cls = System.delegate.entities['session']
+        phase_cls = System.delegate.entities['phase']
+
+        key = KEY
+        session = session_cls(key=key)
+        phase = phase_cls(phase_id=1)
+        phase.save()
+
+        phase = System.do("get_phase", phase=phase,
+                              session=session)
+
+        self.assertEqual(phase.get("phase_id"), 1)
+        
 #+END_SRC
 
 
@@ -2877,7 +3030,7 @@ class TestAddAssetsToLab(TestCase):
         asset_type_cls = System.delegate.entities['asset_type']
         experiment_cls = System.delegate.entities['experiment']
         integration_status_cls = System.delegate.entities['integration_status']
-               
+        phase_cls = System.delegate.entities['phase']               
         integration_level = 4
         integration_status = integration_status_cls(integration_level=integration_level)
         integration_status.save()
@@ -2888,6 +3041,9 @@ class TestAddAssetsToLab(TestCase):
         path = "vlabs.ac.in/images/static/logo.png"
         asset = asset_cls(asset_type=asset_type, path=path)
         asset.save()
+
+        phase = phase_cls(phase_id=1)
+        phase.save()
 
         institute_name = "IIT Kanpur"
         institute_id = "IITK"
@@ -2915,9 +3071,14 @@ class TestAddAssetsToLab(TestCase):
         name="Theory"
         section = section_cls(name=name)
         section.save()
-        lab = lab_cls(lab_id=lab_id1, lab_name=lab_name1,        
-                          institute=inst, discipline=discipline, assets=[asset],                
-                          overview=overview, sections=[section], integration_status=integration_status, 
+        lab = lab_cls(lab_id=lab_id1, lab_name=lab_name1,
+                          phase=[phase],       
+                          institute=inst,
+                          discipline=discipline,
+                          assets=[asset],                
+                          overview=overview,
+                          sections=[section],
+                          integration_status=integration_status, 
                           experiments=[experiment])
         lab.save()
 
@@ -3052,6 +3213,7 @@ if __name__ == '__main__':
 <<test_add_email>>
 <<test_add_developer>>
 <<test_add_integration_status>>
+<<test_add_phase>>
 <<test_update_lab>>
 <<test_update_experiment>>
 <<test_update_developer>>
@@ -3059,6 +3221,7 @@ if __name__ == '__main__':
 <<test_delete_email>>
 <<test_delete_developer>>
 <<test_delete_integration_status>>
+<<test_delete_phase>>
 <<test_add_hosting_info>>
 <<test_update_institute>>
 <<test_update_discipline>>
@@ -3084,6 +3247,7 @@ if __name__ == '__main__':
 <<test_get_integration_status_by_IL>>
 <<test_update_name>>
 <<test_delete_section>>
+<<test_get_phase>>
 <<run_test_cases>>
 
 #+end_src

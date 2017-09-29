@@ -1523,7 +1523,7 @@ class TestPersistenceDelegate(TestCase):
 #+BEGIN_SRC python
     def update_lab(self, lab, lab_name, overview, institute, discipline,
                        sections, integration_status, hosting_info, developers,
-                       assets, experiments):
+                       assets, experiments, phase):
 
         current_app.logger.debug("running update lab operation")
 
@@ -1531,7 +1531,7 @@ class TestPersistenceDelegate(TestCase):
                     discipline=discipline, sections=sections, hosting_info=hosting_info,
                     integration_status=integration_status,
                     developers=developers, assets=assets,
-                    experiments=experiments)
+                    experiments=experiments, phase=phase)
         lab.save()
  
         current_app.logger.debug("completed update lab operation") 
@@ -1650,6 +1650,9 @@ class TestPersistenceDelegate(TestCase):
                                  hosted_on=hosted_on1)
          host1.save()
 
+         phase2=Phase(phase_id=2)
+         phase2.save()
+
          dev_name1 = Name(name="Tahiliani")
          dev_name1.save()
          email_id1 = Email(email="tahiliani@gmail.com")
@@ -1678,8 +1681,9 @@ class TestPersistenceDelegate(TestCase):
          exp2 = self.persistence_delegate.add_experiment(exp)
 
          lab2 = self.persistence_delegate.update_lab\
-           (lab1, lab_name1, overview1, inst1, discipline1, [section],
-                integration_status1, [host1], [dev1], [asset1], [exp2]),
+           (lab1, lab_name1, overview1, inst1, discipline1,
+                [section], integration_status1, [host1],
+           [dev1], [asset1], [exp2], [phase2]),
 
          lab2 = Lab.get_by_id(1)
 

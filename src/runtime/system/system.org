@@ -561,6 +561,7 @@ class UpdateLab():
                      "sections" : are_sections,
                      "institute" : is_institute, 
                      "discipline" : is_discipline,
+                     "are_phase": are_phase,
                      "hosting_info": are_hosting_info, 
                      "developers": are_developers,
                      "assets": are_assets, "experiments":are_experiments,
@@ -594,10 +595,15 @@ class UpdateLab():
         assets = args["assets"]
         experiments = args["experiments"]
         sections = args["sections"]
-        lab = System.delegate.update_lab(lab, lab_name, overview, institute,
-                                         discipline, sections, integration_status,
-                                         hosting_info, developers, assets,
-                                         experiments)
+        phase = args["phase"]
+        lab = System.delegate.update_lab(lab, lab_name,
+                                        overview, institute,
+                                        discipline,
+                                        sections,
+                                        integration_status,
+                                         hosting_info,
+                                         developers, assets,
+                                         experiments, phase)
         return lab
 
 #+end_src
@@ -2087,7 +2093,10 @@ ops_table = {'add_lab' : AddLab,
              'get_section': GetSection, 
              'update_name': UpdateName,
              'get_labs_by_asset': GetLabsByAsset,
-             'get_asset_by_asset_type': GetAssetByAssetType
+             'get_asset_by_asset_type': GetAssetByAssetType,
+             'add_phase' : AddPhase,
+             'delete_phase': DeletePhase,
+             'get_phase': GetPhase,
              }
 
  #+END_SRC   
@@ -2110,7 +2119,7 @@ from runtime.objects.entities import is_str, is_lab,\
      is_institute, are_institutes, is_discipline, \
      is_url, is_hosting_info, is_integration_status,\
      is_asset_type, are_hosting_info, are_developers,\
-     is_phase
+     is_phase, are_phase
      
 from runtime.utils.type_utils import is_str_or_none
 from runtime.config.system_config import KEY
