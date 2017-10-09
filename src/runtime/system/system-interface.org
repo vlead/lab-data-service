@@ -38,6 +38,7 @@ class SystemInterface ():
         lab_cls = System.delegate.entities['lab']
         exp_cls = System.delegate.entities['experiment']
         name_cls = System.delegate.entities['name']
+        phase_cls = System.delegate.entities['phase']
         email_cls = System.delegate.entities['email']
         developer_cls = System.delegate.entities['developer']
         asset_cls = System.delegate.entities['asset']
@@ -56,6 +57,7 @@ class SystemInterface ():
                 section = section_cls(name=str(section_x))
                 section = System.do("add_section", section=section, session=session)
             section_obj_list.append(section)
+
 
         experiments=data_dict['lab']['experiments']
         exp_list = []
@@ -91,20 +93,45 @@ class SystemInterface ():
         for developer_x in developers:
             name = name_cls(name=developer_x['name'])
             email = email_cls(email=developer_x['email'])
-            developer = System.do("get_developer", email=email)
+            developer = System.do("get_developer",
+                                      email=email)
             if developer is None:
-                developer = developer_cls(name=name, email=email)
-                developer = System.do("add_developer", developer=developer, session=session)
+                developer = developer_cls(name=name,
+                                              email=email)
+                developer = System.do("add_developer",
+                                        developer=developer,
+                                        session=session)
             developer_list.append(developer)
+
+        phase = data_dict['lab']['phase']
+        phase_list = []
+        for phase_x in phase:
+            phase = phase_cls(phase_id=\
+                                  phase_x['phase_id'])
+
+            phase = System.do("get_phase", phase=phase)
+            if phase is None:
+                phase = phase_cls(phase_id=
+                                      phase_x['phase_id'])
+                phase = System.do("add_phase", phase=phase,
+                                      session=session)
+            phase_list.append(phase)
 
         hosting_info = data_dict['lab']['hosting_info']
         hosting_info_list = []
         for hosting_info_x in hosting_info:
-            hosting_info = System.do("get_hosting_info", hosted_url=hosting_info_x['hosted_url'])
+            hosting_info = System.do("get_hosting_info",
+                    hosted_url=hosting_info_x['hosted_url'])
             if hosting_info is None:
-                hosting_info = hosting_info_cls(hosting_status=str(hosting_info_x['hosting_status']), \
-                                      hosted_url=str(hosting_info_x['hosted_url']), hosted_on=str(hosting_info_x['hosted_on']))
-                hosting_info = System.do("add_hosting_info", hosting_info=hosting_info, session=session)
+                hosting_info = hosting_info_cls\
+                  (hosting_status=\
+                    str(hosting_info_x['hosting_status']), \
+                  hosted_url=str(hosting_info_x\
+                                     ['hosted_url']),
+                hosted_on=str(hosting_info_x['hosted_on']))
+                hosting_info = System.do("add_hosting_info",
+                                hosting_info=hosting_info,
+                                        session=session)
             hosting_info_list.append(hosting_info)
 
         lab = lab_cls(lab_name=data_dict['lab']['name'],
@@ -116,6 +143,7 @@ class SystemInterface ():
                                 assets=asset_list,
                                 experiments=exp_list,
                                 developers=developer_list,
+                                phase=phase_list,
                                 sections=section_obj_list,
                                 hosting_info=hosting_info_list)
         try:
@@ -284,6 +312,7 @@ class TestAddLab(TestCase):
                      "overview": "overview",
                      "discipline_id": "CSE",
                      "institute_id": "IITK",
+                     "phase":[{"phase_id":1,  "phase_id":2}],
                      "developers": [
                        {
                          "name": "Dinesh Malviya",
@@ -294,6 +323,7 @@ class TestAddLab(TestCase):
                          "email": "abc@gmail.com"
                        }
                      ],
+                     "phase":[{"phase_id":1,  "phase_id":2}],
                      "hosting_info": [
                        {
                          "hosting_status": "hosted",
@@ -350,8 +380,9 @@ class TestAddLab(TestCase):
                             'xyz@gmail.com')
        self.assertEqual(lab.get("developers")[1].get("email").get("email"),
                             'abc@gmail.com')
-       self.assertEqual(lab.get("sections")[0].get("name"),
-			    'Procedure')
+       self.assertEqual(str(lab.get("sections")[0].get("name")),
+                            str(data_dict['lab']['sections'][0]))
+
 
    def test_add_lab_raises_type_error_in_system_interface(self):
        print "test_add_lab_raises_type_error_in_system_interface"
@@ -432,6 +463,7 @@ class TestAddLab(TestCase):
                      "name": "arrays",
                      "discipline_id": "CSE",
                      "institute_id": "IITK",
+                     "phase":[{"phase_id":1,  "phase_id":2}],
                      "developers": [
                        {
                          "name": "Dinesh Malviya",
@@ -490,6 +522,7 @@ class TestAddLab(TestCase):
                "overview": "overview",
 	       "discipline_id": "CSE",
 	       "institute_id": "IIITH",
+               "phase":[{"phase_id":1,  "phase_id":2}],
 	       "developers": [
 		   {
 		       "name": "Dinesh Malviya",
@@ -1777,6 +1810,7 @@ class TestGetLabs(TestCase):
                      "overview": "overview",
                      "discipline_id": "CSE",
                      "institute_id": "IITK",
+                     "phase":[{"phase_id":1,  "phase_id":2}],
                      "developers": [
                        {
                          "name": "Dinesh Malviya",
@@ -1830,6 +1864,7 @@ class TestGetLabs(TestCase):
                      "overview": "overview",
                      "discipline_id": "CSE",
                      "institute_id": "IITK",
+                     "phase":[{"phase_id":1,  "phase_id":2}],
                      "developers": [
                        {
                          "name": "Dinesh Malviya",
@@ -2011,7 +2046,7 @@ class TestGetLabsByKeywordLabName(TestCase):
                     "key" : KEY,
 		    "experiment": {
 		      "id": "exp123",
-              "overview": "overview",
+                      "overview": "overview",
 		      "name": "Parallel and distributed processing",
 		      "discipline_id": "CSE",
 		      "institute_id": "IITK",
@@ -2065,6 +2100,8 @@ class TestGetLabsByKeywordLabName(TestCase):
                                     'asset_type': 'image'},
                                 {'path':'vlabs.ac.in/images/static/image.png',
                                     'asset_type': 'image'}],
+                                    "phase":[{"phase_id":1,  "phase_id":2}],
+                    "phase":[{"phase_id":1,  "phase_id":2}],
                     'developers': [{'name':'Prof. Dharamaja',
                                     'email': 'abc@gmail.com',
                                     'institute_id': 'IITK', 'discipline_id': 'CSE'},
@@ -2089,6 +2126,7 @@ class TestGetLabsByKeywordLabName(TestCase):
                      "overview": "overview",
                      "discipline_id": "CSE",
                      "institute_id": "IITK",
+                     "phase":[{"phase_id":1,  "phase_id":2}],
                      "developers": [
                        {
                          "name": "Dinesh Malviya",
@@ -2139,6 +2177,7 @@ class TestGetLabsByKeywordLabName(TestCase):
                      "overview": "overview",
                      "discipline_id": "CSE",
                      "institute_id": "IITK",
+                     "phase":[{"phase_id":1,  "phase_id":2}],
                      "developers": [
                        {
                          "name": "Dinesh Malviya",
@@ -2374,6 +2413,7 @@ class TestGetLabsByInstitute(TestCase):
                    "overview": "overview",
                "discipline_id": "CSE",
                "institute_id": "IITK",
+               "phase":[{"phase_id":1,  "phase_id":2}],
                "developers": [
                {
                    "name": "Dinesh Malviya",
@@ -2428,6 +2468,7 @@ class TestGetLabsByInstitute(TestCase):
                    "overview": "overview",
                    "discipline_id": "CSE",
                    "institute_id": "IITK",
+                   "phase":[{"phase_id":1,  "phase_id":2}],
                    "developers": [
                        {
                            "name": "Dinesh Malviya",
@@ -2651,6 +2692,7 @@ class TestGetLabsByDiscipline(TestCase):
                      "overview": "overview",
                      "discipline_id": "CSE",
                      "institute_id": "IITK",
+                     "phase":[{"phase_id":1,  "phase_id":2}],
                      "developers": [
                        {
                          "name": "Dinesh Malviya",
@@ -2705,6 +2747,7 @@ class TestGetLabsByDiscipline(TestCase):
                      "overview": "overview",
                      "discipline_id": "CSE",
                      "institute_id": "IITK",
+                     "phase":[{"phase_id":1,  "phase_id":2}],
                      "developers": [
                        {
                          "name": "Dinesh Malviya",
@@ -2924,6 +2967,7 @@ class TestGetLabsByLabName(TestCase):
                      "overview": "overview",
                      "discipline_id": "CSE",
                      "institute_id": "IITK",
+                     "phase":[{"phase_id":1,  "phase_id":2}],
                      "developers": [
                        {
                          "name": "Dinesh Malviya",
@@ -2977,6 +3021,7 @@ class TestGetLabsByLabName(TestCase):
                      "overview": "overview",
                      "discipline_id": "CSE",
                      "institute_id": "IITK",
+                     "phase":[{"phase_id":1,  "phase_id":2}],
                      "developers": [
                        {
                          "name": "Dinesh Malviya",
@@ -3206,6 +3251,7 @@ class TestGetLabsByAssetType(TestCase):
                "overview": "overview",
 	       "discipline_id": "CSE",
 	       "institute_id": "IIITH",
+               "phase":[{"phase_id":1,  "phase_id":2}],
 	       "developers": [
 		   {
 		       "name": "Dinesh Malviya",
@@ -3259,6 +3305,7 @@ class TestGetLabsByAssetType(TestCase):
                "overview": "overview",
 	       "discipline_id": "CSE",
 	       "institute_id": "IIITH",
+               "phase":[{"phase_id":1,  "phase_id":2}],
 	       "developers": [
 		   {
 		       "name": "Dinesh Malviya",
@@ -3469,6 +3516,7 @@ class TestGetLabsByIntegration_Status(TestCase):
                "overview": "overview",
 	       "discipline_id": "CSE",
 	       "institute_id": "IIITH",
+               "phase":[{"phase_id":1,  "phase_id":2}],
 	       "developers": [
 		   {
 		       "name": "Dinesh Malviya",
@@ -3523,6 +3571,7 @@ class TestGetLabsByIntegration_Status(TestCase):
                "overview": "overview",
 	       "discipline_id": "CSE",
 	       "institute_id": "IIITH",
+               "phase":[{"phase_id":1,  "phase_id":2}],
 	       "developers": [
 		   {
 		       "name": "Dinesh Malviya",
@@ -4653,6 +4702,7 @@ class TestGetLabById(TestCase):
                "overview": "overview",
 	       "discipline_id": "CSE",
 	       "institute_id": "IITK",
+               "phase":[{"phase_id":1,  "phase_id":2}],
 	       "developers": [
 		   {
 		       "name": "Dinesh Malviya",
@@ -4706,6 +4756,7 @@ class TestGetLabById(TestCase):
                    "overview": "overview",
                "discipline_id": "CSE",
                "institute_id": "IITK",
+               "phase":[{"phase_id":1,  "phase_id":2}],
                "developers": [
                {
                    "name": "Dinesh Malviya",
@@ -5343,6 +5394,7 @@ class TestGetNameById(TestCase):
         name_cls = System.delegate.entities['name']
         email_cls = System.delegate.entities['email']
         section_cls = System.delegate.entities['section']
+        phase_cls = System.delegate.entities['phase']
 
         session = session_cls(key=data_dict['key'])
 
@@ -5353,6 +5405,25 @@ class TestGetNameById(TestCase):
             lab_name=str(lab.get("lab_name"))
         else:
             lab_name=data_dict['lab']['name']
+
+
+        if 'phase' not in data_dict['lab']:
+            phase_list = lab.get("phase")
+        else:
+            phase = data_dict['lab']['phase']
+            phase_list = []
+
+            for phase_x in phase:
+                phase = phase_cls(phase_id=\
+                                    phase_x['phase_id'])
+                phase = System.do("get_phase", phase=phase)
+                if phase is None:
+                    phase = phase_cls(phase_id=
+                                        phase_x['phase_id'])
+                    phase = System.do("add_phase", phase=phase,
+                                        session=session)
+                phase_list.append(phase)
+
 
         if 'overview' not in data_dict['lab']:
             overview=str(lab.get("overview"))
@@ -5457,12 +5528,14 @@ class TestGetNameById(TestCase):
             current_app.logger.debug("running operation update_lab")
             lab = System.do("update_lab", lab=lab,
                                     lab_name=lab_name,
-                                    overview=overview, session=session,
+                                    overview=overview,
+                                    session=session,
                                     institute=institute,
                                     discipline=discipline,
                                     hosting_info=hosting_info_list,
                                     assets=asset_list,
                                     experiments=exp_list,
+                                    phase=phase_list,
                                     developers=developer_list,
                                     sections=section_obj_list,
                                     integration_status=integration_status)
@@ -5618,6 +5691,7 @@ class TestUpdateLab(TestCase):
                "overview": "overview",
 	       "discipline_id": "CSE",
 	       "institute_id": "IITK",
+               "phase":[{"phase_id":1,  "phase_id":2}],
 	       "developers": [
 		   {
 		       "name": "Dinesh Malviya",
@@ -5762,6 +5836,7 @@ class TestUpdateLab(TestCase):
                "overview": "overviewasds",
 	       "discipline_id": "CSE",
 	       "institute_id": "IITK",
+               "phase":[{"phase_id":1,  "phase_id":2}],
 	       "developers": [
 		   {
 		       "name": "Dinesh Malviya",
@@ -5836,7 +5911,6 @@ class TestUpdateLab(TestCase):
                               experiment.get("exp_id"))
     
  #+END_SRC
-
 
 ** Update Experiment
 #+NAME: class_update_experiment
@@ -6942,6 +7016,7 @@ class TestDeleteLab(TestCase):
                "overview": "overview",
 	       "discipline_id": "CSE",
 	       "institute_id": "IITK",
+               "phase":[{"phase_id":1,  "phase_id":2}],
 	       "developers": [
 		   {
 		       "name": "Dinesh Malviya",
@@ -6997,6 +7072,7 @@ class TestDeleteLab(TestCase):
                    "overview": "overview",
                    "discipline_id": "CSE",
                    "institute_id": "IITK",
+                   "phase":[{"phase_id":1,  "phase_id":2}],
                    "developers": [
                        {
                            "name": "Dinesh Malviya",
@@ -8068,6 +8144,7 @@ class TestGetLabByLabId(TestCase):
                    "overview": "overview",
                    "discipline_id": "CSE",
                    "institute_id": "IITK",
+                   "phase":[{"phase_id":1,  "phase_id":2}],
                    "developers": [
                        {
                            "name": "Dinesh Malviya",
@@ -8122,6 +8199,7 @@ class TestGetLabByLabId(TestCase):
                    "overview": "overview",
                    "discipline_id": "CSE",
                    "institute_id": "IITK",
+                   "phase":[{"phase_id":1,  "phase_id":2}],
                    "developers": [
                        {
                            "name": "Dinesh Malviya",
@@ -8291,6 +8369,7 @@ class TestGetExpByExpId(TestCase):
 		      "name": "Parallel and distributed processing",
 		      "discipline_id": "CSE",
 		      "institute_id": "IITK",
+                      "phase":[{"phase_id":1,  "phase_id":2}],
 		      "developers": [
 			{
 			  "name": "Dinesh Malviya",
@@ -8342,6 +8421,7 @@ class TestGetExpByExpId(TestCase):
 		      "name": "Parallel and distributed processing",
 		      "discipline_id": "CSE",
 		      "institute_id": "IITK",
+                      "phase":[{"phase_id":1,  "phase_id":2}],
 		      "developers": [
 			{
 			  "name": "Dinesh Malviya",
@@ -9201,7 +9281,7 @@ if __name__ == '__main__':
 #+BEGIN_SRC python :tangle test_system_interface.py :eval no :noweb yes
 <<imports_for_tests>>
 
-#<<test_class_add_lab>>
+<<test_class_add_lab>>
 <<test_class_add_experiment>>
 <<test_class_add_institute>>
 <<test_class_add_discipline>>
