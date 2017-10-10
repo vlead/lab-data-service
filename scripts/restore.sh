@@ -3,7 +3,7 @@
 DB_NAME="lds"
 DB_PASS="xxx"
 VERSION="v1.0.0"
-
+MIGRATION_SCRIPT_PATH="../build/code/deployment"
 BACKUP_FILE=$1
 
 usage() {
@@ -43,4 +43,13 @@ echo "################"
 echo "Restore successful."
 echo "###############"
 
-exit 0;
+chmod +x $MIGRATION_SCRIPT_PATH"/migrate_phase.py" && python $MIGRATION_SCRIPT_PATH"/migrate_phase.py"
+if [ $? -ne 0 ]; then
+  echo "Error: Something went wrong while restoring db dump."
+  echo "Aborting restore."
+  exit 1;
+fi
+
+echo "################"
+echo "Migration successful."
+echo "###############"

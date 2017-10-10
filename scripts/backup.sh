@@ -4,7 +4,7 @@ DB_NAME="lds"
 DB_PASS="root"
 
 OUT_FILE_NAME="ldsbackup"
-VERSION="v1.0.0"
+VERSION="v2.1.0"
 OUT_FILE="$OUT_FILE_NAME-$VERSION.tar"
 
 
