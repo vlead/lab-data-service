@@ -252,8 +252,7 @@ drop table asset_old
 mysqldump -u root -proot lds_old > lds.sql
 #+END_SRC
 ** Migration Script
-#+BEGIN_SRC python :tangle migrate.py :eval no 
-
+#+BEGIN_SRC python :tangle migrate_asset.py :eval no 
 #!/usr/bin/python
 import MySQLdb
 import sys
@@ -319,6 +318,38 @@ if __name__ == "__main__":
 
     db.create_all(app=create_app(config))
     populate_assets()
+    cursor1.close()
+    connection1.close()
+
+#+END_SRC
+* program to add 'phase' entity
+** Manual Steps
+#+BEGIN_SRC 
+create table phase(id int(11) auto_increment, phase_id int(11) unique, primary key(id));
+create table labs_phase(labid int(11), foreign key (labid) references lab(id), phase_id int(11), foreign key(phase_id) references phase(id));
+#+END_SRC
+** Migration Script
+#+BEGIN_SRC python :tangle migrate_phase.py :eval no 
+#!/usr/bin/python
+import MySQLdb
+import sys
+
+def populate_phase_table():
+    print "Populating phase table.."
+    cursor1.execute("create table phase(id int(11) auto_increment, phase_id int(11) unique, primary key(id));")
+    data = cursor1.fetchall()
+    cursor1.execute("create table labs_phase(labid int(11), foreign key (labid) references lab(id), phase_id int(11), foreign key(phase_id) references phase(id));")
+    data = cursor1.fetchall()
+    print "Done.."
+
+if __name__ == "__main__":
+    connection1 = MySQLdb.connect(host="localhost", 
+                                    user="root",
+                                    passwd="root",
+                                    db="lds")
+    cursor1 = connection1.cursor()
+
+    populate_phase_table()
     cursor1.close()
     connection1.close()
 
