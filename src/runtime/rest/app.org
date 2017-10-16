@@ -25,9 +25,8 @@ def create_app(config):
     app.secret_key = 'djfjsdkjXXS7979dfdfd'
     # load config values from the config file
     app.config.from_object(config)
-    app.config['CORS_HEADERS'] = 'Content-Type'
-    CORS(app)
-    cors = CORS(app, resources={r"/*": {"origins": "localhost:5000"}})
+    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+    cors = CORS(app, resources={r"/*": {"origins": "*"}})
     # init sqlalchemy db instance
     db.init_app(app)
     db.app = app
@@ -35,35 +34,11 @@ def create_app(config):
     app.register_blueprint(api)
     configure_logging(app)
     configure_errorhandlers(app)
-    configure_cors(app)
+#    configure_cors(app)
     # all set; return app object
     configure_system()
     return app
 
-def configure_cors(app): 
-    @app.before_request
-    def before_request():
-        if request.method == 'OPTIONS':
-            resp = app.make_default_options_response()
-            headers = None
-            if 'ACCESS_CONTROL_REQUEST_HEADERS' in request.headers:
-                headers = request.headers['ACCESS_CONTROL_REQUEST_HEADERS']
-            resp_headers = resp.headers
-            resp_headers['Access-Control-Allow-Origin'] = request.headers['Origin']
-            resp_headers['Access-Control-Allow-Methods'] = request.headers['Access-Control-Request-Method']
-            resp_headers['Acess-Control-Max-Age'] = '10'
-
-            if headers is not None:
-                resp_headers['Access-Control-Allow-Headers'] = headers
-
-            resp.status_code = 204
-            return resp
-
-    @app.after_request
-    def after_request(response):
-        response.headers.add('Access-Control-Allow-Headers', 'Content-Type')
-        response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE')
-        return response
 #+END_SRC
 
 
@@ -181,25 +156,9 @@ def configure_logging(app):
 #+NAME: run_server
 if __name__ == "__main__":
     app = create_app(config)
-    app.run(debug=True, host='localhost', port=1307, threaded=True, ssl_context = ('./ssl.crt', './ssl.key'))
+    app.run(debug=True, host='0.0.0.0', threaded=True)
 
 #+END_SRC
-
-
-* SSL
-  We initially decided to host our app over =HTTPS= instead of =HTTP=. Hence in order to do so we need
-  SSL certificates for it. This function is supposed to create the required files for the developing.
-** SSL_DEVCERT
-#+NAME: ssl_devcert
-#+BEGIN_SRC python :tangle cert.py
-
-from werkzeug.serving import make_ssl_devcert
-make_ssl_devcert('./ssl', host='localhost')
-
-#+END_SRC
-
-
-
 
 
 * Imports                                                       :boilerplate:
