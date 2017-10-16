@@ -7383,7 +7383,7 @@ REST API to add an hosting_info.
 #+NAME: add_hosting_info
 #+BEGIN_SRC python
 @api.route('/hosting_info', methods=['GET'])
-def get_hosting_info():
+def add_hosting_info():
     if request.method == 'GET':
        if 'hosted_url' in request.args:
            hosted_url  = request.args['hosted_url']
@@ -8470,8 +8470,10 @@ def get_developer():
                msg = {"status": "failure",
                         "msg": err_str}
                abort(500, msg)
-           
-       else:
+
+       elif 'start' in request.args and 'limit' in request.args:
+           start=request.args['start']
+           limit=request.args['limit']
            try:
                 current_app.logger.debug("execute get_developers")
                 developers = SystemInterface.get_developers()
@@ -8479,8 +8481,8 @@ def get_developer():
                 return pagination(
                         developers, 
                         '/developers?',
-                        start=int(request.args.get('page', 1)), 
-                        limit=int(request.args.get('pageSize', 25))
+                        start=int(request.args.get('page', start)), 
+                        limit=int(request.args.get('pageSize', limit))
                 )
 
            except TypeError as e:
@@ -12276,7 +12278,7 @@ import os
 import requests
 import json
 from flask import session, render_template, Blueprint, request, \
-     jsonify, abort, current_app, redirect, url_for
+     jsonify, abort, current_app, redirect, url_for, make_response
 from flask import Flask
 from runtime.utils.type_utils import jsonify_list
 from runtime.exceptions.custom_exceptions import *
