@@ -7395,6 +7395,57 @@ http://localhost:5000/hosting_info
 REST API to add an hosting_info.
 #+NAME: add_hosting_info
 #+BEGIN_SRC python
+@api.route('/hosting_info', methods=['POST'])
+def add_hosting_info():
+    if request.method == 'POST':
+        if request.is_json:
+            data_json = json.dumps(request.get_json())
+            data_dict = yaml.safe_load(data_json)
+        else:
+            abort(500, "the request does not contain data in json")
+
+        try:
+            current_app.logger.debug("execute add_hosting_info")
+            hosting_info = SystemInterface.add_hosting_info(data_dict)
+            current_app.logger.debug("executed add_hosting_info")
+            return jsonify(hosting_info)
+
+        except NotAuthorizedError as e:
+            current_app.logger.error("Exception = %s" % str(e))
+            err_str = str(e)
+            msg = {"status": "failure",
+                    "status code": 401,
+                       "msg": err_str}
+            abort(401, msg)
+
+        except TypeError as e:
+            current_app.logger.error("Exception = %s" % str(e))
+            err_str = str(e)
+            msg = {"status": "failure",
+                       "msg": err_str }
+            abort(500, msg)
+
+        except StateError as e:
+            current_app.logger.error("Exception = %s" % str(e))
+            err_str = str(e)
+            msg = {"status": "failure",
+                       "msg": err_str}
+            abort(500, msg)
+
+        except NotFoundError as e:
+            current_app.logger.error("Exception = %s" % str(e))
+            err_str = str(e)
+            msg = {"status": "failure",
+                       "status code": 404,
+                       "msg": err_str}
+            abort(404, msg)
+
+        except Exception as e:
+            current_app.logger.error("Exception = %s" % str(e))
+            err_str = str(e)
+            msg = {"status": "failure",
+                       "msg": err_str}
+            abort(500, msg)
             
 #+END_SRC
 
@@ -8399,8 +8450,8 @@ def get_developer():
                 return pagination(
                         developers, 
                         '/developers?',
-                        start=int(request.args.get('page', start)), 
-                        limit=int(request.args.get('pageSize', limit))                        
+                        start=int(request.args.get('page', 1)), 
+                        limit=int(request.args.get('pageSize', 25))                        
 #                        start=int(request.args.get('page', start)), 
 #                        limit=int(request.args.get('pageSize', limit))
                 )
