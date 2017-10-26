@@ -34,6 +34,12 @@ lab_developers = db.Table('lab_developers',
 		      db.Column('developer_id', db.Integer,
                             db.ForeignKey('developer.id')))
 
+labs_phase = db.Table('labs_phase',
+		      db.Column('labid', db.Integer, 
+                            db.ForeignKey('lab.id')),
+		      db.Column('phase_id', db.Integer,
+                            db.ForeignKey('phase.id')))
+
 lab_hosting_info = db.Table('lab_hosting_info',
                  db.Column('labid', db.Integer, 
                        db.ForeignKey('lab.id')),
@@ -75,6 +81,11 @@ args = {"__tablename__": "lab",
         "developers": db.relationship('Developer',
                     secondary=lab_developers, 
                     backref='labs'),
+
+        "phase": db.relationship('Phase',
+                    secondary=labs_phase, 
+                    backref='labs'),
+
         "hosting_info": db.relationship('HostingInfo',
                     secondary=lab_hosting_info, 
                     backref='labs'),
@@ -152,6 +163,9 @@ class TestPersistentLab(TestCase):
                                hosted_url=hosted_url, hosted_on=hosted_on)
         host.save()
 
+        phase1=Phase(phase_id=1)
+        phase1.save()
+
         exp_name = "Number Systems"
         exp_id = "EE99777"
         overview = "This is linked list experiment"
@@ -174,7 +188,7 @@ class TestPersistentLab(TestCase):
         lab1 = Lab(lab_name=lab_name1, lab_id=lab_id1, overview=overview1,
                        experiments=[experiment], institute=inst,
                        integration_status=intstatus, sections=[section],
-                       assets=[asset], discipline=discipline, 
+                       assets=[asset], discipline=discipline, phase=[phase1],
                        developers=[dev], hosting_info=[host])
         lab1.save()
 
@@ -186,7 +200,7 @@ class TestPersistentLab(TestCase):
         lab2 = Lab(lab_name=lab_name2, lab_id=lab_id2, overview=overview2,
                        experiments=[], institute=inst, discipline=discipline, 
                        developers=[], hosting_info=[host], assets=[asset],
-                       sections=[section], 
+                       sections=[section], phase=[phase1],
                        integration_status=intstatus)
         lab2.save()
 
@@ -214,6 +228,9 @@ class TestPersistentLab(TestCase):
         self.assertEqual(lab1.get("developers")[0].get("email").get("email"), 
                              email_id.get("email"))
 
+        self.assertEqual(lab1.get("phase")[0].get("phase_id"),
+                             phase1.get("phase_id"))
+
         self.assertEqual(lab1.get("hosting_info")[0].get("hosting_status"), 
                              host.get("hosting_status"))
 
@@ -227,6 +244,9 @@ class TestPersistentLab(TestCase):
         self.assertEqual(lab2.get("hosting_info")[0].get("hosting_status"), 
                              host.get("hosting_status"))
         self.assertEqual(lab2.get("experiments"), [])
+
+        self.assertEqual(lab2.get("phase")[0].get("phase_id"),
+                             phase1.get("phase_id"))
 
         self.assertEqual(lab2.get("assets")[0].get("asset_type"), 
                              asset.get("asset_type"))
@@ -285,9 +305,9 @@ args = {"__tablename__": "experiment",
         "assets": db.relationship('Asset',
                     secondary=experiments_assets, 
                     backref='experiments'),
-        "lb_id": db.Column(db.Integer, 
-                                db.ForeignKey('lab.id'), 
-                                unique=False),
+#        "lb_id": db.Column(db.Integer, 
+#                                db.ForeignKey('lab.id'), 
+#                                unique=False),
 
         "sections": db.relationship('Section',
                     secondary=experiments_sections, 
@@ -756,6 +776,49 @@ class TestPersistentDeveloper(TestCase):
 #+END_SRC
 
 
+* Phase
+=Phase= is a class with an attribute =phase_id= of type integer. 
+
+#+NAME: class_Phase
+#+begin_src python
+args = {"__tablename__": "phase",
+        "id": db.Column(db.Integer, primary_key=True),
+        "phase_id": db.Column(db.Integer, unique=True)
+        }
+
+Phase = ClassPersistenceTemplate.mk_persistent(Phase, [], **args)
+#+end_src
+
+*** Test Phase
+#+NAME: class_TestPhase
+#+BEGIN_SRC python
+class TestPersistentPhase(TestCase):
+    TESTING = True
+
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        db.create_all()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+
+    def test_create_phase(self):
+        print "test_persistent_phase"
+
+        phase = Phase(phase_id=1)
+        phase.save()
+
+        phase1 = Phase.get_by_id(1)
+
+        self.assertEqual(phase1.get("phase_id"), phase.get("phase_id"))
+
+#+END_SRC
+
+
 * HostingInfo
 
   =HostingInfo= is a class with attributes =hosting_status= and =hosted_url=.
@@ -1026,6 +1089,7 @@ if __name__ == '__main__':
 <<class_HostingInfo>>
 <<class_AssetType>>
 <<class_Asset>>
+<<class_Phase>>
 <<class_IntegrationStatus>>
 #+end_src
 
@@ -1045,6 +1109,7 @@ if __name__ == '__main__':
 <<class_TestAssetType>>
 <<class_TestAsset>>
 <<class_TestAssets>>
+<<class_TestPhase>>
 <<class_TestIntegrationStatus>>
 <<run_test_cases>>
 #+end_src

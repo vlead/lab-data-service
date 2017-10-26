@@ -25,11 +25,12 @@ requires = [
     'flask-testing',
     'requests',
     'pyyaml'
+
 ]
 
 setup(
     name='lds',
-    version='2.0',
+    version='2.0.0',
     install_requires=requires
 )
 
@@ -211,8 +212,48 @@ post_lab_spec(lab_file_list[0])
 #+END_SRC
 
 * program to add 'asset_type' entity
-#+BEGIN_SRC python :tangle migrate.py :eval no 
-
+** Migration Steps
+1) create database lds_old
+2) restoring the dump
+#+BEGIN_SRC 
+mysql -u root -p lds_old < lds.sql
+#+END_SRC
+3) create the schema
+#+BEGIN_SRC 
+create table asset_type(id int(11) auto_increment, asset_type varchar(255) unique, primary key(id));
+select distinct asset_type from asset;
+insert into asset_type (asset_type) values("image");
+insert into asset_type (asset_type) values("sources");
+insert into asset_type (asset_type) values("videos");
+rename table asset to assetold;
+create table asset(id int(11) auto_increment, path varchar(255) unique, asset_type_id int, primary key(id), foreign key (asset_type_id) references asset_type(id));
+FOREIGN KEY (PersonID) REFERENCES Persons(PersonID)
+alter table experiment drop column lb_id;
+#+END_SRC
+4) update config file with lds_old database
+#+BEGIN_SRC 
+SQLALCHEMY_DATABASE_URI = 'mysql+oursql://root:root@localhost/lds_old'
+#+END_SRC
+5) run the app
+#+BEGIN_SRC 
+cd build/code/runtime/rest
+python app.py
+#+END_SRC
+6) run the migration script
+#+BEGIN_SRC 
+cd build/code/deployment
+python migration.py
+#+END_SRC
+7) drop table asset_old
+#+BEGIN_SRC 
+drop table asset_old
+#+END_SRC
+8) backup the new mysql dump
+#+BEGIN_SRC 
+mysqldump -u root -proot lds_old > lds.sql
+#+END_SRC
+** Migration Script
+#+BEGIN_SRC python :tangle migrate_asset.py :eval no 
 #!/usr/bin/python
 import MySQLdb
 import sys
@@ -227,7 +268,7 @@ asset_url = "http://localhost:5000"
 KEY= "defaultkey"
 def populate_assets():
     print "Populating assets table.."
-    cursor1.execute("select * from asset")
+    cursor1.execute("select * from assetold")
     data = cursor1.fetchall()
 
     for row in data:
@@ -249,7 +290,6 @@ def populate_assets():
                     'key': KEY}
 
             headers = {'Content-Type': 'application/json'}
-            print payload
             print asset_url+"/assets"
             response = requests.post(asset_url+"/assets",
                                          data=json.dumps(payload),
@@ -262,7 +302,6 @@ def populate_assets():
                     'key': KEY}
 
             headers = {'Content-Type': 'application/json'}
-            print payload
             print asset_url+"/assets"
             response = requests.post(asset_url+"/assets",
                                          data=json.dumps(payload),
@@ -272,46 +311,50 @@ def populate_assets():
         else:
             continue
 
-def populate_institute():
-    print "Populating institute table.."
-    cursor1.execute("select * from institute")
-    data = cursor1.fetchall()
-    for row in data:
-        print "inserting........"
-        cursor2.execute("insert into institute (institute_name, institute_id)"
-                            "values('%s','%s')" %(row[1], row[2]));
-        print "done"
-    cursor2.execute("select * from institute")
-    data2 = cursor2.fetchall()
-    for row in data2:
-        print row
-
 
 if __name__ == "__main__":
     connection1 = MySQLdb.connect(host="localhost", user="root",
                                   passwd="root", db="lds_old")
     cursor1 = connection1.cursor()
-    connection2 = MySQLdb.connect(host="localhost", user="root",
-                                  passwd="root", db="lds")
-    cursor2 = connection2.cursor()
 
     db.create_all(app=create_app(config))
     populate_assets()
-    populate_institute()
     cursor1.close()
     connection1.close()
-    cursor2.close()
-    connection2.close()
 
 #+END_SRC
-#+BEGIN_EXAMPLE
-drop table asset_type
-create table asset_type(id int(11) auto_increment, asset_type varchar(255) unique, primary key(id));
-select distinct asset_type from asset;
-insert into asset_type (asset_type) values("image");
-insert into asset_type (asset_type) values("sources");
-insert into asset_type (asset_type) values("videos");
-#+END_EXAMPLE
+* program to add 'phase' entity
+** Manual Steps
+#+BEGIN_SRC 
+create table phase(id int(11) auto_increment, phase_id int(11) unique, primary key(id));
+create table labs_phase(labid int(11), foreign key (labid) references lab(id), phase_id int(11), foreign key(phase_id) references phase(id));
+#+END_SRC
+** Migration Script
+#+BEGIN_SRC python :tangle migrate_phase.py :eval no 
+#!/usr/bin/python
+import MySQLdb
+import sys
+
+def populate_phase_table():
+    print "Populating phase table.."
+    cursor1.execute("create table phase(id int(11) auto_increment, phase_id int(11) unique, primary key(id));")
+    data = cursor1.fetchall()
+    cursor1.execute("create table labs_phase(labid int(11), foreign key (labid) references lab(id), phase_id int(11), foreign key(phase_id) references phase(id));")
+    data = cursor1.fetchall()
+    print "Done.."
+
+if __name__ == "__main__":
+    connection1 = MySQLdb.connect(host="localhost", 
+                                    user="root",
+                                    passwd="root",
+                                    db="lds")
+    cursor1 = connection1.cursor()
+
+    populate_phase_table()
+    cursor1.close()
+    connection1.close()
+
+#+END_SRC
 * Install all dependencies and setup the software
   Install all dependencies, including the OS related packages, Python packages,
   setup the database, configure the webserver, and finally deploy the
@@ -361,7 +404,8 @@ fi
 # Install pre-requsite dependencies: python-dev, mysqld-dev, setuptools,
 # apache, mod_wsgi etc.
 echo "Installing pre-requisite dependencies.."
-apt-get install -y python-dev libmysqld-dev python-setuptools apache2 libapache2-mod-wsgi
+apt-get install -y python-dev libmysqld-dev python-setuptools apache2 libapache2-mod-wsgi python-mysqldb
+
 if [[ $? -ne 0 ]]; then
   echo "FATAL: Installing pre-requisite dependencies failed!"
   exit 1;

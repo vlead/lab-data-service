@@ -11,8 +11,9 @@
   :CUSTOM_ID: introduction
   :END: 
   This document illustrates building of the REST API.
-  
 
+
+  
 * REST
 ** Pagination support for Get Request
 *** Function Design
@@ -21,7 +22,7 @@
 - This is supposed to check for size conditions and generate a previous data and next available data link too.
 
 *** Function Definition
- #+NAME: test_get_names
+ #+NAME: pagination
  #+BEGIN_SRC python
 def pagination(klass, url, start, limit):
     data = {}
@@ -57,7 +58,6 @@ def pagination(klass, url, start, limit):
 
 ** Get Labs, Get Lab, Get Labs by institute, lab_name, discipline and asset and Get labs by passing lab_name as keyword
 *** API Designs 
-
 **** Get all labs
   :PROPERTIES:
   :CUSTOM_ID: api_get_all_labs
@@ -1044,7 +1044,6 @@ http://localhost:5000/labs?keyword_lab_name=data
 #+BEGIN_SRC python
 @api.route('/labs', methods=['GET'])
 def get_lab():
-
     if request.method == 'GET':
         if 'lab_id' in request.args:
             lab_id  = request.args['lab_id']
@@ -1130,7 +1129,6 @@ def get_lab():
                 current_app.logger.debug("running operation get_labs_by_institute")
                 labs = SystemInterface.get_labs_by_institute(institute_name)
                 current_app.logger.debug("completed operation get_labs_by_institute")
-                
                 return pagination(
                     labs, 
                     '/labs?institute_name='+institute_name+'&',
@@ -1222,6 +1220,7 @@ def get_lab():
                     limit=int(request.args.get('pageSize', 25))
                 )
 
+
             except TypeError as e:
                 current_app.logger.error("Exception = %s" % str(e))
                 err_str = str(e)
@@ -1297,10 +1296,9 @@ def get_lab():
 
         else:
             try:
-                current_app.logger.debug("running operation get_labs")
+                current_app.logger.debug("running operation get_labs")                
                 labs = SystemInterface.get_labs()
                 current_app.logger.debug("completed operation get_labs")
-
                 return pagination(
                         labs, 
                         '/labs?',
@@ -1496,6 +1494,7 @@ class TestGetLab(TestCase):
                      "overview": "overview",
                      "discipline_id": "CSE",
                      "institute_id": "IITK",
+                     "phase":[{"phase_id":1,  "phase_id":2}],
                      "developers": [
                        {
                          "name": "Dinesh Malviya",
@@ -1705,6 +1704,7 @@ class TestGetLabbyLabId(TestCase):
                      "overview": "overview",
                      "discipline_id": "CSE",
                      "institute_id": "IITK",
+                     "phase":[{"phase_id":1,  "phase_id":2}],
                      "developers": [
                        {
                          "name": "Dinesh Malviya",
@@ -1911,6 +1911,7 @@ class TestGetLabsbyInstitute(TestCase):
                      "overview": "overview",
                      "discipline_id": "CSE",
                      "institute_id": "IITK",
+                     "phase":[{"phase_id":1,  "phase_id":2}],
                      "developers": [
                        {
                          "name": "Dinesh Malviya",
@@ -2119,6 +2120,7 @@ class TestGetLabsbyDiscipline(TestCase):
                      "overview": "overview",
                      "discipline_id": "CSE",
                      "institute_id": "IITK",
+                     "phase":[{"phase_id":1,  "phase_id":2}],
                      "developers": [
                        {
                          "name": "Dinesh Malviya",
@@ -2335,6 +2337,7 @@ class TestGetLabsbyLabName(TestCase):
                      "overview": "overview",
                      "discipline_id": "CSE",
                      "institute_id": "IITK",
+                     "phase":[{"phase_id":1,  "phase_id":2}],
                      "developers": [
                        {
                          "name": "Prof. Dharamaja",
@@ -2545,6 +2548,7 @@ class TestGetLabsbyAsset(TestCase):
                      "overview": "overview",
                      "discipline_id": "CSE",
                      "institute_id": "IITK",
+                     "phase":[{"phase_id":1,  "phase_id":2}],
                      "developers": [
                        {
                          "name": "Dinesh Malviya",
@@ -2743,6 +2747,7 @@ class TestGetLabbyLabNameKeyWord(TestCase):
                      "overview": "overview",
                      "discipline_id": "CSE",
                      "institute_id": "IITK",
+                     "phase":[{"phase_id":1,  "phase_id":2}],
                      "developers": [
                        {
                          "name": "Prof. Dharamaja",
@@ -2787,7 +2792,7 @@ class TestGetLabbyLabNameKeyWord(TestCase):
 #+END_SRC
 
 
-** Add Lab 
+** Add Lab
 *** API Designs 
 **** Add Lab
   :PROPERTIES:
@@ -2809,6 +2814,7 @@ class TestGetLabbyLabNameKeyWord(TestCase):
     "overview": "overview",
     "discipline_id": "CSE",
     "institute_id": "IITK",
+    "phase":[{"phase_id":1,  "phase_id":2}],
     "developers": [
       {
         "name": "Dinesh Malviya",
@@ -2923,6 +2929,7 @@ class TestGetLabbyLabNameKeyWord(TestCase):
       "institute_id": "iitk",
       "institute_name": "IIT Kanpur"
     },
+    "phase":[{"phase_id":1,  "phase_id":2}],
     "integration_status": {
       "id": "5",
       "integration_level": 4
@@ -3168,7 +3175,9 @@ class TestAddLab(TestCase):
                      "name": "Computer Programming",
                      "overview": "overview",
                      "discipline_id": "CSE",
+                     "phase":[{"phase_id":1,  "phase_id":2}],
                      "institute_id": "IITK",
+                     "phase":[{"phase_id":1,  "phase_id":2}],
                      "developers": [
                        {
                          "name": "Dinesh Malviya",
@@ -3226,13 +3235,13 @@ class TestAddLab(TestCase):
  #+END_SRC
 
 
-** Update Lab 
+** Update Lab
 *** API Design
 **** Update lab by labid
   :PROPERTIES:
   :CUSTOM_ID: api_update_lab_by_labid
   :END:    
-  - URL :: /labs/<lab_id>
+  - URL :: /labs?lab_id=<lab_id>
 
   - Method :: PUT
 
@@ -3240,45 +3249,18 @@ class TestAddLab(TestCase):
 
   - Payload :: 
 #+BEGIN_EXAMPLE
-{           
-		   "key" : <key>,     
-                   "lab": {
-                     "name": "Computer Programming",
-                     "overview": "cp overview",
-                     "discipline_id": "ECE",
-                     "institute_id": "IITKgp",
-                     "developers": [                    
-                       {
-                         "name": "Prof. Pallavi Pawar",
-                         "email": "pallavi.pawar@gmail.com"
-                       }
-                     ],
-                     "hosting_info": [
-                       {                       
-                         "hosting_status": "hosted",
-                         "hosted_on": "server",
-                         "hosted_url": "http://iitk.vlab.co.in/"
-                       }
-                     ],
-                     "integration_level": 3,
-                     "assets": [
-                       {
-                         "asset_type": "image",
-                         "path": "vlabs.ac.in/images/video/icon.png"
-                       }
-                     ],
-                     "sections": [
-                       {
-                         "name": "Theory"
-                       }
-                                              
-                     ],
-                         "experiments": [
-                           
-                         ]
+{
+"lab":{
+		   "assets": [
+			{
+			  "asset_type": "image",
+			  "path": "iiit-h-cse02.jpg"
+			}
+		      ]
+},
 
-                   }
-                 }
+                    "key": "defaultkey"
+}
 
 #+END_EXAMPLE
   - Success Response
@@ -3288,54 +3270,780 @@ class TestAddLab(TestCase):
 {
   "assets": [
     {
-      "asset_type": "image", 
-      "id": "3", 
-      "path": "vlabs.ac.in/images/video/icon.png"
-    }
-  ], 
-  "developers": [
-    {
-      "email": {
-        "email": "pallavi.pawar@gmail.com", 
-        "id": "3"
+      "asset_type": {
+        "asset_type": "image", 
+        "id": "1"
       }, 
-      "id": "3", 
-      "name": {
-        "id": "3", 
-        "name": "Prof. Pallavi Pawar"
-      }
+      "id": "165", 
+      "path": "iiit-h-cse02.jpg"
     }
   ], 
+  "developers": [], 
   "discipline": {
-    "assets": [], 
-    "discipline_id": "ece", 
-    "discipline_name": "Electronics and Communication", 
-    "id": "8"
+    "assets": [
+      {
+        "asset_type": {
+          "asset_type": "image", 
+          "id": "1"
+        }, 
+        "id": "150", 
+        "path": "computer-science-and-engineering.png"
+      }
+    ], 
+    "discipline_id": "cse", 
+    "discipline_name": "Computer Science and Engineering", 
+    "id": "6"
   }, 
-  "experiments": [], 
+  "experiments": [
+    {
+      "assets": [
+        {
+          "asset_type": {
+            "asset_type": "image", 
+            "id": "1"
+          }, 
+          "id": "84", 
+          "path": "../../static/IIITH-Computer-Programming.jpg"
+        }
+      ], 
+      "developers": [], 
+      "discipline": {
+        "assets": [
+          "Not Printing"
+        ], 
+        "discipline_id": "cse", 
+        "discipline_name": "Computer Science and Engineering", 
+        "id": "6"
+      }, 
+      "exp_id": "e99800", 
+      "exp_name": "Numerical Approximation", 
+      "hosting_info": [
+        {
+          "hosted_on": "cloud", 
+          "hosted_url": "http://cse02-iiith.vlabs.ac.in/", 
+          "hosting_status": "hosted", 
+          "id": "442"
+        }
+      ], 
+      "id": "1198", 
+      "institute": {
+        "assets": [
+          "Not Printing"
+        ], 
+        "id": "7", 
+        "institute_id": "iiith", 
+        "institute_name": "IIIT Hyderabad"
+      }, 
+      "integration_status": {
+        "id": "1", 
+        "integration_level": 0
+      }, 
+      "overview": "This experiments deals with Numerical Approximation", 
+      "sections": [
+        {
+          "id": "10", 
+          "name": "Introduction"
+        }, 
+        {
+          "id": "3", 
+          "name": "Theory"
+        }, 
+        {
+          "id": "171", 
+          "name": "Objective"
+        }, 
+        {
+          "id": "191", 
+          "name": "Manual"
+        }, 
+        {
+          "id": "4", 
+          "name": "Procedure"
+        }, 
+        {
+          "id": "303", 
+          "name": "Further Reading"
+        }
+      ]
+    }, 
+    {
+      "assets": [
+        {
+          "asset_type": {
+            "asset_type": "image", 
+            "id": "1"
+          }, 
+          "id": "84", 
+          "path": "../../static/IIITH-Computer-Programming.jpg"
+        }
+      ], 
+      "developers": [], 
+      "discipline": {
+        "assets": [
+          "Not Printing"
+        ], 
+        "discipline_id": "cse", 
+        "discipline_name": "Computer Science and Engineering", 
+        "id": "6"
+      }, 
+      "exp_id": "e99799", 
+      "exp_name": "Functions", 
+      "hosting_info": [
+        {
+          "hosted_on": "cloud", 
+          "hosted_url": "http://cse02-iiith.vlabs.ac.in/", 
+          "hosting_status": "hosted", 
+          "id": "442"
+        }
+      ], 
+      "id": "1201", 
+      "institute": {
+        "assets": [
+          "Not Printing"
+        ], 
+        "id": "7", 
+        "institute_id": "iiith", 
+        "institute_name": "IIIT Hyderabad"
+      }, 
+      "integration_status": {
+        "id": "1", 
+        "integration_level": 0
+      }, 
+      "overview": "This experiments deals with Functions", 
+      "sections": [
+        {
+          "id": "10", 
+          "name": "Introduction"
+        }, 
+        {
+          "id": "3", 
+          "name": "Theory"
+        }, 
+        {
+          "id": "171", 
+          "name": "Objective"
+        }, 
+        {
+          "id": "191", 
+          "name": "Manual"
+        }, 
+        {
+          "id": "4", 
+          "name": "Procedure"
+        }, 
+        {
+          "id": "303", 
+          "name": "Further Reading"
+        }
+      ]
+    }, 
+    {
+      "assets": [
+        {
+          "asset_type": {
+            "asset_type": "image", 
+            "id": "1"
+          }, 
+          "id": "84", 
+          "path": "../../static/IIITH-Computer-Programming.jpg"
+        }
+      ], 
+      "developers": [], 
+      "discipline": {
+        "assets": [
+          "Not Printing"
+        ], 
+        "discipline_id": "cse", 
+        "discipline_name": "Computer Science and Engineering", 
+        "id": "6"
+      }, 
+      "exp_id": "e99798", 
+      "exp_name": "Advanced Control Flow", 
+      "hosting_info": [
+        {
+          "hosted_on": "cloud", 
+          "hosted_url": "http://cse02-iiith.vlabs.ac.in/", 
+          "hosting_status": "hosted", 
+          "id": "442"
+        }
+      ], 
+      "id": "1202", 
+      "institute": {
+        "assets": [
+          "Not Printing"
+        ], 
+        "id": "7", 
+        "institute_id": "iiith", 
+        "institute_name": "IIIT Hyderabad"
+      }, 
+      "integration_status": {
+        "id": "1", 
+        "integration_level": 0
+      }, 
+      "overview": "This experiments deals with Advanced Control Flow", 
+      "sections": [
+        {
+          "id": "10", 
+          "name": "Introduction"
+        }, 
+        {
+          "id": "3", 
+          "name": "Theory"
+        }, 
+        {
+          "id": "171", 
+          "name": "Objective"
+        }, 
+        {
+          "id": "191", 
+          "name": "Manual"
+        }, 
+        {
+          "id": "4", 
+          "name": "Procedure"
+        }, 
+        {
+          "id": "303", 
+          "name": "Further Reading"
+        }
+      ]
+    }, 
+    {
+      "assets": [
+        {
+          "asset_type": {
+            "asset_type": "image", 
+            "id": "1"
+          }, 
+          "id": "84", 
+          "path": "../../static/IIITH-Computer-Programming.jpg"
+        }
+      ], 
+      "developers": [], 
+      "discipline": {
+        "assets": [
+          "Not Printing"
+        ], 
+        "discipline_id": "cse", 
+        "discipline_name": "Computer Science and Engineering", 
+        "id": "6"
+      }, 
+      "exp_id": "e99797", 
+      "exp_name": "Arrays", 
+      "hosting_info": [
+        {
+          "hosted_on": "cloud", 
+          "hosted_url": "http://cse02-iiith.vlabs.ac.in/", 
+          "hosting_status": "hosted", 
+          "id": "442"
+        }
+      ], 
+      "id": "1204", 
+      "institute": {
+        "assets": [
+          "Not Printing"
+        ], 
+        "id": "7", 
+        "institute_id": "iiith", 
+        "institute_name": "IIIT Hyderabad"
+      }, 
+      "integration_status": {
+        "id": "1", 
+        "integration_level": 0
+      }, 
+      "overview": "This experiments deals with Arrays", 
+      "sections": [
+        {
+          "id": "10", 
+          "name": "Introduction"
+        }, 
+        {
+          "id": "3", 
+          "name": "Theory"
+        }, 
+        {
+          "id": "171", 
+          "name": "Objective"
+        }, 
+        {
+          "id": "191", 
+          "name": "Manual"
+        }, 
+        {
+          "id": "4", 
+          "name": "Procedure"
+        }, 
+        {
+          "id": "303", 
+          "name": "Further Reading"
+        }
+      ]
+    }, 
+    {
+      "assets": [
+        {
+          "asset_type": {
+            "asset_type": "image", 
+            "id": "1"
+          }, 
+          "id": "84", 
+          "path": "../../static/IIITH-Computer-Programming.jpg"
+        }
+      ], 
+      "developers": [], 
+      "discipline": {
+        "assets": [
+          "Not Printing"
+        ], 
+        "discipline_id": "cse", 
+        "discipline_name": "Computer Science and Engineering", 
+        "id": "6"
+      }, 
+      "exp_id": "e99796", 
+      "exp_name": "Structures", 
+      "hosting_info": [
+        {
+          "hosted_on": "cloud", 
+          "hosted_url": "http://cse02-iiith.vlabs.ac.in/", 
+          "hosting_status": "hosted", 
+          "id": "442"
+        }
+      ], 
+      "id": "1197", 
+      "institute": {
+        "assets": [
+          "Not Printing"
+        ], 
+        "id": "7", 
+        "institute_id": "iiith", 
+        "institute_name": "IIIT Hyderabad"
+      }, 
+      "integration_status": {
+        "id": "1", 
+        "integration_level": 0
+      }, 
+      "overview": "This experiments deals with Structures", 
+      "sections": [
+        {
+          "id": "10", 
+          "name": "Introduction"
+        }, 
+        {
+          "id": "3", 
+          "name": "Theory"
+        }, 
+        {
+          "id": "171", 
+          "name": "Objective"
+        }, 
+        {
+          "id": "191", 
+          "name": "Manual"
+        }, 
+        {
+          "id": "4", 
+          "name": "Procedure"
+        }, 
+        {
+          "id": "303", 
+          "name": "Further Reading"
+        }
+      ]
+    }, 
+    {
+      "assets": [
+        {
+          "asset_type": {
+            "asset_type": "image", 
+            "id": "1"
+          }, 
+          "id": "84", 
+          "path": "../../static/IIITH-Computer-Programming.jpg"
+        }
+      ], 
+      "developers": [], 
+      "discipline": {
+        "assets": [
+          "Not Printing"
+        ], 
+        "discipline_id": "cse", 
+        "discipline_name": "Computer Science and Engineering", 
+        "id": "6"
+      }, 
+      "exp_id": "e99795", 
+      "exp_name": "Basic Control Flow", 
+      "hosting_info": [
+        {
+          "hosted_on": "cloud", 
+          "hosted_url": "http://cse02-iiith.vlabs.ac.in/", 
+          "hosting_status": "hosted", 
+          "id": "442"
+        }
+      ], 
+      "id": "1199", 
+      "institute": {
+        "assets": [
+          "Not Printing"
+        ], 
+        "id": "7", 
+        "institute_id": "iiith", 
+        "institute_name": "IIIT Hyderabad"
+      }, 
+      "integration_status": {
+        "id": "1", 
+        "integration_level": 0
+      }, 
+      "overview": "This experiments deals with Basic Control Flow", 
+      "sections": [
+        {
+          "id": "10", 
+          "name": "Introduction"
+        }, 
+        {
+          "id": "3", 
+          "name": "Theory"
+        }, 
+        {
+          "id": "171", 
+          "name": "Objective"
+        }, 
+        {
+          "id": "191", 
+          "name": "Manual"
+        }, 
+        {
+          "id": "4", 
+          "name": "Procedure"
+        }, 
+        {
+          "id": "303", 
+          "name": "Further Reading"
+        }
+      ]
+    }, 
+    {
+      "assets": [
+        {
+          "asset_type": {
+            "asset_type": "image", 
+            "id": "1"
+          }, 
+          "id": "84", 
+          "path": "../../static/IIITH-Computer-Programming.jpg"
+        }
+      ], 
+      "developers": [], 
+      "discipline": {
+        "assets": [
+          "Not Printing"
+        ], 
+        "discipline_id": "cse", 
+        "discipline_name": "Computer Science and Engineering", 
+        "id": "6"
+      }, 
+      "exp_id": "e99794", 
+      "exp_name": "Strings", 
+      "hosting_info": [
+        {
+          "hosted_on": "cloud", 
+          "hosted_url": "http://cse02-iiith.vlabs.ac.in/", 
+          "hosting_status": "hosted", 
+          "id": "442"
+        }
+      ], 
+      "id": "1203", 
+      "institute": {
+        "assets": [
+          "Not Printing"
+        ], 
+        "id": "7", 
+        "institute_id": "iiith", 
+        "institute_name": "IIIT Hyderabad"
+      }, 
+      "integration_status": {
+        "id": "1", 
+        "integration_level": 0
+      }, 
+      "overview": "This experiments deals with Strings", 
+      "sections": [
+        {
+          "id": "10", 
+          "name": "Introduction"
+        }, 
+        {
+          "id": "3", 
+          "name": "Theory"
+        }, 
+        {
+          "id": "171", 
+          "name": "Objective"
+        }, 
+        {
+          "id": "191", 
+          "name": "Manual"
+        }, 
+        {
+          "id": "4", 
+          "name": "Procedure"
+        }, 
+        {
+          "id": "303", 
+          "name": "Further Reading"
+        }
+      ]
+    }, 
+    {
+      "assets": [
+        {
+          "asset_type": {
+            "asset_type": "image", 
+            "id": "1"
+          }, 
+          "id": "84", 
+          "path": "../../static/IIITH-Computer-Programming.jpg"
+        }
+      ], 
+      "developers": [], 
+      "discipline": {
+        "assets": [
+          "Not Printing"
+        ], 
+        "discipline_id": "cse", 
+        "discipline_name": "Computer Science and Engineering", 
+        "id": "6"
+      }, 
+      "exp_id": "e99793", 
+      "exp_name": "Pointers", 
+      "hosting_info": [
+        {
+          "hosted_on": "cloud", 
+          "hosted_url": "http://cse02-iiith.vlabs.ac.in/", 
+          "hosting_status": "hosted", 
+          "id": "442"
+        }
+      ], 
+      "id": "1196", 
+      "institute": {
+        "assets": [
+          "Not Printing"
+        ], 
+        "id": "7", 
+        "institute_id": "iiith", 
+        "institute_name": "IIIT Hyderabad"
+      }, 
+      "integration_status": {
+        "id": "1", 
+        "integration_level": 0
+      }, 
+      "overview": "This experiments deals with Pointers", 
+      "sections": [
+        {
+          "id": "10", 
+          "name": "Introduction"
+        }, 
+        {
+          "id": "3", 
+          "name": "Theory"
+        }, 
+        {
+          "id": "171", 
+          "name": "Objective"
+        }, 
+        {
+          "id": "191", 
+          "name": "Manual"
+        }, 
+        {
+          "id": "4", 
+          "name": "Procedure"
+        }, 
+        {
+          "id": "303", 
+          "name": "Further Reading"
+        }
+      ]
+    }, 
+    {
+      "assets": [
+        {
+          "asset_type": {
+            "asset_type": "image", 
+            "id": "1"
+          }, 
+          "id": "84", 
+          "path": "../../static/IIITH-Computer-Programming.jpg"
+        }
+      ], 
+      "developers": [], 
+      "discipline": {
+        "assets": [
+          "Not Printing"
+        ], 
+        "discipline_id": "cse", 
+        "discipline_name": "Computer Science and Engineering", 
+        "id": "6"
+      }, 
+      "exp_id": "e99792", 
+      "exp_name": "Recursion", 
+      "hosting_info": [
+        {
+          "hosted_on": "cloud", 
+          "hosted_url": "http://cse02-iiith.vlabs.ac.in/", 
+          "hosting_status": "hosted", 
+          "id": "442"
+        }
+      ], 
+      "id": "1200", 
+      "institute": {
+        "assets": [
+          "Not Printing"
+        ], 
+        "id": "7", 
+        "institute_id": "iiith", 
+        "institute_name": "IIIT Hyderabad"
+      }, 
+      "integration_status": {
+        "id": "1", 
+        "integration_level": 0
+      }, 
+      "overview": "This experiments deals with Recursion", 
+      "sections": [
+        {
+          "id": "10", 
+          "name": "Introduction"
+        }, 
+        {
+          "id": "3", 
+          "name": "Theory"
+        }, 
+        {
+          "id": "171", 
+          "name": "Objective"
+        }, 
+        {
+          "id": "191", 
+          "name": "Manual"
+        }, 
+        {
+          "id": "4", 
+          "name": "Procedure"
+        }, 
+        {
+          "id": "303", 
+          "name": "Further Reading"
+        }
+      ]
+    }, 
+    {
+      "assets": [
+        {
+          "asset_type": {
+            "asset_type": "image", 
+            "id": "1"
+          }, 
+          "id": "84", 
+          "path": "../../static/IIITH-Computer-Programming.jpg"
+        }
+      ], 
+      "developers": [], 
+      "discipline": {
+        "assets": [
+          "Not Printing"
+        ], 
+        "discipline_id": "cse", 
+        "discipline_name": "Computer Science and Engineering", 
+        "id": "6"
+      }, 
+      "exp_id": "e99791", 
+      "exp_name": "Expression Evaluation", 
+      "hosting_info": [
+        {
+          "hosted_on": "cloud", 
+          "hosted_url": "http://cse02-iiith.vlabs.ac.in/", 
+          "hosting_status": "hosted", 
+          "id": "442"
+        }
+      ], 
+      "id": "1205", 
+      "institute": {
+        "assets": [
+          "Not Printing"
+        ], 
+        "id": "7", 
+        "institute_id": "iiith", 
+        "institute_name": "IIIT Hyderabad"
+      }, 
+      "integration_status": {
+        "id": "1", 
+        "integration_level": 0
+      }, 
+      "overview": "This experiments deals with Expression Evaluation", 
+      "sections": [
+        {
+          "id": "10", 
+          "name": "Introduction"
+        }, 
+        {
+          "id": "3", 
+          "name": "Theory"
+        }, 
+        {
+          "id": "171", 
+          "name": "Objective"
+        }, 
+        {
+          "id": "191", 
+          "name": "Manual"
+        }, 
+        {
+          "id": "4", 
+          "name": "Procedure"
+        }, 
+        {
+          "id": "303", 
+          "name": "Further Reading"
+        }
+      ]
+    }
+  ], 
   "hosting_info": [
     {
-      "hosted_on": "server", 
-      "hosted_url": "http://iitk.vlab.co.in/", 
+      "hosted_on": "cloud", 
+      "hosted_url": "http://cse02-iiith.vlabs.ac.in/", 
       "hosting_status": "hosted", 
-      "id": "4"
+      "id": "442"
     }
   ], 
-  "id": "1", 
+  "id": "76", 
   "institute": {
-    "assets": [], 
-    "id": "9", 
-    "institute_id": "iitkgp", 
-    "institute_name": "IIT Kharagpur"
+    "assets": [
+      {
+        "asset_type": {
+          "asset_type": "image", 
+          "id": "1"
+        }, 
+        "id": "156", 
+        "path": "iiit-hyderabad.png"
+      }
+    ], 
+    "id": "7", 
+    "institute_id": "iiith", 
+    "institute_name": "IIIT Hyderabad"
   }, 
   "integration_status": {
-    "id": "4", 
-    "integration_level": 3
+    "id": "1", 
+    "integration_level": 0
   }, 
+  "phase":[{"phase_id":1,  "phase_id":2}],
   "lab_id": "cse02", 
   "lab_name": "Computer Programming", 
-  "overview": "cp overview", 
-  "sections": []
+  "overview": "This lab deals with Computer Programming", 
+  "sections": [
+    {
+      "id": "10", 
+      "name": "Introduction"
+    }
+  ]
 }
 
 #+END_EXAMPLE
@@ -3553,6 +4261,7 @@ class TestUpdateLab(TestCase):
                      "overview": "overview",
                      "discipline_id": "CSE",
                      "institute_id": "IITK",
+                     "phase":[{"phase_id":1,  "phase_id":2}],
                      "developers": [
                        {
                          "name": "Prof. Dharamaja",
@@ -3675,6 +4384,7 @@ class TestUpdateLab(TestCase):
                      "overview": "cp overview",
                      "discipline_id": "ECE",
                      "institute_id": "IITKgp",
+                     "phase":[{"phase_id":1,  "phase_id":2}],
                      "developers": [                    
                        {
                          "name": "Prof. Pallavi Pawar",
@@ -3921,15 +4631,15 @@ def get_institute():
 
        else:
            try:
-                current_app.logger.debug("running operation get_institutes")
-                institutes = SystemInterface.get_institutes()
-                current_app.logger.debug("completed operation get_institutes")
-                return pagination(
+               current_app.logger.debug("running operation get_institutes")
+               institutes = SystemInterface.get_institutes()
+               current_app.logger.debug("completed operation get_institutes")
+               return pagination(
                         institutes, 
                         '/institutes?',
                         start=int(request.args.get('page', 1)), 
                         limit=int(request.args.get('pageSize', 25))
-                )
+               )
 
            except TypeError as e:
                current_app.logger.error("Exception = %s" % str(e))
@@ -3959,7 +4669,6 @@ def get_institute():
                msg = {"status": "failure",
                        "msg": err_str}
                abort(500, msg)
-            
             
 #+END_SRC
 
@@ -4225,7 +4934,7 @@ class TestAddInstitute(TestCase):
 
  #+END_SRC
 
-
+     
 ** Get Disciplines and Get Discipline
 *** API Design
 **** Get all Disciplines
@@ -4396,7 +5105,7 @@ http://localhost:5000/disciplines
 http://localhost:5000/disciplines?discipline_id=cse
 #+END_EXAMPLE
 
-*** Implementation  
+*** Implementation
     REST API to get discipline.
 #+NAME: get_disciplines
 #+BEGIN_SRC python
@@ -4482,8 +5191,6 @@ def get_discipline():
                 msg = {"status": "failure",
                        "msg": err_str}
                 abort(500, msg)
-
-
 #+END_SRC
 
 *** Test Cases
@@ -5149,10 +5856,9 @@ def get_experiment():
                 msg = {"status": "failure",
                         "msg": err_str}
                 abort(500, msg)
-
                 
 #+END_SRC
-
+ 
 *** Test Cases
 **** TestGetExperiment
  #+NAME: test_get_Experiment
@@ -5844,7 +6550,7 @@ class TestAddExperiment(TestCase):
 
  #+END_SRC
 
-
+     
 ** Get Sections
 *** API Design
 **** Get all Sections
@@ -5886,10 +6592,10 @@ def get_sections():
             sections = SystemInterface.get_sections()
             current_app.logger.debug("executed get_sections")
             return pagination(
-                    sections, 
-                    '/sections?',
-                    start=int(request.args.get('page', 1)), 
-                    limit=int(request.args.get('pageSize', 25))
+                        sections, 
+                        '/sections?',
+                        start=int(request.args.get('page', 1)), 
+                        limit=int(request.args.get('pageSize', 25))
             )
 
         except TypeError as e:
@@ -6210,7 +6916,12 @@ def get_hosting_info():
                current_app.logger.debug("execute get_hosting_info")
                hosting_info = SystemInterface.get_hosting_info()
                current_app.logger.debug("executed get_hosting_info")
-               return jsonify_list(hosting_info)
+               return pagination(
+                        hosting_info, 
+                        '/hosting_info?',
+                        start=int(request.args.get('page', 1)), 
+                        limit=int(request.args.get('pageSize', 25))
+               )
 
            except NotAuthorizedError as e:
                current_app.logger.error("Exception = %s" % str(e))
@@ -6561,6 +7272,7 @@ class TestDeleteLab(TestCase):
                      "overview": "overview",
                      "discipline_id": "CSE",
                      "institute_id": "IITK",
+                     "phase":[{"phase_id":1,  "phase_id":2}],
                      "developers": [
                        {
                          "name": "Dinesh Malviya",
@@ -6666,101 +7378,57 @@ http://localhost:5000/hosting_info
 REST API to add an hosting_info.
 #+NAME: add_hosting_info
 #+BEGIN_SRC python
-@api.route('/hosting_info', methods=['GET'])
-def get_hosting_info():
-    if request.method == 'GET':
-       if 'hosted_url' in request.args:
-           hosted_url  = request.args['hosted_url']
-           try:
-               current_app.logger.debug("execute get_hosting_info_by_hosted_url")
-               hosting_info = SystemInterface.get_hosting_info_by_hosted_url(hosted_url)
-               current_app.logger.debug("executed get_hosting_info_by_hosted_url")
-               return jsonify(hosting_info)
+@api.route('/hosting_info', methods=['POST'])
+def add_hosting_info():
+    if request.method == 'POST':
+        if request.is_json:
+            data_json = json.dumps(request.get_json())
+            data_dict = yaml.safe_load(data_json)
+        else:
+            abort(500, "the request does not contain data in json")
 
-           except NotAuthorizedError as e:
-               current_app.logger.error("Exception = %s" % str(e))
-               err_str = str(e)
-               msg = {"status": "failure",
+        try:
+            current_app.logger.debug("execute add_hosting_info")
+            hosting_info = SystemInterface.add_hosting_info(data_dict)
+            current_app.logger.debug("executed add_hosting_info")
+            return jsonify(hosting_info)
+
+        except NotAuthorizedError as e:
+            current_app.logger.error("Exception = %s" % str(e))
+            err_str = str(e)
+            msg = {"status": "failure",
                     "status code": 401,
                        "msg": err_str}
-               abort(401, msg)
+            abort(401, msg)
 
-           except TypeError as e:
-               current_app.logger.error("Exception = %s" % str(e))
-               err_str = str(e)
-               msg = {"status": "failure",
+        except TypeError as e:
+            current_app.logger.error("Exception = %s" % str(e))
+            err_str = str(e)
+            msg = {"status": "failure",
                        "msg": err_str }
-               abort(500, msg)
+            abort(500, msg)
 
-           except StateError as e:
-               current_app.logger.error("Exception = %s" % str(e))
-               err_str = str(e)
-               msg = {"status": "failure",
+        except StateError as e:
+            current_app.logger.error("Exception = %s" % str(e))
+            err_str = str(e)
+            msg = {"status": "failure",
                        "msg": err_str}
-               abort(500, msg)
+            abort(500, msg)
 
-           except NotFoundError as e:
-               current_app.logger.error("Exception = %s" % str(e))
-               err_str = str(e)
-               msg = {"status": "failure",
+        except NotFoundError as e:
+            current_app.logger.error("Exception = %s" % str(e))
+            err_str = str(e)
+            msg = {"status": "failure",
                        "status code": 404,
                        "msg": err_str}
-               abort(404, msg)
+            abort(404, msg)
 
-           except Exception as e:
-               current_app.logger.error("Exception = %s" % str(e))
-               err_str = str(e)
-               msg = {"status": "failure",
+        except Exception as e:
+            current_app.logger.error("Exception = %s" % str(e))
+            err_str = str(e)
+            msg = {"status": "failure",
                        "msg": err_str}
-               abort(500, msg)
-       else:
-           try:
-                current_app.logger.debug("execute get_hosting_info")
-                hosting_info = SystemInterface.get_hosting_info()
-                current_app.logger.debug("executed get_hosting_info")
-                return pagination(
-                        hosting_info, 
-                        '/hosting_info?',
-                        start=int(request.args.get('page', 1)), 
-                        limit=int(request.args.get('pageSize', 25))
-                )
-
-           except NotAuthorizedError as e:
-                current_app.logger.error("Exception = %s" % str(e))
-                err_str = str(e)
-                msg = {"status": "failure",
-                    "status code": 401,
-                       "msg": err_str}
-                abort(401, msg)
-
-           except TypeError as e:
-               current_app.logger.error("Exception = %s" % str(e))
-               err_str = str(e)
-               msg = {"status": "failure",
-                       "msg": err_str }
-               abort(500, msg)
-
-           except StateError as e:
-               current_app.logger.error("Exception = %s" % str(e))
-               err_str = str(e)
-               msg = {"status": "failure",
-                       "msg": err_str}
-               abort(500, msg)
-
-           except NotFoundError as e:
-               current_app.logger.error("Exception = %s" % str(e))
-               err_str = str(e)
-               msg = {"status": "failure",
-                       "status code": 404,
-                       "msg": err_str}
-               abort(404, msg)
-
-           except Exception as e:
-               current_app.logger.error("Exception = %s" % str(e))
-               err_str = str(e)
-               msg = {"status": "failure",
-                       "msg": err_str}
-               abort(500, msg)
+            abort(500, msg)
             
 #+END_SRC
 
@@ -6918,15 +7586,16 @@ def get_integration_status():
 
        else:
            try:
-                current_app.logger.debug("execute get_integration_status")
-                integration_status = SystemInterface.get_integration_status()
-                current_app.logger.debug("executed get_integration_status")
-                return pagination(
+               current_app.logger.debug("execute get_integration_status")
+               integration_status = SystemInterface.get_integration_status()
+               current_app.logger.debug("executed get_integration_status")
+               return pagination(
                         integration_status, 
                         '/integration_status?',
                         start=int(request.args.get('page', 1)), 
                         limit=int(request.args.get('pageSize', 25))
-                )
+               ) 
+
            except NotAuthorizedError as e:
                current_app.logger.error("Exception = %s" % str(e))
                err_str = str(e)
@@ -6963,7 +7632,6 @@ def get_integration_status():
                msg = {"status": "failure",
                        "msg": err_str}
                abort(500, msg)
-
 #+END_SRC
 
 *** Test Cases
@@ -7129,7 +7797,7 @@ class TestAddIntegration_Status(TestCase):
 
  #+END_SRC
 
-     
+
 ** Get Emails
 *** API Design
 **** Get all Emails
@@ -7207,15 +7875,15 @@ def get_email():
 
        else:
            try:
-                current_app.logger.debug("execute get_emails")
-                emails = SystemInterface.get_emails()
-                current_app.logger.debug("executed get_emails")
-                return pagination(
+               current_app.logger.debug("execute get_emails")
+               emails = SystemInterface.get_emails()
+               current_app.logger.debug("executed get_emails")
+               return pagination(
                         emails, 
                         '/emails?',
                         start=int(request.args.get('page', 1)), 
                         limit=int(request.args.get('pageSize', 25))
-                )
+               )
 
            except TypeError as e:
                current_app.logger.error("Exception = %s" % str(e))
@@ -7245,7 +7913,6 @@ def get_email():
                msg = {"status": "failure",
                        "msg": err_str}
                abort(500, msg)
-
 #+END_SRC
 
 *** Test Cases
@@ -7281,7 +7948,7 @@ class TestGetEmail(TestCase):
 
  #+END_SRC
 
-
+     
 ** Add Email
 *** API Design
 **** Add Email
@@ -7411,7 +8078,7 @@ class TestAddEmail(TestCase):
 
  #+END_SRC
 
-
+     
 ** Get Names
 *** API Design
 **** Get all names
@@ -7453,10 +8120,10 @@ def get_names():
             names = SystemInterface.get_names()
             current_app.logger.debug("executed get_names")
             return pagination(
-                    names, 
-                    '/names?',
-                    start=int(request.args.get('page', 1)), 
-                    limit=int(request.args.get('pageSize', 25))
+                        names, 
+                        '/names?',
+                        start=int(request.args.get('page', 1)), 
+                        limit=int(request.args.get('pageSize', 25))
             )
 
         except TypeError as e:
@@ -7488,7 +8155,6 @@ def get_names():
                        "msg": err_str}
             abort(500, msg)
             
-
 #+END_SRC
 
 *** Test Cases
@@ -7757,15 +8423,15 @@ def get_developer():
            
        else:
            try:
-                current_app.logger.debug("execute get_developers")
-                developers = SystemInterface.get_developers()
-                current_app.logger.debug("executed get_developers")
-                return pagination(
+               current_app.logger.debug("execute get_developers")
+               developers = SystemInterface.get_developers()
+               current_app.logger.debug("executed get_developers")
+               return pagination(
                         developers, 
                         '/developers?',
                         start=int(request.args.get('page', 1)), 
                         limit=int(request.args.get('pageSize', 25))
-                )
+               )
 
            except TypeError as e:
                current_app.logger.error("Exception = %s" % str(e))
@@ -7795,8 +8461,6 @@ def get_developer():
                msg = {"status": "failure",
                         "msg": err_str}
                abort(500, msg)
-
-
 #+END_SRC
 
 *** Test Cases
@@ -8804,7 +9468,7 @@ class TestGetSectionbyid(TestCase):
   :PROPERTIES:
   :CUSTOM_ID: api_update_institutes_by_instid
   :END:    
-  - URL :: /institutes?<institute_id>
+  - URL :: /institutes?institute_id=<institute_id>
 
   - Method :: PUT
 
@@ -8813,9 +9477,14 @@ class TestGetSectionbyid(TestCase):
   - Payload :: 
 #+BEGIN_EXAMPLE
 {
-"institute_name": "IIIT Hydfdfdd",
-"key": "defaultkey",
+		   "assets": [
+			{
+			  "asset_type": "image",
+			  "path": "amrita-university.png"
+			}
+		      ],
 
+                    "key": "defaultkey"
 }
 
 #+END_EXAMPLE
@@ -8824,17 +9493,19 @@ class TestGetSectionbyid(TestCase):
       + Contents :
 #+BEGIN_EXAMPLE
 {
-  "id": 1, 
-  "institute_id": "iiith", 
-  "institute_name": "IIIT Hydfdfdd",
   "assets": [
-        {
-            "asset_type": "Image",
-            "id": 1,
-            "path": "vlabs.ac.in/images/static/logo.png"
-        }
-    ]
-
+    {
+      "asset_type": {
+        "asset_type": "image", 
+        "id": "1"
+      }, 
+      "id": "153", 
+      "path": "amrita-university.png"
+    }
+  ], 
+  "id": "1", 
+  "institute_id": "amrita", 
+  "institute_name": "Amrita University"
 }
 
 #+END_EXAMPLE
@@ -8846,7 +9517,7 @@ class TestGetSectionbyid(TestCase):
     
   - Example:
 #+BEGIN_EXAMPLE
-    http://localhost:5000/institutes?institute_id=iiith
+    http://localhost:5000/institutes?institute_id=amrita
 #+END_EXAMPLE
 
 *** Implementation
@@ -9132,7 +9803,7 @@ class TestDeleteInstitute(TestCase):
   :PROPERTIES:
   :CUSTOM_ID: api_update_disciplines_by_disid
   :END:    
-  - URL :: /disciplines/<discipline_id>
+  - URL :: /disciplines?discipline_id=<discipline_id>
 
   - Method :: PUT
 
@@ -9141,32 +9812,35 @@ class TestDeleteInstitute(TestCase):
   - Payload :: 
 #+BEGIN_EXAMPLE
 {
-"discipline_name": "Auto Mobiles and Engineering",
-"assets": [
-        {
-            "asset_type": "Image",
-            "path": "vlabs.ac.in/images/static/logo.png"
-        }
-    ],
+		   "assets": [
+			{
+			  "asset_type": "image",
+			  "path": "physical-sciences.png"
+			}
+		      ],
 
-  "key": "<key>"
+                    "key": "defaultkey"
 }
+
 #+END_EXAMPLE
   - Success Response
     + Status_Code: 200
       + Contents :
 #+BEGIN_EXAMPLE
 {
-"assets": [
-        {
-            "asset_type": "Image",
-            "id": 1,
-            "path": "vlabs.ac.in/images/static/logo.png"
-        }
-    ],
-    "discipline_id": "ab",
-    "discipline_name": "Auto Mobiles and Engineering",
-    "id": 15
+  "assets": [
+    {
+      "asset_type": {
+        "asset_type": "image", 
+        "id": "1"
+      }, 
+      "id": "160", 
+      "path": "physical-sciences.png"
+    }
+  ], 
+  "discipline_id": "phy-sc", 
+  "discipline_name": "Physical Sciences", 
+  "id": "11"
 }
 
 #+END_EXAMPLE
@@ -9178,7 +9852,7 @@ class TestDeleteInstitute(TestCase):
     
   - Example:
 #+BEGIN_EXAMPLE
-    http://localhost:5000/disciplines?discipline_id=cse
+    http://localhost:5000/disciplines?discipline_id=phy-sc
 #+END_EXAMPLE
 
 *** Implementation
@@ -11025,15 +11699,15 @@ def get_asset():
                abort(500, msg)
        else:
            try:
-                current_app.logger.debug("running operation get_assets")
-                assets = SystemInterface.get_assets()
-                current_app.logger.debug("completed operation get_assets")
-                return pagination(
+               current_app.logger.debug("running operation get_assets")
+               assets = SystemInterface.get_assets()
+               current_app.logger.debug("completed operation get_assets")
+               return pagination(
                         assets, 
                         '/assets?',
                         start=int(request.args.get('page', 1)), 
                         limit=int(request.args.get('pageSize', 25))
-                )
+               )
         
            except TypeError as e:
                current_app.logger.error("Exception = %s" % str(e))
@@ -11063,8 +11737,6 @@ def get_asset():
                msg = {"status": "failure",
                         "msg": err_str}
                abort(500, msg)
-
-
 #+END_SRC
 
 *** Test Cases
@@ -11550,7 +12222,7 @@ import os
 import requests
 import json
 from flask import session, render_template, Blueprint, request, \
-     jsonify, abort, current_app, redirect, url_for
+     jsonify, abort, current_app, redirect, url_for, make_response
 from flask import Flask
 from runtime.utils.type_utils import jsonify_list
 from runtime.exceptions.custom_exceptions import *
@@ -11561,7 +12233,7 @@ api = Blueprint('APIs', __name__)
 
 #+end_src
 
-
+    
 ** tests
 *** Imports 
 #+name: imports_for_tests
@@ -11590,7 +12262,7 @@ if __name__ == '__main__':
 
 #+END_SRC
 
-    
+
 * Tangle                                                        :boilerplate:
   
 ** sources
@@ -11643,7 +12315,7 @@ if __name__ == '__main__':
 
 #+END_SRC
 
-
+   
 ** tests
 #+BEGIN_SRC python :tangle test_api.py :eval no :noweb yes
 <<imports_for_tests>>
