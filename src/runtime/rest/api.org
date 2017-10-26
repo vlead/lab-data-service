@@ -17,9 +17,32 @@
 * REST
 ** Pagination support for Get Request
 *** Function Design
-- This function will allow us to enable pagination of out REST APIs. It is supposed to take in four arguments that will be total object list
-  provied along with the starting integer and a limiting integer. 
-- This is supposed to check for size conditions and generate a previous data and next available data link too.
+    - This function will allow us to enable pagination of out REST APIs. 
+      It is supposed to take in four arguments that will be total object list
+      provied along with the starting integer and a limiting integer. 
+    - This is supposed to check for size conditions and generate a previous 
+      data and next available data link too
+    - This function will allow us to enable pagination of
+      our REST APIs i.e. it will send as many number of
+      objects as the user wants to see and not all the
+      objects together. It is supposed to take in four
+      arguments that will be total object list provided
+      along with the starting integer and a limiting
+      integer.
+    - The starting integer denotes the number of the object
+      from which the user wants to start the display.
+    - The limiting integer specifies the maximum number of
+      objects the user wants to display on a particular page
+      and if nothing is specified as the limiting integer
+      then, 25 is taken as the default value.
+    - The function uses a variable "count" to represent the
+      total number of objects being displayed on a
+      particular page.
+    - The function checks for different conditions on
+      "count" and accordingly displays the previous and the
+      next page links.
+    - The response is stored and returned as a jsonified
+      object.
 
 *** Function Definition
  #+NAME: pagination
@@ -51,7 +74,6 @@ def pagination(klass, url, start, limit):
     
     response.headers['X-Pagination'] = data
     return response
-
   
 #+END_SRC 
 
@@ -8420,7 +8442,9 @@ def get_developer():
                msg = {"status": "failure",
                         "msg": err_str}
                abort(500, msg)
-           
+#       elif 'start' in request.args and 'limit' in request.args:
+#           start=request.args['start']
+#           limit=request.args['limit']
        else:
            try:
                current_app.logger.debug("execute get_developers")
@@ -8431,7 +8455,9 @@ def get_developer():
                         '/developers?',
                         start=int(request.args.get('page', 1)), 
                         limit=int(request.args.get('pageSize', 25))
-               )
+               )                      
+#                        start=int(request.args.get('page', start)), 
+#                        limit=int(request.args.get('pageSize', limit))
 
            except TypeError as e:
                current_app.logger.error("Exception = %s" % str(e))
@@ -12341,7 +12367,7 @@ if __name__ == '__main__':
 <<test_delete_experiment>>
 <<test_get_Sections>>
 <<test_add_section>>
-<<test_get_Names>>
+<<test_get_names>>
 <<test_add_name>>
 <<test_update_name_by_id>>
 <<test_delete_name_by_id>>
