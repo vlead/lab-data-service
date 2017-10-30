@@ -11,11 +11,17 @@
   :CUSTOM_ID: introduction
   :END: 
   This document illustrates building of the REST API.
-  
 
+
+  
 * REST
-** Pagination support for Get request
+** Pagination support for Get Request
 *** Function Design
+    - This function will allow us to enable pagination of out REST APIs. 
+      It is supposed to take in four arguments that will be total object list
+      provied along with the starting integer and a limiting integer. 
+    - This is supposed to check for size conditions and generate a previous 
+      data and next available data link too
     - This function will allow us to enable pagination of
       our REST APIs i.e. it will send as many number of
       objects as the user wants to see and not all the
@@ -1060,7 +1066,6 @@ http://localhost:5000/labs?keyword_lab_name=data
 #+BEGIN_SRC python
 @api.route('/labs', methods=['GET'])
 def get_lab():
-
     if request.method == 'GET':
         if 'lab_id' in request.args:
             lab_id  = request.args['lab_id']
@@ -1146,7 +1151,6 @@ def get_lab():
                 current_app.logger.debug("running operation get_labs_by_institute")
                 labs = SystemInterface.get_labs_by_institute(institute_name)
                 current_app.logger.debug("completed operation get_labs_by_institute")
-                
                 return pagination(
                     labs, 
                     '/labs?institute_name='+institute_name+'&',
@@ -1238,6 +1242,7 @@ def get_lab():
                     limit=int(request.args.get('pageSize', 25))
                 )
 
+
             except TypeError as e:
                 current_app.logger.error("Exception = %s" % str(e))
                 err_str = str(e)
@@ -1313,10 +1318,9 @@ def get_lab():
 
         else:
             try:
-                current_app.logger.debug("running operation get_labs")
+                current_app.logger.debug("running operation get_labs")                
                 labs = SystemInterface.get_labs()
                 current_app.logger.debug("completed operation get_labs")
-
                 return pagination(
                         labs, 
                         '/labs?',
@@ -2810,7 +2814,7 @@ class TestGetLabbyLabNameKeyWord(TestCase):
 #+END_SRC
 
 
-** Add Lab 
+** Add Lab
 *** API Designs 
 **** Add Lab
   :PROPERTIES:
@@ -3253,7 +3257,7 @@ class TestAddLab(TestCase):
  #+END_SRC
 
 
-** Update Lab 
+** Update Lab
 *** API Design
 **** Update lab by labid
   :PROPERTIES:
@@ -4649,15 +4653,15 @@ def get_institute():
 
        else:
            try:
-                current_app.logger.debug("running operation get_institutes")
-                institutes = SystemInterface.get_institutes()
-                current_app.logger.debug("completed operation get_institutes")
-                return pagination(
+               current_app.logger.debug("running operation get_institutes")
+               institutes = SystemInterface.get_institutes()
+               current_app.logger.debug("completed operation get_institutes")
+               return pagination(
                         institutes, 
                         '/institutes?',
                         start=int(request.args.get('page', 1)), 
                         limit=int(request.args.get('pageSize', 25))
-                )
+               )
 
            except TypeError as e:
                current_app.logger.error("Exception = %s" % str(e))
@@ -4687,7 +4691,6 @@ def get_institute():
                msg = {"status": "failure",
                        "msg": err_str}
                abort(500, msg)
-            
             
 #+END_SRC
 
@@ -4953,7 +4956,7 @@ class TestAddInstitute(TestCase):
 
  #+END_SRC
 
-
+     
 ** Get Disciplines and Get Discipline
 *** API Design
 **** Get all Disciplines
@@ -5124,7 +5127,7 @@ http://localhost:5000/disciplines
 http://localhost:5000/disciplines?discipline_id=cse
 #+END_EXAMPLE
 
-*** Implementation  
+*** Implementation
     REST API to get discipline.
 #+NAME: get_disciplines
 #+BEGIN_SRC python
@@ -5210,8 +5213,6 @@ def get_discipline():
                 msg = {"status": "failure",
                        "msg": err_str}
                 abort(500, msg)
-
-
 #+END_SRC
 
 *** Test Cases
@@ -5877,10 +5878,9 @@ def get_experiment():
                 msg = {"status": "failure",
                         "msg": err_str}
                 abort(500, msg)
-
                 
 #+END_SRC
-
+ 
 *** Test Cases
 **** TestGetExperiment
  #+NAME: test_get_Experiment
@@ -6572,7 +6572,7 @@ class TestAddExperiment(TestCase):
 
  #+END_SRC
 
-
+     
 ** Get Sections
 *** API Design
 **** Get all Sections
@@ -6614,10 +6614,10 @@ def get_sections():
             sections = SystemInterface.get_sections()
             current_app.logger.debug("executed get_sections")
             return pagination(
-                    sections, 
-                    '/sections?',
-                    start=int(request.args.get('page', 1)), 
-                    limit=int(request.args.get('pageSize', 25))
+                        sections, 
+                        '/sections?',
+                        start=int(request.args.get('page', 1)), 
+                        limit=int(request.args.get('pageSize', 25))
             )
 
         except TypeError as e:
@@ -6938,7 +6938,12 @@ def get_hosting_info():
                current_app.logger.debug("execute get_hosting_info")
                hosting_info = SystemInterface.get_hosting_info()
                current_app.logger.debug("executed get_hosting_info")
-               return jsonify_list(hosting_info)
+               return pagination(
+                        hosting_info, 
+                        '/hosting_info?',
+                        start=int(request.args.get('page', 1)), 
+                        limit=int(request.args.get('pageSize', 25))
+               )
 
            except NotAuthorizedError as e:
                current_app.logger.error("Exception = %s" % str(e))
@@ -7603,15 +7608,16 @@ def get_integration_status():
 
        else:
            try:
-                current_app.logger.debug("execute get_integration_status")
-                integration_status = SystemInterface.get_integration_status()
-                current_app.logger.debug("executed get_integration_status")
-                return pagination(
+               current_app.logger.debug("execute get_integration_status")
+               integration_status = SystemInterface.get_integration_status()
+               current_app.logger.debug("executed get_integration_status")
+               return pagination(
                         integration_status, 
                         '/integration_status?',
                         start=int(request.args.get('page', 1)), 
                         limit=int(request.args.get('pageSize', 25))
-                )
+               ) 
+
            except NotAuthorizedError as e:
                current_app.logger.error("Exception = %s" % str(e))
                err_str = str(e)
@@ -7648,7 +7654,6 @@ def get_integration_status():
                msg = {"status": "failure",
                        "msg": err_str}
                abort(500, msg)
-
 #+END_SRC
 
 *** Test Cases
@@ -7814,7 +7819,7 @@ class TestAddIntegration_Status(TestCase):
 
  #+END_SRC
 
-     
+
 ** Get Emails
 *** API Design
 **** Get all Emails
@@ -7892,15 +7897,15 @@ def get_email():
 
        else:
            try:
-                current_app.logger.debug("execute get_emails")
-                emails = SystemInterface.get_emails()
-                current_app.logger.debug("executed get_emails")
-                return pagination(
+               current_app.logger.debug("execute get_emails")
+               emails = SystemInterface.get_emails()
+               current_app.logger.debug("executed get_emails")
+               return pagination(
                         emails, 
                         '/emails?',
                         start=int(request.args.get('page', 1)), 
                         limit=int(request.args.get('pageSize', 25))
-                )
+               )
 
            except TypeError as e:
                current_app.logger.error("Exception = %s" % str(e))
@@ -7930,7 +7935,6 @@ def get_email():
                msg = {"status": "failure",
                        "msg": err_str}
                abort(500, msg)
-
 #+END_SRC
 
 *** Test Cases
@@ -7966,7 +7970,7 @@ class TestGetEmail(TestCase):
 
  #+END_SRC
 
-
+     
 ** Add Email
 *** API Design
 **** Add Email
@@ -8096,7 +8100,7 @@ class TestAddEmail(TestCase):
 
  #+END_SRC
 
-
+     
 ** Get Names
 *** API Design
 **** Get all names
@@ -8138,10 +8142,10 @@ def get_names():
             names = SystemInterface.get_names()
             current_app.logger.debug("executed get_names")
             return pagination(
-                    names, 
-                    '/names?',
-                    start=int(request.args.get('page', 1)), 
-                    limit=int(request.args.get('pageSize', 25))
+                        names, 
+                        '/names?',
+                        start=int(request.args.get('page', 1)), 
+                        limit=int(request.args.get('pageSize', 25))
             )
 
         except TypeError as e:
@@ -8173,7 +8177,6 @@ def get_names():
                        "msg": err_str}
             abort(500, msg)
             
-
 #+END_SRC
 
 *** Test Cases
@@ -8444,17 +8447,17 @@ def get_developer():
 #           limit=request.args['limit']
        else:
            try:
-                current_app.logger.debug("execute get_developers")
-                developers = SystemInterface.get_developers()
-                current_app.logger.debug("executed get_developers")
-                return pagination(
+               current_app.logger.debug("execute get_developers")
+               developers = SystemInterface.get_developers()
+               current_app.logger.debug("executed get_developers")
+               return pagination(
                         developers, 
                         '/developers?',
                         start=int(request.args.get('page', 1)), 
-                        limit=int(request.args.get('pageSize', 25))                        
+                        limit=int(request.args.get('pageSize', 25))
+               )                      
 #                        start=int(request.args.get('page', start)), 
 #                        limit=int(request.args.get('pageSize', limit))
-                )
 
            except TypeError as e:
                current_app.logger.error("Exception = %s" % str(e))
@@ -8484,8 +8487,6 @@ def get_developer():
                msg = {"status": "failure",
                         "msg": err_str}
                abort(500, msg)
-
-
 #+END_SRC
 
 *** Test Cases
@@ -11724,15 +11725,15 @@ def get_asset():
                abort(500, msg)
        else:
            try:
-                current_app.logger.debug("running operation get_assets")
-                assets = SystemInterface.get_assets()
-                current_app.logger.debug("completed operation get_assets")
-                return pagination(
+               current_app.logger.debug("running operation get_assets")
+               assets = SystemInterface.get_assets()
+               current_app.logger.debug("completed operation get_assets")
+               return pagination(
                         assets, 
                         '/assets?',
                         start=int(request.args.get('page', 1)), 
                         limit=int(request.args.get('pageSize', 25))
-                )
+               )
         
            except TypeError as e:
                current_app.logger.error("Exception = %s" % str(e))
@@ -11762,8 +11763,6 @@ def get_asset():
                msg = {"status": "failure",
                         "msg": err_str}
                abort(500, msg)
-
-
 #+END_SRC
 
 *** Test Cases
@@ -12260,7 +12259,7 @@ api = Blueprint('APIs', __name__)
 
 #+end_src
 
-
+    
 ** tests
 *** Imports 
 #+name: imports_for_tests
@@ -12289,7 +12288,7 @@ if __name__ == '__main__':
 
 #+END_SRC
 
-    
+
 * Tangle                                                        :boilerplate:
   
 ** sources
@@ -12342,7 +12341,7 @@ if __name__ == '__main__':
 
 #+END_SRC
 
-
+   
 ** tests
 #+BEGIN_SRC python :tangle test_api.py :eval no :noweb yes
 <<imports_for_tests>>
