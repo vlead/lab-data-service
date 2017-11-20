@@ -1642,6 +1642,7 @@ class TestAddIntegration_Status(TestCase):
             labs = lab_cls.get_all()
             lab_dict_list = []
             for lab in labs:
+                lab = filter_columns(lab)
                 lab_x = lab.to_client()
                 lab_dict_list.append(lab_x)
             current_app.logger.debug("got labs")
@@ -1922,9 +1923,36 @@ class TestGetLabs(TestCase):
                              data_dict['lab']['id'])
         self.assertEqual(lab_list[1].get("lab_id"), 
                              data_dict1['lab']['id'])
+        print "===================================================================="
+        print lab_list[0]
+        print "===================================================================="
 
  #+END_SRC
 
+
+** Filter Columns for a lab
+   This function takes a lab and set some of the fields to
+   null.  This is required because the to_client() which
+   converts an object to a dictionary goes through all the
+   attributes of the lab object.  This is not necessary
+   since only =assests=, =hosting_info= and =lab_name= are
+   required by the front end. 
+#+NAME: filter-columns
+#+BEGIN_SRC python
+    @staticmethod
+    def filter_columns(lab):
+        current_app.logger.debug("running filter_columns")
+        lab.overview = null
+        lab.institute = null
+        lab.discipline = null
+        lab.phase = null
+        lab.integration_status = null
+        lab.experiments = null
+        lab.developers = null
+        lab.sections = null
+
+        return lab
+#+END_SRC
  
 ** Get Labs by Keyword Lab Name
 #+NAME: class_get_labs_by_keyword_lab_name
