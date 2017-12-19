@@ -108,9 +108,13 @@ class TestSystemConstructor(TestCase):
         return app
 
     def setUp(self):
+        app = self.create_app()
+        self.app_context = app.app_context()
+        self.app_context.push()
         System.initialize_system(PersistenceDelegate)
 
     def tearDown(self):
+        self.app_context.pop()
         System.delegate = None
 
     def test_delegate(self):

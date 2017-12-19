@@ -54,10 +54,14 @@ class TestPersistenceDelegate(TestCase):
         return app
 
     def setUp(self):
+        app = self.create_app()
+        self.app_context = app.app_context()
+        self.app_context.push()
         db.create_all()
         self.persistence_delegate = PersistenceDelegate()
         
     def tearDown(self):
+        self.app_context.pop()
         db.session.remove()
         db.drop_all()
         self.persistence_delegate = None
