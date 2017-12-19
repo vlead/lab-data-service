@@ -15,68 +15,6 @@
 
   
 * REST
-** Pagination support for Get Request
-*** Function Design
-    - This function will allow us to enable pagination of out REST APIs. 
-      It is supposed to take in four arguments that will be total object list
-      provied along with the starting integer and a limiting integer. 
-    - This is supposed to check for size conditions and generate a previous 
-      data and next available data link too
-    - This function will allow us to enable pagination of
-      our REST APIs i.e. it will send as many number of
-      objects as the user wants to see and not all the
-      objects together. It is supposed to take in four
-      arguments that will be total object list provided
-      along with the starting integer and a limiting
-      integer.
-    - The starting integer denotes the number of the object
-      from which the user wants to start the display.
-    - The limiting integer specifies the maximum number of
-      objects the user wants to display on a particular page
-      and if nothing is specified as the limiting integer
-      then, 25 is taken as the default value.
-    - The function uses a variable "count" to represent the
-      total number of objects being displayed on a
-      particular page.
-    - The function checks for different conditions on
-      "count" and accordingly displays the previous and the
-      next page links.
-    - The response is stored and returned as a jsonified
-      object.
-
-*** Function Definition
- #+NAME: pagination
- #+BEGIN_SRC python
-def pagination(klass, url, start, limit):
-    data = {}
-    count = len(klass)
-    data['currentPage'] = start
-    data['pageSize'] = limit
-    data['totalCount'] = count
-    
-    if count < start:
-        data['nextPageLink'] = None
-        data['previousPageLink'] = url + 'page=%d' % (count-limit)
-        response = make_response(jsonify(None))
-    else:
-        if start == 1:
-            data['previousPageLink'] = None
-        else:
-            prev_start = max(1, start - limit)
-            data['previousPageLink'] = url + 'page=%d' % (prev_start)
-
-        if start + limit > count:
-            data['nextPageLink'] = None
-        else:
-            data['nextPageLink'] = url + 'page=%d' % (start + limit)
-
-        response = make_response(jsonify(klass[(start - 1):(start - 1 + limit)]))
-    
-    response.headers['X-Pagination'] = data
-    return response
-  
-#+END_SRC 
-
 
 ** Get Labs, Get Lab, Get Labs by institute, lab_name, discipline and asset and Get labs by passing lab_name as keyword
 *** API Designs 
@@ -1109,12 +1047,7 @@ def get_lab():
             try:
                 current_app.logger.debug("running operation get_labs_by_lab_name")
                 labs = SystemInterface.get_labs_by_lab_name(lab_name)
-                return pagination(
-                    labs, 
-                    '/labs?lab_name='+lab_name+'&',
-                    start=int(request.args.get('page', 1)), 
-                    limit=int(request.args.get('pageSize', 25))
-                )
+                return jsonify(labs)
                 
             except TypeError as e:
                 current_app.logger.error("Exception = %s" % str(e))
@@ -1151,12 +1084,7 @@ def get_lab():
                 current_app.logger.debug("running operation get_labs_by_institute")
                 labs = SystemInterface.get_labs_by_institute(institute_name)
                 current_app.logger.debug("completed operation get_labs_by_institute")
-                return pagination(
-                    labs, 
-                    '/labs?institute_name='+institute_name+'&',
-                    start=int(request.args.get('page', 1)), 
-                    limit=int(request.args.get('pageSize', 25))
-                )
+                return jsonify_list(labs)
                 
             except TypeError as e:
                 current_app.logger.error("Exception = %s" % str(e))
@@ -1193,12 +1121,7 @@ def get_lab():
                 current_app.logger.debug("running operation get_labs_by_discipline")
                 labs = SystemInterface.get_labs_by_discipline(discipline_name)
                 current_app.logger.debug("completed operation get_labs_by_discipline")
-                return pagination(
-                    labs, 
-                    '/labs?discipline_name='+discipline_name+'&',
-                    start=int(request.args.get('page', 1)), 
-                    limit=int(request.args.get('pageSize', 25))
-                )
+                return jsonify_list(labs)
                 
             except TypeError as e:
                 current_app.logger.error("Exception = %s" % str(e))
@@ -1235,13 +1158,7 @@ def get_lab():
                 current_app.logger.debug("running operation get_labs_by_asset")
                 labs = SystemInterface.get_labs_by_asset(asset_type)
                 current_app.logger.debug("completed operation get_labs_by_asset")
-                return pagination(
-                    labs, 
-                    '/labs?asset_type='+asset_type+'&',
-                    start=int(request.args.get('page', 1)), 
-                    limit=int(request.args.get('pageSize', 25))
-                )
-
+                return jsonify_list(labs)
 
             except TypeError as e:
                 current_app.logger.error("Exception = %s" % str(e))
@@ -1280,12 +1197,7 @@ def get_lab():
                 labs = SystemInterface.get_labs_by_keyword_lab_name(keyword)
                 current_app.logger.debug("completed operation get_labs_by_"
                                          " keyword_lab_name")
-                return pagination(
-                    labs, 
-                    '/labs?keyword_lab_name='+keyword+'&',
-                    start=int(request.args.get('page', 1)), 
-                    limit=int(request.args.get('pageSize', 25))
-                )
+                return jsonify_list(labs)
 
             except TypeError as e:
                 current_app.logger.error("Exception = %s" % str(e))
@@ -1321,12 +1233,7 @@ def get_lab():
                 current_app.logger.debug("running operation get_labs")                
                 labs = SystemInterface.get_labs()
                 current_app.logger.debug("completed operation get_labs")
-                return pagination(
-                        labs, 
-                        '/labs?',
-                        start=int(request.args.get('page', 1)), 
-                        limit=int(request.args.get('pageSize', 25))
-                )
+                return jsonify_list(labs)
 
             except TypeError as e:
                 current_app.logger.error("Exception = %s" % str(e))
@@ -1516,7 +1423,6 @@ class TestGetLab(TestCase):
                      "overview": "overview",
                      "discipline_id": "CSE",
                      "institute_id": "IITK",
-                     "phase":[{"phase_id":1,  "phase_id":2}],
                      "developers": [
                        {
                          "name": "Dinesh Malviya",
@@ -1726,7 +1632,6 @@ class TestGetLabbyLabId(TestCase):
                      "overview": "overview",
                      "discipline_id": "CSE",
                      "institute_id": "IITK",
-                     "phase":[{"phase_id":1,  "phase_id":2}],
                      "developers": [
                        {
                          "name": "Dinesh Malviya",
@@ -1933,7 +1838,6 @@ class TestGetLabsbyInstitute(TestCase):
                      "overview": "overview",
                      "discipline_id": "CSE",
                      "institute_id": "IITK",
-                     "phase":[{"phase_id":1,  "phase_id":2}],
                      "developers": [
                        {
                          "name": "Dinesh Malviya",
@@ -2142,7 +2046,6 @@ class TestGetLabsbyDiscipline(TestCase):
                      "overview": "overview",
                      "discipline_id": "CSE",
                      "institute_id": "IITK",
-                     "phase":[{"phase_id":1,  "phase_id":2}],
                      "developers": [
                        {
                          "name": "Dinesh Malviya",
@@ -2359,7 +2262,6 @@ class TestGetLabsbyLabName(TestCase):
                      "overview": "overview",
                      "discipline_id": "CSE",
                      "institute_id": "IITK",
-                     "phase":[{"phase_id":1,  "phase_id":2}],
                      "developers": [
                        {
                          "name": "Prof. Dharamaja",
@@ -2570,7 +2472,6 @@ class TestGetLabsbyAsset(TestCase):
                      "overview": "overview",
                      "discipline_id": "CSE",
                      "institute_id": "IITK",
-                     "phase":[{"phase_id":1,  "phase_id":2}],
                      "developers": [
                        {
                          "name": "Dinesh Malviya",
@@ -2769,7 +2670,6 @@ class TestGetLabbyLabNameKeyWord(TestCase):
                      "overview": "overview",
                      "discipline_id": "CSE",
                      "institute_id": "IITK",
-                     "phase":[{"phase_id":1,  "phase_id":2}],
                      "developers": [
                        {
                          "name": "Prof. Dharamaja",
@@ -2814,7 +2714,7 @@ class TestGetLabbyLabNameKeyWord(TestCase):
 #+END_SRC
 
 
-** Add Lab
+** Add Lab 
 *** API Designs 
 **** Add Lab
   :PROPERTIES:
@@ -2836,7 +2736,6 @@ class TestGetLabbyLabNameKeyWord(TestCase):
     "overview": "overview",
     "discipline_id": "CSE",
     "institute_id": "IITK",
-    "phase":[{"phase_id":1,  "phase_id":2}],
     "developers": [
       {
         "name": "Dinesh Malviya",
@@ -2951,7 +2850,6 @@ class TestGetLabbyLabNameKeyWord(TestCase):
       "institute_id": "iitk",
       "institute_name": "IIT Kanpur"
     },
-    "phase":[{"phase_id":1,  "phase_id":2}],
     "integration_status": {
       "id": "5",
       "integration_level": 4
@@ -3197,9 +3095,7 @@ class TestAddLab(TestCase):
                      "name": "Computer Programming",
                      "overview": "overview",
                      "discipline_id": "CSE",
-                     "phase":[{"phase_id":1,  "phase_id":2}],
                      "institute_id": "IITK",
-                     "phase":[{"phase_id":1,  "phase_id":2}],
                      "developers": [
                        {
                          "name": "Dinesh Malviya",
@@ -3257,7 +3153,7 @@ class TestAddLab(TestCase):
  #+END_SRC
 
 
-** Update Lab
+** Update Lab 
 *** API Design
 **** Update lab by labid
   :PROPERTIES:
@@ -4056,7 +3952,6 @@ class TestAddLab(TestCase):
     "id": "1", 
     "integration_level": 0
   }, 
-  "phase":[{"phase_id":1,  "phase_id":2}],
   "lab_id": "cse02", 
   "lab_name": "Computer Programming", 
   "overview": "This lab deals with Computer Programming", 
@@ -4283,7 +4178,6 @@ class TestUpdateLab(TestCase):
                      "overview": "overview",
                      "discipline_id": "CSE",
                      "institute_id": "IITK",
-                     "phase":[{"phase_id":1,  "phase_id":2}],
                      "developers": [
                        {
                          "name": "Prof. Dharamaja",
@@ -4406,7 +4300,6 @@ class TestUpdateLab(TestCase):
                      "overview": "cp overview",
                      "discipline_id": "ECE",
                      "institute_id": "IITKgp",
-                     "phase":[{"phase_id":1,  "phase_id":2}],
                      "developers": [                    
                        {
                          "name": "Prof. Pallavi Pawar",
@@ -4656,12 +4549,7 @@ def get_institute():
                current_app.logger.debug("running operation get_institutes")
                institutes = SystemInterface.get_institutes()
                current_app.logger.debug("completed operation get_institutes")
-               return pagination(
-                        institutes, 
-                        '/institutes?',
-                        start=int(request.args.get('page', 1)), 
-                        limit=int(request.args.get('pageSize', 25))
-               )
+               return jsonify_list(institutes)
 
            except TypeError as e:
                current_app.logger.error("Exception = %s" % str(e))
@@ -4956,7 +4844,7 @@ class TestAddInstitute(TestCase):
 
  #+END_SRC
 
-     
+
 ** Get Disciplines and Get Discipline
 *** API Design
 **** Get all Disciplines
@@ -5127,7 +5015,7 @@ http://localhost:5000/disciplines
 http://localhost:5000/disciplines?discipline_id=cse
 #+END_EXAMPLE
 
-*** Implementation
+*** Implementation  
     REST API to get discipline.
 #+NAME: get_disciplines
 #+BEGIN_SRC python
@@ -5178,12 +5066,7 @@ def get_discipline():
                 current_app.logger.debug("running operation get_disciplines")
                 disciplines = SystemInterface.get_disciplines()               
                 current_app.logger.debug("completed operation get_disciplines")
-                return pagination(
-                        disciplines, 
-                        '/disciplines?',
-                        start=int(request.args.get('page', 1)), 
-                        limit=int(request.args.get('pageSize', 25))
-                )
+                return jsonify_list(disciplines)
             
             except TypeError as e:
                 current_app.logger.error("Exception = %s" % str(e))
@@ -5835,12 +5718,7 @@ def get_experiment():
                 current_app.logger.debug("execute get_experiments")
                 experiments = SystemInterface.get_experiments()
                 current_app.logger.debug("executed get_experiments")
-                return pagination(
-                        experiments, 
-                        '/experiments?',
-                        start=int(request.args.get('page', 1)), 
-                        limit=int(request.args.get('pageSize', 25))
-                )
+                return jsonify_list(experiments)
 
             except NotAuthorizedError as e:
                 current_app.logger.error("Exception = %s" % str(e))
@@ -5880,7 +5758,7 @@ def get_experiment():
                 abort(500, msg)
                 
 #+END_SRC
- 
+
 *** Test Cases
 **** TestGetExperiment
  #+NAME: test_get_Experiment
@@ -6572,7 +6450,7 @@ class TestAddExperiment(TestCase):
 
  #+END_SRC
 
-     
+
 ** Get Sections
 *** API Design
 **** Get all Sections
@@ -6613,12 +6491,7 @@ def get_sections():
             current_app.logger.debug("execute get_sections")
             sections = SystemInterface.get_sections()
             current_app.logger.debug("executed get_sections")
-            return pagination(
-                        sections, 
-                        '/sections?',
-                        start=int(request.args.get('page', 1)), 
-                        limit=int(request.args.get('pageSize', 25))
-            )
+            return jsonify_list(sections)
 
         except TypeError as e:
             current_app.logger.error("Exception = %s" % str(e))
@@ -6938,12 +6811,7 @@ def get_hosting_info():
                current_app.logger.debug("execute get_hosting_info")
                hosting_info = SystemInterface.get_hosting_info()
                current_app.logger.debug("executed get_hosting_info")
-               return pagination(
-                        hosting_info, 
-                        '/hosting_info?',
-                        start=int(request.args.get('page', 1)), 
-                        limit=int(request.args.get('pageSize', 25))
-               )
+               return jsonify_list(hosting_info)
 
            except NotAuthorizedError as e:
                current_app.logger.error("Exception = %s" % str(e))
@@ -7294,7 +7162,6 @@ class TestDeleteLab(TestCase):
                      "overview": "overview",
                      "discipline_id": "CSE",
                      "institute_id": "IITK",
-                     "phase":[{"phase_id":1,  "phase_id":2}],
                      "developers": [
                        {
                          "name": "Dinesh Malviya",
@@ -7611,12 +7478,7 @@ def get_integration_status():
                current_app.logger.debug("execute get_integration_status")
                integration_status = SystemInterface.get_integration_status()
                current_app.logger.debug("executed get_integration_status")
-               return pagination(
-                        integration_status, 
-                        '/integration_status?',
-                        start=int(request.args.get('page', 1)), 
-                        limit=int(request.args.get('pageSize', 25))
-               ) 
+               return jsonify_list(integration_status)
 
            except NotAuthorizedError as e:
                current_app.logger.error("Exception = %s" % str(e))
@@ -7900,12 +7762,7 @@ def get_email():
                current_app.logger.debug("execute get_emails")
                emails = SystemInterface.get_emails()
                current_app.logger.debug("executed get_emails")
-               return pagination(
-                        emails, 
-                        '/emails?',
-                        start=int(request.args.get('page', 1)), 
-                        limit=int(request.args.get('pageSize', 25))
-               )
+               return jsonify_list(emails)
 
            except TypeError as e:
                current_app.logger.error("Exception = %s" % str(e))
@@ -7970,7 +7827,7 @@ class TestGetEmail(TestCase):
 
  #+END_SRC
 
-     
+
 ** Add Email
 *** API Design
 **** Add Email
@@ -8100,7 +7957,7 @@ class TestAddEmail(TestCase):
 
  #+END_SRC
 
-     
+
 ** Get Names
 *** API Design
 **** Get all names
@@ -8141,12 +7998,7 @@ def get_names():
             current_app.logger.debug("execute get_names")
             names = SystemInterface.get_names()
             current_app.logger.debug("executed get_names")
-            return pagination(
-                        names, 
-                        '/names?',
-                        start=int(request.args.get('page', 1)), 
-                        limit=int(request.args.get('pageSize', 25))
-            )
+            return jsonify_list(names)
 
         except TypeError as e:
             current_app.logger.error("Exception = %s" % str(e))
@@ -8442,22 +8294,13 @@ def get_developer():
                msg = {"status": "failure",
                         "msg": err_str}
                abort(500, msg)
-#       elif 'start' in request.args and 'limit' in request.args:
-#           start=request.args['start']
-#           limit=request.args['limit']
+           
        else:
            try:
                current_app.logger.debug("execute get_developers")
                developers = SystemInterface.get_developers()
                current_app.logger.debug("executed get_developers")
-               return pagination(
-                        developers, 
-                        '/developers?',
-                        start=int(request.args.get('page', 1)), 
-                        limit=int(request.args.get('pageSize', 25))
-               )                      
-#                        start=int(request.args.get('page', start)), 
-#                        limit=int(request.args.get('pageSize', limit))
+               return jsonify_list(developers)
 
            except TypeError as e:
                current_app.logger.error("Exception = %s" % str(e))
@@ -11728,12 +11571,7 @@ def get_asset():
                current_app.logger.debug("running operation get_assets")
                assets = SystemInterface.get_assets()
                current_app.logger.debug("completed operation get_assets")
-               return pagination(
-                        assets, 
-                        '/assets?',
-                        start=int(request.args.get('page', 1)), 
-                        limit=int(request.args.get('pageSize', 25))
-               )
+               return jsonify_list(assets)
         
            except TypeError as e:
                current_app.logger.error("Exception = %s" % str(e))
@@ -12248,7 +12086,7 @@ import os
 import requests
 import json
 from flask import session, render_template, Blueprint, request, \
-     jsonify, abort, current_app, redirect, url_for, make_response
+     jsonify, abort, current_app, redirect, url_for
 from flask import Flask
 from runtime.utils.type_utils import jsonify_list
 from runtime.exceptions.custom_exceptions import *
@@ -12259,7 +12097,7 @@ api = Blueprint('APIs', __name__)
 
 #+end_src
 
-    
+
 ** tests
 *** Imports 
 #+name: imports_for_tests
@@ -12294,7 +12132,6 @@ if __name__ == '__main__':
 ** sources
 #+BEGIN_SRC python :tangle api.py :eval no :noweb yes
 <<imports_for_sources>>
-<<pagination>>
 <<get_lab>>
 <<add_lab>>
 <<update_lab>>
@@ -12341,7 +12178,7 @@ if __name__ == '__main__':
 
 #+END_SRC
 
-   
+
 ** tests
 #+BEGIN_SRC python :tangle test_api.py :eval no :noweb yes
 <<imports_for_tests>>
@@ -12367,7 +12204,7 @@ if __name__ == '__main__':
 <<test_delete_experiment>>
 <<test_get_Sections>>
 <<test_add_section>>
-<<test_get_names>>
+<<test_get_Names>>
 <<test_add_name>>
 <<test_update_name_by_id>>
 <<test_delete_name_by_id>>
