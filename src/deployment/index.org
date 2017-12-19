@@ -18,11 +18,14 @@
 from setuptools import setup
 
 requires = [
+    'Flask',
+    'Flask-SQLAlchemy',
     'oursql',
+    'Flask-cors',
+    'Flask-testing',
     'requests',
     'pyyaml'
-
-]
+]  
 
 setup(
     name='lds',
@@ -211,11 +214,11 @@ post_lab_spec(lab_file_list[0])
 ** Migration Steps
 1) create database lds_old
 2) restoring the dump
-#+BEGIN_SRC 
+#+BEGIN_SRC sh
 mysql -u root -p lds_old < lds.sql
 #+END_SRC
 3) create the schema
-#+BEGIN_SRC 
+#+BEGIN_SRC sh
 create table asset_type(id int(11) auto_increment, asset_type varchar(255) unique, primary key(id));
 select distinct asset_type from asset;
 insert into asset_type (asset_type) values("image");
@@ -227,25 +230,25 @@ FOREIGN KEY (PersonID) REFERENCES Persons(PersonID)
 alter table experiment drop column lb_id;
 #+END_SRC
 4) update config file with lds_old database
-#+BEGIN_SRC 
+#+BEGIN_SRC sh
 SQLALCHEMY_DATABASE_URI = 'mysql+oursql://root:root@localhost/lds_old'
 #+END_SRC
 5) run the app
-#+BEGIN_SRC 
+#+BEGIN_SRC sh
 cd build/code/runtime/rest
 python app.py
 #+END_SRC
 6) run the migration script
-#+BEGIN_SRC 
+#+BEGIN_SRC sh
 cd build/code/deployment
 python migration.py
 #+END_SRC
 7) drop table asset_old
-#+BEGIN_SRC 
+#+BEGIN_SRC sh
 drop table asset_old
 #+END_SRC
 8) backup the new mysql dump
-#+BEGIN_SRC 
+#+BEGIN_SRC sh
 mysqldump -u root -proot lds_old > lds.sql
 #+END_SRC
 ** Migration Script
@@ -321,7 +324,7 @@ if __name__ == "__main__":
 #+END_SRC
 * program to add 'phase' entity
 ** Manual Steps
-#+BEGIN_SRC 
+#+BEGIN_SRC sh
 create table phase(id int(11) auto_increment, phase_id int(11) unique, primary key(id));
 create table labs_phase(labid int(11), foreign key (labid) references lab(id), phase_id int(11), foreign key(phase_id) references phase(id));
 #+END_SRC
@@ -433,13 +436,7 @@ wget https://pypi.python.org/packages/8c/88/9f53a314a2af6f56c0a1249c5673ee384b85
 tar xvf oursql-0.9.3.2.tar.gz
 cd oursql-0.9.3.2
 python setup.py install
-pip install Flask Flask-SQLAlchemy oursql requests flask-cors\
-    Werkzeug urllib3 SQLAlchemy six requests-oauthlib asn1crypto\
-    certifi cffi chardet click client cryptography enum34 Flask\
-    Flask-Cors Flask-Login Flask-OAuth Flask-OAuthlib\
-    Flask-Testing http httplib2 idna ipaddress itsdangerous\
-    Jinja2 MarkupSafe oauth2 oauthlib oursql pycparser\
-    pyOpenSSL PyYAML requests flask-cors Flask-SQLAlchemy
+pip install flask Flask-SQLAlchemy oursql flask-cors flask-testing requests pyyaml
 
 if [[ $? -ne 0 ]]; then
   echo "FATAL: Installation failed!"
