@@ -7,10 +7,10 @@
 #+OPTIONS: ^:nil
 
 * Introduction
-  This document will illustrate installation of all the dependencies required
-  for setting up the application.
+  This document will illustrate installation of all the
+  dependencies required for setting up the application.
 
-* Install dependendent python packages
+* Utility to install dependendent python packages
   Here we use the =setuptools= module from the standard lib, to make a
   =setup.py= file, which will install all the python library dependencies.
 
@@ -25,7 +25,7 @@ requires = [
     'Flask-testing',
     'requests',
     'pyyaml'
-]  
+]
 
 setup(
     name='lds',
@@ -35,7 +35,10 @@ setup(
 
 #+END_SRC
 
-* Program to set up the database
+* Program to populate initial data in the database
+  This is used to run the service in developer's
+  environment.  Otherwise, mostly the database on production
+  is updated from a dump of previous instance.
 #+BEGIN_SRC python :tangle db_setup.py :eval no
 
 from runtime.rest.app import create_app
@@ -162,7 +165,7 @@ if __name__ == "__main__":
 
 #+END_SRC
 
-* Program to populate lab and experiment data from lab spects 
+* Program to populate lab and experiment tables from lab specs
 #+BEGIN_SRC python :tangle dump_json_to_lds.py :eval no 
 import os
 import os.path
@@ -210,15 +213,15 @@ post_lab_spec(lab_file_list[0])
 
 #+END_SRC
 
-* program to add 'asset_type' entity
+* Program to add 'asset_type' entity
 ** Migration Steps
 1) create database lds_old
 2) restoring the dump
-#+BEGIN_SRC sh
+#+BEGIN_SRC 
 mysql -u root -p lds_old < lds.sql
 #+END_SRC
 3) create the schema
-#+BEGIN_SRC sh
+#+BEGIN_SRC 
 create table asset_type(id int(11) auto_increment, asset_type varchar(255) unique, primary key(id));
 select distinct asset_type from asset;
 insert into asset_type (asset_type) values("image");
@@ -230,29 +233,30 @@ FOREIGN KEY (PersonID) REFERENCES Persons(PersonID)
 alter table experiment drop column lb_id;
 #+END_SRC
 4) update config file with lds_old database
-#+BEGIN_SRC sh
+#+BEGIN_SRC 
 SQLALCHEMY_DATABASE_URI = 'mysql+oursql://root:root@localhost/lds_old'
 #+END_SRC
 5) run the app
-#+BEGIN_SRC sh
+#+BEGIN_SRC 
 cd build/code/runtime/rest
 python app.py
 #+END_SRC
 6) run the migration script
-#+BEGIN_SRC sh
+#+BEGIN_SRC 
 cd build/code/deployment
 python migration.py
 #+END_SRC
 7) drop table asset_old
-#+BEGIN_SRC sh
+#+BEGIN_SRC 
 drop table asset_old
 #+END_SRC
 8) backup the new mysql dump
-#+BEGIN_SRC sh
+#+BEGIN_SRC 
 mysqldump -u root -proot lds_old > lds.sql
 #+END_SRC
 ** Migration Script
-#+BEGIN_SRC python :tangle migrate_asset.py :eval no 
+#+BEGIN_SRC python :tangle migrate.py :eval no 
+
 #!/usr/bin/python
 import MySQLdb
 import sys
@@ -322,126 +326,137 @@ if __name__ == "__main__":
     connection1.close()
 
 #+END_SRC
-* program to add 'phase' entity
-** Manual Steps
+
+* Install mysql db, dependencies and python packages
+** Install OS related Packages
+   Install pre-requsite dependencies: python-dev,
+   libmysqld-dev, python-setuptools, apache2,
+   libapache2-mod-wsgi
+#+name: os-pack
 #+BEGIN_SRC sh
-create table phase(id int(11) auto_increment, phase_id int(11) unique, primary key(id));
-create table labs_phase(labid int(11), foreign key (labid) references lab(id), phase_id int(11), foreign key(phase_id) references phase(id));
-#+END_SRC
-** Migration Script
-#+BEGIN_SRC python :tangle migrate_phase.py :eval no 
-#!/usr/bin/python
-import MySQLdb
-import sys
+echo "Updating package cache.."
+apt-get -y update
+if [ $? -ne 0 ]; then
+  echo "Updating package cache failed!"
+  exit 1;
+fi
 
-def populate_phase_table():
-    print "Populating phase table.."
-    cursor1.execute("create table phase(id int(11) auto_increment, phase_id int(11) unique, primary key(id));")
-    data = cursor1.fetchall()
-    cursor1.execute("create table labs_phase(labid int(11), foreign key (labid) references lab(id), phase_id int(11), foreign key(phase_id) references phase(id));")
-    data = cursor1.fetchall()
-    print "Done.."
+echo "Installing pre-requisite dependencies.."
 
-if __name__ == "__main__":
-    connection1 = MySQLdb.connect(host="localhost", 
-                                    user="root",
-                                    passwd="root",
-                                    db="lds")
-    cursor1 = connection1.cursor()
+apt-get install -y python-dev libmysqld-dev python-setuptools apache2 libapache2-mod-wsgi python-mysqldb
 
-    populate_phase_table()
-    cursor1.close()
-    connection1.close()
+if [ $? -ne 0 ]; then
+  echo "FATAL: Installing os-related packages failed!"
+  exit 1;
+fi
 
 #+END_SRC
-* Install all dependencies and setup the software
-  Install all dependencies, including the OS related packages, Python packages,
-  setup the database, configure the webserver, and finally deploy the
-  application.
 
-#+BEGIN_SRC sh :tangle setup.sh :eval no
-#!/bin/bash
-# Shell script to install deb package dependencies as well as python package
-# dependencies for dataservice.
+** Enable mod wsgi
+   WSGI mode is needed for one web server to talk to
+   another.  In our case, Flask and Apache2 need to
+   communicate.  To make this happen, wsgi is enabled.
+#+name: enable-mod-wsgi
+#+BEGIN_SRC sh
+echo "Enabling the mod WSGI on apache"
+a2enmod wsgi
+if [ $? -ne 0 ]; then
+  echo "FATAL: Unable to enable mod wsgi!"
+  exit 1;
+fi
 
-# if any proxy server
-#PROXY=""
-# file to store the generated password
-DB_PASS_FILE="db_pass.txt"
+#+END_SRC
+** Install mysql db
+   Install mysql db.  The idea to generate a random password
+   while installaing the mysql.  This same password that is
+   stored in a file is used by the application to connect to
+   the database.  Currently, this is not implemented,
+   instead the password is set to =root=.  The database can
+   only be installed by a super user. 
+
+#+name: install-mysql
+#+BEGIN_SRC sh
+
+
+#DB_PASS_FILE="db_pass.txt"
 
 if [[ `id -u` -ne 0 ]]; then
   echo "You have to execute this script as super user!"
   exit 1;
 fi
 
-# Update the packages
-echo "Updating package cache.."
-apt-get -y update
-if [[ $? -ne 0 ]]; then
-  echo "Updating package cache failed!"
-  exit 1;
-fi
-
 echo "Installing MySQL database.."
-if [ ! -f $DB_PASS_FILE ]; then
-  # generate a random password for the database and store it in the $DB_PASS_FILE
-  # file
-#  DBPASS=$(date +%s | sha256sum | head -c 32)
-  DBPASS="root"
-  echo $DBPASS > $DB_PASS_FILE
-fi
 
+DBPASS="root"
 # Install MySQL Server in a Non-Interactive mode.
 echo "mysql-server mysql-server/root_password password $DBPASS" | sudo debconf-set-selections
 echo "mysql-server mysql-server/root_password_again password $DBPASS" | sudo debconf-set-selections
 apt-get install -y mysql-server
+
 if [[ $? -ne 0 ]]; then
   echo "FATAL: MySQL installation failed!"
   exit 1;
 fi
 
-# Install pre-requsite dependencies: python-dev, mysqld-dev, setuptools,
-# apache, mod_wsgi etc.
-echo "Installing pre-requisite dependencies.."
+#+END_SRC
+
+** Install Pip
+   pip is python package insaller.
+#+name: install-pip
+#+BEGIN_SRC sh
+echo "Installing PIP"
 apt-get remove -y python-pip
 apt-get purge python-pip
 mkdir -p build/pip
 cd build/pip
-wget https://pypi.python.org/packages/11/b6/abcb525026a4be042b486df43905d6893fb04f05aac21c32c638e939e447/pip-9.0.1.tar.gz#md5=35f01da33009719497f01a4ba69d63c9
+wget https://pypi.python.org/packages/11/b6/abcb525026a4be042b486df43905d6893fb04f05aac21c32c638e939e447/pip-9.0.1.tar.gz
 tar xvf pip-9.0.1.tar.gz
 cd pip-9.0.1
 python setup.py install
-apt-get install -y python-dev libmysqld-dev python-setuptools apache2 libapache2-mod-wsgi python-mysqldb
-
-if [[ $? -ne 0 ]]; then
-  echo "FATAL: Installing pre-requisite dependencies failed!"
+if [ $? -ne 0 ]; then
+  echo "FATAL: PIP installation failed!"
   exit 1;
 fi
 
-echo "Enabling the mod WSGI on apache"
-a2enmod wsgi
-if [[ $? -ne 0 ]]; then
-  echo "FATAL: Unable to enable mod wsgi!"
-  exit 1;
-fi
+#+END_SRC
 
-# Installing python dependencies
+** Install Python packages
+   The flask application needs the following python
+   packages.  =oursql= package is installed from sources.
+   Others are installed using pip package manager.
+#+name: py-pack
+#+BEGIN_SRC sh
 echo "Installing dependencies.."
-#export http_proxy=$PROXY
-#export https_proxy=$PROXY
-#python setup.py install
+
 mkdir -p build/oursql
 cd build/oursql
 wget https://pypi.python.org/packages/8c/88/9f53a314a2af6f56c0a1249c5673ee384b85dc791bac5c1228772ced3502/oursql-0.9.3.2.tar.gz#md5=ade5959a6571b1626966d47f3ab2d315
 tar xvf oursql-0.9.3.2.tar.gz
 cd oursql-0.9.3.2
 python setup.py install
-pip install Flask Flask-SQLAlchemy oursql Flask-cors Flask-testing requests pyyaml
 
-if [[ $? -ne 0 ]]; then
-  echo "FATAL: Installation failed!"
+pip install Flask Flask-SQLAlchemy Flask-cors Flask-testing oursql requests pyyaml
+
+if [ $? -ne 0 ]; then
+  echo "FATAL: Python package installation failed!"
   exit 1;
 fi
+
+#+END_SRC
+
+** All the above steps will be part of =setup.sh=
+#+BEGIN_SRC sh :tangle setup.sh :eval no :noweb yes
+#!/bin/bash
+
+<<os-pack>>
+
+<<enable-mod-wsgi>>
+
+<<install-mysql>>
+
+<<install-pip>>
+
+<<py-pack>>
 
 exit 0
 
@@ -469,7 +484,7 @@ ABS_PATH_DS=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 update_app_config () {
   CONFIG_FILE="../runtime/config/flask_app_config.py"
   DB_USER="root"
-  DB_PASS="root"
+  DB_PASS=$(cat db_pass.txt)
   DB_NAME="lds"
   DB_SERVER="localhost"
 
@@ -500,7 +515,7 @@ update_app_config () {
 update_apache_config() {
   PROC_NAME="lds"
   WSGI_SCRIPT="lds.wsgi"
-  APACHE_VHOST_FILE="/etc/apache2/sites-available/000-default.conf"
+  APACHE_VHOST_FILE="/etc/apache2/sites-available/default"
 
   sed -i "/<\/VirtualHost>/i \
     WSGIScriptAlias / $ABS_PATH_DS/$WSGI_SCRIPT
