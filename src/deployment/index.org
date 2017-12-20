@@ -596,8 +596,17 @@ fi
 
 service apache2 restart
 export PYTHONPATH="/var/www"
+if [[ $? -ne 0 ]]; then
+  echo "FATAL: Failed to restart apache2 webserver"
+  exit 1;
+fi
+
 
 setup_db
+if [[ $? -ne 0 ]]; then
+  echo "FATAL: Failed to create database"
+  exit 1;
+fi
 
 exit 0
 
