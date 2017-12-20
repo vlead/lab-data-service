@@ -380,7 +380,7 @@ fi
 
 DB_PASS_FILE="db_pass.txt"
 
-if [[ `id -u` -ne 0 ]]; then
+if [ `id -u` -ne 0 ]; then
   echo "You have to execute this script as super user!"
   exit 1;
 fi
@@ -393,7 +393,7 @@ echo "mysql-server mysql-server/root_password password $DBPASS" | debconf-set-se
 echo "mysql-server mysql-server/root_password_again password $DBPASS" | debconf-set-selections
 apt-get install -y mysql-server
 
-if [[ $? -ne 0 ]]; then
+if [ $? -ne 0 ]; then
   echo "FATAL: MySQL installation failed!"
   exit 1;
 fi
@@ -563,7 +563,7 @@ update_apache_config() {
 setup_db() {
   echo "Creating database: $DB_NAME"
   mysql -u $DB_USER -p$DB_PASS -Bse "create database $DB_NAME;"
-  if [[ $? -ne 0 ]]; then
+  if [ $? -ne 0 ]; then
     echo "Failed to create database $DB_NAME"
     exit 1;
   fi
@@ -583,27 +583,27 @@ setup_db() {
 <<create-db>>
 
 update_app_config
-if [[ $? -ne 0 ]]; then
+if [ $? -ne 0 ]; then
   echo "FATAL: Failed to update application flask_app_config.py"
   exit 1;
 fi
 
 update_apache_config
-if [[ $? -ne 0 ]]; then
+if [ $? -ne 0 ]; then
   echo "FATAL: Failed to update apache config"
   exit 1;
 fi
 
 service apache2 restart
 export PYTHONPATH="/var/www"
-if [[ $? -ne 0 ]]; then
+if [ $? -ne 0 ]; then
   echo "FATAL: Failed to restart apache2 webserver"
   exit 1;
 fi
 
 
 setup_db
-if [[ $? -ne 0 ]]; then
+if [ $? -ne 0 ]; then
   echo "FATAL: Failed to create database"
   exit 1;
 fi
