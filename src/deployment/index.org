@@ -378,7 +378,7 @@ fi
 #+BEGIN_SRC sh
 
 
-#DB_PASS_FILE="db_pass.txt"
+DB_PASS_FILE="db_pass.txt"
 
 if [[ `id -u` -ne 0 ]]; then
   echo "You have to execute this script as super user!"
@@ -398,6 +398,7 @@ if [[ $? -ne 0 ]]; then
   exit 1;
 fi
 
+echo $DBPASS > $DB_PASS_FILE
 #+END_SRC
 
 ** Install Pip
@@ -462,19 +463,38 @@ exit 0
 
 #+END_SRC
 
-* Configuring the application and its deployment
-  The following program configures the application, configures the web server
-  to use WSGI and use the application scripts, and finally calls the database
-  setup scripts to actually setup the database with tables.
+* Configuration
+** Create the WSGI conduit
+   Provide one end of the flask application to the apache
+   server for it to route the traffic to flask application.
+#+BEGIN_SRC python :tangle lds.wsgi :eval no
 
-#+BEGIN_SRC sh :tangle configure.sh :eval no
-#!/bin/bash
-# Configure the application in the deployment environment
-# 1. Update the config.py file with appropriate values
-# 2. Update the apache config to server via WSGI
-# 3. Run the database setup scripts to setup the database
+import sys, os
 
-if [[ `id -u` -ne 0 ]]; then
+BASE_DIR = BASE_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)))
+
+#sys.path.insert(0, BASE_DIR)
+sys.path.insert(0, "/var/www")
+
+from runtime.rest.app import create_app
+from runtime.config import flask_app_config as config
+
+application = create_app(config)
+
+#+END_SRC
+** Configure the application
+   Configuring the application involves:
+   1. set up the configuration parameters of the
+      application.  These include:
+      - Database parameters :: database userId, Password,
+           dbname, dbhost
+      - Cross origin pameters :: Whitelist IPs, allowed
+           origins.  These parameters are not set currently.
+
+#+name: configure-app
+#+BEGIN_SRC sh
+
+if [ `id -u` -ne 0 ]; then
   echo "You have to execute this script as super user!"
   exit 1;
 fi
@@ -502,6 +522,7 @@ update_app_config () {
   sed -i "s/<db_name>/$DB_NAME/" $ABS_PATH_DS/$CONFIG_FILE
   # update SQLALCHEMY_ECHO
   sed -i "s/^SQLALCHEMY_ECHO.*$/SQLALCHEMY_ECHO = False/" $ABS_PATH_DS/$CONFIG_FILE
+
   # update WHITELIST_IPS
   #sed -i "s/^WHITELIST_IPS.*$/WHITELIST_IPS = $WHITELIST_IPS/" $CONFIG_FILE
   # update ALLOWED_ORIGINS
@@ -512,6 +533,16 @@ update_app_config () {
   # necessary
 }
 
+#+END_SRC
+
+** Configre the web server
+   The wsgi conduit is configured with the apache.  This is
+   necessary since apache web server has to forward the
+   traffic on the =/= to the LDS application that uses flask
+   web server.
+#+name: configure-wserver
+#+BEGIN_SRC sh
+
 update_apache_config() {
   PROC_NAME="lds"
   WSGI_SCRIPT="lds.wsgi"
@@ -521,19 +552,13 @@ update_apache_config() {
     WSGIScriptAlias / $ABS_PATH_DS/$WSGI_SCRIPT
   " $APACHE_VHOST_FILE
 
-  #sed -i '/<\/VirtualHost>/i \
-  #  WSGIDaemonProcess $PROC_NAME user=www-data group=www-data threads=5
-  #  WSGIScriptAlias / $ABS_PATH_DS/$WSGI_SCRIPT
-
-  #  <Directory $ABS_PATH_DS>
-  #    WSGIProcessGroup $PROC_NAME
-  #    WSGIApplicationGroup %{GLOBAL}
-  #    Order deny,allow
-  #    Allow from all
-  #  </Directory>
-  #' $APACHE_VHOST_FILE
-
 }
+
+#+END_SRC
+** Create the database
+   An empty database is created for the application to use. 
+#+name: create-db
+#+BEGIN_SRC sh
 
 setup_db() {
   echo "Creating database: $DB_NAME"
@@ -545,11 +570,24 @@ setup_db() {
 
 }
 
+#+END_SRC
+
+** All the above steps will be part of =configure.sh=
+#+BEGIN_SRC sh :tangle configure.sh :eval no :noweb yes
+#!/bin/bash
+
+<<configure-app>>
+
+<<configure-wserver>>
+
+<<create-db>>
+
 update_app_config
 if [[ $? -ne 0 ]]; then
   echo "FATAL: Failed to update application flask_app_config.py"
   exit 1;
 fi
+
 update_apache_config
 if [[ $? -ne 0 ]]; then
   echo "FATAL: Failed to update apache config"
@@ -558,25 +596,10 @@ fi
 
 service apache2 restart
 export PYTHONPATH="/var/www"
+
 setup_db
-exit 0;
-#+END_SRC
 
-* Deploying the application
-
-#+BEGIN_SRC python :tangle lds.wsgi :eval no
-
-import sys, os
-
-BASE_DIR = BASE_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)))
-
-#sys.path.insert(0, BASE_DIR)
-sys.path.insert(0, "/var/www")
-
-from runtime.rest.app import create_app
-from runtime.config import flask_app_config as config
-
-application = create_app(config)
+exit 0
 
 #+END_SRC
 
