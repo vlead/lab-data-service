@@ -1122,7 +1122,7 @@ def get_lab():
                 labs = SystemInterface.get_labs_by_discipline(discipline_name)
                 current_app.logger.debug("completed operation get_labs_by_discipline")
                 return jsonify_list(labs)
-                
+
             except TypeError as e:
                 current_app.logger.error("Exception = %s" % str(e))
                 err_str = str(e)
@@ -1278,13 +1278,9 @@ class TestGetLab(TestCase):
         return app
 
     def setUp(self):
-        app = self.create_app()
-        self.app_context = app.app_context()
-        self.app_context.push()
         db.create_all()
 
     def tearDown(self):
-        self.app_context.pop()
         db.session.remove()
         db.drop_all()
 
@@ -1427,6 +1423,7 @@ class TestGetLab(TestCase):
                      "overview": "overview",
                      "discipline_id": "CSE",
                      "institute_id": "IITK",
+                     "phase":[{"phase_id":1,  "phase_id":2}],
                      "developers": [
                        {
                          "name": "Dinesh Malviya",
@@ -1491,13 +1488,9 @@ class TestGetLabbyLabId(TestCase):
         return app
 
     def setUp(self):
-        app = self.create_app()
-        self.app_context = app.app_context()
-        self.app_context.push()
         db.create_all()
 
     def tearDown(self):
-        self.app_context.pop()
         db.session.remove()
         db.drop_all()
 
@@ -1640,6 +1633,7 @@ class TestGetLabbyLabId(TestCase):
                      "overview": "overview",
                      "discipline_id": "CSE",
                      "institute_id": "IITK",
+                     "phase":[{"phase_id":1,  "phase_id":2}],
                      "developers": [
                        {
                          "name": "Dinesh Malviya",
@@ -1707,13 +1701,9 @@ class TestGetLabsbyInstitute(TestCase):
         return app
 
     def setUp(self):
-        app = self.create_app()
-        self.app_context = app.app_context()
-        self.app_context.push()
         db.create_all()
 
     def tearDown(self):
-        self.app_context.pop()
         db.session.remove()
         db.drop_all()
 
@@ -1850,6 +1840,7 @@ class TestGetLabsbyInstitute(TestCase):
                      "overview": "overview",
                      "discipline_id": "CSE",
                      "institute_id": "IITK",
+                     "phase":[{"phase_id":1,  "phase_id":2}],
                      "developers": [
                        {
                          "name": "Dinesh Malviya",
@@ -1916,13 +1907,9 @@ class TestGetLabsbyDiscipline(TestCase):
         return app
 
     def setUp(self):
-        app = self.create_app()
-        self.app_context = app.app_context()
-        self.app_context.push()
         db.create_all()
 
     def tearDown(self):
-        self.app_context.pop()
         db.session.remove()
         db.drop_all()
 
@@ -2062,6 +2049,7 @@ class TestGetLabsbyDiscipline(TestCase):
                      "overview": "overview",
                      "discipline_id": "CSE",
                      "institute_id": "IITK",
+                     "phase":[{"phase_id":1,  "phase_id":2}],
                      "developers": [
                        {
                          "name": "Dinesh Malviya",
@@ -2127,13 +2115,9 @@ class TestGetLabsbyLabName(TestCase):
         return app
 
     def setUp(self):
-        app = self.create_app()
-        self.app_context = app.app_context()
-        self.app_context.push()
         db.create_all()
 
     def tearDown(self):
-        self.app_context.pop()
         db.session.remove()
         db.drop_all()
 
@@ -2282,6 +2266,7 @@ class TestGetLabsbyLabName(TestCase):
                      "overview": "overview",
                      "discipline_id": "CSE",
                      "institute_id": "IITK",
+                     "phase":[{"phase_id":1,  "phase_id":2}],
                      "developers": [
                        {
                          "name": "Prof. Dharamaja",
@@ -2348,13 +2333,9 @@ class TestGetLabsbyAsset(TestCase):
         return app
 
     def setUp(self):
-        app = self.create_app()
-        self.app_context = app.app_context()
-        self.app_context.push()
         db.create_all()
 
     def tearDown(self):
-        self.app_context.pop()
         db.session.remove()
         db.drop_all()
 
@@ -2496,6 +2477,7 @@ class TestGetLabsbyAsset(TestCase):
                      "overview": "overview",
                      "discipline_id": "CSE",
                      "institute_id": "IITK",
+                     "phase":[{"phase_id":1,  "phase_id":2}],
                      "developers": [
                        {
                          "name": "Dinesh Malviya",
@@ -2563,13 +2545,9 @@ class TestGetLabbyLabNameKeyWord(TestCase):
         return app
 
     def setUp(self):
-        app = self.create_app()
-        self.app_context = app.app_context()
-        self.app_context.push()
         db.create_all()
 
     def tearDown(self):
-        self.app_context.pop()
         db.session.remove()
         db.drop_all()
 
@@ -2698,6 +2676,7 @@ class TestGetLabbyLabNameKeyWord(TestCase):
                      "overview": "overview",
                      "discipline_id": "CSE",
                      "institute_id": "IITK",
+                     "phase":[{"phase_id":1,  "phase_id":2}],
                      "developers": [
                        {
                          "name": "Prof. Dharamaja",
@@ -2742,7 +2721,7 @@ class TestGetLabbyLabNameKeyWord(TestCase):
 #+END_SRC
 
 
-** Add Lab 
+** Add Lab
 *** API Designs 
 **** Add Lab
   :PROPERTIES:
@@ -2764,6 +2743,7 @@ class TestGetLabbyLabNameKeyWord(TestCase):
     "overview": "overview",
     "discipline_id": "CSE",
     "institute_id": "IITK",
+    "phase":[{"phase_id":1,  "phase_id":2}],
     "developers": [
       {
         "name": "Dinesh Malviya",
@@ -2878,6 +2858,7 @@ class TestGetLabbyLabNameKeyWord(TestCase):
       "institute_id": "iitk",
       "institute_name": "IIT Kanpur"
     },
+    "phase":[{"phase_id":1,  "phase_id":2}],
     "integration_status": {
       "id": "5",
       "integration_level": 4
@@ -2979,13 +2960,9 @@ class TestAddLab(TestCase):
         return app
 
     def setUp(self):
-        app = self.create_app()
-        self.app_context = app.app_context()
-        self.app_context.push()
         db.create_all()
 
     def tearDown(self):
-        self.app_context.pop()
         db.session.remove()
         db.drop_all()
 
@@ -3127,7 +3104,9 @@ class TestAddLab(TestCase):
                      "name": "Computer Programming",
                      "overview": "overview",
                      "discipline_id": "CSE",
+                     "phase":[{"phase_id":1,  "phase_id":2}],
                      "institute_id": "IITK",
+                     "phase":[{"phase_id":1,  "phase_id":2}],
                      "developers": [
                        {
                          "name": "Dinesh Malviya",
@@ -3185,7 +3164,7 @@ class TestAddLab(TestCase):
  #+END_SRC
 
 
-** Update Lab 
+** Update Lab
 *** API Design
 **** Update lab by labid
   :PROPERTIES:
@@ -3984,6 +3963,7 @@ class TestAddLab(TestCase):
     "id": "1", 
     "integration_level": 0
   }, 
+  "phase":[{"phase_id":1,  "phase_id":2}],
   "lab_id": "cse02", 
   "lab_name": "Computer Programming", 
   "overview": "This lab deals with Computer Programming", 
@@ -4079,13 +4059,9 @@ class TestUpdateLab(TestCase):
         return app
 
     def setUp(self):
-        app = self.create_app()
-        self.app_context = app.app_context()
-        self.app_context.push()
         db.create_all()
 
     def tearDown(self):
-        self.app_context.pop()
         db.session.remove()
         db.drop_all()
 
@@ -4214,6 +4190,7 @@ class TestUpdateLab(TestCase):
                      "overview": "overview",
                      "discipline_id": "CSE",
                      "institute_id": "IITK",
+                     "phase":[{"phase_id":1,  "phase_id":2}],
                      "developers": [
                        {
                          "name": "Prof. Dharamaja",
@@ -4336,6 +4313,7 @@ class TestUpdateLab(TestCase):
                      "overview": "cp overview",
                      "discipline_id": "ECE",
                      "institute_id": "IITKgp",
+                     "phase":[{"phase_id":1,  "phase_id":2}],
                      "developers": [                    
                        {
                          "name": "Prof. Pallavi Pawar",
@@ -4629,13 +4607,9 @@ class TestGetInstitute(TestCase):
         return app
 
     def setUp(self):
-        app = self.create_app()
-        self.app_context = app.app_context()
-        self.app_context.push()
         db.create_all()
 
     def tearDown(self):
-        self.app_context.pop()
         db.session.remove()
         db.drop_all()
 
@@ -4682,13 +4656,9 @@ class TestGetInstitute(TestCase):
         return app
 
     def setUp(self):
-        app = self.create_app()
-        self.app_context = app.app_context()
-        self.app_context.push()
         db.create_all()
 
     def tearDown(self):
-        self.app_context.pop()
         db.session.remove()
         db.drop_all()
 
@@ -4850,13 +4820,9 @@ class TestAddInstitute(TestCase):
         return app
 
     def setUp(self):
-        app = self.create_app()
-        self.app_context = app.app_context()
-        self.app_context.push()
         db.create_all()
 
     def tearDown(self):
-        self.app_context.pop()
         db.session.remove()
         db.drop_all()
 
@@ -4892,7 +4858,7 @@ class TestAddInstitute(TestCase):
 
  #+END_SRC
 
-
+     
 ** Get Disciplines and Get Discipline
 *** API Design
 **** Get all Disciplines
@@ -5063,7 +5029,7 @@ http://localhost:5000/disciplines
 http://localhost:5000/disciplines?discipline_id=cse
 #+END_EXAMPLE
 
-*** Implementation  
+*** Implementation
     REST API to get discipline.
 #+NAME: get_disciplines
 #+BEGIN_SRC python
@@ -5157,13 +5123,9 @@ class TestGetDiscipline(TestCase):
         return app
 
     def setUp(self):
-        app = self.create_app()
-        self.app_context = app.app_context()
-        self.app_context.push()
         db.create_all()
 
     def tearDown(self):
-        self.app_context.pop()
         db.session.remove()
         db.drop_all()
 
@@ -5210,13 +5172,9 @@ class TestGetDisciplineByDisId(TestCase):
         return app
 
     def setUp(self):
-        app = self.create_app()
-        self.app_context = app.app_context()
-        self.app_context.push()
         db.create_all()
 
     def tearDown(self):
-        self.app_context.pop()
         db.session.remove()
         db.drop_all()
 
@@ -5379,13 +5337,9 @@ class TestAddDiscipline(TestCase):
         return app
 
     def setUp(self):
-        app = self.create_app()
-        self.app_context = app.app_context()
-        self.app_context.push()
         db.create_all()
 
     def tearDown(self):
-        self.app_context.pop()
         db.session.remove()
         db.drop_all()
 
@@ -5818,7 +5772,7 @@ def get_experiment():
                 abort(500, msg)
                 
 #+END_SRC
-
+ 
 *** Test Cases
 **** TestGetExperiment
  #+NAME: test_get_Experiment
@@ -5830,13 +5784,9 @@ class TestGetExperiment(TestCase):
         return app
 
     def setUp(self):
-        app = self.create_app()
-        self.app_context = app.app_context()
-        self.app_context.push()
         db.create_all()
 
     def tearDown(self):
-        self.app_context.pop()
         db.session.remove()
         db.drop_all()
 
@@ -5986,13 +5936,9 @@ class TestGetExp(TestCase):
         return app
 
     def setUp(self):
-        app = self.create_app()
-        self.app_context = app.app_context()
-        self.app_context.push()
         db.create_all()
 
     def tearDown(self):
-        self.app_context.pop()
         db.session.remove()
         db.drop_all()
 
@@ -6382,13 +6328,9 @@ class TestAddExperiment(TestCase):
         return app
 
     def setUp(self):
-        app = self.create_app()
-        self.app_context = app.app_context()
-        self.app_context.push()
         db.create_all()
 
     def tearDown(self):
-        self.app_context.pop()
         db.session.remove()
         db.drop_all()
 
@@ -6522,7 +6464,7 @@ class TestAddExperiment(TestCase):
 
  #+END_SRC
 
-
+     
 ** Get Sections
 *** API Design
 **** Get all Sections
@@ -6607,13 +6549,9 @@ class TestGetSections(TestCase):
         return app
 
     def setUp(self):
-        app = self.create_app()
-        self.app_context = app.app_context()
-        self.app_context.push()
         db.create_all()
 
     def tearDown(self):
-        self.app_context.pop()
         db.session.remove()
         db.drop_all()
 
@@ -6744,13 +6682,9 @@ class TestAddSection(TestCase):
         return app
 
     def setUp(self):
-        app = self.create_app()
-        self.app_context = app.app_context()
-        self.app_context.push()
         db.create_all()
 
     def tearDown(self):
-        self.app_context.pop()
         db.session.remove()
         db.drop_all()
 
@@ -6942,13 +6876,9 @@ class TestGetHosting_Info(TestCase):
         return app
 
     def setUp(self):
-        app = self.create_app()
-        self.app_context = app.app_context()
-        self.app_context.push()
         db.create_all()
 
     def tearDown(self):
-        self.app_context.pop()
         db.session.remove()
         db.drop_all()
 
@@ -6980,13 +6910,9 @@ class TestGetAssetByPath(TestCase):
         return app
 
     def setUp(self):
-        app = self.create_app()
-        self.app_context = app.app_context()
-        self.app_context.push()
         db.create_all()
 
     def tearDown(self):
-        self.app_context.pop()
         db.session.remove()
         db.drop_all()
 
@@ -7107,13 +7033,9 @@ class TestDeleteLab(TestCase):
         return app
 
     def setUp(self):
-        app = self.create_app()
-        self.app_context = app.app_context()
-        self.app_context.push()
         db.create_all()
 
     def tearDown(self):
-        self.app_context.pop()
         db.session.remove()
         db.drop_all()
 
@@ -7254,6 +7176,7 @@ class TestDeleteLab(TestCase):
                      "overview": "overview",
                      "discipline_id": "CSE",
                      "institute_id": "IITK",
+                     "phase":[{"phase_id":1,  "phase_id":2}],
                      "developers": [
                        {
                          "name": "Dinesh Malviya",
@@ -7424,13 +7347,9 @@ class TestAddHosting_Info(TestCase):
         return app
 
     def setUp(self):
-        app = self.create_app()
-        self.app_context = app.app_context()
-        self.app_context.push()
         db.create_all()
 
     def tearDown(self):
-        self.app_context.pop()
         db.session.remove()
         db.drop_all()
 
@@ -7625,13 +7544,9 @@ class TestGetIntegration_Status(TestCase):
         return app
 
     def setUp(self):
-        app = self.create_app()
-        self.app_context = app.app_context()
-        self.app_context.push()
         db.create_all()
 
     def tearDown(self):
-        self.app_context.pop()
         db.session.remove()
         db.drop_all()
 
@@ -7761,13 +7676,9 @@ class TestAddIntegration_Status(TestCase):
         return app
 
     def setUp(self):
-        app = self.create_app()
-        self.app_context = app.app_context()
-        self.app_context.push()
         db.create_all()
 
     def tearDown(self):
-        self.app_context.pop()
         db.session.remove()
         db.drop_all()
 
@@ -7909,13 +7820,9 @@ class TestGetEmail(TestCase):
         return app
 
     def setUp(self):
-        app = self.create_app()
-        self.app_context = app.app_context()
-        self.app_context.push()
         db.create_all()
 
     def tearDown(self):
-        self.app_context.pop()
         db.session.remove()
         db.drop_all()
 
@@ -7935,7 +7842,7 @@ class TestGetEmail(TestCase):
 
  #+END_SRC
 
-
+     
 ** Add Email
 *** API Design
 **** Add Email
@@ -8045,13 +7952,9 @@ class TestAddEmail(TestCase):
         return app
 
     def setUp(self):
-        app = self.create_app()
-        self.app_context = app.app_context()
-        self.app_context.push()
         db.create_all()
 
     def tearDown(self):
-        self.app_context.pop()
         db.session.remove()
         db.drop_all()
 
@@ -8069,7 +7972,7 @@ class TestAddEmail(TestCase):
 
  #+END_SRC
 
-
+     
 ** Get Names
 *** API Design
 **** Get all names
@@ -8154,13 +8057,9 @@ class TestGetNames(TestCase):
         return app
 
     def setUp(self):
-        app = self.create_app()
-        self.app_context = app.app_context()
-        self.app_context.push()
         db.create_all()
 
     def tearDown(self):
-        self.app_context.pop()
         db.session.remove()
         db.drop_all()
 
@@ -8291,13 +8190,9 @@ class TestAddName(TestCase):
         return app
 
     def setUp(self):
-        app = self.create_app()
-        self.app_context = app.app_context()
-        self.app_context.push()
         db.create_all()
 
     def tearDown(self):
-        self.app_context.pop()
         db.session.remove()
         db.drop_all()
 
@@ -8414,13 +8309,18 @@ def get_developer():
                msg = {"status": "failure",
                         "msg": err_str}
                abort(500, msg)
-           
+#       elif 'start' in request.args and 'limit' in request.args:
+#           start=request.args['start']
+#           limit=request.args['limit']
        else:
            try:
                current_app.logger.debug("execute get_developers")
                developers = SystemInterface.get_developers()
                current_app.logger.debug("executed get_developers")
                return jsonify_list(developers)
+
+#                        start=int(request.args.get('page', start)), 
+#                        limit=int(request.args.get('pageSize', limit))
 
            except TypeError as e:
                current_app.logger.error("Exception = %s" % str(e))
@@ -8463,13 +8363,9 @@ class TestGetDeveloper(TestCase):
         return app
 
     def setUp(self):
-        app = self.create_app()
-        self.app_context = app.app_context()
-        self.app_context.push()
         db.create_all()
 
     def tearDown(self):
-        self.app_context.pop()
         db.session.remove()
         db.drop_all()
 
@@ -8608,13 +8504,9 @@ class TestAddDeveloper(TestCase):
         return app
 
     def setUp(self):
-        app = self.create_app()
-        self.app_context = app.app_context()
-        self.app_context.push()
         db.create_all()
 
     def tearDown(self):
-        self.app_context.pop()
         db.session.remove()
         db.drop_all()
 
@@ -8828,13 +8720,9 @@ class TestUpdateExperiment(TestCase):
         return app
 
     def setUp(self):
-        app = self.create_app()
-        self.app_context = app.app_context()
-        self.app_context.push()
         db.create_all()
 
     def tearDown(self):
-        self.app_context.pop()
         db.session.remove()
         db.drop_all()
 
@@ -9189,13 +9077,9 @@ class TestUpdateSection(TestCase):
         return app
 
     def setUp(self):
-        app = self.create_app()
-        self.app_context = app.app_context()
-        self.app_context.push()
         db.create_all()
 
     def tearDown(self):
-        self.app_context.pop()
         db.session.remove()
         db.drop_all()
 
@@ -9317,13 +9201,9 @@ class TestDeleteSection(TestCase):
         return app
 
     def setUp(self):
-        app = self.create_app()
-        self.app_context = app.app_context()
-        self.app_context.push()
         db.create_all()
 
     def tearDown(self):
-        self.app_context.pop()
         db.session.remove()
         db.drop_all()
 
@@ -9444,13 +9324,9 @@ class TestGetSectionbyid(TestCase):
         return app
 
     def setUp(self):
-        app = self.create_app()
-        self.app_context = app.app_context()
-        self.app_context.push()
         db.create_all()
 
     def tearDown(self):
-        self.app_context.pop()
         db.session.remove()
         db.drop_all()
 
@@ -9606,13 +9482,9 @@ class TestUpdateInstitute(TestCase):
         return app
 
     def setUp(self):
-        app = self.create_app()
-        self.app_context = app.app_context()
-        self.app_context.push()
         db.create_all()
 
     def tearDown(self):
-        self.app_context.pop()
         db.session.remove()
         db.drop_all()
 
@@ -9772,13 +9644,9 @@ class TestDeleteInstitute(TestCase):
         return app
 
     def setUp(self):
-        app = self.create_app()
-        self.app_context = app.app_context()
-        self.app_context.push()
         db.create_all()
 
     def tearDown(self):
-        self.app_context.pop()
         db.session.remove()
         db.drop_all()
 
@@ -9949,13 +9817,9 @@ class TestUpdateDiscipline(TestCase):
         return app
 
     def setUp(self):
-        app = self.create_app()
-        self.app_context = app.app_context()
-        self.app_context.push()
         db.create_all()
 
     def tearDown(self):
-        self.app_context.pop()
         db.session.remove()
         db.drop_all()
 
@@ -10105,13 +9969,9 @@ class TestDeleteDiscipline(TestCase):
         return app
 
     def setUp(self):
-        app = self.create_app()
-        self.app_context = app.app_context()
-        self.app_context.push()
         db.create_all()
 
     def tearDown(self):
-        self.app_context.pop()
         db.session.remove()
         db.drop_all()
 
@@ -10268,13 +10128,9 @@ class TestUpdateHosting_Info(TestCase):
         return app
 
     def setUp(self):
-        app = self.create_app()
-        self.app_context = app.app_context()
-        self.app_context.push()
         db.create_all()
 
     def tearDown(self):
-        self.app_context.pop()
         db.session.remove()
         db.drop_all()
 
@@ -10425,13 +10281,9 @@ class TestUpdateDeveloper(TestCase):
         return app
 
     def setUp(self):
-        app = self.create_app()
-        self.app_context = app.app_context()
-        self.app_context.push()
         db.create_all()
 
     def tearDown(self):
-        self.app_context.pop()
         db.session.remove()
         db.drop_all()
 
@@ -10442,13 +10294,9 @@ class TestUpdateDeveloper(TestCase):
         return app
 
     def setUp(self):
-        app = self.create_app()
-        self.app_context = app.app_context()
-        self.app_context.push()
         db.create_all()
 
     def tearDown(self):
-        self.app_context.pop()
         db.session.remove()
         db.drop_all()
 
@@ -10635,13 +10483,9 @@ class TestDeleteHosting_Info(TestCase):
         return app
 
     def setUp(self):
-        app = self.create_app()
-        self.app_context = app.app_context()
-        self.app_context.push()
         db.create_all()
 
     def tearDown(self):
-        self.app_context.pop()
         db.session.remove()
         db.drop_all()
 
@@ -10766,13 +10610,9 @@ class TestDeleteIntegration_Status(TestCase):
         return app
 
     def setUp(self):
-        app = self.create_app()
-        self.app_context = app.app_context()
-        self.app_context.push()
         db.create_all()
 
     def tearDown(self):
-        self.app_context.pop()
         db.session.remove()
         db.drop_all()
 
@@ -10894,13 +10734,9 @@ class TestDeleteEmail(TestCase):
         return app
 
     def setUp(self):
-        app = self.create_app()
-        self.app_context = app.app_context()
-        self.app_context.push()
         db.create_all()
 
     def tearDown(self):
-        self.app_context.pop()
         db.session.remove()
         db.drop_all()
 
@@ -11180,13 +11016,9 @@ class TestUpdateNameById(TestCase):
         return app
 
     def setUp(self):
-        app = self.create_app()
-        self.app_context = app.app_context()
-        self.app_context.push()
         db.create_all()
 
     def tearDown(self):
-        self.app_context.pop()
         db.session.remove()
         db.drop_all()
 
@@ -11220,13 +11052,9 @@ class TestDeleteNameById(TestCase):
         return app
 
     def setUp(self):
-        app = self.create_app()
-        self.app_context = app.app_context()
-        self.app_context.push()
         db.create_all()
 
     def tearDown(self):
-        self.app_context.pop()
         db.session.remove()
         db.drop_all()
 
@@ -11258,13 +11086,9 @@ class TestGetNamebyid(TestCase):
         return app
 
     def setUp(self):
-        app = self.create_app()
-        self.app_context = app.app_context()
-        self.app_context.push()
         db.create_all()
 
     def tearDown(self):
-        self.app_context.pop()
         db.session.remove()
         db.drop_all()
 
@@ -11386,13 +11210,9 @@ class TestDeleteDeveloper(TestCase):
         return app
 
     def setUp(self):
-        app = self.create_app()
-        self.app_context = app.app_context()
-        self.app_context.push()
         db.create_all()
 
     def tearDown(self):
-        self.app_context.pop()
         db.session.remove()
         db.drop_all()
 
@@ -11514,13 +11334,9 @@ class TestDeleteExperiment(TestCase):
         return app
 
     def setUp(self):
-        app = self.create_app()
-        self.app_context = app.app_context()
-        self.app_context.push()
         db.create_all()
 
     def tearDown(self):
-        self.app_context.pop()
         db.session.remove()
         db.drop_all()
 
@@ -11818,13 +11634,9 @@ class TestGetAsset(TestCase):
         return app
 
     def setUp(self):
-        app = self.create_app()
-        self.app_context = app.app_context()
-        self.app_context.push()
         db.create_all()
 
     def tearDown(self):
-        self.app_context.pop()
         db.session.remove()
         db.drop_all()
 
@@ -11855,13 +11667,9 @@ class TestGetAsset(TestCase):
         return app
 
     def setUp(self):
-        app = self.create_app()
-        self.app_context = app.app_context()
-        self.app_context.push()
         db.create_all()
 
     def tearDown(self):
-        self.app_context.pop()
         db.session.remove()
         db.drop_all()
 
@@ -11995,13 +11803,9 @@ class TestAddAsset(TestCase):
         return app
 
     def setUp(self):
-        app = self.create_app()
-        self.app_context = app.app_context()
-        self.app_context.push()
         db.create_all()
 
     def tearDown(self):
-        self.app_context.pop()
         db.session.remove()
         db.drop_all()
 
@@ -12136,13 +11940,9 @@ class TestUpdateAsset(TestCase):
         return app
 
     def setUp(self):
-        app = self.create_app()
-        self.app_context = app.app_context()
-        self.app_context.push()
         db.create_all()
 
     def tearDown(self):
-        self.app_context.pop()
         db.session.remove()
         db.drop_all()
 
@@ -12269,13 +12069,9 @@ class TestDeleteAsset(TestCase):
         return app
 
     def setUp(self):
-        app = self.create_app()
-        self.app_context = app.app_context()
-        self.app_context.push()
         db.create_all()
 
     def tearDown(self):
-        self.app_context.pop()
         db.session.remove()
         db.drop_all()
 
@@ -12310,7 +12106,7 @@ import os
 import requests
 import json
 from flask import session, render_template, Blueprint, request, \
-     jsonify, abort, current_app, redirect, url_for
+     jsonify, abort, current_app, redirect, url_for, make_response
 from flask import Flask
 from runtime.utils.type_utils import jsonify_list
 from runtime.exceptions.custom_exceptions import *
@@ -12321,7 +12117,7 @@ api = Blueprint('APIs', __name__)
 
 #+end_src
 
-
+    
 ** tests
 *** Imports 
 #+name: imports_for_tests
@@ -12402,7 +12198,7 @@ if __name__ == '__main__':
 
 #+END_SRC
 
-
+   
 ** tests
 #+BEGIN_SRC python :tangle test_api.py :eval no :noweb yes
 <<imports_for_tests>>
@@ -12428,7 +12224,7 @@ if __name__ == '__main__':
 <<test_delete_experiment>>
 <<test_get_Sections>>
 <<test_add_section>>
-<<test_get_Names>>
+<<test_get_names>>
 <<test_add_name>>
 <<test_update_name_by_id>>
 <<test_delete_name_by_id>>
