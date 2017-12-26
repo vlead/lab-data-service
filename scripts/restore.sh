@@ -1,9 +1,8 @@
-bin/bash                                                                                                                                           
+#!/bin/bash                                                                                                                                           
 
 DB_NAME="lds"
 DB_PASS="root"
 VERSION="v3.0.0"
-MIGRATION_SCRIPT_PATH="../build/code/deployment"
 BACKUP_FILE=$1
 
 usage() {
