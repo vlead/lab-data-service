@@ -1,8 +1,8 @@
-#!/bin/bash
+bin/bash                                                                                                                                           
 
 DB_NAME="lds"
-DB_PASS="xxx"
-VERSION="v1.0.0"
+DB_PASS="root"
+VERSION="v3.0.0"
 MIGRATION_SCRIPT_PATH="../build/code/deployment"
 BACKUP_FILE=$1
 
@@ -18,7 +18,7 @@ if [ -z $BACKUP_FILE ]; then
   exit 1;
 fi
 
-# untar the $BACKUP_FILE file
+# untar the $BACKUP_FILE file                                                                                                                         
 tar -xvf $BACKUP_FILE
 if [ $? -ne 0 ]; then
   echo "Error: Something went wrong while untaring."
@@ -43,13 +43,4 @@ echo "################"
 echo "Restore successful."
 echo "###############"
 
-chmod +x $MIGRATION_SCRIPT_PATH"/migrate_phase.py" && python $MIGRATION_SCRIPT_PATH"/migrate_phase.py"
-if [ $? -ne 0 ]; then
-  echo "Error: Something went wrong while restoring db dump."
-  echo "Aborting restore."
-  exit 1;
-fi
 
-echo "################"
-echo "Migration successful."
-echo "###############"
