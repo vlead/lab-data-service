@@ -5611,7 +5611,7 @@ class TestGetNameById(TestCase):
                 asset_list.append(asset)
 
         if 'sections' not in data_dict['lab']:
-            section_obj_list = lab.get("sections")
+            section_list = lab.get("sections")
         else:
             section_list=[]
             for section in data_dict['lab']['sections']:
@@ -6075,77 +6075,90 @@ class TestUpdateLab(TestCase):
             overview=data_dict['experiment']['overview']
 
         if 'institute_id' not in data_dict['experiment']:
-            inst=str(experiment.get("institute"))
+            inst=experiment.get("institute")
         else:
             inst= System.do("get_institute", institute_id=
                                 data_dict['experiment']['institute_id'])
 
         if 'discipline_id' not in data_dict['experiment']:
-            disc=str(experiment.get("discipline"))
+            disc=experiment.get("discipline")
         else:
             disc= System.do("get_discipline", discipline_id=
                                 data_dict['experiment']['discipline_id'])
 
         if 'integration_level' not in data_dict['experiment']:
-            integration_status=str(experiment.get("integration_status"))
+            integration_status=experiment.get("integration_status")
         else:
             integration_status= System.do("get_integration_status_by_IL", 
                       integration_level=
                         data_dict['experiment']['integration_level'])
 
-        hosting_info = data_dict['experiment']['hosting_info']
-        hosting_info_list = []
-        for hosting_info_x in hosting_info:
-            hosting_info = System.do("get_hosting_info",
-                                         hosted_url=
-                                         hosting_info_x['hosted_url'])
-            if hosting_info is None:
-                hosting_info = hosting_info_cls(hosting_status=\
-                                                    str(hosting_info_x\
-                                                        ['hosting_status']), \
-                                                    hosted_url=\
-                                                    str(hosting_info_x\
-                                                        ['hosted_url']), \
-                                                    hosted_on=\
-                                                    str(hosting_info_x\
-                                                            ['hosted_on']))
-                hosting_info = System.do("add_hosting_info", \
-                                             hosting_info=hosting_info, \
-                                             session=session)
-            hosting_info_list.append(hosting_info)
+        if 'hosting_info' not in data_dict['experiment']:
+            hosting_info_list = experiment.get("hosting_info")
+        else:
+            hosting_info = data_dict['experiment']['hosting_info']
+            hosting_info_list = []
+            for hosting_info_x in hosting_info:
+                hosting_info = System.do("get_hosting_info",
+                                            hosted_url=
+                                            hosting_info_x['hosted_url'])
+                if hosting_info is None:
+                    hosting_info = hosting_info_cls\
+                      (hosting_status=str(hosting_info_x['hosting_status']), \
+                           hosted_url=str(hosting_info_x['hosted_url']), \
+                      hosted_on=str(hosting_info_x['hosted_on']))
+                    hosting_info = System.do("add_hosting_info",
+                                                 hosting_info=hosting_info,
+                                                 session=session)
+                hosting_info_list.append(hosting_info)
 
-        assets = data_dict['experiment']['assets']
-        asset_list = []
-        for asset_x in assets:
-            asset = System.do("get_asset", path=asset_x['path'])
-            if asset is None:
-                asset_type = asset_type_cls(asset_type=\
-                                                str(asset_x['asset_type']))
-                asset = asset_cls(asset_type=asset_type, \
-                                      path=str(asset_x['path']))
-                asset = System.do("add_asset", asset=asset, session=session)
-            asset_list.append(asset)
+        if 'assets' not in data_dict['experiment']:
+            asset_list = experiment.get("assets")
+        else:
+            assets = data_dict['experiment']['assets']
+            asset_list = []
+            for asset_x in assets:
+                asset = System.do("get_asset", path=asset_x['path'])
+                if asset is None:
+                    asset_type = asset_type_cls(asset_type=\
+                                                    str(asset_x['asset_type']))
+                    asset = asset_cls(asset_type=asset_type, \
+                                        path=str(asset_x['path']))
+                    asset = System.do("add_asset", asset=asset, session=session)
+                asset_list.append(asset)
 
-        developers = data_dict['experiment']['developers']
-        developer_list = []
-        for developer_x in developers:
-            name = name_cls(name=developer_x['name'])
-            email = email_cls(email=developer_x['email'])
-            developer = System.do("get_developer", email=email)
-            if developer is None:
-                developer = developer_cls(name=name, email=email)
-                developer = System.do("add_developer", developer=developer,
-                                          session=session)
-            developer_list.append(developer)
+        if 'sections' not in data_dict['experiment']:
+            section_list = experiment.get("sections")
+        else:
+            section_list=[]
+            for section in data_dict['lab']['sections']:
+                if 'experiments' in section.keys():
+                    experiments = section['experiments']
+                else:
+                    section_list.append(section['name'])
 
-        sections = data_dict['experiment']['sections']
-        section_list = []
-        for section_x in sections:
-            section = System.do("get_section", name=section_x)
-            if section is None:
-                section = section_cls(name=str(section_x))
-                section = System.do("add_section", section=section, session=session)
-            section_list.append(section)
+            section_obj_list=[]
+            for section_x in section_obj_list:
+                section = System.do("get_section", name=section_x['name'])
+                if section is None:
+                    section = section_cls(name=str(section_x['name']))
+                    section = System.do("add_section", section=section, session=session)
+                section_obj_list.append(section)
+
+        if 'developers' not in data_dict['experiment']:
+            developer_list = experiment.get("developers")
+        else:
+            developers = data_dict['experiment']['developers']
+            developer_list = []
+            for developer_x in developers:
+                name = name_cls(name=developer_x['name'])
+                email = email_cls(email=developer_x['email'])
+                developer = System.do("get_developer", email=email)
+                if developer is None:
+                    developer = developer_cls(name=name, email=email)
+                    developer = System.do("add_developer", developer=developer,
+                                              session=session)
+                developer_list.append(developer)
 
         try:
             current_app.logger.debug("running operation update_experiment")
@@ -6726,7 +6739,7 @@ class TestUpdateDiscipline(TestCase):
         hosting_info = System.do("get_hosting_info", hosted_url=hosted_url)
 
         if 'hosting_status' not in data_dict:
-            hosting_status=str(hosting_info.get("hosting_status"))
+            hosting_status=hosting_info.get("hosting_status")
         else:
             hosting_status=data_dict['hosting_status']
 
@@ -6811,7 +6824,7 @@ class TestUpdateHosting_Info(TestCase):
         developer = System.do("get_developer", email=email)
 
         if 'name' not in data_dict:
-            name=developer.get("name")
+            name=str(developer.get("name"))
         else:
             name=name_cls(name=str(data_dict['name']))
 
@@ -9029,7 +9042,7 @@ class TestAddAsset(TestCase):
         asset = System.do("get_asset", path=path)
 
         if 'asset_type' not in data_dict:
-            asset_type=str(asset.get("asset_type"))
+            asset_type=asset.get("asset_type")
         else:
             asset_type = asset_type_cls(asset_type=\
                                             str(data_dict['asset_type']))
