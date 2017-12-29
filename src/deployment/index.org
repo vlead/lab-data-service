@@ -612,7 +612,56 @@ exit 0
 
 #+END_SRC
 
+* Program to update Phase information of all Labs which are on Phase II
+  Phase II information of labs are updated from the google
+  spread sheet: [[link][https://docs.google.com/spreadsheets/d/1m9nZzl_ehYNaTwX-92DI0GsgSkXRNPK2-Ay26fUmvWc/edit#gid=1217243506]]
+** Steps:
+   1. Update the =lds_url= with =lds_server= domain
+      name/ip_address in the following script available at
+      =build/code/deployment/update_phase.py= file.
+      #+BEGIN_EXAMPLE
+      cd build/code/deployment
+      emacs update_phase.py
+      lds_url = "http://192.168.33.3"
+      (or)
+      lds_url="http://lds-alpha.base4.vlabs.ac.in"
+      #+END_EXAMPLE
 
+   2. Run the =update_phase.py= script to update the phase 2
+      information of all labs using the following command.
+      #+BEGIN_EXAMPLE
+      cd build/code/deployment
+      python update_phase.py
+      #+END_EXAMPLE
+
+** Implementation
+#+BEGIN_SRC python :tangle update_phase.py :eval no 
+import requests
+import json
+
+lds_url = "http://192.168.33.3"
+headers = {'Content-Type': 'application/json'}
+labs = ["mech26","eee06","chs12","phy12"]
+data = {
+  "lab": {
+    "phase": [
+      {
+        "phase_id": 2
+      }
+    ]
+  },
+  "key": "defaultkey"
+}
+
+for lab in labs:
+    url = lds_url + "/labs?lab_id=" + lab
+    response = requests.put(url, data=json.dumps(data),
+                            headers=headers)
+    print response.status_code
+    if response.status_code != 200:
+        print lab
+
+#+END_SRC
 * Tangle                                       :boilerplate:
 #+BEGIN_SRC python :eval no :tangle __init__.py
 print "deployment package"
