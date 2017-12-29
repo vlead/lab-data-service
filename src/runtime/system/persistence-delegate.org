@@ -3836,6 +3836,7 @@ class TestPersistenceDelegate(TestCase):
          asset.save()
          asset_obj = self.persistence_delegate.get_asset(asset_type=
                                                 asset.get("asset_type"))
+                           
          self.assertEqual(asset_obj.get("asset_type"),
                               asset.get("asset_type"))
 
@@ -4216,6 +4217,93 @@ class TestPersistenceDelegate(TestCase):
                               get("institute_id"),
                               lab1.get("institute").\
                               get("institute_id"))
+
+   def test_get_lab_with_given_phase(self):
+         print "test_get_lab_with_given_phase"
+
+         lab_name1="Computer Programming"
+         lab_id1="CSE01"
+         overview="overview"
+
+         asset_type = AssetType(asset_type="Image")
+         asset_type.save()
+
+         path = "vlabs.ac.in/images/static/logo.png"
+         asset = Asset(asset_type=asset_type, path=path)
+         asset.save()
+
+         institute_name = "IIT Kanpur"
+         institute_id = "IITK"
+         inst = Institute(institute_name=institute_name,
+                              institute_id=institute_id,
+                              assets=[asset])
+         inst.save()
+
+         discipline_name = "IIT Kanpur"
+         discipline_id = "IITK"
+         discipline = Discipline(discipline_name=discipline_name,
+                                discipline_id=discipline_id,
+                                assets=[asset])
+         discipline.save()
+
+         integration_level = 4
+         integration_status = IntegrationStatus\
+           (integration_level=integration_level)
+         integration_status.save()
+        dev_name = Name(name="Mohit Tahiliani")
+         dev_name.save()
+         email_id = Email(email="mohit.tahiliani@gmail.com")
+         email_id.save()
+         dev = Developer(name=dev_name, email=email_id)
+         dev.save()
+
+         hosting_status = "hosted"
+         hosted_url = "http://cse14-iiith.vlabs.ac.in"
+         hosted_on = "cloud"
+         host = HostingInfo(hosting_status=hosting_status,
+                                hosted_url=hosted_url,
+                                hosted_on=hosted_on)
+         host.save()
+
+         name = "Theory"
+         section = Section(name=name)
+         section.save()
+
+         phase1=Phase(phase_id=1)
+         phase1.save()
+
+         lab1 = Lab(lab_name=lab_name1, lab_id=lab_id1,
+                        overview=overview,
+                        institute=inst,
+                        discipline=discipline,
+                        hosting_info=[host], assets=[asset],
+                        experiments=[], developers=[dev],
+                        sections=[section], phase=[phase1],
+                        integration_status=integration_status)
+         lab1.save()
+
+         lab_name2="Data Structures"
+         lab_id2="CSE02"
+
+         lab2 = Lab(lab_name=lab_name2, lab_id=lab_id2,
+                        overview=overview,
+                        institute=inst,
+                        discipline=discipline,
+                        assets=[asset],
+                        experiments=[], phase=[phase1],
+                        integration_status=integration_status,
+                        developers=[dev],
+                        sections=[section],
+                        hosting_info=[host])
+         lab2.save()
+
+         labs_list = self.persistence_delegate.\
+           get_labs(phase=phase1)
+
+         self.assertEqual(labs_list[0].get("phase")[0].\
+                              get("phase_id"),
+                              phase1.get("phase_id"))
+
 
 #+END_SRC
 
