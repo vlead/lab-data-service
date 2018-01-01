@@ -5052,20 +5052,14 @@ class TestGetNameById(TestCase):
         if 'sections' not in data_dict['lab']:
             section_list = lab.get("sections")
         else:
-            section_list=[]
-            for section in data_dict['lab']['sections']:
-                if 'experiments' in section.keys():
-                    experiments = section['experiments']
-                else:
-                    section_list.append(section['name'])
-
-            section_obj_list=[]
-            for section_x in section_obj_list:
+            sections = data_dict['lab']['sections']
+            section_list = []
+            for section_x in sections:
                 section = System.do("get_section", name=section_x['name'])
                 if section is None:
                     section = section_cls(name=str(section_x['name']))
                     section = System.do("add_section", section=section, session=session)
-                section_obj_list.append(section)
+                section_list.append(section)
 
         if 'developers' not in data_dict['lab']:
             developer_list = lab.get("developers")
@@ -5104,7 +5098,7 @@ class TestGetNameById(TestCase):
                                     experiments=exp_list,
                                     phase=phase_list,
                                     developers=developer_list,
-                                    sections=section_obj_list,
+                                    sections=section_list,
                                     integration_status=integration_status)
             current_app.logger.debug("completed operation update_lab")
             return lab.to_client()
@@ -5567,23 +5561,17 @@ class TestUpdateLab(TestCase):
                     asset = System.do("add_asset", asset=asset, session=session)
                 asset_list.append(asset)
 
-        if 'sections' not in data_dict['experiment']:
-            section_list = experiment.get("sections")
+        if 'sections' not in data_dict['lab']:
+            section_list = lab.get("sections")
         else:
-            section_list=[]
-            for section in data_dict['lab']['sections']:
-                if 'experiments' in section.keys():
-                    experiments = section['experiments']
-                else:
-                    section_list.append(section['name'])
-
-            section_obj_list=[]
-            for section_x in section_obj_list:
+            sections = data_dict['lab']['sections']
+            section_list = []
+            for section_x in sections:
                 section = System.do("get_section", name=section_x['name'])
                 if section is None:
                     section = section_cls(name=str(section_x['name']))
                     section = System.do("add_section", section=section, session=session)
-                section_obj_list.append(section)
+                section_list.append(section)
 
         if 'developers' not in data_dict['experiment']:
             developer_list = experiment.get("developers")
