@@ -5562,14 +5562,14 @@ class TestUpdateLab(TestCase):
                 asset_list.append(asset)
 
         if 'sections' not in data_dict['experiment']:
-            section_list = lab.get("sections")
+            section_list = experiment.get("sections")
         else:
             sections = data_dict['experiment']['sections']
             section_list = []
             for section_x in sections:
-                section = System.do("get_section", name=section_x['name'])
+                section = System.do("get_section", name=section_x)
                 if section is None:
-                    section = section_cls(name=str(section_x['name']))
+                    section = section_cls(name=section_x)
                     section = System.do("add_section", section=section, session=session)
                 section_list.append(section)
 
