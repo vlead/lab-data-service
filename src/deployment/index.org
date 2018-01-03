@@ -217,11 +217,11 @@ post_lab_spec(lab_file_list[0])
 ** Migration Steps
    1. create database lds_old
    2. restoring the dump
-      #+BEGIN_SRC 
+      #+BEGIN_SRC sh
       mysql -u root -p lds_old < lds.sql
       #+END_SRC
    3. create the schema
-      #+BEGIN_SRC 
+      #+BEGIN_SRC sh
       create table asset_type(id int(11) auto_increment, asset_type varchar(255) unique, primary key(id));
       select distinct asset_type from asset;
       insert into asset_type (asset_type) values("image");
@@ -233,25 +233,25 @@ post_lab_spec(lab_file_list[0])
       alter table experiment drop column lb_id;
       #+END_SRC
    4. update config file with lds_old database
-      #+BEGIN_SRC 
+      #+BEGIN_SRC sh
       SQLALCHEMY_DATABASE_URI = 'mysql+oursql://root:root@localhost/lds_old'
       #+END_SRC
    5. run the app
-      #+BEGIN_SRC 
+      #+BEGIN_SRC sh
       cd build/code/runtime/rest
       python app.py
       #+END_SRC
    6. run the migration script
-      #+BEGIN_SRC 
+      #+BEGIN_SRC sh
       cd build/code/deployment
       python migration.py
       #+END_SRC
    7. drop table asset_old
-      #+BEGIN_SRC 
+      #+BEGIN_SRC sh
       drop table asset_old
       #+END_SRC
    8. backup the new mysql dump
-      #+BEGIN_SRC 
+      #+BEGIN_SRC sh
       mysqldump -u root -proot lds_old > lds.sql
       #+END_SRC
 ** Migration Script
@@ -613,7 +613,9 @@ exit 0
 
 * Program to update Phase information of all Labs which are on Phase II
   Phase II information of labs are updated from the google
-  spread sheet: [[link][https://docs.google.com/spreadsheets/d/1m9nZzl_ehYNaTwX-92DI0GsgSkXRNPK2-Ay26fUmvWc/edit#gid=1217243506]]
+  spread sheet: 
+ ** Link
+    [[https://docs.google.com/spreadsheets/d/1m9nZzl_ehYNaTwX-92DI0GsgSkXRNPK2-Ay26fUmvWc/edit#gid=1217243506][link]]
 ** Steps:
    1. Update the =lds_url= with =lds_server= domain
       name/ip_address in the following script available at
