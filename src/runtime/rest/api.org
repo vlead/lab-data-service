@@ -16,7 +16,7 @@
   
 * REST
 
-** Get Labs, Get Lab, Get Labs by institute, lab_name, discipline and Get labs by passing lab_name as keyword
+** Get Labs, Get Lab, Get Labs by institute id, institute name, lab_name, discipline id, discipline name and Get labs by passing lab_name as keyword
 *** API Designs 
 **** Get all labs
   :PROPERTIES:
@@ -234,6 +234,226 @@ http://localhost:5000/labs
   - Example:
 #+BEGIN_EXAMPLE
 http://localhost:5000/labs?lab_id=cse02
+#+END_EXAMPLE  
+
+**** Get labs by institute_id
+  :PROPERTIES:
+  :CUSTOM_ID: api_get_lab_by_lab_id
+  :END:    
+  - URL :: /labs?institute_id=<institute_id>
+
+  - Method :: GET
+
+  - URL Params ::  None
+
+  - Payload :: None
+
+  - Success Response
+    + Status_Code: 200
+      + Contents :
+
+#+BEGIN_EXAMPLE
+[
+  {
+    "discipline": {
+      "discipline_id": "cse",
+      "assets": [],
+      "discipline_name": "Computer Science and Engineering",
+      "id": "6"
+    },
+    "lab_id": "cse02",
+    "assets": [
+      {
+        "path": "vlabs.ac.in/images/static/logo.png",
+        "asset_type": "image",
+        "id": "1"
+      },
+      {
+        "path": "vlabs.ac.in/video/abc.mkv",
+        "asset_type": "video",
+        "id": "2"
+      }
+    ],
+    "hosting_info": [
+      {
+        "hosting_status": "hosted",
+        "hosted_url": "http://cse14-iiith.vlabs.ac.in",
+        "hosted_on": "cloud",
+        "id": "1"
+      },
+      {
+        "hosting_status": "hosted",
+        "hosted_url": "http://cse14-iiith.ac.in",
+        "hosted_on": "college-cloud",
+        "id": "2"
+      }
+    ],
+    "institute": {
+      "id": "8",
+      "institute_name": "IIT Kanpur",
+      "assets": [],
+      "institute_id": "iitk"
+    },
+    "overview": "overview",
+    "lab_name": "Computer Programming",
+    "experiments": [],
+    "integration_status": {
+      "integration_level": 4,
+      "id": "5"
+    },
+    "developers": [
+      {
+        "id": "1",
+        "name": {
+          "name": "Dinesh Malviya",
+          "id": "1"
+        },
+        "email": {
+          "email": "xyz@gmail.com",
+          "id": "1"
+        }
+      },
+      {
+        "id": "2",
+        "name": {
+          "name": "Ashish Ahuja",
+          "id": "2"
+        },
+        "email": {
+          "email": "abc@gmail.com",
+          "id": "2"
+        }
+      }
+    ],
+    "sections": [
+      {
+        "name": "Introduction",
+        "id": "1"
+      }
+    ],
+    "id": "1"
+  }
+]
+#+END_EXAMPLE	       
+
+    
+  - Error Response:
+    + Contents :
+      {"status" : "error"}
+    
+  - Example:
+#+BEGIN_EXAMPLE
+http://localhost:5000/labs?institute_id=iitk
+#+END_EXAMPLE  
+
+**** Get labs by discipline_id
+  :PROPERTIES:
+  :CUSTOM_ID: api_get_labs_by_discipline_id
+  :END:    
+  - URL :: /labs?discipline_id=<discipline_id>
+
+  - Method :: GET
+
+  - URL Params ::  None
+
+  - Payload :: None
+
+  - Success Response
+    + Status_Code: 200
+      + Contents :
+
+#+BEGIN_EXAMPLE
+[
+  {
+    "discipline": {
+      "discipline_id": "cse",
+      "assets": [],
+      "discipline_name": "Computer Science and Engineering",
+      "id": "6"
+    },
+    "lab_id": "cse02",
+    "assets": [
+      {
+        "path": "vlabs.ac.in/images/static/logo.png",
+        "asset_type": "image",
+        "id": "1"
+      },
+      {
+        "path": "vlabs.ac.in/video/abc.mkv",
+        "asset_type": "video",
+        "id": "2"
+      }
+    ],
+    "hosting_info": [
+      {
+        "hosting_status": "hosted",
+        "hosted_url": "http://cse14-iiith.vlabs.ac.in",
+        "hosted_on": "cloud",
+        "id": "1"
+      },
+      {
+        "hosting_status": "hosted",
+        "hosted_url": "http://cse14-iiith.ac.in",
+        "hosted_on": "college-cloud",
+        "id": "2"
+      }
+    ],
+    "institute": {
+      "id": "8",
+      "institute_name": "IIT Kanpur",
+      "assets": [],
+      "institute_id": "iitk"
+    },
+    "overview": "overview",
+    "lab_name": "Computer Programming",
+    "experiments": [],
+    "integration_status": {
+      "integration_level": 4,
+      "id": "5"
+    },
+    "developers": [
+      {
+        "id": "1",
+        "name": {
+          "name": "Dinesh Malviya",
+          "id": "1"
+        },
+        "email": {
+          "email": "xyz@gmail.com",
+          "id": "1"
+        }
+      },
+      {
+        "id": "2",
+        "name": {
+          "name": "Ashish Ahuja",
+          "id": "2"
+        },
+        "email": {
+          "email": "abc@gmail.com",
+          "id": "2"
+        }
+      }
+    ],
+    "sections": [
+      {
+        "name": "Introduction",
+        "id": "1"
+      }
+    ],
+    "id": "1"
+  }
+]
+#+END_EXAMPLE	       
+
+    
+  - Error Response:
+    + Contents :
+      {"status" : "error"}
+    
+  - Example:
+#+BEGIN_EXAMPLE
+http://localhost:5000/labs?discipline_id=cse
 #+END_EXAMPLE  
 
 **** Get labs by institute
@@ -1005,6 +1225,43 @@ def get_lab():
                        "msg": err_str}
                 abort(500, msg)
 
+        elif 'institute_id' in request.args:
+            institute_id  = request.args['institute_id']
+            try:
+                current_app.logger.debug("running operation get_labs_by_institute_id")
+                labs = SystemInterface.get_labs_by_institute_id(institute_id)
+                current_app.logger.debug("completed operation get_labs_by_institute_id")
+                return jsonify_list(labs)
+                
+            except TypeError as e:
+                current_app.logger.error("Exception = %s" % str(e))
+                err_str = str(e)
+                msg = {"status": "failure",
+                       "msg": err_str }
+                abort(500, msg)
+
+            except StateError as e:
+                current_app.logger.error("Exception = %s" % str(e))
+                err_str = str(e)
+                msg = {"status": "failure",
+                       "msg": err_str}
+                abort(500, msg)
+
+            except NotFoundError as e:
+                current_app.logger.error("Exception = %s" % str(e))
+                err_str = str(e)
+                msg = {"status": "failure",
+                       "status code": 404,
+                       "msg": err_str}
+                abort(404, msg)
+
+            except Exception as e:
+                current_app.logger.error("Exception = %s" % str(e))
+                err_str = str(e)
+                msg = {"status": "failure",
+                       "msg": err_str}
+                abort(500, msg)
+
         elif 'institute_name' in request.args:
             institute_name  = request.args['institute_name']
             try:
@@ -1013,6 +1270,43 @@ def get_lab():
                 current_app.logger.debug("completed operation get_labs_by_institute")
                 return jsonify_list(labs)
                 
+            except TypeError as e:
+                current_app.logger.error("Exception = %s" % str(e))
+                err_str = str(e)
+                msg = {"status": "failure",
+                       "msg": err_str }
+                abort(500, msg)
+
+            except StateError as e:
+                current_app.logger.error("Exception = %s" % str(e))
+                err_str = str(e)
+                msg = {"status": "failure",
+                       "msg": err_str}
+                abort(500, msg)
+
+            except NotFoundError as e:
+                current_app.logger.error("Exception = %s" % str(e))
+                err_str = str(e)
+                msg = {"status": "failure",
+                       "status code": 404,
+                       "msg": err_str}
+                abort(404, msg)
+
+            except Exception as e:
+                current_app.logger.error("Exception = %s" % str(e))
+                err_str = str(e)
+                msg = {"status": "failure",
+                       "msg": err_str}
+                abort(500, msg)
+
+        elif 'discipline_id' in request.args:
+            discipline_id = request.args['discipline_id']
+            try:
+                current_app.logger.debug("running operation get_labs_by_discipline_id")
+                labs = SystemInterface.get_labs_by_discipline_id(discipline_id)
+                current_app.logger.debug("completed operation get_labs_by_discipline_id")
+                return jsonify_list(labs)
+
             except TypeError as e:
                 current_app.logger.error("Exception = %s" % str(e))
                 err_str = str(e)
@@ -1585,6 +1879,428 @@ class TestGetLabbyLabId(TestCase):
 
 
         response = self.client.get("/labs?lab_id=cse02", headers=headers)
+        self.assertEqual(response.status_code, 200)
+
+#+END_SRC
+
+**** TestGetLabsbyInstituteId
+#+NAME: test_get_labs_by_institute_id
+#+BEGIN_SRC python
+class TestGetLabsbyInstituteId(TestCase):
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        app = self.create_app()
+        self.app_context = app.app_context()
+        self.app_context.push()
+        db.create_all()
+
+    def tearDown(self):
+        self.app_context.pop()
+        db.session.remove()
+        db.drop_all()
+
+    def test_get_labs_by_institute_id(self):
+        print "test_get_labs_by_institute_id_in_rest"
+
+        payload = {'asset_type': 'Image',
+                   'path': 'vlabs.ac.in/images/static/logo.png',
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/assets", data=json.dumps(payload),
+                                 headers=headers)
+
+        payload = {'institute_name': 'IIT Kanpur',
+                   'institute_id': 'IITK',
+                   		    "assets": [
+			{
+			  "asset_type": "image",
+			  "path": "vlabs.ac.in/images/static/logo.png"
+			}
+		      ],
+
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/institutes", data=json.dumps(payload),
+                                 headers=headers)
+
+        payload = {'integration_level': 4,
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/integration_status", data=json.dumps(payload),
+                                 headers=headers)
+
+        payload = {'discipline_name': 'Computer Science',
+                   'discipline_id': 'CSE',
+                   		    "assets": [
+			{
+			  "asset_type": "image",
+			  "path": "vlabs.ac.in/images/static/logo.png"
+			}
+		      ],
+
+                   'key': KEY}
+
+        response = self.client.post("/disciplines", data=json.dumps(payload),
+                                 headers=headers)
+
+        payload = {'hosting_status': 'hosted',
+                   'hosted_url': 'http://cse14-iiith.vlabs.ac.in',
+                   'hosted_on': 'cloud',
+                   'key': KEY}
+
+        response = self.client.post("/hosting_info", data=json.dumps(payload),
+                                 headers=headers)
+
+        payload = {'name': 'Prof. Dharamaja',
+                   'email': 'abc@gmail.com',
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/developers", data=json.dumps(payload),
+                                 headers=headers)
+
+        payload = {
+		   "key": KEY,
+                   "experiment": {
+                     "id": "exp123",
+                     "name": "arrays",
+                     "discipline_id": "CSE",
+                     "institute_id": "IITK",
+                     "developers": [
+                       {
+                         "name": "Dinesh Malviya",
+                         "email": "xyz@gmail.com"
+                       },
+                       {
+                         "name": "Ashish Ahuja",
+                         "email": "abc@gmail.com"
+                       }
+                     ],
+                     "hosting_info": [
+                       {
+                         "hosting_status": "hosted",
+                         "hosted_on": "cloud",
+                         "hosted_url": "http://cse14-iiith.vlabs.ac.in"
+                       },
+                       {
+                         "hosting_status": "hosted",
+                         "hosted_on": "college-cloud",
+                         "hosted_url": "http://cse14-iiith.ac.in"
+                       }
+                     ],
+                     "integration_level": 4,
+                     "overview": "This experiments describes about parallel and distributed processing",
+                     "assets": [
+                       {
+                         "asset_type": "image",
+                         "path": "vlabs.ac.in/images/static/logo.png"
+                       },
+                       {
+                         "asset_type": "video",
+                         "path": "vlabs.ac.in/video/abc.mkv"
+                       }
+                     ],
+                     "sections": [
+                       "Introduction",
+                       "Objective",
+                       "Tutorial",
+                       "Illustration",
+                       "Procedure",
+                       "Experiment",
+                       "Observations",
+                       "Assignment",
+                       "References"
+                     ]
+                   }
+                 }
+
+        response = self.client.post("/experiments", data=json.dumps(payload),
+                                 headers=headers)
+
+        payload = {           
+		   "key" : KEY,     
+                   "lab": {
+                     "id": "cse02",
+                     "name": "Computer Programming",
+                     "overview": "overview",
+                     "discipline_id": "CSE",
+                     "institute_id": "IITK",
+                     "phase":[{"phase_id":1,  "phase_id":2}],
+                     "developers": [
+                       {
+                         "name": "Dinesh Malviya",
+                         "email": "xyz@gmail.com"
+                       },
+                       {
+                         "name": "Ashish Ahuja",
+                         "email": "abc@gmail.com"
+                       }
+                     ],
+                     "hosting_info": [
+                       {
+                         "hosting_status": "hosted",
+                         "hosted_on": "cloud",
+                         "hosted_url": "http://cse14-iiith.vlabs.ac.in"
+                       },
+                       {
+                         "hosting_status": "hosted",
+                         "hosted_on": "college-cloud",
+                         "hosted_url": "http://cse14-iiith.ac.in"
+                       }
+                     ],
+                     "integration_level": 4,
+                     "assets": [
+                       {
+                         "asset_type": "image",
+                         "path": "vlabs.ac.in/images/static/logo.png"
+                       },
+                       {
+                         "asset_type": "video",
+                         "path": "vlabs.ac.in/video/abc.mkv"
+                       }
+                     ],
+                     "sections": [
+                       {
+                         "name": "Introduction"
+                       }
+                                              
+                     ],
+                         "experiments": [
+                           "exp123"
+                         ]
+
+                   }
+                 }
+
+
+        response = self.client.post("/labs", data=json.dumps(payload),
+                                 headers=headers)
+
+
+        response = self.client.get("/labs?institute_id=IITK", headers=headers)
+        self.assertEqual(response.status_code, 200)
+
+#+END_SRC
+
+**** TestGetLabsbyDisciplineId
+#+NAME: test_get_labs_by_discipline_id
+#+BEGIN_SRC python
+class TestGetLabsbyDisciplineId(TestCase):
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        app = self.create_app()
+        self.app_context = app.app_context()
+        self.app_context.push()
+        db.create_all()
+
+    def tearDown(self):
+        self.app_context.pop()
+        db.session.remove()
+        db.drop_all()
+
+    def test_get_labs_by_discipline_id(self):
+        print "test_get_labs_by_discipline_id_in_rest"
+
+        payload = {'asset_type': 'Image',
+                   'path': 'vlabs.ac.in/images/static/logo.png',
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/assets", data=json.dumps(payload),
+                                 headers=headers)
+
+        payload = {'institute_name': 'IIT Kanpur',
+                   'institute_id': 'IITK',
+                   		    "assets": [
+			{
+			  "asset_type": "image",
+			  "path": "vlabs.ac.in/images/static/logo.png"
+			}
+		      ],
+
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/institutes", data=json.dumps(payload),
+                                 headers=headers)
+
+        payload = {'integration_level': 4,
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/integration_status", data=json.dumps(payload),
+                                 headers=headers)
+
+        payload = {'discipline_name': 'Computer Science',
+                   'discipline_id': 'CSE',
+                   		    "assets": [
+			{
+			  "asset_type": "image",
+			  "path": "vlabs.ac.in/images/static/logo.png"
+			}
+		      ],
+
+                   'key': KEY}
+
+        response = self.client.post("/disciplines", data=json.dumps(payload),
+                                 headers=headers)
+
+        payload = {'name': 'Prof. Dharamaja',
+                   'email': 'abc@gmail.com',
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/developers", data=json.dumps(payload),
+                                 headers=headers)
+
+        payload = {'hosting_status': 'hosted',
+                   'hosted_url': 'http://cse14-iiith.vlabs.ac.in',
+                   'hosted_on': 'cloud',
+                   'key': KEY}
+
+
+        response = self.client.post("/hosting_info", data=json.dumps(payload),
+                                 headers=headers)
+
+        payload = {
+		   "key": KEY,
+                   "experiment": {
+                     "id": "exp123",
+                     "name": "arrays",
+                     "discipline_id": "CSE",
+                     "institute_id": "IITK",
+                     "developers": [
+                       {
+                         "name": "Dinesh Malviya",
+                         "email": "xyz@gmail.com"
+                       },
+                       {
+                         "name": "Ashish Ahuja",
+                         "email": "abc@gmail.com"
+                       }
+                     ],
+                     "hosting_info": [
+                       {
+                         "hosting_status": "hosted",
+                         "hosted_on": "cloud",
+                         "hosted_url": "http://cse14-iiith.vlabs.ac.in"
+                       },
+                       {
+                         "hosting_status": "hosted",
+                         "hosted_on": "college-cloud",
+                         "hosted_url": "http://cse14-iiith.ac.in"
+                       }
+                     ],
+                     "integration_level": 4,
+                     "overview": "This experiments describes about parallel and distributed processing",
+                     "assets": [
+                       {
+                         "asset_type": "image",
+                         "path": "vlabs.ac.in/images/static/logo.png"
+                       },
+                       {
+                         "asset_type": "video",
+                         "path": "vlabs.ac.in/video/abc.mkv"
+                       }
+                     ],
+                     "sections": [
+                       "Introduction",
+                       "Objective",
+                       "Tutorial",
+                       "Illustration",
+                       "Procedure",
+                       "Experiment",
+                       "Observations",
+                       "Assignment",
+                       "References"
+                     ]
+                   }
+                 }
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/experiments", data=json.dumps(payload),
+                                 headers=headers)
+
+        payload = {           
+		   "key" : KEY,     
+                   "lab": {
+                     "id": "cse02",
+                     "name": "Computer Programming",
+                     "overview": "overview",
+                     "discipline_id": "CSE",
+                     "institute_id": "IITK",
+                     "phase":[{"phase_id":1,  "phase_id":2}],
+                     "developers": [
+                       {
+                         "name": "Dinesh Malviya",
+                         "email": "xyz@gmail.com"
+                       },
+                       {
+                         "name": "Ashish Ahuja",
+                         "email": "abc@gmail.com"
+                       }
+                     ],
+                     "hosting_info": [
+                       {
+                         "hosting_status": "hosted",
+                         "hosted_on": "cloud",
+                         "hosted_url": "http://cse14-iiith.vlabs.ac.in"
+                       },
+                       {
+                         "hosting_status": "hosted",
+                         "hosted_on": "college-cloud",
+                         "hosted_url": "http://cse14-iiith.ac.in"
+                       }
+                     ],
+                     "integration_level": 4,
+                     "assets": [
+                       {
+                         "asset_type": "image",
+                         "path": "vlabs.ac.in/images/static/logo.png"
+                       },
+                       {
+                         "asset_type": "video",
+                         "path": "vlabs.ac.in/video/abc.mkv"
+                       }
+                     ],
+                     "sections": [
+                       {
+                         "name": "Introduction"
+                       }                                              
+                     ],
+                         "experiments": [
+                           "exp123"
+                         ]
+
+                   }
+                 }
+
+        response = self.client.post("/labs", data=json.dumps(payload),
+                                 headers=headers)
+
+
+        response = self.client.get("/labs?discipline_id=CSE",
+                                       headers=headers)
         self.assertEqual(response.status_code, 200)
 
 #+END_SRC
@@ -12101,8 +12817,10 @@ if __name__ == '__main__':
 <<test_delete_lab>>
 <<test_get_labs>>
 <<test_get_lab_by_labid>>
+<<test_get_labs_by_institute_id>>
 <<test_get_labs_by_institute>>
 <<test_get_labs_by_lab_name>>
+<<test_get_labs_by_discipline_id>>
 <<test_get_labs_by_discipline>>
 <<test_get_lab_by_labname_keyword>>
 <<test_get_exp_by_expid>>
