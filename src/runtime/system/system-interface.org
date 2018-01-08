@@ -2571,7 +2571,7 @@ class TestGetLabsByInstituteId(TestCase):
         lab1 = SystemInterface.add_lab(data_dict1)
 
         labs = SystemInterface.get_labs_by_institute_id("IITK")
-
+        print len(labs);
         self.assertEqual(labs[0]['institute']['institute_id'], "IITK")
 
  #+END_SRC
@@ -2858,16 +2858,16 @@ class TestGetLabsByDisciplineId(TestCase):
  #+END_SRC
 
 
-** Get Labs by Institute
-#+NAME: class_get_labs_by_institute
+** Get Labs by Institute Name
+#+NAME: class_get_labs_by_institute_name
 #+begin_src python
     @staticmethod
-    def get_labs_by_institute(institute_name):
+    def get_labs_by_institute_name(institute_name):
         institute = System.do("get_institute_by_institute_name",
                                   institute_name=str(institute_name))
         try:
             current_app.logger.debug("running operation get_labs_by_institute")
-            labs = System.do("get_labs_by_institute", institute=institute)
+            labs = System.do("get_labs_by_institute_name", institute=institute)
             current_app.logger.debug("completed operation get_labs_by_institute")
             labs_dict_list = []
             for lab in labs:
@@ -3152,16 +3152,16 @@ class TestGetLabsByInstitute(TestCase):
  #+END_SRC
 
 
-** Get Labs by Discipline
-#+NAME: class_get_labs_by_discipline
+** Get Labs by Discipline Name
+#+NAME: class_get_labs_by_discipline_name
 #+begin_src python
     @staticmethod
-    def get_labs_by_discipline(discipline_name):
+    def get_labs_by_discipline_name(discipline_name):
         discipline = System.do("get_discipline_by_discipline_name",
                                   discipline_name=str(discipline_name))
         try:
             current_app.logger.debug("running operation get_labs_by_discipline")
-            labs = System.do("get_labs_by_discipline", discipline=discipline)
+            labs = System.do("get_labs_by_discipline_name", discipline=discipline)
             current_app.logger.debug("completed operation get_labs_by_discipline")
             labs_dict_list = []
             for lab in labs:
@@ -3180,7 +3180,7 @@ class TestGetLabsByInstitute(TestCase):
 #+end_src
 
 *** TestGetLabsByDiscipline
- #+NAME: test_class_get_labs_by_discipline
+ #+NAME: test_class_get_labs_by_discipline_name
  #+BEGIN_SRC python
 class TestGetLabsByDiscipline(TestCase):
     TESTING = True
@@ -9523,10 +9523,10 @@ if __name__ == '__main__':
 <<class_get_institute_by_institute_id>>
 <<class_get_discipline_by_discipline_id>>
 <<class_get_labs_by_institute_id>>
-<<class_get_labs_by_institute>>
+<<class_get_labs_by_institute_name>>
 <<class_get_labs_by_lab_name>>
 <<class_get_labs_by_discipline_id>>
-<<class_get_labs_by_discipline>>
+<<class_get_labs_by_discipline_name>>
 <<class_get_labs_by_asset>>
 <<class_update_Name>>
 <<class_get_sections>>

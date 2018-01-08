@@ -1266,7 +1266,7 @@ def get_lab():
             institute_name  = request.args['institute_name']
             try:
                 current_app.logger.debug("running operation get_labs_by_institute")
-                labs = SystemInterface.get_labs_by_institute(institute_name)
+                labs = SystemInterface.get_labs_by_institute_name(institute_name)
                 current_app.logger.debug("completed operation get_labs_by_institute")
                 return jsonify_list(labs)
                 
@@ -1340,7 +1340,7 @@ def get_lab():
             discipline_name  = request.args['discipline_name']
             try:
                 current_app.logger.debug("running operation get_labs_by_discipline")
-                labs = SystemInterface.get_labs_by_discipline(discipline_name)
+                labs = SystemInterface.get_labs_by_discipline_name(discipline_name)
                 current_app.logger.debug("completed operation get_labs_by_discipline")
                 return jsonify_list(labs)
 
@@ -2305,10 +2305,10 @@ class TestGetLabsbyDisciplineId(TestCase):
 
 #+END_SRC
 
-**** TestGetLabsbyInstitute
-#+NAME: test_get_labs_by_institute
+**** TestGetLabsbyInstituteName
+#+NAME: test_get_labs_by_institute_name
 #+BEGIN_SRC python
-class TestGetLabsbyInstitute(TestCase):
+class TestGetLabsbyInstituteName(TestCase):
     TESTING = True
     def create_app(self):
         app = create_app(config)
@@ -2325,8 +2325,8 @@ class TestGetLabsbyInstitute(TestCase):
         db.session.remove()
         db.drop_all()
 
-    def test_get_labs_by_institute(self):
-        print "test_get_labs_by_institute_in_rest"
+    def test_get_labs_by_institute_name(self):
+        print "test_get_labs_by_institute_name_in_rest"
 
         payload = {'asset_type': 'Image',
                    'path': 'vlabs.ac.in/images/static/logo.png',
@@ -2515,10 +2515,10 @@ class TestGetLabsbyInstitute(TestCase):
 
 #+END_SRC
 
-**** TestGetLabsbyDiscipline
-#+NAME: test_get_labs_by_discipline
+**** TestGetLabsbyDisciplineName
+#+NAME: test_get_labs_by_discipline_name
 #+BEGIN_SRC python
-class TestGetLabsbyDiscipline(TestCase):
+class TestGetLabsbyDisciplineName(TestCase):
     TESTING = True
     def create_app(self):
         app = create_app(config)
@@ -2535,8 +2535,8 @@ class TestGetLabsbyDiscipline(TestCase):
         db.session.remove()
         db.drop_all()
 
-    def test_get_labs_by_discipline(self):
-        print "test_get_labs_by_discipline_in_rest"
+    def test_get_labs_by_discipline_name(self):
+        print "test_get_labs_by_discipline_name_in_rest"
 
         payload = {'asset_type': 'Image',
                    'path': 'vlabs.ac.in/images/static/logo.png',
@@ -12818,10 +12818,10 @@ if __name__ == '__main__':
 <<test_get_labs>>
 <<test_get_lab_by_labid>>
 <<test_get_labs_by_institute_id>>
-<<test_get_labs_by_institute>>
+<<test_get_labs_by_institute_name>>
 <<test_get_labs_by_lab_name>>
 <<test_get_labs_by_discipline_id>>
-<<test_get_labs_by_discipline>>
+<<test_get_labs_by_discipline_name>>
 <<test_get_lab_by_labname_keyword>>
 <<test_get_exp_by_expid>>
 <<test_get_discipline_by_disid>>
