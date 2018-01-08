@@ -2866,9 +2866,9 @@ class TestGetLabsByDisciplineId(TestCase):
         institute = System.do("get_institute_by_institute_name",
                                   institute_name=str(institute_name))
         try:
-            current_app.logger.debug("running operation get_labs_by_institute")
-            labs = System.do("get_labs_by_institute_name", institute=institute)
-            current_app.logger.debug("completed operation get_labs_by_institute")
+            current_app.logger.debug("running operation get_labs_by_institute_name")
+            labs = System.do("get_labs_by_institute", institute=institute)
+            current_app.logger.debug("completed operation get_labs_by_institute_name")
             labs_dict_list = []
             for lab in labs:
                 lab_x = lab.to_client()
@@ -2886,9 +2886,9 @@ class TestGetLabsByDisciplineId(TestCase):
 #+end_src
 
 *** TestGetLabsByInstitute
- #+NAME: test_class_get_labs_by_institute
+ #+NAME: test_class_get_labs_by_institute_name
  #+BEGIN_SRC python
-class TestGetLabsByInstitute(TestCase):
+class TestGetLabsByInstituteName(TestCase):
     TESTING = True
     def create_app(self):
         app = create_app(config)
@@ -2905,8 +2905,8 @@ class TestGetLabsByInstitute(TestCase):
         db.session.remove()
         db.drop_all()
 
-    def test_get_labs_by_institute_in_system_interface(self):
-        print "test_get_labs_by_institute_in_system_interface"
+    def test_get_labs_by_institute_name_in_system_interface(self):
+        print "test_get_labs_by_institute_name_in_system_interface"
 
         data_dict = {
                     'key' : KEY,
@@ -3145,7 +3145,7 @@ class TestGetLabsByInstitute(TestCase):
         lab = SystemInterface.add_lab(data_dict)
         lab1 = SystemInterface.add_lab(data_dict1)
 
-        labs = SystemInterface.get_labs_by_institute("IIT Kanpur")
+        labs = SystemInterface.get_labs_by_institute_name("IIT Kanpur")
 
         self.assertEqual(labs[0]['institute']['institute_name'], "IIT Kanpur")
 
@@ -3161,7 +3161,7 @@ class TestGetLabsByInstitute(TestCase):
                                   discipline_name=str(discipline_name))
         try:
             current_app.logger.debug("running operation get_labs_by_discipline")
-            labs = System.do("get_labs_by_discipline_name", discipline=discipline)
+            labs = System.do("get_labs_by_discipline", discipline=discipline)
             current_app.logger.debug("completed operation get_labs_by_discipline")
             labs_dict_list = []
             for lab in labs:
@@ -3199,8 +3199,8 @@ class TestGetLabsByDiscipline(TestCase):
         db.session.remove()
         db.drop_all()
 
-    def test_get_labs_by_discipline_in_system_interface(self):
-        print "test_get_labs_by_discipline_in_system_interface"
+    def test_get_labs_by_discipline_name_in_system_interface(self):
+        print "test_get_labs_by_discipline_name_in_system_interface"
 
         data_dict = {
                     'key' : KEY,
@@ -3426,7 +3426,7 @@ class TestGetLabsByDiscipline(TestCase):
         lab = SystemInterface.add_lab(data_dict)
         lab1 = SystemInterface.add_lab(data_dict1)
 
-        labs = SystemInterface.get_labs_by_discipline("Computer Science")
+        labs = SystemInterface.get_labs_by_discipline_name("Computer Science")
 
         self.assertEqual(labs[0]['discipline']['discipline_name'], "Computer Science")
 
@@ -9593,11 +9593,11 @@ if __name__ == '__main__':
 <<test_class_update_hosting_info>>
 
 <<test_class_get_lab_by_labid>>
-<<test_class_get_labs_by_institute>>
+<<test_class_get_labs_by_institute_name>>
 <<test_class_get_labs_by_institute_id>>
 <<test_class_get_labs_by_lab_name>>
-<<test_class_get_labs_by_discipline>>
 <<test_class_get_labs_by_discipline_id>>
+<<test_class_get_labs_by_discipline_name>>
 <<test_class_get_labs_by_keyword_lab_name>>
 
 <<test_class_update_developer>>
