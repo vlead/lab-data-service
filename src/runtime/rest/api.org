@@ -1412,6 +1412,52 @@ def get_lab():
                        "msg": err_str}
                 abort(500, msg)
 
+        elif 'hosted_on' in request.args:
+            hosted_on = request.args['hosted_on']
+            try:
+                APP_URL = "http://localhost"
+                current_app.logger.debug("APP_URL: %s" % APP_URL)
+		r = requests.get(APP_URL + "/labs")
+                labs = r.json()
+                lab_list = []
+                for lab in labs:
+                    if len(lab['hosting_info'])!= 0:
+                        for i in lab['hosting_info']:
+                            if i['hosted_on'] == hosted_on:
+				lab_list.append(lab)
+                current_app.logger.debug("completed operation get_labs_by_hosted_on")
+                return jsonify_list(lab_list)
+
+            except TypeError as e:
+                current_app.logger.error("Exception = %s" % str(e))
+                err_str = str(e)
+                msg = {"status": "failure",
+		       "msg": err_str }
+                abort(500, msg)
+
+            except StateError as e:
+                current_app.logger.error("Exception = %s" % str(e))
+                err_str = str(e)
+                msg = {"status": "failure",
+                       "msg": err_str}
+                abort(500, msg)
+
+            except NotFoundError as e:
+                current_app.logger.error("Exception = %s" % str(e))
+                err_str = str(e)
+                msg = {"status": "failure",
+                       "status code": 404,
+                       "msg": err_str}
+                abort(404, msg)
+
+            except Exception as e:
+                current_app.logger.error("Exception = %s" % str(e))
+                err_str = str(e)
+                msg = {"status": "failure",
+                       "msg": err_str}
+                abort(500, msg)
+
+
         else:
             try:
                 current_app.logger.debug("running operation get_labs")                
