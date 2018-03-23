@@ -16,7 +16,14 @@
   
 * REST
 
-** Get Labs, Get Lab, Get Labs by institute id, institute name, lab_name, discipline id, discipline name and Get labs by passing lab_name as keyword
+** Get of Lab or Labs
+   get lab by id, get lab by name, get labs by institute, get labs by
+   discipline, and get labs by keyword and get all labs.  All the responses in
+   this set of API go through a map that adapats the response to the consumer
+   requesting.  Also, all the responses are cached and any further requests
+   that specifically need these cached values are serviced from these cached
+   values.
+
 *** API Designs 
 **** Get all labs
   :PROPERTIES:
@@ -127,6 +134,57 @@
 http://localhost:5000/labs
 #+END_EXAMPLE  
 
+**** Get all labs for the consumer landing pages and are cached
+  :PROPERTIES:
+  :CUSTOM_ID: api_get_all_labs
+  :END:    
+  - URL :: /labs?cached=<either 1 or 0>&consumer=<val>
+
+  - Method :: GET
+
+  - URL Params ::  None
+
+  - Payload :: None
+
+  - Success Response
+    + Status_Code: 200
+      + Contents :
+
+#+BEGIN_EXAMPLE
+[
+ {
+   "phase": [],
+   "lab_name": "Bioinformatics Virtual Lab I",
+   "assets": [
+     {
+       "path": "amrita-university-biotech08.png",
+       "asset_type": {
+         "asset_type": "image",
+         "id": "1"
+       },
+       "id": "241"
+     }
+   ],
+   "hosting_info": [
+     {
+       "hosting_status": "hosted",
+       "hosted_url": "http://vlab.amrita.edu/index.php?sub=3&brch=273",
+       "hosted_on": "institute",
+       "id": "22"
+     }
+   ]
+ }
+]
+#+END_EXAMPLE	       
+
+    
+  - Error Response:
+    + Contents :
+      {"status" : "error"} 
+  - Example:
+#+BEGIN_EXAMPLE
+http://localhost:5000/labs?cached=1&consumer=lp
+#+END_EXAMPLE  
 **** Get lab by lab_id
   :PROPERTIES:
   :CUSTOM_ID: api_get_lab_by_lab_id
@@ -566,6 +624,59 @@ http://localhost:5000/labs?discipline_id=cse
 http://localhost:5000/labs?institute_name=IIIT Hyderabad
 #+END_EXAMPLE  
 
+**** Get labs by institute for a consumer and data that is cached
+  :PROPERTIES:
+  :CUSTOM_ID: api_get_lab_by_lab_id
+  :END:    
+  - URL :: /labs?institute_name=<institute_name>&cached=<either 1 or 0>&consumer=<val>
+
+  - Method :: GET
+
+  - URL Params ::  None
+
+  - Payload :: None
+
+  - Success Response
+    + Status_Code: 200
+      + Contents :
+
+#+BEGIN_EXAMPLE
+[
+ {
+   "phase": [],
+   "lab_name": "Bioinformatics Virtual Lab I",
+   "assets": [
+     {
+       "path": "amrita-university-biotech08.png",
+       "asset_type": {
+         "asset_type": "image",
+         "id": "1"
+       },
+       "id": "241"
+     }
+   ],
+   "hosting_info": [
+     {
+       "hosting_status": "hosted",
+       "hosted_url": "http://vlab.amrita.edu/index.php?sub=3&brch=273",
+       "hosted_on": "institute",
+       "id": "22"
+     }
+   ]
+ }
+]
+#+END_EXAMPLE	       
+
+    
+  - Error Response:
+    + Contents :
+      {"status" : "error"}
+    
+  - Example:
+#+BEGIN_EXAMPLE
+http://localhost:5000/labs?institute_name=Amrita Vishwa Vidyapeetham&cached=1&consumer=lp
+#+END_EXAMPLE  
+
 **** Get labs by discipline
   :PROPERTIES:
   :CUSTOM_ID: api_get_lab_by_lab_id
@@ -676,6 +787,63 @@ http://localhost:5000/labs?institute_name=IIIT Hyderabad
 http://localhost:5000/labs?discipline_name=Computer Science and Engineering
 #+END_EXAMPLE  
 
+**** Get labs by discipline for a consumer and 
+  :PROPERTIES:
+  :CUSTOM_ID: api_get_lab_by_lab_id
+  :END:    
+  - URL :: /labs?discipline_name=<discipline_name>&cached=<either 1 or 0>&consumer=<val>
+
+  - Method :: GET
+
+  - URL Params ::  None
+
+  - Payload :: None
+
+  - Success Response
+    + Status_Code: 200
+      + Contents :
+
+#+BEGIN_EXAMPLE
+[
+  {
+    "phase": [
+      {
+        "id": "1",
+        "phase_id": 2
+      }
+    ],
+    "lab_name": "FPGA and Embedded System Lab",
+    "assets": [
+      {
+        "path": "coepune-cse12.png",
+        "asset_type": {
+          "asset_type": "image",
+          "id": "1"
+        },
+        "id": "260"
+      }
+    ],
+    "hosting_info": [
+      {
+        "hosting_status": "hosted",
+        "hosted_url": "http://coep.vlab.co.in/index.php?sub=29",
+        "hosted_on": "institute",
+        "id": "194"
+      }
+    ]
+  }
+]
+#+END_EXAMPLE	       
+
+    
+  - Error Response:
+    + Contents :
+      {"status" : "error"}
+    
+  - Example:
+#+BEGIN_EXAMPLE
+http://192.168.33.13:5000/labs?discipline_name=Computer Science and Engineering&cached=1&consumer=lp"
+#+END_EXAMPLE  
 **** Get labs by lab_name
   :PROPERTIES:
   :CUSTOM_ID: api_get_lab_by_lab_id
@@ -1149,16 +1317,31 @@ http://localhost:5000/labs?keyword_lab_name=data
 *** Implementation
 #+NAME: get_lab
 #+BEGIN_SRC python
+cached_labs = None
+cached_inst_labs = {}
+cached_disc_labs = {}
+
 @api.route('/labs', methods=['GET'])
 def get_lab():
+    consumer = None
+    cached = None
+    global cached_labs
+    global cached_inst_labs
+    global cached_disc_labs
+
     if request.method == 'GET':
+        if 'consumer' in request.args:
+            consumer  = request.args['consumer']
+        if 'cached' in request.args:
+            cached  = request.args['cached']
+
         if 'lab_id' in request.args:
             lab_id  = request.args['lab_id']
             try:
                 current_app.logger.debug("running operation get_lab")
                 lab = SystemInterface.get_lab(lab_id)
                 current_app.logger.debug("completed operation get_lab")
-                return jsonify(lab)
+                return lab_jsonify(lab, consumer)
 
             except TypeError as e:
                 current_app.logger.error("Exception = %s" % str(e))
@@ -1193,8 +1376,8 @@ def get_lab():
             lab_name  = request.args['lab_name']
             try:
                 current_app.logger.debug("running operation get_labs_by_lab_name")
-                labs = SystemInterface.get_labs_by_lab_name(lab_name)
-                return jsonify(labs)
+                lab = SystemInterface.get_labs_by_lab_name(lab_name)
+                return lab_jsonify(lab, consumer)
                 
             except TypeError as e:
                 current_app.logger.error("Exception = %s" % str(e))
@@ -1231,7 +1414,7 @@ def get_lab():
                 current_app.logger.debug("running operation get_labs_by_institute_id")
                 labs = SystemInterface.get_labs_by_institute_id(institute_id)
                 current_app.logger.debug("completed operation get_labs_by_institute_id")
-                return jsonify_list(labs)
+                return lab_jsonify(labs, consumer)
                 
             except TypeError as e:
                 current_app.logger.error("Exception = %s" % str(e))
@@ -1266,9 +1449,13 @@ def get_lab():
             institute_name  = request.args['institute_name']
             try:
                 current_app.logger.debug("running operation get_labs_by_institute")
-                labs = SystemInterface.get_labs_by_institute_name(institute_name)
+                if cached == "1" and institute_name in cached_inst_labs.keys():
+                    labs = cached_inst_labs[institute_name]
+                else:
+                    labs = SystemInterface.get_labs_by_institute_name(institute_name)
+                    cached_inst_labs[institute_name] = labs
                 current_app.logger.debug("completed operation get_labs_by_institute")
-                return jsonify_list(labs)
+                return lab_jsonify(labs, consumer)
                 
             except TypeError as e:
                 current_app.logger.error("Exception = %s" % str(e))
@@ -1305,7 +1492,7 @@ def get_lab():
                 current_app.logger.debug("running operation get_labs_by_discipline_id")
                 labs = SystemInterface.get_labs_by_discipline_id(discipline_id)
                 current_app.logger.debug("completed operation get_labs_by_discipline_id")
-                return jsonify_list(labs)
+                return lab_jsonify(labs, consumer)
 
             except TypeError as e:
                 current_app.logger.error("Exception = %s" % str(e))
@@ -1340,9 +1527,13 @@ def get_lab():
             discipline_name  = request.args['discipline_name']
             try:
                 current_app.logger.debug("running operation get_labs_by_discipline")
-                labs = SystemInterface.get_labs_by_discipline_name(discipline_name)
+                if cached == "1" and discipline_name in cached_disc_labs.keys():
+                    labs = cached_disc_labs[discipline_name]
+                else:
+                    labs = SystemInterface.get_labs_by_discipline_name(discipline_name)
+                    cached_disc_labs[discipline_name] = labs                    
                 current_app.logger.debug("completed operation get_labs_by_discipline")
-                return jsonify_list(labs)
+                return lab_jsonify(labs, consumer)
 
             except TypeError as e:
                 current_app.logger.error("Exception = %s" % str(e))
@@ -1381,7 +1572,7 @@ def get_lab():
                 labs = SystemInterface.get_labs_by_keyword_lab_name(keyword)
                 current_app.logger.debug("completed operation get_labs_by_"
                                          " keyword_lab_name")
-                return jsonify_list(labs)
+                return lab_jsonify(labs, consumer)
 
             except TypeError as e:
                 current_app.logger.error("Exception = %s" % str(e))
@@ -1414,10 +1605,14 @@ def get_lab():
 
         else:
             try:
-                current_app.logger.debug("running operation get_labs")                
-                labs = SystemInterface.get_labs()
+                current_app.logger.debug("running operation get_labs")
+                if cached == "1" and cached_labs != None:
+                    labs = cached_labs
+                else:
+                    labs = SystemInterface.get_labs()
+                    cached_labs = labs
                 current_app.logger.debug("completed operation get_labs")
-                return jsonify_list(labs)
+                return lab_jsonify(labs, consumer)
 
             except TypeError as e:
                 current_app.logger.error("Exception = %s" % str(e))
@@ -12705,6 +12900,53 @@ class TestDeleteAsset(TestCase):
  #+END_SRC
    
 
+* Utils
+** Choose the right contents of lab
+   Currently, the data of entire lab is sent back.
+   Sometimes, this entire information is not required.  This
+   utility chooses the right information based on the
+   consumer of the response.  For each consumer there is a
+   map function that structures the lab information
+   sufficient for that consumer.  For example, landing pages
+   require, lab name, hosted url and image url.  When the
+   consumer is landing pages, only this information is sent.
+
+   
+** Implementation
+#+name: lab_jsonify
+#+BEGIN_SRC python
+def lab_jsonify(lab_or_labs, consumer):
+    is_labs_list = None
+    mapped_labs = None
+
+    if lab_or_labs.__class__.__name__ != 'list':
+        labs = [lab_or_labs]
+        is_labs_list = False
+    else:
+        labs = lab_or_labs
+        is_labs_list = True
+
+    if consumer == "lp":
+        mapped_labs = list(map(structure_for_lp, labs))
+    elif consumer == None:
+        mapped_labs = labs
+       
+    if is_labs_list:
+       return jsonify_list(mapped_labs)
+    else:
+       return jsonify(mapped_labs[0])
+
+
+def structure_for_lp(lab):
+    return {'lab_name':lab['lab_name'],
+            'hosting_info': lab['hosting_info'],
+            'assets': lab['assets'],
+            'phase': lab['phase']
+           }
+           
+#+END_SRC
+
+
 * Infra                                                         :boilerplate:
 
 ** sources
@@ -12762,6 +13004,7 @@ if __name__ == '__main__':
 ** sources
 #+BEGIN_SRC python :tangle api.py :eval no :noweb yes
 <<imports_for_sources>>
+<<lab_jsonify>>
 <<get_lab>>
 <<add_lab>>
 <<update_lab>>
