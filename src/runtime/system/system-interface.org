@@ -38,6 +38,7 @@ class SystemInterface ():
         lab_cls = System.delegate.entities['lab']
         exp_cls = System.delegate.entities['experiment']
         name_cls = System.delegate.entities['name']
+        phase_cls = System.delegate.entities['phase']
         email_cls = System.delegate.entities['email']
         developer_cls = System.delegate.entities['developer']
         asset_cls = System.delegate.entities['asset']
@@ -56,6 +57,7 @@ class SystemInterface ():
                 section = section_cls(name=str(section_x))
                 section = System.do("add_section", section=section, session=session)
             section_obj_list.append(section)
+
 
         experiments=data_dict['lab']['experiments']
         exp_list = []
@@ -91,20 +93,45 @@ class SystemInterface ():
         for developer_x in developers:
             name = name_cls(name=developer_x['name'])
             email = email_cls(email=developer_x['email'])
-            developer = System.do("get_developer", email=email)
+            developer = System.do("get_developer",
+                                      email=email)
             if developer is None:
-                developer = developer_cls(name=name, email=email)
-                developer = System.do("add_developer", developer=developer, session=session)
+                developer = developer_cls(name=name,
+                                              email=email)
+                developer = System.do("add_developer",
+                                        developer=developer,
+                                        session=session)
             developer_list.append(developer)
+
+        phase = data_dict['lab']['phase']
+        phase_list = []
+        for phase_x in phase:
+            phase = phase_cls(phase_id=\
+                                  phase_x['phase_id'])
+
+            phase = System.do("get_phase", phase=phase)
+            if phase is None:
+                phase = phase_cls(phase_id=
+                                      phase_x['phase_id'])
+                phase = System.do("add_phase", phase=phase,
+                                      session=session)
+            phase_list.append(phase)
 
         hosting_info = data_dict['lab']['hosting_info']
         hosting_info_list = []
         for hosting_info_x in hosting_info:
-            hosting_info = System.do("get_hosting_info", hosted_url=hosting_info_x['hosted_url'])
+            hosting_info = System.do("get_hosting_info",
+                    hosted_url=hosting_info_x['hosted_url'])
             if hosting_info is None:
-                hosting_info = hosting_info_cls(hosting_status=str(hosting_info_x['hosting_status']), \
-                                      hosted_url=str(hosting_info_x['hosted_url']), hosted_on=str(hosting_info_x['hosted_on']))
-                hosting_info = System.do("add_hosting_info", hosting_info=hosting_info, session=session)
+                hosting_info = hosting_info_cls\
+                  (hosting_status=\
+                    str(hosting_info_x['hosting_status']), \
+                  hosted_url=str(hosting_info_x\
+                                     ['hosted_url']),
+                hosted_on=str(hosting_info_x['hosted_on']))
+                hosting_info = System.do("add_hosting_info",
+                                hosting_info=hosting_info,
+                                        session=session)
             hosting_info_list.append(hosting_info)
 
         lab = lab_cls(lab_name=data_dict['lab']['name'],
@@ -116,6 +143,7 @@ class SystemInterface ():
                                 assets=asset_list,
                                 experiments=exp_list,
                                 developers=developer_list,
+                                phase=phase_list,
                                 sections=section_obj_list,
                                 hosting_info=hosting_info_list)
         try:
@@ -144,9 +172,13 @@ class TestAddLab(TestCase):
        return app
 
    def setUp(self):
+       app = self.create_app()
+       self.app_context = app.app_context()
+       self.app_context.push()
        db.create_all()
 
    def tearDown(self):
+       self.app_context.pop()
        db.session.remove()
        db.drop_all()
 
@@ -284,6 +316,7 @@ class TestAddLab(TestCase):
                      "overview": "overview",
                      "discipline_id": "CSE",
                      "institute_id": "IITK",
+                     "phase":[{"phase_id":1,  "phase_id":2}],
                      "developers": [
                        {
                          "name": "Dinesh Malviya",
@@ -294,6 +327,7 @@ class TestAddLab(TestCase):
                          "email": "abc@gmail.com"
                        }
                      ],
+                     "phase":[{"phase_id":1,  "phase_id":2}],
                      "hosting_info": [
                        {
                          "hosting_status": "hosted",
@@ -350,8 +384,9 @@ class TestAddLab(TestCase):
                             'xyz@gmail.com')
        self.assertEqual(lab.get("developers")[1].get("email").get("email"),
                             'abc@gmail.com')
-       self.assertEqual(lab.get("sections")[0].get("name"),
-			    'Procedure')
+       self.assertEqual(str(lab.get("sections")[0].get("name")),
+                            str(data_dict['lab']['sections'][0]))
+
 
    def test_add_lab_raises_type_error_in_system_interface(self):
        print "test_add_lab_raises_type_error_in_system_interface"
@@ -432,6 +467,7 @@ class TestAddLab(TestCase):
                      "name": "arrays",
                      "discipline_id": "CSE",
                      "institute_id": "IITK",
+                     "phase":[{"phase_id":1,  "phase_id":2}],
                      "developers": [
                        {
                          "name": "Dinesh Malviya",
@@ -490,6 +526,7 @@ class TestAddLab(TestCase):
                "overview": "overview",
 	       "discipline_id": "CSE",
 	       "institute_id": "IIITH",
+               "phase":[{"phase_id":1,  "phase_id":2}],
 	       "developers": [
 		   {
 		       "name": "Dinesh Malviya",
@@ -652,9 +689,13 @@ class TestAddExperiment(TestCase):
         return app
 
     def setUp(self):
+        app = self.create_app()
+        self.app_context = app.app_context()
+        self.app_context.push()
         db.create_all()
 
     def tearDown(self):
+        self.app_context.pop()
         db.session.remove()
         db.drop_all()
 
@@ -984,9 +1025,13 @@ class TestAddInstitute(TestCase):
         return app
 
     def setUp(self):
+        app = self.create_app()
+        self.app_context = app.app_context()
+        self.app_context.push()
         db.create_all()
 
     def tearDown(self):
+        self.app_context.pop()
         db.session.remove()
         db.drop_all()
 
@@ -1098,9 +1143,13 @@ class TestAddDiscipline(TestCase):
         return app
 
     def setUp(self):
+        app = self.create_app()
+        self.app_context = app.app_context()
+        self.app_context.push()
         db.create_all()
 
     def tearDown(self):
+        self.app_context.pop()
         db.session.remove()
         db.drop_all()
 
@@ -1183,9 +1232,13 @@ class TestAddSection(TestCase):
         return app
 
     def setUp(self):
+        app = self.create_app()
+        self.app_context = app.app_context()
+        self.app_context.push()
         db.create_all()
 
     def tearDown(self):
+        self.app_context.pop()
         db.session.remove()
         db.drop_all()
 
@@ -1254,9 +1307,13 @@ class TestAddHosting_Info(TestCase):
         return app
 
     def setUp(self):
+        app = self.create_app()
+        self.app_context = app.app_context()
+        self.app_context.push()
         db.create_all()
 
     def tearDown(self):
+        self.app_context.pop()
         db.session.remove()
         db.drop_all()
 
@@ -1316,9 +1373,13 @@ class TestAddName(TestCase):
         return app
 
     def setUp(self):
+        app = self.create_app()
+        self.app_context = app.app_context()
+        self.app_context.push()
         db.create_all()
 
     def tearDown(self):
+        self.app_context.pop()
         db.session.remove()
         db.drop_all()
 
@@ -1381,9 +1442,13 @@ class TestAddEmail(TestCase):
         return app
 
     def setUp(self):
+        app = self.create_app()
+        self.app_context = app.app_context()
+        self.app_context.push()
         db.create_all()
 
     def tearDown(self):
+        self.app_context.pop()
         db.session.remove()
         db.drop_all()
 
@@ -1457,9 +1522,13 @@ class TestAddDeveloper(TestCase):
         return app
 
     def setUp(self):
+        app = self.create_app()
+        self.app_context = app.app_context()
+        self.app_context.push()
         db.create_all()
 
     def tearDown(self):
+        self.app_context.pop()
         db.session.remove()
         db.drop_all()
 
@@ -1541,12 +1610,17 @@ class TestAddDeveloper(TestCase):
 
         session = session_cls(key=data_dict['key'])
         del(data_dict['key'])
+        IL = data_dict['integration_level']
 
-        integration_status = integration_status_cls(integration_level=data_dict['integration_level'])
+        if IL in range(0, 6):
+            int_status = integration_status_cls(integration_level=IL)
+        else:
+            current_app.logger.error("Integration Level= %d is not in range 0 to 6" % IL)
+            abort(500, "Integration Level is not in range 0 to 6")
 
         try:
             current_app.logger.debug("running operation add_integration_status")
-            integration_status = System.do("add_integration_status", integration_status=integration_status,
+            integration_status = System.do("add_integration_status", integration_status=int_status,
                                     session=session)
             current_app.logger.debug("completed operation add_integration_status")
             return integration_status.to_client()
@@ -1569,9 +1643,13 @@ class TestAddIntegration_Status(TestCase):
         return app
 
     def setUp(self):
+        app = self.create_app()
+        self.app_context = app.app_context()
+        self.app_context.push()
         db.create_all()
 
     def tearDown(self):
+        self.app_context.pop()
         db.session.remove()
         db.drop_all()
 
@@ -1628,9 +1706,13 @@ class TestGetLabs(TestCase):
         return app
 
     def setUp(self):
+        app = self.create_app()
+        self.app_context = app.app_context()
+        self.app_context.push()
         db.create_all()
 
     def tearDown(self):
+        self.app_context.pop()
         db.session.remove()
         db.drop_all()
 
@@ -1772,6 +1854,7 @@ class TestGetLabs(TestCase):
                      "overview": "overview",
                      "discipline_id": "CSE",
                      "institute_id": "IITK",
+                     "phase":[{"phase_id":1,  "phase_id":2}],
                      "developers": [
                        {
                          "name": "Dinesh Malviya",
@@ -1825,6 +1908,7 @@ class TestGetLabs(TestCase):
                      "overview": "overview",
                      "discipline_id": "CSE",
                      "institute_id": "IITK",
+                     "phase":[{"phase_id":1,  "phase_id":2}],
                      "developers": [
                        {
                          "name": "Dinesh Malviya",
@@ -1924,9 +2008,13 @@ class TestGetLabsByKeywordLabName(TestCase):
         return app
 
     def setUp(self):
+        app = self.create_app()
+        self.app_context = app.app_context()
+        self.app_context.push()
         db.create_all()
 
     def tearDown(self):
+        self.app_context.pop()
         db.session.remove()
         db.drop_all()
 
@@ -2006,7 +2094,7 @@ class TestGetLabsByKeywordLabName(TestCase):
                     "key" : KEY,
 		    "experiment": {
 		      "id": "exp123",
-              "overview": "overview",
+                      "overview": "overview",
 		      "name": "Parallel and distributed processing",
 		      "discipline_id": "CSE",
 		      "institute_id": "IITK",
@@ -2060,6 +2148,8 @@ class TestGetLabsByKeywordLabName(TestCase):
                                     'asset_type': 'image'},
                                 {'path':'vlabs.ac.in/images/static/image.png',
                                     'asset_type': 'image'}],
+                                    "phase":[{"phase_id":1,  "phase_id":2}],
+                    "phase":[{"phase_id":1,  "phase_id":2}],
                     'developers': [{'name':'Prof. Dharamaja',
                                     'email': 'abc@gmail.com',
                                     'institute_id': 'IITK', 'discipline_id': 'CSE'},
@@ -2084,6 +2174,7 @@ class TestGetLabsByKeywordLabName(TestCase):
                      "overview": "overview",
                      "discipline_id": "CSE",
                      "institute_id": "IITK",
+                     "phase":[{"phase_id":1,  "phase_id":2}],
                      "developers": [
                        {
                          "name": "Dinesh Malviya",
@@ -2134,6 +2225,7 @@ class TestGetLabsByKeywordLabName(TestCase):
                      "overview": "overview",
                      "discipline_id": "CSE",
                      "institute_id": "IITK",
+                     "phase":[{"phase_id":1,  "phase_id":2}],
                      "developers": [
                        {
                          "name": "Dinesh Malviya",
@@ -2191,17 +2283,17 @@ class TestGetLabsByKeywordLabName(TestCase):
  #+END_SRC
 
 
-** Get Labs by Institute
-#+NAME: class_get_labs_by_institute
+** Get Labs by Institute Id
+#+NAME: class_get_labs_by_institute_id
 #+begin_src python
     @staticmethod
-    def get_labs_by_institute(institute_name):
-        institute = System.do("get_institute_by_institute_name",
-                                  institute_name=str(institute_name))
+    def get_labs_by_institute_id(institute_id):
+        institute = System.do("get_institute_by_institute_id",
+                                  institute_id=str(institute_id))
         try:
-            current_app.logger.debug("running operation get_labs_by_institute")
+            current_app.logger.debug("running operation get_labs_by_institute_id")
             labs = System.do("get_labs_by_institute", institute=institute)
-            current_app.logger.debug("completed operation get_labs_by_institute")
+            current_app.logger.debug("completed operation get_labs_by_institute_id")
             labs_dict_list = []
             for lab in labs:
                 lab_x = lab.to_client()
@@ -2218,24 +2310,28 @@ class TestGetLabsByKeywordLabName(TestCase):
             raise err
 #+end_src
 
-*** TestGetLabsByInstitute
- #+NAME: test_class_get_labs_by_institute
+*** TestGetLabsByInstituteId
+ #+NAME: test_class_get_labs_by_institute_id
  #+BEGIN_SRC python
-class TestGetLabsByInstitute(TestCase):
+class TestGetLabsByInstituteId(TestCase):
     TESTING = True
     def create_app(self):
         app = create_app(config)
         return app
 
     def setUp(self):
+        app = self.create_app()
+        self.app_context = app.app_context()
+        self.app_context.push()
         db.create_all()
 
     def tearDown(self):
+        self.app_context.pop()
         db.session.remove()
         db.drop_all()
 
-    def test_get_labs_by_institute_in_system_interface(self):
-        print "test_get_labs_by_institute_in_system_interface"
+    def test_get_labs_by_institute_id_in_system_interface(self):
+        print "test_get_labs_by_institute_id_in_system_interface"
 
         data_dict = {
                     'key' : KEY,
@@ -2369,6 +2465,7 @@ class TestGetLabsByInstitute(TestCase):
                    "overview": "overview",
                "discipline_id": "CSE",
                "institute_id": "IITK",
+               "phase":[{"phase_id":1,  "phase_id":2}],
                "developers": [
                {
                    "name": "Dinesh Malviya",
@@ -2423,6 +2520,7 @@ class TestGetLabsByInstitute(TestCase):
                    "overview": "overview",
                    "discipline_id": "CSE",
                    "institute_id": "IITK",
+                   "phase":[{"phase_id":1,  "phase_id":2}],
                    "developers": [
                        {
                            "name": "Dinesh Malviya",
@@ -2472,20 +2570,20 @@ class TestGetLabsByInstitute(TestCase):
         lab = SystemInterface.add_lab(data_dict)
         lab1 = SystemInterface.add_lab(data_dict1)
 
-        labs = SystemInterface.get_labs_by_institute("IIT Kanpur")
-
-        self.assertEqual(labs[0]['institute']['institute_name'], "IIT Kanpur")
+        labs = SystemInterface.get_labs_by_institute_id("IITK")
+        print len(labs);
+        self.assertEqual(labs[0]['institute']['institute_id'], "IITK")
 
  #+END_SRC
 
 
-** Get Labs by Discipline
-#+NAME: class_get_labs_by_discipline
+** Get Labs by Discipline Id
+#+NAME: class_get_labs_by_discipline_id
 #+begin_src python
     @staticmethod
-    def get_labs_by_discipline(discipline_name):
-        discipline = System.do("get_discipline_by_discipline_name",
-                                  discipline_name=str(discipline_name))
+    def get_labs_by_discipline_id(discipline_id):
+        discipline = System.do("get_discipline_by_discipline_id",
+                                  discipline_id=str(discipline_id))
         try:
             current_app.logger.debug("running operation get_labs_by_discipline")
             labs = System.do("get_labs_by_discipline", discipline=discipline)
@@ -2506,24 +2604,28 @@ class TestGetLabsByInstitute(TestCase):
             raise err
 #+end_src
 
-*** TestGetLabsByDiscipline
- #+NAME: test_class_get_labs_by_discipline
+*** TestGetLabsByDisciplineId
+ #+NAME: test_class_get_labs_by_discipline_id
  #+BEGIN_SRC python
-class TestGetLabsByDiscipline(TestCase):
+class TestGetLabsByDisciplineId(TestCase):
     TESTING = True
     def create_app(self):
         app = create_app(config)
         return app
 
     def setUp(self):
+        app = self.create_app()
+        self.app_context = app.app_context()
+        self.app_context.push()
         db.create_all()
 
     def tearDown(self):
+        self.app_context.pop()
         db.session.remove()
         db.drop_all()
 
-    def test_get_labs_by_discipline_in_system_interface(self):
-        print "test_get_labs_by_discipline_in_system_interface"
+    def test_get_labs_by_discipline_id_in_system_interface(self):
+        print "test_get_labs_by_discipline_id_in_system_interface"
 
         data_dict = {
                     'key' : KEY,
@@ -2646,6 +2748,7 @@ class TestGetLabsByDiscipline(TestCase):
                      "overview": "overview",
                      "discipline_id": "CSE",
                      "institute_id": "IITK",
+                     "phase":[{"phase_id":1,  "phase_id":2}],
                      "developers": [
                        {
                          "name": "Dinesh Malviya",
@@ -2700,6 +2803,7 @@ class TestGetLabsByDiscipline(TestCase):
                      "overview": "overview",
                      "discipline_id": "CSE",
                      "institute_id": "IITK",
+                     "phase":[{"phase_id":1,  "phase_id":2}],
                      "developers": [
                        {
                          "name": "Dinesh Malviya",
@@ -2747,7 +2851,582 @@ class TestGetLabsByDiscipline(TestCase):
         lab = SystemInterface.add_lab(data_dict)
         lab1 = SystemInterface.add_lab(data_dict1)
 
-        labs = SystemInterface.get_labs_by_discipline("Computer Science")
+        labs = SystemInterface.get_labs_by_discipline_id("CSE")
+
+        self.assertEqual(labs[0]['discipline']['discipline_id'], "CSE")
+
+ #+END_SRC
+
+
+** Get Labs by Institute Name
+#+NAME: class_get_labs_by_institute_name
+#+begin_src python
+    @staticmethod
+    def get_labs_by_institute_name(institute_name):
+        institute = System.do("get_institute_by_institute_name",
+                                  institute_name=str(institute_name))
+        try:
+            current_app.logger.debug("running operation get_labs_by_institute_name")
+            labs = System.do("get_labs_by_institute", institute=institute)
+            current_app.logger.debug("completed operation get_labs_by_institute_name")
+            labs_dict_list = []
+            for lab in labs:
+                lab_x = lab.to_client()
+                labs_dict_list.append(lab_x)
+            current_app.logger.debug("got labs")
+            return  labs_dict_list
+
+        except (ArityError, TypeError, NotAuthorizedError, StateError) as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+
+        except Exception as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+#+end_src
+
+*** TestGetLabsByInstitute
+ #+NAME: test_class_get_labs_by_institute_name
+ #+BEGIN_SRC python
+class TestGetLabsByInstituteName(TestCase):
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        app = self.create_app()
+        self.app_context = app.app_context()
+        self.app_context.push()
+        db.create_all()
+
+    def tearDown(self):
+        self.app_context.pop()
+        db.session.remove()
+        db.drop_all()
+
+    def test_get_labs_by_institute_name_in_system_interface(self):
+        print "test_get_labs_by_institute_name_in_system_interface"
+
+        data_dict = {
+                    'key' : KEY,
+                    'hosting_status': 'hosted',
+                    'hosted_url': 'http://cse14-iiith.vlabs.ac.in',
+                    'hosted_on': 'cloud'
+                   }
+
+        hosting_info = SystemInterface.add_hosting_info(data_dict)
+
+        data_dict = {
+                    'key' : KEY,
+                    'integration_level': 4
+                    }
+
+        integration_status = SystemInterface.add_integration_status(data_dict)
+
+        data_dict = {
+                    'key' : KEY,
+                    'asset_type': 'Logo',
+                    'path': 'vlabs.ac.in/images/static/logo.png'
+                   }
+
+        asset = SystemInterface.add_asset(data_dict)
+
+
+        data_dict = {
+                    'key' : KEY,
+                    'institute_name': 'IIT Kanpur',
+                    'institute_id': 'IITK',
+		    "assets": [
+			{
+			  "asset_type": "icon",
+			  "path": "vlabs.ac.in/images/static/icon.png"
+			}
+		      ]
+
+                    }
+
+        institute = SystemInterface.add_institute(data_dict)
+
+        data_dict = {
+                    'key' : KEY,
+                    'discipline_name': 'computer science',
+                    'discipline_id': 'CSE',
+		    "assets": [
+			{
+			  "asset_type": "image",
+			  "path": "vlabs.ac.in/images/static/logo.png"
+			}
+		      ]
+
+                   }
+
+        discipline = SystemInterface.add_discipline(data_dict)
+
+        data_dict = {
+                    'key' : KEY,
+                    'name': 'Prof. Dharamaja',
+                    'email': 'abc@gmail.com'
+                   }
+
+        developer = SystemInterface.add_developer(data_dict)
+
+
+        data_dict = {
+		   'key' : KEY,
+		   'name': 'Procedure'
+		  }
+
+        section = SystemInterface.add_section(data_dict)
+
+        data_dict = {
+                    "key" : KEY,
+		    "experiment": {
+		      "id": "exp123",
+                      "overview": "overview",
+		      "name": "Parallel and distributed processing",
+		      "discipline_id": "CSE",
+		      "institute_id": "IITK",
+		      "developers": [
+			{
+			  "name": "Dinesh Malviya",
+			  "email": "xyz@gmail.com"
+			},
+			{
+			  "name": "Ashish Ahuja",
+			  "email": "abc@gmail.com"
+			}
+		      ],
+		      "hosting_info": [
+			{
+			  "hosting_status": "hosted",
+			  "hosted_on": "college-cloud",
+			  "hosted_url": "http://cse14-iiith.ac.in"
+			}
+		      ],
+		      "integration_level": 4,
+		      "assets": [
+			{
+			  "asset_type": "logo",
+			  "path": "vlabs.ac.in/images/static/logo.png"
+			},
+			{
+			  "asset_type": "video",
+			  "path": "vlabs.ac.in/video/abc.mkv"
+			}
+		      ],
+		      "sections": [
+			"Introduction",
+			"Objective",
+			"Tutorial",
+			"Illustration",
+			"Procedure",
+			"Experiment",
+			"Observations",
+			"Assignment",
+			"References"
+		      ]
+		    }
+		  }
+
+        experiment = SystemInterface.add_experiment(data_dict)
+
+
+        data_dict = {
+               "key" : KEY,     
+           "lab": {
+               "id": "cse02",
+               "name": "Computer Programming",
+                   "overview": "overview",
+               "discipline_id": "CSE",
+               "institute_id": "IITK",
+               "phase":[{"phase_id":1,  "phase_id":2}],
+               "developers": [
+               {
+                   "name": "Dinesh Malviya",
+                   "email": "xyz@gmail.com"
+               },
+               {
+                   "name": "Ashish Ahuja",
+                   "email": "abc@gmail.com"
+               }
+               ],
+               "hosting_info": [
+               {
+                   "hosting_status": "hosted",
+                   "hosted_on": "cloud",
+                   "hosted_url": "http://cse14-iiith.vlabs.ac.in"
+               },
+               {
+                   "hosting_status": "hosted",
+                   "hosted_on": "college-cloud",
+                   "hosted_url": "http://cse14-iiith.ac.in"
+               }
+               ],
+               "integration_level": 4,
+               "assets": [
+               {
+                   "asset_type": "logo",
+                   "path": "vlabs.ac.in/images/static/logo.png"
+               },
+               {
+                   "asset_type": "video",
+                   "path": "vlabs.ac.in/video/abc.mkv"
+               }
+               ],
+               "sections": [
+               {
+                   "name": "Introduction"
+               }
+                              
+               ],
+                   "experiments": [
+                   "exp123"
+                   ]
+
+           }
+           }
+
+        data_dict1 = {
+               "key" : KEY,     
+               "lab": {
+                   "id": "cse03",
+                   "name": "Computer Programming",
+                   "overview": "overview",
+                   "discipline_id": "CSE",
+                   "institute_id": "IITK",
+                   "phase":[{"phase_id":1,  "phase_id":2}],
+                   "developers": [
+                       {
+                           "name": "Dinesh Malviya",
+                           "email": "xyz@gmail.com"
+                       },
+                       {
+                           "name": "Ashish Ahuja",
+                           "email": "abc@gmail.com"
+                       }
+                   ],
+                   "hosting_info": [
+                       {
+                           "hosting_status": "hosted",
+                           "hosted_on": "cloud",
+                           "hosted_url": "http://cse14-iiith.vlabs.ac.in"
+                       },
+                       {
+                           "hosting_status": "hosted",
+                           "hosted_on": "college-cloud",
+                           "hosted_url": "http://cse14-iiith.ac.in"
+                       }
+                   ],
+                   "integration_level": 4,
+                   "assets": [
+                       {
+                           "asset_type": "image",
+                           "path": "vlabs.ac.in/images/static/logo.png"
+                       },
+                       {
+                           "asset_type": "video",
+                           "path": "vlabs.ac.in/video/abc.mkv"
+                       }
+                   ],
+                   "sections": [
+                       {
+                           "name": "Introduction"
+                       }
+                       
+                   ],
+                   "experiments": [
+                   "exp123"
+                   ]
+
+               }
+           }
+
+        lab = SystemInterface.add_lab(data_dict)
+        lab1 = SystemInterface.add_lab(data_dict1)
+
+        labs = SystemInterface.get_labs_by_institute_name("IIT Kanpur")
+
+        self.assertEqual(labs[0]['institute']['institute_name'], "IIT Kanpur")
+
+ #+END_SRC
+
+
+** Get Labs by Discipline Name
+#+NAME: class_get_labs_by_discipline_name
+#+begin_src python
+    @staticmethod
+    def get_labs_by_discipline_name(discipline_name):
+        discipline = System.do("get_discipline_by_discipline_name",
+                                  discipline_name=str(discipline_name))
+        try:
+            current_app.logger.debug("running operation get_labs_by_discipline")
+            labs = System.do("get_labs_by_discipline", discipline=discipline)
+            current_app.logger.debug("completed operation get_labs_by_discipline")
+            labs_dict_list = []
+            for lab in labs:
+                lab_x = lab.to_client()
+                labs_dict_list.append(lab_x)
+            current_app.logger.debug("got labs")
+            return  labs_dict_list
+
+        except (ArityError, TypeError, NotAuthorizedError, StateError) as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+
+        except Exception as err:
+            current_app.logger.error("Exception = %s" % str(err))
+            raise err
+#+end_src
+
+*** TestGetLabsByDiscipline
+ #+NAME: test_class_get_labs_by_discipline_name
+ #+BEGIN_SRC python
+class TestGetLabsByDiscipline(TestCase):
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        app = self.create_app()
+        self.app_context = app.app_context()
+        self.app_context.push()
+        db.create_all()
+
+    def tearDown(self):
+        self.app_context.pop()
+        db.session.remove()
+        db.drop_all()
+
+    def test_get_labs_by_discipline_name_in_system_interface(self):
+        print "test_get_labs_by_discipline_name_in_system_interface"
+
+        data_dict = {
+                    'key' : KEY,
+                    'hosting_status': 'hosted',
+                    'hosted_url': 'http://cse14-iiith.vlabs.ac.in',
+                    'hosted_on': 'cloud'
+                   }
+
+        hosting_info = SystemInterface.add_hosting_info(data_dict)
+
+        data_dict = {
+                    'key' : KEY,
+                    'integration_level': 4
+                    }
+
+        integration_status = SystemInterface.add_integration_status(data_dict)
+
+
+        data_dict = {
+                    'key' : KEY,
+                    'institute_name': 'IIT Kanpur',
+                    'institute_id': 'IITK',
+		    "assets": [
+			{
+			  "asset_type": "icon",
+			  "path": "vlabs.ac.in/images/static/icon.png"
+			}
+		      ]
+
+                    }
+
+        institute = SystemInterface.add_institute(data_dict)
+
+        data_dict = {
+                    'key' : KEY,
+                    'discipline_name': 'Computer Science',
+                    'discipline_id': 'CSE',
+		    "assets": [
+			{
+			  "asset_type": "image",
+			  "path": "vlabs.ac.in/images/static/logo.png"
+			}
+		      ]
+
+                   }
+
+        discipline = SystemInterface.add_discipline(data_dict)
+
+        data_dict = {
+                    'key' : KEY,
+                    'name': 'Prof. Dharamaja',
+                    'email': 'abc@gmail.com'
+                   }
+
+        developer = SystemInterface.add_developer(data_dict)
+
+        data_dict = {
+		   'key' : KEY,
+		   'name': 'Procedure'
+		  }
+
+        section = SystemInterface.add_section(data_dict)
+
+        data_dict = {
+                    "key" : KEY,
+		    "experiment": {
+		      "id": "exp123",
+                      "overview": "overview",
+		      "name": "Parallel and distributed processing",
+		      "discipline_id": "CSE",
+		      "institute_id": "IITK",
+		      "developers": [
+			{
+			  "name": "Dinesh Malviya",
+			  "email": "xyz@gmail.com"
+			},
+			{
+			  "name": "Ashish Ahuja",
+			  "email": "abc@gmail.com"
+			}
+		      ],
+		      "hosting_info": [
+			{
+			  "hosting_status": "hosted",
+			  "hosted_on": "college-cloud",
+			  "hosted_url": "http://cse14-iiith.ac.in"
+			}
+		      ],
+		      "integration_level": 4,
+		      "assets": [
+			{
+			  "asset_type": "image",
+			  "path": "vlabs.ac.in/images/static/logo.png"
+			},
+			{
+			  "asset_type": "video",
+			  "path": "vlabs.ac.in/video/abc.mkv"
+			}
+		      ],
+		      "sections": [
+			"Introduction",
+			"Objective",
+			"Tutorial",
+			"Illustration",
+			"Procedure",
+			"Experiment",
+			"Observations",
+			"Assignment",
+			"References"
+		      ]
+		    }
+		  }
+        experiment = SystemInterface.add_experiment(data_dict)
+
+        data_dict = {           
+		   "key" : KEY,     
+                   "lab": {
+                     "id": "cse02",
+                     "name": "Computer Programming",
+                     "overview": "overview",
+                     "discipline_id": "CSE",
+                     "institute_id": "IITK",
+                     "phase":[{"phase_id":1,  "phase_id":2}],
+                     "developers": [
+                       {
+                         "name": "Dinesh Malviya",
+                         "email": "xyz@gmail.com"
+                       },
+                       {
+                         "name": "Ashish Ahuja",
+                         "email": "abc@gmail.com"
+                       }
+                     ],
+                     "hosting_info": [
+                       {
+                         "hosting_status": "hosted",
+                         "hosted_on": "cloud",
+                         "hosted_url": "http://cse14-iiith.vlabs.ac.in"
+                       },
+                       {
+                         "hosting_status": "hosted",
+                         "hosted_on": "college-cloud",
+                         "hosted_url": "http://cse14-iiith.ac.in"
+                       }
+                     ],
+                     "integration_level": 4,
+                     "assets": [
+                       {
+                         "asset_type": "image",
+                         "path": "vlabs.ac.in/images/static/logo.png"
+                       },
+                       {
+                         "asset_type": "video",
+                         "path": "vlabs.ac.in/video/abc.mkv"
+                       }
+                     ],
+                     "sections": [
+                       {
+                         "name": "Introduction"
+                       }
+                       
+                     ],
+                     "experiments": [
+                     "exp123"
+                     ]
+
+                   }
+                 }
+
+        data_dict1 = {           
+		   "key" : KEY,     
+                   "lab": {
+                     "id": "cse03",
+                     "name": "Computer Programming",
+                     "overview": "overview",
+                     "discipline_id": "CSE",
+                     "institute_id": "IITK",
+                     "phase":[{"phase_id":1,  "phase_id":2}],
+                     "developers": [
+                       {
+                         "name": "Dinesh Malviya",
+                         "email": "xyz@gmail.com"
+                       },
+                       {
+                         "name": "Ashish Ahuja",
+                         "email": "abc@gmail.com"
+                       }
+                     ],
+                     "hosting_info": [
+                       {
+                         "hosting_status": "hosted",
+                         "hosted_on": "cloud",
+                         "hosted_url": "http://cse14-iiith.vlabs.ac.in"
+                       },
+                       {
+                         "hosting_status": "hosted",
+                         "hosted_on": "college-cloud",
+                         "hosted_url": "http://cse14-iiith.ac.in"
+                       }
+                     ],
+                     "integration_level": 4,
+                     "assets": [
+                       {
+                         "asset_type": "image",
+                         "path": "vlabs.ac.in/images/static/logo.png"
+                       },
+                       {
+                         "asset_type": "video",
+                         "path": "vlabs.ac.in/video/abc.mkv"
+                       }
+                     ],
+                     "sections": [
+                       {
+                         "name": "Introduction"
+                       }                       
+                     ],
+                         "experiments": [
+                           "exp123"
+                         ]
+                   }
+                 }
+
+        lab = SystemInterface.add_lab(data_dict)
+        lab1 = SystemInterface.add_lab(data_dict1)
+
+        labs = SystemInterface.get_labs_by_discipline_name("Computer Science")
 
         self.assertEqual(labs[0]['discipline']['discipline_name'], "Computer Science")
 
@@ -2790,9 +3469,13 @@ class TestGetLabsByLabName(TestCase):
         return app
 
     def setUp(self):
+        app = self.create_app()
+        self.app_context = app.app_context()
+        self.app_context.push()
         db.create_all()
 
     def tearDown(self):
+        self.app_context.pop()
         db.session.remove()
         db.drop_all()
 
@@ -2919,6 +3602,7 @@ class TestGetLabsByLabName(TestCase):
                      "overview": "overview",
                      "discipline_id": "CSE",
                      "institute_id": "IITK",
+                     "phase":[{"phase_id":1,  "phase_id":2}],
                      "developers": [
                        {
                          "name": "Dinesh Malviya",
@@ -2972,6 +3656,7 @@ class TestGetLabsByLabName(TestCase):
                      "overview": "overview",
                      "discipline_id": "CSE",
                      "institute_id": "IITK",
+                     "phase":[{"phase_id":1,  "phase_id":2}],
                      "developers": [
                        {
                          "name": "Dinesh Malviya",
@@ -3024,555 +3709,6 @@ class TestGetLabsByLabName(TestCase):
 
  #+END_SRC
 
-
-** Get Labs by Asset
-#+NAME: class_get_labs_by_asset
-#+begin_src python
-    @staticmethod
-    def get_labs_by_asset(asset_type):
-        asset = System.do("get_asset_by_asset_type",
-                                  asset_type=str(asset_type))
-        try:
-            current_app.logger.debug("running operation get_labs_by_asset_type")
-            labs = System.do("get_labs_by_asset", asset=asset)
-            current_app.logger.debug("completed operation get_labs_by_asset_type")
-            labs_dict_list = []
-            for lab in labs:
-                lab_x = lab.to_client()
-                labs_dict_list.append(lab_x)
-            current_app.logger.debug("got labs")
-            return  labs_dict_list
-
-        except (ArityError, TypeError, NotAuthorizedError, StateError) as err:
-            current_app.logger.error("Exception = %s" % str(err))
-            raise err
-
-        except Exception as err:
-            current_app.logger.error("Exception = %s" % str(err))
-            raise err
-#+end_src
-
-*** TestGetLabsByAssetType 
- #+NAME: test_class_get_labs_by_asset_type
- #+BEGIN_SRC python
-class TestGetLabsByAssetType(TestCase):
-    TESTING = True
-    def create_app(self):
-        app = create_app(config)
-        return app
-
-    def setUp(self):
-        db.create_all()
-
-    def tearDown(self):
-        db.session.remove()
-        db.drop_all()
-
-    def test_get_labs_by_asset_in_system_interface(self):
-        print "test_get_labs_by_asset_in_system_interface"
-
-        data_dict = {
-                    'hosting_status': 'hosted',
-                    'hosted_url': 'http://cse14-iiith.vlabs.ac.in',
-                    'hosted_on': 'cloud',
-                    'key' : KEY
-                   }
-
-        hosting_info = SystemInterface.add_hosting_info(data_dict)
-
-        data_dict = {
-                    'key' : KEY,
-                    'integration_level': 4
-                    }
-
-        integration_status = SystemInterface.add_integration_status(data_dict)
-
-        data_dict = {
-                    'key' : KEY,
-                    'asset_type': 'Image',
-                    'path': 'vlabs.ac.in/images/static/logo.png'
-                   }
-
-        asset = SystemInterface.add_asset(data_dict)
-
-        data_dict = {
-                    'key' : KEY,
-                    'institute_name': 'IIT Kanpur',
-                    'institute_id': 'IITK',
-                    		    "assets": [
-			{
-			  "asset_type": "image",
-			  "path": "vlabs.ac.in/images/static/logo.png"
-			}
-		      ]
-
-                    }
-
-        institute = SystemInterface.add_institute(data_dict)
-
-        data_dict = {
-                    'key' : KEY,
-                    'discipline_name': 'computer science',
-                    'discipline_id': 'CSE',
-                    		    "assets": [
-			{
-			  "asset_type": "image",
-			  "path": "vlabs.ac.in/images/static/logo.png"
-			}
-		      ]
-
-                   }
-
-        discipline = SystemInterface.add_discipline(data_dict)
-
-        data_dict = {
-                    'key' : KEY,
-                    'name': 'Prof. Dharamaja',
-                    'email': 'abc@gmail.com'
-                   }
-
-        developer = SystemInterface.add_developer(data_dict)
-
-        data_dict = {
-		   'key' : KEY,
-		   'name': 'Procedure'
-		  }
-
-        section = SystemInterface.add_section(data_dict)
-
-
-        data_dict = {
-                    "key" : KEY,
-		    "experiment": {
-		      "id": "exp123",
-                      "overview": "overview",
-		      "name": "Parallel and distributed processing",
-		      "discipline_id": "CSE",
-		      "institute_id": "IITK",
-		      "developers": [
-			{
-			  "name": "Dinesh Malviya",
-			  "email": "xyz@gmail.com"
-			},
-			{
-			  "name": "Ashish Ahuja",
-			  "email": "abc@gmail.com"
-			}
-		      ],
-		      "hosting_info": [
-			{
-			  "hosting_status": "hosted",
-			  "hosted_on": "college-cloud",
-			  "hosted_url": "http://cse14-iiith.ac.in"
-			}
-		      ],
-		      "integration_level": 4,
-		      "assets": [
-			{
-			  "asset_type": "image",
-			  "path": "vlabs.ac.in/images/static/logo.png"
-			},
-			{
-			  "asset_type": "video",
-			  "path": "vlabs.ac.in/video/abc.mkv"
-			}
-		      ],
-		      "sections": [
-			"Introduction",
-			"Objective",
-			"Tutorial",
-			"Illustration",
-			"Procedure",
-			"Experiment",
-			"Observations",
-			"Assignment",
-			"References"
-		      ]
-		    }
-		  }
-
-        experiment = SystemInterface.add_experiment(data_dict)
-
-       data_dict = {
-           "key" : KEY,     
-	   "lab": {
-	       "id": "cse02",
-	       "name": "Computer Programming",
-               "overview": "overview",
-	       "discipline_id": "CSE",
-	       "institute_id": "IIITH",
-	       "developers": [
-		   {
-		       "name": "Dinesh Malviya",
-		       "email": "xyz@gmail.com"
-		   },
-		   {
-		       "name": "Ashish Ahuja",
-		       "email": "abc@gmail.com"
-		   }
-	       ],
-	       "hosting_info": [
-		   {
-		       "hosting_status": "hosted",
-		       "hosted_on": "cloud",
-		       "hosted_url": "http://cse14-iiith.vlabs.ac.in"
-		   },
-		   {
-		       "hosting_status": "hosted",
-		       "hosted_on": "college-cloud",
-		       "hosted_url": "http://cse14-iiith.ac.in"
-		   }
-	       ],
-	       "integration_level": 4,
-	       "assets": [
-		   {
-		       "asset_type": "image",
-		       "path": "vlabs.ac.in/images/static/logo.png"
-		   },
-		   {
-		       "asset_type": "video",
-		       "path": "vlabs.ac.in/video/abc.mkv"
-		   }
-	       ],
-	       "sections": [
-		   {
-		       "name": "Introduction"
-		   }
-	       ],
-	       "experiments": [
-	       "exp123"
-	       ]
-
-	   }
-       }
-
-       data_dict1 = {
-           "key" : KEY,     
-	   "lab": {
-	       "id": "cse03",
-	       "name": "Computer Programming",
-               "overview": "overview",
-	       "discipline_id": "CSE",
-	       "institute_id": "IIITH",
-	       "developers": [
-		   {
-		       "name": "Dinesh Malviya",
-		       "email": "xyz@gmail.com"
-		   },
-		   {
-		       "name": "Ashish Ahuja",
-		       "email": "abc@gmail.com"
-		   }
-	       ],
-	       "hosting_info": [
-		   {
-		       "hosting_status": "hosted",
-		       "hosted_on": "cloud",
-		       "hosted_url": "http://cse14-iiith.vlabs.ac.in"
-		   },
-		   {
-		       "hosting_status": "hosted",
-		       "hosted_on": "college-cloud",
-		       "hosted_url": "http://cse14-iiith.ac.in"
-		   }
-	       ],
-	       "integration_level": 4,
-	       "assets": [
-		   {
-		       "asset_type": "image",
-		       "path": "vlabs.ac.in/images/static/logo.png"
-		   },
-		   {
-		       "asset_type": "video",
-		       "path": "vlabs.ac.in/video/abc.mkv"
-		   }
-	       ],
-	       "sections": [
-		   {
-		       "name": "Introduction"
-		   }
-		   		   
-	       ],
-	       "experiments": [
-	       "exp123"
-	       ]
-
-	   }
-       }
-        lab = SystemInterface.add_lab(data_dict)
-        lab1 = SystemInterface.add_lab(data_dict1)
-
-        labs = SystemInterface.get_labs_by_asset_type("Image")
-
-        self.assertEqual(labs[0]['asset']['asset_type'], "Image")
-
- #+END_SRC
-
-*** TestGetLabsByIntegration_Status 
- #+NAME: test_class_get_labs_by_integration_status
- #+BEGIN_SRC python
-class TestGetLabsByIntegration_Status(TestCase):
-    TESTING = True
-    def create_app(self):
-        app = create_app(config)
-        return app
-
-    def setUp(self):
-        db.create_all()
-
-    def tearDown(self):
-        db.session.remove()
-        db.drop_all()
-
-    def test_get_labs_by_integration_status_in_system_interface(self):
-        print "test_get_labs_by_integration_status_in_system_interface"
-        data_dict = {
-                    'key' : KEY,
-                    'integration_level': 4
-                    }
-
-        integration_status = SystemInterface.add_integration_status(data_dict)
-
-        data_dict = {
-                    'hosting_status': 'hosted',
-                    'hosted_url': 'http://cse14-iiith.vlabs.ac.in',
-                    'hosted_on': 'cloud',
-                    'key' : KEY
-                   }
-
-        hosting_info = SystemInterface.add_hosting_info(data_dict)
-
-        data_dict = {
-                    'key' : KEY,
-                    'institute_name': 'IIT Kanpur',
-                    'institute_id': 'IITK',
-                    		    "assets": [
-			{
-			  "asset_type": "image",
-			  "path": "vlabs.ac.in/images/static/logo.png"
-			}
-		      ]
-
-                    }
-
-        institute = SystemInterface.add_institute(data_dict)
-
-        data_dict = {
-                    'key' : KEY,
-                    'discipline_name': 'Computer Science',
-                    'discipline_id': 'CSE',
-                    		    "assets": [
-			{
-			  "asset_type": "image",
-			  "path": "vlabs.ac.in/images/static/logo.png"
-			}
-		      ]
-
-                   }
-
-        discipline = SystemInterface.add_discipline(data_dict)
-
-        data_dict = {
-                    'key' : KEY,
-                    'name': 'Prof. Dharamaja',
-                    'email': 'abc@gmail.com'
-                   }
-
-        developer = SystemInterface.add_developer(data_dict)
-
-        data_dict = {
-                    'key' : KEY,
-                    'asset_type': 'Image',
-                    'path': 'vlabs.ac.in/images/static/logo.png'
-                   }
-
-        asset = SystemInterface.add_asset(data_dict)
-
-        data_dict = {
-                    'key' : KEY,
-                    'asset_type': 'Image',
-                    'path': 'vlabs.ac.in/images/static/icon.png'
-                    }
-
-        asset2 = SystemInterface.add_asset(data_dict)
-
-        data_dict = {
-		   'key' : KEY,
-		   'name': 'Procedure'
-		  }
-
-        section = SystemInterface.add_section(data_dict)
-
-        data_dict = {
-                    "key" : KEY,
-		    "experiment": {
-		      "id": "exp123",
-                      "overview": "overview",
-		      "name": "Parallel and distributed processing",
-		      "discipline_id": "CSE",
-		      "institute_id": "IITK",
-		      "developers": [
-			{
-			  "name": "Dinesh Malviya",
-			  "email": "xyz@gmail.com"
-			},
-			{
-			  "name": "Ashish Ahuja",
-			  "email": "abc@gmail.com"
-			}
-		      ],
-		      "hosting_info": [
-			{
-			  "hosting_status": "hosted",
-			  "hosted_on": "college-cloud",
-			  "hosted_url": "http://cse14-iiith.ac.in"
-			}
-		      ],
-		      "integration_level": 4,
-		      "assets": [
-			{
-			  "asset_type": "image",
-			  "path": "vlabs.ac.in/images/static/logo.png"
-			},
-			{
-			  "asset_type": "video",
-			  "path": "vlabs.ac.in/video/abc.mkv"
-			}
-		      ],
-		      "sections": [
-			"Introduction",
-			"Objective",
-			"Tutorial",
-			"Illustration",
-			"Procedure",
-			"Experiment",
-			"Observations",
-			"Assignment",
-			"References"
-		      ]
-		    }
-		  }
-
-        experiment = SystemInterface.add_experiment(data_dict)
-
-
-       data_dict = {
-           "key" : KEY,     
-	   "lab": {
-	       "id": "cse02",
-	       "name": "Computer Programming",
-               "overview": "overview",
-	       "discipline_id": "CSE",
-	       "institute_id": "IIITH",
-	       "developers": [
-		   {
-		       "name": "Dinesh Malviya",
-		       "email": "xyz@gmail.com"
-		   },
-		   {
-		       "name": "Ashish Ahuja",
-		       "email": "abc@gmail.com"
-		   }
-	       ],
-	       "hosting_info": [
-		   {
-		       "hosting_status": "hosted",
-		       "hosted_on": "cloud",
-		       "hosted_url": "http://cse14-iiith.vlabs.ac.in"
-		   },
-		   {
-		       "hosting_status": "hosted",
-		       "hosted_on": "college-cloud",
-		       "hosted_url": "http://cse14-iiith.ac.in"
-		   }
-	       ],
-	       "integration_level": 4,
-	       "assets": [
-		   {
-		       "asset_type": "image",
-		       "path": "vlabs.ac.in/images/static/logo.png"
-		   },
-		   {
-		       "asset_type": "video",
-		       "path": "vlabs.ac.in/video/abc.mkv"
-		   }
-	       ],
-	       "sections": [
-		   {
-		       "name": "Introduction"
-		   }
-		  		   
-	       ],
-		       "experiments": [
-			   "exp123"
-		       ]
-
-	   }
-       }
-
-       data_dict1 = {
-           "key" : KEY,     
-	   "lab": {
-	       "id": "cse03",
-	       "name": "Computer Programming",
-               "overview": "overview",
-	       "discipline_id": "CSE",
-	       "institute_id": "IIITH",
-	       "developers": [
-		   {
-		       "name": "Dinesh Malviya",
-		       "email": "xyz@gmail.com"
-		   },
-		   {
-		       "name": "Ashish Ahuja",
-		       "email": "abc@gmail.com"
-		   }
-	       ],
-	       "hosting_info": [
-		   {
-		       "hosting_status": "hosted",
-		       "hosted_on": "cloud",
-		       "hosted_url": "http://cse14-iiith.vlabs.ac.in"
-		   },
-		   {
-		       "hosting_status": "hosted",
-		       "hosted_on": "college-cloud",
-		       "hosted_url": "http://cse14-iiith.ac.in"
-		   }
-	       ],
-	       "integration_level": 4,
-	       "assets": [
-		   {
-		       "asset_type": "image",
-		       "path": "vlabs.ac.in/images/static/logo.png"
-		   },
-		   {
-		       "asset_type": "video",
-		       "path": "vlabs.ac.in/video/abc.mkv"
-		   }
-	       ],
-	       "sections": [
-		   {
-		       "name": "Introduction"
-		   }
-		  		   
-	       ],
-		       "experiments": [
-			   "exp123"
-		       ]
-
-	   }
-       }
-
-        lab = SystemInterface.add_lab(data_dict)
-        lab1 = SystemInterface.add_lab(data_dict1)
-
-        labs = SystemInterface.get_labs_by_integration_status(4)
-
-        self.assertEqual(labs[0]['integration_status']['integration_level'], 4)
-
- #+END_SRC
-
  
 ** Get Experiments
 #+NAME: class_get_experiments
@@ -3609,9 +3745,13 @@ class TestGetExperiments(TestCase):
         return app
 
     def setUp(self):
+        app = self.create_app()
+        self.app_context = app.app_context()
+        self.app_context.push()
         db.create_all()
 
     def tearDown(self):
+        self.app_context.pop()
         db.session.remove()
         db.drop_all()
 
@@ -3861,9 +4001,13 @@ class TestGetInstitutes(TestCase):
         return app
 
     def setUp(self):
+        app = self.create_app()
+        self.app_context = app.app_context()
+        self.app_context.push()
         db.create_all()
 
     def tearDown(self):
+        self.app_context.pop()
         db.session.remove()
         db.drop_all()
 
@@ -3953,9 +4097,13 @@ class TestGetSections(TestCase):
         return app
 
     def setUp(self):
+        app = self.create_app()
+        self.app_context = app.app_context()
+        self.app_context.push()
         db.create_all()
 
     def tearDown(self):
+        self.app_context.pop()
         db.session.remove()
         db.drop_all()
 
@@ -4017,9 +4165,13 @@ class TestGetDisciplines(TestCase):
         return app
 
     def setUp(self):
+        app = self.create_app()
+        self.app_context = app.app_context()
+        self.app_context.push()
         db.create_all()
 
     def tearDown(self):
+        self.app_context.pop()
         db.session.remove()
         db.drop_all()
 
@@ -4109,9 +4261,13 @@ class TestGetHosting_Info(TestCase):
         return app
 
     def setUp(self):
+        app = self.create_app()
+        self.app_context = app.app_context()
+        self.app_context.push()
         db.create_all()
 
     def tearDown(self):
+        self.app_context.pop()
         db.session.remove()
         db.drop_all()
 
@@ -4181,9 +4337,13 @@ class TestGetNames(TestCase):
         return app
 
     def setUp(self):
+        app = self.create_app()
+        self.app_context = app.app_context()
+        self.app_context.push()
         db.create_all()
 
     def tearDown(self):
+        self.app_context.pop()
         db.session.remove()
         db.drop_all()
 
@@ -4245,9 +4405,13 @@ class TestGetEmails(TestCase):
         return app
 
     def setUp(self):
+        app = self.create_app()
+        self.app_context = app.app_context()
+        self.app_context.push()
         db.create_all()
 
     def tearDown(self):
+        self.app_context.pop()
         db.session.remove()
         db.drop_all()
 
@@ -4309,9 +4473,13 @@ class TestGetDevelopers(TestCase):
         return app
 
     def setUp(self):
+        app = self.create_app()
+        self.app_context = app.app_context()
+        self.app_context.push()
         db.create_all()
 
     def tearDown(self):
+        self.app_context.pop()
         db.session.remove()
         db.drop_all()
 
@@ -4439,9 +4607,13 @@ class TestGetIntegration_Status(TestCase):
         return app
 
     def setUp(self):
+        app = self.create_app()
+        self.app_context = app.app_context()
+        self.app_context.push()
         db.create_all()
 
     def tearDown(self):
+        self.app_context.pop()
         db.session.remove()
         db.drop_all()
 
@@ -4501,9 +4673,13 @@ class TestGetLabById(TestCase):
         return app
 
     def setUp(self):
+        app = self.create_app()
+        self.app_context = app.app_context()
+        self.app_context.push()
         db.create_all()
 
     def tearDown(self):
+        self.app_context.pop()
         db.session.remove()
         db.drop_all()
 
@@ -4648,6 +4824,7 @@ class TestGetLabById(TestCase):
                "overview": "overview",
 	       "discipline_id": "CSE",
 	       "institute_id": "IITK",
+               "phase":[{"phase_id":1,  "phase_id":2}],
 	       "developers": [
 		   {
 		       "name": "Dinesh Malviya",
@@ -4701,6 +4878,7 @@ class TestGetLabById(TestCase):
                    "overview": "overview",
                "discipline_id": "CSE",
                "institute_id": "IITK",
+               "phase":[{"phase_id":1,  "phase_id":2}],
                "developers": [
                {
                    "name": "Dinesh Malviya",
@@ -4798,9 +4976,13 @@ class TestGetSectionById(TestCase):
         return app
 
     def setUp(self):
+        app = self.create_app()
+        self.app_context = app.app_context()
+        self.app_context.push()
         db.create_all()
 
     def tearDown(self):
+        self.app_context.pop()
         db.session.remove()
         db.drop_all()
 
@@ -4863,9 +5045,13 @@ class TestGetExperimentById(TestCase):
         return app
 
     def setUp(self):
+        app = self.create_app()
+        self.app_context = app.app_context()
+        self.app_context.push()
         db.create_all()
 
     def tearDown(self):
+        self.app_context.pop()
         db.session.remove()
         db.drop_all()
 
@@ -5113,9 +5299,13 @@ class TestGetInstituteById(TestCase):
         return app
 
     def setUp(self):
+        app = self.create_app()
+        self.app_context = app.app_context()
+        self.app_context.push()
         db.create_all()
 
     def tearDown(self):
+        self.app_context.pop()
         db.session.remove()
         db.drop_all()
 
@@ -5207,9 +5397,13 @@ class TestGetDisciplineById(TestCase):
         return app
 
     def setUp(self):
+        app = self.create_app()
+        self.app_context = app.app_context()
+        self.app_context.push()
         db.create_all()
 
     def tearDown(self):
+        self.app_context.pop()
         db.session.remove()
         db.drop_all()
 
@@ -5292,9 +5486,13 @@ class TestGetNameById(TestCase):
         return app
 
     def setUp(self):
+        app = self.create_app()
+        self.app_context = app.app_context()
+        self.app_context.push()
         db.create_all()
 
     def tearDown(self):
+        self.app_context.pop()
         db.session.remove()
         db.drop_all()
 
@@ -5338,6 +5536,7 @@ class TestGetNameById(TestCase):
         name_cls = System.delegate.entities['name']
         email_cls = System.delegate.entities['email']
         section_cls = System.delegate.entities['section']
+        phase_cls = System.delegate.entities['phase']
 
         session = session_cls(key=data_dict['key'])
 
@@ -5349,102 +5548,136 @@ class TestGetNameById(TestCase):
         else:
             lab_name=data_dict['lab']['name']
 
+
+        if 'phase' not in data_dict['lab']:
+            phase_list = lab.get("phase")
+        else:
+            phase = data_dict['lab']['phase']
+            phase_list = []
+
+            for phase_x in phase:
+                phase = phase_cls(phase_id=\
+                                    phase_x['phase_id'])
+                phase = System.do("get_phase", phase=phase)
+                if phase is None:
+                    phase = phase_cls(phase_id=
+                                        phase_x['phase_id'])
+                    phase = System.do("add_phase", phase=phase,
+                                        session=session)
+                phase_list.append(phase)
+
+
         if 'overview' not in data_dict['lab']:
             overview=str(lab.get("overview"))
         else:
             overview=data_dict['lab']['overview']
 
         if 'institute_id' not in data_dict['lab']:
-            inst=str(lab.get("institute"))
+            institute = lab.get("institute")
         else:
-            inst = System.do("get_institute", institute_id=
+            institute = System.do("get_institute", institute_id=
                                       data_dict['lab']['institute_id'])
 
         if 'discipline_id' not in data_dict['lab']:
-            dis=str(lab.get("discipline"))
+            discipline = lab.get("discipline")
         else:
-            dis = System.do("get_discipline", discipline_id=
+            discipline = System.do("get_discipline", discipline_id=
                                        data_dict['lab']['discipline_id'])
 
         if 'integration_level' not in data_dict['lab']:
-            integration_status=str(lab.get("integration_status"))
+            integration_status = lab.get("integration_status")
         else:
             integration_status = System.do("get_integration_status_by_IL",
                              integration_level=data_dict['lab']['integration_level'])
 
-        hosting_info = data_dict['lab']['hosting_info']
-        hosting_info_list = []
-        for hosting_info_x in hosting_info:
-            hosting_info = System.do("get_hosting_info",
-                                         hosted_url=
-                                         hosting_info_x['hosted_url'])
-            if hosting_info is None:
-                hosting_info = hosting_info_cls(hosting_status=str(hosting_info_x['hosting_status']), \
-                                      hosted_url=str(hosting_info_x['hosted_url']), hosted_on=str(hosting_info_x['hosted_on']))
-                hosting_info = System.do("add_hosting_info", hosting_info=hosting_info, session=session)
-            hosting_info_list.append(hosting_info)
+        if 'hosting_info' not in data_dict['lab']:
+            hosting_info_list = lab.get("hosting_info")
+        else:
+            hosting_info = data_dict['lab']['hosting_info']
+            hosting_info_list = []
+            for hosting_info_x in hosting_info:
+                hosting_info = System.do("get_hosting_info",
+                                            hosted_url=
+                                            hosting_info_x['hosted_url'])
+                if hosting_info is None:
+                    hosting_info = hosting_info_cls\
+                      (hosting_status=str(hosting_info_x['hosting_status']), \
+                           hosted_url=str(hosting_info_x['hosted_url']), \
+                      hosted_on=str(hosting_info_x['hosted_on']))
+                    hosting_info = System.do("add_hosting_info",
+                                                 hosting_info=hosting_info,
+                                                 session=session)
+                hosting_info_list.append(hosting_info)
 
-        assets = data_dict['lab']['assets']
-        asset_list = []
+        if 'assets' not in data_dict['lab']:
+            asset_list = lab.get("assets")
+        else:
+            assets = data_dict['lab']['assets']
+            asset_list = []
+            for asset_x in assets:
+                asset = System.do("get_asset", path=asset_x['path'])
+                if asset is None:
+                    asset_type = asset_type_cls(asset_type=\
+                                                    str(asset_x['asset_type']))
+                    asset = asset_cls(asset_type=asset_type, \
+                                        path=str(asset_x['path']))
+                    asset = System.do("add_asset", asset=asset, session=session)
+                asset_list.append(asset)
 
-        for asset_x in assets:
-            asset = System.do("get_asset", path=asset_x['path'])
-            if asset is None:
-                asset_type = asset_type_cls(asset_type=\
-                                                str(asset_x['asset_type']))
-                asset = asset_cls(asset_type=asset_type, \
-                                      path=str(asset_x['path']))
-                asset = System.do("add_asset", asset=asset, session=session)
-            asset_list.append(asset)
+        if 'sections' not in data_dict['lab']:
+            section_list = lab.get("sections")
+        else:
+            sections = data_dict['lab']['sections']
+            section_list = []
+            for section_x in sections:
+                section = System.do("get_section", name=section_x['name'])
+                if section is None:
+                    section = section_cls(name=str(section_x['name']))
+                    section = System.do("add_section", section=section, session=session)
+                section_list.append(section)
 
-        section_list=[]
-        for section in data_dict['lab']['sections']:
-            if 'experiments' in section.keys():
-                experiments = section['experiments']
-            else:
-                section_list.append(section['name'])
+        if 'developers' not in data_dict['lab']:
+            developer_list = lab.get("developers")
+        else:
+            developers = data_dict['lab']['developers']
+            developer_list = []
+            for developer_x in developers:
+                name = name_cls(name=developer_x['name'])
+                email = email_cls(email=developer_x['email'])
+                developer = System.do("get_developer", email=email)
+                if developer is None:
+                    developer = developer_cls(name=name, email=email)
+                    developer = System.do("add_developer", developer=developer,
+                                              session=session)
+                developer_list.append(developer)
 
-        section_obj_list=[]
-        for section_x in section_obj_list:
-            section = System.do("get_section", name=section_x['name'])
-            if section is None:
-                section = section_cls(name=str(section_x['name']))
-                section = System.do("add_section", section=section, session=session)
-            section_obj_list.append(section)
-
-        developers = data_dict['lab']['developers']
-        developer_list = []
-        for developer_x in developers:
-            name = name_cls(name=developer_x['name'])
-            email = email_cls(email=developer_x['email'])
-            developer = System.do("get_developer", email=email)
-            if developer is None:
-                developer = developer_cls(name=name, email=email)
-                developer = System.do("add_developer", developer=developer, session=session)
-            developer_list.append(developer)
-
-        experiments = data_dict['lab']['experiments']
-
-        exp_list = []
-        for e_id in experiments:
-            experiment = System.do("get_experiment", exp_id=e_id)
-            exp_list.append(experiment)
+        if 'experiments' not in data_dict['lab']:
+            exp_list = lab.get("experiments")
+        else:
+            experiments = data_dict['lab']['experiments']
+            exp_list = []
+            for e_id in experiments:
+                experiment = System.do("get_experiment", exp_id=e_id)
+                exp_list.append(experiment)
 
         try:
             current_app.logger.debug("running operation update_lab")
             lab = System.do("update_lab", lab=lab,
                                     lab_name=lab_name,
-                                    overview=overview, session=session,
-                                    institute=inst,
-                                    discipline=dis,
+                                    overview=overview,
+                                    session=session,
+                                    institute=institute,
+                                    discipline=discipline,
                                     hosting_info=hosting_info_list,
                                     assets=asset_list,
                                     experiments=exp_list,
+                                    phase=phase_list,
                                     developers=developer_list,
-                                    sections=section_obj_list,
+                                    sections=section_list,
                                     integration_status=integration_status)
             current_app.logger.debug("completed operation update_lab")
             return lab.to_client()
+
         except (ArityError, TypeError, NotAuthorizedError, StateError) as err:
             current_app.logger.error("Exception = %s" % str(err))
             raise err
@@ -5465,9 +5698,13 @@ class TestUpdateLab(TestCase):
         return app
 
     def setUp(self):
+        app = self.create_app()
+        self.app_context = app.app_context()
+        self.app_context.push()
         db.create_all()
 
     def tearDown(self):
+        self.app_context.pop()
         db.session.remove()
         db.drop_all()
 
@@ -5594,6 +5831,7 @@ class TestUpdateLab(TestCase):
                "overview": "overview",
 	       "discipline_id": "CSE",
 	       "institute_id": "IITK",
+               "phase":[{"phase_id":1,  "phase_id":2}],
 	       "developers": [
 		   {
 		       "name": "Dinesh Malviya",
@@ -5738,6 +5976,7 @@ class TestUpdateLab(TestCase):
                "overview": "overviewasds",
 	       "discipline_id": "CSE",
 	       "institute_id": "IITK",
+               "phase":[{"phase_id":1,  "phase_id":2}],
 	       "developers": [
 		   {
 		       "name": "Dinesh Malviya",
@@ -5845,77 +6084,84 @@ class TestUpdateLab(TestCase):
             overview=data_dict['experiment']['overview']
 
         if 'institute_id' not in data_dict['experiment']:
-            inst=str(experiment.get("institute"))
+            inst=experiment.get("institute")
         else:
             inst= System.do("get_institute", institute_id=
                                 data_dict['experiment']['institute_id'])
 
         if 'discipline_id' not in data_dict['experiment']:
-            disc=str(experiment.get("discipline"))
+            disc=experiment.get("discipline")
         else:
             disc= System.do("get_discipline", discipline_id=
                                 data_dict['experiment']['discipline_id'])
 
         if 'integration_level' not in data_dict['experiment']:
-            integration_status=str(experiment.get("integration_status"))
+            integration_status=experiment.get("integration_status")
         else:
             integration_status= System.do("get_integration_status_by_IL", 
                       integration_level=
                         data_dict['experiment']['integration_level'])
 
-        hosting_info = data_dict['experiment']['hosting_info']
-        hosting_info_list = []
-        for hosting_info_x in hosting_info:
-            hosting_info = System.do("get_hosting_info",
-                                         hosted_url=
-                                         hosting_info_x['hosted_url'])
-            if hosting_info is None:
-                hosting_info = hosting_info_cls(hosting_status=\
-                                                    str(hosting_info_x\
-                                                        ['hosting_status']), \
-                                                    hosted_url=\
-                                                    str(hosting_info_x\
-                                                        ['hosted_url']), \
-                                                    hosted_on=\
-                                                    str(hosting_info_x\
-                                                            ['hosted_on']))
-                hosting_info = System.do("add_hosting_info", \
-                                             hosting_info=hosting_info, \
-                                             session=session)
-            hosting_info_list.append(hosting_info)
+        if 'hosting_info' not in data_dict['experiment']:
+            hosting_info_list = experiment.get("hosting_info")
+        else:
+            hosting_info = data_dict['experiment']['hosting_info']
+            hosting_info_list = []
+            for hosting_info_x in hosting_info:
+                hosting_info = System.do("get_hosting_info",
+                                            hosted_url=
+                                            hosting_info_x['hosted_url'])
+                if hosting_info is None:
+                    hosting_info = hosting_info_cls\
+                      (hosting_status=str(hosting_info_x['hosting_status']), \
+                           hosted_url=str(hosting_info_x['hosted_url']), \
+                      hosted_on=str(hosting_info_x['hosted_on']))
+                    hosting_info = System.do("add_hosting_info",
+                                                 hosting_info=hosting_info,
+                                                 session=session)
+                hosting_info_list.append(hosting_info)
 
-        assets = data_dict['experiment']['assets']
-        asset_list = []
-        for asset_x in assets:
-            asset = System.do("get_asset", path=asset_x['path'])
-            if asset is None:
-                asset_type = asset_type_cls(asset_type=\
-                                                str(asset_x['asset_type']))
-                asset = asset_cls(asset_type=asset_type, \
-                                      path=str(asset_x['path']))
-                asset = System.do("add_asset", asset=asset, session=session)
-            asset_list.append(asset)
+        if 'assets' not in data_dict['experiment']:
+            asset_list = experiment.get("assets")
+        else:
+            assets = data_dict['experiment']['assets']
+            asset_list = []
+            for asset_x in assets:
+                asset = System.do("get_asset", path=asset_x['path'])
+                if asset is None:
+                    asset_type = asset_type_cls(asset_type=\
+                                                    str(asset_x['asset_type']))
+                    asset = asset_cls(asset_type=asset_type, \
+                                        path=str(asset_x['path']))
+                    asset = System.do("add_asset", asset=asset, session=session)
+                asset_list.append(asset)
 
-        developers = data_dict['experiment']['developers']
-        developer_list = []
-        for developer_x in developers:
-            name = name_cls(name=developer_x['name'])
-            email = email_cls(email=developer_x['email'])
-            developer = System.do("get_developer", email=email)
-            if developer is None:
-                developer = developer_cls(name=name, email=email)
-                developer = System.do("add_developer", developer=developer,
-                                          session=session)
-            developer_list.append(developer)
+        if 'sections' not in data_dict['experiment']:
+            section_list = experiment.get("sections")
+        else:
+            sections = data_dict['experiment']['sections']
+            section_list = []
+            for section_x in sections:
+                section = System.do("get_section", name=section_x)
+                if section is None:
+                    section = section_cls(name=section_x)
+                    section = System.do("add_section", section=section, session=session)
+                section_list.append(section)
 
-        sections = data_dict['experiment']['sections']
-        section_list = []
-        for section_x in sections:
-            section = System.do("get_section", name=section_x)
-            if section is None:
-                section = section_cls(name=str(section_x))
-                section = System.do("add_section", section=section, session=session)
-            section_list.append(section)
+        if 'developers' not in data_dict['experiment']:
+            developer_list = experiment.get("developers")
+        else:
+            developers = data_dict['experiment']['developers']
+            developer_list = []
+            for developer_x in developers:
+                name = name_cls(name=developer_x['name'])
+                email = email_cls(email=developer_x['email'])
+                developer = System.do("get_developer", email=email)
+                if developer is None:
+                    developer = developer_cls(name=name, email=email)
+                    developer = System.do("add_developer", developer=developer,
+                                              session=session)
+                developer_list.append(developer)
 
         try:
             current_app.logger.debug("running operation update_experiment")
@@ -5949,9 +6195,13 @@ class TestUpdateExperiment(TestCase):
         return app
 
     def setUp(self):
+        app = self.create_app()
+        self.app_context = app.app_context()
+        self.app_context.push()
         db.create_all()
 
     def tearDown(self):
+        self.app_context.pop()
         db.session.remove()
         db.drop_all()
 
@@ -6212,19 +6462,22 @@ class TestUpdateExperiment(TestCase):
 
         institute = System.do("get_institute", institute_id=str(data_dict['institute_id']))
 
-        assets = data_dict['assets']
-        asset_list = []
-        for asset_x in assets:
-            asset = System.do("get_asset", path=asset_x['path'])
-            if asset is None:
-                asset_type = asset_type_cls(asset_type=asset_x['asset_type'])
-                asset = asset_cls(asset_type=asset_type, \
-                                      path=str(asset_x['path']))
-                asset = System.do("add_asset", asset=asset, session=session)
-            asset_list.append(asset)
+        if 'assets' not in data_dict:
+            asset_list = institute.get("assets")
+        else:
+            assets = data_dict['assets']
+            asset_list = []
+            for asset_x in assets:
+                asset = System.do("get_asset", path=asset_x['path'])
+                if asset is None:
+                    asset_type = asset_type_cls(asset_type=asset_x['asset_type'])
+                    asset = asset_cls(asset_type=asset_type, \
+                                        path=str(asset_x['path']))
+                    asset = System.do("add_asset", asset=asset, session=session)
+                asset_list.append(asset)
 
         if 'institute_name' not in data_dict:
-            institute_name=str(inst.get("institute_name"))
+            institute_name=str(institute.get("institute_name"))
         else:
             institute_name=data_dict['institute_name']
 
@@ -6254,9 +6507,13 @@ class TestUpdateInstitute(TestCase):
         return app
 
     def setUp(self):
+        app = self.create_app()
+        self.app_context = app.app_context()
+        self.app_context.push()
         db.create_all()
 
     def tearDown(self):
+        self.app_context.pop()
         db.session.remove()
         db.drop_all()
 
@@ -6340,9 +6597,13 @@ class TestUpdateSection(TestCase):
         return app
 
     def setUp(self):
+        app = self.create_app()
+        self.app_context = app.app_context()
+        self.app_context.push()
         db.create_all()
 
     def tearDown(self):
+        self.app_context.pop()
         db.session.remove()
         db.drop_all()
 
@@ -6381,16 +6642,19 @@ class TestUpdateSection(TestCase):
         discipline_id = str(data_dict['discipline_id'])
         discipline = System.do("get_discipline", discipline_id=discipline_id)
 
-        assets = data_dict['assets']
-        asset_list = []
-        for asset_x in assets:
-            asset = System.do("get_asset", path=asset_x['path'])
-            if asset is None:
-                asset_type = asset_type_cls(asset_type=asset_x['asset_type'])
-                asset = asset_cls(asset_type=asset_type, \
-                                      path=str(asset_x['path']))
-                asset = System.do("add_asset", asset=asset, session=session)
-            asset_list.append(asset)
+        if 'assets' not in data_dict:
+            asset_list = discipline.get("assets")
+        else:
+            assets = data_dict['assets']
+            asset_list = []
+            for asset_x in assets:
+                asset = System.do("get_asset", path=asset_x['path'])
+                if asset is None:
+                    asset_type = asset_type_cls(asset_type=asset_x['asset_type'])
+                    asset = asset_cls(asset_type=asset_type, \
+                                        path=str(asset_x['path']))
+                    asset = System.do("add_asset", asset=asset, session=session)
+                asset_list.append(asset)
 
         if "discipline_name" not in data_dict:
             discipline_name=str(discipline.get("discipline_name"))
@@ -6423,9 +6687,13 @@ class TestUpdateDiscipline(TestCase):
         return app
 
     def setUp(self):
+        app = self.create_app()
+        self.app_context = app.app_context()
+        self.app_context.push()
         db.create_all()
 
     def tearDown(self):
+        self.app_context.pop()
         db.session.remove()
         db.drop_all()
 
@@ -6477,7 +6745,7 @@ class TestUpdateDiscipline(TestCase):
         hosting_info = System.do("get_hosting_info", hosted_url=hosted_url)
 
         if 'hosting_status' not in data_dict:
-            hosting_status=str(hosting_info.get("hosting_status"))
+            hosting_status=hosting_info.get("hosting_status")
         else:
             hosting_status=data_dict['hosting_status']
 
@@ -6512,9 +6780,13 @@ class TestUpdateHosting_Info(TestCase):
         return app
 
     def setUp(self):
+        app = self.create_app()
+        self.app_context = app.app_context()
+        self.app_context.push()
         db.create_all()
 
     def tearDown(self):
+        self.app_context.pop()
         db.session.remove()
         db.drop_all()
 
@@ -6559,7 +6831,7 @@ class TestUpdateHosting_Info(TestCase):
         developer = System.do("get_developer", email=email)
 
         if 'name' not in data_dict:
-            name=developer.get("name")
+            name=str(developer.get("name"))
         else:
             name=name_cls(name=str(data_dict['name']))
 
@@ -6590,9 +6862,13 @@ class TestUpdateDeveloper(TestCase):
         return app
 
     def setUp(self):
+        app = self.create_app()
+        self.app_context = app.app_context()
+        self.app_context.push()
         db.create_all()
 
     def tearDown(self):
+        self.app_context.pop()
         db.session.remove()
         db.drop_all()
 
@@ -6724,9 +7000,13 @@ class TestUpdateName(TestCase):
         return app
 
     def setUp(self):
+        app = self.create_app()
+        self.app_context = app.app_context()
+        self.app_context.push()
         db.create_all()
 
     def tearDown(self):
+        self.app_context.pop()
         db.session.remove()
         db.drop_all()
 
@@ -6783,9 +7063,13 @@ class TestDeleteLab(TestCase):
         return app
 
     def setUp(self):
+        app = self.create_app()
+        self.app_context = app.app_context()
+        self.app_context.push()
         db.create_all()
 
     def tearDown(self):
+        self.app_context.pop()
         db.session.remove()
         db.drop_all()
 
@@ -6916,6 +7200,7 @@ class TestDeleteLab(TestCase):
                "overview": "overview",
 	       "discipline_id": "CSE",
 	       "institute_id": "IITK",
+               "phase":[{"phase_id":1,  "phase_id":2}],
 	       "developers": [
 		   {
 		       "name": "Dinesh Malviya",
@@ -6971,6 +7256,7 @@ class TestDeleteLab(TestCase):
                    "overview": "overview",
                    "discipline_id": "CSE",
                    "institute_id": "IITK",
+                   "phase":[{"phase_id":1,  "phase_id":2}],
                    "developers": [
                        {
                            "name": "Dinesh Malviya",
@@ -7059,9 +7345,13 @@ class TestDeleteExperiment(TestCase):
         return app
 
     def setUp(self):
+        app = self.create_app()
+        self.app_context = app.app_context()
+        self.app_context.push()
         db.create_all()
 
     def tearDown(self):
+        self.app_context.pop()
         db.session.remove()
         db.drop_all()
 
@@ -7265,9 +7555,13 @@ class TestDeleteInstitute(TestCase):
         return app
 
     def setUp(self):
+        app = self.create_app()
+        self.app_context = app.app_context()
+        self.app_context.push()
         db.create_all()
 
     def tearDown(self):
+        self.app_context.pop()
         db.session.remove()
         db.drop_all()
 
@@ -7340,9 +7634,13 @@ class TestDeleteSection(TestCase):
         return app
 
     def setUp(self):
+        app = self.create_app()
+        self.app_context = app.app_context()
+        self.app_context.push()
         db.create_all()
 
     def tearDown(self):
+        self.app_context.pop()
         db.session.remove()
         db.drop_all()
 
@@ -7401,9 +7699,13 @@ class TestDeleteDiscipline(TestCase):
         return app
 
     def setUp(self):
+        app = self.create_app()
+        self.app_context = app.app_context()
+        self.app_context.push()
         db.create_all()
 
     def tearDown(self):
+        self.app_context.pop()
         db.session.remove()
         db.drop_all()
 
@@ -7474,9 +7776,13 @@ class TestDeleteHosting_Info(TestCase):
         return app
 
     def setUp(self):
+        app = self.create_app()
+        self.app_context = app.app_context()
+        self.app_context.push()
         db.create_all()
 
     def tearDown(self):
+        self.app_context.pop()
         db.session.remove()
         db.drop_all()
 
@@ -7538,9 +7844,13 @@ class TestDeleteName(TestCase):
         return app
 
     def setUp(self):
+        app = self.create_app()
+        self.app_context = app.app_context()
+        self.app_context.push()
         db.create_all()
 
     def tearDown(self):
+        self.app_context.pop()
         db.session.remove()
         db.drop_all()
 
@@ -7602,9 +7912,13 @@ class TestDeleteEmail(TestCase):
         return app
 
     def setUp(self):
+        app = self.create_app()
+        self.app_context = app.app_context()
+        self.app_context.push()
         db.create_all()
 
     def tearDown(self):
+        self.app_context.pop()
         db.session.remove()
         db.drop_all()
 
@@ -7668,9 +7982,13 @@ class TestDeleteDeveloper(TestCase):
         return app
 
     def setUp(self):
+        app = self.create_app()
+        self.app_context = app.app_context()
+        self.app_context.push()
         db.create_all()
 
     def tearDown(self):
+        self.app_context.pop()
         db.session.remove()
         db.drop_all()
 
@@ -7764,9 +8082,13 @@ class TestDeleteIntegration_Status(TestCase):
         return app
 
     def setUp(self):
+        app = self.create_app()
+        self.app_context = app.app_context()
+        self.app_context.push()
         db.create_all()
 
     def tearDown(self):
+        self.app_context.pop()
         db.session.remove()
         db.drop_all()
 
@@ -7825,9 +8147,13 @@ class TestGetInstituteByInstituteId(TestCase):
         return app
 
     def setUp(self):
+        app = self.create_app()
+        self.app_context = app.app_context()
+        self.app_context.push()
         db.create_all()
 
     def tearDown(self):
+        self.app_context.pop()
         db.session.remove()
         db.drop_all()
 
@@ -7902,9 +8228,13 @@ class TestGetLabByLabId(TestCase):
         return app
 
     def setUp(self):
+        app = self.create_app()
+        self.app_context = app.app_context()
+        self.app_context.push()
         db.create_all()
 
     def tearDown(self):
+        self.app_context.pop()
         db.session.remove()
         db.drop_all()
 
@@ -8042,6 +8372,7 @@ class TestGetLabByLabId(TestCase):
                    "overview": "overview",
                    "discipline_id": "CSE",
                    "institute_id": "IITK",
+                   "phase":[{"phase_id":1,  "phase_id":2}],
                    "developers": [
                        {
                            "name": "Dinesh Malviya",
@@ -8096,6 +8427,7 @@ class TestGetLabByLabId(TestCase):
                    "overview": "overview",
                    "discipline_id": "CSE",
                    "institute_id": "IITK",
+                   "phase":[{"phase_id":1,  "phase_id":2}],
                    "developers": [
                        {
                            "name": "Dinesh Malviya",
@@ -8185,9 +8517,13 @@ class TestGetExpByExpId(TestCase):
         return app
 
     def setUp(self):
+        app = self.create_app()
+        self.app_context = app.app_context()
+        self.app_context.push()
         db.create_all()
 
     def tearDown(self):
+        self.app_context.pop()
         db.session.remove()
         db.drop_all()
 
@@ -8265,6 +8601,7 @@ class TestGetExpByExpId(TestCase):
 		      "name": "Parallel and distributed processing",
 		      "discipline_id": "CSE",
 		      "institute_id": "IITK",
+                      "phase":[{"phase_id":1,  "phase_id":2}],
 		      "developers": [
 			{
 			  "name": "Dinesh Malviya",
@@ -8316,6 +8653,7 @@ class TestGetExpByExpId(TestCase):
 		      "name": "Parallel and distributed processing",
 		      "discipline_id": "CSE",
 		      "institute_id": "IITK",
+                      "phase":[{"phase_id":1,  "phase_id":2}],
 		      "developers": [
 			{
 			  "name": "Dinesh Malviya",
@@ -8402,9 +8740,13 @@ class TestGetDisciplineByDisciplineId(TestCase):
         return app
 
     def setUp(self):
+        app = self.create_app()
+        self.app_context = app.app_context()
+        self.app_context.push()
         db.create_all()
 
     def tearDown(self):
+        self.app_context.pop()
         db.session.remove()
         db.drop_all()
 
@@ -8491,9 +8833,13 @@ class TestGetDeveloperByEmail(TestCase):
         return app
 
     def setUp(self):
+        app = self.create_app()
+        self.app_context = app.app_context()
+        self.app_context.push()
         db.create_all()
 
     def tearDown(self):
+        self.app_context.pop()
         db.session.remove()
         db.drop_all()
 
@@ -8586,9 +8932,13 @@ class TestGetIntegration_StatusByIL(TestCase):
         return app
 
     def setUp(self):
+        app = self.create_app()
+        self.app_context = app.app_context()
+        self.app_context.push()
         db.create_all()
 
     def tearDown(self):
+        self.app_context.pop()
         db.session.remove()
         db.drop_all()
 
@@ -8655,9 +9005,13 @@ class TestAddAsset(TestCase):
         return app
 
     def setUp(self):
+        app = self.create_app()
+        self.app_context = app.app_context()
+        self.app_context.push()
         db.create_all()
 
     def tearDown(self):
+        self.app_context.pop()
         db.session.remove()
         db.drop_all()
 
@@ -8695,7 +9049,7 @@ class TestAddAsset(TestCase):
         asset = System.do("get_asset", path=path)
 
         if 'asset_type' not in data_dict:
-            asset_type=str(asset.get("asset_type"))
+            asset_type=asset.get("asset_type")
         else:
             asset_type = asset_type_cls(asset_type=\
                                             str(data_dict['asset_type']))
@@ -8726,9 +9080,13 @@ class TestUpdateAsset(TestCase):
         return app
 
     def setUp(self):
+        app = self.create_app()
+        self.app_context = app.app_context()
+        self.app_context.push()
         db.create_all()
 
     def tearDown(self):
+        self.app_context.pop()
         db.session.remove()
         db.drop_all()
 
@@ -8788,9 +9146,13 @@ class TestDeleteAsset(TestCase):
         return app
 
     def setUp(self):
+        app = self.create_app()
+        self.app_context = app.app_context()
+        self.app_context.push()
         db.create_all()
 
     def tearDown(self):
+        self.app_context.pop()
         db.session.remove()
         db.drop_all()
 
@@ -8854,9 +9216,13 @@ class TestGetAssets(TestCase):
         return app
 
     def setUp(self):
+        app = self.create_app()
+        self.app_context = app.app_context()
+        self.app_context.push()
         db.create_all()
 
     def tearDown(self):
+        self.app_context.pop()
         db.session.remove()
         db.drop_all()
 
@@ -8954,9 +9320,13 @@ class TestGetAssetByPath(TestCase):
         return app
 
     def setUp(self):
+        app = self.create_app()
+        self.app_context = app.app_context()
+        self.app_context.push()
         db.create_all()
 
     def tearDown(self):
+        self.app_context.pop()
         db.session.remove()
         db.drop_all()
 
@@ -9019,9 +9389,13 @@ class TestGetHosting_Info_by_hosted_url(TestCase):
         return app
 
     def setUp(self):
+        app = self.create_app()
+        self.app_context = app.app_context()
+        self.app_context.push()
         db.create_all()
 
     def tearDown(self):
+        self.app_context.pop()
         db.session.remove()
         db.drop_all()
 
@@ -9059,7 +9433,7 @@ class TestGetHosting_Info_by_hosted_url(TestCase):
 # -*- coding: utf-8 -*-
 from runtime.system.system import *
 import datetime
-from flask import current_app
+from flask import current_app, abort
 from runtime.config.system_config import KEY
 
 #+end_src
@@ -9148,9 +9522,11 @@ if __name__ == '__main__':
 <<class_get_lab_by_exp_id>>
 <<class_get_institute_by_institute_id>>
 <<class_get_discipline_by_discipline_id>>
-<<class_get_labs_by_institute>>
+<<class_get_labs_by_institute_id>>
+<<class_get_labs_by_institute_name>>
 <<class_get_labs_by_lab_name>>
-<<class_get_labs_by_discipline>>
+<<class_get_labs_by_discipline_id>>
+<<class_get_labs_by_discipline_name>>
 <<class_get_labs_by_asset>>
 <<class_update_Name>>
 <<class_get_sections>>
@@ -9175,7 +9551,7 @@ if __name__ == '__main__':
 #+BEGIN_SRC python :tangle test_system_interface.py :eval no :noweb yes
 <<imports_for_tests>>
 
-#<<test_class_add_lab>>
+<<test_class_add_lab>>
 <<test_class_add_experiment>>
 <<test_class_add_institute>>
 <<test_class_add_discipline>>
@@ -9217,9 +9593,11 @@ if __name__ == '__main__':
 <<test_class_update_hosting_info>>
 
 <<test_class_get_lab_by_labid>>
-<<test_class_get_labs_by_institute>>
+<<test_class_get_labs_by_institute_name>>
+<<test_class_get_labs_by_institute_id>>
 <<test_class_get_labs_by_lab_name>>
-<<test_class_get_labs_by_discipline>>
+<<test_class_get_labs_by_discipline_id>>
+<<test_class_get_labs_by_discipline_name>>
 <<test_class_get_labs_by_keyword_lab_name>>
 
 <<test_class_update_developer>>

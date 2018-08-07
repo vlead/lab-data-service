@@ -16,7 +16,14 @@
   
 * REST
 
-** Get Labs, Get Lab, Get Labs by institute, lab_name, discipline and asset and Get labs by passing lab_name as keyword
+** Get of Lab or Labs
+   get lab by id, get lab by name, get labs by institute, get labs by
+   discipline, and get labs by keyword and get all labs.  All the responses in
+   this set of API go through a map that adapats the response to the consumer
+   requesting.  Also, all the responses are cached and any further requests
+   that specifically need these cached values are serviced from these cached
+   values.
+
 *** API Designs 
 **** Get all labs
   :PROPERTIES:
@@ -127,6 +134,57 @@
 http://localhost:5000/labs
 #+END_EXAMPLE  
 
+**** Get all labs for the consumer landing pages and are cached
+  :PROPERTIES:
+  :CUSTOM_ID: api_get_all_labs
+  :END:    
+  - URL :: /labs?cached=<either 1 or 0>&consumer=<val>
+
+  - Method :: GET
+
+  - URL Params ::  None
+
+  - Payload :: None
+
+  - Success Response
+    + Status_Code: 200
+      + Contents :
+
+#+BEGIN_EXAMPLE
+[
+ {
+   "phase": [],
+   "lab_name": "Bioinformatics Virtual Lab I",
+   "assets": [
+     {
+       "path": "amrita-university-biotech08.png",
+       "asset_type": {
+         "asset_type": "image",
+         "id": "1"
+       },
+       "id": "241"
+     }
+   ],
+   "hosting_info": [
+     {
+       "hosting_status": "hosted",
+       "hosted_url": "http://vlab.amrita.edu/index.php?sub=3&brch=273",
+       "hosted_on": "institute",
+       "id": "22"
+     }
+   ]
+ }
+]
+#+END_EXAMPLE	       
+
+    
+  - Error Response:
+    + Contents :
+      {"status" : "error"} 
+  - Example:
+#+BEGIN_EXAMPLE
+http://localhost:5000/labs?cached=1&consumer=lp
+#+END_EXAMPLE  
 **** Get lab by lab_id
   :PROPERTIES:
   :CUSTOM_ID: api_get_lab_by_lab_id
@@ -234,6 +292,226 @@ http://localhost:5000/labs
   - Example:
 #+BEGIN_EXAMPLE
 http://localhost:5000/labs?lab_id=cse02
+#+END_EXAMPLE  
+
+**** Get labs by institute_id
+  :PROPERTIES:
+  :CUSTOM_ID: api_get_lab_by_lab_id
+  :END:    
+  - URL :: /labs?institute_id=<institute_id>
+
+  - Method :: GET
+
+  - URL Params ::  None
+
+  - Payload :: None
+
+  - Success Response
+    + Status_Code: 200
+      + Contents :
+
+#+BEGIN_EXAMPLE
+[
+  {
+    "discipline": {
+      "discipline_id": "cse",
+      "assets": [],
+      "discipline_name": "Computer Science and Engineering",
+      "id": "6"
+    },
+    "lab_id": "cse02",
+    "assets": [
+      {
+        "path": "vlabs.ac.in/images/static/logo.png",
+        "asset_type": "image",
+        "id": "1"
+      },
+      {
+        "path": "vlabs.ac.in/video/abc.mkv",
+        "asset_type": "video",
+        "id": "2"
+      }
+    ],
+    "hosting_info": [
+      {
+        "hosting_status": "hosted",
+        "hosted_url": "http://cse14-iiith.vlabs.ac.in",
+        "hosted_on": "cloud",
+        "id": "1"
+      },
+      {
+        "hosting_status": "hosted",
+        "hosted_url": "http://cse14-iiith.ac.in",
+        "hosted_on": "college-cloud",
+        "id": "2"
+      }
+    ],
+    "institute": {
+      "id": "8",
+      "institute_name": "IIT Kanpur",
+      "assets": [],
+      "institute_id": "iitk"
+    },
+    "overview": "overview",
+    "lab_name": "Computer Programming",
+    "experiments": [],
+    "integration_status": {
+      "integration_level": 4,
+      "id": "5"
+    },
+    "developers": [
+      {
+        "id": "1",
+        "name": {
+          "name": "Dinesh Malviya",
+          "id": "1"
+        },
+        "email": {
+          "email": "xyz@gmail.com",
+          "id": "1"
+        }
+      },
+      {
+        "id": "2",
+        "name": {
+          "name": "Ashish Ahuja",
+          "id": "2"
+        },
+        "email": {
+          "email": "abc@gmail.com",
+          "id": "2"
+        }
+      }
+    ],
+    "sections": [
+      {
+        "name": "Introduction",
+        "id": "1"
+      }
+    ],
+    "id": "1"
+  }
+]
+#+END_EXAMPLE	       
+
+    
+  - Error Response:
+    + Contents :
+      {"status" : "error"}
+    
+  - Example:
+#+BEGIN_EXAMPLE
+http://localhost:5000/labs?institute_id=iitk
+#+END_EXAMPLE  
+
+**** Get labs by discipline_id
+  :PROPERTIES:
+  :CUSTOM_ID: api_get_labs_by_discipline_id
+  :END:    
+  - URL :: /labs?discipline_id=<discipline_id>
+
+  - Method :: GET
+
+  - URL Params ::  None
+
+  - Payload :: None
+
+  - Success Response
+    + Status_Code: 200
+      + Contents :
+
+#+BEGIN_EXAMPLE
+[
+  {
+    "discipline": {
+      "discipline_id": "cse",
+      "assets": [],
+      "discipline_name": "Computer Science and Engineering",
+      "id": "6"
+    },
+    "lab_id": "cse02",
+    "assets": [
+      {
+        "path": "vlabs.ac.in/images/static/logo.png",
+        "asset_type": "image",
+        "id": "1"
+      },
+      {
+        "path": "vlabs.ac.in/video/abc.mkv",
+        "asset_type": "video",
+        "id": "2"
+      }
+    ],
+    "hosting_info": [
+      {
+        "hosting_status": "hosted",
+        "hosted_url": "http://cse14-iiith.vlabs.ac.in",
+        "hosted_on": "cloud",
+        "id": "1"
+      },
+      {
+        "hosting_status": "hosted",
+        "hosted_url": "http://cse14-iiith.ac.in",
+        "hosted_on": "college-cloud",
+        "id": "2"
+      }
+    ],
+    "institute": {
+      "id": "8",
+      "institute_name": "IIT Kanpur",
+      "assets": [],
+      "institute_id": "iitk"
+    },
+    "overview": "overview",
+    "lab_name": "Computer Programming",
+    "experiments": [],
+    "integration_status": {
+      "integration_level": 4,
+      "id": "5"
+    },
+    "developers": [
+      {
+        "id": "1",
+        "name": {
+          "name": "Dinesh Malviya",
+          "id": "1"
+        },
+        "email": {
+          "email": "xyz@gmail.com",
+          "id": "1"
+        }
+      },
+      {
+        "id": "2",
+        "name": {
+          "name": "Ashish Ahuja",
+          "id": "2"
+        },
+        "email": {
+          "email": "abc@gmail.com",
+          "id": "2"
+        }
+      }
+    ],
+    "sections": [
+      {
+        "name": "Introduction",
+        "id": "1"
+      }
+    ],
+    "id": "1"
+  }
+]
+#+END_EXAMPLE	       
+
+    
+  - Error Response:
+    + Contents :
+      {"status" : "error"}
+    
+  - Example:
+#+BEGIN_EXAMPLE
+http://localhost:5000/labs?discipline_id=cse
 #+END_EXAMPLE  
 
 **** Get labs by institute
@@ -346,6 +624,59 @@ http://localhost:5000/labs?lab_id=cse02
 http://localhost:5000/labs?institute_name=IIIT Hyderabad
 #+END_EXAMPLE  
 
+**** Get labs by institute for a consumer and data that is cached
+  :PROPERTIES:
+  :CUSTOM_ID: api_get_lab_by_lab_id
+  :END:    
+  - URL :: /labs?institute_name=<institute_name>&cached=<either 1 or 0>&consumer=<val>
+
+  - Method :: GET
+
+  - URL Params ::  None
+
+  - Payload :: None
+
+  - Success Response
+    + Status_Code: 200
+      + Contents :
+
+#+BEGIN_EXAMPLE
+[
+ {
+   "phase": [],
+   "lab_name": "Bioinformatics Virtual Lab I",
+   "assets": [
+     {
+       "path": "amrita-university-biotech08.png",
+       "asset_type": {
+         "asset_type": "image",
+         "id": "1"
+       },
+       "id": "241"
+     }
+   ],
+   "hosting_info": [
+     {
+       "hosting_status": "hosted",
+       "hosted_url": "http://vlab.amrita.edu/index.php?sub=3&brch=273",
+       "hosted_on": "institute",
+       "id": "22"
+     }
+   ]
+ }
+]
+#+END_EXAMPLE	       
+
+    
+  - Error Response:
+    + Contents :
+      {"status" : "error"}
+    
+  - Example:
+#+BEGIN_EXAMPLE
+http://localhost:5000/labs?institute_name=Amrita Vishwa Vidyapeetham&cached=1&consumer=lp
+#+END_EXAMPLE  
+
 **** Get labs by discipline
   :PROPERTIES:
   :CUSTOM_ID: api_get_lab_by_lab_id
@@ -456,6 +787,63 @@ http://localhost:5000/labs?institute_name=IIIT Hyderabad
 http://localhost:5000/labs?discipline_name=Computer Science and Engineering
 #+END_EXAMPLE  
 
+**** Get labs by discipline for a consumer and 
+  :PROPERTIES:
+  :CUSTOM_ID: api_get_lab_by_lab_id
+  :END:    
+  - URL :: /labs?discipline_name=<discipline_name>&cached=<either 1 or 0>&consumer=<val>
+
+  - Method :: GET
+
+  - URL Params ::  None
+
+  - Payload :: None
+
+  - Success Response
+    + Status_Code: 200
+      + Contents :
+
+#+BEGIN_EXAMPLE
+[
+  {
+    "phase": [
+      {
+        "id": "1",
+        "phase_id": 2
+      }
+    ],
+    "lab_name": "FPGA and Embedded System Lab",
+    "assets": [
+      {
+        "path": "coepune-cse12.png",
+        "asset_type": {
+          "asset_type": "image",
+          "id": "1"
+        },
+        "id": "260"
+      }
+    ],
+    "hosting_info": [
+      {
+        "hosting_status": "hosted",
+        "hosted_url": "http://coep.vlab.co.in/index.php?sub=29",
+        "hosted_on": "institute",
+        "id": "194"
+      }
+    ]
+  }
+]
+#+END_EXAMPLE	       
+
+    
+  - Error Response:
+    + Contents :
+      {"status" : "error"}
+    
+  - Example:
+#+BEGIN_EXAMPLE
+http://192.168.33.13:5000/labs?discipline_name=Computer Science and Engineering&cached=1&consumer=lp"
+#+END_EXAMPLE  
 **** Get labs by lab_name
   :PROPERTIES:
   :CUSTOM_ID: api_get_lab_by_lab_id
@@ -691,79 +1079,6 @@ http://localhost:5000/labs?discipline_name=Computer Science and Engineering
 http://localhost:5000/labs?lab_name=Data Structures
 #+END_EXAMPLE  
 
-**** Get labs by asset
-  :PROPERTIES:
-  :CUSTOM_ID: api_get_lab_by_lab_id
-  :END:    
-  - URL :: /labs?asset_type=<asset_type>
-
-  - Method :: GET
-
-  - URL Params ::  None
-
-  - Payload :: None
-
-  - Success Response
-    + Status_Code: 200
-      + Contents :
-
-#+BEGIN_EXAMPLE
-[ 
- {
-    "discipline": {
-      "discipline_id": "cse",
-      "id": 1,
-      "discipline_name": "Computer Science"
-    },
-     "asset": {
-      "path": "vlabs.ac.in/images/static/logo.png",
-      "id": 1,
-      "asset_type": "Images"
-    },
-    "lab_id": "cse09",
-    "institute": {
-      "institute_name": "IIIT Hyderabad",
-      "id": 1,
-      "institute_id": "iiith"
-    },
-    "integration_status": {
-      "integration_level": 4,
-      "key": "<key>"
-    },
-    "overview": "overview",
-    "lab_name": "Data Structures",
-    "experiments": [
-      {
-        "overview": "overview",
-        "exp_name": "arrays",
-        "sections": [
-          {
-            "name": "Procedure",
-            "id": 2
-          },
-          {
-            "name": "Theory",
-            "id": 1
-          }
-        ],
-        "id": 1,
-        "exp_id": "exp9"
-      }
-    ],
-    "id": 1
-  }
-]
-#+END_EXAMPLE	       
-
-    
-  - Error Response:
-    + Contents :
-                {"status" : "error"}
-    
-  - Example:
-#+BEGIN_EXAMPLE
-http://localhost:5000/labs?asset_type=image
-#+END_EXAMPLE  
 **** Get labs by lab_name keywords
   :PROPERTIES:
   :CUSTOM_ID: api_get_lab_by_lab_name_keyword
@@ -1002,16 +1317,31 @@ http://localhost:5000/labs?keyword_lab_name=data
 *** Implementation
 #+NAME: get_lab
 #+BEGIN_SRC python
+cached_labs = None
+cached_inst_labs = {}
+cached_disc_labs = {}
+
 @api.route('/labs', methods=['GET'])
 def get_lab():
+    consumer = None
+    cached = None
+    global cached_labs
+    global cached_inst_labs
+    global cached_disc_labs
+
     if request.method == 'GET':
+        if 'consumer' in request.args:
+            consumer  = request.args['consumer']
+        if 'cached' in request.args:
+            cached  = request.args['cached']
+
         if 'lab_id' in request.args:
             lab_id  = request.args['lab_id']
             try:
                 current_app.logger.debug("running operation get_lab")
                 lab = SystemInterface.get_lab(lab_id)
                 current_app.logger.debug("completed operation get_lab")
-                return jsonify(lab)
+                return lab_jsonify(lab, consumer)
 
             except TypeError as e:
                 current_app.logger.error("Exception = %s" % str(e))
@@ -1046,8 +1376,45 @@ def get_lab():
             lab_name  = request.args['lab_name']
             try:
                 current_app.logger.debug("running operation get_labs_by_lab_name")
-                labs = SystemInterface.get_labs_by_lab_name(lab_name)
-                return jsonify(labs)
+                lab = SystemInterface.get_labs_by_lab_name(lab_name)
+                return lab_jsonify(lab, consumer)
+                
+            except TypeError as e:
+                current_app.logger.error("Exception = %s" % str(e))
+                err_str = str(e)
+                msg = {"status": "failure",
+                       "msg": err_str }
+                abort(500, msg)
+
+            except StateError as e:
+                current_app.logger.error("Exception = %s" % str(e))
+                err_str = str(e)
+                msg = {"status": "failure",
+                       "msg": err_str}
+                abort(500, msg)
+
+            except NotFoundError as e:
+                current_app.logger.error("Exception = %s" % str(e))
+                err_str = str(e)
+                msg = {"status": "failure",
+                       "status code": 404,
+                       "msg": err_str}
+                abort(404, msg)
+
+            except Exception as e:
+                current_app.logger.error("Exception = %s" % str(e))
+                err_str = str(e)
+                msg = {"status": "failure",
+                       "msg": err_str}
+                abort(500, msg)
+
+        elif 'institute_id' in request.args:
+            institute_id  = request.args['institute_id']
+            try:
+                current_app.logger.debug("running operation get_labs_by_institute_id")
+                labs = SystemInterface.get_labs_by_institute_id(institute_id)
+                current_app.logger.debug("completed operation get_labs_by_institute_id")
+                return lab_jsonify(labs, consumer)
                 
             except TypeError as e:
                 current_app.logger.error("Exception = %s" % str(e))
@@ -1082,10 +1449,51 @@ def get_lab():
             institute_name  = request.args['institute_name']
             try:
                 current_app.logger.debug("running operation get_labs_by_institute")
-                labs = SystemInterface.get_labs_by_institute(institute_name)
+                if cached == "1" and institute_name in cached_inst_labs.keys():
+                    labs = cached_inst_labs[institute_name]
+                else:
+                    labs = SystemInterface.get_labs_by_institute_name(institute_name)
+                    cached_inst_labs[institute_name] = labs
                 current_app.logger.debug("completed operation get_labs_by_institute")
-                return jsonify_list(labs)
+                return lab_jsonify(labs, consumer)
                 
+            except TypeError as e:
+                current_app.logger.error("Exception = %s" % str(e))
+                err_str = str(e)
+                msg = {"status": "failure",
+                       "msg": err_str }
+                abort(500, msg)
+
+            except StateError as e:
+                current_app.logger.error("Exception = %s" % str(e))
+                err_str = str(e)
+                msg = {"status": "failure",
+                       "msg": err_str}
+                abort(500, msg)
+
+            except NotFoundError as e:
+                current_app.logger.error("Exception = %s" % str(e))
+                err_str = str(e)
+                msg = {"status": "failure",
+                       "status code": 404,
+                       "msg": err_str}
+                abort(404, msg)
+
+            except Exception as e:
+                current_app.logger.error("Exception = %s" % str(e))
+                err_str = str(e)
+                msg = {"status": "failure",
+                       "msg": err_str}
+                abort(500, msg)
+
+        elif 'discipline_id' in request.args:
+            discipline_id = request.args['discipline_id']
+            try:
+                current_app.logger.debug("running operation get_labs_by_discipline_id")
+                labs = SystemInterface.get_labs_by_discipline_id(discipline_id)
+                current_app.logger.debug("completed operation get_labs_by_discipline_id")
+                return lab_jsonify(labs, consumer)
+
             except TypeError as e:
                 current_app.logger.error("Exception = %s" % str(e))
                 err_str = str(e)
@@ -1119,46 +1527,13 @@ def get_lab():
             discipline_name  = request.args['discipline_name']
             try:
                 current_app.logger.debug("running operation get_labs_by_discipline")
-                labs = SystemInterface.get_labs_by_discipline(discipline_name)
+                if cached == "1" and discipline_name in cached_disc_labs.keys():
+                    labs = cached_disc_labs[discipline_name]
+                else:
+                    labs = SystemInterface.get_labs_by_discipline_name(discipline_name)
+                    cached_disc_labs[discipline_name] = labs                    
                 current_app.logger.debug("completed operation get_labs_by_discipline")
-                return jsonify_list(labs)
-                
-            except TypeError as e:
-                current_app.logger.error("Exception = %s" % str(e))
-                err_str = str(e)
-                msg = {"status": "failure",
-                       "msg": err_str }
-                abort(500, msg)
-
-            except StateError as e:
-                current_app.logger.error("Exception = %s" % str(e))
-                err_str = str(e)
-                msg = {"status": "failure",
-                       "msg": err_str}
-                abort(500, msg)
-
-            except NotFoundError as e:
-                current_app.logger.error("Exception = %s" % str(e))
-                err_str = str(e)
-                msg = {"status": "failure",
-                       "status code": 404,
-                       "msg": err_str}
-                abort(404, msg)
-
-            except Exception as e:
-                current_app.logger.error("Exception = %s" % str(e))
-                err_str = str(e)
-                msg = {"status": "failure",
-                       "msg": err_str}
-                abort(500, msg)
-
-        elif 'asset_type' in request.args:
-            asset_type  = request.args['asset_type']
-            try:
-                current_app.logger.debug("running operation get_labs_by_asset")
-                labs = SystemInterface.get_labs_by_asset(asset_type)
-                current_app.logger.debug("completed operation get_labs_by_asset")
-                return jsonify_list(labs)
+                return lab_jsonify(labs, consumer)
 
             except TypeError as e:
                 current_app.logger.error("Exception = %s" % str(e))
@@ -1197,7 +1572,7 @@ def get_lab():
                 labs = SystemInterface.get_labs_by_keyword_lab_name(keyword)
                 current_app.logger.debug("completed operation get_labs_by_"
                                          " keyword_lab_name")
-                return jsonify_list(labs)
+                return lab_jsonify(labs, consumer)
 
             except TypeError as e:
                 current_app.logger.error("Exception = %s" % str(e))
@@ -1230,10 +1605,14 @@ def get_lab():
 
         else:
             try:
-                current_app.logger.debug("running operation get_labs")                
-                labs = SystemInterface.get_labs()
+                current_app.logger.debug("running operation get_labs")
+                if cached == "1" and cached_labs != None:
+                    labs = cached_labs
+                else:
+                    labs = SystemInterface.get_labs()
+                    cached_labs = labs
                 current_app.logger.debug("completed operation get_labs")
-                return jsonify_list(labs)
+                return lab_jsonify(labs, consumer)
 
             except TypeError as e:
                 current_app.logger.error("Exception = %s" % str(e))
@@ -1278,9 +1657,13 @@ class TestGetLab(TestCase):
         return app
 
     def setUp(self):
+        app = self.create_app()
+        self.app_context = app.app_context()
+        self.app_context.push()
         db.create_all()
 
     def tearDown(self):
+        self.app_context.pop()
         db.session.remove()
         db.drop_all()
 
@@ -1423,6 +1806,7 @@ class TestGetLab(TestCase):
                      "overview": "overview",
                      "discipline_id": "CSE",
                      "institute_id": "IITK",
+                     "phase":[{"phase_id":1,  "phase_id":2}],
                      "developers": [
                        {
                          "name": "Dinesh Malviya",
@@ -1487,9 +1871,13 @@ class TestGetLabbyLabId(TestCase):
         return app
 
     def setUp(self):
+        app = self.create_app()
+        self.app_context = app.app_context()
+        self.app_context.push()
         db.create_all()
 
     def tearDown(self):
+        self.app_context.pop()
         db.session.remove()
         db.drop_all()
 
@@ -1632,6 +2020,7 @@ class TestGetLabbyLabId(TestCase):
                      "overview": "overview",
                      "discipline_id": "CSE",
                      "institute_id": "IITK",
+                     "phase":[{"phase_id":1,  "phase_id":2}],
                      "developers": [
                        {
                          "name": "Dinesh Malviya",
@@ -1689,24 +2078,28 @@ class TestGetLabbyLabId(TestCase):
 
 #+END_SRC
 
-**** TestGetLabsbyInstitute
-#+NAME: test_get_labs_by_institute
+**** TestGetLabsbyInstituteId
+#+NAME: test_get_labs_by_institute_id
 #+BEGIN_SRC python
-class TestGetLabsbyInstitute(TestCase):
+class TestGetLabsbyInstituteId(TestCase):
     TESTING = True
     def create_app(self):
         app = create_app(config)
         return app
 
     def setUp(self):
+        app = self.create_app()
+        self.app_context = app.app_context()
+        self.app_context.push()
         db.create_all()
 
     def tearDown(self):
+        self.app_context.pop()
         db.session.remove()
         db.drop_all()
 
-    def test_get_labs_by_institute(self):
-        print "test_get_labs_by_institute_in_rest"
+    def test_get_labs_by_institute_id(self):
+        print "test_get_labs_by_institute_id_in_rest"
 
         payload = {'asset_type': 'Image',
                    'path': 'vlabs.ac.in/images/static/logo.png',
@@ -1838,6 +2231,429 @@ class TestGetLabsbyInstitute(TestCase):
                      "overview": "overview",
                      "discipline_id": "CSE",
                      "institute_id": "IITK",
+                     "phase":[{"phase_id":1,  "phase_id":2}],
+                     "developers": [
+                       {
+                         "name": "Dinesh Malviya",
+                         "email": "xyz@gmail.com"
+                       },
+                       {
+                         "name": "Ashish Ahuja",
+                         "email": "abc@gmail.com"
+                       }
+                     ],
+                     "hosting_info": [
+                       {
+                         "hosting_status": "hosted",
+                         "hosted_on": "cloud",
+                         "hosted_url": "http://cse14-iiith.vlabs.ac.in"
+                       },
+                       {
+                         "hosting_status": "hosted",
+                         "hosted_on": "college-cloud",
+                         "hosted_url": "http://cse14-iiith.ac.in"
+                       }
+                     ],
+                     "integration_level": 4,
+                     "assets": [
+                       {
+                         "asset_type": "image",
+                         "path": "vlabs.ac.in/images/static/logo.png"
+                       },
+                       {
+                         "asset_type": "video",
+                         "path": "vlabs.ac.in/video/abc.mkv"
+                       }
+                     ],
+                     "sections": [
+                       {
+                         "name": "Introduction"
+                       }
+                                              
+                     ],
+                         "experiments": [
+                           "exp123"
+                         ]
+
+                   }
+                 }
+
+
+        response = self.client.post("/labs", data=json.dumps(payload),
+                                 headers=headers)
+
+
+        response = self.client.get("/labs?institute_id=IITK", headers=headers)
+        self.assertEqual(response.status_code, 200)
+
+#+END_SRC
+
+**** TestGetLabsbyDisciplineId
+#+NAME: test_get_labs_by_discipline_id
+#+BEGIN_SRC python
+class TestGetLabsbyDisciplineId(TestCase):
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        app = self.create_app()
+        self.app_context = app.app_context()
+        self.app_context.push()
+        db.create_all()
+
+    def tearDown(self):
+        self.app_context.pop()
+        db.session.remove()
+        db.drop_all()
+
+    def test_get_labs_by_discipline_id(self):
+        print "test_get_labs_by_discipline_id_in_rest"
+
+        payload = {'asset_type': 'Image',
+                   'path': 'vlabs.ac.in/images/static/logo.png',
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/assets", data=json.dumps(payload),
+                                 headers=headers)
+
+        payload = {'institute_name': 'IIT Kanpur',
+                   'institute_id': 'IITK',
+                   		    "assets": [
+			{
+			  "asset_type": "image",
+			  "path": "vlabs.ac.in/images/static/logo.png"
+			}
+		      ],
+
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/institutes", data=json.dumps(payload),
+                                 headers=headers)
+
+        payload = {'integration_level': 4,
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/integration_status", data=json.dumps(payload),
+                                 headers=headers)
+
+        payload = {'discipline_name': 'Computer Science',
+                   'discipline_id': 'CSE',
+                   		    "assets": [
+			{
+			  "asset_type": "image",
+			  "path": "vlabs.ac.in/images/static/logo.png"
+			}
+		      ],
+
+                   'key': KEY}
+
+        response = self.client.post("/disciplines", data=json.dumps(payload),
+                                 headers=headers)
+
+        payload = {'name': 'Prof. Dharamaja',
+                   'email': 'abc@gmail.com',
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/developers", data=json.dumps(payload),
+                                 headers=headers)
+
+        payload = {'hosting_status': 'hosted',
+                   'hosted_url': 'http://cse14-iiith.vlabs.ac.in',
+                   'hosted_on': 'cloud',
+                   'key': KEY}
+
+
+        response = self.client.post("/hosting_info", data=json.dumps(payload),
+                                 headers=headers)
+
+        payload = {
+		   "key": KEY,
+                   "experiment": {
+                     "id": "exp123",
+                     "name": "arrays",
+                     "discipline_id": "CSE",
+                     "institute_id": "IITK",
+                     "developers": [
+                       {
+                         "name": "Dinesh Malviya",
+                         "email": "xyz@gmail.com"
+                       },
+                       {
+                         "name": "Ashish Ahuja",
+                         "email": "abc@gmail.com"
+                       }
+                     ],
+                     "hosting_info": [
+                       {
+                         "hosting_status": "hosted",
+                         "hosted_on": "cloud",
+                         "hosted_url": "http://cse14-iiith.vlabs.ac.in"
+                       },
+                       {
+                         "hosting_status": "hosted",
+                         "hosted_on": "college-cloud",
+                         "hosted_url": "http://cse14-iiith.ac.in"
+                       }
+                     ],
+                     "integration_level": 4,
+                     "overview": "This experiments describes about parallel and distributed processing",
+                     "assets": [
+                       {
+                         "asset_type": "image",
+                         "path": "vlabs.ac.in/images/static/logo.png"
+                       },
+                       {
+                         "asset_type": "video",
+                         "path": "vlabs.ac.in/video/abc.mkv"
+                       }
+                     ],
+                     "sections": [
+                       "Introduction",
+                       "Objective",
+                       "Tutorial",
+                       "Illustration",
+                       "Procedure",
+                       "Experiment",
+                       "Observations",
+                       "Assignment",
+                       "References"
+                     ]
+                   }
+                 }
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/experiments", data=json.dumps(payload),
+                                 headers=headers)
+
+        payload = {           
+		   "key" : KEY,     
+                   "lab": {
+                     "id": "cse02",
+                     "name": "Computer Programming",
+                     "overview": "overview",
+                     "discipline_id": "CSE",
+                     "institute_id": "IITK",
+                     "phase":[{"phase_id":1,  "phase_id":2}],
+                     "developers": [
+                       {
+                         "name": "Dinesh Malviya",
+                         "email": "xyz@gmail.com"
+                       },
+                       {
+                         "name": "Ashish Ahuja",
+                         "email": "abc@gmail.com"
+                       }
+                     ],
+                     "hosting_info": [
+                       {
+                         "hosting_status": "hosted",
+                         "hosted_on": "cloud",
+                         "hosted_url": "http://cse14-iiith.vlabs.ac.in"
+                       },
+                       {
+                         "hosting_status": "hosted",
+                         "hosted_on": "college-cloud",
+                         "hosted_url": "http://cse14-iiith.ac.in"
+                       }
+                     ],
+                     "integration_level": 4,
+                     "assets": [
+                       {
+                         "asset_type": "image",
+                         "path": "vlabs.ac.in/images/static/logo.png"
+                       },
+                       {
+                         "asset_type": "video",
+                         "path": "vlabs.ac.in/video/abc.mkv"
+                       }
+                     ],
+                     "sections": [
+                       {
+                         "name": "Introduction"
+                       }                                              
+                     ],
+                         "experiments": [
+                           "exp123"
+                         ]
+
+                   }
+                 }
+
+        response = self.client.post("/labs", data=json.dumps(payload),
+                                 headers=headers)
+
+
+        response = self.client.get("/labs?discipline_id=CSE",
+                                       headers=headers)
+        self.assertEqual(response.status_code, 200)
+
+#+END_SRC
+
+**** TestGetLabsbyInstituteName
+#+NAME: test_get_labs_by_institute_name
+#+BEGIN_SRC python
+class TestGetLabsbyInstituteName(TestCase):
+    TESTING = True
+    def create_app(self):
+        app = create_app(config)
+        return app
+
+    def setUp(self):
+        app = self.create_app()
+        self.app_context = app.app_context()
+        self.app_context.push()
+        db.create_all()
+
+    def tearDown(self):
+        self.app_context.pop()
+        db.session.remove()
+        db.drop_all()
+
+    def test_get_labs_by_institute_name(self):
+        print "test_get_labs_by_institute_name_in_rest"
+
+        payload = {'asset_type': 'Image',
+                   'path': 'vlabs.ac.in/images/static/logo.png',
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/assets", data=json.dumps(payload),
+                                 headers=headers)
+
+        payload = {'institute_name': 'IIT Kanpur',
+                   'institute_id': 'IITK',
+                   		    "assets": [
+			{
+			  "asset_type": "image",
+			  "path": "vlabs.ac.in/images/static/logo.png"
+			}
+		      ],
+
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/institutes", data=json.dumps(payload),
+                                 headers=headers)
+
+        payload = {'integration_level': 4,
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/integration_status", data=json.dumps(payload),
+                                 headers=headers)
+
+        payload = {'discipline_name': 'Computer Science',
+                   'discipline_id': 'CSE',
+                   		    "assets": [
+			{
+			  "asset_type": "image",
+			  "path": "vlabs.ac.in/images/static/logo.png"
+			}
+		      ],
+
+                   'key': KEY}
+
+        response = self.client.post("/disciplines", data=json.dumps(payload),
+                                 headers=headers)
+
+        payload = {'hosting_status': 'hosted',
+                   'hosted_url': 'http://cse14-iiith.vlabs.ac.in',
+                   'hosted_on': 'cloud',
+                   'key': KEY}
+
+        response = self.client.post("/hosting_info", data=json.dumps(payload),
+                                 headers=headers)
+
+        payload = {'name': 'Prof. Dharamaja',
+                   'email': 'abc@gmail.com',
+                   'key': KEY}
+
+        headers = {'Content-Type': 'application/json'}
+
+        response = self.client.post("/developers", data=json.dumps(payload),
+                                 headers=headers)
+
+        payload = {
+		   "key": KEY,
+                   "experiment": {
+                     "id": "exp123",
+                     "name": "arrays",
+                     "discipline_id": "CSE",
+                     "institute_id": "IITK",
+                     "developers": [
+                       {
+                         "name": "Dinesh Malviya",
+                         "email": "xyz@gmail.com"
+                       },
+                       {
+                         "name": "Ashish Ahuja",
+                         "email": "abc@gmail.com"
+                       }
+                     ],
+                     "hosting_info": [
+                       {
+                         "hosting_status": "hosted",
+                         "hosted_on": "cloud",
+                         "hosted_url": "http://cse14-iiith.vlabs.ac.in"
+                       },
+                       {
+                         "hosting_status": "hosted",
+                         "hosted_on": "college-cloud",
+                         "hosted_url": "http://cse14-iiith.ac.in"
+                       }
+                     ],
+                     "integration_level": 4,
+                     "overview": "This experiments describes about parallel and distributed processing",
+                     "assets": [
+                       {
+                         "asset_type": "image",
+                         "path": "vlabs.ac.in/images/static/logo.png"
+                       },
+                       {
+                         "asset_type": "video",
+                         "path": "vlabs.ac.in/video/abc.mkv"
+                       }
+                     ],
+                     "sections": [
+                       "Introduction",
+                       "Objective",
+                       "Tutorial",
+                       "Illustration",
+                       "Procedure",
+                       "Experiment",
+                       "Observations",
+                       "Assignment",
+                       "References"
+                     ]
+                   }
+                 }
+
+        response = self.client.post("/experiments", data=json.dumps(payload),
+                                 headers=headers)
+
+        payload = {           
+		   "key" : KEY,     
+                   "lab": {
+                     "id": "cse02",
+                     "name": "Computer Programming",
+                     "overview": "overview",
+                     "discipline_id": "CSE",
+                     "institute_id": "IITK",
+                     "phase":[{"phase_id":1,  "phase_id":2}],
                      "developers": [
                        {
                          "name": "Dinesh Malviya",
@@ -1894,24 +2710,28 @@ class TestGetLabsbyInstitute(TestCase):
 
 #+END_SRC
 
-**** TestGetLabsbyDiscipline
-#+NAME: test_get_labs_by_discipline
+**** TestGetLabsbyDisciplineName
+#+NAME: test_get_labs_by_discipline_name
 #+BEGIN_SRC python
-class TestGetLabsbyDiscipline(TestCase):
+class TestGetLabsbyDisciplineName(TestCase):
     TESTING = True
     def create_app(self):
         app = create_app(config)
         return app
 
     def setUp(self):
+        app = self.create_app()
+        self.app_context = app.app_context()
+        self.app_context.push()
         db.create_all()
 
     def tearDown(self):
+        self.app_context.pop()
         db.session.remove()
         db.drop_all()
 
-    def test_get_labs_by_discipline(self):
-        print "test_get_labs_by_discipline_in_rest"
+    def test_get_labs_by_discipline_name(self):
+        print "test_get_labs_by_discipline_name_in_rest"
 
         payload = {'asset_type': 'Image',
                    'path': 'vlabs.ac.in/images/static/logo.png',
@@ -2046,6 +2866,7 @@ class TestGetLabsbyDiscipline(TestCase):
                      "overview": "overview",
                      "discipline_id": "CSE",
                      "institute_id": "IITK",
+                     "phase":[{"phase_id":1,  "phase_id":2}],
                      "developers": [
                        {
                          "name": "Dinesh Malviya",
@@ -2111,9 +2932,13 @@ class TestGetLabsbyLabName(TestCase):
         return app
 
     def setUp(self):
+        app = self.create_app()
+        self.app_context = app.app_context()
+        self.app_context.push()
         db.create_all()
 
     def tearDown(self):
+        self.app_context.pop()
         db.session.remove()
         db.drop_all()
 
@@ -2262,6 +3087,7 @@ class TestGetLabsbyLabName(TestCase):
                      "overview": "overview",
                      "discipline_id": "CSE",
                      "institute_id": "IITK",
+                     "phase":[{"phase_id":1,  "phase_id":2}],
                      "developers": [
                        {
                          "name": "Prof. Dharamaja",
@@ -2318,217 +3144,6 @@ class TestGetLabsbyLabName(TestCase):
 
 #+END_SRC
 
-**** TestGetLabsbyAsset
-#+NAME: test_get_labs_by_asset
-#+BEGIN_SRC python
-class TestGetLabsbyAsset(TestCase):
-    TESTING = True
-    def create_app(self):
-        app = create_app(config)
-        return app
-
-    def setUp(self):
-        db.create_all()
-
-    def tearDown(self):
-        db.session.remove()
-        db.drop_all()
-
-    def test_get_labs_by_discipline(self):
-        print "test_get_labs_by_discipline_in_rest"
-
-        payload = {'asset_type': 'Image',
-                   'path': 'vlabs.ac.in/images/static/logo.png',
-                   'key': KEY}
-
-        headers = {'Content-Type': 'application/json'}
-
-        response = self.client.post("/assets", data=json.dumps(payload),
-                                 headers=headers)
-
-
-        payload = {'institute_name': 'IIT Kanpur',
-                   'institute_id': 'IITK',
-                   		    "assets": [
-			{
-			  "asset_type": "image",
-			  "path": "vlabs.ac.in/images/static/logo.png"
-			}
-		      ],
-
-                   'key': KEY}
-
-        headers = {'Content-Type': 'application/json'}
-
-        response = self.client.post("/institutes", data=json.dumps(payload),
-                                 headers=headers)
-
-        payload = {'integration_level': 4,
-                   'key': KEY}
-
-        headers = {'Content-Type': 'application/json'}
-
-        response = self.client.post("/integration_status", data=json.dumps(payload),
-                                 headers=headers
-
-        payload = {'discipline_name': 'Computer Science',
-                   'discipline_id': 'CSE',
-                   		    "assets": [
-			{
-			  "asset_type": "image",
-			  "path": "vlabs.ac.in/images/static/logo.png"
-			}
-		      ],
-
-                   'key': KEY}
-
-        headers = {'Content-Type': 'application/json'}
-
-        response = self.client.post("/disciplines", data=json.dumps(payload),
-                                 headers=headers)
-
-        payload = {'name': 'Prof. Dharamaja',
-                   'email': 'abc@gmail.com',
-                   'key': KEY}
-
-        headers = {'Content-Type': 'application/json'}
-
-        response = self.client.post("/developers", data=json.dumps(payload),
-                                 headers=headers)
-
-        payload = {'hosting_status': 'hosted',
-                   'hosted_url': 'http://cse14-iiith.vlabs.ac.in',
-                   'hosted_on': 'cloud',
-                   'key': KEY}
-
-
-        response = self.client.post("/hosting_info", data=json.dumps(payload),
-                                 headers=headers)
-
-        payload = {
-		   "key": KEY,
-                   "experiment": {
-                     "id": "exp123",
-                     "name": "arrays",
-                     "discipline_id": "CSE",
-                     "institute_id": "IITK",
-                     "developers": [
-                       {
-                         "name": "Prof. Dharamaja",
-                         "email": "abc@gmail.com"
-                       },
-                       {
-                         "name": "Ashish Ahuja",
-                         "email": "xyz@gmail.com"
-                       }
-                     ],
-                     "hosting_info": [
-                       {
-                         "hosting_status": "hosted",
-                         "hosted_on": "cloud",
-                         "hosted_url": "http://cse14-iiith.vlabs.ac.in"
-                       },
-                       {
-                         "hosting_status": "hosted",
-                         "hosted_on": "college-cloud",
-                         "hosted_url": "http://cse14-iiith.ac.in"
-                       }
-                     ],
-                     "integration_level": 4,
-                     "overview": "This experiments describes about parallel and distributed processing",
-                     "assets": [
-                       {
-                         "asset_type": "image",
-                         "path": "vlabs.ac.in/images/static/logo.png"
-                       },
-                       {
-                         "asset_type": "video",
-                         "path": "vlabs.ac.in/video/abc.mkv"
-                       }
-                     ],
-                     "sections": [
-                       "Introduction",
-                       "Objective",
-                       "Tutorial",
-                       "Illustration",
-                       "Procedure",
-                       "Experiment",
-                       "Observations",
-                       "Assignment",
-                       "References"
-                     ]
-                   }
-                 }
-        headers = {'Content-Type': 'application/json'}
-
-        response = self.client.post("/experiments", data=json.dumps(payload),
-                                 headers=headers)
-
-        payload = {           
-		   "key" : KEY,     
-                   "lab": {
-                     "id": "cse02",
-                     "name": "Computer Programming",
-                     "overview": "overview",
-                     "discipline_id": "CSE",
-                     "institute_id": "IITK",
-                     "developers": [
-                       {
-                         "name": "Dinesh Malviya",
-                         "email": "xyz@gmail.com"
-                       },
-                       {
-                         "name": "Ashish Ahuja",
-                         "email": "abc@gmail.com"
-                       }
-                     ],
-                     "hosting_info": [
-                       {
-                         "hosting_status": "hosted",
-                         "hosted_on": "cloud",
-                         "hosted_url": "http://cse14-iiith.vlabs.ac.in"
-                       },
-                       {
-                         "hosting_status": "hosted",
-                         "hosted_on": "college-cloud",
-                         "hosted_url": "http://cse14-iiith.ac.in"
-                       }
-                     ],
-                     "integration_level": 4,
-                     "assets": [
-                       {
-                         "asset_type": "image",
-                         "path": "vlabs.ac.in/images/static/logo.png"
-                       },
-                       {
-                         "asset_type": "video",
-                         "path": "vlabs.ac.in/video/abc.mkv"
-                       }
-                     ],
-                     "sections": [
-                       {
-                         "name": "Introduction"
-                       }
-                                              
-                     ],
-                         "experiments": [
-                           "exp123"
-                         ]
-
-                   }
-                 }
-
-        headers = {'Content-Type': 'application/json'}
-
-        response = self.client.post("/labs", data=json.dumps(payload),
-                                 headers=headers)
-
-        response = self.client.get("/labs?discipline_name=Computer Science",
-                                       headers=headers)
-        self.assertEqual(response.status_code, 200)
-
-#+END_SRC
-
 **** TestGetLabbyLabNameKeyword
 #+NAME: test_get_lab_by_labname_keyword
 #+BEGIN_SRC python
@@ -2539,9 +3154,13 @@ class TestGetLabbyLabNameKeyWord(TestCase):
         return app
 
     def setUp(self):
+        app = self.create_app()
+        self.app_context = app.app_context()
+        self.app_context.push()
         db.create_all()
 
     def tearDown(self):
+        self.app_context.pop()
         db.session.remove()
         db.drop_all()
 
@@ -2670,6 +3289,7 @@ class TestGetLabbyLabNameKeyWord(TestCase):
                      "overview": "overview",
                      "discipline_id": "CSE",
                      "institute_id": "IITK",
+                     "phase":[{"phase_id":1,  "phase_id":2}],
                      "developers": [
                        {
                          "name": "Prof. Dharamaja",
@@ -2714,7 +3334,7 @@ class TestGetLabbyLabNameKeyWord(TestCase):
 #+END_SRC
 
 
-** Add Lab 
+** Add Lab
 *** API Designs 
 **** Add Lab
   :PROPERTIES:
@@ -2736,6 +3356,7 @@ class TestGetLabbyLabNameKeyWord(TestCase):
     "overview": "overview",
     "discipline_id": "CSE",
     "institute_id": "IITK",
+    "phase":[{"phase_id":1,  "phase_id":2}],
     "developers": [
       {
         "name": "Dinesh Malviya",
@@ -2850,6 +3471,7 @@ class TestGetLabbyLabNameKeyWord(TestCase):
       "institute_id": "iitk",
       "institute_name": "IIT Kanpur"
     },
+    "phase":[{"phase_id":1,  "phase_id":2}],
     "integration_status": {
       "id": "5",
       "integration_level": 4
@@ -2951,9 +3573,13 @@ class TestAddLab(TestCase):
         return app
 
     def setUp(self):
+        app = self.create_app()
+        self.app_context = app.app_context()
+        self.app_context.push()
         db.create_all()
 
     def tearDown(self):
+        self.app_context.pop()
         db.session.remove()
         db.drop_all()
 
@@ -3095,7 +3721,9 @@ class TestAddLab(TestCase):
                      "name": "Computer Programming",
                      "overview": "overview",
                      "discipline_id": "CSE",
+                     "phase":[{"phase_id":1,  "phase_id":2}],
                      "institute_id": "IITK",
+                     "phase":[{"phase_id":1,  "phase_id":2}],
                      "developers": [
                        {
                          "name": "Dinesh Malviya",
@@ -3153,13 +3781,13 @@ class TestAddLab(TestCase):
  #+END_SRC
 
 
-** Update Lab 
+** Update Lab
 *** API Design
 **** Update lab by labid
   :PROPERTIES:
   :CUSTOM_ID: api_update_lab_by_labid
   :END:    
-  - URL :: /labs/<lab_id>
+  - URL :: /labs?lab_id=<lab_id>
 
   - Method :: PUT
 
@@ -3167,45 +3795,18 @@ class TestAddLab(TestCase):
 
   - Payload :: 
 #+BEGIN_EXAMPLE
-{           
-		   "key" : <key>,     
-                   "lab": {
-                     "name": "Computer Programming",
-                     "overview": "cp overview",
-                     "discipline_id": "ECE",
-                     "institute_id": "IITKgp",
-                     "developers": [                    
-                       {
-                         "name": "Prof. Pallavi Pawar",
-                         "email": "pallavi.pawar@gmail.com"
-                       }
-                     ],
-                     "hosting_info": [
-                       {                       
-                         "hosting_status": "hosted",
-                         "hosted_on": "server",
-                         "hosted_url": "http://iitk.vlab.co.in/"
-                       }
-                     ],
-                     "integration_level": 3,
-                     "assets": [
-                       {
-                         "asset_type": "image",
-                         "path": "vlabs.ac.in/images/video/icon.png"
-                       }
-                     ],
-                     "sections": [
-                       {
-                         "name": "Theory"
-                       }
-                                              
-                     ],
-                         "experiments": [
-                           
-                         ]
+{
+"lab":{
+		   "assets": [
+			{
+			  "asset_type": "image",
+			  "path": "iiit-h-cse02.jpg"
+			}
+		      ]
+},
 
-                   }
-                 }
+                    "key": "defaultkey"
+}
 
 #+END_EXAMPLE
   - Success Response
@@ -3215,54 +3816,780 @@ class TestAddLab(TestCase):
 {
   "assets": [
     {
-      "asset_type": "image", 
-      "id": "3", 
-      "path": "vlabs.ac.in/images/video/icon.png"
-    }
-  ], 
-  "developers": [
-    {
-      "email": {
-        "email": "pallavi.pawar@gmail.com", 
-        "id": "3"
+      "asset_type": {
+        "asset_type": "image", 
+        "id": "1"
       }, 
-      "id": "3", 
-      "name": {
-        "id": "3", 
-        "name": "Prof. Pallavi Pawar"
-      }
+      "id": "165", 
+      "path": "iiit-h-cse02.jpg"
     }
   ], 
+  "developers": [], 
   "discipline": {
-    "assets": [], 
-    "discipline_id": "ece", 
-    "discipline_name": "Electronics and Communication", 
-    "id": "8"
+    "assets": [
+      {
+        "asset_type": {
+          "asset_type": "image", 
+          "id": "1"
+        }, 
+        "id": "150", 
+        "path": "computer-science-and-engineering.png"
+      }
+    ], 
+    "discipline_id": "cse", 
+    "discipline_name": "Computer Science and Engineering", 
+    "id": "6"
   }, 
-  "experiments": [], 
+  "experiments": [
+    {
+      "assets": [
+        {
+          "asset_type": {
+            "asset_type": "image", 
+            "id": "1"
+          }, 
+          "id": "84", 
+          "path": "../../static/IIITH-Computer-Programming.jpg"
+        }
+      ], 
+      "developers": [], 
+      "discipline": {
+        "assets": [
+          "Not Printing"
+        ], 
+        "discipline_id": "cse", 
+        "discipline_name": "Computer Science and Engineering", 
+        "id": "6"
+      }, 
+      "exp_id": "e99800", 
+      "exp_name": "Numerical Approximation", 
+      "hosting_info": [
+        {
+          "hosted_on": "cloud", 
+          "hosted_url": "http://cse02-iiith.vlabs.ac.in/", 
+          "hosting_status": "hosted", 
+          "id": "442"
+        }
+      ], 
+      "id": "1198", 
+      "institute": {
+        "assets": [
+          "Not Printing"
+        ], 
+        "id": "7", 
+        "institute_id": "iiith", 
+        "institute_name": "IIIT Hyderabad"
+      }, 
+      "integration_status": {
+        "id": "1", 
+        "integration_level": 0
+      }, 
+      "overview": "This experiments deals with Numerical Approximation", 
+      "sections": [
+        {
+          "id": "10", 
+          "name": "Introduction"
+        }, 
+        {
+          "id": "3", 
+          "name": "Theory"
+        }, 
+        {
+          "id": "171", 
+          "name": "Objective"
+        }, 
+        {
+          "id": "191", 
+          "name": "Manual"
+        }, 
+        {
+          "id": "4", 
+          "name": "Procedure"
+        }, 
+        {
+          "id": "303", 
+          "name": "Further Reading"
+        }
+      ]
+    }, 
+    {
+      "assets": [
+        {
+          "asset_type": {
+            "asset_type": "image", 
+            "id": "1"
+          }, 
+          "id": "84", 
+          "path": "../../static/IIITH-Computer-Programming.jpg"
+        }
+      ], 
+      "developers": [], 
+      "discipline": {
+        "assets": [
+          "Not Printing"
+        ], 
+        "discipline_id": "cse", 
+        "discipline_name": "Computer Science and Engineering", 
+        "id": "6"
+      }, 
+      "exp_id": "e99799", 
+      "exp_name": "Functions", 
+      "hosting_info": [
+        {
+          "hosted_on": "cloud", 
+          "hosted_url": "http://cse02-iiith.vlabs.ac.in/", 
+          "hosting_status": "hosted", 
+          "id": "442"
+        }
+      ], 
+      "id": "1201", 
+      "institute": {
+        "assets": [
+          "Not Printing"
+        ], 
+        "id": "7", 
+        "institute_id": "iiith", 
+        "institute_name": "IIIT Hyderabad"
+      }, 
+      "integration_status": {
+        "id": "1", 
+        "integration_level": 0
+      }, 
+      "overview": "This experiments deals with Functions", 
+      "sections": [
+        {
+          "id": "10", 
+          "name": "Introduction"
+        }, 
+        {
+          "id": "3", 
+          "name": "Theory"
+        }, 
+        {
+          "id": "171", 
+          "name": "Objective"
+        }, 
+        {
+          "id": "191", 
+          "name": "Manual"
+        }, 
+        {
+          "id": "4", 
+          "name": "Procedure"
+        }, 
+        {
+          "id": "303", 
+          "name": "Further Reading"
+        }
+      ]
+    }, 
+    {
+      "assets": [
+        {
+          "asset_type": {
+            "asset_type": "image", 
+            "id": "1"
+          }, 
+          "id": "84", 
+          "path": "../../static/IIITH-Computer-Programming.jpg"
+        }
+      ], 
+      "developers": [], 
+      "discipline": {
+        "assets": [
+          "Not Printing"
+        ], 
+        "discipline_id": "cse", 
+        "discipline_name": "Computer Science and Engineering", 
+        "id": "6"
+      }, 
+      "exp_id": "e99798", 
+      "exp_name": "Advanced Control Flow", 
+      "hosting_info": [
+        {
+          "hosted_on": "cloud", 
+          "hosted_url": "http://cse02-iiith.vlabs.ac.in/", 
+          "hosting_status": "hosted", 
+          "id": "442"
+        }
+      ], 
+      "id": "1202", 
+      "institute": {
+        "assets": [
+          "Not Printing"
+        ], 
+        "id": "7", 
+        "institute_id": "iiith", 
+        "institute_name": "IIIT Hyderabad"
+      }, 
+      "integration_status": {
+        "id": "1", 
+        "integration_level": 0
+      }, 
+      "overview": "This experiments deals with Advanced Control Flow", 
+      "sections": [
+        {
+          "id": "10", 
+          "name": "Introduction"
+        }, 
+        {
+          "id": "3", 
+          "name": "Theory"
+        }, 
+        {
+          "id": "171", 
+          "name": "Objective"
+        }, 
+        {
+          "id": "191", 
+          "name": "Manual"
+        }, 
+        {
+          "id": "4", 
+          "name": "Procedure"
+        }, 
+        {
+          "id": "303", 
+          "name": "Further Reading"
+        }
+      ]
+    }, 
+    {
+      "assets": [
+        {
+          "asset_type": {
+            "asset_type": "image", 
+            "id": "1"
+          }, 
+          "id": "84", 
+          "path": "../../static/IIITH-Computer-Programming.jpg"
+        }
+      ], 
+      "developers": [], 
+      "discipline": {
+        "assets": [
+          "Not Printing"
+        ], 
+        "discipline_id": "cse", 
+        "discipline_name": "Computer Science and Engineering", 
+        "id": "6"
+      }, 
+      "exp_id": "e99797", 
+      "exp_name": "Arrays", 
+      "hosting_info": [
+        {
+          "hosted_on": "cloud", 
+          "hosted_url": "http://cse02-iiith.vlabs.ac.in/", 
+          "hosting_status": "hosted", 
+          "id": "442"
+        }
+      ], 
+      "id": "1204", 
+      "institute": {
+        "assets": [
+          "Not Printing"
+        ], 
+        "id": "7", 
+        "institute_id": "iiith", 
+        "institute_name": "IIIT Hyderabad"
+      }, 
+      "integration_status": {
+        "id": "1", 
+        "integration_level": 0
+      }, 
+      "overview": "This experiments deals with Arrays", 
+      "sections": [
+        {
+          "id": "10", 
+          "name": "Introduction"
+        }, 
+        {
+          "id": "3", 
+          "name": "Theory"
+        }, 
+        {
+          "id": "171", 
+          "name": "Objective"
+        }, 
+        {
+          "id": "191", 
+          "name": "Manual"
+        }, 
+        {
+          "id": "4", 
+          "name": "Procedure"
+        }, 
+        {
+          "id": "303", 
+          "name": "Further Reading"
+        }
+      ]
+    }, 
+    {
+      "assets": [
+        {
+          "asset_type": {
+            "asset_type": "image", 
+            "id": "1"
+          }, 
+          "id": "84", 
+          "path": "../../static/IIITH-Computer-Programming.jpg"
+        }
+      ], 
+      "developers": [], 
+      "discipline": {
+        "assets": [
+          "Not Printing"
+        ], 
+        "discipline_id": "cse", 
+        "discipline_name": "Computer Science and Engineering", 
+        "id": "6"
+      }, 
+      "exp_id": "e99796", 
+      "exp_name": "Structures", 
+      "hosting_info": [
+        {
+          "hosted_on": "cloud", 
+          "hosted_url": "http://cse02-iiith.vlabs.ac.in/", 
+          "hosting_status": "hosted", 
+          "id": "442"
+        }
+      ], 
+      "id": "1197", 
+      "institute": {
+        "assets": [
+          "Not Printing"
+        ], 
+        "id": "7", 
+        "institute_id": "iiith", 
+        "institute_name": "IIIT Hyderabad"
+      }, 
+      "integration_status": {
+        "id": "1", 
+        "integration_level": 0
+      }, 
+      "overview": "This experiments deals with Structures", 
+      "sections": [
+        {
+          "id": "10", 
+          "name": "Introduction"
+        }, 
+        {
+          "id": "3", 
+          "name": "Theory"
+        }, 
+        {
+          "id": "171", 
+          "name": "Objective"
+        }, 
+        {
+          "id": "191", 
+          "name": "Manual"
+        }, 
+        {
+          "id": "4", 
+          "name": "Procedure"
+        }, 
+        {
+          "id": "303", 
+          "name": "Further Reading"
+        }
+      ]
+    }, 
+    {
+      "assets": [
+        {
+          "asset_type": {
+            "asset_type": "image", 
+            "id": "1"
+          }, 
+          "id": "84", 
+          "path": "../../static/IIITH-Computer-Programming.jpg"
+        }
+      ], 
+      "developers": [], 
+      "discipline": {
+        "assets": [
+          "Not Printing"
+        ], 
+        "discipline_id": "cse", 
+        "discipline_name": "Computer Science and Engineering", 
+        "id": "6"
+      }, 
+      "exp_id": "e99795", 
+      "exp_name": "Basic Control Flow", 
+      "hosting_info": [
+        {
+          "hosted_on": "cloud", 
+          "hosted_url": "http://cse02-iiith.vlabs.ac.in/", 
+          "hosting_status": "hosted", 
+          "id": "442"
+        }
+      ], 
+      "id": "1199", 
+      "institute": {
+        "assets": [
+          "Not Printing"
+        ], 
+        "id": "7", 
+        "institute_id": "iiith", 
+        "institute_name": "IIIT Hyderabad"
+      }, 
+      "integration_status": {
+        "id": "1", 
+        "integration_level": 0
+      }, 
+      "overview": "This experiments deals with Basic Control Flow", 
+      "sections": [
+        {
+          "id": "10", 
+          "name": "Introduction"
+        }, 
+        {
+          "id": "3", 
+          "name": "Theory"
+        }, 
+        {
+          "id": "171", 
+          "name": "Objective"
+        }, 
+        {
+          "id": "191", 
+          "name": "Manual"
+        }, 
+        {
+          "id": "4", 
+          "name": "Procedure"
+        }, 
+        {
+          "id": "303", 
+          "name": "Further Reading"
+        }
+      ]
+    }, 
+    {
+      "assets": [
+        {
+          "asset_type": {
+            "asset_type": "image", 
+            "id": "1"
+          }, 
+          "id": "84", 
+          "path": "../../static/IIITH-Computer-Programming.jpg"
+        }
+      ], 
+      "developers": [], 
+      "discipline": {
+        "assets": [
+          "Not Printing"
+        ], 
+        "discipline_id": "cse", 
+        "discipline_name": "Computer Science and Engineering", 
+        "id": "6"
+      }, 
+      "exp_id": "e99794", 
+      "exp_name": "Strings", 
+      "hosting_info": [
+        {
+          "hosted_on": "cloud", 
+          "hosted_url": "http://cse02-iiith.vlabs.ac.in/", 
+          "hosting_status": "hosted", 
+          "id": "442"
+        }
+      ], 
+      "id": "1203", 
+      "institute": {
+        "assets": [
+          "Not Printing"
+        ], 
+        "id": "7", 
+        "institute_id": "iiith", 
+        "institute_name": "IIIT Hyderabad"
+      }, 
+      "integration_status": {
+        "id": "1", 
+        "integration_level": 0
+      }, 
+      "overview": "This experiments deals with Strings", 
+      "sections": [
+        {
+          "id": "10", 
+          "name": "Introduction"
+        }, 
+        {
+          "id": "3", 
+          "name": "Theory"
+        }, 
+        {
+          "id": "171", 
+          "name": "Objective"
+        }, 
+        {
+          "id": "191", 
+          "name": "Manual"
+        }, 
+        {
+          "id": "4", 
+          "name": "Procedure"
+        }, 
+        {
+          "id": "303", 
+          "name": "Further Reading"
+        }
+      ]
+    }, 
+    {
+      "assets": [
+        {
+          "asset_type": {
+            "asset_type": "image", 
+            "id": "1"
+          }, 
+          "id": "84", 
+          "path": "../../static/IIITH-Computer-Programming.jpg"
+        }
+      ], 
+      "developers": [], 
+      "discipline": {
+        "assets": [
+          "Not Printing"
+        ], 
+        "discipline_id": "cse", 
+        "discipline_name": "Computer Science and Engineering", 
+        "id": "6"
+      }, 
+      "exp_id": "e99793", 
+      "exp_name": "Pointers", 
+      "hosting_info": [
+        {
+          "hosted_on": "cloud", 
+          "hosted_url": "http://cse02-iiith.vlabs.ac.in/", 
+          "hosting_status": "hosted", 
+          "id": "442"
+        }
+      ], 
+      "id": "1196", 
+      "institute": {
+        "assets": [
+          "Not Printing"
+        ], 
+        "id": "7", 
+        "institute_id": "iiith", 
+        "institute_name": "IIIT Hyderabad"
+      }, 
+      "integration_status": {
+        "id": "1", 
+        "integration_level": 0
+      }, 
+      "overview": "This experiments deals with Pointers", 
+      "sections": [
+        {
+          "id": "10", 
+          "name": "Introduction"
+        }, 
+        {
+          "id": "3", 
+          "name": "Theory"
+        }, 
+        {
+          "id": "171", 
+          "name": "Objective"
+        }, 
+        {
+          "id": "191", 
+          "name": "Manual"
+        }, 
+        {
+          "id": "4", 
+          "name": "Procedure"
+        }, 
+        {
+          "id": "303", 
+          "name": "Further Reading"
+        }
+      ]
+    }, 
+    {
+      "assets": [
+        {
+          "asset_type": {
+            "asset_type": "image", 
+            "id": "1"
+          }, 
+          "id": "84", 
+          "path": "../../static/IIITH-Computer-Programming.jpg"
+        }
+      ], 
+      "developers": [], 
+      "discipline": {
+        "assets": [
+          "Not Printing"
+        ], 
+        "discipline_id": "cse", 
+        "discipline_name": "Computer Science and Engineering", 
+        "id": "6"
+      }, 
+      "exp_id": "e99792", 
+      "exp_name": "Recursion", 
+      "hosting_info": [
+        {
+          "hosted_on": "cloud", 
+          "hosted_url": "http://cse02-iiith.vlabs.ac.in/", 
+          "hosting_status": "hosted", 
+          "id": "442"
+        }
+      ], 
+      "id": "1200", 
+      "institute": {
+        "assets": [
+          "Not Printing"
+        ], 
+        "id": "7", 
+        "institute_id": "iiith", 
+        "institute_name": "IIIT Hyderabad"
+      }, 
+      "integration_status": {
+        "id": "1", 
+        "integration_level": 0
+      }, 
+      "overview": "This experiments deals with Recursion", 
+      "sections": [
+        {
+          "id": "10", 
+          "name": "Introduction"
+        }, 
+        {
+          "id": "3", 
+          "name": "Theory"
+        }, 
+        {
+          "id": "171", 
+          "name": "Objective"
+        }, 
+        {
+          "id": "191", 
+          "name": "Manual"
+        }, 
+        {
+          "id": "4", 
+          "name": "Procedure"
+        }, 
+        {
+          "id": "303", 
+          "name": "Further Reading"
+        }
+      ]
+    }, 
+    {
+      "assets": [
+        {
+          "asset_type": {
+            "asset_type": "image", 
+            "id": "1"
+          }, 
+          "id": "84", 
+          "path": "../../static/IIITH-Computer-Programming.jpg"
+        }
+      ], 
+      "developers": [], 
+      "discipline": {
+        "assets": [
+          "Not Printing"
+        ], 
+        "discipline_id": "cse", 
+        "discipline_name": "Computer Science and Engineering", 
+        "id": "6"
+      }, 
+      "exp_id": "e99791", 
+      "exp_name": "Expression Evaluation", 
+      "hosting_info": [
+        {
+          "hosted_on": "cloud", 
+          "hosted_url": "http://cse02-iiith.vlabs.ac.in/", 
+          "hosting_status": "hosted", 
+          "id": "442"
+        }
+      ], 
+      "id": "1205", 
+      "institute": {
+        "assets": [
+          "Not Printing"
+        ], 
+        "id": "7", 
+        "institute_id": "iiith", 
+        "institute_name": "IIIT Hyderabad"
+      }, 
+      "integration_status": {
+        "id": "1", 
+        "integration_level": 0
+      }, 
+      "overview": "This experiments deals with Expression Evaluation", 
+      "sections": [
+        {
+          "id": "10", 
+          "name": "Introduction"
+        }, 
+        {
+          "id": "3", 
+          "name": "Theory"
+        }, 
+        {
+          "id": "171", 
+          "name": "Objective"
+        }, 
+        {
+          "id": "191", 
+          "name": "Manual"
+        }, 
+        {
+          "id": "4", 
+          "name": "Procedure"
+        }, 
+        {
+          "id": "303", 
+          "name": "Further Reading"
+        }
+      ]
+    }
+  ], 
   "hosting_info": [
     {
-      "hosted_on": "server", 
-      "hosted_url": "http://iitk.vlab.co.in/", 
+      "hosted_on": "cloud", 
+      "hosted_url": "http://cse02-iiith.vlabs.ac.in/", 
       "hosting_status": "hosted", 
-      "id": "4"
+      "id": "442"
     }
   ], 
-  "id": "1", 
+  "id": "76", 
   "institute": {
-    "assets": [], 
-    "id": "9", 
-    "institute_id": "iitkgp", 
-    "institute_name": "IIT Kharagpur"
+    "assets": [
+      {
+        "asset_type": {
+          "asset_type": "image", 
+          "id": "1"
+        }, 
+        "id": "156", 
+        "path": "iiit-hyderabad.png"
+      }
+    ], 
+    "id": "7", 
+    "institute_id": "iiith", 
+    "institute_name": "IIIT Hyderabad"
   }, 
   "integration_status": {
-    "id": "4", 
-    "integration_level": 3
+    "id": "1", 
+    "integration_level": 0
   }, 
+  "phase":[{"phase_id":1,  "phase_id":2}],
   "lab_id": "cse02", 
   "lab_name": "Computer Programming", 
-  "overview": "cp overview", 
-  "sections": []
+  "overview": "This lab deals with Computer Programming", 
+  "sections": [
+    {
+      "id": "10", 
+      "name": "Introduction"
+    }
+  ]
 }
 
 #+END_EXAMPLE
@@ -3349,9 +4676,13 @@ class TestUpdateLab(TestCase):
         return app
 
     def setUp(self):
+        app = self.create_app()
+        self.app_context = app.app_context()
+        self.app_context.push()
         db.create_all()
 
     def tearDown(self):
+        self.app_context.pop()
         db.session.remove()
         db.drop_all()
 
@@ -3480,6 +4811,7 @@ class TestUpdateLab(TestCase):
                      "overview": "overview",
                      "discipline_id": "CSE",
                      "institute_id": "IITK",
+                     "phase":[{"phase_id":1,  "phase_id":2}],
                      "developers": [
                        {
                          "name": "Prof. Dharamaja",
@@ -3602,6 +4934,7 @@ class TestUpdateLab(TestCase):
                      "overview": "cp overview",
                      "discipline_id": "ECE",
                      "institute_id": "IITKgp",
+                     "phase":[{"phase_id":1,  "phase_id":2}],
                      "developers": [                    
                        {
                          "name": "Prof. Pallavi Pawar",
@@ -3895,9 +5228,13 @@ class TestGetInstitute(TestCase):
         return app
 
     def setUp(self):
+        app = self.create_app()
+        self.app_context = app.app_context()
+        self.app_context.push()
         db.create_all()
 
     def tearDown(self):
+        self.app_context.pop()
         db.session.remove()
         db.drop_all()
 
@@ -3944,9 +5281,13 @@ class TestGetInstitute(TestCase):
         return app
 
     def setUp(self):
+        app = self.create_app()
+        self.app_context = app.app_context()
+        self.app_context.push()
         db.create_all()
 
     def tearDown(self):
+        self.app_context.pop()
         db.session.remove()
         db.drop_all()
 
@@ -4108,9 +5449,13 @@ class TestAddInstitute(TestCase):
         return app
 
     def setUp(self):
+        app = self.create_app()
+        self.app_context = app.app_context()
+        self.app_context.push()
         db.create_all()
 
     def tearDown(self):
+        self.app_context.pop()
         db.session.remove()
         db.drop_all()
 
@@ -4146,7 +5491,7 @@ class TestAddInstitute(TestCase):
 
  #+END_SRC
 
-
+     
 ** Get Disciplines and Get Discipline
 *** API Design
 **** Get all Disciplines
@@ -4317,7 +5662,7 @@ http://localhost:5000/disciplines
 http://localhost:5000/disciplines?discipline_id=cse
 #+END_EXAMPLE
 
-*** Implementation  
+*** Implementation
     REST API to get discipline.
 #+NAME: get_disciplines
 #+BEGIN_SRC python
@@ -4411,9 +5756,13 @@ class TestGetDiscipline(TestCase):
         return app
 
     def setUp(self):
+        app = self.create_app()
+        self.app_context = app.app_context()
+        self.app_context.push()
         db.create_all()
 
     def tearDown(self):
+        self.app_context.pop()
         db.session.remove()
         db.drop_all()
 
@@ -4460,9 +5809,13 @@ class TestGetDisciplineByDisId(TestCase):
         return app
 
     def setUp(self):
+        app = self.create_app()
+        self.app_context = app.app_context()
+        self.app_context.push()
         db.create_all()
 
     def tearDown(self):
+        self.app_context.pop() 
         db.session.remove()
         db.drop_all()
 
@@ -4628,6 +5981,7 @@ class TestAddDiscipline(TestCase):
         db.create_all()
 
     def tearDown(self):
+        self.app_context.pop()
         db.session.remove()
         db.drop_all()
 
@@ -5060,7 +6414,7 @@ def get_experiment():
                 abort(500, msg)
                 
 #+END_SRC
-
+ 
 *** Test Cases
 **** TestGetExperiment
  #+NAME: test_get_Experiment
@@ -5072,9 +6426,13 @@ class TestGetExperiment(TestCase):
         return app
 
     def setUp(self):
+        app = self.create_app()
+        self.app_context = app.app_context()
+        self.app_context.push()
         db.create_all()
 
     def tearDown(self):
+        self.app_context.pop()
         db.session.remove()
         db.drop_all()
 
@@ -5224,9 +6582,13 @@ class TestGetExp(TestCase):
         return app
 
     def setUp(self):
+        app = self.create_app()
+        self.app_context = app.app_context()
+        self.app_context.push()
         db.create_all()
 
     def tearDown(self):
+        self.app_context.pop()
         db.session.remove()
         db.drop_all()
 
@@ -5616,9 +6978,13 @@ class TestAddExperiment(TestCase):
         return app
 
     def setUp(self):
+        app = self.create_app()
+        self.app_context = app.app_context()
+        self.app_context.push()
         db.create_all()
 
     def tearDown(self):
+        self.app_context.pop()
         db.session.remove()
         db.drop_all()
 
@@ -5752,7 +7118,7 @@ class TestAddExperiment(TestCase):
 
  #+END_SRC
 
-
+     
 ** Get Sections
 *** API Design
 **** Get all Sections
@@ -5837,9 +7203,13 @@ class TestGetSections(TestCase):
         return app
 
     def setUp(self):
+        app = self.create_app()
+        self.app_context = app.app_context()
+        self.app_context.push()
         db.create_all()
 
     def tearDown(self):
+        self.app_context.pop()
         db.session.remove()
         db.drop_all()
 
@@ -5970,9 +7340,13 @@ class TestAddSection(TestCase):
         return app
 
     def setUp(self):
+        app = self.create_app()
+        self.app_context = app.app_context()
+        self.app_context.push()
         db.create_all()
 
     def tearDown(self):
+        self.app_context.pop()
         db.session.remove()
         db.drop_all()
 
@@ -6164,9 +7538,13 @@ class TestGetHosting_Info(TestCase):
         return app
 
     def setUp(self):
+        app = self.create_app()
+        self.app_context = app.app_context()
+        self.app_context.push()
         db.create_all()
 
     def tearDown(self):
+        self.app_context.pop()
         db.session.remove()
         db.drop_all()
 
@@ -6198,9 +7576,13 @@ class TestGetAssetByPath(TestCase):
         return app
 
     def setUp(self):
+        app = self.create_app()
+        self.app_context = app.app_context()
+        self.app_context.push()
         db.create_all()
 
     def tearDown(self):
+        self.app_context.pop()
         db.session.remove()
         db.drop_all()
 
@@ -6321,9 +7703,13 @@ class TestDeleteLab(TestCase):
         return app
 
     def setUp(self):
+        app = self.create_app()
+        self.app_context = app.app_context()
+        self.app_context.push()
         db.create_all()
 
     def tearDown(self):
+        self.app_context.pop()
         db.session.remove()
         db.drop_all()
 
@@ -6464,6 +7850,7 @@ class TestDeleteLab(TestCase):
                      "overview": "overview",
                      "discipline_id": "CSE",
                      "institute_id": "IITK",
+                     "phase":[{"phase_id":1,  "phase_id":2}],
                      "developers": [
                        {
                          "name": "Dinesh Malviya",
@@ -6634,9 +8021,13 @@ class TestAddHosting_Info(TestCase):
         return app
 
     def setUp(self):
+        app = self.create_app()
+        self.app_context = app.app_context()
+        self.app_context.push()
         db.create_all()
 
     def tearDown(self):
+        self.app_context.pop()
         db.session.remove()
         db.drop_all()
 
@@ -6831,9 +8222,13 @@ class TestGetIntegration_Status(TestCase):
         return app
 
     def setUp(self):
+        app = self.create_app()
+        self.app_context = app.app_context()
+        self.app_context.push()
         db.create_all()
 
     def tearDown(self):
+        self.app_context.pop()
         db.session.remove()
         db.drop_all()
 
@@ -6963,9 +8358,13 @@ class TestAddIntegration_Status(TestCase):
         return app
 
     def setUp(self):
+        app = self.create_app()
+        self.app_context = app.app_context()
+        self.app_context.push()
         db.create_all()
 
     def tearDown(self):
+        self.app_context.pop()
         db.session.remove()
         db.drop_all()
 
@@ -7107,9 +8506,13 @@ class TestGetEmail(TestCase):
         return app
 
     def setUp(self):
+        app = self.create_app()
+        self.app_context = app.app_context()
+        self.app_context.push()
         db.create_all()
 
     def tearDown(self):
+        self.app_context.pop()
         db.session.remove()
         db.drop_all()
 
@@ -7129,7 +8532,7 @@ class TestGetEmail(TestCase):
 
  #+END_SRC
 
-
+     
 ** Add Email
 *** API Design
 **** Add Email
@@ -7239,9 +8642,13 @@ class TestAddEmail(TestCase):
         return app
 
     def setUp(self):
+        app = self.create_app()
+        self.app_context = app.app_context()
+        self.app_context.push()
         db.create_all()
 
     def tearDown(self):
+        self.app_context.pop()
         db.session.remove()
         db.drop_all()
 
@@ -7259,7 +8666,7 @@ class TestAddEmail(TestCase):
 
  #+END_SRC
 
-
+     
 ** Get Names
 *** API Design
 **** Get all names
@@ -7344,9 +8751,13 @@ class TestGetNames(TestCase):
         return app
 
     def setUp(self):
+        app = self.create_app()
+        self.app_context = app.app_context()
+        self.app_context.push()
         db.create_all()
 
     def tearDown(self):
+        self.app_context.pop()
         db.session.remove()
         db.drop_all()
 
@@ -7477,9 +8888,13 @@ class TestAddName(TestCase):
         return app
 
     def setUp(self):
+        app = self.create_app()
+        self.app_context = app.app_context()
+        self.app_context.push()
         db.create_all()
 
     def tearDown(self):
+        self.app_context.pop()
         db.session.remove()
         db.drop_all()
 
@@ -7596,13 +9011,18 @@ def get_developer():
                msg = {"status": "failure",
                         "msg": err_str}
                abort(500, msg)
-           
+#       elif 'start' in request.args and 'limit' in request.args:
+#           start=request.args['start']
+#           limit=request.args['limit']
        else:
            try:
                current_app.logger.debug("execute get_developers")
                developers = SystemInterface.get_developers()
                current_app.logger.debug("executed get_developers")
                return jsonify_list(developers)
+
+#                        start=int(request.args.get('page', start)), 
+#                        limit=int(request.args.get('pageSize', limit))
 
            except TypeError as e:
                current_app.logger.error("Exception = %s" % str(e))
@@ -7645,9 +9065,13 @@ class TestGetDeveloper(TestCase):
         return app
 
     def setUp(self):
+        app = self.create_app()
+        self.app_context = app.app_context()
+        self.app_context.push()
         db.create_all()
 
     def tearDown(self):
+        self.app_context.pop()
         db.session.remove()
         db.drop_all()
 
@@ -7786,9 +9210,13 @@ class TestAddDeveloper(TestCase):
         return app
 
     def setUp(self):
+        app = self.create_app()
+        self.app_context = app.app_context()
+        self.app_context.push()
         db.create_all()
 
     def tearDown(self):
+        self.app_context.pop()
         db.session.remove()
         db.drop_all()
 
@@ -8002,9 +9430,13 @@ class TestUpdateExperiment(TestCase):
         return app
 
     def setUp(self):
+        app = self.create_app()
+        self.app_context = app.app_context()
+        self.app_context.push()
         db.create_all()
 
     def tearDown(self):
+        self.app_context.pop()
         db.session.remove()
         db.drop_all()
 
@@ -8359,9 +9791,13 @@ class TestUpdateSection(TestCase):
         return app
 
     def setUp(self):
+        app = self.create_app()
+        self.app_context = app.app_context()
+        self.app_context.push()
         db.create_all()
 
     def tearDown(self):
+        self.app_context.pop()
         db.session.remove()
         db.drop_all()
 
@@ -8483,9 +9919,13 @@ class TestDeleteSection(TestCase):
         return app
 
     def setUp(self):
+        app = self.create_app()
+        self.app_context = app.app_context()
+        self.app_context.push()
         db.create_all()
 
     def tearDown(self):
+        self.app_context.pop()
         db.session.remove()
         db.drop_all()
 
@@ -8606,9 +10046,13 @@ class TestGetSectionbyid(TestCase):
         return app
 
     def setUp(self):
+        app = self.create_app()
+        self.app_context = app.app_context()
+        self.app_context.push()
         db.create_all()
 
     def tearDown(self):
+        self.app_context.pop()
         db.session.remove()
         db.drop_all()
 
@@ -8639,7 +10083,7 @@ class TestGetSectionbyid(TestCase):
   :PROPERTIES:
   :CUSTOM_ID: api_update_institutes_by_instid
   :END:    
-  - URL :: /institutes?<institute_id>
+  - URL :: /institutes?institute_id=<institute_id>
 
   - Method :: PUT
 
@@ -8648,9 +10092,14 @@ class TestGetSectionbyid(TestCase):
   - Payload :: 
 #+BEGIN_EXAMPLE
 {
-"institute_name": "IIIT Hydfdfdd",
-"key": "defaultkey",
+		   "assets": [
+			{
+			  "asset_type": "image",
+			  "path": "amrita-university.png"
+			}
+		      ],
 
+                    "key": "defaultkey"
 }
 
 #+END_EXAMPLE
@@ -8659,17 +10108,19 @@ class TestGetSectionbyid(TestCase):
       + Contents :
 #+BEGIN_EXAMPLE
 {
-  "id": 1, 
-  "institute_id": "iiith", 
-  "institute_name": "IIIT Hydfdfdd",
   "assets": [
-        {
-            "asset_type": "Image",
-            "id": 1,
-            "path": "vlabs.ac.in/images/static/logo.png"
-        }
-    ]
-
+    {
+      "asset_type": {
+        "asset_type": "image", 
+        "id": "1"
+      }, 
+      "id": "153", 
+      "path": "amrita-university.png"
+    }
+  ], 
+  "id": "1", 
+  "institute_id": "amrita", 
+  "institute_name": "Amrita University"
 }
 
 #+END_EXAMPLE
@@ -8681,7 +10132,7 @@ class TestGetSectionbyid(TestCase):
     
   - Example:
 #+BEGIN_EXAMPLE
-    http://localhost:5000/institutes?institute_id=iiith
+    http://localhost:5000/institutes?institute_id=amrita
 #+END_EXAMPLE
 
 *** Implementation
@@ -8757,9 +10208,13 @@ class TestUpdateInstitute(TestCase):
         return app
 
     def setUp(self):
+        app = self.create_app()
+        self.app_context = app.app_context()
+        self.app_context.push()
         db.create_all()
 
     def tearDown(self):
+        self.app_context.pop()
         db.session.remove()
         db.drop_all()
 
@@ -8919,9 +10374,13 @@ class TestDeleteInstitute(TestCase):
         return app
 
     def setUp(self):
+        app = self.create_app()
+        self.app_context = app.app_context()
+        self.app_context.push()
         db.create_all()
 
     def tearDown(self):
+        self.app_context.pop()
         db.session.remove()
         db.drop_all()
 
@@ -8967,7 +10426,7 @@ class TestDeleteInstitute(TestCase):
   :PROPERTIES:
   :CUSTOM_ID: api_update_disciplines_by_disid
   :END:    
-  - URL :: /disciplines/<discipline_id>
+  - URL :: /disciplines?discipline_id=<discipline_id>
 
   - Method :: PUT
 
@@ -8976,32 +10435,35 @@ class TestDeleteInstitute(TestCase):
   - Payload :: 
 #+BEGIN_EXAMPLE
 {
-"discipline_name": "Auto Mobiles and Engineering",
-"assets": [
-        {
-            "asset_type": "Image",
-            "path": "vlabs.ac.in/images/static/logo.png"
-        }
-    ],
+		   "assets": [
+			{
+			  "asset_type": "image",
+			  "path": "physical-sciences.png"
+			}
+		      ],
 
-  "key": "<key>"
+                    "key": "defaultkey"
 }
+
 #+END_EXAMPLE
   - Success Response
     + Status_Code: 200
       + Contents :
 #+BEGIN_EXAMPLE
 {
-"assets": [
-        {
-            "asset_type": "Image",
-            "id": 1,
-            "path": "vlabs.ac.in/images/static/logo.png"
-        }
-    ],
-    "discipline_id": "ab",
-    "discipline_name": "Auto Mobiles and Engineering",
-    "id": 15
+  "assets": [
+    {
+      "asset_type": {
+        "asset_type": "image", 
+        "id": "1"
+      }, 
+      "id": "160", 
+      "path": "physical-sciences.png"
+    }
+  ], 
+  "discipline_id": "phy-sc", 
+  "discipline_name": "Physical Sciences", 
+  "id": "11"
 }
 
 #+END_EXAMPLE
@@ -9013,7 +10475,7 @@ class TestDeleteInstitute(TestCase):
     
   - Example:
 #+BEGIN_EXAMPLE
-    http://localhost:5000/disciplines?discipline_id=cse
+    http://localhost:5000/disciplines?discipline_id=phy-sc
 #+END_EXAMPLE
 
 *** Implementation
@@ -9089,9 +10551,13 @@ class TestUpdateDiscipline(TestCase):
         return app
 
     def setUp(self):
+        app = self.create_app()
+        self.app_context = app.app_context()
+        self.app_context.push()
         db.create_all()
 
     def tearDown(self):
+        self.app_context.pop()
         db.session.remove()
         db.drop_all()
 
@@ -9147,7 +10613,7 @@ class TestUpdateDiscipline(TestCase):
   :PROPERTIES:
   :CUSTOM_ID: delete_discipline_by_discipline_id
   :END:    
-  - URL :: /disciplines?<discipline_id>&key=<key>
+  - URL :: /disciplines?discipline_id=<discipline_id>&key=<key>
 
   - Method :: DELETE
 
@@ -9241,9 +10707,13 @@ class TestDeleteDiscipline(TestCase):
         return app
 
     def setUp(self):
+        app = self.create_app()
+        self.app_context = app.app_context()
+        self.app_context.push()
         db.create_all()
 
     def tearDown(self):
+        self.app_context.pop()
         db.session.remove()
         db.drop_all()
 
@@ -9400,9 +10870,13 @@ class TestUpdateHosting_Info(TestCase):
         return app
 
     def setUp(self):
+        app = self.create_app()
+        self.app_context = app.app_context()
+        self.app_context.push()
         db.create_all()
 
     def tearDown(self):
+        self.app_context.pop()
         db.session.remove()
         db.drop_all()
 
@@ -9553,9 +11027,13 @@ class TestUpdateDeveloper(TestCase):
         return app
 
     def setUp(self):
+        app = self.create_app()
+        self.app_context = app.app_context()
+        self.app_context.push()
         db.create_all()
 
     def tearDown(self):
+        self.app_context.pop()
         db.session.remove()
         db.drop_all()
 
@@ -9566,9 +11044,13 @@ class TestUpdateDeveloper(TestCase):
         return app
 
     def setUp(self):
+        app = self.create_app()
+        self.app_context = app.app_context()
+        self.app_context.push()
         db.create_all()
 
     def tearDown(self):
+        self.app_context.pop()
         db.session.remove()
         db.drop_all()
 
@@ -9755,9 +11237,13 @@ class TestDeleteHosting_Info(TestCase):
         return app
 
     def setUp(self):
+        app = self.create_app()
+        self.app_context = app.app_context()
+        self.app_context.push()
         db.create_all()
 
     def tearDown(self):
+        self.app_context.pop()
         db.session.remove()
         db.drop_all()
 
@@ -9882,9 +11368,13 @@ class TestDeleteIntegration_Status(TestCase):
         return app
 
     def setUp(self):
+        app = self.create_app()
+        self.app_context = app.app_context()
+        self.app_context.push()
         db.create_all()
 
     def tearDown(self):
+        self.app_context.pop()
         db.session.remove()
         db.drop_all()
 
@@ -10006,9 +11496,13 @@ class TestDeleteEmail(TestCase):
         return app
 
     def setUp(self):
+        app = self.create_app()
+        self.app_context = app.app_context()
+        self.app_context.push()
         db.create_all()
 
     def tearDown(self):
+        self.app_context.pop()
         db.session.remove()
         db.drop_all()
 
@@ -10288,6 +11782,9 @@ class TestUpdateNameById(TestCase):
         return app
 
     def setUp(self):
+        app = self.create_app()
+        self.app_context = app.app_context()
+        self.app_context.push()
         db.create_all()
 
     def tearDown(self):
@@ -10324,9 +11821,13 @@ class TestDeleteNameById(TestCase):
         return app
 
     def setUp(self):
+        app = self.create_app()
+        self.app_context = app.app_context()
+        self.app_context.push()
         db.create_all()
 
     def tearDown(self):
+        self.app_context.pop()
         db.session.remove()
         db.drop_all()
 
@@ -10358,9 +11859,13 @@ class TestGetNamebyid(TestCase):
         return app
 
     def setUp(self):
+        app = self.create_app()
+        self.app_context = app.app_context()
+        self.app_context.push()
         db.create_all()
 
     def tearDown(self):
+        self.app_context.pop()
         db.session.remove()
         db.drop_all()
 
@@ -10482,9 +11987,13 @@ class TestDeleteDeveloper(TestCase):
         return app
 
     def setUp(self):
+        app = self.create_app()
+        self.app_context = app.app_context()
+        self.app_context.push()
         db.create_all()
 
     def tearDown(self):
+        self.app_context.pop()
         db.session.remove()
         db.drop_all()
 
@@ -10606,9 +12115,13 @@ class TestDeleteExperiment(TestCase):
         return app
 
     def setUp(self):
+        app = self.create_app()
+        self.app_context = app.app_context()
+        self.app_context.push()
         db.create_all()
 
     def tearDown(self):
+        self.app_context.pop()
         db.session.remove()
         db.drop_all()
 
@@ -10906,9 +12419,13 @@ class TestGetAsset(TestCase):
         return app
 
     def setUp(self):
+        app = self.create_app()
+        self.app_context = app.app_context()
+        self.app_context.push()
         db.create_all()
 
     def tearDown(self):
+        self.app_context.pop()
         db.session.remove()
         db.drop_all()
 
@@ -10939,9 +12456,13 @@ class TestGetAsset(TestCase):
         return app
 
     def setUp(self):
+        app = self.create_app()
+        self.app_context = app.app_context()
+        self.app_context.push()
         db.create_all()
 
     def tearDown(self):
+        self.app_context.pop()
         db.session.remove()
         db.drop_all()
 
@@ -11075,9 +12596,13 @@ class TestAddAsset(TestCase):
         return app
 
     def setUp(self):
+        app = self.create_app()
+        self.app_context = app.app_context()
+        self.app_context.push()
         db.create_all()
 
     def tearDown(self):
+        self.app_context.pop()
         db.session.remove()
         db.drop_all()
 
@@ -11212,9 +12737,13 @@ class TestUpdateAsset(TestCase):
         return app
 
     def setUp(self):
+        app = self.create_app()
+        self.app_context = app.app_context()
+        self.app_context.push()
         db.create_all()
 
     def tearDown(self):
+        self.app_context.pop()
         db.session.remove()
         db.drop_all()
 
@@ -11341,9 +12870,13 @@ class TestDeleteAsset(TestCase):
         return app
 
     def setUp(self):
+        app = self.create_app()
+        self.app_context = app.app_context()
+        self.app_context.push()
         db.create_all()
 
     def tearDown(self):
+        self.app_context.pop()
         db.session.remove()
         db.drop_all()
 
@@ -11367,6 +12900,53 @@ class TestDeleteAsset(TestCase):
  #+END_SRC
    
 
+* Utils
+** Choose the right contents of lab
+   Currently, the data of entire lab is sent back.
+   Sometimes, this entire information is not required.  This
+   utility chooses the right information based on the
+   consumer of the response.  For each consumer there is a
+   map function that structures the lab information
+   sufficient for that consumer.  For example, landing pages
+   require, lab name, hosted url and image url.  When the
+   consumer is landing pages, only this information is sent.
+
+   
+** Implementation
+#+name: lab_jsonify
+#+BEGIN_SRC python
+def lab_jsonify(lab_or_labs, consumer):
+    is_labs_list = None
+    mapped_labs = None
+
+    if lab_or_labs.__class__.__name__ != 'list':
+        labs = [lab_or_labs]
+        is_labs_list = False
+    else:
+        labs = lab_or_labs
+        is_labs_list = True
+
+    if consumer == "lp":
+        mapped_labs = list(map(structure_for_lp, labs))
+    elif consumer == None:
+        mapped_labs = labs
+       
+    if is_labs_list:
+       return jsonify_list(mapped_labs)
+    else:
+       return jsonify(mapped_labs[0])
+
+
+def structure_for_lp(lab):
+    return {'lab_name':lab['lab_name'],
+            'hosting_info': lab['hosting_info'],
+            'assets': lab['assets'],
+            'phase': lab['phase']
+           }
+           
+#+END_SRC
+
+
 * Infra                                                         :boilerplate:
 
 ** sources
@@ -11378,7 +12958,7 @@ import os
 import requests
 import json
 from flask import session, render_template, Blueprint, request, \
-     jsonify, abort, current_app, redirect, url_for
+     jsonify, abort, current_app, redirect, url_for, make_response
 from flask import Flask
 from runtime.utils.type_utils import jsonify_list
 from runtime.exceptions.custom_exceptions import *
@@ -11389,7 +12969,7 @@ api = Blueprint('APIs', __name__)
 
 #+end_src
 
-
+    
 ** tests
 *** Imports 
 #+name: imports_for_tests
@@ -11424,6 +13004,7 @@ if __name__ == '__main__':
 ** sources
 #+BEGIN_SRC python :tangle api.py :eval no :noweb yes
 <<imports_for_sources>>
+<<lab_jsonify>>
 <<get_lab>>
 <<add_lab>>
 <<update_lab>>
@@ -11470,7 +13051,7 @@ if __name__ == '__main__':
 
 #+END_SRC
 
-
+   
 ** tests
 #+BEGIN_SRC python :tangle test_api.py :eval no :noweb yes
 <<imports_for_tests>>
@@ -11479,9 +13060,11 @@ if __name__ == '__main__':
 <<test_delete_lab>>
 <<test_get_labs>>
 <<test_get_lab_by_labid>>
-<<test_get_labs_by_institute>>
+<<test_get_labs_by_institute_id>>
+<<test_get_labs_by_institute_name>>
 <<test_get_labs_by_lab_name>>
-<<test_get_labs_by_discipline>>
+<<test_get_labs_by_discipline_id>>
+<<test_get_labs_by_discipline_name>>
 <<test_get_lab_by_labname_keyword>>
 <<test_get_exp_by_expid>>
 <<test_get_discipline_by_disid>>
@@ -11496,7 +13079,7 @@ if __name__ == '__main__':
 <<test_delete_experiment>>
 <<test_get_Sections>>
 <<test_add_section>>
-<<test_get_Names>>
+<<test_get_names>>
 <<test_add_name>>
 <<test_update_name_by_id>>
 <<test_delete_name_by_id>>

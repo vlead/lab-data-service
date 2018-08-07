@@ -295,9 +295,13 @@ class TestPersistence(TestCase):
         return app
 
     def setUp(self):
+        app = self.create_app()
+        self.app_context = app.app_context()
+        self.app_context.push()
         db.create_all()
 
     def tearDown(self):
+        self.app_context.pop()
         db.session.remove()
         db.drop_all()
 

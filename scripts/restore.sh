@@ -1,9 +1,8 @@
-#!/bin/bash
+#!/bin/bash                                                                                                                                           
 
 DB_NAME="lds"
-DB_PASS="xxx"
-VERSION="v1.0.0"
-
+DB_PASS="root"
+VERSION="v3.0.0"
 BACKUP_FILE=$1
 
 usage() {
@@ -18,7 +17,7 @@ if [ -z $BACKUP_FILE ]; then
   exit 1;
 fi
 
-# untar the $BACKUP_FILE file
+# untar the $BACKUP_FILE file                                                                                                                         
 tar -xvf $BACKUP_FILE
 if [ $? -ne 0 ]; then
   echo "Error: Something went wrong while untaring."
@@ -43,4 +42,4 @@ echo "################"
 echo "Restore successful."
 echo "###############"
 
-exit 0;
+

@@ -6,102 +6,116 @@
 #+SETUPFILE: ./org-templates/level-0.org
 #+options: ^:nil
 
-* Creation of database
-  - Login to mysql
-    #+BEGIN_EXAMPLE
-    mysql -u <username> -p<password>
-    #+END_EXAMPLE
-  - Show all databases
-    #+BEGIN_EXAMPLE
-    show databases;
-    #+END_EXAMPLE
-  - If <lds> database is not present, create it
-    #+BEGIN_EXAMPLE
-    create database lds;
-    #+END_EXAMPLE
-  
-    Exit out of the mysql console
-
-
 * Creation of Virtual Environment
-
-  + Create Virtual Environemnt in the =lab-data-service= directory
-  #+BEGIN_EXAMPLE
-  virtualenv venv
-  #+END_EXAMPLE
-  + Activate the Virtual Environment
-  #+BEGIN_EXAMPLE
-  source venv/bin/activate
-  #+END_EXAMPLE
-
+  1. clone =lab-data-service= from github
+     #+BEGIN_EXAMPLE
+     git clone http://github.com/vlead/lab-data-service.git
+     #+END_EXAMPLE
+  2. Install Virtual Environment
+     #+BEGIN_EXAMPLE
+     sudo pip install virtualenv
+     #+END_EXAMPLE
+  3. Create Virtual Environment in the =lab-data-service=
+     directory
+     #+BEGIN_EXAMPLE
+     cd lab-data-service
+     git checkout develop
+     virtualenv venv
+     #+END_EXAMPLE
+  4. Activate the Virtual Environment
+     #+BEGIN_EXAMPLE
+     source venv/bin/activate
+     #+END_EXAMPLE
   
 * Setting up dependencies
+  1. Run =make= file in =lab-data-service=.
+     #+BEGIN_EXAMPLE
+     make
+     #+END_EXAMPLE
+     *Note*: Test cases will fail at this point because
+     there are no dependencies installed. Proceed to next
+     step to install dependencies.
 
-  Install all the dependencies for running the =lds= applciation.
-  The =setup.py= script is in the =build/code/deployment/= directory
-  #+BEGIN_EXAMPLE
-  cd build/code/deployment/
-  python setup.py install
+  2. Install =mysql= and =apache2= if not already installed
+     on your machine otherwise skip this step.
+     #+BEGIN_EXAMPLE
+     sudo apt-get install mysql-server
+     sudo apt-get install apache2
+     #+END_EXAMPLE
 
-  #+END_EXAMPLE
-  Note :- If you found error something like =error: Couldn't find a setup script
-  in /tmp/easy_install-oTRjpD/oursql-0.9.3.2.linux-i686.tar.gz= please
-  execute below steps skip otherwise
-#+BEGIN_EXAMPLE
-sudo apt-get install libmysqlclient-dev
-mkdir oursql
-cd oursql
-wget https://pypi.python.org/packages/8c/88/9f53a314a2af6f56c0a1249c5673ee384b85dc791bac5c1228772ced3502/oursql-0.9.3.2.tar.gz#md5=ade5959a6571b1626966d47f3ab2d315
-tar xvf oursql-0.9.3.2.tar.gz
-cd oursql-0.9.3.2
-python setup.py install
-
-#+END_EXAMPLE
-
+  3. Install all the dependencies for running the =lds= applciation.
+     run the =setup.py= file, available at =build/code/deployment/=.
+     #+BEGIN_EXAMPLE
+     cd build/code/deployment/
+     python setup.py install
+     #+END_EXAMPLE
+     *Note* : If you found error something like
+     =error:Couldn't find a setup script in/tmp/easy_install-oTRjpD/oursql-0.9.3.2.linux-i686.tar.gz=
+     please execute below steps otherwise skip
+     #+BEGIN_EXAMPLE
+     sudo apt-get install libmysqlclient-dev python-dev
+     mkdir oursql
+     cd oursql
+     wget https://pypi.python.org/packages/8c/88/9f53a314a2af6f56c0a1249c5673ee384b85dc791bac5c1228772ced3502/oursql-0.9.3.2.tar.gz#md5=ade5959a6571b1626966d47f3ab2d315
+     tar xvf oursql-0.9.3.2.tar.gz
+     cd oursql-0.9.3.2
+     python setup.py install
+     #+END_EXAMPLE
 
 * Set SQLALCHEMY_DATABASE_URI
-  The variable =SQLALCHEMY_DATABASE_URI= has to be set to proper value in
-  =build/code/runtime/config/flask_app_config.py= so that the application can use the database.
+  The variable =SQLALCHEMY_DATABASE_URI= has to be set to
+  value in =build/code/runtime/config/flask_app_config.py=
+  so that the application can use the database.
   #+BEGIN_EXAMPLE
-  SQLALCHEMY_DATABASE_URI = 'mysql+oursql://root:pswd@localhost/lds'
+  SQLALCHEMY_DATABASE_URI = 'mysql+oursql://root:<password>@localhost/lds'
   #+END_EXAMPLE
 
-
-* Insert Dafault data
-  Run db_setup.py to create the database schema
-  #+BEGIN_EXAMPLE
-  cd build/code/
-  export PYTHONPATH=$(pwd)
-  cd deployment
-  python db_setup.py
-  #+END_EXAMPLE
-
-
-* Make SSL Certicates and Key
-  Go to =build/code/runtime/rest= and run the ~cert.py~ present 
-  in the directory inorder to get the required files.
-  #+BEGIN_EXAMPLE
-  cd build/code/runtime/rest
-  python cert.py
-  #+END_EXAMPLE
-
+* Creation of database
+  1. Login to mysql
+     #+BEGIN_EXAMPLE
+     mysql -u <username> -p<password>
+     #+END_EXAMPLE
+  2. Show all databases
+     #+BEGIN_EXAMPLE
+     show databases;
+     #+END_EXAMPLE
+  3. Drop database =lds= if already present. Otherwise skip
+     this step
+     #+BEGIN_EXAMPLE
+     drop database lds;
+     #+END_EXAMPLE
+  4. Create database =lds=.
+     #+BEGIN_EXAMPLE
+     create database lds;
+     #+END_EXAMPLE
+  5. Exit out of the mysql console
+     #+BEGIN_EXAMPLE
+     ctrl+c
+     #+END_EXAMPLE
+  6. Get the latest mysql dump file from the files server.
+     [[http://files.vlabs.ac.in/lds]]
+     #+BEGIN_EXAMPLE
+     wget http://files.vlabs.ac.in/lds/<lds-latest-dump-19-12-2017>.sql
+     #+END_EXAMPLE
+  7. Restore Dump in Database
+#+BEGIN_EXAMPLE
+mysql -u root -p<db-password> <db-name> < <dumpfile.sql>
+#+END_EXAMPLE
 
 * Run the application
   
   The application can now be run from the =build/code/runtime/rest/= directory
   #+BEGIN_EXAMPLE
-  cd build/code/runtime/rest/
-  unset http_proxy
-  unset https_proxy
+  cd build/code/
+  export PYTHONPATH=$(pwd)
+  cd runtime/rest/
   python app.py
   #+END_EXAMPLE
 
-
 * Access the application
+  The application is accessed at =http://localhost:5000=
   
-  The application is accessed at =http://localhost:1307=
-  
-
 * API Documentation
   URL :
-  [https://github.com/vlead/lab-data-service/blob/master/src/runtime/rest/api.org] 
+  [[https://github.com/vlead/lab-data-service/blob/master/src/runtime/rest/api.org][REST APIS]]
+  

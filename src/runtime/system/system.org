@@ -108,9 +108,13 @@ class TestSystemConstructor(TestCase):
         return app
 
     def setUp(self):
+        app = self.create_app()
+        self.app_context = app.app_context()
+        self.app_context.push()
         System.initialize_system(PersistenceDelegate)
 
     def tearDown(self):
+        self.app_context.pop()
         System.delegate = None
 
     def test_delegate(self):
@@ -432,6 +436,35 @@ class AddName():
 #+end_src
 
 
+** =AddPhase=
+#+NAME: class_add_phase
+#+begin_src python
+class AddPhase():
+    arg_types = {"phase": is_phase, "session": is_session}
+    arity_and_type_checks_needed = True
+
+    @staticmethod
+    def auth_check(args):
+        session = args['session']
+        if not System.is_session_valid(session):
+            raise NotAuthorizedError("Not Authorized to perform this action")
+
+    @staticmethod
+    def state_check(args):
+        phase = args["phase"]
+        if System.delegate.phase_exists(phase):
+            raise StateError("phase %s already exists in System"
+                                 % phase.to_client())
+
+    @staticmethod
+    def action(args):
+        phase = args["phase"]
+        phase = System.delegate.add_phase(phase)
+        return phase
+
+#+end_src
+
+
 ** =AddEmail=
 #+NAME: class_add_email
 #+begin_src python
@@ -532,10 +565,13 @@ class UpdateLab():
                      "sections" : are_sections,
                      "institute" : is_institute, 
                      "discipline" : is_discipline,
+                     "phase": are_phase,
                      "hosting_info": are_hosting_info, 
                      "developers": are_developers,
-                     "assets": are_assets, "experiments":are_experiments,
-                     "integration_status" : is_integration_status}
+                     "assets": are_assets,
+                     "experiments":are_experiments,
+                     "integration_status" : \
+                     is_integration_status}
 
     arity_and_type_checks_needed = True
 
@@ -565,14 +601,18 @@ class UpdateLab():
         assets = args["assets"]
         experiments = args["experiments"]
         sections = args["sections"]
-        lab = System.delegate.update_lab(lab, lab_name, overview, institute,
-                                         discipline, sections, integration_status,
-                                         hosting_info, developers, assets,
-                                         experiments)
+        phase = args["phase"]
+        lab = System.delegate.update_lab(lab, lab_name,
+                                        overview, institute,
+                                        discipline,
+                                        sections,
+                                        integration_status,
+                                         hosting_info,
+                                         developers, assets,
+                                         experiments, phase)
         return lab
 
 #+end_src
-
 
 
 ** =UpdateExperiment=
@@ -1046,6 +1086,37 @@ class DeleteName():
 
 
 
+** =DeletePhase=
+#+NAME: class_delete_phase
+#+begin_src python
+class DeletePhase():
+    arg_types = {"phase_id": is_int, "session": is_session}
+    arity_and_type_checks_needed = True
+
+    @staticmethod
+    def auth_check(args):
+        session = args['session']
+        if not System.is_session_valid(session):
+            raise NotAuthorizedError("Not Authorized to perform this action")
+
+    @staticmethod
+    def state_check(args):
+        phase_id = args['phase_id']
+        phase = System.delegate.get_phase(phase_id=phase_id)    
+        if not System.delegate.phase_exists(phase):
+            raise StateError("phase with phase_id=%d"
+                            " does not exists in System"
+                                 % phase_id)
+    @staticmethod
+    def action(args):
+        phase_id = args["phase_id"]
+        phase_id = System.delegate.delete_phase(phase_id)
+        return phase_id
+        
+#+end_src
+
+
+
 ** =DeleteEmail=
 #+NAME: class_delete_email
 #+begin_src python
@@ -1247,6 +1318,56 @@ class GetInstitute():
 #+end_src
 
 
+
+
+** =GetInstituteByInstituteId=
+#+NAME: class_get_institute_by_institute_id
+#+begin_src python
+class GetInstituteByInstituteId():
+    arg_types = {"institute_id": is_str}
+    arity_and_type_checks_needed = True
+
+    @staticmethod
+    def auth_check(args):
+        pass
+
+    @staticmethod
+    def state_check(args):
+        pass
+
+    @staticmethod
+    def action(args):
+        institute_id = args["institute_id"]
+        institute = System.delegate.get_institute(institute_id=institute_id)
+        return institute
+
+#+end_src
+
+
+
+
+** =GetDisciplineByDisciplineId=
+#+NAME: class_get_discipline_by_discipline_id
+#+begin_src python
+class GetDisciplineByDisciplineId():
+    arg_types = {"discipline_id": is_str}
+    arity_and_type_checks_needed = True
+
+    @staticmethod
+    def auth_check(args):
+        pass
+
+    @staticmethod
+    def state_check(args):
+        pass
+
+    @staticmethod
+    def action(args):
+        discipline_id = args["discipline_id"]
+        discipline = System.delegate.get_discipline(discipline_id=discipline_id)
+        return discipline
+
+#+end_src
 
 
 ** =GetInstituteByInstituteName=
@@ -1532,18 +1653,13 @@ class AddSectionsToExperiment():
 #+NAME: class_get_name
 #+begin_src python
 class GetName():
-    arg_types = {"name": is_name, "session": is_session}
+    arg_types = {"name": is_name}
 
     arity_and_type_checks_needed = True
 
     @staticmethod
     def auth_check(args):
-        session = args['session']
-        current_app.logger.debug("checking authorization")
-        if not System.is_session_valid(session):
-            current_app.logger.debug("authorization is failed")
-            raise NotAuthorizedError("Not Authorized to perform this action")
-        current_app.logger.debug("authorization check is done")
+        pass
 
     @staticmethod
     def state_check(args):
@@ -1559,22 +1675,43 @@ class GetName():
 
 
 
-** =GetEmail=
-#+NAME: class_get_email
+** =GetPhase=
+#+NAME: class_get_phase
 #+begin_src python
-class GetEmail():
-    arg_types = {"email": is_email, "session": is_session}
+class GetPhase():
+    arg_types = {"phase": is_phase}
 
     arity_and_type_checks_needed = True
 
     @staticmethod
     def auth_check(args):
-        session = args['session']
-        current_app.logger.debug("checking authorization")
-        if not System.is_session_valid(session):
-            current_app.logger.debug("authorization is failed")
-            raise NotAuthorizedError("Not Authorized to perform this action")
-        current_app.logger.debug("authorization check is done")
+        pass
+
+    @staticmethod
+    def state_check(args):
+        pass
+
+    @staticmethod
+    def action(args):
+        phase = args["phase"]
+        phase = System.delegate.get_phase\
+          (phase_id=phase.get("phase_id"))
+        return phase
+
+#+end_src
+
+
+** =GetEmail=
+#+NAME: class_get_email
+#+begin_src python
+class GetEmail():
+    arg_types = {"email": is_email}
+
+    arity_and_type_checks_needed = True
+
+    @staticmethod
+    def auth_check(args):
+        pass
 
     @staticmethod
     def state_check(args):
@@ -1863,30 +2000,6 @@ class AddAssetsToLab():
 
 
 
-** =GetLabsByAsset=
-#+NAME: class_get_labs_by_asset
-#+begin_src python
-class GetLabsByAsset():
-    arg_types = {"asset": is_asset}
-    arity_and_type_checks_needed = True
-
-    @staticmethod
-    def auth_check(args):
-        pass
-
-    @staticmethod
-    def state_check(args):
-        pass
-
-    @staticmethod
-    def action(args):
-        asset = args['asset']
-        labs = System.delegate.get_labs(asset=asset)
-        return labs
-
-#+end_src
-
-
 ** =GetAssetByAssetType=
 #+NAME: class_get_asset_by_asset_type
 #+begin_src python
@@ -1946,6 +2059,8 @@ ops_table = {'add_lab' : AddLab,
              'update_lab': UpdateLab,
              'delete_lab': DeleteLab,
              'get_lab': GetLab,
+             'get_institute_by_institute_id': GetInstituteByInstituteId,
+             'get_discipline_by_discipline_id':GetDisciplineByDisciplineId,
              'get_labs_by_institute': GetLabsByInstitute,
              'get_labs_by_discipline' : GetLabsByDiscipline,
              'get_labs_by_lab_name': GetLabsByLabName, 
@@ -1992,8 +2107,10 @@ ops_table = {'add_lab' : AddLab,
              'add_assets_to_lab': AddAssetsToLab, 
              'get_section': GetSection, 
              'update_name': UpdateName,
-             'get_labs_by_asset': GetLabsByAsset,
-             'get_asset_by_asset_type': GetAssetByAssetType
+             'get_asset_by_asset_type': GetAssetByAssetType,
+             'add_phase' : AddPhase,
+             'delete_phase': DeletePhase,
+             'get_phase': GetPhase,
              }
 
  #+END_SRC   
@@ -2008,13 +2125,16 @@ ops_table = {'add_lab' : AddLab,
 # -*- coding: utf-8 -*-
 
 from runtime.exceptions.custom_exceptions import *
-from runtime.objects.entities import is_str, is_lab, are_labs,\
-     is_date, is_session, is_section, is_int, is_experiment,\
-     are_experiments, are_sections, is_name, is_email, is_developer,\
-     is_institute, are_institutes, is_discipline, are_disciplines,\
-     is_url, is_hosting_info, is_integration_status, is_asset, are_assets,\
-     is_asset_type, are_hosting_info, are_developers
-
+from runtime.objects.entities import is_str, is_lab,\
+     are_labs, is_experiment, is_developer,\
+     are_disciplines, is_asset, are_assets,\
+     is_date, is_session, is_section, is_int,\
+     are_experiments, are_sections, is_name, is_email, \
+     is_institute, are_institutes, is_discipline, \
+     is_url, is_hosting_info, is_integration_status,\
+     is_asset_type, are_hosting_info, are_developers,\
+     is_phase, are_phase
+     
 from runtime.utils.type_utils import is_str_or_none
 from runtime.config.system_config import KEY
 import datetime
@@ -2059,30 +2179,47 @@ if __name__ == '__main__':
 <<class_system>>
 <<arity_type_checks>>
 <<do_function>>
-<<class_add_lab>>
+
 <<class_delete_lab>>
 <<class_delete_discipline>>
 <<class_delete_section>>
-<<class_update_section>>
-<<class_delete_experiment>>
-<<class_update_lab>>
-<<class_update_discipline>>
-<<class_add_experiment>>
-<<class_add_discipline>>
-<<class_update_experiment>>
-<<class_add_institute>>
-<<class_update_institute>>
 <<class_delete_institute>>
-<<class_update_section>>
-<<class_add_name>>
-<<class_add_email>>
-<<class_add_developer>>
-<<class_update_developer>>
+<<class_delete_experiment>>
 <<class_delete_name>>
 <<class_delete_email>>
 <<class_delete_developer>>
-<<class_add_sections_to_experiment>>
+<<class_delete_hosting_info>>
+<<class_delete_integration_status>>
+<<class_delete_asset>>
+<<class_delete_phase>>
+
+<<class_update_section>>
+<<class_update_lab>>
+<<class_update_discipline>>
+<<class_update_experiment>>
+<<class_update_institute>>
+<<class_update_section>>
+<<class_update_developer>>
+<<class_update_hosting_info>>
+<<class_update_asset>>
+<<class_update_name>>
+
+<<class_add_lab>>
+<<class_add_name>>
+<<class_add_email>>
+<<class_add_phase>>
+<<class_add_developer>>
+<<class_add_experiment>>
+<<class_add_discipline>>
+<<class_add_institute>>
 <<class_add_section>>
+<<class_add_hosting_info>>
+<<class_add_integration_status>>
+<<class_add_asset_type>>
+<<class_add_asset>>
+<<class_add_assets_to_lab>>
+<<class_add_sections_to_experiment>>
+
 <<class_get_lab>>
 <<class_get_name>>
 <<class_get_email>>
@@ -2090,31 +2227,24 @@ if __name__ == '__main__':
 <<class_get_experiment>>
 <<class_get_institute>>
 <<class_get_discipline>>
+<<class_get_hosting_info>>
+<<class_get_integration_status>>
+<<class_get_asset>>
+<<class_get_section>>
+<<class_get_phase>>
+
+<<class_get_institute_by_institute_id>>
+<<class_get_discipline_by_discipline_id>>
 <<class_get_institute_by_institute_name>>
 <<class_get_discipline_by_discipline_name>>
 <<class_get_integration_status_by_IL>>
-<<class_add_hosting_info>>
-<<class_get_hosting_info>>
-<<class_update_hosting_info>>
-<<class_delete_hosting_info>>
-<<class_add_integration_status>>
-<<class_get_integration_status>>
-<<class_delete_integration_status>>
 <<class_get_labs_by_institute>>
 <<class_get_labs_by_lab_name>>
 <<class_get_labs_by_discipline>>
-<<class_add_asset_type>>
-<<class_add_asset>>
-<<class_get_asset>>
-<<class_update_asset>>
-<<class_delete_asset>>
-<<class_add_assets_to_lab>>
-<<class_get_section>>
-<<class_update_name>>
 <<class_get_labs_by_asset>>
 <<class_get_asset_by_asset_type>>
-<<ops_table>>
 
+<<ops_table>>
 #+end_src
 
 

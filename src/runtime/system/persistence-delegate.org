@@ -35,7 +35,8 @@ class PersistenceDelegate():
                          'integration_status': IntegrationStatus,
                          'name' : Name,
                          'email' : Email,
-                         'developer' : Developer
+                         'developer' : Developer,
+                         'phase': Phase
                         }
 
 #+END_SRC
@@ -53,10 +54,14 @@ class TestPersistenceDelegate(TestCase):
         return app
 
     def setUp(self):
+        app = self.create_app()
+        self.app_context = app.app_context()
+        self.app_context.push()
         db.create_all()
         self.persistence_delegate = PersistenceDelegate()
         
     def tearDown(self):
+        self.app_context.pop()
         db.session.remove()
         db.drop_all()
         self.persistence_delegate = None
@@ -68,36 +73,6 @@ class TestPersistenceDelegate(TestCase):
 
    Other functions that help =System= perform the operations. 
   
-*** Check if entity already exists 
-    The following three functions checks whether the given entity exists or
-    not. To optimize the code, apply the following three principles:
-
-    1) *Observe Pattern* : observe the common =pattern/code= in the given three functions.
-    2) *Abstract Structure* : extract the common =pattern/code= and replace the
-       common functionality with a new function definition.
-    3) *Mapping* : Now map the 3 functions to the common function in such a way
-       that it should return the appropriate solution. 
-    
-    By applying the above three principles on the below 3 functions, we get the
-    following fourth function.
-**** Check if =entity= already exists
-    This function checks if an =entity= is already in the exists in the =System=.
-#+NAME: persistence_entity_exists
-#+BEGIN_SRC python
-    def entity_exists(self, cls_name, id):
-        ret_val = False
-
-        try:
-            if cls_name.get_by_id(id) is not None:
-                ret_val = True
-        except Exception as e:
-            pass
-
-        return ret_val
-        
-#+END_SRC
-
-
 *** Check if =lab= already exists
     This function checks if a lab is already in the lab-set of the =System=.
 #+NAME: persistence_lab_exists
@@ -164,11 +139,16 @@ class TestPersistenceDelegate(TestCase):
         section = Section(name=name)
         section.save()
 
+        phase1=Phase(phase_id=1)
+        phase1.save()
 
-        lab = Lab(lab_name=lab_name1, lab_id=lab_id1, overview=overview1,
-                      institute=inst, discipline=discipline, assets=[asset],
-                      experiments=[], integration_status=integration_status,
-                      developers=[dev], sections=[section],hosting_info=[host])
+        lab = Lab(lab_name=lab_name1, lab_id=lab_id1,
+                      overview=overview1, institute=inst,
+                      discipline=discipline, assets=[asset],
+                      experiments=[], phase=[phase1],
+                      integration_status=integration_status,
+                      developers=[dev], sections=[section],
+                      hosting_info=[host])
 
         lab1 = self.persistence_delegate.add_lab(lab)
 
@@ -176,10 +156,15 @@ class TestPersistenceDelegate(TestCase):
         lab_id2="CSE02"
         overview2 = "overview"
 
-        lab2 = Lab(lab_name=lab_name2, lab_id=lab_id2, overview=overview2,
-                       integration_status=integration_status, sections=[section],               
-                       institute=inst, discipline=discipline, assets=[asset],
-                       experiments=[], developers=[dev], hosting_info=[host])
+        lab2 = Lab(lab_name=lab_name2, lab_id=lab_id2,
+                       overview=overview2,
+                       integration_status=integration_status,
+                       sections=[section], phase=[phase1],               
+                       institute=inst,
+                       discipline=discipline,
+                       assets=[asset],
+                       experiments=[], developers=[dev],
+                       hosting_info=[host])
 
         self.assertEqual(self.persistence_delegate.lab_exists(lab1),
                             True)
@@ -288,7 +273,9 @@ class TestPersistenceDelegate(TestCase):
 
 #+END_SRC
 
+
 *** Check if =experiment= already exists
+
 
     This function checks if a user is already in the user-set of the =System=.
 #+NAME: persistence_experiment_exists
@@ -759,6 +746,50 @@ class TestPersistenceDelegate(TestCase):
 #+END_SRC
 
 
+*** Check if =phase= already exists
+
+    This function checks if a =phase= is already in the phase-set of the =System=.
+#+NAME: persistence_phase_exists
+#+BEGIN_SRC python
+    def phase_exists(self, phase):
+        ret_val = False
+        try:
+            current_app.logger.debug("running check on the"
+                                    " existence of phase")
+            if self.get_phase(phase_id=phase.get\
+                                  ("phase_id")) is not None:
+                ret_val = True
+            current_app.logger.debug("completed check on"
+                                         " the existence of"
+                                         " phase")
+        except Exception as e:
+            current_app.logger.error("Error in returning"
+                                         " the phase %s"
+                                         %str(e))
+            
+        return ret_val
+        
+#+END_SRC
+
+**** Tests
+#+NAME: test_persistence_phase_exists
+#+BEGIN_SRC python
+    def test_phase_exists(self):
+        print "test_phase_exists"
+
+        phase1 = Phase(phase_id=1)
+        phase1.save()
+
+        phase2 = Phase(phase_id=2)
+
+        self.assertEqual(self.persistence_delegate.\
+                             phase_exists(phase1), True)
+        self.assertEqual(self.persistence_delegate.\
+                             phase_exists(phase2), False)
+
+#+END_SRC
+
+
 *** Add lab to the system
     This function adds lab to the system.
 #+NAME: persistence_add_lab
@@ -790,6 +821,9 @@ class TestPersistenceDelegate(TestCase):
          path = "vlabs.ac.in/images/static/logo.png"
          asset = Asset(asset_type=asset_type, path=path)
          asset.save()
+
+         phase1=Phase(phase_id=1)
+         phase1.save()
 
          institute_name = "IIT Kanpur"
          institute_id = "IITK"
@@ -838,12 +872,15 @@ class TestPersistenceDelegate(TestCase):
          section = Section(name=name)
          section.save()
 
-         lab1 = Lab(lab_name=lab_name1, lab_id=lab_id1, \
-                        institute=inst, discipline=discipline,\
-                        assets=[asset], overview=overview,\
-                        experiments=[experiment], sections=[section], \
-                        integration_status=integration_status,\
-                        developers=[dev], hosting_info=[host])
+         lab1 = Lab(lab_name=lab_name1, lab_id=lab_id1, 
+                        institute=inst,
+                        discipline=discipline,
+                        assets=[asset], overview=overview,
+                        experiments=[experiment],
+                        sections=[section], phase=[phase1],
+                        integration_status=integration_status,
+                        developers=[dev],
+                        hosting_info=[host])
 
          lab1 = self.persistence_delegate.add_lab(lab1)
         
@@ -851,15 +888,19 @@ class TestPersistenceDelegate(TestCase):
          lab_id2="CSE02"
          overview="lab overview"
 
-         lab2 = Lab(lab_name=lab_name2, lab_id=lab_id2, overview=overview, 
-                        institute=inst, discipline=discipline, assets=[asset],
-                        experiments=[], integration_status=integration_status,
-                        developers=[dev], sections=[section], hosting_info=[host])
+         lab2 = Lab(lab_name=lab_name2, lab_id=lab_id2,
+                        overview=overview, assets=[asset],
+                        institute=inst, experiments=[],
+                        discipline=discipline, 
+                        integration_status=integration_status,
+                        developers=[dev], phase=[phase1],
+                        sections=[section],
+                        hosting_info=[host])
 
-         self.assertEqual(self.persistence_delegate.lab_exists(lab1),
-                          True)
-         self.assertEqual(self.persistence_delegate.lab_exists(lab2),
-                          False)
+         self.assertEqual(self.persistence_delegate.\
+                              lab_exists(lab1), True)
+         self.assertEqual(self.persistence_delegate.\
+                              lab_exists(lab2), False)
 
 #+END_SRC
 
@@ -1223,7 +1264,7 @@ class TestPersistenceDelegate(TestCase):
 #+END_SRC
 
 
-***  Add institute to the system
+*** Add institute to the system
 
     This function adds institute to the system.
 #+NAME: persistence_add_institute
@@ -1274,7 +1315,7 @@ class TestPersistenceDelegate(TestCase):
 #+END_SRC
 
 
-***  Add hosting_info to the system
+*** Add hosting_info to the system
 
     This function adds hosting_info to the system.
 #+NAME: persistence_add_hosting_info
@@ -1321,7 +1362,7 @@ class TestPersistenceDelegate(TestCase):
 #+END_SRC
 
 
-***  Add asset type to the system
+*** Add asset type to the system
 
     This function adds asset to the system.
 #+NAME: persistence_add_asset_type
@@ -1356,7 +1397,7 @@ class TestPersistenceDelegate(TestCase):
 #+END_SRC
 
 
-***  Add asset to the system
+*** Add asset to the system
 
     This function adds asset to the system.
 #+NAME: persistence_add_asset
@@ -1408,8 +1449,7 @@ class TestPersistenceDelegate(TestCase):
 #+END_SRC
 
 
-***  Add integration_status to the system
-
+*** Add integration_status to the system
     This function adds integration_status to the system.
 #+NAME: persistence_add_integration_status
 #+BEGIN_SRC python
@@ -1448,13 +1488,46 @@ class TestPersistenceDelegate(TestCase):
 #+END_SRC
 
 
-***  Update lab 
+*** Add phase to the system
+    This function adds phase to the system.
+#+NAME: persistence_add_phase
+#+BEGIN_SRC python
+    def add_phase(self, phase):
+        current_app.logger.debug("running add phase to" 
+                                 " system operation"
+                                 " phase = %s"
+                                     % phase.to_client())
+        phase.save()
+        current_app.logger.debug("completed add"
+                                 " phase to system"
+                                 " operation phase = %s"
+                                     % phase.to_client())
+        return phase
+
+#+END_SRC
+
+
+**** Tests
+#+NAME: test_persistence_add_phase
+#+BEGIN_SRC python
+    def test_add_phase(self):
+         print "test_add_phase"
+         phase1 = Phase(phase_id=1)
+         phase = self.persistence_delegate.add_phase(phase1)
+         phase = phase.get_by_id(1)
+         self.assertEqual(phase.get("phase_id"),
+                              phase.get("phase_id"))
+
+#+END_SRC
+
+
+*** Update lab 
     This function updates existing lab.
 #+NAME: persistence_update_lab
 #+BEGIN_SRC python
     def update_lab(self, lab, lab_name, overview, institute, discipline,
                        sections, integration_status, hosting_info, developers,
-                       assets, experiments):
+                       assets, experiments, phase):
 
         current_app.logger.debug("running update lab operation")
 
@@ -1462,7 +1535,7 @@ class TestPersistenceDelegate(TestCase):
                     discipline=discipline, sections=sections, hosting_info=hosting_info,
                     integration_status=integration_status,
                     developers=developers, assets=assets,
-                    experiments=experiments)
+                    experiments=experiments, phase=phase)
         lab.save()
  
         current_app.logger.debug("completed update lab operation") 
@@ -1520,7 +1593,6 @@ class TestPersistenceDelegate(TestCase):
                                 hosted_on=hosted_on)
          host.save()
 
-
          exp_name = "Data Structures"
          exp_id = "cse01"
          overview = "overview"
@@ -1538,10 +1610,17 @@ class TestPersistenceDelegate(TestCase):
          section = Section(name=name)
          section.save()
 
-         lab = Lab(lab_name=lab_name, lab_id=lab_id, overview=overview, 
-                       institute=inst, discipline=discipline, 
-                       assets=[asset], hosting_info=[host], sections=[section],
-                       experiments=[exp1], developers=[dev], 
+         phase1=Phase(phase_id=1)
+         phase1.save()
+
+         lab = Lab(lab_name=lab_name, lab_id=lab_id,
+                       overview=overview, 
+                       institute=inst,
+                       discipline=discipline, 
+                       assets=[asset], hosting_info=[host],
+                       sections=[section],
+                       experiments=[exp1], phase=[phase1],
+                       developers=[dev], 
                        integration_status=integration_status) 
 
          lab1 = self.persistence_delegate.add_lab(lab)
@@ -1575,6 +1654,9 @@ class TestPersistenceDelegate(TestCase):
                                  hosted_on=hosted_on1)
          host1.save()
 
+         phase2=Phase(phase_id=2)
+         phase2.save()
+
          dev_name1 = Name(name="Tahiliani")
          dev_name1.save()
          email_id1 = Email(email="tahiliani@gmail.com")
@@ -1603,8 +1685,9 @@ class TestPersistenceDelegate(TestCase):
          exp2 = self.persistence_delegate.add_experiment(exp)
 
          lab2 = self.persistence_delegate.update_lab\
-           (lab1, lab_name1, overview1, inst1, discipline1, [section],
-                integration_status1, [host1], [dev1], [asset1], [exp2]),
+           (lab1, lab_name1, overview1, inst1, discipline1,
+                [section], integration_status1, [host1],
+           [dev1], [asset1], [exp2], [phase2]),
 
          lab2 = Lab.get_by_id(1)
 
@@ -1632,7 +1715,7 @@ class TestPersistenceDelegate(TestCase):
 #+END_SRC
 
 
-***  Update Experiment 
+*** Update Experiment 
     This function updates existing experiment.
 #+NAME: persistence_update_experiment
 #+BEGIN_SRC python
@@ -1792,7 +1875,7 @@ class TestPersistenceDelegate(TestCase):
 #+END_SRC
 
 
-***  Update Discipline 
+*** Update Discipline 
     This function updates existing discipline.
 #+NAME: persistence_update_discipline
 #+BEGIN_SRC python
@@ -1846,7 +1929,7 @@ class TestPersistenceDelegate(TestCase):
 
 
 
-***  Update Section
+*** Update Section
     This function updates existing section.
 #+NAME: persistence_update_section
 #+BEGIN_SRC python
@@ -1880,7 +1963,9 @@ class TestPersistenceDelegate(TestCase):
 
 #+END_SRC
 
-***  Update developer
+
+*** Update developer
+
     This function updates existing developer.
 #+NAME: persistence_update_developer
 #+BEGIN_SRC python
@@ -1921,7 +2006,7 @@ class TestPersistenceDelegate(TestCase):
 #+END_SRC
 
 
-***  Update Institute 
+*** Update Institute 
     This function updates existing institute.
 #+NAME: persistence_update_institute
 #+BEGIN_SRC python
@@ -1978,7 +2063,7 @@ class TestPersistenceDelegate(TestCase):
 #+END_SRC
 
 
-***  Update HostingInfo 
+*** Update HostingInfo 
     This function updates existing hosting_info.
 #+NAME: persistence_update_hosting_info
 #+BEGIN_SRC python
@@ -2023,7 +2108,7 @@ class TestPersistenceDelegate(TestCase):
 #+END_SRC
 
 
-***  Update Asset 
+*** Update Asset 
     This function updates existing asset.
 #+NAME: persistence_update_asset
 #+BEGIN_SRC python
@@ -2066,7 +2151,7 @@ class TestPersistenceDelegate(TestCase):
 #+END_SRC
 
 
-***  Delete lab 
+*** Delete lab 
     This function delete existing lab.
 #+NAME: persistence_delete_lab
 #+BEGIN_SRC python
@@ -2145,10 +2230,16 @@ class TestPersistenceDelegate(TestCase):
          section = Section(name=name)
          section.save()
 
-         lab = Lab(lab_name=lab_name, lab_id=lab_id, overview=overview, 
-                       institute=inst, discipline=discipline,
+         phase1=Phase(phase_id=1)
+         phase1.save()
+
+         lab = Lab(lab_name=lab_name, lab_id=lab_id,
+                       overview=overview, 
+                       institute=inst,
+                       discipline=discipline,
                        hosting_info=[host],  assets=[asset],
-                       experiments=[], developers=[dev], sections=[section],
+                       experiments=[], developers=[dev],
+                       sections=[section], phase=[phase1],
                        integration_status=integration_status)
 
          lab1 = self.persistence_delegate.add_lab(lab)
@@ -2157,10 +2248,16 @@ class TestPersistenceDelegate(TestCase):
          lab_id1 = "cse02"
          overview = "overview"
 
-         lab1 = Lab(lab_name=lab_name1, lab_id=lab_id1, overview=overview,
-                        institute=inst, discipline=discipline, assets=[asset], 
-                        experiments=[], integration_status=integration_status,
-                        developers=[dev], hosting_info=[host], sections=[section])
+         lab1 = Lab(lab_name=lab_name1, lab_id=lab_id1,
+                        overview=overview,
+                        institute=inst,
+                        discipline=discipline,
+                        assets=[asset], 
+                        experiments=[], phase=[phase1],
+                        integration_status=integration_status,
+                        developers=[dev],
+                        hosting_info=[host],
+                        sections=[section])
 
          lab2 = self.persistence_delegate.add_lab(lab1)
 
@@ -2171,7 +2268,7 @@ class TestPersistenceDelegate(TestCase):
 #+END_SRC
 
 
-***  Delete Experiment 
+*** Delete Experiment 
     This function delete existing experiment.
 #+NAME: persistence_delete_experiment
 #+BEGIN_SRC python
@@ -2271,7 +2368,7 @@ class TestPersistenceDelegate(TestCase):
 #+END_SRC
 
 
-***  Delete Discipline 
+*** Delete Discipline 
     This function delete existing Discipline.
 #+NAME: persistence_delete_discipline
 #+BEGIN_SRC python
@@ -2328,7 +2425,7 @@ class TestPersistenceDelegate(TestCase):
 #+END_SRC
 
 
-***  Delete Section 
+*** Delete Section 
     This function delete existing section.
 #+NAME: persistence_delete_section
 #+BEGIN_SRC python
@@ -2372,7 +2469,7 @@ class TestPersistenceDelegate(TestCase):
 #+END_SRC
 
 
-***  Delete Name 
+*** Delete Name 
     This function delete existing name.
 #+NAME: persistence_delete_name
 #+BEGIN_SRC python
@@ -2417,7 +2514,7 @@ class TestPersistenceDelegate(TestCase):
 #+END_SRC
 
 
-***  Delete Email 
+*** Delete Email 
     This function delete existing email.
 #+NAME: persistence_delete_email
 #+BEGIN_SRC python
@@ -2460,7 +2557,7 @@ class TestPersistenceDelegate(TestCase):
 #+END_SRC
 
 
-***  Delete Developer 
+*** Delete Developer 
     This function delete existing developer.
 #+NAME: persistence_delete_developer
 #+BEGIN_SRC python
@@ -2518,7 +2615,7 @@ class TestPersistenceDelegate(TestCase):
 #+END_SRC
 
 
-***  Delete Institute 
+*** Delete Institute 
     This function deletes existing institute.
 #+NAME: persistence_delete_institute
 #+BEGIN_SRC python
@@ -2578,7 +2675,7 @@ class TestPersistenceDelegate(TestCase):
 #+END_SRC
 
 
-***  Delete HostingInfo 
+*** Delete HostingInfo 
     This function deletes existing hosting_info.
 #+NAME: persistence_delete_hosting_info
 #+BEGIN_SRC python
@@ -2634,7 +2731,7 @@ class TestPersistenceDelegate(TestCase):
 #+END_SRC
 
 
-***  Delete Asset 
+*** Delete Asset 
     This function delete existing asset.
 #+NAME: persistence_delete_asset
 #+BEGIN_SRC python
@@ -2689,7 +2786,7 @@ class TestPersistenceDelegate(TestCase):
 
 
 
-***  Delete IntegrationStatus
+*** Delete IntegrationStatus
     This function deletes existing integration_status.
 #+NAME: persistence_delete_integration_status
 #+BEGIN_SRC python
@@ -2741,7 +2838,48 @@ class TestPersistenceDelegate(TestCase):
 
 
 
-***  Add experiments to a Lab
+*** Delete Phase 
+    This function delete existing phase.
+#+NAME: persistence_delete_phase
+#+BEGIN_SRC python
+    def delete_phase(self, ph_id):
+        current_app.logger.debug("running delete on phase")
+        record = Phase.get_by_id(ph_id)
+        if not record:
+            abort(404, 'No Phase with id %s' % (ph_id))
+        else:
+            try:
+                record.delete()
+                current_app.logger.debug("completed delete"
+                                         " on phase")
+            except Exception, e:
+                current_app.logger.error("Exception = %s" % str(e))
+                print e
+                abort(500, str(e))
+
+        return ph_id
+
+#+END_SRC
+
+**** Tests
+#+NAME: test_persistence_delete_phase
+#+BEGIN_SRC python
+    def test_delete_phase(self):
+         print "test_delete_phase"
+         phase1 = Phase(phase_id=1)
+         phase1.save()
+
+         phase2 = Phase(phase_id=2)
+         phase2.save()
+
+         self.persistence_delegate.delete_phase(2)
+
+         self.assertEqual(len(Phase.get_all()), 1)
+
+#+END_SRC
+
+
+*** Add experiments to a Lab
     This function adds experiments to a given lab.
 #+NAME: persistence_add_experiments_to_lab
 #+BEGIN_SRC python
@@ -2790,18 +2928,21 @@ class TestPersistenceDelegate(TestCase):
 
          institute_name = "IIT Kanpur"
          institute_id = "IITK"
-         inst = Institute(institute_name=institute_name, institute_id=institute_id, assets=[asset])
+         inst = Institute(institute_name=institute_name,
+                              institute_id=institute_id,
+                              assets=[asset])
          inst.save()
 
          discipline_name = "IIT Kanpur"
          discipline_id = "IITK"
-         discipline = Discipline(discipline_name=discipline_name, discipline_id=discipline_id,
-                                     assets=[asset])
+         discipline = Discipline(discipline_name=discipline_name,
+                                discipline_id=discipline_id,
+                                assets=[asset])
          discipline.save()
 
          integration_level = 4
          integration_status = IntegrationStatus(integration_level=
-                                                    integration_level)
+                                                integration_level)
          integration_status.save()
 
          dev_name = Name(name="Mohit Tahiliani")
@@ -2823,10 +2964,16 @@ class TestPersistenceDelegate(TestCase):
          section = Section(name=name)
          section.save()
 
-         lab = Lab(lab_name=lab_name, lab_id=lab_id, overview=overview,
-                       institute=inst, discipline=discipline,
+         phase1=Phase(phase_id=1)
+         phase1.save()
+
+         lab = Lab(lab_name=lab_name, lab_id=lab_id,
+                       overview=overview,
+                       institute=inst,
+                       discipline=discipline,
                        hosting_info=[host], assets=[asset],
-                       experiments=[], developers=[dev], sections=[section],
+                       experiments=[], developers=[dev],
+                       sections=[section], phase=[phase1],
                        integration_status=integration_status)
 
          lab.save()
@@ -2834,11 +2981,15 @@ class TestPersistenceDelegate(TestCase):
          exp_name = "Number Systems"
          exp_id = "EE99777"
          overview = "overview"
-         experiment = Experiment(exp_name=exp_name, exp_id=exp_id, \
-                                     overview=overview, sections=[],
-                                     institute=inst, discipline=discipline, 
+         experiment = Experiment(exp_name=exp_name,
+                                     exp_id=exp_id, 
+                                     overview=overview,
+                                     sections=[],
+                                     institute=inst,
+                                     discipline=discipline, 
                                      integration_status=integration_status,
-                                     assets=[asset], developers=[dev],
+                                     assets=[asset],
+                                     developers=[dev],
                                      hosting_info=[host])
          experiment.save()
         
@@ -2855,7 +3006,7 @@ class TestPersistenceDelegate(TestCase):
 #+END_SRC
 
 
-***  Add assets to a Lab
+*** Add assets to a Lab
     This function adds assets to a given lab.
 #+NAME: persistence_add_assets_to_lab
 #+BEGIN_SRC python
@@ -2966,7 +3117,7 @@ class TestPersistenceDelegate(TestCase):
 #+END_SRC
 
 
-***  Add labs to an Institute
+*** Add labs to an Institute
     This function adds labs to a given institute.
 #+NAME: persistence_add_labs_to_institute
 #+BEGIN_SRC python
@@ -3011,18 +3162,21 @@ class TestPersistenceDelegate(TestCase):
 
          institute_name = "IIT Kanpur"
          institute_id = "IITK"
-         inst = Institute(institute_name=institute_name, institute_id=institute_id, assets=[asset])
+         inst = Institute(institute_name=institute_name,
+                              institute_id=institute_id,
+                              assets=[asset])
          inst.save()
 
          discipline_name = "IIT Kanpur"
          discipline_id = "IITK"
-         discipline = Discipline(discipline_name=discipline_name, discipline_id=discipline_id,
-                                     assets=[asset])
+         discipline = Discipline(discipline_name=discipline_name,
+                                discipline_id=discipline_id,
+                                assets=[asset])
          discipline.save()
 
          integration_level = 4
          integration_status = IntegrationStatus(integration_level=
-                                                    integration_level)
+                                                integration_level)
          integration_status.save()
 
          dev_name = Name(name="Mohit Tahiliani")
@@ -3044,10 +3198,18 @@ class TestPersistenceDelegate(TestCase):
          section = Section(name=name)
          section.save()
 
-         lab = Lab(lab_name=lab_name, lab_id=lab_id, overview=overview, 
-                       institute=inst, discipline=discipline,sections=[section],
-                       hosting_info=[host],  assets=[], experiments=[],
-                       developers=[dev], integration_status=integration_status)
+         phase1=Phase(phase_id=1)
+         phase1.save()
+
+         lab = Lab(lab_name=lab_name, lab_id=lab_id,
+                       overview=overview, 
+                       institute=inst,
+                       discipline=discipline,
+                       sections=[section],
+                       hosting_info=[host],  assets=[],
+                       experiments=[], phase=[phase1],
+                       developers=[dev],
+                       integration_status=integration_status)
 
          lab.save()
          
@@ -3064,7 +3226,7 @@ class TestPersistenceDelegate(TestCase):
 #+END_SRC
 
 
-***  Add sections to a Experiment
+*** Add sections to a Experiment
     This function adds sections to a given experiment.
 #+NAME: persistence_add_sections_to_experiment
 #+BEGIN_SRC python
@@ -3158,7 +3320,7 @@ class TestPersistenceDelegate(TestCase):
 #+END_SRC
 
 
-***  Get an object
+*** Get an object
     A generic function to find an object of type =cls= matching a given a criteria
 
 #+NAME: persistence_get_object
@@ -3175,7 +3337,7 @@ class TestPersistenceDelegate(TestCase):
 #+END_SRC
 	
 
-***  Get Lab
+*** Get Lab
     This function returns a lab if present in the database.  If the lab is
     not present, =None= type is returned.
 #+NAME: persistence_get_lab
@@ -3206,18 +3368,21 @@ class TestPersistenceDelegate(TestCase):
 
          institute_name = "IIT Kanpur"
          institute_id = "IITK"
-         inst = Institute(institute_name=institute_name, institute_id=institute_id, assets=[asset])
+         inst = Institute(institute_name=institute_name,
+                              institute_id=institute_id,
+                              assets=[asset])
          inst.save()
 
          discipline_name = "IIT Kanpur"
          discipline_id = "IITK"
-         discipline = Discipline(discipline_name=discipline_name, discipline_id=discipline_id,
-                                     assets=[asset])
+         discipline = Discipline(discipline_name=discipline_name,
+                                discipline_id=discipline_id,
+                                assets=[asset])
          discipline.save()
 
          integration_level = 4
-         integration_status = IntegrationStatus(integration_level=
-                                                    integration_level)
+         integration_status = IntegrationStatus\
+           (integration_level=integration_level)
          integration_status.save()
 
          dev_name = Name(name="Mohit Tahiliani")
@@ -3239,10 +3404,16 @@ class TestPersistenceDelegate(TestCase):
          section = Section(name=name)
          section.save()
 
-         lab = Lab(lab_name=lab_name1, lab_id=lab_id1, overview=overview,
-                       institute=inst, discipline=discipline, 
+         phase1=Phase(phase_id=1)
+         phase1.save()
+
+         lab = Lab(lab_name=lab_name1, lab_id=lab_id1,
+                       overview=overview,
+                       institute=inst,
+                       discipline=discipline, 
                        hosting_info=[host], assets=[asset],
-                       experiments=[], developers=[dev], sections=[section], 
+                       experiments=[], developers=[dev],
+                       sections=[section], phase=[phase1], 
                        integration_status=integration_status)
 
          lab.save()
@@ -3256,7 +3427,7 @@ class TestPersistenceDelegate(TestCase):
 
 
 
-***  Get AssetType
+*** Get AssetType
     This function returns a lab if present in the database.  If the lab is
     not present, =None= type is returned.
 #+NAME: persistence_get_asset_type
@@ -3320,9 +3491,12 @@ class TestPersistenceDelegate(TestCase):
          section = Section(name=name)
          section.save()
 
+         phase1=Phase(phase_id=1)
+         phase1.save()
+
          lab = Lab(lab_name=lab_name1, lab_id=lab_id1, overview=overview,
                        institute=inst, discipline=discipline, 
-                       hosting_info=[host], assets=[asset],
+                       hosting_info=[host], assets=[asset], phase=[phase1],
                        experiments=[], developers=[dev], sections=[section], 
                        integration_status=integration_status)
 
@@ -3336,7 +3510,7 @@ class TestPersistenceDelegate(TestCase):
 #+END_SRC
 
 
-***  Get Section
+*** Get Section
     This function returns a section if present in the database.  If the lab is
     not present, =None= type is returned.
 #+NAME: persistence_get_section
@@ -3366,7 +3540,7 @@ class TestPersistenceDelegate(TestCase):
 
 
 
-***  Get Name
+*** Get Name
     This function returns a name if present in the database.  If the name is
     not present, =None= type is returned.
 #+NAME: persistence_get_name
@@ -3396,7 +3570,7 @@ class TestPersistenceDelegate(TestCase):
 
 
 
-***  Get Email
+*** Get Email
     This function returns a email if present in the database.  If the email is
     not present, =None= type is returned.
 #+NAME: persistence_get_email
@@ -3426,7 +3600,7 @@ class TestPersistenceDelegate(TestCase):
 
 
 
-***  Get Developer
+*** Get Developer
     This function returns a developer if present in the database.  If the
     developer is not present, =None= type is returned.
 #+NAME: persistence_get_developer
@@ -3478,7 +3652,7 @@ class TestPersistenceDelegate(TestCase):
 
 
 
-***  Get Experiment
+*** Get Experiment
     This function returns experiment if present in the database.  If the experiment is
     not present, =None= type is returned.
 #+NAME: persistence_get_experiment
@@ -3555,7 +3729,7 @@ class TestPersistenceDelegate(TestCase):
 
 
 
-***  Get Institute
+*** Get Institute
     This function returns institute if present in the database. If the institute is
     not present, =None= type is returned.
 #+NAME: persistence_get_institute
@@ -3597,7 +3771,7 @@ class TestPersistenceDelegate(TestCase):
 #+END_SRC
 
 
-***  Get Discipline
+*** Get Discipline
     This function returns discipline if present in the database.  If the discipline is
     not present, =None= type is returned.
 #+NAME: persistence_get_discipline 
@@ -3636,7 +3810,7 @@ class TestPersistenceDelegate(TestCase):
 #+END_SRC
 
 
-***  Get Asset
+*** Get Asset
     This function returns asset if present in the database.  If the asset is
     not present, =None= type is returned.
 #+NAME: persistence_get_asset
@@ -3662,6 +3836,7 @@ class TestPersistenceDelegate(TestCase):
          asset.save()
          asset_obj = self.persistence_delegate.get_asset(asset_type=
                                                 asset.get("asset_type"))
+                           
          self.assertEqual(asset_obj.get("asset_type"),
                               asset.get("asset_type"))
 
@@ -3670,7 +3845,7 @@ class TestPersistenceDelegate(TestCase):
 
 
 
-***  Get Labs
+*** Get Labs
     This function returns all labs if present in the database.  If the labs are
     not present, =None= type is returned.
 #+NAME: persistence_get_labs
@@ -3708,18 +3883,21 @@ class TestPersistenceDelegate(TestCase):
 
          institute_name = "IIT Kanpur"
          institute_id = "IITK"
-         inst = Institute(institute_name=institute_name, institute_id=institute_id, assets=[asset])
+         inst = Institute(institute_name=institute_name,
+                              institute_id=institute_id,
+                              assets=[asset])
          inst.save()
 
          discipline_name = "IIT Kanpur"
          discipline_id = "IITK"
-         discipline = Discipline(discipline_name=discipline_name, discipline_id=discipline_id,
-                                     assets=[asset])
+         discipline = Discipline(discipline_name=discipline_name,
+                                discipline_id=discipline_id,
+                                assets=[asset])
          discipline.save()
 
          integration_level = 4
-         integration_status = IntegrationStatus(integration_level=
-                                                    integration_level)
+         integration_status = IntegrationStatus\
+           (integration_level=integration_level)
          integration_status.save()
 
          dev_name = Name(name="Mohit Tahiliani")
@@ -3741,10 +3919,16 @@ class TestPersistenceDelegate(TestCase):
          section = Section(name=name)
          section.save()
 
-         lab1 = Lab(lab_name=lab_name1, lab_id=lab_id1, overview=overview,
-                        institute=inst, discipline=discipline, 
+         phase1=Phase(phase_id=1)
+         phase1.save()
+
+         lab1 = Lab(lab_name=lab_name1, lab_id=lab_id1,
+                        overview=overview,
+                        institute=inst,
+                        discipline=discipline, 
                         hosting_info=[host], assets=[asset],
-                        experiments=[], developers=[dev], sections=[section], 
+                        experiments=[], developers=[dev],
+                        sections=[section], phase=[phase1], 
                         integration_status=integration_status)
 
          lab1.save()
@@ -3753,17 +3937,26 @@ class TestPersistenceDelegate(TestCase):
          lab_id2="CSE02"
 
 
-         lab2 = Lab(lab_name=lab_name2, lab_id=lab_id2, overview=overview, \
-                        institute=inst, discipline=discipline, assets=[asset],\
-                        experiments=[], integration_status=integration_status,
-                        developers=[dev], hosting_info=[host], sections=[section])
+         lab2 = Lab(lab_name=lab_name2, lab_id=lab_id2,
+                        overview=overview, 
+                        institute=inst,
+                        discipline=discipline,
+                        assets=[asset],
+                        experiments=[], phase=[phase1],
+                        integration_status=integration_status,
+                        developers=[dev],
+                        hosting_info=[host],
+                        sections=[section])
 
          lab2.save()
 
-         labs_list = self.persistence_delegate.get_labs(overview=overview)
+         labs_list = self.persistence_delegate.\
+           get_labs(overview=overview)
 
-         self.assertEqual(labs_list[0].get("overview"), overview)
-         self.assertEqual(labs_list[1].get("overview"), overview)
+         self.assertEqual(labs_list[0].get("overview"),
+                              overview)
+         self.assertEqual(labs_list[1].get("overview"),
+                              overview)
 
     def test_get_lab_with_given_lab_id(self):
          print "test_get_lab_with_given_lab_id"
@@ -3780,18 +3973,21 @@ class TestPersistenceDelegate(TestCase):
 
          institute_name = "IIT Kanpur"
          institute_id = "IITK"
-         inst = Institute(institute_name=institute_name, institute_id=institute_id, assets=[asset])
+         inst = Institute(institute_name=institute_name,
+                              institute_id=institute_id,
+                              assets=[asset])
          inst.save()
 
          discipline_name = "IIT Kanpur"
          discipline_id = "IITK"
-         discipline = Discipline(discipline_name=discipline_name, discipline_id=discipline_id,
-                                     assets=[asset])
+         discipline = Discipline(discipline_name=discipline_name,
+                                discipline_id=discipline_id,
+                                assets=[asset])
          discipline.save()
 
          integration_level = 4
-         integration_status = IntegrationStatus(integration_level=
-                                                    integration_level)
+         integration_status = IntegrationStatus\
+         (integration_level=integration_level)
          integration_status.save()
 
          dev_name = Name(name="Mohit Tahiliani")
@@ -3813,10 +4009,16 @@ class TestPersistenceDelegate(TestCase):
          section = Section(name=name)
          section.save()
 
-         lab1 = Lab(lab_name=lab_name1, lab_id=lab_id1, overview=overview,
-                        institute=inst, discipline=discipline,
+         phase1=Phase(phase_id=1)
+         phase1.save()
+         
+         lab1 = Lab(lab_name=lab_name1, lab_id=lab_id1,
+                        overview=overview,
+                        institute=inst,
+                        discipline=discipline,
                         hosting_info=[host], assets=[asset],
-                        experiments=[], developers=[dev], sections=[section],
+                        experiments=[], developers=[dev],
+                        sections=[section], phase=[phase1],
                         integration_status=integration_status)
 
          lab1.save()
@@ -3824,16 +4026,24 @@ class TestPersistenceDelegate(TestCase):
          lab_name2="Data Structures"
          lab_id2="CSE02"
 
-         lab2 = Lab(lab_name=lab_name2, lab_id=lab_id2, overview=overview, \
-                        institute=inst, discipline=discipline, assets=[asset],\
-                        experiments=[], integration_status=integration_status,\
-                        developers=[dev], sections=[section], hosting_info=[host])
+         lab2 = Lab(lab_name=lab_name2, lab_id=lab_id2,
+                        overview=overview, 
+                        institute=inst,
+                        discipline=discipline,
+                        assets=[asset],
+                        experiments=[], phase=[phase1],
+                        integration_status=integration_status,
+                        developers=[dev],
+                        sections=[section],
+                        hosting_info=[host])
 
          lab2.save()
 
-         labs_list = self.persistence_delegate.get_labs(lab_id=lab_id1)
+         labs_list = self.persistence_delegate.get_labs\
+           (lab_id=lab_id1)
 
-         self.assertEqual(labs_list[0].get("lab_id"), lab_id1)
+         self.assertEqual(labs_list[0].get("lab_id"),
+                              lab_id1)
 
     def test_get_lab_with_given_lab_id_and_lab_name(self):
          print "test_get_lab_with_given_lab_id_and_labname"
@@ -3850,18 +4060,21 @@ class TestPersistenceDelegate(TestCase):
 
          institute_name = "IIT Kanpur"
          institute_id = "IITK"
-         inst = Institute(institute_name=institute_name, institute_id=institute_id, assets=[asset])
+         inst = Institute(institute_name=institute_name,
+                              institute_id=institute_id,
+                              assets=[asset])
          inst.save()
 
          discipline_name = "computer science"
          discipline_id = "cse"
-         discipline = Discipline(discipline_name=discipline_name, discipline_id=discipline_id,
-                                     assets=[asset])
+         discipline = Discipline(discipline_name=discipline_name,
+                                discipline_id=discipline_id,
+                                assets=[asset])
          discipline.save()
 
          integration_level = 4
-         integration_status = IntegrationStatus(integration_level=
-                                                    integration_level)
+         integration_status = IntegrationStatus\
+           (integration_level=integration_level)
          integration_status.save()
 
          dev_name = Name(name="Mohit Tahiliani")
@@ -3883,26 +4096,39 @@ class TestPersistenceDelegate(TestCase):
          section = Section(name=name)
          section.save()
 
-         lab1 = Lab(lab_name=lab_name1, lab_id=lab_id1, overview=overview,
-                        institute=inst, discipline=discipline, 
+         phase1=Phase(phase_id=1)
+         phase1.save()
+
+         lab1 = Lab(lab_name=lab_name1, lab_id=lab_id1,
+                        overview=overview,
+                        institute=inst,
+                        discipline=discipline, 
                         hosting_info=[host], assets=[asset],
-                        experiments=[], developers=[dev], sections=[section], 
+                        experiments=[], developers=[dev],
+                        sections=[section], phase=[phase1], 
                         integration_status=integration_status)
          lab1.save()
 
          lab_name2="Data Structures"
          lab_id2="CSE02"
 
-         lab2 = Lab(lab_name=lab_name2, lab_id=lab_id2, overview=overview, \
-                        institute=inst, discipline=discipline, assets=[asset],\
-                        experiments=[], integration_status=integration_status,
-                        developers=[dev], sections=[section], hosting_info=[host])
+         lab2 = Lab(lab_name=lab_name2, lab_id=lab_id2,
+                        overview=overview, 
+                        institute=inst,
+                        discipline=discipline,
+                        assets=[asset],
+                        experiments=[],
+                        integration_status=integration_status,
+                        developers=[dev],
+                        sections=[section], phase=[phase1],
+                        hosting_info=[host])
          lab2.save()
 
-         labs_list = self.persistence_delegate.get_labs(lab_id=lab_id1,
-                                                            lab_name=lab_name1)
+         labs_list = self.persistence_delegate.\
+           get_labs(lab_id=lab_id1, lab_name=lab_name1)
 
-         self.assertEqual(labs_list[0].get("lab_id"), lab_id1)
+         self.assertEqual(labs_list[0].get("lab_id"),
+                              lab_id1)
 
     def test_get_lab_with_given_institute(self):
          print "test_get_lab_with_given_institute"
@@ -3920,18 +4146,21 @@ class TestPersistenceDelegate(TestCase):
 
          institute_name = "IIT Kanpur"
          institute_id = "IITK"
-         inst = Institute(institute_name=institute_name, institute_id=institute_id, assets=[asset])
+         inst = Institute(institute_name=institute_name,
+                              institute_id=institute_id,
+                              assets=[asset])
          inst.save()
 
          discipline_name = "IIT Kanpur"
          discipline_id = "IITK"
-         discipline = Discipline(discipline_name=discipline_name, discipline_id=discipline_id,
-                                     assets=[asset])
+         discipline = Discipline(discipline_name=discipline_name,
+                                discipline_id=discipline_id,
+                                assets=[asset])
          discipline.save()
 
          integration_level = 4
-         integration_status = IntegrationStatus(integration_level=
-                                                    integration_level)
+         integration_status = IntegrationStatus\
+           (integration_level=integration_level)
          integration_status.save()
 
          dev_name = Name(name="Mohit Tahiliani")
@@ -3953,31 +4182,46 @@ class TestPersistenceDelegate(TestCase):
          section = Section(name=name)
          section.save()
 
-         lab1 = Lab(lab_name=lab_name1, lab_id=lab_id1, overview=overview,
-                        institute=inst, discipline=discipline, 
+         phase1=Phase(phase_id=1)
+         phase1.save()
+
+         lab1 = Lab(lab_name=lab_name1, lab_id=lab_id1,
+                        overview=overview,
+                        institute=inst,
+                        discipline=discipline, 
                         hosting_info=[host], assets=[asset],
-                        experiments=[], developers=[dev], sections=[section], 
+                        experiments=[], developers=[dev],
+                        sections=[section], phase=[phase1], 
                         integration_status=integration_status)
          lab1.save()
 
          lab_name2="Data Structures"
          lab_id2="CSE02"
 
-         lab2 = Lab(lab_name=lab_name2, lab_id=lab_id2, overview=overview, \
-                        institute=inst, discipline=discipline, assets=[asset],\
-                        experiments=[], integration_status=integration_status,
-                        developers=[dev], sections=[section], hosting_info=[host])
+         lab2 = Lab(lab_name=lab_name2, lab_id=lab_id2,
+                        overview=overview, 
+                        institute=inst,
+                        discipline=discipline,
+                        assets=[asset],
+                        experiments=[], phase=[phase1],
+                        integration_status=integration_status,
+                        developers=[dev],
+                        sections=[section],
+                        hosting_info=[host])
          lab2.save()
 
-         labs_list = self.persistence_delegate.get_labs(institute=inst)
+         labs_list = self.persistence_delegate.\
+           get_labs(institute=inst)
 
-         self.assertEqual(labs_list[0].get("institute").get("institute_id"),
-                              lab1.get("institute").get("institute_id"))
+         self.assertEqual(labs_list[0].get("institute").\
+                              get("institute_id"),
+                              lab1.get("institute").\
+                              get("institute_id"))
 
 #+END_SRC
 
 
-***  Get Institutes
+*** Get Institutes
     This function returns all institutes if present in the database.  If institutes are
     not present, =None= type is returned.
 #+NAME: persistence_get_institutes
@@ -4030,7 +4274,7 @@ class TestPersistenceDelegate(TestCase):
 #+END_SRC
 
 
-***  Get HostingInfo
+*** Get HostingInfo
     This function returns hosting_info if present in the database. If the hosting_info is
     not present, =None= type is returned.
 #+NAME: persistence_get_hosting_info
@@ -4074,7 +4318,7 @@ class TestPersistenceDelegate(TestCase):
 #+END_SRC
 
 
-***  Get IntegrationStatus
+*** Get IntegrationStatus
     This function returns integration_status if present in the database. If the integration_status is
     not present, =None= type is returned.
 #+NAME: persistence_get_integration_status
@@ -4104,7 +4348,7 @@ class TestPersistenceDelegate(TestCase):
 #+END_SRC
 
 
-***  Get Assets
+*** Get Assets
     This function returns all assets if present in the database.  If assets are
     not present, =None= type is returned.
 #+NAME: persistence_get_assets
@@ -4150,7 +4394,34 @@ class TestPersistenceDelegate(TestCase):
 #+END_SRC
 
 
-***  Get Lab By ID
+*** Get Phase
+    This function returns a phase if present in the database.  If the phase is
+    not present, =None= type is returned.
+#+NAME: persistence_get_phase
+#+BEGIN_SRC python
+    def get_phase(self, **kwargs):
+        return self.get_object(Phase, **kwargs)
+
+#+END_SRC
+
+**** Tests
+#+NAME: test_persistence_get_phase
+#+BEGIN_SRC python
+    def test_get_phase(self):
+         print "test_get_phase"
+         phase1 = Phase(phase_id=1)
+         phase1.save()
+
+         phase_obj = self.persistence_delegate.get_phase\
+           (phase_id=phase1.get("phase_id"))
+         self.assertEqual(phase_obj.get("phase_id"),
+                              phase1.get("phase_id"))
+
+#+END_SRC
+
+
+
+*** Get Lab By ID
     This function returns a lab object by an ID if present in database,
     otherwise, =None= type is returned.
 #+NAME: persistence_get_lab_by_id
@@ -4188,18 +4459,21 @@ class TestPersistenceDelegate(TestCase):
 
          institute_name = "IIT Kanpur"
          institute_id = "IITK"
-         inst = Institute(institute_name=institute_name, institute_id=institute_id, assets=[asset])
+         inst = Institute(institute_name=institute_name,
+                              institute_id=institute_id,
+                              assets=[asset])
          inst.save()
 
          discipline_name = "IIT Kanpur"
          discipline_id = "IITK"
-         discipline = Discipline(discipline_name=discipline_name, discipline_id=discipline_id,
-                                     assets=[asset])
+         discipline = Discipline(discipline_name=discipline_name,
+                                discipline_id=discipline_id,
+                                assets=[asset])
          discipline.save()
 
          integration_level = 4
-         integration_status = IntegrationStatus(integration_level=
-                                                    integration_level)
+         integration_status = IntegrationStatus\
+           (integration_level=integration_level)
          integration_status.save()
 
          dev_name = Name(name="Mohit Tahiliani")
@@ -4221,10 +4495,16 @@ class TestPersistenceDelegate(TestCase):
          section = Section(name=name)
          section.save()
 
-         lab = Lab(lab_name=lab_name1, lab_id=lab_id1, overview=overview, 
-                       institute=inst, discipline=discipline, 
+         phase1=Phase(phase_id=1)
+         phase1.save()
+
+         lab = Lab(lab_name=lab_name1, lab_id=lab_id1,
+                       overview=overview, 
+                       institute=inst,
+                       discipline=discipline, 
                        hosting_info=[host], assets=[asset],
-                       experiments=[], developers=[dev],sections=[section], 
+                       experiments=[], developers=[dev],
+                       sections=[section], phase=[phase1], 
                        integration_status=integration_status)
          lab.save()
 
@@ -4237,7 +4517,7 @@ class TestPersistenceDelegate(TestCase):
 
 
 
-***  Get Experiment By ID
+*** Get Experiment By ID
     This function returns a experiment object by an ID if present in database,
     otherwise, =None= type is returned.
 
@@ -4321,7 +4601,7 @@ class TestPersistenceDelegate(TestCase):
 #+END_SRC
 
 
-***  Get Institute By ID
+*** Get Institute By ID
     This function returns an institute object by an ID if present in database,
     otherwise, =None= type is returned.
 
@@ -4367,7 +4647,7 @@ class TestPersistenceDelegate(TestCase):
 #+END_SRC
 
 
-***  Get Discipline By ID
+*** Get Discipline By ID
     This function returns an discipline object by an ID if present in database,
     otherwise, =None= type is returned.
 
@@ -4412,7 +4692,8 @@ class TestPersistenceDelegate(TestCase):
 
 #+END_SRC
 
-***  Update Name
+
+*** Update Name
     This function updates existing name.
 #+NAME: persistence_update_name
 #+BEGIN_SRC python
@@ -4522,6 +4803,7 @@ if __name__ == '__main__':
 <<persistence_hosting_info_exists>>
 <<persistence_asset_exists>>
 <<persistence_integration_status_exists>>
+<<persistence_phase_exists>>
 
 <<persistence_add_lab>>
 <<persistence_add_experiment>>
@@ -4561,19 +4843,21 @@ if __name__ == '__main__':
 <<persistence_add_name>>
 <<persistence_add_email>>
 <<persistence_add_developer>>
+<<persistence_add_phase>>
 
 <<persistence_update_developer>>
 
 <<persistence_delete_name>>
 <<persistence_delete_email>>
 <<persistence_delete_developer>>
+<<persistence_delete_phase>>
 
 <<persistence_get_name>>
 <<persistence_get_email>>
 <<persistence_get_developer>>
 <<persistence_get_asset_type>>
 <<persistence_update_name>>
-
+<<persistence_get_phase>>
 #+end_src
 
 
@@ -4605,8 +4889,9 @@ if __name__ == '__main__':
 <<test_persistence_discipline_exists>>
 <<test_persistence_hosting_info_exists>>
 <<test_persistence_asset_exists>>
-
+<<test_persistence_phase_exists>>
 <<test_persistence_integration_status_exists>>
+
 <<test_persistence_add_lab>>
 <<test_persistence_add_section>>
 <<test_persistence_add_experiment>>
@@ -4616,6 +4901,7 @@ if __name__ == '__main__':
 <<test_persistence_add_asset>>
 #<<test_persistence_add_asset_type>>
 <<test_persistence_add_integration_status>>
+<<test_persistence_add_phase>>
 
 <<test_persistence_delete_lab>>
 <<test_persistence_delete_section>>
@@ -4654,7 +4940,9 @@ if __name__ == '__main__':
 <<test_persistence_delete_name>>
 <<test_persistence_delete_email>>
 <<test_persistence_delete_developer>>
+<<test_persistence_delete_phase>>
 
+<<test_persistence_get_phase>>
 <<test_persistence_get_name>>
 <<test_persistence_get_email>>
 <<test_persistence_get_developer>>
